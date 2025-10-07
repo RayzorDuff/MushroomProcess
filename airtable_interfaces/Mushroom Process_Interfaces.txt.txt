@@ -1,0 +1,380 @@
+Wherever a button runs a script, pass lotRecordId = Record (ID) of the current record unless noted.
+
+Tip: on every page, add a read-only text block bound to ui_error near the buttons so users can see validation messages.
+
+Sterilizer IN (create a run)
+
+Purpose: Log a new sterilization/pasteurization run and its plan.
+
+Interfaces → New page → Record list + detail.
+Source table: sterilization_runs.
+
+List filter (left pane): (optional) Show recent runs; no strict filter required.
+
+Detail fields (make editable):
+
+process_type (single select: Sterilized | Pasteurized)
+
+planned_item (link → items) → filter picker to items whose category ∈ {grain, substrate, casing}
+
+planned_recipe (link → recipes) → filter to match item/category
+
+planned_unit_size (number)
+
+planned_count (number)
+
+start_time (date/time) – usually set “Now”
+
+operator (single line)
+
+ui_error (read-only)
+
+Button: “Start Run” → Run a script (Automation: Sterilizer IN – Validate & Start).
+Script input: runRecordId = Record (ID).
+What the script does: validates required/positive fields, clears ui_error on success.
+
+Sterilizer OUT (complete a run, create lots)
+
+Purpose: Enter outcome counts and auto-create bags.
+
+New page (record list + detail). Table: sterilization_runs.
+
+List filter: end_time is empty (i.e., open runs).
+
+Detail fields (editable):
+
+good_count (number)
+
+destroyed_count (number)
+
+(show) planned_count, process_type, planned_item, planned_recipe, planned_unit_size, start_time
+
+end_time (date/time) – leave empty; the script sets it
+
+ui_error (read-only)
+
+Button: “Complete Run & Create Lots” → Run a script (Automation: Sterilizer OUT – Validate & Create Lots).
+Input: runRecordId = Record (ID).
+Script logic (we already built it):
+
+Require good_count + destroyed_count = planned_count and both numbers present.
+
+Sets end_time = NOW().
+
+Bulk-creates lots for each good bag:
+
+item_id = planned_item, recipe_id = planned_recipe
+
+unit_size = planned_unit_size
+
+steri_run_id link/reference
+
+status = Sterilized (or Pasteurized if process_type=Pasteurized)
+
+Set location_id if you track a cooling rack.
+
+Logs Events of type Sterilized (or Pasteurized).
+
+Inoculation – LC → Grain
+
+Purpose: Select LC source and volume; mark grain as colonizing; decrement LC.
+
+New page. Table: lots.
+
+List filter:
+
+items.category = "grain"
+
+status in {Sterilized, Sealed} (whatever you use post-sterilizer)
+
+Detail fields:
+
+item_id (link, read-only or editable as you prefer)
+
+recipe_id (link)
+
+unit_size (number)
+
+lc_lot_id (link → lots) → enable Link/unlink records, filter picker to items.category ∈ {"lc_flask","lc_syringe"} and (optionally) status in {Colonizing,Fridge}
+
+lc_volume_ml (number)
+
+override_inoc_time (date/time, optional)
+
+inoculated_at (date/time, read-only; script sets this)
+
+status (read-only; script sets to Colonizing)
+
+ui_error (read-only)
+
+Button: “Inoculate Grain” → Run a script (Automation: LC→Grain Inoculate).
+Input: lotRecordId.
+Script (latest you have): validates, uses override_inoc_time or now → writes inoculated_at, sets Colonizing, copies strain_id from LC, decrements LC remaining_volume_ml, logs Events.type="Inoculated".
+
+LC – Draw Syringes (from a flask)
+
+Purpose: Convert an LC flask into N × 10 ml syringes and decrement flask volume.
+
+Page on lots.
+
+List filter: items.category = "lc_flask" and (optionally) status in {Colonizing,Fridge} and remaining_volume_ml > 0.
+
+Detail fields:
+
+(flask) item_id, strain_id, remaining_volume_ml (read-only)
+
+Inputs: syringe_item_id (link → items, filter to category="lc_syringe"), syringe_count (number)
+
+ui_error (read-only)
+
+Button: “Make Syringes” → Run a script (Automation: LC Draw Syringes).
+Input: lotRecordId.
+Script: validates syringe_count ≥ 1 and syringe_item_id set; creates that many syringe lots (10 ml each), decrements flask remaining_volume_ml by 10 × syringe_count, logs Events.type="SyringesDrawn".
+
+LC – Inoculate Flask (from a syringe)
+
+Purpose: Use a purchased/house syringe to inoculate a fresh flask.
+
+Page on lots.
+
+List filter: items.category = "lc_flask" and status not in {Consumed,Retired}.
+
+Detail fields:
+
+item_id (flask), recipe_id
+
+lc_lot_id (link → lots, filter picker to items.category="lc_syringe" and remaining_volume_ml > 0)
+
+lc_volume_ml (number)
+
+override_inoc_time (optional)
+
+ui_error (read-only)
+
+Button: “Inoculate Flask” → Run a script (Automation: LC→Flask Inoculate).
+Input: lotRecordId.
+Script: validates, sets flask status=Colonizing, sets strain from syringe, initializes/maintains flask volume if you track it, decrements syringe remaining_volume_ml, logs event (LCInoculateFlask) with timestamp.
+
+LC – Receive Purchased Syringes
+
+Purpose: Intake vendor syringes as LC lots with 10 ml volume.
+
+Page on lots or (simpler) a Form page attached to lots.
+
+Form fields (required):
+
+item_id (pick the syringe SKU; filter category="lc_syringe")
+
+strain_id
+
+(optional: vendor fields you keep)
+
+On submit → Automation: LC Receive Syringe (Run a script).
+Script: creates a lots record with remaining_volume_ml=10, status="Fridge" (or your default), logs Received.
+
+Dark Room
+
+Purpose: Manage colonization, casing, fridge moves, cold shock, and (optionally) starting fruiting.
+
+Page on lots.
+
+List filter: either location=Dark Room or status in {Inoculated,Colonizing,FullyColonized}.
+
+Detail fields (editable as needed):
+
+status (read-only; set by script)
+
+Buttons you use (we switched from an “Action” select to 4 buttons):
+
+“Fully Colonized” → updates {action}="FullyColonized"
+
+“Shake” → {action}="Shake"
+
+“Move to Fridge” → {action}="MoveToFridge"
+
+“Cold Shock” → {action}="ColdShock"
+
+“Start Fruiting” → {action}="StartFruiting" (duplicate of Fruiting page starter)
+
+Casing fields (only for fruiting blocks):
+
+casing_lot_id (link → lots, filter picker to items.category="casing")
+
+ui_error (read-only)
+
+Automation: Dark Room – Actions (trigger: When {action} changes or When record enters view).
+Script behaviors (we built them):
+
+Validation:
+
+Only fruiting_block can ApplyCasing; reject otherwise.
+
+Only FullyColonized items can MoveToFridge or ColdShock (LC syringes from vendor are exempt where applicable).
+
+ApplyCasing: create Events.type="CasingApplied", link casing_lot_id, set casing_applied_at=NOW().
+
+MoveToFridge: set status="Fridge" and location accordingly.
+
+ColdShock: same movement as fridge but mark event ColdShock.
+
+FullyColonized: set status="FullyColonized".
+
+StartFruiting: (passes through to Fruiting logic or simply sets status="Fruiting" and logs event).
+
+Writes errors to ui_error when blocked.
+
+Fruiting
+
+Purpose: Start fruiting and (later) compost the block.
+
+Page on lots.
+
+List filter: items.category="fruiting_block" and status in {FullyColonized,Fruiting}.
+
+Detail fields:
+
+Read-only fields you want (species, recipe, unit size, parents)
+
+Buttons:
+
+“Start Fruiting” → {action}="StartFruiting" (sets status="Fruiting", logs event)
+
+“Compost” → {action}="Composted" (sets status="Retired", logs Composted)
+
+ui_error (read-only)
+
+Automation: Fruiting – Actions (on {action} changes).
+
+Spawn to Bulk (combine grain + substrate → fruiting block)
+
+Purpose: Mix colonized grain and sterilized substrate into new fruiting blocks.
+
+Page on lots.
+
+List filter: target record is a new record you’ll create for the output OR choose a staging record. (Many teams use a “+ New” button in the list to add a new lot row for the output, then pick inputs below.)
+
+Detail fields (editable):
+
+grain_inputs (link → lots) → filter: items.category="grain" and status in {FullyColonized,Fridge}
+
+substrate_inputs (link → lots) → filter: items.category="substrate" and status in {Sterilized,Sealed}
+
+output_count (number)
+
+unit_size (number) ← the script will compute/confirm per-bag size
+
+override_spawn_time (optional date)
+
+ui_error (read-only)
+
+Button: “Spawn to Bulk” → Run a script (Automation: Spawn→Bulk Create Blocks).
+Input: lotRecordId (the output block record).
+Script (latest we made):
+
+Require ≥1 grain_inputs and ≥1 substrate_inputs.
+
+Determine item_id based on substrate item code + size:
+
+FB-COCO-LG/SM for CVG (≥5lb vs <5lb),
+
+FB-MM75-LG/SM, FB-MM50-LG/SM likewise.
+
+Set category="fruiting_block", copy strain_id from grain, set status="Colonizing" (fallback Spawned if needed), write spawned_at (from override or now), link parents, and mark input lots Consumed.
+
+Log Events.type="SpawnedToBulk".
+
+Harvest (formerly Freezer Intake)
+
+Purpose: Record harvests from fruiting blocks onto trays (products), including flush number.
+
+Page on products (so you create tray products), or use a Form that writes to products.
+
+If doing a form (recommended):
+
+product_id (auto/left to automation)
+
+item_id (link → items, filter to category="fresh_tray" or freezer_tray depending on your flow)
+
+origin_lot_ids_json or better: link source_block_id (link → lots, filter category="fruiting_block" and status in {Fruiting,Fridge})
+
+net_weight_g (number)
+
+flush_no (number)
+
+(Automation on submit handles label fields, public link, etc.)
+
+If doing a list+detail page:
+
+Left list: filter products.tray_state IN {"fresh_tray","freezer_tray"}
+
+Detail: show/edit source_block_id, net_weight_g, flush_no, etc.
+
+Automation: Harvest – Create Tray Product
+
+Sets tray_state from item_id category (fresh_tray/freezer_tray)
+
+Populates label fields (label_*) and public_link.
+
+Freeze Dry & Package
+
+Purpose: Move freezer trays into the freeze dryer and package into finished products.
+
+Page on products.
+
+List filter: tray_state="freezer_tray" (so packaged trays disappear later).
+
+Detail fields:
+
+item_id (tray) – read-only
+
+source_block_id (read-only)
+
+Start: button “FreezeDry” → {action}="FreezeDry" (optional if you track runs)
+
+Finish + Package: fields
+
+package_item_id (link → items, filter to category="freezedriedmushrooms" e.g., PKG-DRIED-1OZ, PKG-DRIED-5G)
+
+net_weight_g or net_weight_oz (final packed weight)
+
+(optional) lot references, pack date
+
+Button “Package Freeze-Dried” → {action}="PackageFreezeDried"
+
+Automation: FreezeDry & Package – Actions
+
+On FreezeDry: log event or set an in-process flag if you want.
+
+On PackageFreezeDried: create packaged product records, set label fields, push to print_queue if needed, then set the tray’s tray_state="empty_tray" so it drops out of this view.
+
+Productize Grain / Substrate (optional sales packaging)
+
+Purpose: Turn sterilized grain or substrate lots into sellable products for storage/retail.
+
+Page on products or use a Form.
+
+Fields:
+
+item_id (link → SKUs like 2lb/5lb grain; 2.5/5lb CVG; 75/25 hardwood sizes)
+
+origin_lot_ids_json or link source_lot_id (the sterilized/finished lot)
+
+net_weight_lb / g (as appropriate)
+
+pack_date (auto)
+
+location_id (Artisan Shop, Storage, Website, etc.)
+
+Automation: create record, set public_link, label fields, optionally decrement the source lot or link it without consuming (depending on how you track inventory).
+
+Common polish on every page
+
+Link/unlink filters: For any link field (e.g., lc_lot_id, grain_inputs, casing_lot_id), turn on “Link / unlink records” and set a filter on the chooser dialog (by items.category, status, etc.).
+
+Read-only vs editable: Keep computed fields (rollups, formulas) read-only to avoid user confusion.
+
+Buttons vs Action select: You’re using buttons that set {action} or directly run scripts—great. Keep the action values exactly matching your automations (StartFruiting, Composted, MoveToFridge, ColdShock, Shake, FullyColonized, FreezeDry, PackageFreezeDried, SpawnToBulk, Harvest, etc.).
+
+Validation surface: Always show ui_error read-only. Scripts write messages there.
+
+Printing: If you want “print on event,” have the corresponding automation append to print_queue and your Node daemon will take it from there.
