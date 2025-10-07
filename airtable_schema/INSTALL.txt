@@ -1,0 +1,28 @@
+INSTALL – Set up a fresh Airtable base
+
+1) Create a new base and **import tables**:
+   - For each CSV in /schema, create a table with the same name and import the CSV to create columns.
+
+2) Convert column types and set options (Airtable does not encode types in CSVs):
+   - Single selects:
+     - lots.status: Planned, Sterilized, Pasteurized, Sealed, Inoculated, Colonizing, FullyColonized, Fridge, Spawned, Fruiting, Retired, Consumed
+     - sterilization_runs.process_type: Sterilized, Pasteurized
+   - Links:
+     - lots.item_id → items; lots.recipe_id → recipes; lots.strain_id → strains
+     - lots.steri_run_id → sterilization_runs
+     - lots.lc_lot_id → lots; lots.grain_inputs → lots; lots.substrate_inputs → lots
+     - lots.location_id → locations; lots.casing_lot_id → lots
+     - products.item_id → items; products.source_block_id → lots
+   - Numbers:
+     - unit_size, lc_volume_ml, remaining_volume_ml, output_count, net_weight_g, default sizes in items
+   - Dates:
+     - sterilization_runs.start_time, end_time
+     - lots.inoculated_at, override_inoc_time, spawned_at, override_spawn_time
+     - products.pack_date, use_by
+   - Long text:
+     - lots.ui_error, events.fields_json
+   - Text:
+     - print_queue.source_kind (values: 'lot' or 'product'), print_queue.print_status ('Queued','Printed','Error')
+
+Notes:
+- If any field names differ, update the corresponding script constants.

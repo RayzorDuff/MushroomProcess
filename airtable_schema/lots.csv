@@ -1,0 +1,1 @@
+id,lot_id,item_id,recipe_id,strain_id,unit_size,status,steri_run_id,location_id,operator,inoculated_at,override_inoc_time,spawned_at,override_spawn_time,lc_lot_id,lc_volume_ml,remaining_volume_ml,grain_inputs,substrate_inputs,output_count,casing_lot_id,public_link,ui_error,action
