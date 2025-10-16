@@ -1,7 +1,7 @@
 /**
  * Script: lc_grain_inoculate.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: LC → Grain Inoculation (with override_inoc_time → inoculated_at, status=Colonizing)
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

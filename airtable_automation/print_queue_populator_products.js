@@ -1,7 +1,7 @@
 /**
  * Script: print_queue_populator_products.js
- * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Version: 2025-10-16.2
+ * Summary: Product label queueing – enqueue package labels per product, dedup by product + label type.
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

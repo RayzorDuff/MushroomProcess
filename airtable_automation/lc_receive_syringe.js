@@ -1,7 +1,7 @@
 /**
  * Script: lc_receive_syringe.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: LC Receive Syringe – intake a purchased syringe as an LC lot
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

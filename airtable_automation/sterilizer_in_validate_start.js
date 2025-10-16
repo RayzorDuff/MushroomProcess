@@ -1,7 +1,7 @@
 /**
  * Script: sterilizer_in_validate_start.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: Sterilizer IN – Validate & Start
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

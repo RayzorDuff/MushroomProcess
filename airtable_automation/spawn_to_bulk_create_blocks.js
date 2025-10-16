@@ -1,7 +1,7 @@
 /**
  * Script: spawn_to_bulk_create_blocks.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: Spawn → Bulk – Create Fruiting Blocks
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

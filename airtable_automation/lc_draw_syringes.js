@@ -1,7 +1,7 @@
 /**
  * Script: lc_draw_syringes.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: LC Draw Syringes (from flask) – validates and creates syringe lots, decrements flask volume
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {

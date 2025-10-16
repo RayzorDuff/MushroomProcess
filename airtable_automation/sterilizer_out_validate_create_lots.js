@@ -1,7 +1,7 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: Sterilizer OUT – Validate & Create Lots
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 

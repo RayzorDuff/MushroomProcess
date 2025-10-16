@@ -1,7 +1,7 @@
 /**
  * Script: harvest_create_tray_product.js
  * Version: 2025-10-16.1
- * Summary: Airtable automation script with resilience guards.
+ * Summary: Harvest – Create Tray Product
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
 try {
