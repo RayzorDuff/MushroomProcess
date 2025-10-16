@@ -1,14 +1,12 @@
-/***** LC – Make Syringes
- * On lots (flask):
- *   remaining_volume_ml  (number, writable)
- *   syringe_item         (link → items)  // SKU for 10ml syringe
- *   syringe_count        (number)
- *   action               (text/single select) = "MakeSyringes"
- *
- * Creates `syringe_count` products linked to this flask,
- * decrements remaining_volume_ml by syringe_count * 10,
- * logs SyringesDrawn event, clears action/errors.
-*****/
+/**
+ * Script: lc_draw_syringes.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { flaskLotId } = input.config();
 
 const lotsTbl     = base.getTable('lots');
@@ -124,3 +122,9 @@ if (hasField(lotsTbl, 'action'))      clearFields.action = null;
 if (hasField(lotsTbl, 'ui_error'))    clearFields.ui_error = null;
 if (hasField(lotsTbl, 'ui_error_at')) clearFields.ui_error_at = null;
 if (Object.keys(clearFields).length) await lotsTbl.updateRecordAsync(flask.id, clearFields);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

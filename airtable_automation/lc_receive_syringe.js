@@ -1,4 +1,12 @@
-/***** Receive Purchased LC Syringes (and optional flasks) *****/
+/**
+ * Script: lc_receive_syringe.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { stagingId } = input.config();
 
 const lotsTbl   = base.getTable('lots');
@@ -131,3 +139,9 @@ await lotsTbl.updateRecordAsync(staging.id, {
 });
 
 output.set('created_count', createdLotIds.length);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

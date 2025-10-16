@@ -1,9 +1,12 @@
 /**
- * Sterilizer IN – Validate & Start
- * Trigger: Interface button → Run a script on `sterilization_runs` record
- * Input variables: { runRecordId }
- * Writes user-visible errors to `ui_error` on the run.
+ * Script: sterilizer_in_validate_start.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
+try {
+
+
 const runsTbl = base.getTable('sterilization_runs');
 
 const { runRecordId } = input.config();
@@ -34,3 +37,9 @@ if (!operator){ await fail('operator must be set.'); return; }
 
 await setErr(runRecordId, '');
 output.set('ok', true);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

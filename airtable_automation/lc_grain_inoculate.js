@@ -1,11 +1,11 @@
-/***** LC → Grain Inoculation (updated)
- * - Validates inputs and writes user-visible messages to lots.ui_error
- * - Sets grain lot strain to match LC lot strain
- * - Uses override_inoc_time (if set) else current time; writes to inoculated_at
- * - Updates grain lot status to Colonizing
- * - Decrements LC source remaining_volume_ml; marks Consumed if empty
- * - Logs an Inoculated event with the same timestamp
- *****/
+/**
+ * Script: lc_grain_inoculate.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
 
 const lotsTbl   = base.getTable('lots');
 const itemsTbl  = base.getTable('items');
@@ -132,3 +132,9 @@ await eventsTbl.createRecordAsync({
 
 /* ------------ done ------------- */
 output.set('ok', true);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

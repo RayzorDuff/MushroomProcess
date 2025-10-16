@@ -1,12 +1,12 @@
-/***** Spawn → Bulk (with override spawn timestamp):
- * - Colonizing default (Spawned fallback)
- * - Inherit strain from grain_inputs (must be single strain)
- * - Compute per-bag unit_size
- * - Choose output item_id by substrate_inputs type (CVG/MM75/MM50) + size (LG ≥5, SM <5)
- * - Fallback to FB-GENERIC if unknown/mixed/missing
- * - Link inputs on new blocks; mark inputs Consumed; log events
- * - NEW: respect lots.override_spawn_time; stamp lots.spawned_at + event timestamps
-*****/
+/**
+ * Script: spawn_to_bulk_create_blocks.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { stagingLotId } = input.config();
 
 const lotsTbl   = base.getTable('lots');
@@ -247,3 +247,9 @@ await lotsTbl.updateRecordAsync(staging.id, {
   ui_error: null,
   ui_error_at: null
 });
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

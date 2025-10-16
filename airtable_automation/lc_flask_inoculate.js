@@ -1,4 +1,11 @@
-/***** LC → Flask Inoculation with user-visible validation + events *****/
+/**
+ * Script: lc_flask_inoculate.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
 
 const lotsTbl   = base.getTable('lots');
 const itemsTbl  = base.getTable('items');
@@ -95,7 +102,7 @@ if (typeof fv === 'number' && fv > 0) {
   // Initialize remaining to the full flask volume if not already set
   console.log('Flask total_volume_ml: ', fv, ' Flask current remaining_volume_ml: ', curRem);
   if (!(typeof curRem === 'number') || curRem <= 0) {
-    
+
     flaskUpdate.remaining_volume_ml = fv + volMl;
   } else {flaskUpdate.remaining_volume_ml = curRem + volMl; }
 }
@@ -128,3 +135,9 @@ await eventsTbl.createRecordAsync({
 });
 
 output.set('ok', true);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

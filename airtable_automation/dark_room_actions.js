@@ -1,8 +1,12 @@
-/***** Dark Room actions on lots
- * Validations:
- * - MoveToFridge / ColdShock require status = FullyColonized (except vendor LC syringes: item.category = lc_syringe)
- * - ApplyCasing requires target lot item.category = fruiting_block AND selected casing lot item.category = casing
-*****/
+/**
+ * Script: dark_room_actions.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { lotId } = input.config();
 
 const lotsTbl   = base.getTable('lots');
@@ -209,3 +213,9 @@ await lotsTbl.updateRecordAsync(lot.id, {
   action: null
 });
 throw new Error(`Unhandled action: ${action}`);
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

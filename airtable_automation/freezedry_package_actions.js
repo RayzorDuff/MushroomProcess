@@ -1,4 +1,12 @@
-/***** Products: Package Freeze-Dried Mushrooms, then mark tray empty *****/
+/**
+ * Script: freezedry_package_actions.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { productId } = input.config();
 
 const productsTbl = base.getTable('products');
@@ -103,3 +111,9 @@ const trayStateField = productsTbl.getField('tray_state');
 const emptyChoice = (trayStateField.options?.choices || []).find(c => c.name === 'empty_tray');
 if (!emptyChoice) throw new Error('products.tray_state missing "empty_tray".');
 await productsTbl.updateRecordAsync(src.id, { tray_state: { id: emptyChoice.id }, action: null });
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

@@ -1,6 +1,12 @@
+/**
+ * Script: harvest_create_tray_product.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
 
 
-/***** Harvest -> create a Fresh/Freezer Tray product with tray_state *****/
 const { blockLotId } = input.config();
 
 const lotsTbl     = base.getTable('lots');
@@ -81,3 +87,9 @@ if (harvestEvt) {
 
 // Clear trigger/error
 await lotsTbl.updateRecordAsync(block.id, { action: null, ui_error: null, ui_error_at: null });
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

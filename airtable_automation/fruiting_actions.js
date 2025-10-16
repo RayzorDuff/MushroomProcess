@@ -1,4 +1,12 @@
-/***** Fruiting: start, harvest, compost (status Retired, event Composted) *****/
+/**
+ * Script: fruiting_actions.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { lotRecordId } = input.config();
 const lotsTbl   = base.getTable('lots');
 const eventsTbl = base.getTable('events');
@@ -60,3 +68,9 @@ if (action === 'composted') {
 
 // Fallback: clear stray action
 await lotsTbl.updateRecordAsync(lot.id, { action: null });
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}

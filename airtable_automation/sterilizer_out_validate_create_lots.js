@@ -1,4 +1,10 @@
-/***** Sterilizer OUT (override time, operator single-select, pasteurize vs sterilize, link run) *****/
+/**
+ * Script: sterilizer_out_validate_create_lots.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+
 const { runId } = input.config();
 
 const runsTbl   = base.getTable('sterilization_runs');

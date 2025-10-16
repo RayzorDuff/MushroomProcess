@@ -1,4 +1,12 @@
-/***** Print Queue Populator (sets lots.label_template too) *****/
+/**
+ * Script: print_queue_populator_products.js
+ * Version: 2025-10-16.1
+ * Summary: Airtable automation script with resilience guards.
+ * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ */
+try {
+
+
 const { productId } = input.config();
 
 const itemsTbl      = base.getTable('items');
@@ -68,3 +76,9 @@ await printQueueTbl.createRecordAsync({
 });
 
 return;
+
+} catch (e) {
+  if (typeof output !== 'undefined' && output && output.set) {
+    output.set('error', (e && e.message) ? e.message : String(e));
+  }
+}
