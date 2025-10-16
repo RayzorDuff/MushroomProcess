@@ -1,73 +1,126 @@
-/**
- * LC Draw Syringes (from flask) – validates and creates syringe lots, decrements flask volume
- * Trigger: Interface button on a flask lot → Run a script
- * Input: { lotRecordId }
- * Requires fields: syringe_item_id (link to items, category=lc_syringe), syringe_count (number ≥1)
- * Writes errors to lots.ui_error
- */
-const lotsTbl   = base.getTable('lots');
-const itemsTbl  = base.getTable('items');
-const eventsTbl = base.getTable('events');
+/***** LC – Make Syringes
+ * On lots (flask):
+ *   remaining_volume_ml  (number, writable)
+ *   syringe_item         (link → items)  // SKU for 10ml syringe
+ *   syringe_count        (number)
+ *   action               (text/single select) = "MakeSyringes"
+ *
+ * Creates `syringe_count` products linked to this flask,
+ * decrements remaining_volume_ml by syringe_count * 10,
+ * logs SyringesDrawn event, clears action/errors.
+*****/
+const { flaskLotId } = input.config();
 
-const { lotRecordId } = input.config();
+const lotsTbl     = base.getTable('lots');
+const itemsTbl    = base.getTable('items');
+const productsTbl = base.getTable('products');
+const eventsTbl   = base.getTable('events');
 
-async function setErr(id, msg){ await lotsTbl.updateRecordAsync(id, { ui_error: msg ?? '' }); }
-async function fail(msg){ await setErr(lotRecordId, msg); output.set('error', msg); return; }
-
-if (!lotRecordId){ await fail('Missing lotRecordId'); return; }
-const flask = await lotsTbl.selectRecordAsync(lotRecordId);
-if (!flask){ await fail('Flask lot not found.'); return; }
-
-// Validate category = lc_flask
-let flaskCat = '';
-{
-  const it = flask.getCellValue('item_id')?.[0];
-  if (!it){ await fail('Flask item_id is required.'); return; }
-  const item = await itemsTbl.selectRecordAsync(it.id);
-  flaskCat = (item?.getCellValueAsString('category') || '').toLowerCase();
-  if (flaskCat !== 'lc_flask'){ await fail(`Target must be lc_flask (found "${flaskCat || 'unknown'}").`); return; }
+function hasField(tbl, name) {
+  try { tbl.getField(name); return true; } catch { return false; }
+}
+function datePlus(date, {days=0, months=0, years=0}) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  d.setMonth(d.getMonth() + months);
+  d.setFullYear(d.getFullYear() + years);
+  return d;
 }
 
-const syringeItemLink = flask.getCellValue('syringe_item_id')?.[0];
-const syringeCount = flask.getCellValue('syringe_count');
-if (!syringeItemLink){ await fail('Choose syringe_item_id (an item with category=lc_syringe).'); return; }
-if (!(typeof syringeCount === 'number') || syringeCount < 1){ await fail('syringe_count must be ≥ 1.'); return; }
+// ---- Load the flask row
+const flask = await lotsTbl.selectRecordAsync(flaskLotId);
+if (!flask) throw new Error('Flask lot not found');
 
-// Ensure syringe item category
-{
-  const sitem = await itemsTbl.selectRecordAsync(syringeItemLink.id);
-  const cat = (sitem?.getCellValueAsString('category') || '').toLowerCase();
-  if (cat !== 'lc_syringe'){ await fail('syringe_item_id must be category lc_syringe.'); return; }
+const rawAction = (flask.getCellValueAsString('action') || '').trim();
+if (rawAction !== 'MakeSyringes') {
+  // Not our action; clear and exit quietly
+  if (hasField(lotsTbl, 'action')) await lotsTbl.updateRecordAsync(flask.id, { action: null });
+  return;
 }
 
-const remaining = flask.getCellValue('remaining_volume_ml') || 0;
-const needed = 10 * syringeCount;
-if (remaining < needed){ await fail(`Not enough LC in flask. Needed ${needed} ml, has ${remaining} ml.`); return; }
+// ---- Read inputs
+const syringeItem = flask.getCellValue('syringe_item')?.[0] || null;
+const syringeCount = Number(flask.getCellValue('syringe_count') ?? NaN);
+const currentVol = Number(flask.getCellValue('remaining_volume_ml') ?? NaN);
 
-await setErr(lotRecordId, '');
+// Optional fields (only used if present)
+const storageLocFieldExists = hasField(productsTbl, 'storage_location');
+const originLotsFieldExists = hasField(productsTbl, 'origin_lots'); // link to lots on products
+const netVolFieldExists     = hasField(productsTbl, 'net_volume_ml'); // if you track 10ml explicitly
 
-// Create syringe lots
-let made = 0;
-for (let i=0;i<syringeCount;i++){
-  await lotsTbl.createRecordAsync({
-    item_id: [{ id: syringeItemLink.id }],
-    strain_id: flask.getCellValue('strain_id') || [],
-    status: { name: 'Fridge' },
-    remaining_volume_ml: 10
-  });
-  made++;
+// ---- Validate
+const errs = [];
+if (!syringeItem) errs.push('Select a syringe_item (the 10ml syringe SKU).');
+if (!Number.isFinite(syringeCount) || syringeCount < 1) errs.push('syringe_count must be ≥ 1.');
+if (!Number.isFinite(currentVol) || currentVol < 0) errs.push('remaining_volume_ml on the flask must be set (≥ 0).');
+
+const usedVolume = Number.isFinite(syringeCount) ? syringeCount * 10 : NaN; // 10 ml per syringe
+if (Number.isFinite(currentVol) && Number.isFinite(usedVolume) && currentVol < usedVolume) {
+  errs.push(`Not enough LC volume. Need ${usedVolume} ml, have ${currentVol} ml.`);
 }
 
-// Decrement flask
-await lotsTbl.updateRecordAsync(lotRecordId, { remaining_volume_ml: remaining - needed });
+if (errs.length) {
+  const toUpdate = { };
+  if (hasField(lotsTbl, 'ui_error'))    toUpdate.ui_error = errs.join(' ');
+  if (hasField(lotsTbl, 'ui_error_at')) toUpdate.ui_error_at = new Date().toISOString();
+  if (hasField(lotsTbl, 'action'))      toUpdate.action = null;
+  if (Object.keys(toUpdate).length) await lotsTbl.updateRecordAsync(flask.id, toUpdate);
+  throw new Error('LC – Make Syringes validation failed.');
+}
 
-// Log event
-await eventsTbl.createRecordAsync({
-  lot_id: [{ id: lotRecordId }],
-  type: { name: 'SyringesDrawn' },
-  timestamp: new Date(),
-  station: 'Lab',
-  fields_json: JSON.stringify({ count: syringeCount, per_syringe_ml: 10 })
-});
+// ---- Create syringe products
+const nowIso = new Date().toISOString();
+const prodBatch = [];
+for (let i = 0; i < syringeCount; i++) {
+  const f = {
+    item_id: [{ id: syringeItem.id }],
+    origin_lot_ids_json: JSON.stringify([flask.id]),
+    pack_date: nowIso,
+    use_by : datePlus(nowIso, { months: 3 }),
+  };
+  if (originLotsFieldExists) f.origin_lots = [{ id: flask.id }]; // if you keep a direct link
+  if (netVolFieldExists)     f.net_volume_ml = 10;               // optional, if you track per-product volume
+  // If you store products' location, copy from flask.location_id (optional)
+  const flaskLoc = flask.getCellValue('location_id')?.[0] || null;
+  if (storageLocFieldExists && flaskLoc) f.storage_location = [{ id: flaskLoc.id }];
 
-output.set('created_syringes', made);
+  prodBatch.push({ fields: f });
+}
+
+// Create in chunks to be safe
+for (let i = 0; i < prodBatch.length; i += 50) {
+  await productsTbl.createRecordsAsync(prodBatch.slice(i, i + 50));
+}
+
+// ---- Decrement flask volume
+const remaining = Math.max(currentVol - usedVolume, 0);
+await lotsTbl.updateRecordAsync(flask.id, { remaining_volume_ml: remaining });
+
+// ---- Log event: SyringesDrawn
+const evtTypeField = eventsTbl.getField('type');
+const evt = (evtTypeField.options?.choices || []).find(c => c.name === 'SyringesDrawn');
+if (evt) {
+  const tsWritable = (() => { try { return eventsTbl.getField('timestamp').type === 'dateTime'; } catch { return false; }})();
+  const rec = {
+    fields: {
+      lot_id: [{ id: flask.id }],
+      type: { id: evt.id },
+      station: 'LC – Make Syringes',
+      fields_json: JSON.stringify({
+        syringe_item_id: syringeItem.id,
+        syringe_count: syringeCount,
+        used_volume_ml: usedVolume,
+        remaining_volume_ml: remaining
+      })
+    }
+  };
+  if (tsWritable) rec.fields.timestamp = nowIso;
+  await eventsTbl.createRecordsAsync([rec]);
+}
+
+// ---- Clear action & any prior error
+const clearFields = {};
+if (hasField(lotsTbl, 'action'))      clearFields.action = null;
+if (hasField(lotsTbl, 'ui_error'))    clearFields.ui_error = null;
+if (hasField(lotsTbl, 'ui_error_at')) clearFields.ui_error_at = null;
+if (Object.keys(clearFields).length) await lotsTbl.updateRecordAsync(flask.id, clearFields);
