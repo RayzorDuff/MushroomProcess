@@ -1,1 +1,1 @@
-id,process_type,planned_item,planned_recipe,planned_unit_size,planned_count,good_count,destroyed_count,start_time,end_time,operator,ui_error
+steri_run_id,planned_item,default_unit_size (from planned_item),planned_item_id,planned_item_name,start_time,end_time,operator,planned_recipe,recipe_id (from planned_recipe),name (from planned_recipe),planned_count,good_count,destroyed_count,create_lots,planned_unit_size,ui_error,ui_error_at,process_type,target_temp_c,pressure_mode,lots,lots 2,override_end_time,print_queue

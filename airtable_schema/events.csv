@@ -1,1 +1,1 @@
-id,event_id,lot_id,type,timestamp,operator,station,fields_json
+event_id,lot_id,grain_inputs (from lot_id),substrate_inputs (from lot_id),From field: substrate_inputs (from lot_id),From field: grain_inputs (from lot_id),vendor_name (from lc_lot_id) (from lot_id),strain_species_strain (from lot_id),type,timestamp,operator,station,fields_json,event_time_for_rollup,event_product_id,event_product_name,lots

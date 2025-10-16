@@ -1,1 +1,1 @@
-id,recipe_id,name,category,ingredients,notes
+recipe_id,name,category,ingredients,notes,lots,sterilization_runs
