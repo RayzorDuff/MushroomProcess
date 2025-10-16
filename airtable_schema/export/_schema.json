@@ -892,7 +892,7 @@
                     "id": "fldaL52TEAxGFC82t",
                     "name": "label_company_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"Rooted Psyche\", \"Dank Mushrooms\"),\r\n  \"Dank Mushrooms\"\r\n)\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"Your Company 2\", \"Your Company\"),\r\n  \"Your Company\"\r\n)\r\n",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldyTHxlQx1gW7fAS",
@@ -908,7 +908,7 @@
                     "id": "fldg5EftGwMNxsvTV",
                     "name": "label_companyaddress_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"PO Box 266\\nJohnstown, CO 80534\\nhttps://www.rootedpsyche.com/\\n(970) 408-0858\\nrootedpsyche@gmail.com\", \"1726 Goldenvue Drive\\nJohnstown, CO 80534\\nhttps://www.danks.store\\n970-587-3294\\nsales@danks.net\"),\r\n  \"1726 Goldenvue Drive\\nJohnstown, CO 80534\\nhttps://www.danks.store\\n970-587-3294\\nsales@danks.net\")\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"Company 2 Contact Info\", \"Company 1 Contact Info\"),\r\n  \"Company 1 Contact Info\")\r\n",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldyTHxlQx1gW7fAS",
@@ -939,7 +939,7 @@
                     "id": "fldbYsRjHg1jGj8je",
                     "name": "label_companyinfo_prod",
                     "options": {
-                        "formula": "\"Dank Mushrooms offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.\"\r\n",
+                        "formula": "\"Company Slogan\"\r\n",
                         "isValid": true,
                         "referencedFieldIds": [],
                         "result": {
@@ -2690,7 +2690,7 @@
                     "id": "fldCpDA13SIuJe6dZ",
                     "name": "label_company_lot",
                     "options": {
-                        "formula": "\"Dank Mushrooms\"",
+                        "formula": "\"Company Name\"",
                         "isValid": true,
                         "referencedFieldIds": [],
                         "result": {
