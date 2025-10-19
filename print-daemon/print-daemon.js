@@ -282,19 +282,19 @@ async function renderLabelPDF(outPath, rec) {
   // Title
   if (title) y = drawBlock(doc, title, M, y, contentWidth, 'Helvetica-Bold', { maxFont: 14, minFont: 4, lineGap: 1, paragraphGap: 0 });
   // Subtitle
-  if (subtitle) y = drawBlock(doc, subtitle, M, y, contentWidth, 'Helvetica', { maxFont: 11, minFont: 4, lineGap: 1, paragraphGap: 4 });
+  if (subtitle) y = drawBlock(doc, subtitle, M, y, contentWidth, 'Helvetica-Bold', { maxFont: 11, minFont: 4, lineGap: 1, paragraphGap: 4 });
 
   // Extras
   if (Array.isArray(L.extras)) {
     for (const line of L.extras) {
-      y = drawBlock(doc, line, M, y, contentWidth, 'Helvetica', { maxFont: 8, minFont: 4, lineGap: 1, paragraphGap: 0 });
+      y = drawBlock(doc, line, M, y, contentWidth, 'Helvetica-Bold', { maxFont: 8, minFont: 4, lineGap: 1, paragraphGap: 0 });
     }
   }
 
   // Footer (bottom-ish)
   if (footer) {
     const bottomY = PAGE_H - M - 10;
-    drawBlock(doc, footer, M, bottomY, contentWidth, 'Helvetica', { maxFont: 8, minFont: 4, lineGap: 1 });
+    drawBlock(doc, footer, M, bottomY, contentWidth, 'Helvetica-Bold', { maxFont: 8, minFont: 4, lineGap: 1 });
   }
 
   // QR lower-right
