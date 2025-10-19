@@ -563,7 +563,14 @@ async function cycle() {
   try {
     const records = await fetchQueued(QUEUE_VIEW);
     for (const rec of records) {
+      const kind = (toFlat(rec.fields?.source_kind) || '').toLowerCase();
+
       await processRecord(rec);
+
+      // Delay only between label prints, not for steri_sheet
+      if (kind !== 'steri_sheet') {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // sleep 1 sec
+      }
     }
   } catch (e) {
     console.error('Cycle error:', e.message || e);
