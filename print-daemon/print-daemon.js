@@ -69,6 +69,7 @@ const USE_SUMATRA = String(process.env.USE_SUMATRA || 'false').toLowerCase() ===
 const SUMATRA_EXE = process.env.SUMATRA_EXE || 'SumatraPDF.exe';
 const SUMATRA_SETTINGS = process.env.SUMATRA_PRINT_SETTINGS || 'noscale,portrait';
 
+const PRINT_DRIVER_DELAY = parseInt(process.env.PRINT_DRIVER_DELAY) || 1000;
 
 /* --- sheet-specific env --- */
 const STERI_SHEET_PRINTER = process.env.STERI_SHEET_PRINTER || ''; // never fall back to label printer
@@ -569,7 +570,7 @@ async function cycle() {
 
       // Delay only between label prints, not for steri_sheet
       if (kind !== 'steri_sheet') {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // sleep 1 sec
+        await new Promise(resolve => setTimeout(resolve, PRINT_DRIVER_DELAY)); // sleep between prints
       }
     }
   } catch (e) {
