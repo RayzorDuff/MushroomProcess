@@ -1,12 +1,14 @@
 /**
  * Script: inoculate.js
- * Version: 2025-10-30.1
+ * Version: 2025-10-30.2
  * Summary: Inoculate grain, LC flasks, or agar plates from LC syringes, LC flasks, or other agar plates.
- * Requirements:
- * - lot must link to one LC lot
- * - LC lot must have sufficient remaining volume
- * - records `Inoculate` event
- * - marks lot Colonizing, updates volume, clears action
+ * Features:
+ * - Validates input configuration
+ * - Handles optional volume logic
+ * - Updates total_volume_ml and remaining_volume_ml on target
+ * - Decrements source LC volume and marks consumed if depleted
+ * - Records Inoculate event
+ * - Writes validation errors to ui_error
  */
 
 try {
@@ -20,6 +22,7 @@ try {
   const targetLot = await lotsTbl.selectRecordAsync(lotRecordId);
   if (!targetLot) throw new Error('Lot not found');
 
+  // --- Helper functions ---
   const updateError = async (msg) => {
     await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: msg });
     output.set('error', msg);
@@ -28,6 +31,7 @@ try {
     await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: '' });
   };
 
+  // --- Extract key fields ---
   const lcLinks = targetLot.getCellValue('lc_lot_id') ?? [];
   const volumeMl = targetLot.getCellValue('lc_volume_ml') ?? 0;
   const overrideTime = targetLot.getCellValue('override_inoc_time');
@@ -35,6 +39,7 @@ try {
 
   const itemLink = targetLot.getCellValue('item_id')?.[0];
   const recipeLink = targetLot.getCellValue('recipe_id')?.[0];
+  const unitSize = targetLot.getCellValue('unit_size') ?? 0;
 
   if (!itemLink) return await updateError('Must link an item.');
   if (!recipeLink) return await updateError('Must link a recipe.');
@@ -58,14 +63,13 @@ try {
     return await updateError(`Source must be lc_syringe, lc_flask, or plate (got "${sourceCategory || 'none'}").`);
   }
 
-  // Validate volume for LC-based sources
   const isLiquidSource = ['lc_syringe', 'lc_flask'].includes(sourceCategory);
   const isPlateSource = sourceCategory === 'plate';
 
+  // --- Validation ---
   if (isLiquidSource && (!volumeMl || typeof volumeMl !== 'number' || volumeMl <= 0)) {
     return await updateError('Must enter a positive LC volume (ml).');
   }
-
   if (isPlateSource && volumeMl && volumeMl > 0) {
     return await updateError('Do not enter LC volume for plate-to-plate inoculation.');
   }
@@ -75,14 +79,33 @@ try {
     return await updateError(`Source only has ${sourceRemaining} ml remaining.`);
   }
 
-  // All validations passed
   await clearError();
 
-  // Transition target lot to Colonizing
+  // --- Update target lot ---
+  const targetTotalVol = targetLot.getCellValue('total_volume_ml') ?? 0;
+  const targetRemaining = targetLot.getCellValue('remaining_volume_ml') ?? 0;
+  const hasTotalVol = !!targetTotalVol;
+  const hasRemaining = !!targetRemaining;
+
+  let newTotal = targetTotalVol;
+  let newRemaining = targetRemaining;
+
+  // Initialize if missing
+  if (!hasTotalVol) newTotal = unitSize;
+  if (!hasRemaining) newRemaining = unitSize;
+
+  // Add inoculation volume if source is liquid
+  if (isLiquidSource && volumeMl > 0) {
+    newTotal += volumeMl;
+    newRemaining += volumeMl;
+  }
+
   const updates = {
     status: { name: 'Colonizing' },
     action: '',
-    inoculated_at: inocTime
+    inoculated_at: inocTime,
+    total_volume_ml: newTotal,
+    remaining_volume_ml: newRemaining
   };
 
   const strain = sourceLot.getCellValue('strain_id')?.[0];
@@ -90,7 +113,7 @@ try {
 
   await lotsTbl.updateRecordAsync(lotRecordId, updates);
 
-  // Decrease LC volume and mark source consumed if empty
+  // --- Update source lot volume ---
   if (isLiquidSource && sourceRemaining !== null) {
     const remaining = sourceRemaining - volumeMl;
     const sourceUpdates = {
@@ -99,10 +122,8 @@ try {
     if (remaining <= 0) sourceUpdates.status = { name: 'Consumed' };
     await lotsTbl.updateRecordAsync(sourceLot.id, sourceUpdates);
   }
-  
-  
 
-  // Log event
+  // --- Log event ---
   await eventsTbl.createRecordAsync({
     lot_id: [{ id: lotRecordId }],
     type: { name: 'Inoculate' },
@@ -110,7 +131,7 @@ try {
     station: 'Inoculation',
     fields_json: JSON.stringify({
       source_lot_id: sourceLot.id,
-      total_volume_ml: isLiquidSource ? volumeMl : undefined
+      volume_ml: isLiquidSource ? volumeMl : undefined
     })
   });
 
