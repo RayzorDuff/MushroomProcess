@@ -566,11 +566,18 @@ async function cycle() {
     for (const rec of records) {
       const kind = (toFlat(rec.fields?.source_kind) || '').toLowerCase();
 
-      await processRecord(rec);
+      try {
+        await processRecord(rec);
 
-      // Delay only between label prints, not for steri_sheet
-      if (kind !== 'steri_sheet') {
-        await new Promise(resolve => setTimeout(resolve, PRINT_DRIVER_DELAY)); // sleep between prints
+      } catch (ep) {
+        console.error('Process Record Error:', ep.message || ep);
+        // Delay only between label prints, not for steri_sheet
+        if (kind !== 'steri_sheet') {
+          await new Promise(resolve => setTimeout(resolve, PRINT_DRIVER_DELAY)); // sleep between prints
+        }
+
+        // Try a second time and fail after that
+        await processRecord(rec);
       }
     }
   } catch (e) {
