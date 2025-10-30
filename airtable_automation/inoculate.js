@@ -1,14 +1,15 @@
 /**
  * Script: inoculate.js
- * Version: 2025-10-30.2
- * Summary: Inoculate grain, LC flasks, or agar plates from LC syringes, LC flasks, or other agar plates.
+ * Version: 2025-10-30.3
+ * Summary: Inoculate grain, LC flasks, or agar plates from LC syringes, LC flasks, other plates, or grain.
  * Features:
- * - Validates input configuration
- * - Handles optional volume logic
- * - Updates total_volume_ml and remaining_volume_ml on target
- * - Decrements source LC volume and marks consumed if depleted
- * - Records Inoculate event
- * - Writes validation errors to ui_error
+ * - Validates source and target
+ * - Applies optional LC volume
+ * - Adjusts volume fields on both source and target
+ * - Handles consumption and colonizing state
+ * - Logs inoculation event
+ * - Tracks source lot in lots.source_lot_id
+ * - Logs validation errors in lots.ui_error
  */
 
 try {
@@ -59,19 +60,20 @@ try {
   const sourceItem = sourceItemLink && await itemsTbl.selectRecordAsync(sourceItemLink.id);
   const sourceCategory = (sourceItem?.getCellValueAsString('category') || '').toLowerCase();
 
-  if (!['lc_syringe', 'lc_flask', 'plate'].includes(sourceCategory)) {
-    return await updateError(`Source must be lc_syringe, lc_flask, or plate (got "${sourceCategory || 'none'}").`);
+  const allowedSources = ['lc_syringe', 'lc_flask', 'plate', 'grain'];
+  if (!allowedSources.includes(sourceCategory)) {
+    return await updateError(`Source must be lc_syringe, lc_flask, plate, or grain (got "${sourceCategory || 'none'}").`);
   }
 
   const isLiquidSource = ['lc_syringe', 'lc_flask'].includes(sourceCategory);
-  const isPlateSource = sourceCategory === 'plate';
+  const isSolidSource = ['plate', 'grain'].includes(sourceCategory);
 
   // --- Validation ---
   if (isLiquidSource && (!volumeMl || typeof volumeMl !== 'number' || volumeMl <= 0)) {
     return await updateError('Must enter a positive LC volume (ml).');
   }
-  if (isPlateSource && volumeMl && volumeMl > 0) {
-    return await updateError('Do not enter LC volume for plate-to-plate inoculation.');
+  if (isSolidSource && volumeMl && volumeMl > 0) {
+    return await updateError('Do not enter LC volume for plate or grain as source.');
   }
 
   const sourceRemaining = sourceLot.getCellValue('remaining_volume_ml') ?? null;
@@ -105,7 +107,8 @@ try {
     action: '',
     inoculated_at: inocTime,
     total_volume_ml: newTotal,
-    remaining_volume_ml: newRemaining
+    remaining_volume_ml: newRemaining,
+    source_lot_id: [{ id: sourceLot.id }]
   };
 
   const strain = sourceLot.getCellValue('strain_id')?.[0];
