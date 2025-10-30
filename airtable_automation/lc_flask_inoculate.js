@@ -1,143 +1,108 @@
 /**
- * Script: lc_flask_inoculate.js
- * Version: 2025-10-16.1
- * Summary: LC → Flask Inoculation (source = LC syringe)
- * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ * Script: inoculate.js
+ * Version: 2025-10-29.1
+ * Summary: Inoculate grain or LC flasks from LC flask or syringe.
+ * Requirements:
+ * - lot must link to one LC lot
+ * - LC lot must have sufficient remaining volume
+ * - records `Inoculate` event
+ * - marks lot Colonizing, updates volume, clears action
  */
+
 try {
+  const lotsTbl = base.getTable('lots');
+  const itemsTbl = base.getTable('items');
+  const eventsTbl = base.getTable('events');
 
+  const { lotRecordId } = input.config();
+  if (!lotRecordId) throw new Error('Missing lotRecordId');
 
-const lotsTbl   = base.getTable('lots');
-const itemsTbl  = base.getTable('items');
-const eventsTbl = base.getTable('events');
+  const targetLot = await lotsTbl.selectRecordAsync(lotRecordId);
+  if (!targetLot) throw new Error('Lot not found');
 
-const { lotRecordId } = input.config(); // target flask lot (record id)
+  // Helpers
+  const updateError = async (msg) => {
+    await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: msg });
+    output.set('error', msg);
+  };
+  const clearError = async () => {
+    await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: '' });
+  };
 
-//for (const e of lotsTbl.fields) {
-//  console.log('lots', `${e.id} :: ${e.name} [${e.type}]`);
-//}
-function nowIso() { return new Date().toISOString(); }
-function toName(v){ try { return v?.name ?? ''; } catch { return ''; } }
+  // Get input fields from lot
+  const lcLinks = targetLot.getCellValue('lc_lot_id') ?? [];
+  const volumeMl = targetLot.getCellValue('lc_volume_ml');
+  const overrideTime = targetLot.getCellValue('override_inoc_time');
+  const inocTime = overrideTime ? new Date(overrideTime) : new Date();
 
-async function setError(lotId, msg){
-  await lotsTbl.updateRecordAsync(lotId, { ui_error: msg ?? '' });
-}
-async function fail(msg){
-  if (lotRecordId) await setError(lotRecordId, msg);
-  output.set('error', msg);
-  return;
-}
+  const itemLink = targetLot.getCellValue('item_id')?.[0];
+  const recipeLink = targetLot.getCellValue('recipe_id')?.[0];
 
-if (!lotRecordId) { await fail('Missing lotRecordId.'); return; }
-
-const flask = await lotsTbl.selectRecordAsync(lotRecordId);
-if (!flask) { await fail('Flask lot not found.'); return; }
-
-// -------- Inputs on the flask record
-const flaskLotID   = flask.getCellValue('lot_id') ?? [];
-const itemLinks   = flask.getCellValue('item_id') ?? [];
-const recipeLinks = flask.getCellValue('recipe_id') ?? [];
-const unitSize    = flask.getCellValue('unit_size'); // optional, if you use it for LC
-const lcLinks     = flask.getCellValue('lc_lot_id') ?? []; // LC syringe source
-const volMl       = flask.getCellValue('lc_volume_ml');    // volume injected into flask
-const fv          = flask.getCellValue('total_volume_ml') || flask.getCellValue('unit_size');
-const curRem      = flask.getCellValue('remaining_volume_ml');
-
-
-// -------- Validate cardinality & numbers
-if (itemLinks.length !== 1)   { await fail('Select exactly one flask item.'); return; }
-if (recipeLinks.length !== 1) { await fail('Select exactly one recipe for the flask.'); return; }
-if (!(typeof volMl === 'number') || volMl <= 0) { await fail('LC volume (ml) must be a positive number.'); return; }
-if (lcLinks.length !== 1)     { await fail('Select exactly one LC syringe (source).'); return; }
-
-const srcLink = lcLinks[0];
-
-// -------- Ensure target item.category = lc_flask
-let flaskItemCategory = '';
-{
-  const item = await itemsTbl.selectRecordAsync(itemLinks[0].id);
-  flaskItemCategory = (item?.getCellValueAsString('category') || '').toLowerCase();
-  if (flaskItemCategory !== 'lc_flask') {
-    await fail(`This action is only for LC flasks (found category "${flaskItemCategory || 'unknown'}").`);
-    return;
+  if (!itemLink) return await updateError('Must link an item.');
+  if (!recipeLink) return await updateError('Must link a recipe.');
+  if (!volumeMl || typeof volumeMl !== 'number' || volumeMl <= 0) {
+    return await updateError('Must enter a positive LC volume (ml).');
   }
-}
+  if (lcLinks.length !== 1) return await updateError('Must link exactly one LC lot.');
 
-// -------- Load LC syringe source, validate remaining volume
-const srcLot = await lotsTbl.selectRecordAsync(srcLink.id);
-if (!srcLot) { await fail('Selected LC syringe lot was not found.'); return; }
-
-const srcRemaining = srcLot.getCellValue('remaining_volume_ml');
-if (!(typeof srcRemaining === 'number') || srcRemaining < volMl) {
-  await fail(`Syringe does not have enough volume. Needed ${volMl} ml, has ${srcRemaining ?? 0} ml.`);
-  return;
-}
-
-// Optional: ensure source item.category=lc_syringe
-let srcItemCategory = '';
-{
-  const srcItemLink = srcLot.getCellValue('item_id')?.[0];
-  if (srcItemLink) {
-    const it = await itemsTbl.selectRecordAsync(srcItemLink.id);
-    srcItemCategory = (it?.getCellValueAsString('category') || '').toLowerCase();
+  const targetItem = await itemsTbl.selectRecordAsync(itemLink.id);
+  const targetCategory = (targetItem?.getCellValueAsString('category') || '').toLowerCase();
+  if (!['grain', 'lc_flask'].includes(targetCategory)) {
+    return await updateError(`Target must be grain or lc_flask (got "${targetCategory || 'none'}").`);
   }
-  if (srcItemCategory !== 'lc_syringe') {
-    await fail(`Source must be an LC syringe (found "${srcItemCategory || 'unknown'}").`);
-    return;
+
+  // Fetch LC source lot
+  const lcLot = await lotsTbl.selectRecordAsync(lcLinks[0].id);
+  if (!lcLot) return await updateError('LC source lot not found.');
+
+  const lcRemaining = lcLot.getCellValue('remaining_volume_ml') ?? 0;
+  if (volumeMl > lcRemaining) {
+    return await updateError(`LC source only has ${lcRemaining} ml remaining, need ${volumeMl}.`);
   }
-}
 
-// -------- Apply updates to the flask: set strain from source; status Colonizing
-const srcStrain = srcLot.getCellValue('strain_id')?.[0];
-let flaskUpdate = {
-  status: { name: 'Colonizing' },
-  action: null // clear action if present
-};
-if (srcStrain) flaskUpdate.strain_id = [{ id: srcStrain.id }];
+  const lcItemLink = lcLot.getCellValue('item_id')?.[0];
+  const lcItem = lcItemLink && await itemsTbl.selectRecordAsync(lcItemLink.id);
+  const lcCategory = (lcItem?.getCellValueAsString('category') || '').toLowerCase();
 
-
-console.log('Flask ', flaskLotID, ' ', ' total_volume_ml: ', fv);
-
-if (typeof fv === 'number' && fv > 0) {
-  // Initialize remaining to the full flask volume if not already set
-  console.log('Flask total_volume_ml: ', fv, ' Flask current remaining_volume_ml: ', curRem);
-  if (!(typeof curRem === 'number') || curRem <= 0) {
-
-    flaskUpdate.remaining_volume_ml = fv + volMl;
-  } else {flaskUpdate.remaining_volume_ml = curRem + volMl; }
-}
-
-
-console.log('Source remaining_volume_ml: ', srcRemaining, " Flask remaining_volume_ml: ", flaskUpdate.remaining_volume_ml);
-
-await setError(lotRecordId, '');
-await lotsTbl.updateRecordAsync(lotRecordId, flaskUpdate);
-
-// -------- Decrement syringe remaining volume, mark consumed if empty
-const newRemaining = Math.max(0, (srcRemaining || 0) - volMl);
-let srcUpdate = { remaining_volume_ml: newRemaining };
-if (newRemaining <= 0) {
-  srcUpdate.status = { name: 'Consumed' };
-}
-await lotsTbl.updateRecordAsync(srcLot.id, srcUpdate);
-
-// -------- Log event
-await eventsTbl.createRecordAsync({
-  lot_id: [{ id: lotRecordId }],
-  type: { name: 'LCInoculate' }, // use your exact event type name
-  timestamp: new Date(),
-  station: 'Inoculation',
-  operator: '',
-  fields_json: JSON.stringify({
-    source_syringe_lot_id: srcLot.id,
-    volume_ml: volMl
-  })
-});
-
-output.set('ok', true);
-
-} catch (e) {
-  if (typeof output !== 'undefined' && output && output.set) {
-    output.set('error', (e && e.message) ? e.message : String(e));
+  if (!['lc_syringe', 'lc_flask'].includes(lcCategory)) {
+    return await updateError(`LC source must be syringe or flask (got "${lcCategory || 'none'}").`);
   }
+
+  // Passed validation
+  await clearError();
+
+  // Transition lot to Colonizing, update strain and inoc time
+  const updates = {
+    status: { name: 'Colonizing' },
+    action: '',
+    inoculated_at: inocTime
+  };
+
+  const strain = lcLot.getCellValue('strain_id')?.[0];
+  if (strain) updates.strain_id = [strain];
+
+  await lotsTbl.updateRecordAsync(lotRecordId, updates);
+
+  // Decrease remaining volume on LC source
+  const remaining = lcRemaining - volumeMl;
+  const lcUpdates = { remaining_volume_ml: remaining };
+  if (remaining <= 0) lcUpdates.status = { name: 'Consumed' };
+  await lotsTbl.updateRecordAsync(lcLot.id, lcUpdates);
+
+  // Record inoculation event
+  await eventsTbl.createRecordAsync({
+    lot_id: [{ id: lotRecordId }],
+    type: { name: 'Inoculate' },
+    timestamp: inocTime,
+    station: 'Inoculation',
+    fields_json: JSON.stringify({
+      source_lc_lot_id: lcLot.id,
+      volume_ml: volumeMl
+    })
+  });
+
+  output.set('ok', true);
+
+} catch (err) {
+  output.set('error', `Fatal error: ${err.message}`);
 }
