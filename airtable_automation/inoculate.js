@@ -1,6 +1,6 @@
 /**
  * Script: inoculate.js
- * Version: 2025-10-30.5
+ * Version: 2025-10-31.1
  * Summary: Inoculate grain, LC flasks, or agar plates from LC syringes, LC flasks, other plates, or grain.
  * Features:
  * Consolidated inoculation automation for Airtable.
@@ -47,7 +47,7 @@ try {
 
   // --- Helper functions ---
   const updateError = async (msg) => {
-    await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: msg });
+    await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: msg, action : null });
     output.set('error', msg);
   };
   const clearError = async () => {
