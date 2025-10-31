@@ -1,9 +1,16 @@
 /**
  * Script: spawn_to_bulk_create_blocks.js
- * Version: 2025-10-16.1
+ * Version: 2025-10-31.1
  * Summary: Spawn → Bulk – Create Fruiting Blocks
- * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
- */
+ * Features:
+ * - Colonizing default (Spawned fallback)
+ * - Inherit strain from grain_inputs (must be single strain)
+ * - Compute per-bag unit_size
+ * - Choose output item_id by substrate_inputs type (CVG/MM75/MM50) + size (LG =5, SM <5)
+ * - Fallback to FB-GENERIC if unknown/mixed/missing
+ * - Link inputs on new blocks; mark inputs Consumed; log events
+ * - Respect lots.override_spawn_time; stamp lots.spawned_at + event timestamps
+**/
 try {
 
 
@@ -22,7 +29,16 @@ if ((staging.getCellValueAsString('action') || '') !== 'SpawnToBulk') {
 }
 
 /* ==== Inputs on staging record ==== */
-const grainLinks     = staging.getCellValue('grain_inputs') || [];
+let grainLinks = staging.getCellValue('grain_inputs') || [];
+if (grainLinks.length === 0) {
+  // If grain_links are missing, default to using staging lot as grain input
+  grainLinks = [{ id: staging.id }];
+  try {
+    await lotsTbl.updateRecordAsync(staging.id, { grain_inputs: grainLinks });
+  } catch (e) {
+    throw new Error('Failed to auto-set grain_inputs on staging lot: ' + e.message);
+  }
+}
 const substrateLinks = staging.getCellValue('substrate_inputs') || [];
 const outCount       = Number(staging.getCellValue('output_count') ?? NaN);
 const outRecipe      = staging.getCellValue('recipe_id')?.[0] || null;   // optional
