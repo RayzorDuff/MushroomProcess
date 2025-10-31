@@ -1,6 +1,6 @@
 /**
  * Script: pour_plates.js
- * Version: 2025-10-27.2
+ * Version: 2025-10-31.1
  * Summary: Pour Plates – Create sterilized plates from an agar flask lot
  * Notes: Triggered from 'PourPlates' action in 'lots'. Requires:
  *        - lots.plate_count (must be > 0)
@@ -31,6 +31,7 @@ try {
   const plateCount = Number(sourceLot.getCellValue('plate_count'));
   const category = sourceLot.getCellValueAsString('item_category');
   const sourceRecipe = sourceLot.getCellValue('recipe_id')?.[0];
+  const sourceStatus = sourceLot.getCellValueAsString('status') || "Sterilized";
 
   //if (action !== 'PourPlates') {
   //  await lotsTbl.updateRecordAsync(sourceLot.id, { action: null });
@@ -67,13 +68,17 @@ try {
     throw new Error("Item 'AGAR-PLATE' not found in items table.");
   }
 
+  const plateGroupId = `PLATEGRP-${Date.now()}`;
+  
   // Clear errors and action
+  // ? Mark source agar flask as consumed
   await lotsTbl.updateRecordAsync(sourceLot.id, {
     ui_error: null,
+    status: { name: 'Consumed' },
+    plate_group_id: plateGroupId,
     action: null
   });
-
-  const plateGroupId = `PLATEGRP-${Date.now()}`;
+  
   const platesToCreate = [];
 
   for (let i = 0; i < plateCount; i++) {
@@ -81,8 +86,8 @@ try {
       item_id: [{ id: plateItem.id }],
       recipe_id: [{ id: sourceRecipe.id }],
       parent_lot_id: [{ id: sourceLot.id }],
-      plate_group_id: plateGroupId,
-      qty: 1
+      status : { name: sourceStatus },
+      plate_group_id: plateGroupId
     });
   }
 
