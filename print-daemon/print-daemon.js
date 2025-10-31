@@ -136,10 +136,11 @@ function gatherFields(rec) {
       disclaimer:  pick(f, ['label_disclaimer_prod (from product_id)']),
       cottage:     pick(f, ['label_cottage_prod (from product_id)']),
     extras: [
-      pick(f, ['label_proc_line_prod (from product_id)']),
-      pick(f, ['label_inoc_line_prod (from product_id)']),
-      pick(f, ['label_spawned_line_prod (from product_id)']),
-      pick(f, ['label_useby_line_prod (from product_id)']),
+      pick(f, ['label_proc_prod (from product_id)']),
+      pick(f, ['label_inoc_prod (from product_id)']),
+      pick(f, ['label_spawned_prod (from product_id)']),
+      pick(f, ['label_packaged_prod (from product_id)']),      
+      pick(f, ['label_useby_prod (from product_id)']),
       ].filter(Boolean)
     };
   }
