@@ -1,10 +1,9 @@
 /**
  * Script: print_queue_populator.js
- * Version: 2025-10-16.2
+ * Version: 2025-10-31.1
  * Summary: Print Queue Populator for lots
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
-
 const { eventId} = input.config();
 
 const eventsTbl     = base.getTable('events');
@@ -64,10 +63,14 @@ try {
 
 // Map event ? label_type (and lot.label_template)
 let labelType = null;
-if (eventType === 'Inoculated' && itemCategory === 'grain') {
-  labelType = 'Grain_Inoculated';
-} else if (eventType === 'LCInoculate' || eventType === 'InoculateFlask') {
-  labelType = 'LC_Flask_Inoculated';
+if (eventType === 'Inoculated' || eventType === 'LCInoculate' || eventType === 'InoculateFlask' || eventType === 'PlateInoculate') {
+  if (itemCategory === 'grain') {
+    labelType = 'Grain_Inoculated';
+  } else if (itemCategory === 'plate') {
+    labelType = 'Plate_Inoculated';
+  } else if (itemCategory === 'flask') {  
+    labelType = 'LC_Flask_Inoculated';
+  }
 } else if (eventType === 'Spawned' || eventType === 'SpawnedToBulk') {
   labelType = 'Bulk_Created';
 }
