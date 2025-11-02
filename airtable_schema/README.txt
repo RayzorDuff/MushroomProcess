@@ -22,8 +22,18 @@ $env:AIRTABLE_KEY = "patyyy"
 $env:AIRTABLE_BASE = "appxxxx"
 $env:PATH += "C:\Python313;C:\Python313\Scripts;$Env:APPDATA\Python\Python313\Scripts"
 
-airtable-export -schema --ndjson --yaml --json --sqlite export\mushroomprocess.db export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue 
+airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue 
 
 Import
 
-TBD
+Replace the following in _schema.json before importing according to INSTALL.txt
+
+"My Business"
+"Regulated Business"
+www.mybusiness.com
+www.regulatedbusiness.com
+RegulatedBusinessAddressAndContact
+MyBuinessAddressAndContact
+MyBusinessOffering
+
+

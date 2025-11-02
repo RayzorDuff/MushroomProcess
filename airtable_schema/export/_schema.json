@@ -80,6 +80,11 @@
                                 "color": "greenLight2",
                                 "id": "sellf2janl0DKVu5Z",
                                 "name": "casing"
+                            },
+                            {
+                                "color": "blueLight1",
+                                "id": "selz2JNb3xpnPOVH4",
+                                "name": "agar"
                             }
                         ]
                     },
@@ -269,6 +274,16 @@
                                         "color": "pinkDark1",
                                         "id": "sel0mkKWSqRfKVvCx",
                                         "name": "Peat Moss"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "seloGO7be4KeDJtTe",
+                                        "name": "Agar Flask"
+                                    },
+                                    {
+                                        "color": "orangeBright",
+                                        "id": "selOEATpiFFellbj9",
+                                        "name": "Agar Plate 90x15mm"
                                     }
                                 ]
                             },
@@ -341,6 +356,16 @@
                                         "color": "yellowLight1",
                                         "id": "selNxx5b4S0tl5yPZ",
                                         "name": "casing"
+                                    },
+                                    {
+                                        "color": "pinkLight1",
+                                        "id": "selqFu2lFk3VTgkbM",
+                                        "name": "agar_flask"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "selph3FcnuUpNr1aL",
+                                        "name": "plate"
                                     }
                                 ]
                             },
@@ -409,9 +434,12 @@
                     "id": "fldd1njLVghnzCL7z",
                     "name": "public_link",
                     "options": {
-                        "formula": "\"https://airtable.com/appxJ59Wmyd96jXMm/shrZoYVXMtzbTZzcL/\" & RECORD_ID()",
+                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)\r\n",
                         "isValid": true,
-                        "referencedFieldIds": [],
+                        "referencedFieldIds": [
+                            "fldyTHxlQx1gW7fAS",
+                            "fldE0GGqhKjV8kVqh"
+                        ],
                         "result": {
                             "type": "singleLineText"
                         }
@@ -551,6 +579,16 @@
                                         "color": "pinkDark1",
                                         "id": "sel0mkKWSqRfKVvCx",
                                         "name": "Peat Moss"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "seloGO7be4KeDJtTe",
+                                        "name": "Agar Flask"
+                                    },
+                                    {
+                                        "color": "orangeBright",
+                                        "id": "selOEATpiFFellbj9",
+                                        "name": "Agar Plate 90x15mm"
                                     }
                                 ]
                             },
@@ -623,6 +661,16 @@
                                         "color": "yellowLight1",
                                         "id": "selNxx5b4S0tl5yPZ",
                                         "name": "casing"
+                                    },
+                                    {
+                                        "color": "pinkLight1",
+                                        "id": "selqFu2lFk3VTgkbM",
+                                        "name": "agar_flask"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "selph3FcnuUpNr1aL",
+                                        "name": "plate"
                                     }
                                 ]
                             },
@@ -690,7 +738,7 @@
                 },
                 {
                     "id": "fldzea0ooNE7mFCRk",
-                    "name": "label_inoc_line_prod",
+                    "name": "label_inoc_prod",
                     "options": {
                         "fieldIdInLinkedTable": "fldmx5RDnELMNEUEm",
                         "isValid": true,
@@ -703,7 +751,7 @@
                 },
                 {
                     "id": "fld1EmffiN0t7JdIk",
-                    "name": "label_spawned_line_prod",
+                    "name": "label_spawned_prod",
                     "options": {
                         "fieldIdInLinkedTable": "fldf3uvlIcTsLLtxf",
                         "isValid": true,
@@ -716,7 +764,7 @@
                 },
                 {
                     "id": "flduOFUKBBlUIQdlW",
-                    "name": "label_proc_line_prod",
+                    "name": "label_proc_prod",
                     "options": {
                         "fieldIdInLinkedTable": "fldGS78ngOyMeSkBD",
                         "isValid": true,
@@ -892,11 +940,11 @@
                     "id": "fldaL52TEAxGFC82t",
                     "name": "label_company_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"Your Company 2\", \"Your Company\"),\r\n  \"Your Company\"\r\n)\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldELkpWppI7EegBB} = \"freezedriedmushrooms\",\r\n    {fldELkpWppI7EegBB} = \"fresh_mushrooms\",\r\n    {fldELkpWppI7EegBB} = \"freezer_tray\",\r\n    {fldELkpWppI7EegBB} = \"fresh_tray\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}=TRUE(), \"Regulated Business\", \"My Business\"),\r\n  \"My Business\"\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldyTHxlQx1gW7fAS",
-                            "fldE0GGqhKjV8kVqh"
+                            "fldELkpWppI7EegBB",
+                            "fldIC7hRmODZ0X3p0"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -908,7 +956,7 @@
                     "id": "fldg5EftGwMNxsvTV",
                     "name": "label_companyaddress_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"Company 2 Contact Info\", \"Company 1 Contact Info\"),\r\n  \"Company 1 Contact Info\")\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"RegulatedBusinessAddressAndContact\", \"MyBuinessAddressAndContact\"),\r\n  \"MyBuinessAddressAndContact\")\r\n",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldyTHxlQx1gW7fAS",
@@ -924,10 +972,10 @@
                     "id": "fldGTtEvHqgc1mtN8",
                     "name": "label_disclaimer_prod",
                     "options": {
-                        "formula": "IF({fldE0GGqhKjV8kVqh}=1, \r\n\"WARNING: Mature Psilocybe Cubensis fruiting bodies (mushrooms) contain psilocybin and may be illegal in some states.  Psilocybin is a Schedule I substance under the Controlled Substances Act.\", \r\n\"\")",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}=TRUE(), \r\n\"WARNING: Mature Psilocybe Cubensis fruiting bodies (mushrooms) contain psilocybin and may be illegal in some states.  Psilocybin is a Schedule I substance under the Controlled Substances Act.\", \r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldE0GGqhKjV8kVqh"
+                            "fldIC7hRmODZ0X3p0"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -939,7 +987,7 @@
                     "id": "fldbYsRjHg1jGj8je",
                     "name": "label_companyinfo_prod",
                     "options": {
-                        "formula": "\"Company Slogan\"\r\n",
+                        "formula": "\"MyBusinessOffering\"\r\n",
                         "isValid": true,
                         "referencedFieldIds": [],
                         "result": {
@@ -952,10 +1000,10 @@
                     "id": "fldBnCTkqhW0JDDd9",
                     "name": "label_title_prod",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldyTHxlQx1gW7fAS},\r\n  \"freezedriedmushrooms\", \"Freeze-Dried Mushrooms\",\r\n  \"freshmushrooms\", \"Fresh Mushrooms\",\r\n  \"Grain Bag\", \"Grain Spawn\",\r\n  \"Substrate Bag\", \"Bulk Substrate\",\r\n{fld9UNkz7HeovZ2df} & \"\"\r\n)\r\n",
+                        "formula": "SWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    {fld9UNkz7HeovZ2df} & \" Grain\",       \r\n  \"substrate\",\r\n    {fld9UNkz7HeovZ2df} & \" Substrate\",\r\n  \"fruiting_block\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"lc_syringe\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"freezedriedmushrooms\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"freezer_tray\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"fresh_tray\",\r\n    {fld9UNkz7HeovZ2df},     \r\n  \"fresh_mushrooms\", \r\n    {fld9UNkz7HeovZ2df},   \r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldyTHxlQx1gW7fAS",
+                            "fldELkpWppI7EegBB",
                             "fld9UNkz7HeovZ2df"
                         ],
                         "result": {
@@ -968,7 +1016,7 @@
                     "id": "fldzfOifL6FVKrVed",
                     "name": "label_subtitle_prod",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Grain\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Substrate\",\"\"),\r\n  \"fruitingblock\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \",\" \") & {fld0vFWc649maA7Vj} & \" Fruiting Block\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL \u2022 \", \"\")  & {fld0vFWc649maA7Vj}  & \" LC Syringe\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freeze Dried Mushrooms\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Mushrooms\", \r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Grain\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Substrate\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \",\" \") & {fld0vFWc649maA7Vj} & \" Fruiting Block\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL \u2022 \", \"\")  & {fld0vFWc649maA7Vj}  & \" LC Syringe\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freeze Dried Mushrooms\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freezer Tray\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Fresh Tray\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Mushrooms\", \r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldELkpWppI7EegBB",
@@ -976,7 +1024,8 @@
                             "fldCaAC0GQ4HQdkRw",
                             "fld0vFWc649maA7Vj",
                             "fldqmbHWvrKsoiq65",
-                            "fld3kzM8siqsRjT2I"
+                            "fld3kzM8siqsRjT2I",
+                            "fld4otBJtSaXoaCa4"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -988,11 +1037,26 @@
                     "id": "fld5uqXwMBcpYtI2f",
                     "name": "label_footer_prod",
                     "options": {
-                        "formula": "IF({fld251nNKCw2rkLy3},\r\n  \"Pack: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fld251nNKCw2rkLy3}, \"America/Denver\"), \"YYYY-MM-DD\") & \" \u2022 \",\r\n\"\") &\r\n\"Lot(s): \" & IF({fldZKlmLflBlJOIri}, {fldZKlmLflBlJOIri} & \"\", \"\")\r\n",
+                        "formula": "{fldgzDEo51u33bNf3} & IF({fldZKlmLflBlJOIri}, \" \u2022 Lot(s): \" & {fldZKlmLflBlJOIri} & \"\", \"\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fld251nNKCw2rkLy3",
+                            "fldgzDEo51u33bNf3",
                             "fldZKlmLflBlJOIri"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "formula"
+                },
+                {
+                    "id": "fld49niSzrBb78Ff4",
+                    "name": "label_packaged_prod",
+                    "options": {
+                        "formula": "IF({fld251nNKCw2rkLy3},\r\n  \"Packaged: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fld251nNKCw2rkLy3}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n\"\") ",
+                        "isValid": true,
+                        "referencedFieldIds": [
+                            "fld251nNKCw2rkLy3"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -1057,7 +1121,7 @@
                 },
                 {
                     "id": "fldO99YbSV5seK1Ae",
-                    "name": "label_useby_line_prod",
+                    "name": "label_useby_prod",
                     "options": {
                         "formula": "IF(\r\n  {fldm8L9e3hArmcIOf},\r\n  \"Use by: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fldm8L9e3hArmcIOf}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
                         "isValid": true,
@@ -1222,6 +1286,16 @@
                                         "color": "pinkDark1",
                                         "id": "sel0mkKWSqRfKVvCx",
                                         "name": "Peat Moss"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "seloGO7be4KeDJtTe",
+                                        "name": "Agar Flask"
+                                    },
+                                    {
+                                        "color": "orangeBright",
+                                        "id": "selOEATpiFFellbj9",
+                                        "name": "Agar Plate 90x15mm"
                                     }
                                 ]
                             },
@@ -1565,6 +1639,11 @@
                                 "name": "CreateLots"
                             },
                             {
+                                "color": "blueBright",
+                                "id": "sel24avEjHGDBg9eu",
+                                "name": "PourPlates"
+                            },
+                            {
                                 "color": "cyanLight2",
                                 "id": "sel3H9dflLPeS31sC",
                                 "name": "Inoculate"
@@ -1573,6 +1652,11 @@
                                 "color": "greenLight1",
                                 "id": "sel8hOyhybjjYx9fz",
                                 "name": "LCInoculate"
+                            },
+                            {
+                                "color": "cyanBright",
+                                "id": "selKUcsKy9xpnAMVc",
+                                "name": "PlateInoculate"
                             },
                             {
                                 "color": "tealLight2",
@@ -1608,6 +1692,21 @@
                                 "color": "redLight1",
                                 "id": "selwl2heDJzzrTju5",
                                 "name": "ApplyCasing"
+                            },
+                            {
+                                "color": "pinkLight1",
+                                "id": "sel82G7djlqvypNtS",
+                                "name": "ApplyBeneficialTrichoderma"
+                            },
+                            {
+                                "color": "purpleLight1",
+                                "id": "selEMrIUjEv0BqpUh",
+                                "name": "ApplyNematodes"
+                            },
+                            {
+                                "color": "grayLight1",
+                                "id": "sel9oxHrBzxNUgASj",
+                                "name": "ApplyDiatomaceousEarth"
                             },
                             {
                                 "color": "pinkLight2",
@@ -1728,6 +1827,16 @@
                                         "color": "yellowLight1",
                                         "id": "selNxx5b4S0tl5yPZ",
                                         "name": "casing"
+                                    },
+                                    {
+                                        "color": "pinkLight1",
+                                        "id": "selqFu2lFk3VTgkbM",
+                                        "name": "agar_flask"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "selph3FcnuUpNr1aL",
+                                        "name": "plate"
                                     }
                                 ]
                             },
@@ -1847,120 +1956,12 @@
                         "fieldIdInLinkedTable": "flda6kMughavpdgSz",
                         "isValid": true,
                         "recordLinkFieldId": "fldHrFJi9OqWWlfxu",
+                        "referencedFieldIds": [],
                         "result": {
-                            "options": {
-                                "choices": [
-                                    {
-                                        "color": "blueLight2",
-                                        "id": "selNFNM6mT3BEJcQj",
-                                        "name": "Organic Wheat/Millet"
-                                    },
-                                    {
-                                        "color": "cyanLight2",
-                                        "id": "selpcJnOWR1l8o3IS",
-                                        "name": "Wild Bird Seed"
-                                    },
-                                    {
-                                        "color": "tealLight2",
-                                        "id": "selaZ425HAlHE51LN",
-                                        "name": "Oats"
-                                    },
-                                    {
-                                        "color": "greenLight2",
-                                        "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
-                                    },
-                                    {
-                                        "color": "yellowLight2",
-                                        "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
-                                    },
-                                    {
-                                        "color": "orangeLight2",
-                                        "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
-                                    },
-                                    {
-                                        "color": "redLight2",
-                                        "id": "selVUsbQg6H9XRiRo",
-                                        "name": "Liquid Culture Flask"
-                                    },
-                                    {
-                                        "color": "pinkLight2",
-                                        "id": "selF9zmbMKHxwzxy9",
-                                        "name": "Liquid Culture Syringe"
-                                    },
-                                    {
-                                        "color": "purpleLight2",
-                                        "id": "selT5vbrbtESCFe4d",
-                                        "name": "Fruiting Block"
-                                    },
-                                    {
-                                        "color": "grayLight2",
-                                        "id": "selihZwZ7eGOidDuZ",
-                                        "name": "Freeze-Dried Mushrooms (1 oz)"
-                                    },
-                                    {
-                                        "color": "blueLight1",
-                                        "id": "selP2dElMMdtEHsQB",
-                                        "name": "Freeze-Dried Mushrooms (5 g)"
-                                    },
-                                    {
-                                        "color": "cyanLight1",
-                                        "id": "selsrXRNcv0HjhQ48",
-                                        "name": "Freezer Tray"
-                                    },
-                                    {
-                                        "color": "tealLight1",
-                                        "id": "selmfn2gH1ytiH5Zs",
-                                        "name": "Freeze-Dry Batch"
-                                    },
-                                    {
-                                        "color": "greenLight1",
-                                        "id": "selnw7bkBwFTkivpF",
-                                        "name": "Fresh Tray"
-                                    },
-                                    {
-                                        "color": "yellowLight1",
-                                        "id": "selTkfkwEugBOspGY",
-                                        "name": "Large CVG"
-                                    },
-                                    {
-                                        "color": "orangeLight1",
-                                        "id": "selZg0SYGseCOBjBW",
-                                        "name": "Small CVG"
-                                    },
-                                    {
-                                        "color": "redLight1",
-                                        "id": "selv3MuXeGWFoHT7n",
-                                        "name": "Large Masters Mix 75/25"
-                                    },
-                                    {
-                                        "color": "pinkLight1",
-                                        "id": "seldolf23uALj20Pg",
-                                        "name": "Small Masters Mix 75/25"
-                                    },
-                                    {
-                                        "color": "purpleLight1",
-                                        "id": "seluR4qRevdTlgcSl",
-                                        "name": "Large Masters Mix 50/50"
-                                    },
-                                    {
-                                        "color": "grayLight1",
-                                        "id": "selVisf4ZlBTKNPdx",
-                                        "name": "Small Masters Mix 50/50"
-                                    },
-                                    {
-                                        "color": "pinkDark1",
-                                        "id": "sel0mkKWSqRfKVvCx",
-                                        "name": "Peat Moss"
-                                    }
-                                ]
-                            },
-                            "type": "singleSelect"
+                            "type": "singleLineText"
                         }
                     },
-                    "type": "multipleLookupValues"
+                    "type": "rollup"
                 },
                 {
                     "id": "fld0yK31UNRiH8jiV",
@@ -1980,30 +1981,12 @@
                         "fieldIdInLinkedTable": "fldBsxGzIXx2IO9Ts",
                         "isValid": true,
                         "recordLinkFieldId": "fld0yK31UNRiH8jiV",
+                        "referencedFieldIds": [],
                         "result": {
-                            "options": {
-                                "choices": [
-                                    {
-                                        "color": "blueLight2",
-                                        "id": "selfceGzJIhPmLGMT",
-                                        "name": "Sterilize"
-                                    },
-                                    {
-                                        "color": "cyanLight2",
-                                        "id": "selfY7EHC5aLiD7UR",
-                                        "name": "Pasteurize"
-                                    },
-                                    {
-                                        "color": "tealLight2",
-                                        "id": "seljqQep6LW34vf6S",
-                                        "name": "Abandoned"
-                                    }
-                                ]
-                            },
-                            "type": "singleSelect"
+                            "type": "singleLineText"
                         }
                     },
-                    "type": "multipleLookupValues"
+                    "type": "rollup"
                 },
                 {
                     "id": "fld7bNeLpJvxw4MPG",
@@ -2012,120 +1995,12 @@
                         "fieldIdInLinkedTable": "flda6kMughavpdgSz",
                         "isValid": true,
                         "recordLinkFieldId": "fld0yK31UNRiH8jiV",
+                        "referencedFieldIds": [],
                         "result": {
-                            "options": {
-                                "choices": [
-                                    {
-                                        "color": "blueLight2",
-                                        "id": "selNFNM6mT3BEJcQj",
-                                        "name": "Organic Wheat/Millet"
-                                    },
-                                    {
-                                        "color": "cyanLight2",
-                                        "id": "selpcJnOWR1l8o3IS",
-                                        "name": "Wild Bird Seed"
-                                    },
-                                    {
-                                        "color": "tealLight2",
-                                        "id": "selaZ425HAlHE51LN",
-                                        "name": "Oats"
-                                    },
-                                    {
-                                        "color": "greenLight2",
-                                        "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
-                                    },
-                                    {
-                                        "color": "yellowLight2",
-                                        "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
-                                    },
-                                    {
-                                        "color": "orangeLight2",
-                                        "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
-                                    },
-                                    {
-                                        "color": "redLight2",
-                                        "id": "selVUsbQg6H9XRiRo",
-                                        "name": "Liquid Culture Flask"
-                                    },
-                                    {
-                                        "color": "pinkLight2",
-                                        "id": "selF9zmbMKHxwzxy9",
-                                        "name": "Liquid Culture Syringe"
-                                    },
-                                    {
-                                        "color": "purpleLight2",
-                                        "id": "selT5vbrbtESCFe4d",
-                                        "name": "Fruiting Block"
-                                    },
-                                    {
-                                        "color": "grayLight2",
-                                        "id": "selihZwZ7eGOidDuZ",
-                                        "name": "Freeze-Dried Mushrooms (1 oz)"
-                                    },
-                                    {
-                                        "color": "blueLight1",
-                                        "id": "selP2dElMMdtEHsQB",
-                                        "name": "Freeze-Dried Mushrooms (5 g)"
-                                    },
-                                    {
-                                        "color": "cyanLight1",
-                                        "id": "selsrXRNcv0HjhQ48",
-                                        "name": "Freezer Tray"
-                                    },
-                                    {
-                                        "color": "tealLight1",
-                                        "id": "selmfn2gH1ytiH5Zs",
-                                        "name": "Freeze-Dry Batch"
-                                    },
-                                    {
-                                        "color": "greenLight1",
-                                        "id": "selnw7bkBwFTkivpF",
-                                        "name": "Fresh Tray"
-                                    },
-                                    {
-                                        "color": "yellowLight1",
-                                        "id": "selTkfkwEugBOspGY",
-                                        "name": "Large CVG"
-                                    },
-                                    {
-                                        "color": "orangeLight1",
-                                        "id": "selZg0SYGseCOBjBW",
-                                        "name": "Small CVG"
-                                    },
-                                    {
-                                        "color": "redLight1",
-                                        "id": "selv3MuXeGWFoHT7n",
-                                        "name": "Large Masters Mix 75/25"
-                                    },
-                                    {
-                                        "color": "pinkLight1",
-                                        "id": "seldolf23uALj20Pg",
-                                        "name": "Small Masters Mix 75/25"
-                                    },
-                                    {
-                                        "color": "purpleLight1",
-                                        "id": "seluR4qRevdTlgcSl",
-                                        "name": "Large Masters Mix 50/50"
-                                    },
-                                    {
-                                        "color": "grayLight1",
-                                        "id": "selVisf4ZlBTKNPdx",
-                                        "name": "Small Masters Mix 50/50"
-                                    },
-                                    {
-                                        "color": "pinkDark1",
-                                        "id": "sel0mkKWSqRfKVvCx",
-                                        "name": "Peat Moss"
-                                    }
-                                ]
-                            },
-                            "type": "singleSelect"
+                            "type": "singleLineText"
                         }
                     },
-                    "type": "multipleLookupValues"
+                    "type": "rollup"
                 },
                 {
                     "id": "fldHxWLBQLQ8CuV0g",
@@ -2399,6 +2274,16 @@
                                         "color": "yellowLight1",
                                         "id": "selNxx5b4S0tl5yPZ",
                                         "name": "casing"
+                                    },
+                                    {
+                                        "color": "pinkLight1",
+                                        "id": "selqFu2lFk3VTgkbM",
+                                        "name": "agar_flask"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "selph3FcnuUpNr1aL",
+                                        "name": "plate"
                                     }
                                 ]
                             },
@@ -2532,6 +2417,16 @@
                                         "color": "pinkDark1",
                                         "id": "sel0mkKWSqRfKVvCx",
                                         "name": "Peat Moss"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "seloGO7be4KeDJtTe",
+                                        "name": "Agar Flask"
+                                    },
+                                    {
+                                        "color": "orangeBright",
+                                        "id": "selOEATpiFFellbj9",
+                                        "name": "Agar Plate 90x15mm"
                                     }
                                 ]
                             },
@@ -2604,6 +2499,16 @@
                                         "color": "yellowLight1",
                                         "id": "selNxx5b4S0tl5yPZ",
                                         "name": "casing"
+                                    },
+                                    {
+                                        "color": "pinkLight1",
+                                        "id": "selqFu2lFk3VTgkbM",
+                                        "name": "agar_flask"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "selph3FcnuUpNr1aL",
+                                        "name": "plate"
                                     }
                                 ]
                             },
@@ -2690,7 +2595,7 @@
                     "id": "fldCpDA13SIuJe6dZ",
                     "name": "label_company_lot",
                     "options": {
-                        "formula": "\"Company Name\"",
+                        "formula": "\"My Business\"",
                         "isValid": true,
                         "referencedFieldIds": [],
                         "result": {
@@ -2805,6 +2710,11 @@
                                 "color": "tealLight2",
                                 "id": "selIkzif6RCCTSajO",
                                 "name": "Bulk_Created"
+                            },
+                            {
+                                "color": "greenLight2",
+                                "id": "selzbf1326ADKYbBC",
+                                "name": "Plate_Inoculated"
                             }
                         ]
                     },
@@ -2814,7 +2724,7 @@
                     "id": "fld0bl7fyxvBw5JLQ",
                     "name": "label_title_lot",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Bulk_Created\", \r\n   {flda6kMughavpdgSz} & \"\",\r\n\"\")",
+                        "formula": "\r\nSWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Plate_Inoculated\", {flda6kMughavpdgSz} & \"\",  \r\n  \"Bulk_Created\", \r\n   {flda6kMughavpdgSz} & \"\",\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldWYfrlLWuKStK70",
@@ -2830,13 +2740,14 @@
                     "id": "fldyuV576405KZzeD",
                     "name": "label_subtitle_lot",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldWYfrlLWuKStK70",
                             "fldPTVqPGEOa6aubh",
                             "fldsaZpCoA5zvj5mL",
                             "fldLhJGi06oSX9Ddt",
+                            "fldkVMtxjtdRDo6pp",
                             "fldIs56WzEt6UFLfT"
                         ],
                         "result": {
@@ -3222,6 +3133,98 @@
                         }
                     },
                     "type": "rollup"
+                },
+                {
+                    "id": "fld9HB4yExmNqWUax",
+                    "name": "plateType",
+                    "options": {
+                        "choices": [
+                            {
+                                "color": "blueLight2",
+                                "id": "selkxM3gBYWDJET9p",
+                                "name": "Master"
+                            },
+                            {
+                                "color": "cyanLight2",
+                                "id": "sel8dV0Uq48E6g4sP",
+                                "name": "Working"
+                            }
+                        ]
+                    },
+                    "type": "singleSelect"
+                },
+                {
+                    "id": "fldzpusFFQlZGXIfv",
+                    "name": "platePourDate",
+                    "options": {
+                        "dateFormat": {
+                            "format": "l",
+                            "name": "local"
+                        },
+                        "timeFormat": {
+                            "format": "h:mma",
+                            "name": "12hour"
+                        },
+                        "timeZone": "client"
+                    },
+                    "type": "dateTime"
+                },
+                {
+                    "id": "fldc6ASAfjsjEts33",
+                    "name": "source_lot_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldzvTCADuXr1WRdM",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": true
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fld5RqFV3bUmnnmNh",
+                    "name": "plate_count",
+                    "options": {
+                        "precision": 0
+                    },
+                    "type": "number"
+                },
+                {
+                    "id": "fldxUBKa4ed44x9W4",
+                    "name": "plate_group_id",
+                    "type": "multilineText"
+                },
+                {
+                    "id": "fldHpMIA1mMX0wiFP",
+                    "name": "parent_lot_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldQAts05vwDaT066",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": true
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldzvTCADuXr1WRdM",
+                    "name": "From field: PlateSourceLot",
+                    "options": {
+                        "inverseLinkFieldId": "fldc6ASAfjsjEts33",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldQAts05vwDaT066",
+                    "name": "From field: parent_lot_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldHpMIA1mMX0wiFP",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
                 }
             ],
             "id": "tblL2oACeE9P92BRA",
@@ -3356,6 +3359,16 @@
                                 "color": "pinkDark1",
                                 "id": "sel0mkKWSqRfKVvCx",
                                 "name": "Peat Moss"
+                            },
+                            {
+                                "color": "pinkBright",
+                                "id": "seloGO7be4KeDJtTe",
+                                "name": "Agar Flask"
+                            },
+                            {
+                                "color": "orangeBright",
+                                "id": "selOEATpiFFellbj9",
+                                "name": "Agar Plate 90x15mm"
                             }
                         ]
                     },
@@ -3420,6 +3433,16 @@
                                 "color": "yellowLight1",
                                 "id": "selNxx5b4S0tl5yPZ",
                                 "name": "casing"
+                            },
+                            {
+                                "color": "pinkLight1",
+                                "id": "selqFu2lFk3VTgkbM",
+                                "name": "agar_flask"
+                            },
+                            {
+                                "color": "pinkBright",
+                                "id": "selph3FcnuUpNr1aL",
+                                "name": "plate"
                             }
                         ]
                     },
@@ -3511,6 +3534,16 @@
                                 "color": "cyanDark1",
                                 "id": "selan7hU4xjjyOTQL",
                                 "name": "1lb"
+                            },
+                            {
+                                "color": "cyanBright",
+                                "id": "sel8Rll5fXKH85BRg",
+                                "name": "500ml"
+                            },
+                            {
+                                "color": "greenDark1",
+                                "id": "seletuEfIUCL9SN81",
+                                "name": "20ml"
                             }
                         ]
                     },
@@ -3854,6 +3887,21 @@
                                 "name": "CasingApplied"
                             },
                             {
+                                "color": "yellowBright",
+                                "id": "selY0MAuU7qQD7sJf",
+                                "name": "BeneficialTrichodermaApplied"
+                            },
+                            {
+                                "color": "orangeBright",
+                                "id": "sel3xYomLFG6uBlZs",
+                                "name": "NematodesApplied"
+                            },
+                            {
+                                "color": "redBright",
+                                "id": "selO108SDegpj3axp",
+                                "name": "DiatomaceousEarthApplied"
+                            },
+                            {
                                 "color": "cyanBright",
                                 "id": "selT14uYWTP3OKesX",
                                 "name": "UsedForCasing"
@@ -3867,6 +3915,31 @@
                                 "color": "greenBright",
                                 "id": "selxuI9A9WZJIKWiM",
                                 "name": "LCInoculate"
+                            },
+                            {
+                                "color": "pinkBright",
+                                "id": "seltCGjD3l6FbJJNY",
+                                "name": "PlatesPoured"
+                            },
+                            {
+                                "color": "purpleBright",
+                                "id": "selwqxIbPVtyDHPoY",
+                                "name": "PlateInoculated"
+                            },
+                            {
+                                "color": "grayBright",
+                                "id": "selQdwETnIU6irdog",
+                                "name": "PlateUsedToInoculateLC"
+                            },
+                            {
+                                "color": "blueDark1",
+                                "id": "sel0dFHbUWz3CBHau",
+                                "name": "PlateUsedToInoculateGrain"
+                            },
+                            {
+                                "color": "cyanDark1",
+                                "id": "selAbRO8pULo5Jc8i",
+                                "name": "PlateUsedToInoculatePlate"
                             }
                         ]
                     },
@@ -4124,6 +4197,16 @@
                                         "color": "cyanDark1",
                                         "id": "selan7hU4xjjyOTQL",
                                         "name": "1lb"
+                                    },
+                                    {
+                                        "color": "cyanBright",
+                                        "id": "sel8Rll5fXKH85BRg",
+                                        "name": "500ml"
+                                    },
+                                    {
+                                        "color": "greenDark1",
+                                        "id": "seletuEfIUCL9SN81",
+                                        "name": "20ml"
                                     }
                                 ]
                             },
@@ -4259,6 +4342,16 @@
                                         "color": "pinkDark1",
                                         "id": "sel0mkKWSqRfKVvCx",
                                         "name": "Peat Moss"
+                                    },
+                                    {
+                                        "color": "pinkBright",
+                                        "id": "seloGO7be4KeDJtTe",
+                                        "name": "Agar Flask"
+                                    },
+                                    {
+                                        "color": "orangeBright",
+                                        "id": "selOEATpiFFellbj9",
+                                        "name": "Agar Plate 90x15mm"
                                     }
                                 ]
                             },
@@ -4715,6 +4808,11 @@
                                 "color": "greenLight2",
                                 "id": "selr7sV0WWQA8ZwG5",
                                 "name": "Product_Package"
+                            },
+                            {
+                                "color": "yellowLight2",
+                                "id": "selPM7MVMnQeUuwyI",
+                                "name": "Plate_Inoculated"
                             }
                         ]
                     },
@@ -4835,6 +4933,11 @@
                                         "color": "tealLight2",
                                         "id": "selIkzif6RCCTSajO",
                                         "name": "Bulk_Created"
+                                    },
+                                    {
+                                        "color": "greenLight2",
+                                        "id": "selzbf1326ADKYbBC",
+                                        "name": "Plate_Inoculated"
                                     }
                                 ]
                             },
@@ -4964,8 +5067,21 @@
                     "type": "multipleLookupValues"
                 },
                 {
+                    "id": "fldgAJwMufPs6tdRd",
+                    "name": "label_packaged_prod (from product_id)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fld49niSzrBb78Ff4",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
                     "id": "fldNFbdpB2JiLLcMd",
-                    "name": "label_useby_line_prod (from product_id)",
+                    "name": "label_useby_prod (from product_id)",
                     "options": {
                         "fieldIdInLinkedTable": "fldO99YbSV5seK1Ae",
                         "isValid": true,
@@ -4978,7 +5094,7 @@
                 },
                 {
                     "id": "fldbc6XDOSVJ7GS4p",
-                    "name": "label_proc_line_prod (from product_id)",
+                    "name": "label_proc_prod (from product_id)",
                     "options": {
                         "fieldIdInLinkedTable": "flduOFUKBBlUIQdlW",
                         "isValid": true,
@@ -4991,7 +5107,7 @@
                 },
                 {
                     "id": "fldrS7CNQQzeHldeZ",
-                    "name": "label_spawned_line_prod (from product_id)",
+                    "name": "label_spawned_prod (from product_id)",
                     "options": {
                         "fieldIdInLinkedTable": "fld1EmffiN0t7JdIk",
                         "isValid": true,
@@ -5004,7 +5120,7 @@
                 },
                 {
                     "id": "fldqhyOxVYETyX6uF",
-                    "name": "label_inoc_line_prod (from product_id)",
+                    "name": "label_inoc_prod (from product_id)",
                     "options": {
                         "fieldIdInLinkedTable": "fldzea0ooNE7mFCRk",
                         "isValid": true,

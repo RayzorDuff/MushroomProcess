@@ -5,7 +5,6 @@
         "category": "substrate",
         "ingredients": "Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite",
         "name": "CVG (Coir+CaCO3+Peat+Castings+Vermiculite)",
-        "notes": "Last batch mid September 2025.  Use V2 instead.",
         "recipe_id": "REC-SUB-CVG-V1"
     },
     {
@@ -14,7 +13,6 @@
         "category": "substrate",
         "ingredients": "Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite",
         "name": "CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)",
-        "notes": "Preferred over V1 with Gypsum to help mitigate contamination found Sept 2025\n",
         "recipe_id": "REC-SUB-CVG-V2"
     },
     {
@@ -39,7 +37,6 @@
         "category": "grain",
         "ingredients": "Organic Wheat; Millet",
         "name": "Organic Wheat/Millet Mix",
-        "notes": "Mixed ingredient grain spawn",
         "recipe_id": "REC-GRAIN-OWM"
     },
     {
@@ -48,7 +45,6 @@
         "category": "substrate",
         "ingredients": "Hardwood; Soy hulls",
         "name": "Masters Mix 50/50",
-        "notes": "50/50 by weight",
         "recipe_id": "REC-SUB-MM50"
     },
     {
@@ -57,7 +53,6 @@
         "category": "substrate",
         "ingredients": "Hardwood; Soy hulls",
         "name": "Masters Mix 75/25",
-        "notes": "75/25 by weight",
         "recipe_id": "REC-SUB-MM75"
     },
     {
@@ -74,7 +69,6 @@
         "category": "casing",
         "ingredients": "Peat moss; Vermiculite; CaCO3; Perilite; Gypsum",
         "name": "Peat Moss Casing Layer",
-        "notes": "Adding Gypsum.  Pasteurize this.",
         "recipe_id": "REC-CASING-PEAT-V2"
     },
     {
@@ -83,7 +77,14 @@
         "category": "casing",
         "ingredients": "Peat moss; Vermiculite; CaCO3; Perilite",
         "name": "Peat Moss Casing Layer",
-        "notes": "Last batch early 2025 didn't include Gypsum and was Sterilized.  Use V2 instead.",
         "recipe_id": "REC-CASING-PEAT-V1"
+    },
+    {
+        "airtable_createdTime": "2025-10-27T01:07:51.000Z",
+        "airtable_id": "recwWg5UpF6UG5t3V",
+        "category": "agar",
+        "ingredients": "Agar, Malt Extract, Nutritional Yeast",
+        "name": "Agar Base",
+        "recipe_id": "REC-AGAR-STD"
     }
 ]

@@ -93,6 +93,13 @@
   default_unit_size_oz: 32
   item_id: GRAIN-OWM-2
   name: Organic Wheat/Millet
+- airtable_createdTime: '2025-10-27T01:03:20.000Z'
+  airtable_id: recQdTiiT2VLuJOMJ
+  category: plate
+  default_unit_size: 20ml
+  default_unit_size_ml: 20
+  item_id: AGAR-PLATE
+  name: Agar Plate 90x15mm
 - airtable_createdTime: '2025-09-21T20:09:16.000Z'
   airtable_id: recSWCNLKZ2oUGdwc
   category: fruiting_block
@@ -128,6 +135,13 @@
   default_unit_size_oz: 40
   item_id: SUB-MM75-2_5
   name: Masters Mix 75/25 (Hardwood/Soy)
+- airtable_createdTime: '2025-10-27T00:03:31.000Z'
+  airtable_id: reccntFuiyUAopZsM
+  category: agar_flask
+  default_unit_size: 500ml
+  default_unit_size_ml: 500
+  item_id: AGAR-FLASK-500
+  name: Agar Flask
 - airtable_createdTime: '2025-09-21T20:07:36.000Z'
   airtable_id: recdgi69xDmdtrOcT
   category: fruiting_block

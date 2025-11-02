@@ -1,28 +1,48 @@
-INSTALL – Set up a fresh Airtable base
+Step-by-Step Database Installation Guide
+1. Create a New Airtable Base
 
-1) Create a new base and **import tables**:
-   - For each CSV in /schema, create a table with the same name and import the CSV to create columns.
+Log into Airtable
+Create a new base with any name (e.g. “Mushroom Process”).
+Note the Base ID (e.g. appXXXXXXXXXXXXXX).
 
-2) Convert column types and set options (Airtable does not encode types in CSVs):
-   - Single selects:
-     - lots.status: Planned, Sterilized, Pasteurized, Sealed, Inoculated, Colonizing, FullyColonized, Fridge, Spawned, Fruiting, Retired, Consumed
-     - sterilization_runs.process_type: Sterilized, Pasteurized
-   - Links:
-     - lots.item_id → items; lots.recipe_id → recipes; lots.strain_id → strains
-     - lots.steri_run_id → sterilization_runs
-     - lots.lc_lot_id → lots; lots.grain_inputs → lots; lots.substrate_inputs → lots
-     - lots.location_id → locations; lots.casing_lot_id → lots
-     - products.item_id → items; products.source_block_id → lots
-   - Numbers:
-     - unit_size, lc_volume_ml, remaining_volume_ml, output_count, net_weight_g, default sizes in items
-   - Dates:
-     - sterilization_runs.start_time, end_time
-     - lots.inoculated_at, override_inoc_time, spawned_at, override_spawn_time
-     - products.pack_date, use_by
-   - Long text:
-     - lots.ui_error, events.fields_json
-   - Text:
-     - print_queue.source_kind (values: 'lot' or 'product'), print_queue.print_status ('Queued','Printed','Error')
+2. Set Up API Access
+
+Visit https://airtable.com/account
+Create a Personal Access Token with schema and data read/write permissions for the new base.
+Note your token (e.g. patXXXXXXXXXXXXXX).
+
+3. Configure Environment
+
+Open a terminal and set the following environment variables:
+
+export AIRTABLE_BASE=appXXXXXXXXXXXXXX
+export AIRTABLE_TOKEN=patXXXXXXXXXXXXXX
+
+On Windows (PowerShell):
+
+$env:AIRTABLE_BASE = "appXXXXXXXXXXXXXX"
+$env:AIRTABLE_TOKEN = "patXXXXXXXXXXXXXX"
+
+4. Run the Setup Script
+
+Ensure Node.js is installed (node -v to check).
+From the airtable_schema/ directory, run:
+
+node create_airtable_from_schema.js
+
+This will:
+
+Create each table listed in _schema.json
+Add fields with the correct types, options, and relationships
+
+Optional: Import Record Data
+
+If you want to load some sample records (optional for testing):
+Use airtable-export or a separate script to upload .json or .ndjson records into each table using the same table names.
+This does not happen automatically in the schema script.
 
 Notes:
-- If any field names differ, update the corresponding script constants.
+
+You can rerun the script safely to create missing tables or fields.
+It won’t delete or overwrite existing tables or records.
+If you modify _schema.json, re-run the script to apply updates.
