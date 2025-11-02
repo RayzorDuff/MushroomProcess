@@ -1,107 +1,142 @@
-# FIELD_MAP
+# FIELD_MAP.md
 
-_Generated from `production/airtable_schema/*.csv` on 2025-10-16T22:31:24.284817Z_
+This document maps all tables and their fields as defined in the schema.
 
-> Types are best-effort inferences from field names. Confirm in Airtable if critical.
+---
 
-## Items
-- **id** — `link/id`
-- **item_id** — `link/id`
-- **name** — `text`
-- **category** — `single select`
-- **default_unit_size_lb** — `number`
-- **default_unit_size_ml** — `number`
-- **default_unit_size_oz** — `number`
-- **default_unit_size_g** — `number`
+## ✅ `blocks`
 
-## Recipes
-- **id** — `link/id`
-- **recipe_id** — `link/id`
-- **name** — `text`
-- **category** — `single select`
-- **ingredients** — `text`
-- **notes** — `long text`
+| Field             | Type         |
+|------------------|--------------|
+| name             | text         |
+| notes            | long text    |
+| bulk_mix         | link/id      |
+| fruiting_tray    | link/id      |
+| colonized_at     | date         |
+| tray_code        | text         |
+| uuid             | formula      |
+| is_active        | checkbox     |
+| is_colonized     | checkbox     |
+| created_at       | created time |
+| updated_at       | last modified time |
+| ui_error         | text         |
 
-## Strains
-- **id** — `link/id`
-- **strain_id** — `link/id`
-- **species_strain** — `text`
-- **regulated** — `checkbox`
+---
 
-## Locations
-- **id** — `link/id`
-- **name** — `text`
-- **type** — `single select`
-- **notes** — `long text`
+## ✅ `events`
 
-## Sterilization Runs
-- **id** — `link/id`
-- **process_type** — `single select`
-- **planned_item** — `text`
-- **planned_recipe** — `text`
-- **planned_unit_size** — `number`
-- **planned_count** — `number`
-- **good_count** — `number`
-- **destroyed_count** — `number`
-- **start_time** — `date/time`
-- **end_time** — `date/time`
-- **operator** — `text`
-- **ui_error** — `long text`
+| Field             | Type         |
+|------------------|--------------|
+| lot              | link/id      |
+| event_time       | date         |
+| event_type       | single select |
+| quantity         | number       |
+| units            | single select |
+| notes            | long text    |
+| uuid             | formula      |
+| is_active        | checkbox     |
+| created_at       | created time |
+| updated_at       | last modified time |
 
-## Lots
-- **id** — `link/id`
-- **lot_id** — `link/id`
-- **item_id** — `link/id`
-- **recipe_id** — `link/id`
-- **strain_id** — `link/id`
-- **unit_size** — `number`
-- **status** — `single select`
-- **steri_run_id** — `link/id`
-- **location_id** — `link/id`
-- **operator** — `text`
-- **inoculated_at** — `date/time`
-- **override_inoc_time** — `date/time`
-- **spawned_at** — `date/time`
-- **override_spawn_time** — `date/time`
-- **lc_lot_id** — `link/id`
-- **lc_volume_ml** — `number`
-- **remaining_volume_ml** — `number`
-- **grain_inputs** — `text`
-- **substrate_inputs** — `text`
-- **output_count** — `number`
-- **casing_lot_id** — `link/id`
-- **public_link** — `url`
-- **ui_error** — `long text`
-- **action** — `single select`
+---
 
-## Events
-- **id** — `link/id`
-- **event_id** — `link/id`
-- **lot_id** — `link/id`
-- **type** — `single select`
-- **timestamp** — `date/time`
-- **operator** — `text`
-- **station** — `single select`
-- **fields_json** — `json/text`
+## ✅ `items`
 
-## Products
-- **id** — `link/id`
-- **product_id** — `link/id`
-- **item_id** — `link/id`
-- **source_block_id** — `link/id`
-- **origin_lot_ids_json** — `json/text`
-- **net_weight_g** — `number`
-- **net_weight_oz** — `number`
-- **pack_date** — `date/time`
-- **use_by** — `text`
-- **label_template_id** — `text`
-- **public_link** — `url`
-- **tray_state** — `single select`
-- **action** — `single select`
+| Field             | Type         |
+|------------------|--------------|
+| name             | text         |
+| category         | single select |
+| is_active        | checkbox     |
+| uuid             | formula      |
+| created_at       | created time |
+| updated_at       | last modified time |
 
-## Print Queue
-- **id** — `link/id`
-- **source_kind** — `text`
-- **source_record_id** — `link/id`
-- **print_status** — `single select`
-- **error_msg** — `long text`
+---
+
+## ✅ `lots`
+
+| Field                  | Type         |
+|------------------------|--------------|
+| item                  | link/id      |
+| item_category         | lookup       |
+| quantity              | number       |
+| units                 | single select |
+| recipe                | link/id      |
+| parent_lot            | link/id      |
+| grain_links           | link/id      |
+| notes                 | long text    |
+| uuid                  | formula      |
+| is_active             | checkbox     |
+| inoculated_at         | date         |
+| received_at           | date         |
+| drawn_at              | date         |
+| source_plate          | link/id      |
+| source_flask          | link/id      |
+| stage_lot             | link/id      |
+| stage_block           | link/id      |
+| tray_code             | text         |
+| stage_tray            | link/id      |
+| destination_block     | link/id      |
+| destination_lot       | link/id      |
+| used_in               | link/id      |
+| override_inoc_time    | checkbox     |
+| override_quantity     | number       |
+| inoculated_by         | user         |
+| ui_error              | text         |
+| created_at            | created time |
+| updated_at            | last modified time |
+
+---
+
+## ✅ `print_queue`
+
+| Field             | Type         |
+|------------------|--------------|
+| lot              | link/id      |
+| label_type       | single select |
+| was_printed      | checkbox     |
+| print_error      | text         |
+| created_at       | created time |
+| updated_at       | last modified time |
+
+---
+
+## ✅ `recipes`
+
+| Field             | Type         |
+|------------------|--------------|
+| name             | text         |
+| category         | single select |
+| description      | long text    |
+| uuid             | formula      |
+| is_active        | checkbox     |
+| created_at       | created time |
+| updated_at       | last modified time |
+
+---
+
+## ✅ `settings`
+
+| Field             | Type         |
+|------------------|--------------|
+| name             | text         |
+| value            | text         |
+| uuid             | formula      |
+| created_at       | created time |
+| updated_at       | last modified time |
+
+---
+
+## ✅ `tray_products`
+
+| Field             | Type         |
+|------------------|--------------|
+| name             | text         |
+| tray             | link/id      |
+| product_lot      | link/id      |
+| uuid             | formula      |
+| is_active        | checkbox     |
+| created_at       | created time |
+| updated_at       | last modified time |
+
+---
