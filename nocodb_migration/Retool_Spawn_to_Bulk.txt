@@ -1,0 +1,207 @@
+──────────────────────────────────────────────
+Interface Name: Spawn to Bulk
+Purpose: Manage colonized grain lots and trigger Spawn-to-Bulk operations.
+Data Source: NocoDB REST API table “lots”
+──────────────────────────────────────────────
+
+1. Create a New App
+
+In Retool, click Create > New App
+
+Name it: Spawn to Bulk
+
+Choose layout: Two-panel
+
+Left: record list / table
+
+Right: detailed form with editable fields and action button
+
+──────────────────────────────────────────────
+
+2. Data Source Setup
+
+──────────────────────────────────────────────
+
+Go to the Resources section in Retool.
+
+Add a new REST API resource:
+
+Name: NocoDB
+
+Base URL: https://your-nocodb-instance.com/api/v2
+
+Auth Header: xc-token: {{ your_nocodb_api_token }}
+
+Back in your app, add a Query called getLots:
+
+Method: GET
+
+URL: /tables/lots/rows
+
+Transform Results:
+return data.list
+
+On Success: set temporary state lotsData to the result.
+
+──────────────────────────────────────────────
+
+3. Filtering & Grouping
+
+──────────────────────────────────────────────
+
+In the getLots query, add query parameters or filter logic that match your Airtable filters:
+
+Filter Logic
+
+Only include records where:
+
+status ∈ [ "FullyColonized", "Fridge" ]
+
+item_category ∈ [ "grain" ]
+
+Add this to your query parameters:
+/tables/lots/rows?where={"status":{"in":["FullyColonized","Fridge"]},"item_category":{"in":["grain"]}}
+
+Grouping
+In Retool’s Table component:
+
+Group rows by item_name
+
+Sub-group by strain_species_strain
+(Use the “Group by” option in the table settings.)
+
+──────────────────────────────────────────────
+
+4. Table (Left Panel)
+
+──────────────────────────────────────────────
+
+Component: Table
+Data Source: {{ getLots.data }}
+
+Visible Columns:
+
+item_name
+
+strain_species_strain
+
+inoculated_at
+
+substrate_inputs
+
+output_count
+
+fruiting_goal
+
+override_spawn_time
+
+operator
+
+notes
+
+ui_error
+
+validation
+
+Hidden/System Columns:
+
+lot_id
+
+internal fields not relevant to user view
+
+Table Interaction:
+
+Enable “Select Row”
+
+On row click → populate the right-side form
+
+Disable direct editing in table view
+
+──────────────────────────────────────────────
+
+5. Record Form (Right Panel)
+
+──────────────────────────────────────────────
+
+Component: Form
+Default Mode: Editable
+Initial Data: {{ table1.selectedRow.data }}
+
+Form Fields:
+
+Field	Component Type	Data Binding
+item_name	Text	{{ table1.selectedRow.data.item_name }}
+strain_species_strain	Text	{{ table1.selectedRow.data.strain_species_strain }}
+inoculated_at	DateTime Picker	{{ table1.selectedRow.data.inoculated_at }}
+substrate_inputs	Multiselect	{{ table1.selectedRow.data.substrate_inputs }}
+output_count	Number Input	{{ table1.selectedRow.data.output_count }}
+fruiting_goal	Dropdown	{{ table1.selectedRow.data.fruiting_goal }}
+override_spawn_time	DateTime Picker	{{ table1.selectedRow.data.override_spawn_time }}
+operator	Text Input	{{ table1.selectedRow.data.operator }}
+notes	Text Area	{{ table1.selectedRow.data.notes }}
+ui_error	Text (read-only)	{{ table1.selectedRow.data.ui_error }}
+validation	Text (read-only)	{{ table1.selectedRow.data.validation }}
+
+──────────────────────────────────────────────
+
+6. Action Button (“Spawn to Bulk”)
+
+──────────────────────────────────────────────
+
+Component: Button
+Label: Spawn to Bulk
+Color: Green
+Icon: flask / lab icon (optional)
+
+On Click → Run Query: setSpawnToBulk
+
+Define a new query:
+
+Query Name: setSpawnToBulk
+Resource: NocoDB
+Method: PATCH
+URL: /tables/lots/rows/{{ table1.selectedRow.data.id }}
+Body:
+{
+"action": "SpawnToBulk"
+}
+
+On Success:
+
+Show notification: “✅ Spawn to Bulk action triggered”
+
+Refresh data: getLots.trigger()
+
+Optionally reset form
+
+──────────────────────────────────────────────
+
+7. Finishing Touches
+
+──────────────────────────────────────────────
+
+Styling & Behavior:
+
+Add app title “Spawn to Bulk” at top left.
+
+Turn on “Show borders between groups” for table clarity.
+
+Disable inline editing in table to prevent conflicts.
+
+Add “Print Record” button if you wish, using Retool’s print utility.
+
+──────────────────────────────────────────────
+
+8. Testing
+
+──────────────────────────────────────────────
+
+Select a colonized grain record (status = FullyColonized or Fridge).
+
+Verify form populates.
+
+Click Spawn to Bulk.
+
+Confirm the record’s action field in NocoDB updates to “SpawnToBulk”.
+
+Confirm automation (e.g., spawn_to_bulk_create_blocks.js) executes correctly.
