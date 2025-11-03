@@ -1,0 +1,186 @@
+──────────────────────────────────────────────
+Interface Name: Inoculate
+──────────────────────────────────────────────
+
+Purpose:
+Allows operator to select sterilized or sealed lots of grain, lc_flask, or plate category items, view and edit relevant inoculation fields, and trigger the Inoculate action button that updates the record’s action field and marks the lot as inoculated.
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: lots
+Source: NocoDB API (previously Airtable base “Dank Mushrooms Inventory”)
+Primary key: lot_id
+
+──────────────────────────────────────────────
+
+2. Filter Conditions
+
+──────────────────────────────────────────────
+Filter Logic (Airtable equivalent → to be replicated in NocoDB / Retool query):
+
+item_category has any of [ "lc_flask", "plate", "grain" ]
+
+status has any of [ "Sealed", "Sterilized" ]
+
+Query-style representation:
+
+/tables/lots/rows?where={"item_category":{"in":["lc_flask","plate","grain"]},"status":{"in":["Sealed","Sterilized"]}}
+
+
+──────────────────────────────────────────────
+
+3. Grouping and Sorting
+
+──────────────────────────────────────────────
+Group By (3 levels):
+
+item_category
+
+unit_size
+
+sterilized_at (ascending chronological display within group)
+
+No explicit Sort By set (inherits grouping order).
+
+──────────────────────────────────────────────
+
+4. Visible Fields (Data Form)
+
+──────────────────────────────────────────────
+
+unit_size
+
+total_volume_ml
+
+lc_lot_id (source culture link)
+
+lc_volume_ml (source culture volume)
+
+override_inoc_time (manual override datetime)
+
+operator
+
+notes
+
+_ui_error
+
+validation
+
+──────────────────────────────────────────────
+
+5. Form Field Behavior
+
+──────────────────────────────────────────────
+
+All fields editable except _ui_error and validation (read-only).
+
+Default Mode: Editable.
+
+Title Field: lot_id.
+
+Data binding to selected row in table view.
+
+Optional “Add record” button for linking to lc_lot_id (source culture).
+
+Printing enabled.
+
+Comments, revision history disabled.
+
+──────────────────────────────────────────────
+
+6. Left-Panel Record List
+
+──────────────────────────────────────────────
+Title: Inoculate
+List Item Fields:
+
+Field 1: item_id
+
+Field 2: status
+Color by: none
+Image field: none
+Allow sorting, filtering, and grouping toggled on.
+Disallow “Add record through form”.
+
+──────────────────────────────────────────────
+
+7. Action Button (Inoculate Lot)
+
+──────────────────────────────────────────────
+Label: “Inoculate Lot”
+Type: Update record
+Action:
+
+Set action → "Inoculate"
+
+Record source: Current record detail view
+
+Update record: 1 update
+
+Label after success: “Inoculated!”
+
+Show check icon: true
+
+──────────────────────────────────────────────
+
+8. Operation Notes
+
+──────────────────────────────────────────────
+
+Interface used after sterilization step; appears next in workflow.
+
+Operator selects any sealed/sterilized lot to inoculate from either LC flask or plate.
+
+The button updates the lot’s action field; downstream automations detect this to log inoculation events and create subsequent LC or grain records.
+
+Mirrors logic of “Spawn to Bulk” interface but operates on different category filters and action value.
+
+──────────────────────────────────────────────
+
+9. Derived API Behavior (for NocoDB Automation Script)
+
+──────────────────────────────────────────────
+GET Filtered Lots:
+
+GET /api/v2/tables/lots/rows?where={"item_category":{"in":["lc_flask","plate","grain"]},"status":{"in":["Sealed","Sterilized"]}}
+
+
+PATCH (Inoculate Action):
+
+PATCH /api/v2/tables/lots/rows/{{lot_id}}
+{
+  "action": "Inoculate"
+}
+
+
+──────────────────────────────────────────────
+
+10. Retool Interface Elements Summary
+
+──────────────────────────────────────────────
+Panels:
+
+Left: Table (grouped and filtered)
+
+Right: Record form + “Inoculate Lot” button
+
+Table (Left Panel):
+
+Group by item_category → unit_size → sterilized_at
+
+Click populates form with selected record
+
+Form (Right Panel):
+
+Fields: unit_size, total_volume_ml, lc_lot_id, lc_volume_ml, override_inoc_time, operator, notes, _ui_error, validation
+
+Button: “Inoculate Lot” triggers NocoDB PATCH query
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────
