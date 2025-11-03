@@ -11,7 +11,7 @@ Allows operator to select sterilized or sealed lots of grain, lc_flask, or plate
 
 ──────────────────────────────────────────────
 Table: lots
-Source: NocoDB API (previously Airtable base “Dank Mushrooms Inventory”)
+Source: NocoDB API (previously Airtable base “MushroomProcess”)
 Primary key: lot_id
 
 ──────────────────────────────────────────────

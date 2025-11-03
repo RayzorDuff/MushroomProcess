@@ -1,0 +1,223 @@
+✅ LANDING — Airtable Interface Extraction
+
+Interface Name: Landing
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: lots
+Title Field: lot_id
+Fields Displayed (Record Detail):
+
+lot_id
+
+item_id (linked; includes name and category badge such as grain, substrate, lc_flask, lc_syringe, fruiting_block, casing, aggr_flask, plate)
+
+recipe_id (linked; includes recipe name and category)
+
+strain_id
+
+status
+
+last_inoculation_date
+
+use_by
+
+grain_inputs
+
+substrate_inputs
+
+Permissions: View-only
+Printing: Enabled
+Export to CSV: Disabled
+Appearance: Title size = X-Large, Show as full width
+Groups: Tab navigation ❌ | Collapsible groups ❌
+
+🧮 GROUPING CONFIGURATION
+
+Group By (2 fields):
+
+item_category → ascending (First → Last)
+
+status → ascending (First → Last)
+
+This creates categorical grouping by item type, then by current production stage/status.
+
+⚙️ LIST ITEM DISPLAY
+
+Color By: None
+Image Field: None
+Title: lot_id
+Field 1: item_name
+Field 2: strain_species_strain
+User Filters: Elements enabled
+User Actions:
+
+Sort ✅
+
+Filter ✅
+
+Group ✅
+
+Add via Form ❌
+
+Buttons: None
+
+🧠 BUTTON CONFIGURATION
+1️⃣ Button: Inoculate Flask
+
+Type: Go to URL in record
+
+Label: Inoculate Flask
+
+Action: GoToURL
+
+Field: public_link_inoculate
+
+Open in new tab: False
+
+Color: Gray
+
+Confirmation: False
+
+Visibility Rules: Off
+
+2️⃣ Button: Inoculate Grain
+
+Type: Go to URL in record
+
+Label: Inoculate Grain
+
+Action: GoToURL
+
+Field: public_link_inoculate (shared field reused)
+
+Open in new tab: False
+
+Color: Gray
+
+Confirmation: False
+
+Visibility Rules: Off
+
+3️⃣ Button: Spawn to Bulk
+
+Type: Go to URL in record
+
+Label: Spawn to Bulk
+
+Action: GoToURL
+
+Field: public_link_spawn_to_bulk
+
+Open in new tab: False
+
+Color: Gray
+
+4️⃣ Button: Dark Room
+
+Type: Go to URL in record
+
+Label: Dark Room
+
+Action: GoToURL
+
+Field: public_link_dark_room
+
+Open in new tab: False
+
+Color: Gray
+
+5️⃣ Button: Fruiting
+
+Type: Go to URL in record
+
+Label: Fruiting
+
+Action: GoToURL
+
+Field: public_link_fruiting
+
+Open in new tab: False
+
+Color: Gray
+
+6️⃣ Button: Package Grain Substrate or Blocks
+
+Type: Go to URL in record
+
+Label: Package Grain Substrate or Blocks
+
+Action: GoToURL
+
+Field: public_link_substrate
+
+Open in new tab: False
+
+Color: Gray
+
+Each of these buttons provides direct cross-navigation between interfaces for workflow transitions—enabling fast switching between sterilization, inoculation, spawn, fruiting, and packaging stages.
+
+🧭 FUNCTIONAL INTENT
+
+The Landing interface acts as the primary operational dashboard for production tracking:
+
+Displays all lots grouped by item type (e.g., grain, LC flask, substrate, plate).
+
+Each lot record links to all downstream process pages through the embedded “Go To” buttons.
+
+Provides visibility into recipe, inoculation, and input metadata without enabling editing.
+
+Essentially this serves as the “router” or “hub” of the MushroomProcess production workflow UI.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+Example entry (to be used in create_landing_interface.py):
+
+create_view(
+    "Landing",
+    source="lots",
+    grouping=[{"field": "item_category", "order": "asc"}, {"field": "status", "order": "asc"}],
+    fields=[
+        "lot_id",
+        "item_id",
+        "recipe_id",
+        "strain_id",
+        "status",
+        "last_inoculation_date",
+        "use_by",
+        "grain_inputs",
+        "substrate_inputs"
+    ],
+    actions=[
+        {"label": "Inoculate Flask", "type": "goto_url", "field": "public_link_inoculate"},
+        {"label": "Inoculate Grain", "type": "goto_url", "field": "public_link_inoculate"},
+        {"label": "Spawn to Bulk", "type": "goto_url", "field": "public_link_spawn_to_bulk"},
+        {"label": "Dark Room", "type": "goto_url", "field": "public_link_dark_room"},
+        {"label": "Fruiting", "type": "goto_url", "field": "public_link_fruiting"},
+        {"label": "Package Grain Substrate or Blocks", "type": "goto_url", "field": "public_link_substrate"}
+    ]
+)
+
+🪄 For Retool Guide
+
+The accompanying Retool_Interface_Landing.txt will later describe:
+
+Layout: Left-hand grouped list by item_category → status; right-hand detail view.
+
+Primary query:
+
+GET /api/v1/db/data/lots?group_by=item_category,status
+
+
+Fields displayed:
+lot_id, item_id, recipe_id, strain_id, status, last_inoculation_date, use_by, grain_inputs, substrate_inputs
+
+Action Buttons (all gray, horizontally aligned):
+
+Each executes a Retool "openURL" action using the selected record field (e.g., {{ selectedLot.public_link_inoculate }}).
+
+No confirmation prompts.
+
+Role: Central navigation interface to all production stations.

@@ -1,0 +1,251 @@
+──────────────────────────────────────────────
+Interface Name: Receive Purchased Syringes
+──────────────────────────────────────────────
+
+Purpose:
+Used to receive purchased liquid culture syringes from vendors and add them to inventory.
+The operator selects the syringe item type (filtered for LC syringes), enters quantities, volume, and vendor information, and submits the form to create new lot records with status “Fridge” and type “Purchased.”
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: lots
+Linked Table(s): items, strains
+Primary Key: lot_id
+
+──────────────────────────────────────────────
+
+2. Item Selector Configuration
+
+──────────────────────────────────────────────
+Field: item_id
+Source Table: items
+Visible Fields:
+
+name
+
+default_unit_size
+
+Hidden (but linked) Fields:
+
+category
+
+default_unit_size_lb
+
+default_unit_size_ml
+
+default_unit_size_oz
+
+default_unit_size_g
+
+lots
+
+sterilization_runs
+
+lots_2
+
+products
+
+Filter Applied:
+
+Where category = "lc_syringe"
+
+
+Other Properties:
+
+Required field: TRUE
+
+Limit selection: TRUE (1 minimum, 1 maximum)
+
+Allow user to edit linked field: TRUE
+
+──────────────────────────────────────────────
+
+3. Form Fields and Structure
+
+──────────────────────────────────────────────
+Field List:
+
+item_id (linked item; filtered for lc_syringe category)
+
+number_received (numeric; count of syringes)
+
+volume_received_ml (numeric; ml per syringe)
+
+volume_remaining_ml (numeric; ml remaining per syringe)
+
+vendor_name (text/dropdown; optional vendor reference)
+
+vendor_batch (text; batch identifier)
+
+strain_id (linked to strains; “Add record” available)
+
+date_received (datetime picker; required)
+
+type_of_receipt (dropdown; default = “Purchased”)
+
+status (dropdown; default = “Fridge”)
+
+notes (text area; optional notes field)
+
+──────────────────────────────────────────────
+
+4. Field Behavior and Defaults
+
+──────────────────────────────────────────────
+
+type_of_receipt default: “Purchased”
+
+status default: “Fridge”
+
+item_id required and pre-filtered to lc_syringe items
+
+number_received, volume_received_ml, and volume_remaining_ml all required numeric inputs
+
+strain_id optional, “Add record” enabled for new strain entries
+
+All fields editable
+
+No derived or calculated fields in the form
+
+──────────────────────────────────────────────
+
+5. Button Configuration (Action)
+
+──────────────────────────────────────────────
+Button Label: “Receive Inventory”
+Type: Submit / Create Record
+Behavior: Creates new lots record populated with entered fields.
+Location: Bottom of the form.
+Additional Options:
+
+“Clear form” button enabled
+
+No confirmation prompt required before submission
+
+──────────────────────────────────────────────
+
+6. Layout and Appearance
+
+──────────────────────────────────────────────
+
+Title: “Receive Purchased Syringes”
+
+Subtitle: “Receive LC Syringes from a vendor to add to inventory.”
+
+One-panel centered form layout
+
+All fields stacked vertically in logical order
+
+Required fields indicated with red asterisk
+
+Grouping: Single field group (no collapsible sections)
+
+Helper text visible for item selector (“LC Syringe 10ml”)
+
+Layout alignment: Left-centered
+
+Printing / Export: disabled
+
+──────────────────────────────────────────────
+
+7. Example Record Values
+
+──────────────────────────────────────────────
+Example Form Values (from screenshot):
+
+item_id: LC-SYRINGE-10
+name: Liquid Culture Syringe
+default_unit_size: 10ml
+number_received: 1
+volume_received_ml: 10
+volume_remaining_ml: 10
+vendor_name: —
+vendor_batch: —
+strain_id: (linked strain record or new)
+date_received: (user entered)
+type_of_receipt: Purchased
+status: Fridge
+notes: —
+
+
+──────────────────────────────────────────────
+
+8. Derived API Behavior (for NocoDB Automation Script)
+
+──────────────────────────────────────────────
+
+POST (Create new lot record):
+
+POST /api/v2/tables/lots/rows
+{
+  "item_id": "LC-SYRINGE-10",
+  "number_received": 1,
+  "volume_received_ml": 10,
+  "volume_remaining_ml": 10,
+  "vendor_name": "<vendor_name>",
+  "vendor_batch": "<batch_id>",
+  "strain_id": "<strain_ref>",
+  "date_received": "<YYYY-MM-DDTHH:mm:ss>",
+  "type_of_receipt": "Purchased",
+  "status": "Fridge",
+  "notes": "<optional text>"
+}
+
+
+──────────────────────────────────────────────
+
+9. Retool Interface Elements Summary
+
+──────────────────────────────────────────────
+Panel Type: Single Form (no table list)
+
+Components:
+
+Dropdown (linked to items, filtered by lc_syringe)
+
+Number Input (number_received)
+
+Number Input (volume_received_ml)
+
+Number Input (volume_remaining_ml)
+
+Text Input (vendor_name)
+
+Text Input (vendor_batch)
+
+Dropdown / Linked Field (strain_id)
+
+DateTime Picker (date_received)
+
+Dropdown (type_of_receipt; default Purchased)
+
+Dropdown (status; default Fridge)
+
+Text Area (notes)
+
+Button: “Receive Inventory” → creates new record via POST query
+
+Button: “Clear form” → resets fields
+
+──────────────────────────────────────────────
+
+10. Workflow Context
+
+──────────────────────────────────────────────
+
+This is the starting point in the LC lifecycle.
+
+Used for adding purchased LC syringes into system inventory.
+
+Resulting lots become available to the Inoculate interface (filtered by lc_syringe category and “Fridge” status).
+
+Ensures that each received syringe is traceable to vendor, strain, and lot identifiers.
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────

@@ -1,0 +1,201 @@
+──────────────────────────────────────────────
+Interface Name: Sterilizer IN
+──────────────────────────────────────────────
+
+Purpose:
+Used to record the start of a sterilization process, capturing what items and recipes are entering the sterilizer, along with process parameters such as temperature, valve mode, quantity, and operator.
+This is typically the first step in the sterilization cycle workflow, before the “Sterilizer OUT” interface.
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: sterilizer_runs
+Linked Tables: items, recipes
+Primary Key: run_id or record_id
+
+──────────────────────────────────────────────
+
+2. Form Fields and Structure
+
+──────────────────────────────────────────────
+Group 1: Active Fields (Visible Fields)
+
+planned_item (Linked to items)
+
+planned_recipe (Linked to recipes)
+
+process_type (Dropdown; default: “Sterilize”)
+
+target_temp_c (Numeric; default: 121.00 °C)
+
+pressure_mode (Dropdown; values: “Closed”, “Open”)
+
+planned_unit_size (Dropdown or numeric size selection; optional)
+
+planned_count (Numeric; number entering sterilizer)
+
+start_time (Datetime picker; required)
+
+operator (Text or linked user/operator field)
+
+Hidden Fields (read-only system tracking):
+
+likely include validation, _ui_error, status, or completed_at (not visible here)
+
+──────────────────────────────────────────────
+
+3. Field Behavior and Defaults
+
+──────────────────────────────────────────────
+
+Field	Type	Default / Required	Notes
+process_type	Dropdown	Default = “Sterilize”	Fixed process label
+target_temp_c	Number	Default = 121.00	Required field
+pressure_mode	Dropdown	Default = “Closed”	Required
+planned_item	Linked Record	Required	“Add Item” allowed
+planned_recipe	Linked Record	Optional	“Add Recipe” allowed
+planned_unit_size	Dropdown/Number	Optional	Manual entry
+planned_count	Number	Required	“Number Entering Sterilizer”
+start_time	Datetime	Required	“Start Time”
+operator	Text/Link	Required	Operator initials or reference
+
+──────────────────────────────────────────────
+
+4. Submission and Button Configuration
+
+──────────────────────────────────────────────
+Button Label: “Create”
+Action: Create new sterilizer run record
+Confirmation / Message: “Sterilization Process Created”
+Submission Type: Form submit (Create Record)
+Behavior:
+
+After submission, form resets (Clear Form button enabled)
+
+Option to “Submit another response”: Enabled
+
+Email responses: Disabled
+
+Printing: Disabled
+
+──────────────────────────────────────────────
+
+5. Layout and Appearance
+
+──────────────────────────────────────────────
+
+Title: “Sterilizer IN”
+
+Subtitle: “Simple form to log what’s going into the sterilizer.”
+
+Layout: Single-column, grouped field form
+
+Field alignment: Left
+
+Grouping: “Group 1” (non-collapsible)
+
+Required fields: Marked with red asterisk
+
+Temperature and valve mode visually emphasized
+
+Start time uses timezone indicator (“MST”)
+
+Bottom of form includes “Create” and “Clear Form” buttons
+
+──────────────────────────────────────────────
+
+6. Example Record Values
+
+──────────────────────────────────────────────
+Example (from screenshots):
+
+planned_item: (linked item record)
+planned_recipe: (linked recipe record)
+process_type: Sterilize
+target_temp_c: 121.00
+pressure_mode: Closed
+planned_unit_size: [user entered]
+planned_count: [number entered]
+start_time: [datetime entered]
+operator: [operator initials]
+
+
+──────────────────────────────────────────────
+
+7. Derived API Behavior (for NocoDB Automation Script)
+
+──────────────────────────────────────────────
+Create New Sterilizer Run:
+
+POST /api/v2/tables/sterilizer_runs/rows
+{
+  "planned_item": "<item_id>",
+  "planned_recipe": "<recipe_id>",
+  "process_type": "Sterilize",
+  "target_temp_c": 121.0,
+  "pressure_mode": "Closed",
+  "planned_unit_size": "<value>",
+  "planned_count": <number>,
+  "start_time": "<YYYY-MM-DDTHH:mm:ss>",
+  "operator": "<operator_name>"
+}
+
+
+──────────────────────────────────────────────
+
+8. Retool Interface Elements Summary
+
+──────────────────────────────────────────────
+Form Components:
+
+Linked Record Selector (items) → planned_item
+
+Linked Record Selector (recipes) → planned_recipe
+
+Dropdown (process_type) [default = Sterilize]
+
+Numeric Input (target_temp_c) [default = 121.0]
+
+Dropdown (pressure_mode) [options: Closed, Open]
+
+Number Input (planned_unit_size)
+
+Number Input (planned_count)
+
+Datetime Picker (start_time)
+
+Text Input (operator)
+
+Submit Button (label: “Create”)
+
+Clear Button
+
+Form Action:
+
+On Submit → POST to NocoDB sterilizer_runs API
+
+Show Success Message: “Sterilization Process Created”
+
+Reset Form after submit
+
+──────────────────────────────────────────────
+
+9. Workflow Context
+
+──────────────────────────────────────────────
+
+This form initiates the sterilization batch record.
+
+Data entered here determines which items and recipes will later appear in “Sterilizer OUT” for validation and lot creation.
+
+Temperature, valve mode, and start time ensure batch traceability.
+
+Operator and recipe references link sterilization data to upstream production logs.
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────

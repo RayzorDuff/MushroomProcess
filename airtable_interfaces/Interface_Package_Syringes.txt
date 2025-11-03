@@ -1,0 +1,156 @@
+✅ PACKAGE SYRINGES — Airtable Interface Extraction
+
+Interface Name: Package Syringes
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: lots
+Title Field: lot_id
+
+Fields Shown in Record Detail View:
+
+LC Flask Strain (strain_species_strain linked record)
+
+Source Vendor
+
+Inoculated On
+
+Volume Remaining
+
+LC Syringe (linked item_id, category = lc_syringe)
+
+Number of Syringes
+
+Created At
+
+Notes
+
+Validation
+
+Permissions: Editable
+Printing: Allowed
+Export to CSV: Disabled
+Appearance: Title size = Large
+Groups: Tab navigation = off, Collapsible groups = off
+
+🔎 FILTER CONFIGURATION
+
+Filter Conditions:
+
+item_category has any of → lc_flask
+
+status is any of → Inoculated, FullyColonized, Fridge
+
+This filter ensures that only liquid culture flasks that are ready for syringe production or storage display in this interface.
+
+🧮 GROUPING CONFIGURATION
+
+Group By:
+
+regulated (from strain_id) (A → Z)
+
+This provides organization by strain lineage or regulatory grouping field inherited from the linked strain record.
+
+⚙️ LIST ITEM DISPLAY
+
+Color By: None
+Image Field: None
+Title: lot_id
+Field 1: status
+Field 2: strain_species_strain
+User Filters: Elements enabled
+User Actions:
+
+Sort ✅
+
+Filter ✅
+
+Group ✅
+
+Add records through form ❌
+
+Buttons: None
+
+🧠 BUTTON CONFIGURATION
+1️⃣ Button: Create Syringes
+
+Type: Update record
+
+Action: Set action = MakeSyringes
+
+Label after: “Updated”
+
+Show check icon: True
+
+Confirmation: False
+
+Source: Record detail
+
+Color: Gray
+
+Visibility Rule: Off
+
+Section: Record header
+
+This triggers internal automations or scripts to convert LC flask lots into syringe inventory, updating action and possibly generating new records in linked tables (e.g., lots with lc_syringe category).
+
+🧭 SUMMARY OF FUNCTIONAL INTENT
+
+The Package Syringes interface serves as a packaging control panel for creating new LC syringe products from liquid culture flasks:
+
+Filters display all active LC flasks ready for syringe extraction (Inoculated / Fully Colonized / Fridge).
+
+Users review strain, volume remaining, and source vendor data.
+
+The Create Syringes button updates the record’s action field to trigger automated syringe production in Airtable or via API.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+Equivalent API logic (to be implemented in create_package_syringes_interface.py):
+
+create_view(
+    "Package_Syringes",
+    source="lots",
+    filters=[
+        {"item_category": ["lc_flask"], "status": ["Inoculated", "FullyColonized", "Fridge"]}
+    ],
+    group_by=["regulated_from_strain_id"],
+    sort_by=[],
+    fields=[
+        "strain_species_strain",
+        "source_vendor",
+        "inoculated_at",
+        "volume_remaining",
+        "item_id",
+        "number_of_syringes",
+        "created_at",
+        "notes",
+        "validation"
+    ],
+    actions=[{"label": "Create Syringes", "type": "update_record", "set": {"action": "MakeSyringes"}}]
+)
+
+🪄 For Retool Guide
+
+The accompanying Retool_Interface_Package_Syringes.txt should describe:
+
+Layout: Two-pane (record list → record detail).
+
+Primary query:
+
+GET /api/v1/db/data/lots?item_category_in=["lc_flask"]&status_in=["Inoculated","FullyColonized","Fridge"]
+
+
+Button behavior:
+
+PATCH /api/v1/db/data/lots/{{selectedLot.id}}
+{
+    "action": "MakeSyringes"
+}
+
+
+Group list by strain regulatory linkage (regulated_from_strain_id).
+
+Include read-only view for flask metadata (strain, vendor, inoculation date, volume remaining).

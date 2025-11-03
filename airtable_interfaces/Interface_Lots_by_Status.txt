@@ -1,0 +1,169 @@
+
+✅ LOTS BY STATUS — Airtable Interface Extraction
+
+Interface Name: Lots by Status
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: lots
+Title Field: item_id
+Visualization Type: Kanban
+Grouping Field (Kanban columns): status
+
+Fields displayed in each Kanban card:
+
+item_category (pill-style category label, e.g. lc_syringe, lc_flask, fruiting_block, etc.)
+
+item_name (primary visible title in each card)
+
+regulated (from strain_id) (boolean/tick marker)
+
+strain_species_strain (strain species or sub-strain text)
+
+vendor_name (shown for LC or consumable items)
+
+status (shown as pill label)
+
+inoculated_at, spawned_at, or sterilized_at (contextually displayed based on lot type)
+
+use_by (shown for consumable/retired items)
+
+🧮 GROUPING CONFIGURATION (KANBAN COLUMNS)
+
+The Kanban view groups all records by their status value.
+Observed columns and their counts in the capture:
+
+Fridge — 57
+
+ColdShock — 0
+
+Fruiting — 18
+
+Consumed — 74
+
+Retired — 29
+
+Frozen — 0
+
+Each column dynamically lists all lots records with that status, filtered only by user selection (no base filter).
+
+🧠 FILTER CONFIGURATION
+
+Filter: None (All records in table lots are shown).
+Users can apply ad-hoc filters through UI since filtering and grouping are enabled in this interface.
+
+⚙️ LIST / PAGE SETTINGS
+
+Page Title: Lots by Status
+Description: (optional user description enabled)
+Show Description: ✅
+Source: lots
+
+User Filters:
+
+Elements (Enabled)
+
+Dropdowns (Configured for item_id)
+
+User Actions:
+
+Sort ✅
+
+Search ✅
+
+Filter ✅
+
+Group ✅
+
+Add Records through Form ✅
+
+Buttons: None
+
+Advanced:
+
+Allow Printing ✅
+
+Allow Export to CSV ✅
+
+Allow Import from CSV ✅
+
+🧭 FUNCTIONAL INTENT
+
+The Lots by Status interface provides a kanban-style pipeline visualization for monitoring all lots in production.
+Each column represents a production or storage state, and cards within show contextual metadata like strain, item category, and vendor.
+Users can:
+
+Drag records between columns to update status directly.
+
+Filter by item_id or strain using the dropdown.
+
+Search or sort dynamically.
+
+This interface acts as a high-level operational dashboard across all categories (grain, LC, plates, fruiting blocks, etc.), making it ideal for supervisors to see progress by stage.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+Example entry for automated migration script (in create_lots_by_status_interface.py):
+
+create_view(
+    "Lots_by_Status",
+    source="lots",
+    view_type="kanban",
+    group_by=["status"],
+    fields=[
+        "item_category",
+        "item_name",
+        "regulated_from_strain_id",
+        "strain_species_strain",
+        "vendor_name",
+        "status",
+        "inoculated_at",
+        "spawned_at",
+        "sterilized_at",
+        "use_by"
+    ],
+    user_filters={"dropdowns": ["item_id"]},
+    permissions={
+        "allow_printing": True,
+        "allow_export_csv": True,
+        "allow_import_csv": True,
+        "add_records_form": True,
+    }
+)
+
+🪄 For Retool Interface Guide
+
+A future file Retool_Interface_Lots_by_Status.txt should describe:
+
+View Type: Kanban
+
+Primary Query:
+
+GET /api/v1/db/data/lots?group_by=status
+
+
+Columns: dynamically mapped to unique values of status.
+
+Card Display Template:
+
+{{ item_name }}
+{{ strain_species_strain }}
+{{ item_category }}
+{{ vendor_name }}
+Status: {{ status }}
+
+
+Drag-and-Drop Behavior:
+When a card is dropped in a new column, issue:
+
+PATCH /api/v1/db/data/lots/{{record.id}}
+{ "status": "{{newColumnName}}" }
+
+
+Filters: Dropdown filter by item_id.
+
+Permissions: Read/Write on status, read-only for all other fields.
+
+Appearance: Kanban cards color-coded by item_category for quick visual distinction.

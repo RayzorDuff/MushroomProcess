@@ -1,0 +1,237 @@
+✅ PACKAGE FREEZE DRIED — Airtable Interface Extraction
+
+Interface Name: Package Freeze Dried
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: products
+Title Field: product_id
+Visualization Type: Record Detail
+
+Filter Applied:
+
+WHERE tray_state IS ANY OF ["freezer_tray", "fresh_tray"]
+
+
+Displayed Fields (13 total):
+
+product_id
+
+origin_lots (linked record: lot_id, item_id, item_name)
+
+species_strain
+
+net_weight_g (raw weight in grams)
+
+item_id
+
+package_item
+
+package_size_g
+
+package_count
+
+use_by
+
+storage_location
+
+dried_weight_g
+
+ui_error (validation/flag indicator)
+
+validation (status field, likely automation-driven)
+
+⚙️ LAYOUT AND PERMISSIONS
+
+Appearance:
+
+Title Size: X-Large
+
+Show as Full Width: ✅
+
+Collapsible Groups: ❌
+
+Tab Navigation: ❌
+
+Permissions: Editable (field-level permissions vary by workflow state).
+Printing: ✅ Enabled
+Export to CSV: ❌ Disabled
+
+User Actions:
+
+Sort ✅
+
+Filter ✅
+
+Group ✅
+
+Add via Form ✅
+
+Buttons: Defined (see below)
+
+User Filters:
+
+Elements ✅
+
+Dropdowns: None configured
+
+🧠 FILTER LOGIC
+
+This interface restricts visible products to active trays that are either freshly filled or currently freezing:
+
+tray_state ∈ { freezer_tray, fresh_tray }
+
+
+This allows operators to finalize packaging operations or run freeze-dry cycles only for current trays, not archived or completed batches.
+
+🧮 FIELD BEHAVIOR AND PURPOSE
+
+origin_lots → Links back to the harvested or bulk batch source.
+
+species_strain → Carries species name (e.g., “Red Reishi”).
+
+net_weight_g → Input field for raw weight prior to drying.
+
+item_id / package_item → Designate the physical tray or packaging unit.
+
+package_size_g / package_count → Define packaging configuration.
+
+dried_weight_g → Entered post-drying; used for yield calculations.
+
+validation → Internal flag for automation verification or completion state.
+
+ui_error → Captures missing or inconsistent data triggers.
+
+🔘 BUTTON CONFIGURATION
+1️⃣ Button: Package
+
+Label: Package
+
+Action: Update record
+
+Record Source: Product Detail
+
+Action Data:
+
+Set action = PackageFreezeDried
+
+
+Confirmation: None
+
+After Label: “Updated”
+
+Show Check Icon: ✅
+
+Color: Default (Gray)
+
+2️⃣ Button: Freeze Dry
+
+Label: Freeze Dry
+
+Action: Update record
+
+Record Source: Product Detail
+
+Action Data:
+
+Set action = FreezeDry
+
+
+Confirmation: None
+
+After Label: “Freeze Drying!”
+
+Show Check Icon: ✅
+
+Color: Default (Gray)
+
+These buttons drive automation events that signal transitions in the production pipeline:
+
+PackageFreezeDried: Marks the tray as packaged, triggers label creation, updates inventory.
+
+FreezeDry: Marks tray as drying, links to Freeze Dryer station or equipment queue.
+
+🧭 FUNCTIONAL INTENT
+
+The Package Freeze Dried interface supports the final stage of the mushroom production lifecycle:
+
+Tracks and converts trays of freeze-dried mushrooms into packaged retail units.
+
+Records yield metrics between wet and dried weights.
+
+Provides button-driven automation to mark actions as completed for either Freeze Dry or Package stages.
+
+Filters ensure only active trays (fresh or freezing) appear to prevent double handling.
+
+This view is functionally tied to the earlier Harvest and Print Queue interfaces, acting as the packaging endpoint.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+Proposed entry for create_package_freeze_dried_interface.py:
+
+create_view(
+    "Package_Freeze_Dried",
+    source="products",
+    view_type="detail",
+    filter={"tray_state": ["freezer_tray", "fresh_tray"]},
+    fields=[
+        "product_id",
+        "origin_lots",
+        "species_strain",
+        "net_weight_g",
+        "item_id",
+        "package_item",
+        "package_size_g",
+        "package_count",
+        "use_by",
+        "storage_location",
+        "dried_weight_g",
+        "ui_error",
+        "validation"
+    ],
+    actions=[
+        {"label": "Package", "type": "update_record", "set": {"action": "PackageFreezeDried"}},
+        {"label": "Freeze Dry", "type": "update_record", "set": {"action": "FreezeDry"}}
+    ],
+    permissions={
+        "allow_printing": True,
+        "allow_export_csv": False,
+        "add_records_form": True
+    }
+)
+
+🪄 For Retool Interface Guide
+
+A future file Retool_Interface_Package_Freeze_Dried.txt should include:
+
+Layout: Record detail panel, left-hand list of filtered products.
+
+Primary query:
+
+GET /api/v1/db/data/products?where[tray_state]=freezer_tray,fresh_tray
+
+
+Editable fields:
+net_weight_g, package_size_g, package_count, use_by, storage_location, dried_weight_g
+
+Action Buttons:
+
+Package → PATCH request:
+
+PATCH /api/v1/db/data/products/{{record.id}}
+{ "action": "PackageFreezeDried" }
+
+
+Freeze Dry → PATCH request:
+
+PATCH /api/v1/db/data/products/{{record.id}}
+{ "action": "FreezeDry" }
+
+
+Filter: Dropdown toggle for tray state.
+
+Permissions: Read/write, except for origin_lots and species_strain (read-only).
+
+Printing: Enabled for label generation.

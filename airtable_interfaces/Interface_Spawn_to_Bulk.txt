@@ -1,0 +1,224 @@
+──────────────────────────────────────────────
+Interface Name: Spawn to Bulk
+──────────────────────────────────────────────
+
+Purpose:
+Used to convert colonized grain spawn lots into bulk substrate blocks or bags.
+Operators select fully colonized or refrigerated grain lots, view strain and substrate details, and execute the “Spawn to Bulk” action which updates the lot record to trigger the bulk creation process in automation.
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: lots
+Source: NocoDB API (previously Airtable “MushroomProcess”)
+Primary Key: lot_id
+
+──────────────────────────────────────────────
+
+2. Filter Conditions
+
+──────────────────────────────────────────────
+Filter Logic (Airtable equivalent → NocoDB / Retool query):
+
+status has any of [ "FullyColonized", "Fridge" ]
+
+item_category has any of [ "grain" ]
+
+Equivalent API-style filter:
+
+/tables/lots/rows?where={"status":{"in":["FullyColonized","Fridge"]},"item_category":{"in":["grain"]}}
+
+
+──────────────────────────────────────────────
+
+3. Grouping and Sorting
+
+──────────────────────────────────────────────
+Group By (2 levels):
+
+item_name
+
+strain_species_strain
+
+Sort Order:
+
+item_name → ascending
+
+strain_species_strain → ascending
+(No explicit sort beyond grouping)
+
+──────────────────────────────────────────────
+
+4. Visible Fields (Record Detail View)
+
+──────────────────────────────────────────────
+Visible fields (as shown in right-side record form):
+
+item_name (Grain type, e.g., “Organic Wheat/Millet”)
+
+strain_species_strain (Species/strain, e.g., “Red Reishi”)
+
+inoculated_at (Inoculation Date, datetime)
+
+substrate_inputs (Linked table → substrate bag lots)
+
+output_count (Number of bulk blocks/bags)
+
+fruiting_goal (Type of bulk blocks/bags)
+
+override_spawn_time (Override spawn date, optional datetime)
+
+operator (Text field for staff/operator)
+
+notes (Text area for remarks)
+
+_ui_error (read-only)
+
+validation (read-only)
+
+──────────────────────────────────────────────
+
+5. Form Configuration
+
+──────────────────────────────────────────────
+
+Default Mode: Editable
+
+Title Field: lot_id
+
+Bound to selected record in table view
+
+_ui_error and validation → read-only display fields
+
+“Add record” allowed in linked field substrate_inputs (for associating consumed substrate lots)
+
+Printing allowed
+
+Comments and revision history disabled
+
+No collapsible groups enabled
+
+──────────────────────────────────────────────
+
+6. Record List (Left Panel)
+
+──────────────────────────────────────────────
+List Title: Spawn to Bulk
+Data Source: lots
+List Item Display:
+
+Field 1: status
+
+Field 2: strain_species_strain
+Color by: None
+Image field: None
+Sorting: Enabled
+Filtering: Enabled
+Grouping: Enabled
+Add Record Through Form: Disabled
+Printing: Enabled
+
+──────────────────────────────────────────────
+
+7. Action Button (Spawn to Bulk)
+
+──────────────────────────────────────────────
+Label: “Spawn to Bulk”
+Type: Update Record
+Action:
+
+Set action → "SpawnToBulk"
+
+Record Source: Current record detail
+
+Update Count: 1 record
+
+Label after success: “Bulk Created”
+
+Check Icon: enabled
+
+──────────────────────────────────────────────
+
+8. Example Record Data
+
+──────────────────────────────────────────────
+Example from interface:
+LOT ID: LOT-250929-MOxL
+Grain: Organic Wheat/Millet
+Species: Red Reishi
+Inoculated At: 9/13/2025, 10:00 AM
+Substrate Bag(s): Linked records (e.g., SUB-MM75-2.5)
+Output Count: 1
+Type of Bulk: Top
+Override Spawn Date: 8/18/2025, 12:03 PM
+Operator: —
+Notes: —
+Validation: —
+
+──────────────────────────────────────────────
+
+9. Derived API Behavior (for NocoDB automation)
+
+──────────────────────────────────────────────
+
+GET Filtered Lots:
+
+GET /api/v2/tables/lots/rows?where={"status":{"in":["FullyColonized","Fridge"]},"item_category":{"in":["grain"]}}
+
+
+PATCH (Trigger Spawn to Bulk):
+
+PATCH /api/v2/tables/lots/rows/{{lot_id}}
+{
+  "action": "SpawnToBulk"
+}
+
+
+──────────────────────────────────────────────
+
+10. Retool Interface Elements Summary
+
+──────────────────────────────────────────────
+Panels:
+
+Left: Table (filtered, grouped by item_name and strain_species_strain)
+
+Right: Form displaying fields listed above
+
+Table (Left Panel):
+
+Data Source: {{ getLots.data }}
+
+Grouped: item_name > strain_species_strain
+
+Row click populates form
+
+Form (Right Panel):
+
+Editable fields: item_name, strain_species_strain, inoculated_at, substrate_inputs, output_count, fruiting_goal, override_spawn_time, operator, notes
+
+Read-only: _ui_error, validation
+
+Action button: “Spawn to Bulk” → triggers PATCH request to NocoDB API
+
+──────────────────────────────────────────────
+
+11. Notes on Workflow Context
+
+──────────────────────────────────────────────
+
+This interface follows “Inoculate” in the production workflow.
+
+It is used when colonized grain spawn is ready to be expanded into bulk substrate.
+
+“SpawnToBulk” action value signals the automation layer to consume substrate inputs and generate bulk lot records.
+
+This view provides traceability for strain lineage and substrate input linkage.
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────
