@@ -1,6 +1,22 @@
 /**
  *  Script: spawn_to_bulk_create_blocks.js
  *  Version: 2025-11-11
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * =============================================================================
  *  Summary: Create Fruiting Block lots from grain + substrate inputs with
  *           correct unit size allocation and full lineage/events.
  *  Features:
