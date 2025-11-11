@@ -1,0 +1,236 @@
+──────────────────────────────────────────────
+Interface Name: Sterilizer OUT
+──────────────────────────────────────────────
+
+Purpose:
+Used to finalize a sterilization process and update inventory after sterilization or pasteurization.
+The operator confirms output quality, destroyed items, and time removed from the sterilizer.
+Also includes an action button to automatically generate new inventory lots for completed batches.
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: sterilizer_runs
+Linked Tables: items, recipes
+Primary Key: steri_run_id
+Record Source Type: “Record Detail” (editable)
+
+──────────────────────────────────────────────
+
+2. Record Filters and Sort
+
+──────────────────────────────────────────────
+Filter:
+
+end_time is empty
+
+process_type is not “Abandoned”
+
+Sort:
+
+Sort by: start_time (Earliest → Latest)
+
+──────────────────────────────────────────────
+
+3. Fields and Layout
+
+──────────────────────────────────────────────
+Visible Fields (in form order):
+
+steri_run_id — Record identifier (auto field)
+
+planned_item — Linked to items table
+
+planned_recipe — Linked to recipes table
+
+planned_unit_size — Numeric/Dropdown (e.g., 2.00)
+
+planned_count — Number Entered Sterilizer (required)
+
+good_count — Number Good Items (editable)
+
+destroyed_count — Number Destroyed Items (editable)
+
+override_end_time — Datetime Picker; label “Removed from Sterilizer at (optional)”
+
+operator — Linked user or text field (required)
+
+validation — Formula or computed indicator field (read-only)
+
+_ui_error — System message or validation flag (hidden by default)
+
+──────────────────────────────────────────────
+
+4. Field Behavior and Defaults
+
+──────────────────────────────────────────────
+
+Field	Type	Required	Default / Example	Notes
+steri_run_id	Text / Auto	Yes	“RUN-251102-JU5w”	Record title field
+planned_item	Link	Yes	“GRAIN-OWM-2”	Category = “grain”
+planned_recipe	Link	Yes	“REC-GRAIN-OWM”	Category = “grain”
+planned_unit_size	Number	No	2.00	Size in units
+planned_count	Number	Yes	2	Total entered
+good_count	Number	Optional	—	Number surviving sterilization
+destroyed_count	Number	Optional	—	Number discarded
+override_end_time	Datetime	Optional	—	Used for manual override of sterilizer end time
+operator	Text/Link	Yes	—	Operator initials or name
+validation	Formula	Read-only	—	Internal check
+
+──────────────────────────────────────────────
+
+5. Button Configuration
+
+──────────────────────────────────────────────
+Button Label: “Add Sterilized/Pasteurized to Inventory”
+Action Type: Update record
+Record Source: Record Detail (current sterilization run)
+Action Behavior:
+
+Set create_lots = true
+
+
+Post-Action Label: “Inventory Created”
+Show Check Icon: True
+Confirmation Required: False
+Rules / Visibility: None defined
+
+──────────────────────────────────────────────
+
+6. Layout & Display Configuration
+
+──────────────────────────────────────────────
+
+Title Field: steri_run_id
+
+Title Size: Large
+
+Fields visible: 11
+
+Appearance: One-column record form (editable)
+
+Buttons: Single “Add Sterilized/Pasteurized to Inventory”
+
+Permissions: Editable (some dependent on status)
+
+Allow Printing: Enabled
+
+Allow Export to CSV: Disabled
+
+Grouping: None
+
+Tab Navigation: Disabled
+
+Collapsible Groups: Disabled
+
+Comments / Revision History: Disabled
+
+──────────────────────────────────────────────
+
+7. Example Record Snapshot
+
+──────────────────────────────────────────────
+
+steri_run_id: RUN-251102-JU5w
+planned_item: GRAIN-OWM-2 (category: grain)
+planned_recipe: REC-GRAIN-OWM (category: grain)
+planned_unit_size: 2.00
+planned_count: 2
+good_count: [user input]
+destroyed_count: [user input]
+override_end_time: [datetime, optional]
+operator: [user input]
+validation: [auto field]
+
+
+──────────────────────────────────────────────
+
+8. Derived API Behavior (for NocoDB Automation Script)
+
+──────────────────────────────────────────────
+Endpoint:
+
+PATCH /api/v2/tables/sterilizer_runs/rows/{steri_run_id}
+
+
+Request Body Example (button action):
+
+{
+  "create_lots": true
+}
+
+
+Full Record Update Example:
+
+PATCH /api/v2/tables/sterilizer_runs/rows/{steri_run_id}
+{
+  "good_count": 2,
+  "destroyed_count": 0,
+  "override_end_time": "2025-11-02T12:45:00",
+  "operator": "Ray D.",
+  "create_lots": true
+}
+
+
+──────────────────────────────────────────────
+
+9. Retool Interface Element Summary
+
+──────────────────────────────────────────────
+Page Title: Sterilizer OUT
+
+Panels:
+
+Left Panel: Record list filtered by active sterilizer runs
+
+Source: sterilizer_runs
+
+Filters: end_time IS NULL and process_type != Abandoned
+
+Sort: start_time ascending
+
+Fields shown: planned_item_name, steri_run_id
+
+Right Panel: Record Detail Editor
+
+Editable fields (as above)
+
+Submit button: “Add Sterilized/Pasteurized to Inventory”
+
+Action: PATCH to /sterilizer_runs endpoint with create_lots = true
+
+Data Flow:
+
+User selects sterilizer run from the list
+
+Edits fields for counts and operator
+
+Optionally sets override_end_time
+
+Clicks the button → creates inventory lots automatically in downstream tables
+
+Visual confirmation: “Inventory Created”
+
+──────────────────────────────────────────────
+
+10. Workflow Context
+
+──────────────────────────────────────────────
+
+Complements the “Sterilizer IN” interface.
+
+Represents the completion phase of sterilization.
+
+Automatically transitions sterilized items into “available inventory” once lots are created.
+
+Ensures the number of good vs. destroyed items is logged, enabling batch traceability.
+
+Connected downstream with lots and items for material tracking.
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────

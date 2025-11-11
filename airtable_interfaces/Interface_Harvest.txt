@@ -1,0 +1,182 @@
+✅ HARVEST INTERFACE — Airtable Configuration Extraction
+
+Interface Name: Harvest
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: lots
+Title Field: lot_id
+Fields Shown in Record Detail View:
+
+grain_input
+
+substrate_input
+
+species
+
+fruiting_goal
+
+flush_no
+
+harvest_weight_g
+
+harvest_item
+
+notes
+
+validation
+
+fresh_tray_count
+
+frozen_tray_count
+
+(implicit linked lookup fields): strain_species_strain, item_id
+
+Permissions: Editable
+Printing: Allowed
+Export to CSV: Disabled
+Tab Navigation / Collapsible Groups: Disabled
+Appearance: Title size = Large
+
+🔎 FILTER CONFIGURATION
+
+Filter Conditions:
+
+status is any of → Fruiting
+
+item_id has none of → LC-FLASK-300, LC-SYRINGE-200
+
+These filters restrict the displayed records to active fruiting lots, excluding all liquid culture flask/syringe types.
+
+🧮 GROUPING CONFIGURATION
+
+Group By:
+
+item_id (A → Z)
+
+strain_species_strain (A → Z)
+
+These groups cluster fruiting lots first by item type (e.g., FB-MM50-LG) and then by species strain (e.g., Red Reishi, Albino Melmak).
+
+⚙️ LIST ITEM DISPLAY
+
+Color By: None
+Image Field: None
+Title: lot_id
+Field 1: status
+Field 2: item_id
+User Filters: Elements enabled
+User Actions:
+
+Sort ✅
+
+Filter ✅
+
+Group ✅
+
+Add records through form ✅
+
+Buttons: None
+
+🧠 BUTTON CONFIGURATION
+1️⃣ Button: Harvest to Tray
+
+Type: Update record
+
+Action: Set action = Harvest
+
+Label after: “Harvested!”
+
+Show check icon: True
+
+Section: Main record header
+
+Record Source: Record detail
+
+Confirmation required: False
+
+2️⃣ Button: Compost Block
+
+Type: Update record
+
+Action: Set action = Composted
+
+Label after: “Composted!”
+
+Show check icon: True
+
+Section: Transition Block
+
+Confirmation required: False
+
+3️⃣ Button: Cold Shock
+
+Type: Update record
+
+Action: Set action = ColdShock
+
+Label after: “Shocking”
+
+Show check icon: True
+
+Section: Transition Block
+
+Confirmation required: False
+
+🧩 PAGE STRUCTURE
+
+Main Page Sections:
+
+Header:
+
+Record Title → lot_id (e.g., LOT-251031-HkMv)
+
+Top-right button → “Harvest to Tray”
+
+Record Detail:
+
+Fields for grain/substrate/species through tray counts
+
+Subsection — Organism Introduction:
+
+(Placeholder section present but not populated with buttons in Harvest interface)
+
+Subsection — Transition Block:
+
+Buttons: “Compost Block”, “Cold Shock”
+
+🧭 SUMMARY OF FUNCTIONAL INTENT
+
+The Harvest interface is a post-fruiting operation panel for managing yield, harvest logging, and chamber transitions.
+
+The “Harvest to Tray” action triggers a state change (action=Harvest) — likely causing linked automation to increment tray counts or mark completion.
+
+The “Cold Shock” and “Compost Block” actions handle biological or end-of-life transitions.
+
+The grouping and filters focus exclusively on fruiting lots, ensuring irrelevant pre-inoculation or LC records are not displayed.
+
+⚡ INTENDED MIGRATION TARGETS
+🧰 For NocoDB API Script:
+
+You will need:
+
+create_view("Harvest", source="lots", filters=[{status:"Fruiting"}, {exclude_item_ids:["LC-FLASK-300","LC-SYRINGE-200"]}], group_by=["item_id","strain_species_strain"], fields=[...], actions=[HarvestToTray, CompostBlock, ColdShock])
+
+🪄 For Retool Guide:
+
+Retool_Interface_Harvest.txt should describe:
+
+Two-pane layout (record list + detail panel)
+
+Query GET /api/v1/db/data/lots?status=Fruiting&exclude=LC-*
+
+Buttons triggering PATCH requests:
+
+/api/v1/db/data/lots/{id} body {action:"Harvest"}
+
+/api/v1/db/data/lots/{id} body {action:"ColdShock"}
+
+/api/v1/db/data/lots/{id} body {action:"Composted"}
+
+Grouping UI with collapsible sections per item_id then strain_species_strain.

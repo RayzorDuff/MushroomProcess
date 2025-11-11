@@ -1,0 +1,192 @@
+✅ PRINT QUEUE — Airtable Interface Extraction
+
+Interface Name: Print Queue
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: print_queue
+Title Field: lot_id
+Visualization Type: Kanban
+Kanban Group Field: source_kind
+
+Displayed Fields in Each Kanban Card:
+
+lot_id (primary label)
+
+created_at (timestamp)
+
+label_title (from item_id)
+
+label_company (from lot_id)
+
+label_subtitle (from lot_id)
+
+label_upper_line (from lot_id)
+
+label_lower_line (from lot_id)
+
+inoculated_at
+
+sterilized_at
+
+use_by
+
+spawned_at
+
+label_footer (from lot_id)
+
+label_product_line (from lot_id)
+
+This view is optimized for print label batching — every card corresponds to a label job in the queue, grouped by its print source type.
+
+🧮 GROUPING CONFIGURATION (KANBAN COLUMNS)
+
+Group By Field: source_kind
+
+Observed Columns:
+
+Uncategorized — cards without a defined source type (new or misc print jobs)
+
+Grain_Inoculated — labels generated from inoculated grain lots
+
+LC_Flask_Inoculated — labels for LC flasks created or sterilized
+
+Bulk_Created — labels for spawn/bulk substrate production
+
+Product_Package — retail or final product labels
+
+Plate_Inoculated — agar/plate label jobs
+
+Each column represents a print queue category tied to the workflow stage of the originating lot.
+
+🧠 FILTER CONFIGURATION
+
+Filter: None
+The entire print queue table is visible by default.
+
+Users can dynamically filter by source_kind (enabled dropdown) and perform ad-hoc filtering/sorting.
+
+⚙️ LIST / PAGE SETTINGS
+
+Page Title: Print Queue
+Show Description: ✅
+Visualization: Kanban
+Data Source: print_queue
+
+User Filters:
+
+Elements: ✅
+
+Dropdowns: source_kind ✅
+
+User Actions:
+
+Sort ✅
+
+Search ✅
+
+Filter ✅
+
+Group ✅
+
+Add via Form ✅
+
+Buttons: None
+
+Advanced:
+
+Allow Printing ✅
+
+Allow Export to CSV ✅
+
+Allow Import from CSV ✅
+
+🧭 FUNCTIONAL INTENT
+
+The Print Queue interface visualizes active and completed label jobs across all workflow categories.
+Each Kanban column represents a print context (e.g., Grain Inoculated vs. LC Flask Inoculated).
+Operators can:
+
+Monitor pending labels grouped by stage.
+
+Quickly print by selecting cards.
+
+Review label details (e.g., company, subtitle, inoculation/sterilization dates, use-by).
+
+Add manual print records through the form.
+
+This interface functions as a central production labeling dashboard within MushroomProcess.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+Proposed structure for create_print_queue_interface.py:
+
+create_view(
+    "Print_Queue",
+    source="print_queue",
+    view_type="kanban",
+    group_by=["source_kind"],
+    fields=[
+        "lot_id",
+        "created_at",
+        "label_title",
+        "label_company",
+        "label_subtitle",
+        "label_upper_line",
+        "label_lower_line",
+        "inoculated_at",
+        "sterilized_at",
+        "use_by",
+        "spawned_at",
+        "label_footer",
+        "label_product_line"
+    ],
+    user_filters={"dropdowns": ["source_kind"]},
+    permissions={
+        "allow_printing": True,
+        "allow_export_csv": True,
+        "allow_import_csv": True,
+        "add_records_form": True,
+    }
+)
+
+🪄 For Retool Interface Guide
+
+The accompanying Retool_Interface_Print_Queue.txt will later describe:
+
+Layout: Kanban view
+
+Primary query:
+
+GET /api/v1/db/data/print_queue?group_by=source_kind
+
+
+Columns: dynamically generated from unique source_kind values.
+
+Card display template:
+
+{{ lot_id }}
+{{ label_title }}
+{{ label_company }}
+{{ label_subtitle }}
+{{ inoculated_at }} – {{ sterilized_at }}
+Use By: {{ use_by }}
+
+
+Actions:
+
+Drag & drop between columns triggers:
+
+PATCH /api/v1/db/data/print_queue/{{record.id}}
+{ "source_kind": "{{newColumnName}}" }
+
+
+Form-based add new print job: POST /api/v1/db/data/print_queue
+
+Filtering: Dropdown control bound to source_kind.
+
+Permissions: Read/Write (for grouping), print/export enabled.
+
+Purpose: Label management, grouping by production source for batch printing workflows.

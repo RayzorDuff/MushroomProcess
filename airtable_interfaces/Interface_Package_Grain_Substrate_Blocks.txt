@@ -1,0 +1,179 @@
+✅ PACKAGE GRAIN, SUBSTRATE OR BLOCK — Airtable Interface Extraction
+
+Interface Name: Package Grain, Substrate or Block
+Captured: November 2025
+
+🧩 DATA CONFIGURATION
+
+Source Table: lots
+Title Field: lot_id
+Fields Shown in Record Detail View:
+
+lot_id
+
+item_id
+
+strain_species_strain
+
+grain_inputs
+
+substrate_inputs
+
+fruiting_goal
+
+casing_applied_at
+
+inoculated_at
+
+spawned_at
+
+sterilized_at
+
+Permissions: Editable
+Printing: Allowed
+Export to CSV: Disabled
+Appearance: Title size = X-Large
+Groups: Tab navigation = off, Collapsible groups = off
+
+🔎 FILTER CONFIGURATION
+
+Filter Logic:
+All records meeting any of these grouped conditions:
+
+Group 1 — Grain Lots
+
+item_category is exactly → grain
+
+status is any of → Sterilized, Sealed
+
+Group 2 — Substrate and Casing Lots
+
+item_category has any of → substrate, casing
+
+status is any of → Sterilized, Pasteurized, Sealed
+
+Group 3 — Fruiting Blocks Ready for Packaging
+
+item_category is exactly → fruiting_block
+
+status is any of → FullyColonized, Fridge, ColdShock
+
+This inclusive filter combines all ready-for-packaging lots by sterilization or readiness state.
+
+🧮 GROUPING CONFIGURATION
+
+Group By:
+
+item_category (First → Last)
+
+status (First → Last)
+
+This creates top-level groupings by material type (grain/substrate/casing/fruiting block) and subgroups by process status.
+
+🔠 SORTING CONFIGURATION
+
+Sort within groups by:
+
+last_event_date (Earliest → Latest)
+
+This ensures the oldest or most recent sterilization/inoculation events appear first for packaging order prioritization.
+
+⚙️ LIST ITEM DISPLAY
+
+Color By: None
+Image Field: None
+Title: lot_id
+Field 1: item_name
+Field 2: unit_size
+User Filters: Elements enabled
+User Actions:
+
+Sort ✅
+
+Filter ✅
+
+Group ✅
+
+Add records through form ❌
+
+Buttons: None
+
+🧠 BUTTON CONFIGURATION
+1️⃣ Button: Productize
+
+Type: Run Automation
+
+Action: Run automation → Create Product from Lot
+
+Label: Productize
+
+Color: Gray
+
+Confirmation: False
+
+Visibility Rule: Off
+
+Location: Record header
+
+Purpose: Triggers the Airtable automation “Create Product from Lot”, which likely creates a linked product record in the inventory table from the selected lot.
+
+🧭 SUMMARY OF FUNCTIONAL INTENT
+
+This interface serves as a packaging control station for prepared biological materials:
+
+Displays all lots of grain, substrate, casing, or fully colonized blocks that are ready to be packaged or transitioned into saleable product units.
+
+The filters dynamically include lots across sterilization or readiness states.
+
+The grouping reflects logical organization by type (grain/substrate/etc.) and process stage (sterilized, pasteurized, sealed, etc.).
+
+The “Productize” button automates product record creation in another table.
+
+⚡ MIGRATION BLUEPRINT SUMMARY
+🧰 For NocoDB API Script
+
+This will require:
+
+create_view(
+    "Package_Grain_Substrate_Blocks",
+    source="lots",
+    filters=[
+        {"item_category": "grain", "status": ["Sterilized", "Sealed"]},
+        {"item_category": ["substrate", "casing"], "status": ["Sterilized", "Pasteurized", "Sealed"]},
+        {"item_category": "fruiting_block", "status": ["FullyColonized", "Fridge", "ColdShock"]}
+    ],
+    group_by=["item_category", "status"],
+    sort_by=[{"field": "last_event_date", "direction": "asc"}],
+    fields=[
+        "lot_id","item_id","strain_species_strain","grain_inputs","substrate_inputs",
+        "fruiting_goal","casing_applied_at","inoculated_at","spawned_at","sterilized_at"
+    ],
+    actions=[{"label": "Productize", "type": "automation", "automation": "Create Product from Lot"}]
+)
+
+🪄 For Retool Guide
+
+Retool_Interface_Package_Grain_Substrate_Blocks.txt should describe:
+
+Two-pane interface: left list grouped by item_category / status, right record details.
+
+Query:
+
+GET /api/v1/db/data/lots?filters=[
+  {"item_category":"grain","status_in":["Sterilized","Sealed"]},
+  {"item_category_in":["substrate","casing"],"status_in":["Sterilized","Pasteurized","Sealed"]},
+  {"item_category":"fruiting_block","status_in":["FullyColonized","Fridge","ColdShock"]}
+]
+&sort=last_event_date.asc
+
+
+Button in record detail:
+
+POST /api/v1/automation/run
+{
+    "automation": "Create Product from Lot",
+    "lot_id": {{selectedLot.lot_id}}
+}
+
+
+Group and sort replicated with Retool table or list grouping controls.

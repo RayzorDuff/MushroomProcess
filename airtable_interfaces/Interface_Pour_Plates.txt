@@ -1,0 +1,248 @@
+──────────────────────────────────────────────
+Interface Name: Pour Plates
+──────────────────────────────────────────────
+
+Purpose:
+Used to document and execute the pouring of agar plates from sterilized agar flasks.
+Operators select a sterilized agar flask lot, confirm recipe and plate count, and mark the action as completed by clicking Pour Plates, which triggers downstream creation of new plate lot records.
+
+──────────────────────────────────────────────
+
+1. Data Source
+
+──────────────────────────────────────────────
+Table: lots
+Linked Tables:
+
+items (for Source Flask)
+
+recipes (for Recipe)
+
+Primary Key: lot_id
+
+──────────────────────────────────────────────
+
+2. Record Filters
+
+──────────────────────────────────────────────
+Filter Conditions:
+
+item_category has any of ["agar_flask"]
+AND
+status is "Sterilized"
+
+
+These conditions ensure only sterilized agar flasks appear for pouring.
+
+──────────────────────────────────────────────
+
+3. Visible Fields (in form order)
+
+──────────────────────────────────────────────
+
+Field	Description	Type	Example / Default	Notes
+lot_id	Lot Identifier	Text	LOT-251102-zjQx	Primary field (record title)
+item_id	Source Flask (Linked)	Link → items	AGAR-FLASK-500	Category: agar_flask
+recipe_id	Recipe (Linked)	Link → recipes	REC-AGAR-STD	Category: agar
+sterilized_at	Sterilization Timestamp	Datetime	11/2/2025 4:42 PM	From linked sterilization run
+created_at	Record Created Timestamp	Datetime	11/2/2025 4:42 PM	Auto-filled
+plate_count	Number of Plates Poured	Number	(user entered)	Required for event trigger
+notes	Operator Notes	Text area	—	Optional
+validation	Formula / Status Indicator	Formula	—	Read-only
+_ui_error	Interface Error	Text / System	(hidden)	Used for UI validation
+
+──────────────────────────────────────────────
+
+4. Hidden Fields
+
+──────────────────────────────────────────────
+
+_ui_error (error messages for validation logic)
+
+Possibly action (triggered by button click event)
+
+──────────────────────────────────────────────
+
+5. Field Behavior and Defaults
+
+──────────────────────────────────────────────
+
+lot_id: read-only; shown as header (“LOT-251102-zjQx”)
+
+item_id: required; selection limited to agar_flask category and Sterilized status
+
+recipe_id: auto-linked via source flask
+
+sterilized_at: read-only timestamp
+
+created_at: read-only timestamp
+
+plate_count: required; operator-specified
+
+notes: optional
+
+validation: computed; read-only
+
+All timestamps display timezone indicator (MST).
+
+──────────────────────────────────────────────
+
+6. Button Configuration
+
+──────────────────────────────────────────────
+Button Label: Pour Plates
+Action: Update Record
+Record Source: Record Detail (current lot)
+Behavior:
+
+Set action = "PourPlates"
+
+
+Post-Action Label: “Plates Poured!”
+Show Check Icon: TRUE
+Require Confirmation: FALSE
+Visibility Rules: None
+
+──────────────────────────────────────────────
+
+7. Layout and Appearance
+
+──────────────────────────────────────────────
+
+Title Field: lot_id
+
+Title Size: X-Large
+
+Fields Visible: 9
+
+Layout: Single-column form layout
+
+Section Headers: None
+
+Collapsible Groups: Disabled
+
+Tab Navigation: Disabled
+
+Allow Printing: TRUE
+
+Allow Export to CSV: FALSE
+
+Comments: Disabled
+
+Revision History: Disabled
+
+──────────────────────────────────────────────
+
+8. Example Record Values
+
+──────────────────────────────────────────────
+
+lot_id: LOT-251102-zjQx
+item_id: AGAR-FLASK-500
+item_category: agar_flask
+recipe_id: REC-AGAR-STD
+recipe_category: agar
+sterilized_at: 2025-11-02T16:42:00
+created_at: 2025-11-02T16:42:00
+plate_count: 20
+notes: “Poured 20 plates for master plate prep.”
+validation: “OK”
+_ui_error: (empty)
+
+
+──────────────────────────────────────────────
+
+9. Derived API Behavior (for NocoDB Automation Script)
+
+──────────────────────────────────────────────
+
+PATCH existing lot record (action trigger):
+
+PATCH /api/v2/tables/lots/rows/{lot_id}
+{
+  "action": "PourPlates"
+}
+
+
+Full record update example:
+
+PATCH /api/v2/tables/lots/rows/LOT-251102-zjQx
+{
+  "plate_count": 20,
+  "notes": "Poured 20 standard plates",
+  "action": "PourPlates"
+}
+
+
+NocoDB automation script (nocodb_create_Pour_Plates.js) will watch for "action": "PourPlates" to trigger creation of new plate records in the lots table with appropriate category plate.
+
+──────────────────────────────────────────────
+
+10. Retool Interface Summary
+
+──────────────────────────────────────────────
+Page Title: Pour Plates
+
+Left Panel:
+
+List of lots
+
+Data Source: lots
+
+Filter: item_category = agar_flask AND status = Sterilized
+
+Fields: lot_id, item_name
+
+Sort: (none)
+
+User Actions: Sort = ON, Filter = ON, Group = OFF
+
+Right Panel (Record Detail):
+
+Title: lot_id
+
+Field components:
+
+Text (lot_id header)
+
+Linked Record dropdown (item_id)
+
+Linked Record dropdown (recipe_id)
+
+Date display (sterilized_at, created_at)
+
+Number input (plate_count)
+
+Text area (notes)
+
+Computed field (validation)
+
+Button component: Pour Plates
+
+Action: PATCH request to NocoDB /lots endpoint
+
+Payload: { "action": "PourPlates" }
+
+Confirmation: none
+
+Success message: “Plates Poured!”
+
+──────────────────────────────────────────────
+
+11. Workflow Context
+
+──────────────────────────────────────────────
+
+This is part of the agar workflow, following sterilization of agar flasks.
+
+The Pour Plates interface represents the step where agar is distributed into plates for master or working cultures.
+
+Button action (PourPlates) triggers downstream logic to generate new plate category lots using the linked recipe_id and plate_count.
+
+Validation and _ui_error fields are used to confirm all required data is set before automation triggers.
+
+──────────────────────────────────────────────
+
+End of File
+
+──────────────────────────────────────────────
