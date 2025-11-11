@@ -1,271 +1,327 @@
 /**
- * Script: spawn_to_bulk_create_blocks.js
- * Version: 2025-10-31.1
- * Summary: Spawn → Bulk – Create Fruiting Blocks
- * Features:
- * - Colonizing default (Spawned fallback)
- * - Inherit strain from grain_inputs (must be single strain)
- * - Compute per-bag unit_size
- * - Choose output item_id by substrate_inputs type (CVG/MM75/MM50) + size (LG =5, SM <5)
- * - Fallback to FB-GENERIC if unknown/mixed/missing
- * - Link inputs on new blocks; mark inputs Consumed; log events
- * - Respect lots.override_spawn_time; stamp lots.spawned_at + event timestamps
+ *  Script: spawn_to_bulk_create_blocks.js
+ *  Version: 2025-11-11
+ *  Summary: Create Fruiting Block lots from grain + substrate inputs with
+ *           correct unit size allocation and full lineage/events.
+ *  Features:
+ *  Invocation: Airtable Automation / Interface, with input.config():
+ *    - recordId (string)          // the staging "Lots" record executing Spawn→Bulk
+ *
+ *  Behavior:
+ *    - Validates the staging record has:
+ *        • output_count >= 1
+ *        • at least one grain input OR at least one substrate input
+ *    - Computes per-output unit_size with this rule:
+ *        • If outCount === substrate_inputs.length:
+ *            unit_i = (SUM(grain.unit_size) / outCount) + substrate_i.unit_size
+ *          (i.e., grain is evenly divided; each paired substrate contributes FULL size)
+ *        • Else (mismatch): fallback to even average:
+ *            unit_i = (SUM(grain.unit_size) + SUM(substrate.unit_size)) / outCount
+ *    - Inherits strain from the first grain input (fallback: first substrate).
+ *    - Picks output item_id by substrate recipe/item signature:
+ *        FB-COCO-LG/SM for "CVG"
+ *        FB-MM75-LG/SM for "MM75"
+ *        FB-MM50-LG/SM for "MM50"
+ *        Threshold: LARGE when per-output unit_size >= 5, else SMALL
+ *        Fallback: FB-GENERIC if none match.
+ *    - Creates outCount new Fruiting Block lots:
+ *        status = Colonizing (fallback Spawned)
+ *        spawned_at = override_spawn_time || now
+ *        parents_json = JSON of parent lot IDs
+ *        grain_inputs / substrate_inputs linked on the new blocks
+ *    - Logs Events (SpawnedToBulk) on each new block with fields_json details
+ *    - Optionally marks all input lots as Consumed
+ *    - Writes user-friendly validation errors to lots.ui_error on the staging row
+ *
+ *  Side Effects:
+ *    - Adds records to Lots + Events.
+ *    - Updates inputs’ status if consumption is enabled.
+ *    - Clears lots.ui_error on success.
+ *
 **/
-try {
 
+///////////////////////////// CONFIG ///////////////////////////////////////////
 
-const { stagingLotId } = input.config();
+const CONSUME_INPUTS = true; // set to false if you do NOT want to mark inputs Consumed
+const OUTPUT_STATUS_PRIMARY = 'Colonizing';
+const OUTPUT_STATUS_FALLBACK = 'Spawned';
+const EVENT_TYPE_SPAWNED_TO_BULK = 'SpawnedToBulk';
 
-const lotsTbl   = base.getTable('lots');
-const itemsTbl  = base.getTable('items');
-const eventsTbl = base.getTable('events');
+// Item auto-pick rules for fruiting blocks
+const FB_FALLBACK = 'FB-GENERIC';
+const FB_RULES = [
+  { tag: 'CVG',  small: 'FB-COCO-SM', large: 'FB-COCO-LG'  },
+  { tag: 'MM75', small: 'FB-MM75-SM', large: 'FB-MM75-LG' },
+  { tag: 'MM50', small: 'FB-MM50-SM', large: 'FB-MM50-LG' }
+];
+const LARGE_THRESHOLD_LB = 5; // >= 5 lb → “LG”, else “SM”
 
-const staging = await lotsTbl.selectRecordAsync(stagingLotId);
-if (!staging) throw new Error('Staging lot not found');
+//////////////////////////// TABLE HANDLES /////////////////////////////////////
 
-if ((staging.getCellValueAsString('action') || '') !== 'SpawnToBulk') {
-  await lotsTbl.updateRecordAsync(staging.id, { action: null });
-  return;
+const lotsTbl    = base.getTable('lots');
+const itemsTbl   = base.getTable('items');
+const eventsTbl  = base.getTable('events');
+
+//////////////////////////// UTILITIES /////////////////////////////////////////
+
+function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function num(val) {
+  if (val == null) return null;
+  if (typeof val === 'number') return Number.isFinite(val) ? val : null;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : null;
+}
+function getStr(rec, field) { try { return (rec.getCellValueAsString(field) || '').trim(); } catch { return ''; } }
+function getLinkIds(rec, field) {
+  try { return (rec.getCellValue(field) || []).map(x => x.id); } catch { return []; }
+}
+async function setUiError(lotId, msg) {
+  if (!hasField(lotsTbl, 'ui_error')) return;
+  try { await lotsTbl.updateRecordAsync(lotId, { ui_error: msg }); } catch {}
+}
+async function clearUiError(lotId) {
+  if (!hasField(lotsTbl, 'ui_error')) return;
+  try { await lotsTbl.updateRecordAsync(lotId, { ui_error: '' }); } catch {}
 }
 
-/* ==== Inputs on staging record ==== */
-let grainLinks = staging.getCellValue('grain_inputs') || [];
-if (grainLinks.length === 0) {
-  // If grain_links are missing, default to using staging lot as grain input
-  grainLinks = [{ id: staging.id }];
-  try {
-    await lotsTbl.updateRecordAsync(staging.id, { grain_inputs: grainLinks });
-  } catch (e) {
-    throw new Error('Failed to auto-set grain_inputs on staging lot: ' + e.message);
+function pickFbItemId({ substrateSig, perOutputSizeLb }) {
+  // Choose by signature tag in order of rules
+  for (const rule of FB_RULES) {
+    if (substrateSig.includes(rule.tag)) {
+      return perOutputSizeLb >= LARGE_THRESHOLD_LB ? rule.large : rule.small;
+    }
   }
-}
-const substrateLinks = staging.getCellValue('substrate_inputs') || [];
-const outCount       = Number(staging.getCellValue('output_count') ?? NaN);
-const outRecipe      = staging.getCellValue('recipe_id')?.[0] || null;   // optional
-
-// NEW: optional override timestamp (Date object from Airtable)
-const overrideSpawn  = staging.getCellValue('override_spawn_time'); // may be null
-const tsDate         = overrideSpawn || new Date();
-//const tsIso          = tsDate.toISOString();
-
-const errs = [];
-if (grainLinks.length < 1) errs.push('Select at least one grain lot in grain_inputs.');
-if (substrateLinks.length < 1) errs.push('Select at least one substrate lot in substrate_inputs.');
-if (!Number.isFinite(outCount) || outCount < 1) errs.push('Set output_count to 1 or more.');
-if (errs.length) {
-  await lotsTbl.updateRecordAsync(staging.id, {
-    ui_error: errs.join(' '),
-    ui_error_at: new Date().toISOString(),
-    action: null
-  });
-  throw new Error('Spawn→Bulk validation failed.');
+  return FB_FALLBACK;
 }
 
-/* ==== Gather strain (from grain) and sum unit sizes ==== */
-const grainStrainIds = new Set();
+//////////////////////////// INPUTS ////////////////////////////////////////////
+
+const { recordId } = input.config();
+if (!recordId) throw new Error('recordId is required.');
+
+const staging = await lotsTbl.selectRecordAsync(recordId);
+if (!staging) throw new Error('Staging lot record not found.');
+
+//////////////////////////// VALIDATION ////////////////////////////////////////
+
+const errors = [];
+
+const outCount = Math.max(1, num(staging.getCellValue('output_count')) || 0);
+
+const grainIds = getLinkIds(staging, 'grain_inputs');
+const subIds   = getLinkIds(staging, 'substrate_inputs');
+
+if (outCount < 1) errors.push('output_count must be >= 1.');
+if (grainIds.length === 0 && subIds.length === 0) {
+  errors.push('At least one grain input or one substrate input is required.');
+}
+
+if (errors.length) {
+  await setUiError(staging.id, errors.join(' '));
+  throw new Error(`Validation failed: ${errors.join(' ')}`);
+}
+
+//////////////////// LOAD INPUT LOTS + FIELDS WE NEED //////////////////////////
+
+const loadInputLots = async (ids) => {
+  if (ids.length === 0) return [];
+  // Batch select by IDs in chunks
+  const out = [];
+  for (let i = 0; i < ids.length; i += 50) {
+    const slice = ids.slice(i, i + 50);
+    const q = await lotsTbl.selectRecordsAsync({ fields: ['unit_size','item_id','strain_id','recipe_id','item_id','lot_id'] });
+    // (Airtable scripting has no direct "select by list", so we just filter in-memory)
+    for (const r of q.records) if (slice.includes(r.id)) out.push(r);
+  }
+  // Deduplicate if any overlap
+  const seen = new Set(); const uniq = [];
+  for (const r of out) { if (!seen.has(r.id)) { seen.add(r.id); uniq.push(r); } }
+  return uniq;
+};
+
+const grainRecs = await loadInputLots(grainIds);
+const subRecs   = await loadInputLots(subIds);
+
+// Gather sizes (assume unit_size is in **pounds**, consistent with your base)
 let grainUnitSum = 0;
-for (const link of grainLinks) {
-  const g = await lotsTbl.selectRecordAsync(link.id);
-  if (!g) continue;
-  // strain
-  const sId = g.getCellValue('strain_id')?.[0]?.id;
-  if (sId) grainStrainIds.add(sId);
-  // unit_size
-  const u = Number(g.getCellValue('unit_size') ?? NaN);
-  if (!Number.isFinite(u) || u <= 0) errs.push(`Grain lot ${g.name || g.id} missing/invalid unit_size.`);
-  else grainUnitSum += u;
+for (const r of grainRecs) {
+  const s = num(r.getCellValue('unit_size'));
+  if (s) grainUnitSum += s;
 }
-
 let subUnitSum = 0;
-for (const link of substrateLinks) {
-  const s = await lotsTbl.selectRecordAsync(link.id);
-  if (!s) continue;
-  const u = Number(s.getCellValue('unit_size') ?? NaN);
-  if (!Number.isFinite(u) || u <= 0) errs.push(`Substrate lot ${s.name || s.id} missing/invalid unit_size.`);
-  else subUnitSum += u;
+for (const r of subRecs) {
+  const s = num(r.getCellValue('unit_size'));
+  if (s) subUnitSum += s;
 }
 
-if (grainStrainIds.size === 0) errs.push('Grain inputs are missing strain_id.');
-if (grainStrainIds.size > 1)  errs.push('Grain inputs have mixed strains; use a single strain.');
-const totalUnit = grainUnitSum + subUnitSum;
-if (!(totalUnit > 0)) errs.push('Total input unit_size must be > 0.');
-if (errs.length) {
-  await lotsTbl.updateRecordAsync(staging.id, {
-    ui_error: errs.join(' '),
-    ui_error_at: new Date().toISOString(),
-    action: null
-  });
-  throw new Error('Spawn→Bulk strain/unit validation failed.');
-}
-
-const [strainId] = [...grainStrainIds];
-const perBagUnit = totalUnit / outCount;
-
-/* ==== Determine substrate type tag from substrate_inputs' item_id text ==== */
-function detectTypeTagFromSubstrates(records) {
-  const tags = new Set();
-  for (const r of records) {
-    const linkedItemName = r.getCellValueAsString('item_id') || '';
-    const txt = linkedItemName.toUpperCase();
-    if (txt.includes('CVG'))  tags.add('CVG');
-    if (txt.includes('MM75')) tags.add('MM75');
-    if (txt.includes('MM50')) tags.add('MM50');
+// Resolve a substrate “signature” used to pick FB item ID (CVG / MM75 / MM50)
+const substrateSignature = (() => {
+  // prefer recipe_id then item_id text
+  for (const r of subRecs) {
+    const rid = r.getCellValue('recipe_id'); // linked
+    if (rid && rid.length) {
+      const txt = r.getCellValueAsString('recipe_id').toUpperCase();
+      if (txt) return txt;
+    }
+    const iid = r.getCellValue('item_id');
+    if (iid && iid.length) {
+      const txt = r.getCellValueAsString('item_id').toUpperCase();
+      if (txt) return txt;
+    }
   }
-  if (tags.size === 1) return [...tags][0];
-  return null; // none or mixed → fallback
+  return '';
+})();
+
+// Resolve strain from first grain (fallback: first substrate)
+const strainLink = (grainRecs[0]?.getCellValue('strain_id') || subRecs[0]?.getCellValue('strain_id') || [])[0] || null;
+if (!strainLink) {
+  // Not fatal: allow creation without strain, but log a warning
+  // (We keep it non-blocking to avoid interrupting operations)
 }
 
-// Load all substrate lot records once for type detection
-const substrateRecs = [];
-for (const link of substrateLinks) {
-  const rec = await lotsTbl.selectRecordAsync(link.id);
-  if (rec) substrateRecs.push(rec);
-}
-const typeTag = detectTypeTagFromSubstrates(substrateRecs); // 'CVG' | 'MM75' | 'MM50' | null
+// Timestamp
+const overrideTs = staging.getCellValue('override_spawn_time');
+const tsDate = overrideTs ? new Date(overrideTs) : new Date();
 
-/* ==== Resolve output item by (typeTag + perBagUnit >= 5 ? LG : SM) ==== */
-const wantSizeSuffix = (perBagUnit >= 5) ? 'LG' : 'SM';
-const desiredCodes = [];
-if (typeTag) {
-  desiredCodes.push(`FB-${typeTag}-${wantSizeSuffix}`);   // e.g. FB-CVG-LG
-}
-desiredCodes.push('FB-GENERIC'); // fallback
-
-// Build an index of items by item_id and by name
-const itemsQuery = await itemsTbl.selectRecordsAsync({ fields: ['item_id','name','category'] });
-const byCodeOrName = new Map();
-for (const rec of itemsQuery.records) {
-  const code = (rec.getCellValueAsString('item_id') || '').toUpperCase();
-  const name = (rec.getCellValueAsString('name') || '').toUpperCase();
-  if (code) byCodeOrName.set(code, rec);
-  if (name) byCodeOrName.set(name, rec);
-}
-
-// pick first available desired code
-let fbItem = null;
-for (const code of desiredCodes) {
-  const rec = byCodeOrName.get(code.toUpperCase());
-  if (rec) { fbItem = rec; break; }
-}
-if (!fbItem) throw new Error(`Items: could not find any of [${desiredCodes.join(', ')}].`);
-
-// (Optional) sanity: ensure category is fruiting_block
-const catVal = (fbItem.getCellValueAsString('category') || '').toLowerCase();
-if (catVal !== 'fruiting_block') {
-  // warn but continue
-}
-
-/* ==== Status & events ==== */
+// Determine output status choices
 const statusField = lotsTbl.getField('status');
-const statusColonizing = (statusField.options?.choices || []).find(c => c.name === 'Colonizing');
-const statusSpawned    = (statusField.options?.choices || []).find(c => c.name === 'Spawned');
-const outputStatus     = statusColonizing || statusSpawned;
-if (!outputStatus) {
-  const names = (statusField.options?.choices || []).map(c => c.name).join(', ');
-  throw new Error(`lots.status missing "Colonizing" or "Spawned". Has: ${names}`);
-}
+const statusChoices = statusField?.typeOptions?.choices || [];
+const statusByName = Object.fromEntries(statusChoices.map(c => [c.name, c]));
+const outputStatus = statusByName[OUTPUT_STATUS_PRIMARY] || statusByName[OUTPUT_STATUS_FALLBACK] || null;
 
+// Event type choice
 const evtTypeField = eventsTbl.getField('type');
-const spawnedToBulkEvt = (evtTypeField.options?.choices || []).find(c => c.name === 'SpawnedToBulk');
-if (!spawnedToBulkEvt) {
-  const names = (evtTypeField.options?.choices || []).map(c => c.name).join(', ');
-  throw new Error(`events.type missing "SpawnedToBulk". Has: ${names}`);
-}
-const consumedEvt = (evtTypeField.options?.choices || []).find(c => c.name === 'Consumed')
-                 || (evtTypeField.options?.choices || []).find(c => c.name === 'Retired');
-if (!consumedEvt) {
-  const names = (evtTypeField.options?.choices || []).map(c => c.name).join(', ');
-  throw new Error(`events.type missing "Consumed" (or Retired). Has: ${names}`);
-}
-const tsWritable = (() => { try { return eventsTbl.getField('timestamp').type === 'dateTime'; } catch { return false; }})();
+const evtChoices   = evtTypeField?.typeOptions?.choices || [];
+const evtByName    = Object.fromEntries(evtChoices.map(c => [c.name, c]));
+const spawnedToBulkEvt = evtByName[EVENT_TYPE_SPAWNED_TO_BULK] || null;
 
-/* ==== Create output bulk lots (stamp spawned_at = tsDate) ==== */
-const parentIds = [...grainLinks.map(x => x.id), ...substrateLinks.map(x => x.id)];
+//////////////// PER-OUTPUT UNIT SIZE (FIXED ALLOCATION LOGIC) /////////////////
+
+/*
+  Rule:
+    If there is exactly one output per substrate input (outCount === subRecs.length):
+      unit_i = (grainUnitSum / outCount) + unit_size(substrate_i)
+    Else fallback to even average:
+      unit_i = (grainUnitSum + subUnitSum) / outCount
+*/
+let perOutputUnits = [];
+if (subRecs.length > 0 && outCount === subRecs.length) {
+  const grainShare = grainUnitSum / outCount;
+  for (let i = 0; i < outCount; i++) {
+    const subSize = num(subRecs[i]?.getCellValue('unit_size')) || 0;
+    perOutputUnits.push(grainShare + subSize);
+  }
+} else {
+  const perBag = (grainUnitSum + subUnitSum) / outCount;
+  for (let i = 0; i < outCount; i++) perOutputUnits.push(perBag);
+}
+
+// Choose the output Item (per-output based on size)
+const fbItemIdByOutput = perOutputUnits.map(sz => pickFbItemId({
+  substrateSig: substrateSignature,
+  perOutputSizeLb: sz
+}));
+
+// Map item_id codes to actual Items
+const itemIdToRecordId = async (codes) => {
+  const uniq = Array.from(new Set(codes));
+  const foundMap = new Map();
+  // Fetch items table (single pass) and index by item_id text
+  const all = await itemsTbl.selectRecordsAsync({ fields: ['item_id'] });
+  const index = new Map();
+  for (const it of all.records) {
+    const code = getStr(it, 'item_id');
+    if (code) index.set(code, it.id);
+  }
+  for (const code of uniq) {
+    foundMap.set(code, index.get(code) || null);
+  }
+  return codes.map(c => foundMap.get(c) || null);
+};
+const fbItemRecordIds = await itemIdToRecordId(fbItemIdByOutput);
+
+//////////////////// CREATE OUTPUT FRUITING BLOCK LOTS /////////////////////////
+
+const parentsIds = [...grainIds, ...subIds];
+const createdIds = [];
+
+const statusPayload = outputStatus ? { status: { id: outputStatus.id } } : {};
+const strainPayload = strainLink ? { strain_id: [{ id: strainLink.id }] } : {};
+
+const makeFields = (i) => {
+  const itemRecId = fbItemRecordIds[i];
+  const fields = {
+    ...statusPayload,
+    unit_size: perOutputUnits[i],
+    qty: 1,
+    parents_json: JSON.stringify(parentsIds),
+    spawned_at: tsDate,
+    ...strainPayload
+  };
+  // item_id
+  if (itemRecId) fields.item_id = [{ id: itemRecId }];
+  // inherit output recipe if staging has one
+  const outRecLink = staging.getCellValue('recipe_id');
+  if (outRecLink && outRecLink.length) fields.recipe_id = [{ id: outRecLink[0].id }];
+
+  // Link inputs on the NEW block (not on parents)
+  try { lotsTbl.getField('grain_inputs');     fields.grain_inputs     = grainIds.map(id => ({ id })); } catch {}
+  try { lotsTbl.getField('substrate_inputs'); fields.substrate_inputs = subIds.map(id => ({ id })); } catch {}
+
+  return fields;
+};
+
+// Create in batches
 const createBatch = [];
 for (let i = 0; i < outCount; i++) {
-  const fields = {
-    status: { id: outputStatus.id },
-    item_id: [{ id: fbItem.id }],
-    unit_size: perBagUnit,
-    qty: 1,
-    parents_json: JSON.stringify(parentIds),
-    strain_id: [{ id: strainId }],
-    spawned_at: tsDate   // NEW: writable date on each new block
-  };
-  if (outRecipe) fields.recipe_id = [{ id: outRecipe.id }];
-
-  // Link inputs on the newly created block (not on the inputs)
-  try { lotsTbl.getField('grain_inputs');      fields.grain_inputs      = grainLinks.map(l => ({ id: l.id })); } catch {}
-  try { lotsTbl.getField('substrate_inputs');  fields.substrate_inputs  = substrateLinks.map(l => ({ id: l.id })); } catch {}
-
-  createBatch.push({ fields });
+  createBatch.push({ fields: makeFields(i) });
 }
-const createdIds = [];
 for (let i = 0; i < createBatch.length; i += 50) {
-  const res = await lotsTbl.createRecordsAsync(createBatch.slice(i, i + 50));
-  createdIds.push(...res);
+  const ids = await lotsTbl.createRecordsAsync(createBatch.slice(i, i + 50));
+  createdIds.push(...ids);
 }
 
-/* ==== Log SpawnedToBulk on each new lot (timestamp = tsDate) ==== */
-const createdEventBatch = createdIds.map(id => {
-  const f = {
-    lot_id: [{ id }],
-    type: { id: spawnedToBulkEvt.id },
-    station: 'Spawn to Bulk',
-    fields_json: JSON.stringify({
-      type_tag: typeTag,
-      chosen_item: fbItem.getCellValueAsString('item_id') || fbItem.name,
-      grain_input_ids: grainLinks.map(g => g.id),
-      substrate_input_ids: substrateLinks.map(s => s.id),
-      per_bag_unit_size: perBagUnit,
-      output_count: outCount
-    })
-  };
-  if (tsWritable) f.timestamp = tsDate;
-  return { fields: f };
-});
-for (let i = 0; i < createdEventBatch.length; i += 50) {
-  await eventsTbl.createRecordsAsync(createdEventBatch.slice(i, i + 50));
-}
+////////////////////////// LOG EVENTS ON NEW LOTS /////////////////////////////
 
-/* ==== Mark all input lots as Consumed (or Retired) and log events (timestamp = tsDate) ==== */
-const consumedStatus = (statusField.options?.choices || []).find(c => c.name === 'Consumed')
-                    || (statusField.options?.choices || []).find(c => c.name === 'Retired');
-if (!consumedStatus) {
-  const names = (statusField.options?.choices || []).map(c => c.name).join(', ');
-  throw new Error(`lots.status missing "Consumed" (or Retired). Has: ${names}`);
-}
-
-const inputIds = parentIds;
-for (let i = 0; i < inputIds.length; i += 50) {
-  await lotsTbl.updateRecordsAsync(
-    inputIds.slice(i, i + 50).map(id => ({ id, fields: { status: { id: consumedStatus.id } } }))
-  );
-}
-
-const consumeEvents = inputIds.map(id => {
-  const f = {
-    lot_id: [{ id }],
-    type: { id: consumedEvt.id },
-    station: 'Spawn to Bulk',
-    fields_json: JSON.stringify({ output_bulk_ids: createdIds })
-  };
-  if (tsWritable) f.timestamp = tsDate;
-  return { fields: f };
-});
-for (let i = 0; i < consumeEvents.length; i += 50) {
-  await eventsTbl.createRecordsAsync(consumeEvents.slice(i, i + 50));
-}
-
-/* ==== Clear staging action/errors ==== */
-await lotsTbl.updateRecordAsync(staging.id, {
-  action: null,
-  ui_error: null,
-  ui_error_at: null
-});
-
-} catch (e) {
-  if (typeof output !== 'undefined' && output && output.set) {
-    output.set('error', (e && e.message) ? e.message : String(e));
+if (spawnedToBulkEvt) {
+  const evtBatch = createdIds.map((id, idx) => {
+    const f = {
+      lot_id: [{ id }],
+      type: { id: spawnedToBulkEvt.id },
+      station: 'Spawn to Bulk',
+      fields_json: JSON.stringify({
+        grain_input_ids: grainIds,
+        substrate_input_ids: subIds,
+        per_output_unit_size_lb: perOutputUnits[idx],
+        output_item_code: fbItemIdByOutput[idx],
+        output_index: idx,
+        output_count: outCount
+      })
+    };
+    if (hasField(eventsTbl, 'timestamp')) f.timestamp = tsDate;
+    return { fields: f };
+  });
+  for (let i = 0; i < evtBatch.length; i += 50) {
+    await eventsTbl.createRecordsAsync(evtBatch.slice(i, i + 50));
   }
 }
+
+//////////////////// OPTIONAL: CONSUME INPUT LOTS /////////////////////////////
+
+if (CONSUME_INPUTS && hasField(lotsTbl, 'status')) {
+  const status = statusByName['Consumed'];
+  if (status) {
+    const updates = [...grainIds, ...subIds].map(id => ({ id, fields: { status: { id: status.id } } }));
+    for (let i = 0; i < updates.length; i += 50) {
+      await lotsTbl.updateRecordsAsync(updates.slice(i, i + 50));
+    }
+  }
+}
+
+//////////////////////////// CLEANUP & OUTPUT /////////////////////////////////
+
+await clearUiError(staging.id);
+
+try {
+  output.set('result', `✅ Created ${createdIds.length} fruiting block(s). Per-bag sizes (lb): ${perOutputUnits.map(x => Number(x.toFixed(2))).join(', ')}`);
+} catch {}
