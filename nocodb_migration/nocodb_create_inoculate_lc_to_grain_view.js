@@ -1,5 +1,5 @@
 ﻿/**
- * Create ""Spawn to Bulk"" view
+ * Create ""Inoculate (LC â†’ Grain)"" view
  * Table: lots
  */
 import fetch from "node-fetch";
@@ -27,7 +27,7 @@ async function api(path, method = "GET", body = null) {
 }
 
 async function main() {
-  console.log("ðŸ”§ Creating 'Spawn to Bulk' view...");
+  console.log("ðŸ”§ Creating 'Inoculate (LC â†’ Grain)' view...");
   const tables = await api(project//tables);
   const table = tables.list.find(t => t.title === TABLE_NAME || t.table_name === TABLE_NAME);
   if (!table) throw new Error(Table '' not found);
@@ -37,10 +37,6 @@ async function main() {
 
              ],
     "groupBy":  [
-                    {
-                        "column_name":  "item_name",
-                        "order":  "asc"
-                    },
                     {
                         "column_name":  "strain_species_strain",
                         "order":  "asc"
@@ -53,8 +49,8 @@ async function main() {
                                         "column_name":  "status",
                                         "comparator":  "in",
                                         "value":  [
-                                                      "FullyColonized",
-                                                      "Fridge"
+                                                      "Sterilized",
+                                                      "Sealed"
                                                   ]
                                     },
                                     {
@@ -67,30 +63,28 @@ async function main() {
                                 ]
                },
     "fields":  [
+                   "lot_id",
                    "item_name",
                    "strain_species_strain",
-                   "inoculated_at",
-                   "substrate_inputs",
-                   "output_count",
-                   "fruiting_goal",
-                   "override_spawn_time",
+                   "lc_lot_id",
+                   "lc_volume_ml",
+                   "unit_size",
                    "operator",
                    "notes",
-                   "ui_error",
-                   "validation"
+                   "ui_error"
                ],
     "allowExport":  false,
     "allowPrint":  true
 };
 
   const view = await api(	ables//views, "POST", {
-    title: "Spawn to Bulk",
+    title: "Inoculate (LC â†’ Grain)",
     type: "grid",
     fk_model_id: table.id,
     meta
   });
   console.log(âœ… Created view: );
-    await api(iews//actions, "POST", { "title":"Spawn to Bulk","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"SpawnToBulk"}]}});
+    await api(iews//actions, "POST", { "title":"Inoculate Grain","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"InoculateGrain"}]}});
   console.log("âœ… Added custom action: " + (.title || ''));
   console.log("ðŸŽ‰ Done.");
 }

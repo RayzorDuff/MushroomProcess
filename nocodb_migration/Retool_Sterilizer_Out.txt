@@ -1,7 +1,7 @@
 ﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Interface Name: Spawn to Bulk
+Interface Name: Sterilizer Out
 Generated: 2025-11-11 17:05
-Table: lots
+Table: sterilization_runs
 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 1) Resource
@@ -9,28 +9,26 @@ Table: lots
    - Header: xc-token: {{ {{ global.noco_token }} }}
 
 2) Query: getData
-   - GET /tables/lots/rows
+   - GET /tables/sterilization_runs/rows
    - Optional where JSON:
-{"condition":"AND","children":[{"column_name":"status","comparator":"in","value":["FullyColonized","Fridge"]},{"column_name":"item_category","comparator":"in","value":["grain"]}]}
-
+None
 
    - Transform: return data.list
 
 3) Table
    - Data: {{ getData.data }}
-   - Visible columns: item_name, strain_species_strain, inoculated_at, substrate_inputs, output_count, fruiting_goal, override_spawn_time, operator, notes, ui_error, validation
+   - Visible columns: steri_run_id, planned_item, planned_count, good_count, destroyed_count, end_time, operator, notes, ui_error
    - Grouping:
-  - item_name (asc)
-  - strain_species_strain (asc)
-   - Sorting:
   None
+   - Sorting:
+  - end_time desc
 
 4) Record Form
    - Initial data: {{ table1.selectedRow.data }}
-   - Editable fields: item_name, strain_species_strain, inoculated_at, substrate_inputs, output_count, fruiting_goal, override_spawn_time, operator, notes, ui_error, validation
+   - Editable fields: steri_run_id, planned_item, planned_count, good_count, destroyed_count, end_time, operator, notes, ui_error
 
 5) Actions
-  - { "title":"Spawn to Bulk","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"SpawnToBulk"}]}}
+  - { "title":"Complete Run","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"CreateLots"}]}}
 
 6) Notes
-   Matches Airtable Spawn_to_Bulk with action to set action=SpawnToBulk.
+   Creates lots based on run; counts must add up.

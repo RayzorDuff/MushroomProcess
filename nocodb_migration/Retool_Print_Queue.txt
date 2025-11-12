@@ -1,7 +1,7 @@
 ﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Interface Name: Spawn to Bulk
+Interface Name: Print Queue
 Generated: 2025-11-11 17:05
-Table: lots
+Table: print_queue
 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 1) Resource
@@ -9,28 +9,27 @@ Table: lots
    - Header: xc-token: {{ {{ global.noco_token }} }}
 
 2) Query: getData
-   - GET /tables/lots/rows
+   - GET /tables/print_queue/rows
    - Optional where JSON:
-{"condition":"AND","children":[{"column_name":"status","comparator":"in","value":["FullyColonized","Fridge"]},{"column_name":"item_category","comparator":"in","value":["grain"]}]}
+{"condition":"AND","children":[{"column_name":"print_status","comparator":"in","value":["queued","error"]}]}
 
 
    - Transform: return data.list
 
 3) Table
    - Data: {{ getData.data }}
-   - Visible columns: item_name, strain_species_strain, inoculated_at, substrate_inputs, output_count, fruiting_goal, override_spawn_time, operator, notes, ui_error, validation
+   - Visible columns: job_id, source_kind, source_id, label_title, label_subtitle, label_footer, label_qr, printer, print_status, created_at
    - Grouping:
-  - item_name (asc)
-  - strain_species_strain (asc)
+  - printer (asc)
    - Sorting:
-  None
+  - created_at desc
 
 4) Record Form
    - Initial data: {{ table1.selectedRow.data }}
-   - Editable fields: item_name, strain_species_strain, inoculated_at, substrate_inputs, output_count, fruiting_goal, override_spawn_time, operator, notes, ui_error, validation
+   - Editable fields: job_id, source_kind, source_id, label_title, label_subtitle, label_footer, label_qr, printer, print_status, created_at
 
 5) Actions
-  - { "title":"Spawn to Bulk","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"SpawnToBulk"}]}}
+  - { "title":"Requeue","type":"updateRow","meta":{"updates":[{"column_name":"print_status","value":"queued"}]}}
 
 6) Notes
-   Matches Airtable Spawn_to_Bulk with action to set action=SpawnToBulk.
+   Surface queued/error labels and allow manual requeue.

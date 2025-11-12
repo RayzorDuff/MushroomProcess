@@ -1,0 +1,40 @@
+﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Interface Name: Dark Room
+Generated: 2025-11-11 17:05
+Table: lots
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1) Resource
+   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
+   - Header: xc-token: {{ {{ global.noco_token }} }}
+
+2) Query: getData
+   - GET /tables/lots/rows
+   - Optional where JSON:
+{"condition":"AND","children":[{"column_name":"status","comparator":"in","value":["Inoculated","Colonizing","FullyColonized","Fridge"]},{"column_name":"item_category","comparator":"in","value":["fruiting_block","grain","lc_flask","lc_syringe"]}]}
+
+
+   - Transform: return data.list
+
+3) Table
+   - Data: {{ getData.data }}
+   - Visible columns: lot_id, item_name, status, action, casing_lot_id, operator, notes, ui_error
+   - Grouping:
+  - status (asc)
+   - Sorting:
+  None
+
+4) Record Form
+   - Initial data: {{ table1.selectedRow.data }}
+   - Editable fields: lot_id, item_name, status, action, casing_lot_id, operator, notes, ui_error
+
+5) Actions
+  - { "title":"Shake","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"Shake"}]}}
+  - { "title":"Move to Fridge","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"MoveToFridge"}]}}
+  - { "title":"Cold Shock","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"ColdShock"}]}}
+  - { "title":"Apply Casing","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"ApplyCasing"}]}}
+  - { "title":"Start Fruiting","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"StartFruiting"}]}}
+  - { "title":"Contaminated","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"Contaminated"}]}}
+
+6) Notes
+   Validation: FullyColonized for fridge/cold shock (except vendor syringes); ApplyCasing only for fruiting_block.

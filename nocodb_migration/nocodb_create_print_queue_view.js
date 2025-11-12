@@ -1,12 +1,12 @@
 ﻿/**
- * Create ""Spawn to Bulk"" view
- * Table: lots
+ * Create ""Print Queue"" view
+ * Table: print_queue
  */
 import fetch from "node-fetch";
 
 const BASE_URL = process.env.NOCO_BASE_URL || "https://your-nocodb-instance.com";
 const PROJECT_SLUG = process.env.NOCO_PROJECT || "mushroom_inventory";
-const TABLE_NAME = "lots";
+const TABLE_NAME = "print_queue";
 const API_TOKEN = process.env.NOCO_TOKEN || "YOUR_API_TOKEN_HERE";
 
 async function api(path, method = "GET", body = null) {
@@ -27,22 +27,21 @@ async function api(path, method = "GET", body = null) {
 }
 
 async function main() {
-  console.log("ðŸ”§ Creating 'Spawn to Bulk' view...");
+  console.log("ðŸ”§ Creating 'Print Queue' view...");
   const tables = await api(project//tables);
   const table = tables.list.find(t => t.title === TABLE_NAME || t.table_name === TABLE_NAME);
   if (!table) throw new Error(Table '' not found);
 
   const meta = {
     "sort":  [
-
+                 {
+                     "column_name":  "created_at",
+                     "order":  "desc"
+                 }
              ],
     "groupBy":  [
                     {
-                        "column_name":  "item_name",
-                        "order":  "asc"
-                    },
-                    {
-                        "column_name":  "strain_species_strain",
+                        "column_name":  "printer",
                         "order":  "asc"
                     }
                 ],
@@ -50,47 +49,39 @@ async function main() {
                    "condition":  "AND",
                    "children":  [
                                     {
-                                        "column_name":  "status",
+                                        "column_name":  "print_status",
                                         "comparator":  "in",
                                         "value":  [
-                                                      "FullyColonized",
-                                                      "Fridge"
-                                                  ]
-                                    },
-                                    {
-                                        "column_name":  "item_category",
-                                        "comparator":  "in",
-                                        "value":  [
-                                                      "grain"
+                                                      "queued",
+                                                      "error"
                                                   ]
                                     }
                                 ]
                },
     "fields":  [
-                   "item_name",
-                   "strain_species_strain",
-                   "inoculated_at",
-                   "substrate_inputs",
-                   "output_count",
-                   "fruiting_goal",
-                   "override_spawn_time",
-                   "operator",
-                   "notes",
-                   "ui_error",
-                   "validation"
+                   "job_id",
+                   "source_kind",
+                   "source_id",
+                   "label_title",
+                   "label_subtitle",
+                   "label_footer",
+                   "label_qr",
+                   "printer",
+                   "print_status",
+                   "created_at"
                ],
     "allowExport":  false,
     "allowPrint":  true
 };
 
   const view = await api(	ables//views, "POST", {
-    title: "Spawn to Bulk",
+    title: "Print Queue",
     type: "grid",
     fk_model_id: table.id,
     meta
   });
   console.log(âœ… Created view: );
-    await api(iews//actions, "POST", { "title":"Spawn to Bulk","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"SpawnToBulk"}]}});
+    await api(iews//actions, "POST", { "title":"Requeue","type":"updateRow","meta":{"updates":[{"column_name":"print_status","value":"queued"}]}});
   console.log("âœ… Added custom action: " + (.title || ''));
   console.log("ðŸŽ‰ Done.");
 }

@@ -1,12 +1,12 @@
 ﻿/**
- * Create ""Spawn to Bulk"" view
- * Table: lots
+ * Create ""Package Grain/Substrate/Blocks"" view
+ * Table: products
  */
 import fetch from "node-fetch";
 
 const BASE_URL = process.env.NOCO_BASE_URL || "https://your-nocodb-instance.com";
 const PROJECT_SLUG = process.env.NOCO_PROJECT || "mushroom_inventory";
-const TABLE_NAME = "lots";
+const TABLE_NAME = "products";
 const API_TOKEN = process.env.NOCO_TOKEN || "YOUR_API_TOKEN_HERE";
 
 async function api(path, method = "GET", body = null) {
@@ -27,7 +27,7 @@ async function api(path, method = "GET", body = null) {
 }
 
 async function main() {
-  console.log("ðŸ”§ Creating 'Spawn to Bulk' view...");
+  console.log("ðŸ”§ Creating 'Package Grain/Substrate/Blocks' view...");
   const tables = await api(project//tables);
   const table = tables.list.find(t => t.title === TABLE_NAME || t.table_name === TABLE_NAME);
   if (!table) throw new Error(Table '' not found);
@@ -38,11 +38,7 @@ async function main() {
              ],
     "groupBy":  [
                     {
-                        "column_name":  "item_name",
-                        "order":  "asc"
-                    },
-                    {
-                        "column_name":  "strain_species_strain",
+                        "column_name":  "package_item_category",
                         "order":  "asc"
                     }
                 ],
@@ -50,47 +46,38 @@ async function main() {
                    "condition":  "AND",
                    "children":  [
                                     {
-                                        "column_name":  "status",
+                                        "column_name":  "package_item_category",
                                         "comparator":  "in",
                                         "value":  [
-                                                      "FullyColonized",
-                                                      "Fridge"
-                                                  ]
-                                    },
-                                    {
-                                        "column_name":  "item_category",
-                                        "comparator":  "in",
-                                        "value":  [
-                                                      "grain"
+                                                      "grain_spawn",
+                                                      "substrate",
+                                                      "fruiting_block"
                                                   ]
                                     }
                                 ]
                },
     "fields":  [
-                   "item_name",
-                   "strain_species_strain",
-                   "inoculated_at",
-                   "substrate_inputs",
-                   "output_count",
-                   "fruiting_goal",
-                   "override_spawn_time",
+                   "product_id",
+                   "package_item_category",
+                   "origin_lot_ids",
+                   "net_weight_g",
+                   "net_weight_oz",
                    "operator",
                    "notes",
-                   "ui_error",
-                   "validation"
+                   "ui_error"
                ],
     "allowExport":  false,
     "allowPrint":  true
 };
 
   const view = await api(	ables//views, "POST", {
-    title: "Spawn to Bulk",
+    title: "Package Grain/Substrate/Blocks",
     type: "grid",
     fk_model_id: table.id,
     meta
   });
   console.log(âœ… Created view: );
-    await api(iews//actions, "POST", { "title":"Spawn to Bulk","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"SpawnToBulk"}]}});
+    await api(iews//actions, "POST", { "title":"Package","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"PackageProduct"}]}});
   console.log("âœ… Added custom action: " + (.title || ''));
   console.log("ðŸŽ‰ Done.");
 }
