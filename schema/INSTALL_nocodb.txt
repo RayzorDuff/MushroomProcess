@@ -1,3 +1,7 @@
+Ensure prerequisites:
+
+npm install axios
+
 Ensure the directory structure:
 
 schema/
@@ -16,9 +20,14 @@ $env:NOCODB_URL      = "http://localhost:8080"      # or your cloud URL
 $env:NOCODB_BASE_ID  = "p_xxxxx"                    # from NocoDB UI
 $env:NOCODB_API_TOKEN = "your_api_token_here"
 
-node .\create_nocodb_from_schema.js
+# First pass to create tables with basic columns
+node .\create_nocodb_from_schema.js > basic_columns.log 2>&1
+# Then open NocoDB and you should see all your tables created with the primitive columns wired up.
 
-Then open NocoDB and you should see all your tables created with the primitive columns wired up.
+# Second pass to create columns that were skipped previously 
+node .\create_nocodb_remaining_columns.js > remaining_columns.log 2>&1
+
+
 
 TODO:
 

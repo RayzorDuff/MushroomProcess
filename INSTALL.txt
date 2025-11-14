@@ -1,0 +1,20 @@
+Airtable runs on a proprietary cloud and does not need to be installed.
+
+For a NocoDB installation:
+
+On Windows (Quick Test Install) - 
+
+Download and Install using the latest Windows installer executable from https://github.com/nocodb/nocodb.
+
+Access NocoDB: Open your web browser and go to http://localhost:8080/dashboard
+
+Create a new base, MushroomProcess, and determine the BaseID
+Create a new token from your profile's Account Settings.
+
+Configure your environment
+
+$env:NOCODB_URL = "http://localhost:8080"
+$env:NOCODB_BASE_ID = "p4zknfmte6h60zs"
+$env:NOCODB_API_TOKEN = "LtGQ81D5XSseWr6n30ZLySqwXofOXb-8MVaO_WE0"
+
+Proceed with schema\INSTALL_nocodb.txt
