@@ -1,0 +1,26 @@
+Ensure the directory structure:
+
+schema/
+  create_nocodb_from_schema.js  
+  export/
+    _schema.json                 
+    lots.json
+    events.json
+    ...
+
+In PowerShell, set env vars and run:
+
+cd path\to\MushroomProcess\schema
+
+$env:NOCODB_URL      = "http://localhost:8080"      # or your cloud URL
+$env:NOCODB_BASE_ID  = "p_xxxxx"                    # from NocoDB UI
+$env:NOCODB_API_TOKEN = "your_api_token_here"
+
+node .\create_nocodb_from_schema.js
+
+Then open NocoDB and you should see all your tables created with the primitive columns wired up.
+
+TODO:
+
+Add a second script to create relationships based on linked-record metadata in _schema.json.
+Add a script to import data from the per-table .json or .ndjson exports into NocoDB via the /api/v2/tables/:tableId/records endpoint.
