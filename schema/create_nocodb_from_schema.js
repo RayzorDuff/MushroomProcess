@@ -30,8 +30,8 @@ const axios = require("axios");
 
 // ---------- CONFIG & ENV VALIDATION ----------
 
-const NOCODB_URL = process.env.NOCODB_URL; // e.g., "http://localhost:8080"
-const NOCODB_BASE_ID = process.env.NOCODB_BASE_ID; // e.g., "p_xxxxx"
+const NOCODB_URL = process.env.NOCODB_URL;
+const NOCODB_BASE_ID = process.env.NOCODB_BASE_ID;
 const NOCODB_API_TOKEN = process.env.NOCODB_API_TOKEN;
 
 if (!NOCODB_URL || !NOCODB_BASE_ID || !NOCODB_API_TOKEN) {
@@ -48,10 +48,9 @@ if (!NOCODB_URL || !NOCODB_BASE_ID || !NOCODB_API_TOKEN) {
   process.exit(1);
 }
 
-// Path to the Airtable schema JSON
 const SCHEMA_PATH = path.join(__dirname, "export", "_schema.json");
 
-// ---------- HELPER: LOAD AIRTABLE SCHEMA ----------
+// ---------- LOAD SCHEMA ----------
 
 function loadAirtableSchema() {
   console.log("[INFO] Loading Airtable schema from", SCHEMA_PATH);
@@ -65,48 +64,12 @@ function loadAirtableSchema() {
   return json.tables;
 }
 
-// ---------- HELPER: MAP AIRTABLE FIELD TO NOCODB COLUMN ----------
+// ---------- FIELD ? COLUMN MAPPER ----------
 
-/**
- * Map a single Airtable field descriptor to NocoDB column definition.
- *
- * Expected Airtable-ish shape:
- *   {
- *     id: "fldXXXX",
- *     name: "lot_id",
- *     type: "singleLineText" | "number" | "checkbox" | "date" | "dateTime" | ...
- *     options: { ... }
- *   }
- *
- * Returns:
- *   - Plain JS object with NocoDB column properties, or
- *   - null to indicate "skip" (for computed / unsupported field types).
- */
 function mapFieldToNocoColumn(field) {
   const name = field.name;
-  const type = field.type; // Airtable type string
+  const type = field.type;
 
-  // NocoDB expects uidt to be one of a fixed enum:
-  // "Attachment", "AutoNumber", "Barcode", "Button", "Checkbox",
-  // "Count", "CreatedTime", "Currency", "Date", "DateTime",
-  // "Decimal", "Duration", "Email", "Formula", "ForeignKey",
-  // "JSON", "LastModifiedTime", "LongText", "LinkToAnotherRecord",
-  // "Lookup", "MultiSelect", "Number", "Percent", "PhoneNumber",
-  // "Rating", "Rollup", "SingleLineText", "SingleSelect", "Time",
-  // "URL", "Year", "QrCode", "User", "CreatedBy", "LastModifiedBy", "AI", "Order", ...
-  //
-  // We'll map Airtable's types into this list.
-
-  // Common NocoDB column base
-  const col = {
-    column_name: name, // DB column name
-    title: name,       // Human label in UI
-    dt: "varchar",     // DB data type
-    dtx: "string",     // Noco logical type
-    uidt: "SingleLineText", // UI type; we'll override below for non-text
-  };
-
-  // Treat some Airtable types as "virtual" and skip them entirely from schema creation.
   const VIRTUAL_TYPES = new Set([
     "formula",
     "rollup",
@@ -123,8 +86,28 @@ function mapFieldToNocoColumn(field) {
     return null;
   }
 
+  // >>> NEW: skip link fields for now <<<
+  if (
+    type === "multipleRecordLinks" ||
+    type === "singleRecordLink" ||
+    type === "linkToAnotherRecord"
+  ) {
+    console.log(
+      `  [SKIP] Link-to-record field "${name}" of type "${type}" (will be modeled as relationships later)`
+    );
+    return null;
+  }
+
+  const col = {
+    column_name: name,
+    title: name,
+    dt: "varchar",
+    dtx: "string",
+    uidt: "SingleLineText",
+  };
+
   switch (type) {
-    // ----- TEXT-LIKE -----
+    // ----- TEXT -----
     case "singleLineText":
       col.uidt = "SingleLineText";
       col.dt = "varchar";
@@ -159,7 +142,7 @@ function mapFieldToNocoColumn(field) {
 
     // ----- NUMERIC -----
     case "number":
-      col.uidt = "Decimal"; // can hold decimals; you could use "Number" if you want ints
+      col.uidt = "Decimal";
       col.dt = "decimal";
       col.dtx = "number";
       break;
@@ -189,7 +172,7 @@ function mapFieldToNocoColumn(field) {
       col.dtx = "boolean";
       break;
 
-    // ----- DATE / TIME -----
+    // ----- DATE/TIME -----
     case "date":
       col.uidt = "Date";
       col.dt = "date";
@@ -231,28 +214,11 @@ function mapFieldToNocoColumn(field) {
       break;
     }
 
-    // ----- ATTACHMENT / JSON -----
+    // ----- ATTACHMENT -----
     case "attachment":
       col.uidt = "Attachment";
       col.dt = "json";
       col.dtx = "json";
-      break;
-
-    // ----- LINKS / RELATIONSHIPS -----
-    case "multipleRecordLinks":
-    case "singleRecordLink":
-    case "linkToAnotherRecord":
-      // We model these as LinkToAnotherRecord. Actual relationship wiring can be done later.
-      col.uidt = "LinkToAnotherRecord";
-      col.dt = "varchar";
-      col.dtx = "string";
-      break;
-
-    // ----- BARCODE / QR -----
-    case "barcode":
-      col.uidt = "Barcode";
-      col.dt = "varchar";
-      col.dtx = "string";
       break;
 
     // ----- FALLBACK -----
@@ -260,13 +226,12 @@ function mapFieldToNocoColumn(field) {
       console.warn(
         `  [WARN] Unknown/unsupported Airtable type "${type}" for field "${name}", defaulting to SingleLineText`
       );
-      // Leave defaults: SingleLineText + varchar/string
   }
 
   return col;
 }
 
-// ---------- HELPER: CREATE TABLE IN NOCODB ----------
+// ---------- TABLE CREATION ----------
 
 async function createNocoTableFromAirtableTable(ncClient, baseId, airTable) {
   const tableName = airTable.name;
@@ -275,9 +240,7 @@ async function createNocoTableFromAirtableTable(ncClient, baseId, airTable) {
   const columnDefs = [];
   for (const field of airTable.fields || []) {
     const col = mapFieldToNocoColumn(field);
-    if (col) {
-      columnDefs.push(col);
-    }
+    if (col) columnDefs.push(col);
   }
 
   if (!columnDefs.length) {
@@ -295,8 +258,10 @@ async function createNocoTableFromAirtableTable(ncClient, baseId, airTable) {
 
   try {
     const url = `${NOCODB_URL.replace(/\/+$/, "")}/api/v2/meta/bases/${baseId}/tables`;
-    // Optional: uncomment for deep debug
-    console.log(`  [DEBUG] Payload for table "${tableName}":`, JSON.stringify(payload, null, 2));
+    console.log(
+      `  [DEBUG] Payload for table "${tableName}":`,
+      JSON.stringify(payload, null, 2)
+    );
     const res = await ncClient.post(url, payload);
     console.log(`  [OK] Created table "${tableName}" (id: ${res.data?.id || "unknown"})`);
   } catch (err) {
@@ -324,11 +289,12 @@ async function main() {
   );
 
   const ncClient = axios.create({
+    baseURL: NOCODB_URL.replace(/\/+$/, ""),
     headers: {
       "xc-token": NOCODB_API_TOKEN,
       "Content-Type": "application/json",
+      Accept: "application/json",
     },
-    baseURL: NOCODB_URL.replace(/\/+$/, ""),
   });
 
   console.log(`[INFO] Creating ${tables.length} table(s) in NocoDB...`);
