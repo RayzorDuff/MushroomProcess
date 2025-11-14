@@ -68,166 +68,90 @@ function loadAirtableSchema() {
 
 function mapFieldToNocoColumn(field) {
   const name = field.name;
-  const type = field.type;
 
-  const VIRTUAL_TYPES = new Set([
-    "formula",
-    "rollup",
-    "lookup",
-    "count",
-    "createdTime",
-    "lastModifiedTime",
-    "lastModifiedBy",
-    "createdBy",
-  ]);
-
-  if (VIRTUAL_TYPES.has(type)) {
-    console.log(`  [SKIP] Virtual/computed field "${name}" of type "${type}"`);
-    return null;
-  }
-
-  // >>> NEW: skip link fields for now <<<
-  if (
-    type === "multipleRecordLinks" ||
-    type === "singleRecordLink" ||
-    type === "linkToAnotherRecord"
-  ) {
-    console.log(
-      `  [SKIP] Link-to-record field "${name}" of type "${type}" (will be modeled as relationships later)`
-    );
-    return null;
-  }
-
+  // Base definition – NOTE: no dt / dtx here.
   const col = {
     column_name: name,
     title: name,
-    dt: "varchar",
-    dtx: "string",
-    uidt: "SingleLineText",
   };
 
-  switch (type) {
-    // ----- TEXT -----
-    case "singleLineText":
-      col.uidt = "SingleLineText";
-      col.dt = "varchar";
-      col.dtx = "string";
-      break;
+  const type = field.type;
 
-    case "multilineText":
-    case "richText":
-    case "longText":
-      col.uidt = "LongText";
-      col.dt = "text";
-      col.dtx = "string";
-      break;
-
-    case "email":
-      col.uidt = "Email";
-      col.dt = "varchar";
-      col.dtx = "string";
-      break;
-
-    case "phoneNumber":
-      col.uidt = "PhoneNumber";
-      col.dt = "varchar";
-      col.dtx = "string";
-      break;
-
-    case "url":
-      col.uidt = "URL";
-      col.dt = "varchar";
-      col.dtx = "string";
-      break;
-
-    // ----- NUMERIC -----
-    case "number":
-      col.uidt = "Decimal";
-      col.dt = "decimal";
-      col.dtx = "number";
-      break;
-
-    case "currency":
-      col.uidt = "Currency";
-      col.dt = "decimal";
-      col.dtx = "number";
-      break;
-
-    case "percent":
-      col.uidt = "Percent";
-      col.dt = "decimal";
-      col.dtx = "number";
-      break;
-
-    case "rating":
-      col.uidt = "Rating";
-      col.dt = "int";
-      col.dtx = "integer";
-      break;
-
-    // ----- BOOLEAN -----
-    case "checkbox":
-      col.uidt = "Checkbox";
-      col.dt = "boolean";
-      col.dtx = "boolean";
-      break;
-
-    // ----- DATE/TIME -----
-    case "date":
-      col.uidt = "Date";
-      col.dt = "date";
-      col.dtx = "date";
-      break;
-
-    case "dateTime":
-    case "created_time":
-    case "last_modified_time":
-      col.uidt = "DateTime";
-      col.dt = "timestamp";
-      col.dtx = "datetime";
-      break;
-
-    // ----- SELECTS -----
-    case "singleSelect": {
-      col.uidt = "SingleSelect";
-      col.dt = "varchar";
-      col.dtx = "string";
-      if (field.options && Array.isArray(field.options.choices)) {
-        col.dtxp = field.options.choices
-          .map((c) => (typeof c === "string" ? c : c.name || ""))
-          .filter(Boolean)
-          .join(",");
-      }
-      break;
-    }
-
-    case "multipleSelects": {
-      col.uidt = "MultiSelect";
-      col.dt = "varchar";
-      col.dtx = "string";
-      if (field.options && Array.isArray(field.options.choices)) {
-        col.dtxp = field.options.choices
-          .map((c) => (typeof c === "string" ? c : c.name || ""))
-          .filter(Boolean)
-          .join(",");
-      }
-      break;
-    }
-
-    // ----- ATTACHMENT -----
-    case "attachment":
-      col.uidt = "Attachment";
-      col.dt = "json";
-      col.dtx = "json";
-      break;
-
-    // ----- FALLBACK -----
-    default:
-      console.warn(
-        `  [WARN] Unknown/unsupported Airtable type "${type}" for field "${name}", defaulting to SingleLineText`
-      );
+  // --- Text-ish fields ---
+  if (
+    type === 'singleLineText' ||
+    type === 'richText' ||
+    type === 'multilineText' ||
+    type === 'longText'
+  ) {
+    col.uidt = 'LongText'; // NocoDB will map to appropriate SQL type
+    return col;
   }
 
+  // --- Numbers & decimals ---
+  if (type === 'number' || type === 'percent') {
+    col.uidt = 'Number';
+    return col;
+  }
+
+  if (type === 'currency' || type === 'decimal') {
+    col.uidt = 'Decimal';
+    return col;
+  }
+
+  // --- Dates & times ---
+  if (type === 'date') {
+    col.uidt = 'Date';
+    return col;
+  }
+
+  if (type === 'dateTime' || type === 'createdTime' || type === 'lastModifiedTime') {
+    col.uidt = 'DateTime';
+    return col;
+  }
+
+  // --- Selects ---
+  if (type === 'singleSelect') {
+    col.uidt = 'SingleSelect';
+    if (field.options && Array.isArray(field.options.choices)) {
+      // NocoDB’s meta API accepts comma separated options via dtxp
+      col.dtxp = field.options.choices.map((c) => c.name || c).join(',');
+    }
+    return col;
+  }
+
+  if (type === 'multipleSelect') {
+    col.uidt = 'MultiSelect';
+    if (field.options && Array.isArray(field.options.choices)) {
+      col.dtxp = field.options.choices.map((c) => c.name || c).join(',');
+    }
+    return col;
+  }
+
+  // --- Links / lookups / rollups – create as basic text for now ---
+  if (
+    type === 'multipleRecordLinks' ||
+    type === 'lookup' ||
+    type === 'rollup'
+  ) {
+    col.uidt = 'LongText';
+    return col;
+  }
+
+  // --- Checkboxes ---
+  if (type === 'checkbox') {
+    col.uidt = 'Checkbox';
+    return col;
+  }
+
+  // --- Attachments ---
+  if (type === 'multipleAttachments') {
+    col.uidt = 'Attachment';
+    return col;
+  }
+
+  // --- Fallback: generic text ---
+  col.uidt = 'LongText';
   return col;
 }
 
