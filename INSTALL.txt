@@ -14,7 +14,7 @@ Create a new token from your profile's Account Settings.
 Configure your environment
 
 $env:NOCODB_URL = "http://localhost:8080"
-$env:NOCODB_BASE_ID = "p4zknfmte6h60zs"
+$env:NOCODB_BASE_ID = "ptzxtb1dmmcqshm"
 $env:NOCODB_API_TOKEN = "LtGQ81D5XSseWr6n30ZLySqwXofOXb-8MVaO_WE0"
 
 Proceed with schema\INSTALL_nocodb.txt

@@ -14,19 +14,16 @@
  *       - Linked-record fields (multipleRecordLinks / LinkToAnotherRecord)
  *       - Lookup fields
  *       - Rollup fields
- *     It will CREATE missing NocoDB columns with appropriate uidt + meta:
- *       - LinkToAnotherRecord
- *       - Lookup
- *       - Rollup
- *  3) Leaves existing columns untouched if types differ (warn only).
- *  4) Reports Formula fields and type mismatches so you can fix manually.
+ *     It will:
+ *       - CREATE missing NocoDB columns with appropriate uidt + meta
+ *       - PATCH existing columns whose uidt is wrong to the correct uidt + meta
+ *  3) Leaves Formula fields as “report only” (no automatic creation)
  *
- * Safety notes
- * ------------
- * - This script only adds new columns; it does NOT drop or modify existing
- *   columns that have mismatched types. Those generate warnings only.
- * - It does NOT attempt to convert Airtable formulas into NocoDB Formula
- *   expressions; formulas are reported, not created.
+ * Notes
+ * -----
+ * - This script **mutates** your NocoDB schema.
+ * - For links/lookups/rollups, if the column already exists but has the
+ *   wrong uidt (e.g. LongText), it PATCHes that column to the correct type.
  *
  * Environment
  * -----------
@@ -88,7 +85,6 @@ function loadAirtableSchema(schemaPath) {
     throw new Error('Schema JSON does not contain a non-empty "tables" array.');
   }
 
-  // Build lookup maps by tableId and by name
   const tablesById = {};
   const tablesByName = {};
   for (const t of tables) {
@@ -98,14 +94,12 @@ function loadAirtableSchema(schemaPath) {
       fieldsById: {},
       fieldsByName: {},
     };
-
     const fields = t.fields || [];
     for (const f of fields) {
       if (!f || !f.name) continue;
       table.fieldsById[f.id] = f;
       table.fieldsByName[f.name] = f;
     }
-
     tablesById[t.id] = table;
     tablesByName[t.name] = table;
   }
@@ -113,7 +107,6 @@ function loadAirtableSchema(schemaPath) {
   return { tables, tablesById, tablesByName };
 }
 
-// Rough classification of Airtable field types
 function classifyFieldType(field) {
   const t = (field.type || '').toLowerCase();
   if (!t) return 'simple';
@@ -132,7 +125,6 @@ function classifyFieldType(field) {
   return 'simple';
 }
 
-// Map Airtable rollup function into something NocoDB can accept
 function mapRollupFunction(func) {
   if (!func) return 'sum';
   const f = String(func).toLowerCase();
@@ -141,7 +133,6 @@ function mapRollupFunction(func) {
     if (f === 'average') return 'avg';
     return f;
   }
-  // Fallback to sum for anything else (ARRAY_JOIN, etc. not supported here)
   return 'sum';
 }
 
@@ -151,7 +142,6 @@ async function fetchNocoTables() {
   const url = `/api/v2/meta/bases/${NOCO_BASE_ID}/tables`;
   const resp = await http.get(url);
   const list = resp.data && resp.data.list ? resp.data.list : [];
-
   const byTitle = new Map();
   for (const tbl of list) {
     if (tbl.title) byTitle.set(tbl.title, tbl);
@@ -165,14 +155,38 @@ async function fetchNocoTableMeta(tableId) {
   return resp.data;
 }
 
-async function createNocoColumn(tableId, payload) {
+async function createNocoColumn(tableOrId, payload) {
+  // Accept either a table object or a raw ID
+  const tableId =
+    typeof tableOrId === 'string' ? tableOrId : tableOrId.id;
+
+  if (!tableId) {
+    throw new Error(
+      `createNocoColumn called without a valid table id (got: ${JSON.stringify(
+        tableOrId
+      )})`
+    );
+  }
+
   const url = `/api/v2/meta/tables/${tableId}/columns`;
-  const resp = await http.post(url, payload);
+
+  // NocoDB expects parentId in the body
+  const body = {
+    parentId: tableId,
+    ...payload,
+  };
+
+  const resp = await http.post(url, body);
   return resp.data;
 }
 
-// ---------- Relation & virtual field creators ----------
+async function patchNocoColumn(tableId, columnId, payload) {
+  const url = `/api/v2/meta/tables/${tableId}/columns/${columnId}`;
+  const resp = await http.patch(url, payload);
+  return resp.data;
+}
 
+// ---------- Relation & virtual field creators / updaters ----------
 async function ensureLinkField({
   atTable,
   atField,
@@ -197,7 +211,7 @@ async function ensureLinkField({
     return;
   }
 
-  const { list: nocoTables, byTitle } = nocoMeta;
+  const { byTitle } = nocoMeta;
   const targetNocoTable = byTitle.get(targetAtTable.name);
   if (!targetNocoTable) {
     logWarn(
@@ -206,42 +220,165 @@ async function ensureLinkField({
     return;
   }
 
+  // Get current columns for this Noco table
   const currentMeta = await fetchNocoTableMeta(nocoTable.id);
   const columns = currentMeta.columns || [];
   const existing = columns.find(
     (c) => (c.title || c.column_name) === atField.name
   );
 
+  const relationMeta = {
+    relation_type: 'mm', // many-to-many; adjust later if you decide to model differently
+    related_table_id: targetNocoTable.id,
+  };
+
+  // --- Case 1: column already exists ---
   if (existing) {
     const uidt = existing.uidt;
-    if (uidt !== 'LinkToAnotherRecord' && uidt !== 'Links') {
-      logWarn(
-        `Field "${atField.name}" in NocoDB table "${atTable.name}" exists with uidt="${uidt}" (expected LinkToAnotherRecord/Links). Not modifying.`
-      );
-    } else {
-      logInfo(
-        `✓ Linked-record already configured for "${atTable.name}.${atField.name}" (uidt=${uidt}).`
-      );
+
+    // 1a. Already a link field → just ensure meta is correct
+    if (uidt === 'LinkToAnotherRecord' || uidt === 'Links') {
+      let existingMeta = {};
+      try {
+        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
+      } catch {
+        existingMeta = {};
+      }
+
+      const needsPatch =
+        existingMeta.related_table_id !== targetNocoTable.id ||
+        !existingMeta.relation_type;
+
+      if (needsPatch) {
+        try {
+          await patchNocoColumn(nocoTable.id, existing.id, {
+            uidt: 'LinkToAnotherRecord',
+            meta: JSON.stringify(relationMeta),
+          });
+          logInfo(
+            `± Patched link meta on "${atTable.name}.${atField.name}" to LinkToAnotherRecord → "${targetAtTable.name}".`
+          );
+        } catch (err) {
+          logError(
+            `Error patching link meta on "${atTable.name}.${atField.name}": ${
+              err.response?.data
+                ? JSON.stringify(err.response.data)
+                : err.message
+            }`
+          );
+        }
+      } else {
+        logInfo(
+          `✓ Linked-record already configured for "${atTable.name}.${atField.name}" (uidt=${uidt}).`
+        );
+      }
+
+      return;
     }
-    return;
+
+    // 1b. Existing column, but wrong uidt → try to PATCH to LinkToAnotherRecord
+    try {
+      await patchNocoColumn(nocoTable.id, existing.id, {
+        uidt: 'LinkToAnotherRecord',
+        meta: JSON.stringify(relationMeta),
+      });
+      logInfo(
+        `± Converted existing column "${atTable.name}.${atField.name}" from uidt="${uidt}" to LinkToAnotherRecord linked to "${targetAtTable.name}".`
+      );
+      return;
+    } catch (err) {
+      const msgData = err.response?.data;
+      const msgStr = msgData && msgData.msg ? String(msgData.msg) : '';
+
+      // If NocoDB refuses to PATCH this column, fall back to creating a *new* link field
+      if (msgStr.includes('Cannot PATCH')) {
+        logWarn(
+          `Cannot PATCH existing column "${atTable.name}.${atField.name}" (uidt="${uidt}") in NocoDB: ${msgStr}. ` +
+            `Creating a new link column with a suffix instead.`
+        );
+
+        // Find a unique name like lots_rel, lots_rel1, lots_rel2, ...
+        let newNameBase = `${atField.name}_rel`;
+        let newName = newNameBase;
+        let counter = 1;
+        while (
+          columns.find(
+            (c) => (c.title || c.column_name) === newName
+          )
+        ) {
+          newName = `${newNameBase}${counter++}`;
+        }
+
+        const payload = {
+          childId: targetNocoTable.id,
+          column_name: newName,
+          title: newName,
+          uidt: 'LinkToAnotherRecord',
+          meta: JSON.stringify(relationMeta),
+        };
+
+        try {
+          await createNocoColumn(nocoTable, {
+            // NocoDB wants BOTH parentId and childId for link columns:
+            // - parentId is injected by createNocoColumn(...) (source table)
+            // - childId is the related table id (targetNocoTable.id)
+            childId: targetNocoTable.id,
+
+            column_name: ${newName},
+            title: ${newName},
+            uidt: 'LinkToAnotherRecord',
+
+            // meta still has relation details
+            meta: JSON.stringify({
+              relation_type: 'mm',
+              related_table_id: targetNocoTable.id,
+            }),
+          });
+
+          console.log(
+            `[INFO] Created fallback link column "${atTable}.${newName}" (LinkToAnotherRecord).`
+          );
+        } catch (createErr) {
+          console.error(
+            `[ERROR] Error creating fallback link column "${atTable}.${newName}" after PATCH failure: ${
+              createErr.response?.data
+                ? JSON.stringify(createErr.response.data)
+                : createErr.message
+            }`
+          );
+        }
+
+        return;
+      }
+
+      // Any other error → log and bubble up to summary
+      throw err;
+    }
   }
 
+  // --- Case 2: column does not exist at all → create it normally ---
   const payload = {
     column_name: atField.name,
     title: atField.name,
     uidt: 'LinkToAnotherRecord',
-    meta: JSON.stringify({
-      relation_type: 'mm', // many-to-many; adjust if you later want one-to-many
-      related_table_id: targetNocoTable.id,
-    }),
+    meta: JSON.stringify(relationMeta),
   };
 
-  const created = await createNocoColumn(nocoTable.id, payload);
-  logInfo(
-    `+ Created LinkToAnotherRecord field "${atField.name}" on "${atTable.name}" → linked to "${targetAtTable.name}" (relation_type=mm).`
-  );
-  return created;
+  try {
+    await createNocoColumn(nocoTable.id, payload);
+    logInfo(
+      `+ Created LinkToAnotherRecord field "${atField.name}" on "${atTable.name}" → "${targetAtTable.name}".`
+    );
+  } catch (err) {
+    logError(
+      `Error creating new link column "${atTable.name}.${atField.name}": ${
+        err.response?.data ? JSON.stringify(err.response.data) : err.message
+      }`
+    );
+    throw err;
+  }
 }
+
 
 async function ensureLookupField({
   atTable,
@@ -303,40 +440,21 @@ async function ensureLookupField({
     return;
   }
 
-  // Fetch Noco table meta + target table meta
   const tableMeta = await fetchNocoTableMeta(nocoTable.id);
   const tableCols = tableMeta.columns || [];
   const targetMeta = await fetchNocoTableMeta(targetNocoTable.id);
   const targetCols = targetMeta.columns || [];
 
-  const existing = tableCols.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-  if (existing) {
-    if (existing.uidt !== 'Lookup') {
-      logWarn(
-        `Lookup field "${atField.name}" in "${atTable.name}" exists in NocoDB with uidt="${existing.uidt}" (expected "Lookup"). Not modifying.`
-      );
-    } else {
-      logInfo(
-        `✓ Lookup already configured for "${atTable.name}.${atField.name}" (uidt=${existing.uidt}).`
-      );
-    }
-    return;
-  }
-
-  // Find link column in Noco
   const linkCol = tableCols.find(
     (c) => (c.title || c.column_name) === linkField.name
   );
   if (!linkCol || (linkCol.uidt !== 'LinkToAnotherRecord' && linkCol.uidt !== 'Links')) {
     logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" expects link column "${linkField.name}" as LinkToAnotherRecord/Links in NocoDB, found uidt="${linkCol?.uidt}". Skipping creation.`
+      `Lookup field "${atField.name}" in "${atTable.name}" expects link column "${linkField.name}" as LinkToAnotherRecord/Links in NocoDB; found uidt="${linkCol?.uidt}". Skipping creation.`
     );
     return;
   }
 
-  // Find target field column in Noco
   const targetCol = targetCols.find(
     (c) => (c.title || c.column_name) === targetField.name
   );
@@ -347,21 +465,64 @@ async function ensureLookupField({
     return;
   }
 
+  const metaPayload = {
+    related_field_id: linkCol.id,
+    related_table_lookup_field_id: targetCol.id,
+  };
+
+  const existing = tableCols.find(
+    (c) => (c.title || c.column_name) === atField.name
+  );
+
+  if (existing) {
+    if (existing.uidt === 'Lookup') {
+      // Maybe just patch meta if needed
+      let existingMeta = {};
+      try {
+        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
+      } catch {
+        existingMeta = {};
+      }
+      const needsPatch =
+        existingMeta.related_field_id !== linkCol.id ||
+        existingMeta.related_table_lookup_field_id !== targetCol.id;
+
+      if (needsPatch) {
+        await patchNocoColumn(nocoTable.id, existing.id, {
+          uidt: 'Lookup',
+          meta: JSON.stringify(metaPayload),
+        });
+        logInfo(
+          `± Patched Lookup meta on "${atTable.name}.${atField.name}" to use link="${linkField.name}" and target="${targetAtTable.name}.${targetField.name}".`
+        );
+      } else {
+        logInfo(
+          `✓ Lookup already configured for "${atTable.name}.${atField.name}".`
+        );
+      }
+    } else {
+      await patchNocoColumn(nocoTable.id, existing.id, {
+        uidt: 'Lookup',
+        meta: JSON.stringify(metaPayload),
+      });
+      logInfo(
+        `± Converted existing column "${atTable.name}.${atField.name}" from uidt="${existing.uidt}" to Lookup (via "${linkField.name}" → "${targetAtTable.name}.${targetField.name}").`
+      );
+    }
+    return;
+  }
+
   const payload = {
     column_name: atField.name,
     title: atField.name,
     uidt: 'Lookup',
-    meta: JSON.stringify({
-      related_field_id: linkCol.id,
-      related_table_lookup_field_id: targetCol.id,
-    }),
+    meta: JSON.stringify(metaPayload),
   };
 
-  const created = await createNocoColumn(nocoTable.id, payload);
+  await createNocoColumn(nocoTable.id, payload);
   logInfo(
     `+ Created Lookup field "${atField.name}" on "${atTable.name}" referencing "${linkField.name}" → "${targetAtTable.name}.${targetField.name}".`
   );
-  return created;
 }
 
 async function ensureRollupField({
@@ -411,7 +572,7 @@ async function ensureRollupField({
   const targetField = targetAtTable.fieldsById[fieldIdInLinkedTable];
   if (!targetField) {
     logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" references target field id "${fieldIdInLinkedTable}" not found in table "${targetAtTable.name}"; skipping.`
+      `Rollup field "${atField.name}" in "${atTable.name}" references target field id "${fieldIdInLinkedTable}" not found in "${targetAtTable.name}"; skipping.`
     );
     return;
   }
@@ -429,22 +590,6 @@ async function ensureRollupField({
   const tableCols = tableMeta.columns || [];
   const targetMeta = await fetchNocoTableMeta(targetNocoTable.id);
   const targetCols = targetMeta.columns || [];
-
-  const existing = tableCols.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-  if (existing) {
-    if (existing.uidt !== 'Rollup') {
-      logWarn(
-        `Rollup field "${atField.name}" in "${atTable.name}" exists in NocoDB with uidt="${existing.uidt}" (expected "Rollup"). Not modifying.`
-      );
-    } else {
-      logInfo(
-        `✓ Rollup already configured for "${atTable.name}.${atField.name}" (uidt=${existing.uidt}).`
-      );
-    }
-    return;
-  }
 
   const linkCol = tableCols.find(
     (c) => (c.title || c.column_name) === linkField.name
@@ -466,34 +611,77 @@ async function ensureRollupField({
     return;
   }
 
+  const metaPayload = {
+    related_field_id: linkCol.id,
+    related_table_rollup_field_id: targetCol.id,
+    rollup_function: func,
+  };
+
+  const existing = tableCols.find(
+    (c) => (c.title || c.column_name) === atField.name
+  );
+
+  if (existing) {
+    if (existing.uidt === 'Rollup') {
+      let existingMeta = {};
+      try {
+        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
+      } catch {
+        existingMeta = {};
+      }
+      const needsPatch =
+        existingMeta.related_field_id !== linkCol.id ||
+        existingMeta.related_table_rollup_field_id !== targetCol.id ||
+        existingMeta.rollup_function !== func;
+
+      if (needsPatch) {
+        await patchNocoColumn(nocoTable.id, existing.id, {
+          uidt: 'Rollup',
+          meta: JSON.stringify(metaPayload),
+        });
+        logInfo(
+          `± Patched Rollup meta on "${atTable.name}.${atField.name}" to use link="${linkField.name}", target="${targetAtTable.name}.${targetField.name}", func=${func}.`
+        );
+      } else {
+        logInfo(
+          `✓ Rollup already configured for "${atTable.name}.${atField.name}".`
+        );
+      }
+    } else {
+      await patchNocoColumn(nocoTable.id, existing.id, {
+        uidt: 'Rollup',
+        meta: JSON.stringify(metaPayload),
+      });
+      logInfo(
+        `± Converted existing column "${atTable.name}.${atField.name}" from uidt="${existing.uidt}" to Rollup (via "${linkField.name}" → "${targetAtTable.name}.${targetField.name}", func=${func}).`
+      );
+    }
+    return;
+  }
+
   const payload = {
     column_name: atField.name,
     title: atField.name,
     uidt: 'Rollup',
-    meta: JSON.stringify({
-      related_field_id: linkCol.id,
-      related_table_rollup_field_id: targetCol.id,
-      rollup_function: func,
-    }),
+    meta: JSON.stringify(metaPayload),
   };
 
-  const created = await createNocoColumn(nocoTable.id, payload);
+  await createNocoColumn(nocoTable.id, payload);
   logInfo(
-    `+ Created Rollup field "${atField.name}" on "${atTable.name}" via link "${linkField.name}" → "${targetAtTable.name}.${targetField.name}", function=${func}.`
+    `+ Created Rollup field "${atField.name}" on "${atTable.name}" via link="${linkField.name}" → "${targetAtTable.name}.${targetField.name}", func=${func}.`
   );
-  return created;
 }
 
 // ---------- Main ----------
 
 async function main() {
   try {
-    logInfo('Starting relations & rollups import for NocoDB (mutating mode)...');
+    logInfo('Starting relations & rollups import for NocoDB (mutating – will patch mismatched columns)...');
     logInfo(`Base URL : ${NOCO_BASE_URL}`);
     logInfo(`Base ID  : ${NOCO_BASE_ID}`);
     logInfo(`Schema   : ${SCHEMA_PATH}`);
 
-    const { tables, tablesById, tablesByName } = loadAirtableSchema(SCHEMA_PATH);
+    const { tablesByName, tablesById } = loadAirtableSchema(SCHEMA_PATH);
     const noco = await fetchNocoTables();
 
     logInfo(
@@ -505,12 +693,12 @@ async function main() {
     const summary = {
       missingTablesInNoco: [],
       extraTablesInNoco: [],
-      perTable: {}, // tableName -> { missingColumns, extraColumns, relationIssues, virtualIssues }
+      perTable: {},
     };
 
     const airtableTableNames = new Set(Object.keys(tablesByName));
 
-    // ---------- Structural comparison (tables & columns) ----------
+    // --- Structural comparison ---
 
     console.log('-----------------------------------------------------');
     logInfo('First comparison: Airtable vs NocoDB (structural)');
@@ -573,18 +761,18 @@ async function main() {
       }
     }
 
-    // ---------- Create missing relations & virtual fields ----------
+    // --- Create / patch relations & virtual fields ---
 
     console.log('');
     console.log('-----------------------------------------------------');
     logInfo(
-      'Creating LinkToAnotherRecord, Lookup, Rollup fields where missing'
+      'Creating & patching LinkToAnotherRecord, Lookup, Rollup fields'
     );
     console.log('-----------------------------------------------------');
 
     for (const [tName, atTable] of Object.entries(tablesByName)) {
       const nocoTable = noco.byTitle.get(tName);
-      if (!nocoTable) continue; // already recorded as missing
+      if (!nocoTable) continue;
 
       const perTable = summary.perTable[tName] || {
         missingColumns: [],
@@ -622,7 +810,6 @@ async function main() {
         `Table "${tName}": linkFields=${linkFields.length}, rollupFields=${rollupFields.length}, lookupFields=${lookupFields.length}, formulaFields=${formulaFields.length}`
       );
 
-      // 1st pass: ensure all link fields exist
       for (const lf of linkFields) {
         try {
           await ensureLinkField({
@@ -633,7 +820,7 @@ async function main() {
             nocoMeta: noco,
           });
         } catch (err) {
-          const msg = `Error creating / checking link field "${lf.name}" on "${tName}": ${
+          const msg = `Error creating / patching link field "${lf.name}" on "${tName}": ${
             err.response?.data ? JSON.stringify(err.response.data) : err.message
           }`;
           logError(msg);
@@ -641,7 +828,6 @@ async function main() {
         }
       }
 
-      // 2nd pass: ensure lookups and rollups (now that links should exist)
       for (const lf of lookupFields) {
         try {
           await ensureLookupField({
@@ -652,7 +838,7 @@ async function main() {
             nocoMeta: noco,
           });
         } catch (err) {
-          const msg = `Error creating / checking lookup field "${lf.name}" on "${tName}": ${
+          const msg = `Error creating / patching lookup field "${lf.name}" on "${tName}": ${
             err.response?.data ? JSON.stringify(err.response.data) : err.message
           }`;
           logError(msg);
@@ -670,7 +856,7 @@ async function main() {
             nocoMeta: noco,
           });
         } catch (err) {
-          const msg = `Error creating / checking rollup field "${rf.name}" on "${tName}": ${
+          const msg = `Error creating / patching rollup field "${rf.name}" on "${tName}": ${
             err.response?.data ? JSON.stringify(err.response.data) : err.message
           }`;
           logError(msg);
@@ -678,9 +864,8 @@ async function main() {
         }
       }
 
-      // Formula fields: report only (no automatic creation)
       for (const ff of formulaFields) {
-        const msg = `Formula field "${ff.name}" in "${tName}" is not auto-created in NocoDB. You may want to create a Formula column manually with an equivalent expression.`;
+        const msg = `Formula field "${ff.name}" in "${tName}" is not auto-converted. Create a Formula column manually in NocoDB with an equivalent expression if needed.`;
         logWarn(msg);
         perTable.virtualIssues.push(msg);
       }
@@ -688,11 +873,11 @@ async function main() {
       summary.perTable[tName] = perTable;
     }
 
-    // ---------- Post-analysis summary ----------
+    // --- Summary ---
 
     console.log('');
     console.log('-----------------------------------------------------');
-    logInfo('Post-analysis summary (differences & remaining items)');
+    logInfo('Post-analysis summary (after create/patch)');
     console.log('-----------------------------------------------------');
 
     if (summary.missingTablesInNoco.length) {
@@ -727,12 +912,12 @@ async function main() {
         !relationIssues.length &&
         !virtualIssues.length
       ) {
-        logInfo(`Table "${tableName}" appears aligned (post-creation).`);
+        logInfo(`Table "${tableName}" appears aligned (post-creation/patch).`);
         continue;
       }
 
       console.log('');
-      logInfo(`Table "${tableName}" details:`);
+      logInfo(`Table "${tableName}" remaining notes:`);
 
       if (missingColumns.length) {
         logWarn(
@@ -744,21 +929,17 @@ async function main() {
       }
       if (relationIssues.length) {
         logWarn('  Relation / link issues:');
-        for (const msg of relationIssues) {
-          console.log(`    - ${msg}`);
-        }
+        for (const msg of relationIssues) console.log(`    - ${msg}`);
       }
       if (virtualIssues.length) {
         logWarn('  Rollup / lookup / formula issues:');
-        for (const msg of virtualIssues) {
-          console.log(`    - ${msg}`);
-        }
+        for (const msg of virtualIssues) console.log(`    - ${msg}`);
       }
     }
 
     console.log('');
     logInfo(
-      'Relations & rollups migration complete. New columns were created where needed; existing mismatched columns were left unchanged.'
+      'Relations & rollups migration complete. Mismatched columns were patched to relation/virtual types where possible.'
     );
   } catch (err) {
     logError(
