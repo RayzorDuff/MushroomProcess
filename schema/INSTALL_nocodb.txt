@@ -27,9 +27,10 @@ node .\create_nocodb_from_schema.js > basic_columns.log 2>&1
 # Second pass to create columns that were skipped previously 
 node .\create_nocodb_remaining_columns.js > remaining_columns.log 2>&1
 
-
+# Alternate second pass to create relationships based on linked-record metadata in _schema.json.
+node .\create_nocodb_relations_and_rollups.js > relations_rollups.log 2>&1
 
 TODO:
 
-Add a second script to create relationships based on linked-record metadata in _schema.json.
+Next step tune the mapping between Airtable functions → NocoDB rollup functions (e.g. ARRAY_UNIQUE, ARRAY_JOIN, etc.) based on what actually appears in your _schema.json
 Add a script to import data from the per-table .json or .ndjson exports into NocoDB via the /api/v2/tables/:tableId/records endpoint.
