@@ -23,6 +23,8 @@ $env:NOCODB_API_TOKEN = "your_api_token_here"
 # First pass to create tables with basic columns
 node .\create_nocodb_from_schema.js > basic_columns.log 2>&1
 # Then open NocoDB and you should see all your tables created with the primitive columns wired up.
+# Alternatively, create SQL using the generate_sql_from_schema.py and import this into a fresh NocoDB base.
+python generate_sql_from_schema.py --dialect postgres --output schema.sql
 
 # Second pass to create columns that were skipped previously 
 node .\create_nocodb_remaining_columns.js > remaining_columns.log 2>&1

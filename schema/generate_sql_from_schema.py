@@ -2,7 +2,7 @@
 """
 Generate SQL CREATE TABLE statements from Airtable export/_schema.json
 
-This is tailored to the MushroomProcess schema zip you shared:
+This is tailored to the MushroomProcess schema:
 
   - Top-level JSON shape: { "tables": [ ... ] }
   - Tables: strains, recipes, products, lots, items, events, locations,
@@ -53,7 +53,7 @@ def load_schema(path: str) -> Dict[str, Any]:
 
 def normalize_tables(schema: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    From your zip, _schema.json has the form:
+    _schema.json has the form:
 
         {
           "tables": [
