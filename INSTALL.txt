@@ -4,7 +4,7 @@ For a NocoDB installation:
 
 On Windows (Quick Test Install) - 
 
-Download and Install using the latest Windows installer executable from https://github.com/nocodb/nocodb.
+Download and Install using the latest (0.265.1 or later) Windows installer executable from https://github.com/nocodb/nocodb.
 
 Access NocoDB: Open your web browser and go to http://localhost:8080/dashboard
 
