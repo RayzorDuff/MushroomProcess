@@ -1,86 +1,46 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
-
 /**
  * create_nocodb_relations_and_rollups.js
  *
- * For MushroomProcess → NocoDB 0.265.1.
+ * Reads Airtable export schema (export/_schema.json) and creates:
+ *   - LinkToAnotherRecord columns for multipleRecordLinks
+ *   - Lookup columns for multipleLookupValues / lookup
+ *   - Rollup columns for rollup
+ *   - Formula columns for formula
  *
- * This script:
- *  - Reads Airtable export/_schema.json
- *  - Connects to a NocoDB base via Meta API v2
- *  - Assumes all tables & "raw" columns already exist
- *  - For Airtable relational / virtual fields:
- *      - multipleRecordLinks / singleRecordLink / foreignKey → LinkToAnotherRecord
- *      - lookup / multipleLookupValues                     → Lookup
- *      - rollup                                           → Rollup
- *      - formula                                          → Formula
+ * IMPORTANT:
+ *   - This script does NOT try to PATCH or DELETE existing columns.
+ *   - Existing LongText columns created by create_nocodb_from_schema.js remain as legacy.
+ *   - New, correctly-typed columns are created with unique names where needed.
  *
- * Behavior for link fields:
- *  - If an existing column shares the Airtable field name:
- *      - Try to PATCH it into a relation (uidt=LinkToAnotherRecord).
- *      - If PATCH fails, RENAME that column to "<name>_legacy" (title & column_name),
- *        then CREATE a new relation column with the original name.
- *  - If no column exists, CREATE the relation column with that name.
+ * Env vars:
+ *   NOCODB_URL        e.g. http://localhost:8080
+ *   NOCODB_BASE_ID    e.g. p0pcjn52qivlawb
+ *   NOCODB_API_TOKEN  xc-token with schema-edit permissions
  *
- * Environment variables:
- *  - NOCODB_BASE_URL or NOCO_BASE_URL or NOCODB_URL or NOCO_URL
- *      (e.g. http://localhost:8080)
- *  - NOCODB_BASE_ID  or NOCO_BASE_ID  (base id, e.g. p0pcjn52qivlawb)
- *  - NOCODB_API_TOKEN or NOCO_API_TOKEN or NC_TOKEN (API token)
- *  - SCHEMA_PATH (optional, default: ./export/_schema.json)
+ * Optional:
+ *   SCHEMA_PATH       override path to Airtable _schema.json
  */
 
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-// -------------------------------------------------------------
-// Config / env
-// -------------------------------------------------------------
+// ---------- ENV & CLIENT ----------
 
-const BASE_URL =
-  process.env.NOCODB_BASE_URL ||
-  process.env.NOCO_BASE_URL ||
-  process.env.NOCODB_URL ||
-  process.env.NOCO_URL ||
-  'http://localhost:8080';
-
-const BASE_ID =
-  process.env.NOCODB_BASE_ID ||
-  process.env.NOCO_BASE_ID;
-
-const API_TOKEN =
-  process.env.NOCODB_API_TOKEN ||
-  process.env.NOCO_API_TOKEN ||
-  process.env.NC_TOKEN;
+const NOCO_BASE_URL = process.env.NOCODB_URL || process.env.NOCO_BASE_URL;
+const NOCO_BASE_ID = process.env.NOCODB_BASE_ID || process.env.NOCO_BASE_ID;
+const NOCO_API_TOKEN = process.env.NOCODB_API_TOKEN || process.env.NOCO_API_TOKEN;
 
 const SCHEMA_PATH =
-  process.env.SCHEMA_PATH ||
-  path.join(__dirname, 'export', '_schema.json');
+  process.env.SCHEMA_PATH || path.join(__dirname, 'export', '_schema.json');
 
-if (!API_TOKEN) {
+if (!NOCO_BASE_URL || !NOCO_BASE_ID || !NOCO_API_TOKEN) {
   console.error(
-    'ERROR: NOCODB_API_TOKEN (or NOCO_API_TOKEN or NC_TOKEN) is required in environment.'
+    '[FATAL] NOCODB_URL, NOCODB_BASE_ID, NOCODB_API_TOKEN (or NOCO_*) must be set in env.'
   );
   process.exit(1);
 }
-if (!BASE_ID) {
-  console.error('ERROR: NOCODB_BASE_ID (or NOCO_BASE_ID) is required in environment.');
-  process.exit(1);
-}
-
-const http = axios.create({
-  baseURL: BASE_URL.replace(/\/+$/, ''),
-  headers: {
-    'xc-token': API_TOKEN,
-    'Content-Type': 'application/json',
-  },
-});
-
-// -------------------------------------------------------------
-// Logging
-// -------------------------------------------------------------
 
 function logInfo(msg) {
   console.log(`[INFO] ${msg}`);
@@ -92,345 +52,495 @@ function logError(msg) {
   console.error(`[ERROR] ${msg}`);
 }
 
-// -------------------------------------------------------------
-// Airtable schema loader / helpers
-// -------------------------------------------------------------
+const http = axios.create({
+  baseURL: NOCO_BASE_URL.replace(/\/+$/, ''),
+  headers: {
+    'xc-token': NOCO_API_TOKEN,
+    'Content-Type': 'application/json',
+  },
+});
 
-function loadAirtableSchema(schemaPath) {
-  const abs = path.resolve(schemaPath);
-  if (!fs.existsSync(abs)) {
-    throw new Error(`Schema file not found: ${abs}`);
-  }
-  const raw = fs.readFileSync(abs, 'utf8');
+// ---------- LOAD AIRTABLE SCHEMA ----------
+
+function loadAirtableSchema() {
+  logInfo(`Loading Airtable schema from ${SCHEMA_PATH}`);
+  const raw = fs.readFileSync(SCHEMA_PATH, 'utf8');
   const json = JSON.parse(raw);
 
-  const tables = Array.isArray(json) ? json : json.tables || [];
-  if (!Array.isArray(tables) || tables.length === 0) {
-    throw new Error('Schema JSON does not contain a non-empty "tables" array.');
+  if (!json.tables || !Array.isArray(json.tables)) {
+    throw new Error('Unexpected _schema.json format: missing tables[]');
+  }
+  return json.tables;
+}
+
+// Build lookup maps
+function buildAirtableMaps(tables) {
+  const tablesById = {};
+  const tablesByName = {};
+  const fieldsById = {};
+
+  for (const t of tables) {
+    tablesById[t.id] = t;
+    tablesByName[t.name] = t;
+    for (const f of t.fields || []) {
+      fieldsById[f.id] = { table: t, field: f };
+    }
+  }
+
+  return { tablesById, tablesByName, fieldsById };
+}
+
+// ---------- FETCH NOCO TABLE META ----------
+
+async function fetchNocoTables() {
+  // v2 meta API: /api/v2/meta/bases/{baseId}/tables?include_columns=true
+  const url = `/api/v2/meta/bases/${NOCO_BASE_ID}/tables`;
+  const res = await http.get(url, {
+    params: {
+      include_columns: true,
+      limit: 1000,
+    },
+  });
+
+  const list = res.data && (res.data.list || res.data);
+  if (!Array.isArray(list)) {
+    throw new Error('Unexpected NocoDB meta tables response shape');
   }
 
   const tablesById = {};
-  const tablesByName = {};
-
-  for (const t of tables) {
-    const table = {
-      id: t.id,
-      name: t.name,
-      primaryFieldId: t.primaryFieldId,
-      fields: t.fields || [],
-      fieldsById: {},
-      fieldsByName: {},
-    };
-
-    for (const f of table.fields) {
-      table.fieldsById[f.id] = f;
-      table.fieldsByName[f.name] = f;
-    }
-
-    tablesById[table.id] = table;
-    tablesByName[table.name] = table;
-  }
-
-  return { tables, tablesById, tablesByName };
-}
-
-// Bucket Airtable types into link / lookup / rollup / formula / simple
-function classifyFieldType(field) {
-  const t = (field.type || '').toLowerCase();
-  if (!t) return 'simple';
-
-  if (
-    t === 'multiplerecordlinks' ||
-    t === 'singlerecordlink' ||
-    t === 'foreignkey' ||
-    (t.includes('multiple') && t.includes('record') && t.includes('link'))
-  ) {
-    return 'link';
-  }
-
-  if (t === 'lookup' || t === 'multiplelookupvalues' || t.includes('lookup')) {
-    return 'lookup';
-  }
-
-  if (t === 'rollup') {
-    return 'rollup';
-  }
-
-  if (t === 'formula') {
-    return 'formula';
-  }
-
-  return 'simple';
-}
-
-// Map Airtable rollup "function" string to something usable
-function mapRollupFunction(func) {
-  if (!func) return 'sum';
-  const f = String(func).toLowerCase();
-
-  if (['sum', 'avg', 'average', 'min', 'max', 'count'].includes(f)) {
-    if (f === 'average') return 'avg';
-    return f;
-  }
-  return 'sum';
-}
-
-// -------------------------------------------------------------
-// NocoDB Meta API helpers
-// -------------------------------------------------------------
-
-async function fetchNocoTables() {
-  const url = `/api/v2/meta/bases/${encodeURIComponent(BASE_ID)}/tables`;
-  const res = await http.get(url);
-  const raw = res.data;
-  const list = Array.isArray(raw) ? raw : raw.list || [];
-
-  const byId = new Map();
-  const byTitle = new Map();
+  const tablesByTitle = {};
+  const tablesByPhysicalName = {};
 
   for (const t of list) {
-    byId.set(t.id, t);
-    if (t.title) byTitle.set(t.title, t);
-    if (t.table_name && !byTitle.has(t.table_name)) {
-      byTitle.set(t.table_name, t);
+    tablesById[t.id] = t;
+    tablesByTitle[t.title] = t;
+    if (t.table_name) {
+      tablesByPhysicalName[t.table_name] = t;
     }
   }
 
-  return { list, byId, byTitle };
+  return { list, tablesById, tablesByTitle, tablesByPhysicalName };
 }
 
-async function fetchNocoTableMeta(tableId) {
-  const url = `/api/v2/meta/tables/${encodeURIComponent(tableId)}`;
-  const res = await http.get(url);
-  return res.data;
+function normalizeName(name) {
+  return (name || '').trim().toLowerCase();
 }
 
-async function createNocoColumn(tableOrId, payload) {
-  const tableId = typeof tableOrId === 'string' ? tableOrId : tableOrId.id;
-  if (!tableId) {
-    throw new Error(
-      `createNocoColumn called without a valid table id (got: ${JSON.stringify(
-        tableOrId
-      )})`
-    );
+function findNocoTableForAirtableTable(airTable, nocoMeta) {
+  const title = airTable.name;
+  const normTitle = normalizeName(title);
+
+  // Prefer title match
+  for (const [k, t] of Object.entries(nocoMeta.tablesByTitle)) {
+    if (normalizeName(k) === normTitle) return t;
   }
 
-  const url = `/api/v2/meta/tables/${encodeURIComponent(tableId)}/columns`;
+  // Fallback: try physical table_name containing the title-ish
+  for (const t of nocoMeta.list) {
+    if (normalizeName(t.title) === normTitle) return t;
+  }
 
+  return null;
+}
+
+function findNocoColumnByNameLike(nocoTable, fieldName) {
+  const norm = normalizeName(fieldName);
+  if (!nocoTable || !Array.isArray(nocoTable.columns)) return null;
+
+  let candidate = null;
+
+  for (const c of nocoTable.columns) {
+    const titleNorm = normalizeName(c.title);
+    const colNameNorm = normalizeName(c.column_name || '');
+    if (titleNorm === norm || colNameNorm === norm) {
+      candidate = c;
+      break;
+    }
+  }
+
+  return candidate;
+}
+
+// Find existing link column between parent & child (if already created)
+function findExistingLinkColumn(parentTable, childTableId) {
+  if (!parentTable || !Array.isArray(parentTable.columns)) return null;
+
+  return parentTable.columns.find((c) => {
+    if (!c.uidt) return false;
+    const uidt = c.uidt;
+    if (uidt !== 'LinkToAnotherRecord' && uidt !== 'Links') return false;
+
+    const colOptions = c.colOptions || {};
+    // For links, colOptions.type is "mm" / "bt" / "hm" / "oo"
+    // and fk_related_model_id indicates target table.
+    if (colOptions.fk_related_model_id === childTableId) {
+      return true;
+    }
+
+    // Some versions store relation metadata differently;
+    // also check childId on column.
+    if (c.childId && c.childId === childTableId) return true;
+
+    return false;
+  });
+}
+
+// Generate a safe, unique column name & title on a Noco table
+function chooseUniqueColumnName(nocoTable, baseTitle, suffixHint) {
+  const existingTitles = new Set(
+    (nocoTable.columns || []).map((c) => c.title)
+  );
+  const existingNames = new Set(
+    (nocoTable.columns || []).map((c) => c.column_name)
+  );
+
+  let title = baseTitle;
+  let name =
+    baseTitle
+      .normalize('NFKD')
+      .replace(/[^\w]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .toLowerCase() || 'col';
+
+  if (!suffixHint) suffixHint = '';
+
+  const baseTitleWithHint = suffixHint ? `${baseTitle} ${suffixHint}` : baseTitle;
+  let titleCandidate = baseTitleWithHint;
+  let nameCandidate =
+    (baseTitleWithHint
+      .normalize('NFKD')
+      .replace(/[^\w]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .toLowerCase()) || 'col';
+
+  let i = 1;
+  while (existingTitles.has(titleCandidate) || existingNames.has(nameCandidate)) {
+    titleCandidate = `${baseTitleWithHint} ${i + 1}`;
+    nameCandidate = `${nameCandidate}_${i}`;
+    i++;
+  }
+
+  return { title: titleCandidate, column_name: nameCandidate };
+}
+
+// ---------- CREATE COLUMNS ----------
+// Create a LinkToAnotherRecord column on parentTable → childTable
+async function createLinkColumn({ parentTable, childTable, baseTitle }) {
+  // If a relation already exists from this table to child, reuse it
+  const already = findExistingLinkColumn(parentTable, childTable.id);
+  if (already) {
+    logInfo(
+      `  Existing link column "${already.title}" on "${parentTable.title}" -> "${childTable.title}" found; reusing.`
+    );
+    return already;
+  }
+
+  // Choose a unique title/column_name for the new relation
+  const { title, column_name } = chooseUniqueColumnName(
+    parentTable,
+    baseTitle,
+    '(link)'
+  );
+
+  /**
+   * NocoDB 0.26x’s Meta v2 usually expects relation config in colOptions:
+   *   - uidt: 'LinkToAnotherRecord'
+   *   - colOptions: {
+   *       type: 'mm' | 'bt' | 'hm' | 'oo',
+   *       fk_related_model_id: <child table id>
+   *     }
+   *
+   * We *don’t* send dt or low-level DB details; Noco will infer them.
+   */
   const body = {
-    parentId: tableId,
-    ...payload,
+    parentId: parentTable.id,
+    title,
+    column_name,
+    uidt: 'LinkToAnotherRecord',
+    colOptions: {
+      type: 'mm', // treat as many-to-many by default
+      fk_related_model_id: childTable.id,
+      // Noco will fill in fk_relation_column_id / fk_related_column_id
+    },
   };
 
-  const resp = await http.post(url, body);
-  return resp.data;
+  try {
+    const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
+    const res = await http.post(url, body);
+    const col = res.data;
+    logInfo(
+      `  Created LinkToAnotherRecord column "${col.title}" on "${parentTable.title}" -> "${childTable.title}".`
+    );
+    return col;
+  } catch (err) {
+    logError(
+      `  Failed to create LinkToAnotherRecord "${baseTitle}" on "${parentTable.title}" -> "${childTable.title}": ${
+        err.response ? JSON.stringify(err.response.data) : err.message
+      }`
+    );
+    return null;
+  }
 }
 
-async function patchNocoColumn(tableId, columnId, payload) {
-  const url = `/api/v2/meta/tables/${encodeURIComponent(
-    tableId
-  )}/columns/${encodeURIComponent(columnId)}`;
-  const resp = await http.patch(url, payload);
-  return resp.data;
+
+// Create a Lookup column on parentTable
+async function createLookupColumn({
+  parentTable,
+  baseTitle,
+  relationColumn,
+  targetColumn,
+}) {
+  const { title, column_name } = chooseUniqueColumnName(
+    parentTable,
+    baseTitle,
+    '(lookup)'
+  );
+
+  const body = {
+    title,
+    column_name,
+    uidt: 'Lookup',
+    parentId: parentTable.id,
+    colOptions: {
+      fk_relation_column_id: relationColumn.id,
+      fk_lookup_column_id: targetColumn.id,
+    },
+  };
+
+  try {
+    const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
+    const res = await http.post(url, body);
+    const col = res.data;
+    logInfo(
+      `  Created Lookup "${col.title}" on "${parentTable.title}" from relation "${relationColumn.title}" -> "${targetColumn.title}".`
+    );
+    return col;
+  } catch (err) {
+    logError(
+      `  Failed to create Lookup "${baseTitle}" on "${parentTable.title}": ${
+        err.response && JSON.stringify(err.response.data)
+      }`
+    );
+    return null;
+  }
 }
 
-// -------------------------------------------------------------
-// Relation / virtual field helpers
-// -------------------------------------------------------------
+// Infer a reasonable rollup function from Airtable result.type
+function inferRollupFunctionFromResult(atRollupField) {
+  const result = atRollupField.options && atRollupField.options.result;
+  const resultType = result && result.type;
 
-/**
- * Ensure a LinkToAnotherRecord / relation column with the SAME name
- * as the Airtable field exists.
- *
- * Algorithm:
- *  - If a column with this name exists:
- *      - Try to PATCH it into a relation (uidt=LinkToAnotherRecord, type=relation, childId, meta).
- *      - If PATCH fails:
- *          - PATCH again just to rename it to "<name>_legacy" (title + column_name).
- *          - Then CREATE a new relation column "<name>" with correct meta.
- *  - If no column exists:
- *      - CREATE the relation column "<name>".
- */
-async function ensureLinkField({
+  // Heuristic:
+  //   - date / dateTime: max (latest)
+  //   - numeric-ish: sum
+  //   - everything else: count
+  if (!resultType) return 'count';
+
+  const t = resultType.toLowerCase();
+  if (t === 'date' || t === 'datetime') return 'max';
+  if (
+    t === 'number' ||
+    t === 'currency' ||
+    t === 'percent' ||
+    t === 'duration' ||
+    t === 'decimal'
+  ) {
+    return 'sum';
+  }
+
+  return 'count';
+}
+
+// Create a Rollup column on parentTable
+async function createRollupColumn({
+  parentTable,
+  baseTitle,
+  relationColumn,
+  targetColumn,
+  rollupFunction,
+}) {
+  const { title, column_name } = chooseUniqueColumnName(
+    parentTable,
+    baseTitle,
+    '(rollup)'
+  );
+
+  const func = rollupFunction || 'count';
+
+  const body = {
+    title,
+    column_name,
+    uidt: 'Rollup',
+    parentId: parentTable.id,
+    colOptions: {
+      fk_relation_column_id: relationColumn.id,
+      fk_rollup_column_id: targetColumn.id,
+      rollup_function: func,
+    },
+  };
+
+  try {
+    const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
+    const res = await http.post(url, body);
+    const col = res.data;
+    logInfo(
+      `  Created Rollup "${col.title}" on "${parentTable.title}" using "${func}" from "${targetColumn.title}".`
+    );
+    return col;
+  } catch (err) {
+    logError(
+      `  Failed to create Rollup "${baseTitle}" on "${parentTable.title}": ${
+        err.response && JSON.stringify(err.response.data)
+      }`
+    );
+    return null;
+  }
+}
+
+// Create a Formula column on parentTable, with a safe fallback when NocoDB rejects the expression
+async function createFormulaColumn({ parentTable, baseTitle, formula }) {
+  if (!formula) {
+    logWarn(
+      `  Formula field "${baseTitle}" on "${parentTable.title}" has no options.formula; skipping.`
+    );
+    return null;
+  }
+
+  // First attempt: real Formula column
+  const { title, column_name } = chooseUniqueColumnName(
+    parentTable,
+    baseTitle,
+    '(formula)'
+  );
+
+  const body = {
+    parentId: parentTable.id,
+    title,
+    column_name,
+    uidt: 'Formula',
+    formula, // NocoDB will try to parse this
+  };
+
+  const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
+
+  try {
+    const res = await http.post(url, body);
+    const col = res.data;
+    logInfo(
+      `  Created Formula "${col.title}" on "${parentTable.title}" with expression: ${formula}`
+    );
+    return col;
+  } catch (err) {
+    const msg = err.response ? JSON.stringify(err.response.data) : err.message;
+    logWarn(
+      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${formula}"): ${msg}`
+    );
+    logWarn(
+      `  Creating a LongText "_formula_src" column instead so the Airtable expression is preserved.`
+    );
+
+    // Fallback: create a LongText column that just stores the expression string
+    const fallbackNameBase = `${baseTitle}_formula_src`;
+    const { title: fbTitle, column_name: fbColName } = chooseUniqueColumnName(
+      parentTable,
+      fallbackNameBase,
+      ''
+    );
+
+    const fbBody = {
+      parentId: parentTable.id,
+      title: fbTitle,
+      column_name: fbColName,
+      uidt: 'LongText',
+      // there is no "defaultExpression" concept here,
+      // but we can set a default value if we want to hint the expression
+      colOptions: {
+        default: formula,
+      },
+    };
+
+    try {
+      const fbRes = await http.post(url, fbBody);
+      const fbCol = fbRes.data;
+      logInfo(
+        `  Created LongText column "${fbCol.title}" on "${parentTable.title}" holding original formula expression.`
+      );
+      return fbCol;
+    } catch (fbErr) {
+      logError(
+        `  Failed to create fallback "_formula_src" column for "${baseTitle}" on "${parentTable.title}": ${
+          fbErr.response ? JSON.stringify(fbErr.response.data) : fbErr.message
+        }`
+      );
+      return null;
+    }
+  }
+}
+
+
+// ---------- PER-FIELD HANDLERS ----------
+
+// Ensure link column exists for a given Airtable multipleRecordLinks field
+async function ensureLinkForAirtableField({
   atTable,
   atField,
-  tablesById,
-  nocoTable,
+  airtableMaps,
   nocoMeta,
 }) {
   const options = atField.options || {};
   const linkedTableId = options.linkedTableId;
+
   if (!linkedTableId) {
     logWarn(
-      `Linked-record field "${atField.name}" in table "${atTable.name}" has no options.linkedTableId; skipping.`
+      `  Linked-record field "${atField.name}" in "${atTable.name}" has no options.linkedTableId; skipping.`
     );
-    return;
+    return null;
   }
 
-  const targetAtTable = tablesById[linkedTableId];
+  // Avoid creating duplicate links for reversed fields.
+  if (options.isReversed) {
+    logInfo(
+      `  Skipping reversed link field "${atField.name}" in "${atTable.name}" (options.isReversed=true).`
+    );
+    return null;
+  }
+
+  const targetAtTable = airtableMaps.tablesById[linkedTableId];
   if (!targetAtTable) {
     logWarn(
-      `Linked-record field "${atField.name}" in "${atTable.name}" references unknown linkedTableId "${linkedTableId}"; skipping.`
+      `  Linked-record field "${atField.name}" in "${atTable.name}" references unknown tableId=${linkedTableId}; skipping.`
     );
-    return;
+    return null;
   }
 
-  const { byTitle } = nocoMeta;
-  const targetNocoTable = byTitle.get(targetAtTable.name);
-  if (!targetNocoTable) {
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoMeta);
+  const childNoco = findNocoTableForAirtableTable(targetAtTable, nocoMeta);
+
+  if (!parentNoco) {
     logWarn(
-      `Linked-record field "${atField.name}" in "${atTable.name}" refers to "${targetAtTable.name}" not found in NocoDB; skipping.`
+      `  No matching Noco table for Airtable table "${atTable.name}" (for link field "${atField.name}"); skipping.`
     );
-    return;
+    return null;
   }
-
-  const currentMeta = await fetchNocoTableMeta(nocoTable.id);
-  const columns = currentMeta.columns || [];
-  const existing = columns.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-
-  const relationMeta = {
-    relation_type: 'mm',
-    related_table_id: targetNocoTable.id,
-  };
-
-  // ------------- Helper: create new relation col with a given name -------------
-  async function createRelationWithName(name) {
-    const payload = {
-      // parentId injected by createNocoColumn
-      childId: targetNocoTable.id,
-      type: 'relation',
-      column_name: name,
-      title: name,
-      uidt: 'LinkToAnotherRecord',
-      meta: JSON.stringify(relationMeta),
-    };
-    const created = await createNocoColumn(nocoTable, payload);
-    logInfo(
-      `+ Created relation column "${atTable.name}.${name}" (LinkToAnotherRecord → "${targetAtTable.name}").`
+  if (!childNoco) {
+    logWarn(
+      `  No matching Noco table for linked Airtable table "${targetAtTable.name}" (for field "${atField.name}"); skipping.`
     );
-    return created;
+    return null;
   }
 
-  // ------------- Case 1: existing column with the same name -------------
-  if (existing) {
-    const uidt = existing.uidt;
-
-    // 1a. Already link-ish, try just patching meta if needed
-    if (uidt === 'LinkToAnotherRecord' || uidt === 'Links') {
-      let existingMeta = {};
-      try {
-        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
-      } catch (_) {
-        existingMeta = {};
-      }
-
-      const needsPatch =
-        existingMeta.related_table_id !== targetNocoTable.id ||
-        !existingMeta.relation_type;
-
-      if (!needsPatch) {
-        logInfo(
-          `✓ Linked-record already configured for "${atTable.name}.${atField.name}" (uidt=${uidt}).`
-        );
-        return;
-      }
-
-      try {
-        await patchNocoColumn(nocoTable.id, existing.id, {
-          uidt: 'LinkToAnotherRecord',
-          type: 'relation',
-          childId: targetNocoTable.id,
-          meta: JSON.stringify(relationMeta),
-        });
-        logInfo(
-          `± Patched link meta for "${atTable.name}.${atField.name}" → "${targetAtTable.name}".`
-        );
-        return;
-      } catch (err) {
-        logWarn(
-          `Cannot PATCH link meta for "${atTable.name}.${atField.name}" (uidt="${uidt}"): ${
-            err.response?.data
-              ? JSON.stringify(err.response.data)
-              : err.message
-          }. Will rename old column and create a new relation.`
-        );
-      }
-    } else {
-      // 1b. Not a link yet → try to PATCH fully into a relation
-      try {
-        await patchNocoColumn(nocoTable.id, existing.id, {
-          uidt: 'LinkToAnotherRecord',
-          type: 'relation',
-          childId: targetNocoTable.id,
-          meta: JSON.stringify(relationMeta),
-        });
-        logInfo(
-          `± Converted "${atTable.name}.${atField.name}" from uidt="${uidt}" to LinkToAnotherRecord → "${targetAtTable.name}".`
-        );
-        return;
-      } catch (err) {
-        const msgData = err.response?.data;
-        const msgStr = msgData && msgData.msg ? String(msgData.msg) : '';
-        logWarn(
-          `Cannot PATCH existing column "${atTable.name}.${atField.name}" (uidt="${uidt}") to relation: ${
-            msgStr || err.message
-          }. Will rename old column and create a new relation.`
-        );
-      }
-    }
-
-    // 1c. PATCH failed: rename old column to "<name>_legacy", then create new relation with original name
-    const legacyName = `${atField.name}_legacy`;
-
-    try {
-      await patchNocoColumn(nocoTable.id, existing.id, {
-        column_name: legacyName,
-        title: legacyName,
-      });
-      logInfo(
-        `- Renamed previous column "${atTable.name}.${atField.name}" to "${legacyName}" to free up name for relation.`
-      );
-    } catch (renameErr) {
-      logWarn(
-        `Could not rename existing column "${atTable.name}.${atField.name}" to "${legacyName}": ${
-          renameErr.response?.data
-            ? JSON.stringify(renameErr.response.data)
-            : renameErr.message
-        }. Will still attempt to create a relation column with a different name.`
-      );
-      // In worst case, we'll create relation with a suffix
-      let suffix = 1;
-      let newName = `${atField.name}_rel`;
-      const refreshedMeta = await fetchNocoTableMeta(nocoTable.id);
-      const refreshedCols = refreshedMeta.columns || [];
-      while (
-        refreshedCols.find((c) => (c.title || c.column_name) === newName)
-      ) {
-        newName = `${atField.name}_rel${suffix++}`;
-      }
-      await createRelationWithName(newName);
-      return;
-    }
-
-    // After rename, create relation with the original field name
-    await createRelationWithName(atField.name);
-    return;
-  }
-
-  // ------------- Case 2: no existing column with this name -------------
-  await createRelationWithName(atField.name);
+  return await createLinkColumn({
+    parentTable: parentNoco,
+    childTable: childNoco,
+    baseTitle: atField.name,
+  });
 }
 
-/**
- * Ensure Lookup column exists.
- */
-async function ensureLookupField({
+// Handle multipleLookupValues / lookup
+async function handleLookupField({
   atTable,
   atField,
-  tablesById,
-  nocoTable,
+  airtableMaps,
   nocoMeta,
 }) {
   const options = atField.options || {};
@@ -439,504 +549,253 @@ async function ensureLookupField({
 
   if (!recordLinkFieldId || !fieldIdInLinkedTable) {
     logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" missing recordLinkFieldId or fieldIdInLinkedTable; skipping.`
+      `  Lookup field "${atField.name}" in "${atTable.name}" missing recordLinkFieldId or fieldIdInLinkedTable; skipping.`
     );
     return;
   }
 
-  const linkField = atTable.fieldsById[recordLinkFieldId];
-  if (!linkField) {
+  const linkInfo = airtableMaps.fieldsById[recordLinkFieldId];
+  if (!linkInfo) {
     logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" refers to missing link field id="${recordLinkFieldId}"; skipping.`
+      `  Lookup field "${atField.name}" in "${atTable.name}" refers to unknown link fieldId=${recordLinkFieldId}; skipping.`
     );
     return;
   }
 
+  const linkField = linkInfo.field;
   const linkOptions = linkField.options || {};
   const linkedTableId = linkOptions.linkedTableId;
   if (!linkedTableId) {
     logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" has link field "${linkField.name}" without options.linkedTableId; skipping.`
+      `  Lookup field "${atField.name}" in "${atTable.name}" refers to link field without linkedTableId; skipping.`
     );
     return;
   }
 
-  const targetAtTable = tablesById[linkedTableId];
+  const targetAtTable = airtableMaps.tablesById[linkedTableId];
   if (!targetAtTable) {
     logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" refers to linkedTableId "${linkedTableId}" not found in schema; skipping.`
+      `  Lookup field "${atField.name}" in "${atTable.name}" references unknown tableId=${linkedTableId}; skipping.`
     );
     return;
   }
 
-  const targetField = targetAtTable.fieldsById[fieldIdInLinkedTable];
-  if (!targetField) {
-    logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" refers to fieldIdInLinkedTable "${fieldIdInLinkedTable}" not found in "${targetAtTable.name}"; skipping.`
-    );
-    return;
-  }
-
-  const { byTitle } = nocoMeta;
-  const targetNocoTable = byTitle.get(targetAtTable.name);
-  if (!targetNocoTable) {
-    logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}" refers to target table "${targetAtTable.name}" not in NocoDB; skipping.`
-    );
-    return;
-  }
-
-  // Ensure relation exists
-  await ensureLinkField({
+  // Ensure link column exists first
+  const relationCol = await ensureLinkForAirtableField({
     atTable,
     atField: linkField,
-    tablesById,
-    nocoTable,
+    airtableMaps,
     nocoMeta,
   });
+  if (!relationCol) {
+    logWarn(
+      `  Could not create relation column for lookup "${atField.name}" in "${atTable.name}"; skipping lookup creation.`
+    );
+    return;
+  }
 
-  // Now find relation column & target column
-  const tableMeta = await fetchNocoTableMeta(nocoTable.id);
-  const tableCols = tableMeta.columns || [];
-  const targetMeta = await fetchNocoTableMeta(targetNocoTable.id);
-  const targetCols = targetMeta.columns || [];
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoMeta);
+  const targetNoco = findNocoTableForAirtableTable(targetAtTable, nocoMeta);
 
-  const relationColumn = tableCols.find((c) => {
-    if (c.uidt !== 'LinkToAnotherRecord' && c.uidt !== 'Links') return false;
-    let m = {};
-    try {
-      m = c.meta ? JSON.parse(c.meta) : {};
-    } catch (_) {
-      m = {};
-    }
-    return m.related_table_id === targetNocoTable.id;
+  if (!parentNoco || !targetNoco) return;
+
+  const targetAtFieldInfo = airtableMaps.fieldsById[fieldIdInLinkedTable];
+  if (!targetAtFieldInfo) {
+    logWarn(
+      `  Lookup field "${atField.name}" in "${atTable.name}" refers to unknown target fieldId=${fieldIdInLinkedTable}; skipping.`
+    );
+    return;
+  }
+
+  const targetFieldName = targetAtFieldInfo.field.name;
+  const targetNocoCol = findNocoColumnByNameLike(targetNoco, targetFieldName);
+  if (!targetNocoCol) {
+    logWarn(
+      `  Could not find Noco column for target lookup field "${targetFieldName}" in "${targetNoco.title}" (for lookup "${atField.name}" in "${atTable.name}").`
+    );
+    return;
+  }
+
+  await createLookupColumn({
+    parentTable: parentNoco,
+    baseTitle: atField.name,
+    relationColumn: relationCol,
+    targetColumn: targetNocoCol,
   });
-
-  if (!relationColumn) {
-    logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}": no LinkToAnotherRecord column pointing to "${targetAtTable.name}" found; skipping.`
-    );
-    return;
-  }
-
-  const lookupTargetCol = targetCols.find(
-    (c) => (c.title || c.column_name) === targetField.name
-  );
-  if (!lookupTargetCol) {
-    logWarn(
-      `Lookup field "${atField.name}" in "${atTable.name}": target column "${targetField.name}" not found in Noco table "${targetAtTable.name}"; skipping.`
-    );
-    return;
-  }
-
-  const metaPayload = {
-    fk_relation_column_id: relationColumn.id,
-    fk_lookup_column_id: lookupTargetCol.id,
-  };
-
-  const existing = tableCols.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-
-  if (existing) {
-    if (existing.uidt === 'Lookup') {
-      let existingMeta = {};
-      try {
-        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
-      } catch (_) {
-        existingMeta = {};
-      }
-      const needsPatch =
-        existingMeta.fk_relation_column_id !== relationColumn.id ||
-        existingMeta.fk_lookup_column_id !== lookupTargetCol.id;
-
-      if (!needsPatch) {
-        logInfo(
-          `✓ Lookup column "${atTable.name}.${atField.name}" already correctly configured.`
-        );
-        return;
-      }
-
-      await patchNocoColumn(nocoTable.id, existing.id, {
-        uidt: 'Lookup',
-        meta: JSON.stringify(metaPayload),
-      });
-      logInfo(
-        `± Patched Lookup "${atTable.name}.${atField.name}" via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}".`
-      );
-    } else {
-      await patchNocoColumn(nocoTable.id, existing.id, {
-        uidt: 'Lookup',
-        meta: JSON.stringify(metaPayload),
-      });
-      logInfo(
-        `± Converted "${atTable.name}.${atField.name}" (uidt="${existing.uidt}") to Lookup via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}".`
-      );
-    }
-  } else {
-    const payload = {
-      column_name: atField.name,
-      title: atField.name,
-      uidt: 'Lookup',
-      meta: JSON.stringify(metaPayload),
-    };
-
-    await createNocoColumn(nocoTable.id, payload);
-    logInfo(
-      `+ Created Lookup "${atTable.name}.${atField.name}" via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}".`
-    );
-  }
 }
 
-/**
- * Ensure Rollup column exists.
- */
-async function ensureRollupField({
+// Handle rollup
+async function handleRollupField({
   atTable,
   atField,
-  tablesById,
-  nocoTable,
+  airtableMaps,
   nocoMeta,
 }) {
   const options = atField.options || {};
   const recordLinkFieldId = options.recordLinkFieldId;
   const fieldIdInLinkedTable = options.fieldIdInLinkedTable;
-  const func = mapRollupFunction(options.function);
 
   if (!recordLinkFieldId || !fieldIdInLinkedTable) {
     logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" missing recordLinkFieldId or fieldIdInLinkedTable; skipping.`
+      `  Rollup field "${atField.name}" in "${atTable.name}" missing recordLinkFieldId or fieldIdInLinkedTable; skipping.`
     );
     return;
   }
 
-  const linkField = atTable.fieldsById[recordLinkFieldId];
-  if (!linkField) {
+  const linkInfo = airtableMaps.fieldsById[recordLinkFieldId];
+  if (!linkInfo) {
     logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" refers to missing link field id="${recordLinkFieldId}"; skipping.`
+      `  Rollup field "${atField.name}" in "${atTable.name}" refers to unknown link fieldId=${recordLinkFieldId}; skipping.`
     );
     return;
   }
 
+  const linkField = linkInfo.field;
   const linkOptions = linkField.options || {};
   const linkedTableId = linkOptions.linkedTableId;
   if (!linkedTableId) {
     logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" has link field "${linkField.name}" without options.linkedTableId; skipping.`
+      `  Rollup field "${atField.name}" in "${atTable.name}" refers to link field without linkedTableId; skipping.`
     );
     return;
   }
 
-  const targetAtTable = tablesById[linkedTableId];
+  const targetAtTable = airtableMaps.tablesById[linkedTableId];
   if (!targetAtTable) {
     logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" refers to linkedTableId "${linkedTableId}" not found in schema; skipping.`
+      `  Rollup field "${atField.name}" in "${atTable.name}" references unknown tableId=${linkedTableId}; skipping.`
     );
     return;
   }
 
-  const targetField = targetAtTable.fieldsById[fieldIdInLinkedTable];
-  if (!targetField) {
-    logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" refers to fieldIdInLinkedTable "${fieldIdInLinkedTable}" not found in "${targetAtTable.name}"; skipping.`
-    );
-    return;
-  }
-
-  const { byTitle } = nocoMeta;
-  const targetNocoTable = byTitle.get(targetAtTable.name);
-  if (!targetNocoTable) {
-    logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}" refers to target table "${targetAtTable.name}" not in NocoDB; skipping.`
-    );
-    return;
-  }
-
-  await ensureLinkField({
+  // Ensure link column exists
+  const relationCol = await ensureLinkForAirtableField({
     atTable,
     atField: linkField,
-    tablesById,
-    nocoTable,
+    airtableMaps,
     nocoMeta,
   });
+  if (!relationCol) {
+    logWarn(
+      `  Could not create relation column for rollup "${atField.name}" in "${atTable.name}"; skipping rollup creation.`
+    );
+    return;
+  }
 
-  const tableMeta = await fetchNocoTableMeta(nocoTable.id);
-  const tableCols = tableMeta.columns || [];
-  const targetMeta = await fetchNocoTableMeta(targetNocoTable.id);
-  const targetCols = targetMeta.columns || [];
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoMeta);
+  const targetNoco = findNocoTableForAirtableTable(targetAtTable, nocoMeta);
 
-  const relationColumn = tableCols.find((c) => {
-    if (c.uidt !== 'LinkToAnotherRecord' && c.uidt !== 'Links') return false;
-    let m = {};
-    try {
-      m = c.meta ? JSON.parse(c.meta) : {};
-    } catch (_) {
-      m = {};
-    }
-    return m.related_table_id === targetNocoTable.id;
+  if (!parentNoco || !targetNoco) return;
+
+  const targetAtFieldInfo = airtableMaps.fieldsById[fieldIdInLinkedTable];
+  if (!targetAtFieldInfo) {
+    logWarn(
+      `  Rollup field "${atField.name}" in "${atTable.name}" refers to unknown target fieldId=${fieldIdInLinkedTable}; skipping.`
+    );
+    return;
+  }
+
+  const targetFieldName = targetAtFieldInfo.field.name;
+  const targetNocoCol = findNocoColumnByNameLike(targetNoco, targetFieldName);
+  if (!targetNocoCol) {
+    logWarn(
+      `  Could not find Noco column for target rollup field "${targetFieldName}" in "${targetNoco.title}" (for rollup "${atField.name}" in "${atTable.name}").`
+    );
+    return;
+  }
+
+  const rollupFn = inferRollupFunctionFromResult(atField);
+  await createRollupColumn({
+    parentTable: parentNoco,
+    baseTitle: atField.name,
+    relationColumn: relationCol,
+    targetColumn: targetNocoCol,
+    rollupFunction: rollupFn,
   });
-
-  if (!relationColumn) {
-    logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}": no LinkToAnotherRecord column pointing to "${targetAtTable.name}" found; skipping.`
-    );
-    return;
-  }
-
-  const rollupTargetCol = targetCols.find(
-    (c) => (c.title || c.column_name) === targetField.name
-  );
-  if (!rollupTargetCol) {
-    logWarn(
-      `Rollup field "${atField.name}" in "${atTable.name}": target column "${targetField.name}" not found in Noco table "${targetAtTable.name}"; skipping.`
-    );
-    return;
-  }
-
-  const metaPayload = {
-    fk_relation_column_id: relationColumn.id,
-    fk_rollup_column_id: rollupTargetCol.id,
-    rollup_function: func,
-  };
-
-  const existing = tableCols.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-
-  if (existing) {
-    if (existing.uidt === 'Rollup') {
-      let existingMeta = {};
-      try {
-        existingMeta = existing.meta ? JSON.parse(existing.meta) : {};
-      } catch (_) {
-        existingMeta = {};
-      }
-      const needsPatch =
-        existingMeta.fk_relation_column_id !== relationColumn.id ||
-        existingMeta.fk_rollup_column_id !== rollupTargetCol.id ||
-        existingMeta.rollup_function !== func;
-
-      if (!needsPatch) {
-        logInfo(
-          `✓ Rollup column "${atTable.name}.${atField.name}" already correctly configured.`
-        );
-        return;
-      }
-
-      await patchNocoColumn(nocoTable.id, existing.id, {
-        uidt: 'Rollup',
-        meta: JSON.stringify(metaPayload),
-      });
-      logInfo(
-        `± Patched Rollup "${atTable.name}.${atField.name}" via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}" [${func}].`
-      );
-    } else {
-      await patchNocoColumn(nocoTable.id, existing.id, {
-        uidt: 'Rollup',
-        meta: JSON.stringify(metaPayload),
-      });
-      logInfo(
-        `± Converted "${atTable.name}.${atField.name}" (uidt="${existing.uidt}") to Rollup via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}" [${func}].`
-      );
-    }
-  } else {
-    const payload = {
-      column_name: atField.name,
-      title: atField.name,
-      uidt: 'Rollup',
-      meta: JSON.stringify(metaPayload),
-    };
-
-    await createNocoColumn(nocoTable.id, payload);
-    logInfo(
-      `+ Created Rollup "${atTable.name}.${atField.name}" via "${relationColumn.title}" → "${targetAtTable.name}.${targetField.name}" [${func}].`
-    );
-  }
 }
 
-/**
- * Ensure Formula column exists and carries Airtable expression.
- */
-async function ensureFormulaField({ atTable, atField, nocoTable }) {
+// Handle formula
+async function handleFormulaField({ atTable, atField, nocoMeta }) {
   const options = atField.options || {};
   const formula = options.formula;
-  if (!formula) {
+
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoMeta);
+  if (!parentNoco) {
     logWarn(
-      `Formula field "${atField.name}" in "${atTable.name}" has no options.formula; skipping.`
+      `  No matching Noco table for Airtable table "${atTable.name}" (for formula field "${atField.name}"); skipping.`
     );
     return;
   }
 
-  const tableMeta = await fetchNocoTableMeta(nocoTable.id);
-  const tableCols = tableMeta.columns || [];
-
-  const existing = tableCols.find(
-    (c) => (c.title || c.column_name) === atField.name
-  );
-
-  const payloadPatch = {
-    uidt: 'Formula',
-    formula_raw: formula,
-    formula: formula,
-  };
-
-  if (existing) {
-    await patchNocoColumn(nocoTable.id, existing.id, payloadPatch);
-    if (existing.uidt === 'Formula') {
-      logInfo(
-        `± Updated formula expression for "${atTable.name}.${atField.name}".`
-      );
-    } else {
-      logInfo(
-        `± Converted "${atTable.name}.${atField.name}" (uidt="${existing.uidt}") to Formula.`
-      );
-    }
-  } else {
-    const payloadCreate = {
-      column_name: atField.name,
-      title: atField.name,
-      uidt: 'Formula',
-      formula_raw: formula,
-      formula: formula,
-    };
-    await createNocoColumn(nocoTable.id, payloadCreate);
-    logInfo(
-      `+ Created Formula field "${atTable.name}.${atField.name}" with Airtable expression.`
-    );
-  }
+  await createFormulaColumn({
+    parentTable: parentNoco,
+    baseTitle: atField.name,
+    formula,
+  });
 }
 
-// -------------------------------------------------------------
-// Main
-// -------------------------------------------------------------
+// ---------- MAIN ----------
 
 async function main() {
   try {
-    logInfo(
-      'Starting relations & virtual fields import for NocoDB (PATCH + rename+create for links)...'
-    );
-    logInfo(`Base URL : ${BASE_URL}`);
-    logInfo(`Base ID  : ${BASE_ID}`);
+    logInfo(`Base URL : ${NOCO_BASE_URL}`);
+    logInfo(`Base ID  : ${NOCO_BASE_ID}`);
     logInfo(`Schema   : ${SCHEMA_PATH}`);
 
-    const { tablesByName, tablesById } = loadAirtableSchema(SCHEMA_PATH);
-    const noco = await fetchNocoTables();
+    const airTables = loadAirtableSchema();
+    const airtableMaps = buildAirtableMaps(airTables);
 
+    const nocoMeta = await fetchNocoTables();
     logInfo(
-      `NocoDB tables: ${noco.list
-        .map((t) => `${t.table_name || t.id} [${t.id}] title="${t.title}"`)
+      `NocoDB tables in base: ${nocoMeta.list
+        .map((t) => t.title)
         .join(', ')}`
     );
 
-    const nocoMeta = {
-      list: noco.list,
-      byId: noco.byId,
-      byTitle: noco.byTitle,
-    };
+    for (const atTable of airTables) {
+      logInfo(`Processing table "${atTable.name}" (${atTable.id})...`);
 
-    console.log('-----------------------------------------------------');
-    logInfo('Creating / patching Links, Lookups, Rollups, Formulas');
-    console.log('-----------------------------------------------------');
+      for (const atField of atTable.fields || []) {
+        const type = atField.type;
 
-    const tableNames = Object.keys(tablesByName).sort();
-
-    for (const tName of tableNames) {
-      const atTable = tablesByName[tName];
-      const nocoTable = noco.byTitle.get(tName);
-      if (!nocoTable) {
-        logWarn(
-          `Skipping table "${tName}" (present in Airtable but NOT in NocoDB for this base).`
-        );
-        continue;
-      }
-
-      logInfo(`Processing table "${tName}" (${atTable.id})...`);
-
-      const linkFields = atTable.fields.filter(
-        (f) => classifyFieldType(f) === 'link'
-      );
-      const lookupFields = atTable.fields.filter(
-        (f) => classifyFieldType(f) === 'lookup'
-      );
-      const rollupFields = atTable.fields.filter(
-        (f) => classifyFieldType(f) === 'rollup'
-      );
-      const formulaFields = atTable.fields.filter(
-        (f) => classifyFieldType(f) === 'formula'
-      );
-
-      for (const f of linkFields) {
-        try {
-          await ensureLinkField({
+        if (type === 'multipleRecordLinks') {
+          await ensureLinkForAirtableField({
             atTable,
-            atField: f,
-            tablesById,
-            nocoTable,
+            atField,
+            airtableMaps,
             nocoMeta,
           });
-        } catch (err) {
-          logError(
-            `Error configuring link field "${tName}.${f.name}": ${
-              err && err.message ? err.message : err
-            }`
-          );
+          continue;
         }
-      }
 
-      for (const f of lookupFields) {
-        try {
-          await ensureLookupField({
+        if (type === 'multipleLookupValues' || type === 'lookup') {
+          await handleLookupField({
             atTable,
-            atField: f,
-            tablesById,
-            nocoTable,
+            atField,
+            airtableMaps,
             nocoMeta,
           });
-        } catch (err) {
-          logError(
-            `Error configuring lookup field "${tName}.${f.name}": ${
-              err && err.message ? err.message : err
-            }`
-          );
+          continue;
         }
-      }
 
-      for (const f of rollupFields) {
-        try {
-          await ensureRollupField({
+        if (type === 'rollup') {
+          await handleRollupField({
             atTable,
-            atField: f,
-            tablesById,
-            nocoTable,
+            atField,
+            airtableMaps,
             nocoMeta,
           });
-        } catch (err) {
-          logError(
-            `Error configuring rollup field "${tName}.${f.name}": ${
-              err && err.message ? err.message : err
-            }`
-          );
+          continue;
         }
-      }
 
-      for (const f of formulaFields) {
-        try {
-          await ensureFormulaField({
-            atTable,
-            atField: f,
-            nocoTable,
-          });
-        } catch (err) {
-          logError(
-            `Error configuring formula field "${tName}.${f.name}": ${
-              err && err.message ? err.message : err
-            }`
-          );
+        if (type === 'formula') {
+          await handleFormulaField({ atTable, atField, nocoMeta });
+          continue;
         }
       }
     }
 
-    logInfo('Done.');
+    logInfo('Done creating relations, lookups, rollups, and formulas.');
   } catch (err) {
     logError(
       `Fatal error in create_nocodb_relations_and_rollups: ${
@@ -947,6 +806,4 @@ async function main() {
   }
 }
 
-if (require.main === module) {
-  main();
-}
+main();
