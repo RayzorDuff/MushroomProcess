@@ -3,7 +3,24 @@ Interface Name: Inoculate
 ──────────────────────────────────────────────
 
 Purpose:
-Allows operator to select sterilized or sealed lots of grain, lc_flask, or plate category items, view and edit relevant inoculation fields, and trigger the Inoculate action button that updates the record’s action field and marks the lot as inoculated.
+Source-first batch inoculation. The operator selects ONE source lot
+(liquid culture flask, plate, grain, etc.), then selects one or more
+target lots. The interface writes the targets into the source
+`target_lot_ids` field and updates other inoculation parameters
+(e.g. `lc_volume_ml`, `override_inoc_time`, `operator`). The
+“Inoculate” action is triggered by setting `action = "Inoculate"`
+on the SOURCE lot. The automation then runs inoculate_multiple.js,
+which:
+
+- Uses the selected source lot (lot_id) and its `target_lot_ids`
+  to determine all target lots.
+- Uses `lc_volume_ml` on the source as the volume PER TARGET
+  (for liquid sources).
+- Sets `status = Colonizing` and timestamps on each target.
+- Links each target back to the source via `source_lot_id`.
+- Copies `strain_id` from source to every target.
+- Updates `remaining_volume_ml` and `status` on the source
+  if it is a liquid culture and becomes consumed.
 
 ──────────────────────────────────────────────
 
@@ -14,170 +31,199 @@ Table: lots
 Source: NocoDB API (previously Airtable base “MushroomProcess”)
 Primary key: lot_id
 
-──────────────────────────────────────────────
+Additional tables used by automation (not directly in interface):
 
-2. Filter Conditions
-
-──────────────────────────────────────────────
-Filter Logic (Airtable equivalent → to be replicated in NocoDB / Retool query):
-
-item_category has any of [ "lc_flask", "plate", "grain" ]
-
-status has any of [ "Sealed", "Sterilized" ]
-
-Query-style representation:
-
-/tables/lots/rows?where={"item_category":{"in":["lc_flask","plate","grain"]},"status":{"in":["Sealed","Sterilized"]}}
-
+- items  (for category lookup)
+- events (for logging “Inoculated” events)
 
 ──────────────────────────────────────────────
 
-3. Grouping and Sorting
+2. Source List (Left Panel)
 
 ──────────────────────────────────────────────
-Group By (3 levels):
+The primary record list on the left shows candidate SOURCE lots
+that can be used to inoculate other lots.
 
-item_category
+Filters:
 
-unit_size
+- item_category has any of:
+    - "lc_flask"
+    - "plate"
+    - "grain"
+    - (add "lc_syringe" if you ever track those as lots)
 
-sterilized_at (ascending chronological display within group)
+- status is any of:
+    - "Sterilized"
+    - "Sealed"
+    - "Ready"
+    (adjust to match the actual “ready to use” statuses used in lots)
 
-No explicit Sort By set (inherits grouping order).
+Example NocoDB filter (pseudo):
 
-──────────────────────────────────────────────
+where = {
+  "item_category": { "in": ["lc_flask","plate","grain"] },
+  "status":        { "in": ["Sterilized","Sealed","Ready"] }
+}
 
-4. Visible Fields (Data Form)
+Grouping:
 
-──────────────────────────────────────────────
+- Group by item_category → strain_id → sterilized_at
 
-unit_size
+List item display:
 
-total_volume_ml
+- Field 1: lot_id
+- Field 2: item_category
+- Optional: remaining_volume_ml (for liquid cultures)
 
-lc_lot_id (source culture link)
+Behavior:
 
-lc_volume_ml (source culture volume)
-
-override_inoc_time (manual override datetime)
-
-operator
-
-notes
-
-_ui_error
-
-validation
-
-──────────────────────────────────────────────
-
-5. Form Field Behavior
-
-──────────────────────────────────────────────
-
-All fields editable except _ui_error and validation (read-only).
-
-Default Mode: Editable.
-
-Title Field: lot_id.
-
-Data binding to selected row in table view.
-
-Optional “Add record” button for linking to lc_lot_id (source culture).
-
-Printing enabled.
-
-Comments, revision history disabled.
+- Clicking a row selects that SOURCE lot and populates the record
+  detail panel on the right.
 
 ──────────────────────────────────────────────
 
-6. Left-Panel Record List
+3. Source Detail Form (Right Panel)
 
 ──────────────────────────────────────────────
-Title: Inoculate
-List Item Fields:
+The record detail form shows the selected SOURCE lot and allows
+the operator to configure inoculation parameters and target lots.
 
-Field 1: item_id
+Title field: lot_id
 
-Field 2: status
-Color by: none
-Image field: none
-Allow sorting, filtering, and grouping toggled on.
-Disallow “Add record through form”.
+Visible / editable fields on the SOURCE lot:
+
+- item_id           (read-only; context of the source)
+- strain_id         (read-only; propagated to all targets by script)
+- unit_size         (read-only)
+- total_volume_ml   (read-only)
+- remaining_volume_ml (read-only; especially for liquid sources)
+- lc_volume_ml      (numeric; REQUIRED for liquid sources; volume
+                     PER target lot, in ml)
+- target_lot_ids    (link to multiple lots; the TARGET lots to inoculate)
+- override_inoc_time (optional datetime; if set, becomes inoculated_at)
+- operator          (text / select; who is performing the inoculation)
+- notes             (text; any comments about this batch)
+- ui_error          (read-only; error messages set by automation)
+- validation        (read-only; summary status / validation field)
+
+Field semantics:
+
+- lot_id           : the source lot’s ID (primary key).
+- target_lot_ids   : multi-link field. All linked lots are treated as
+                     TARGET lots by inoculate_multiple.js.
+- lc_volume_ml     : volume from this source per target. Total required
+                     volume = lc_volume_ml × number of targets.
+- strain_id        : inoculate_multiple.js copies this value onto each
+                     target lot during processing.
+- ui_error         : any validation or runtime error is written here by
+                     the script; the interface simply displays it.
 
 ──────────────────────────────────────────────
 
-7. Action Button (Inoculate Lot)
+4. Target Lot Selection (via target_lot_ids)
 
 ──────────────────────────────────────────────
-Label: “Inoculate Lot”
+The operator chooses target lots by editing the `target_lot_ids`
+link field on the source record.
+
+Typical filter used when choosing targets (within the link field’s
+picker dialog):
+
+- item_category has any of ["grain", "lc_flask", "plate"]
+- status is any of ["Sterilized","Sealed","Ready"]
+
+Targets should be un-inoculated recipient lots that will go to
+status “Colonizing” after inoculation.
+
+When the operator finishes selecting targets, the source record’s
+`target_lot_ids` will contain all target lot IDs used by the
+automation.
+
+──────────────────────────────────────────────
+
+5. Inoculate Button
+
+──────────────────────────────────────────────
+A button is placed in the source record detail form.
+
+Label: "Inoculate Lot"  (or "Inoculate Targets" if you prefer)
+
 Type: Update record
-Action:
 
-Set action → "Inoculate"
+Configuration:
 
-Record source: Current record detail view
+- Record source: current record detail (SOURCE lot)
+- Update:
+    - Field: action
+      Value: "Inoculate"
 
-Update record: 1 update
+- Label after: "Inoculated!"
+- Show check icon: true
 
-Label after success: “Inoculated!”
+Behavior:
 
-Show check icon: true
-
-──────────────────────────────────────────────
-
-8. Operation Notes
-
-──────────────────────────────────────────────
-
-Interface used after sterilization step; appears next in workflow.
-
-Operator selects any sealed/sterilized lot to inoculate from either LC flask or plate.
-
-The button updates the lot’s action field; downstream automations detect this to log inoculation events and create subsequent LC or grain records.
-
-Mirrors logic of “Spawn to Bulk” interface but operates on different category filters and action value.
+- The interface itself only updates `action = "Inoculate"` on the
+  SOURCE lot. It does not directly modify targets.
+- An automation watches the lots table and when a record’s
+  action field is "Inoculate", it runs inoculate_multiple.js with
+  the lotRecordId of that SOURCE row.
+- After the script completes successfully it clears action and
+  ui_error, updates source volumes and statuses, updates every
+  target lot, and logs Inoculated events.
 
 ──────────────────────────────────────────────
 
-9. Derived API Behavior (for NocoDB Automation Script)
+6. Derived NocoDB API Behavior (reference)
 
 ──────────────────────────────────────────────
-GET Filtered Lots:
+Fetch source lots (left panel):
 
-GET /api/v2/tables/lots/rows?where={"item_category":{"in":["lc_flask","plate","grain"]},"status":{"in":["Sealed","Sterilized"]}}
+GET /api/v2/tables/lots/rows?where={
+  "item_category":{"in":["lc_flask","plate","grain"]},
+  "status":{"in":["Sterilized","Sealed","Ready"]}
+}
 
+Update source lot from the interface form:
 
-PATCH (Inoculate Action):
+PATCH /api/v2/tables/lots/rows/{{source_lot_id}} {
+  "lc_volume_ml": <perTargetMl>,
+  "target_lot_ids": [<targetLotId1>, <targetLotId2>, ...],
+  "override_inoc_time": <optional ISO timestamp>,
+  "operator": "<name>",
+  "notes": "<text>"
+}
 
-PATCH /api/v2/tables/lots/rows/{{lot_id}}
-{
+Trigger inoculation:
+
+PATCH /api/v2/tables/lots/rows/{{source_lot_id}} {
   "action": "Inoculate"
 }
 
+Automation / backend then calls inoculate_multiple.js
+with lotRecordId = {{source_lot_id}}.
 
 ──────────────────────────────────────────────
 
-10. Retool Interface Elements Summary
+7. Retool Layout Summary (for migration)
 
 ──────────────────────────────────────────────
 Panels:
 
-Left: Table (grouped and filtered)
+Left: grouped table of SOURCE lots (see Section 2).
+Right: form for selected SOURCE lot, including `target_lot_ids`,
+       `lc_volume_ml`, `override_inoc_time`, `operator`, `notes`,
+       `ui_error`, and the "Inoculate Lot" button.
 
-Right: Record form + “Inoculate Lot” button
+Operator flow:
 
-Table (Left Panel):
-
-Group by item_category → unit_size → sterilized_at
-
-Click populates form with selected record
-
-Form (Right Panel):
-
-Fields: unit_size, total_volume_ml, lc_lot_id, lc_volume_ml, override_inoc_time, operator, notes, _ui_error, validation
-
-Button: “Inoculate Lot” triggers NocoDB PATCH query
+1) Pick a source lot in the left table.
+2) In the right form:
+   - Set lc_volume_ml (if using LC source).
+   - Select one or more target lots into target_lot_ids.
+   - Optionally set override_inoc_time, operator, notes.
+3) Click "Inoculate Lot":
+   - Sets action = "Inoculate" on the source.
+   - Automation runs inoculate_multiple.js to process all targets.
 
 ──────────────────────────────────────────────
 
