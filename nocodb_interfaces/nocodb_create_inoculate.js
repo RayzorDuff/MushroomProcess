@@ -1,92 +1,78 @@
 ﻿/**
- * Create ""Inoculate (LC â†’ Grain)"" view
- * Table: lots
+ * nocodb_create_inoculate.js
+ *
+ * Replacement for nocodb_create_inoculate_lc_to_grain_view.js
+ * for the new source-first, multi-target inoculation flow.
+ *
+ * This script expects a helper function `createOrUpdateView(tableName, viewDef)`
+ * which does the actual NocoDB API call or SQL. If your existing migration
+ * scripts use a different helper (e.g. createView, upsertView, etc.), simply
+ * swap that in and keep the viewDefinition object intact.
  */
-import fetch from "node-fetch";
 
-const BASE_URL = process.env.NOCO_BASE_URL || "https://your-nocodb-instance.com";
-const PROJECT_SLUG = process.env.NOCO_PROJECT || "mushroom_inventory";
-const TABLE_NAME = "lots";
-const API_TOKEN = process.env.NOCO_TOKEN || "YOUR_API_TOKEN_HERE";
-
-async function api(path, method = "GET", body = null) {
-  const res = await fetch(${BASE_URL}/api/v2/, {
-    method,
-    headers: {
-      accept: "application/json",
-      "xc-token": API_TOKEN,
-      "content-type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(API   failed:  );
-  }
-  return res.json();
-}
+const { createOrUpdateView } = require('./nocodb_view_helpers'); // adjust path/name if needed
 
 async function main() {
-  console.log("ðŸ”§ Creating 'Inoculate (LC â†’ Grain)' view...");
-  const tables = await api(project//tables);
-  const table = tables.list.find(t => t.title === TABLE_NAME || t.table_name === TABLE_NAME);
-  if (!table) throw new Error(Table '' not found);
+  const tableName = 'lots';
 
-  const meta = {
-    "sort":  [
+  const viewDefinition = {
+    name: 'Inoculate',
+    title: 'Inoculate',
+    type: 'grid',          // standard grid view
+    isDefault: false,
 
-             ],
-    "groupBy":  [
-                    {
-                        "column_name":  "strain_species_strain",
-                        "order":  "asc"
-                    }
-                ],
-    "filter":  {
-                   "condition":  "AND",
-                   "children":  [
-                                    {
-                                        "column_name":  "status",
-                                        "comparator":  "in",
-                                        "value":  [
-                                                      "Sterilized",
-                                                      "Sealed"
-                                                  ]
-                                    },
-                                    {
-                                        "column_name":  "item_category",
-                                        "comparator":  "in",
-                                        "value":  [
-                                                      "grain"
-                                                  ]
-                                    }
-                                ]
-               },
-    "fields":  [
-                   "lot_id",
-                   "item_name",
-                   "strain_species_strain",
-                   "lc_lot_id",
-                   "lc_volume_ml",
-                   "unit_size",
-                   "operator",
-                   "notes",
-                   "ui_error"
-               ],
-    "allowExport":  false,
-    "allowPrint":  true
-};
+    // Filter: show candidate SOURCE lots
+    // item_category in (lc_flask, plate, grain) AND status in (Sterilized, Sealed, Ready)
+    filter: {
+      op: 'and',
+      items: [
+        {
+          column: 'item_category',
+          op: 'in',
+          value: ['lc_flask', 'plate', 'grain']
+        },
+        {
+          column: 'status',
+          op: 'in',
+          value: ['Sterilized', 'Sealed', 'Ready']
+        }
+      ]
+    },
 
-  const view = await api(	ables//views, "POST", {
-    title: "Inoculate (LC â†’ Grain)",
-    type: "grid",
-    fk_model_id: table.id,
-    meta
-  });
-  console.log(âœ… Created view: );
-    await api(iews//actions, "POST", { "title":"Inoculate Grain","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"InoculateGrain"}]}});
-  console.log("âœ… Added custom action: " + (.title || ''));
-  console.log("ðŸŽ‰ Done.");
+    // Sort / group are advisory; the UI layer (Retool) may also apply its own.
+    sort: [
+      { column: 'item_category', direction: 'asc' },
+      { column: 'strain_id',     direction: 'asc' },
+      { column: 'sterilized_at', direction: 'asc' }
+    ],
+
+    // Columns visible in the grid; you can add/remove to match your base.
+    columns: [
+      { name: 'lot_id',             visible: true }, // primary key
+      { name: 'item_category',      visible: true },
+      { name: 'status',             visible: true },
+      { name: 'strain_id',          visible: true },
+      { name: 'unit_size',          visible: true },
+      { name: 'remaining_volume_ml',visible: true },
+      { name: 'lc_volume_ml',       visible: true }, // per-target volume on source
+      { name: 'target_lot_ids',     visible: true }, // multi-link to targets
+      { name: 'override_inoc_time', visible: true },
+      { name: 'operator',           visible: true },
+      { name: 'notes',              visible: true },
+      { name: 'ui_error',           visible: true },
+      { name: 'validation',         visible: true }
+    ]
+  };
+
+  await createOrUpdateView(tableName, viewDefinition);
+  console.log('Inoculate view created/updated successfully.');
 }
 
-main().catch(e => { console.error("âŒ", e.message); process.exit(1); });
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('Error creating Inoculate view:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = { main };
