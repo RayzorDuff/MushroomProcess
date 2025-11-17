@@ -1,46 +1,42 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2025-11-17.1
+ * Version: 2025-11-17.2
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
- *  - The automation passes { lotRecordId } for the SOURCE lot.
+ *  - Automation passes { lotRecordId } for the SOURCE lot.
  *  - SOURCE lot fields:
- *      - target_lot_ids : link to one or more TARGET lots (was lc_lot_id).
- *      - lc_volume_ml   : volume (ml) to use PER TARGET when source is liquid.
- *      - override_inoc_time : optional explicit inoculation timestamp.
+ *      - target_lot_ids : linked records to TARGET lots.
+ *      - lc_volume_ml   : per-target LC volume in ml (for liquid sources).
+ *      - override_inoc_time : optional explicit inoculated_at timestamp.
+ *      - notes          : for untracked_source, description of the source.
  *  - TARGET lots will be updated to:
  *      - status = Colonizing
  *      - inoculated_at set
  *      - total_volume_ml / remaining_volume_ml updated
- *      - source_lot_id linked to the SOURCE lot
- *      - strain_id copied from the SOURCE lot
- *      - Inoculated event logged in events table
+ *      - source_lot_id linked back to SOURCE lot
+ *      - strain_id copied from SOURCE lot
+ *      - notes set from SOURCE notes when using untracked_source
  *
- *  Source remaining_volume_ml is decremented by
- *  lc_volume_ml * number_of_targets for liquid sources; if <= 0, status is
- *  set to Consumed.
- *
- *  This script assumes the automation trigger still keys off action = "Inoculate"
- *  on the SOURCE lot; the script itself only clears action and ui_error.
+ *  Source remaining_volume_ml is decremented only when the source
+ *  is a tracked liquid (lc_syringe, lc_flask). For untracked_source,
+ *  no depletion is tracked; notes are required and then propagated to
+ *  targets and cleared on the source after a successful run.
  * =============================================================================
  */
 
 (async () => {
   try {
-    // --- Tables --------------------------------------------------------------
     const lotsTbl   = base.getTable('lots');
     const itemsTbl  = base.getTable('items');
     const eventsTbl = base.getTable('events');
 
-    // --- Input config -------------------------------------------------------
     const { lotRecordId } = input.config();
     if (!lotRecordId) throw new Error('Missing lotRecordId');
 
     const sourceLot = await lotsTbl.selectRecordAsync(lotRecordId);
     if (!sourceLot) throw new Error('Source lot not found');
 
-    // --- Helper functions ---------------------------------------------------
     const updateSourceError = async (msg) => {
       await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: msg, action: null });
       output.set('error', msg);
@@ -50,23 +46,28 @@
       await lotsTbl.updateRecordAsync(lotRecordId, { ui_error: '' });
     };
 
-    // --- Extract key source fields -----------------------------------------
-    // target_lot_ids: new multi-link field on SOURCE pointing to TARGET lots.
-    const targetLinks   = sourceLot.getCellValue('target_lot_ids') ?? [];
-    // lc_volume_ml: volume in ml PER TARGET (only used for liquid sources).
-    const volumePerLot  = sourceLot.getCellValue('lc_volume_ml') ?? 0;
-    const overrideTime  = sourceLot.getCellValue('override_inoc_time');
-    const inocTime      = overrideTime ? new Date(overrideTime) : new Date();
+    // --- Extract key fields from source ------------------------------------
+    const targetLinks  = sourceLot.getCellValue('target_lot_ids') ?? [];
+    const volumePerLot = sourceLot.getCellValue('lc_volume_ml') ?? 0;
+    const overrideTime = sourceLot.getCellValue('override_inoc_time');
+    const inocTime     = overrideTime ? new Date(overrideTime) : new Date();
 
-    const operator = sourceLot.getCellValueAsString
-      ? sourceLot.getCellValueAsString('operator')
-      : (sourceLot.getCellValue('operator') || '');
-
-    if (!targetLinks.length) {
-      return await updateSourceError('Must link at least one target lot.');
+    // operator is optional; don't fail if field missing
+    let operator = '';
+    try {
+      if (sourceLot.getCellValueAsString) {
+        operator = sourceLot.getCellValueAsString('operator');
+      } else {
+        operator = sourceLot.getCellValue('operator') || '';
+      }
+    } catch (e) {
+      operator = '';
     }
 
-    // Source must be a valid inoculation source
+    if (!targetLinks.length) {
+      return await updateSourceError('Must link at least one target lot in target_lot_ids.');
+    }
+
     const sourceItemLink = sourceLot.getCellValue('item_id')?.[0];
     if (!sourceItemLink) {
       return await updateSourceError('Source lot must be linked to an item.');
@@ -75,49 +76,56 @@
     const sourceItem = await itemsTbl.selectRecordAsync(sourceItemLink.id);
     const sourceCategory = (sourceItem?.getCellValueAsString('category') || '').toLowerCase();
 
-    const allowedSources = ['lc_syringe', 'lc_flask', 'plate', 'grain'];
+    const allowedSources = ['lc_syringe', 'lc_flask', 'plate', 'grain', 'untracked_source'];
     if (!allowedSources.includes(sourceCategory)) {
       return await updateSourceError(
-        `Source must be lc_syringe, lc_flask, plate, or grain (got "${sourceCategory || 'none'}").`
+        `Source must be lc_syringe, lc_flask, plate, grain, or untracked_source (got "${sourceCategory || 'none'}").`
       );
     }
 
-    const isLiquidSource = ['lc_syringe', 'lc_flask'].includes(sourceCategory);
-    const isSolidSource  = ['plate', 'grain'].includes(sourceCategory);
+    const isLiquidSource    = ['lc_syringe', 'lc_flask'].includes(sourceCategory);
+    const isSolidSource     = ['plate', 'grain'].includes(sourceCategory);
+    const isUntrackedSource = sourceCategory === 'untracked_source';
 
+    const rawSourceNotes = sourceLot.getCellValue('notes') || '';
+
+    // --- Category-specific validation --------------------------------------
     if (isLiquidSource) {
       if (!volumePerLot || typeof volumePerLot !== 'number' || volumePerLot <= 0) {
         return await updateSourceError('Must enter a positive LC volume (ml) on the source lot.');
       }
-    } else if (isSolidSource && volumePerLot && volumePerLot > 0) {
-      return await updateSourceError('Do not enter LC volume when using plate or grain as source.');
-    }
-
-    // --- Validate source volume vs required volume --------------------------
-    let totalVolumeNeeded = 0;
-    if (isLiquidSource) {
-      totalVolumeNeeded = volumePerLot * targetLinks.length;
 
       const srcRemainingRaw = sourceLot.getCellValue('remaining_volume_ml');
       const sourceRemaining = (srcRemainingRaw === null || srcRemainingRaw === undefined)
         ? null
         : Number(srcRemainingRaw);
 
-      if (sourceRemaining !== null && totalVolumeNeeded > sourceRemaining) {
+      if (sourceRemaining !== null) {
+        const totalNeeded = volumePerLot * targetLinks.length;
+        if (totalNeeded > sourceRemaining) {
+          return await updateSourceError(
+            `Source only has ${sourceRemaining} ml remaining; needs ${totalNeeded} ml for ${targetLinks.length} targets.`
+          );
+        }
+      }
+    } else if (isSolidSource && volumePerLot && volumePerLot > 0) {
+      return await updateSourceError('Do not enter LC volume for plate or grain as source.');
+    } else if (isUntrackedSource) {
+      // Require notes describing the mystery source
+      if (!rawSourceNotes || rawSourceNotes.trim() === '') {
         return await updateSourceError(
-          `Source only has ${sourceRemaining} ml remaining; ` +
-          `needs ${totalVolumeNeeded} ml for ${targetLinks.length} targets.`
+          'For untracked_source, you must enter a description in notes on the source lot.'
         );
       }
+      // volumePerLot is optional and informational only in this case
     }
 
-    // --- Clear any previous error ------------------------------------------
+    // Clear any previous error once validation has passed
     await clearSourceError();
 
-    // Cache source strain for propagation to all targets
     const sourceStrainLink = sourceLot.getCellValue('strain_id')?.[0] || null;
+    const sourceNotesForTargets = isUntrackedSource ? rawSourceNotes : null;
 
-    // --- Process each target lot -------------------------------------------
     let successfulTargets = 0;
     let totalVolumeUsed   = 0;
 
@@ -125,10 +133,7 @@
       if (!link || !link.id) continue;
 
       const targetLot = await lotsTbl.selectRecordAsync(link.id);
-      if (!targetLot) {
-        // Soft-fail: skip missing target but keep going.
-        continue;
-      }
+      if (!targetLot) continue;
 
       const itemLink   = targetLot.getCellValue('item_id')?.[0];
       const recipeLink = targetLot.getCellValue('recipe_id')?.[0];
@@ -136,13 +141,13 @@
 
       if (!itemLink) {
         await updateSourceError(
-          `Target lot ${targetLot.getCellValueAsString('lot_id') || targetLot.id} is missing item.`
+          `Target lot ${targetLot.getCellValueAsString ? targetLot.getCellValueAsString('lot_id') : targetLot.id} is missing item.`
         );
         continue;
       }
       if (!recipeLink) {
         await updateSourceError(
-          `Target lot ${targetLot.getCellValueAsString('lot_id') || targetLot.id} is missing recipe.`
+          `Target lot ${targetLot.getCellValueAsString ? targetLot.getCellValueAsString('lot_id') : targetLot.id} is missing recipe.`
         );
         continue;
       }
@@ -152,7 +157,7 @@
 
       if (!['grain', 'lc_flask', 'plate'].includes(targetCategory)) {
         await updateSourceError(
-          `Target lot ${targetLot.getCellValueAsString('lot_id') || targetLot.id} must be ` +
+          `Target lot ${targetLot.getCellValueAsString ? targetLot.getCellValueAsString('lot_id') : targetLot.id} must be ` +
           `grain, lc_flask, or plate (got "${targetCategory || 'none'}").`
         );
         continue;
@@ -164,7 +169,8 @@
       let newTotal          = targetTotalVol || unitSize;
       let newRemaining      = targetRemaining || unitSize;
 
-      if (isLiquidSource && volumePerLot > 0) {
+      // Only tracked liquids actually modify target volume and source depletion
+      if (!isUntrackedSource && isLiquidSource && volumePerLot > 0) {
         newTotal     += volumePerLot;
         newRemaining += volumePerLot;
       }
@@ -175,53 +181,69 @@
         inoculated_at: inocTime,
         total_volume_ml: newTotal,
         remaining_volume_ml: newRemaining,
+        source_lot_id: [{ id: sourceLot.id }]
       };
 
-      // Link back to the common source lot
-      lotUpdates.source_lot_id = [{ id: sourceLot.id }];
-
-      // Propagate strain from source to target (your new requirement)
+      // Strain: propagate from source if present
       if (sourceStrainLink) {
         lotUpdates.strain_id = [sourceStrainLink];
       }
 
+      // For untracked_source, propagate notes from source to target
+      if (isUntrackedSource && sourceNotesForTargets !== null) {
+        lotUpdates.notes = sourceNotesForTargets;
+      }
+
       await lotsTbl.updateRecordAsync(targetLot.id, lotUpdates);
 
-      // --- Log event for this target lot -----------------------------------
+      // --- Log event for this target --------------------------------------
+      let lotIdLabel = '';
+      try {
+        lotIdLabel = targetLot.getCellValueAsString
+          ? targetLot.getCellValueAsString('lot_id')
+          : (targetLot.getCellValue('lot_id') || targetLot.id);
+      } catch (e) {
+        lotIdLabel = targetLot.id;
+      }
+
+      const eventPayload = {
+        source_lot_id: sourceLot.id,
+        source_category: sourceCategory,
+        volume_ml: (!isUntrackedSource && isLiquidSource && volumePerLot > 0) ? volumePerLot : undefined,
+        operator,
+        target_lot_id: lotIdLabel,
+        notes: isUntrackedSource ? sourceNotesForTargets : undefined
+      };
+
       const eventFields = {
         lot_id: [{ id: targetLot.id }],
         type: { name: 'Inoculated' },
         timestamp: inocTime,
         station: 'Inoculation',
-        fields_json: JSON.stringify({
-          source_lot_id: sourceLot.id,
-          volume_ml: isLiquidSource ? volumePerLot : undefined,
-          operator,
-          notes: targetLot.getCellValue('notes') || undefined
-        })
+        fields_json: JSON.stringify(eventPayload)
       };
 
       await eventsTbl.createRecordAsync(eventFields);
 
       successfulTargets += 1;
-      if (isLiquidSource && volumePerLot > 0) {
+      if (!isUntrackedSource && isLiquidSource && volumePerLot > 0) {
         totalVolumeUsed += volumePerLot;
       }
     }
 
     if (!successfulTargets) {
       return await updateSourceError(
-        'No target lots were successfully inoculated. See errors for details.'
+        'No target lots were successfully inoculated. Check target configuration and try again.'
       );
     }
 
-    // --- Update source lot remaining volume / status -----------------------
+    // --- Update source lot (volumes, status, notes) ------------------------
     const sourceUpdates = {
       action: null,
-      override_inoc_time: null,
+      override_inoc_time: null
     };
 
-    if (isLiquidSource && totalVolumeUsed > 0) {
+    if (!isUntrackedSource && isLiquidSource && totalVolumeUsed > 0) {
       const srcRemainingRaw = sourceLot.getCellValue('remaining_volume_ml');
       const sourceRemaining = (srcRemainingRaw === null || srcRemainingRaw === undefined)
         ? null
@@ -234,6 +256,11 @@
           sourceUpdates.status = { name: 'Consumed' };
         }
       }
+    }
+
+    // For untracked_source, clear notes after propagation
+    if (isUntrackedSource) {
+      sourceUpdates.notes = null;
     }
 
     await lotsTbl.updateRecordAsync(sourceLot.id, sourceUpdates);
