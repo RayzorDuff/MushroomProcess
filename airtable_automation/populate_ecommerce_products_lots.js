@@ -1,6 +1,24 @@
 /**
- * Automation script: populate ecommerce.products and ecommerce.lots
+ * Script: populate_ecommerce_products_lots.js
+ * Version: 2025-11-21.2
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
  *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * =============================================================================
+ * Summary: Populate ecommerce.products and ecommerce.lots
+ * Notes: 
  * For ecommerce.products:
  *  - products.item_id == ecommerce.item_id
  *  - AND if ecommerce.strain_id is set, products.strain_id == ecommerce.strain_id
@@ -30,6 +48,7 @@ let ECOM_ITEM_FIELD    = 'item_id';    // link to items
 let ECOM_STRAIN_FIELD  = 'strain_id';  // link to strains (optional)
 let ECOM_PRODUCTS_FIELD = 'products';  // link to products
 let ECOM_LOTS_FIELD     = 'lots';      // link to lots
+let ECOM_STATUS_FIELD     = 'status';      // link to lots
 
 // products fields
 let PROD_ITEM_FIELD      = 'item_id';          // link to items
@@ -43,8 +62,13 @@ let LOT_STRAIN_FIELD     = 'strain_id'; // link to strains
 let LOT_USE_BY_FIELD     = 'use_by';    // date (if you use a different name, change here)
 let LOT_STATUS_FIELD     = 'status';    // single select with "Planned", "Consumed", "Retired"
 
-// statuses that should be excluded for lots
-let LOT_EXCLUDED_STATUSES = ['Planned', 'Consumed', 'Retired'];
+// Map ecommerce.status -> allowed lots.status values
+const LOT_STATUS_MAP = {
+  Sterilized:     ['Sterilized', 'Sealed'],
+  Pasteurized:    ['Pasteurized'],
+  FullyColonized: ['FullyColonized', 'Fridge', 'ColdShock'],
+  Inoculated:     ['Inoculated', 'Colonizing'],
+};
 
 // ---------- Load ecommerce record ----------
 
@@ -53,6 +77,17 @@ if (!ecommerceRecord) {
   output.set('error', `No ecommerce record found for ID ${ecommerceRecordId}`);
   return;
 }
+
+// Get ecommerce.status (required for including any lots)
+let ecommerceStatusCell = ecommerceRecord.getCellValue(ECOM_STATUS_FIELD);
+let ecommerceStatusName = ecommerceStatusCell && ecommerceStatusCell.name ? ecommerceStatusCell.name : null;
+
+// Determine which lot statuses are allowed for this ecommerce status
+let allowedLotStatuses = ecommerceStatusName
+  ? LOT_STATUS_MAP[ecommerceStatusName] || []
+  : [];
+
+// If no ecommerce.status or unknown status, we won't include any lots
 
 // Get linked item + strain from ecommerce
 let ecommerceItemLinks   = ecommerceRecord.getCellValue(ECOM_ITEM_FIELD)   || [];
@@ -157,10 +192,13 @@ function lotMatches(record) {
     return false;
   }
 
-  // 4) status NOT in [Planned, Consumed, Retired]
+  // 4) status must match the allowed set for ecommerce.status
+  //    If ecommerce.status is not set or not mapped, allowedLotStatuses = []
   let status = record.getCellValue(LOT_STATUS_FIELD);
   let statusName = status && status.name ? status.name : null;
-  if (statusName && LOT_EXCLUDED_STATUSES.includes(statusName)) {
+
+  if (!statusName) return false;
+  if (!allowedLotStatuses.includes(statusName)) {
     return false;
   }
 
