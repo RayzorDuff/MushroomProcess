@@ -1,6 +1,6 @@
 /**
  * Script: populate_ecommerce_products_lots.js
- * Version: 2025-11-21.2
+ * Version: 2025-11-24.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -153,11 +153,13 @@ function productMatches(record) {
   }
 
   // 4) storage_location != "Shipped"
-  let storage = record.getCellValue(PROD_STORAGE_FIELD);
-  let storageName = storage && storage.name ? storage.name : null;
-  if (storageName === 'Shipped') {
-    return false;
-  }
+  // storage_location is a link to locations (single link)
+  // e.g. [{ id: 'rec...', name: 'Shipped' }]
+  let storageLinks = prod.getCellValue(PROD_STORAGE_FIELD) || [];
+  let isShipped = storageLinks.some(
+    (link) => (link.name || '').trim() === 'Shipped'
+  );
+  if (isShipped) return false;  
 
   return true;
 }
