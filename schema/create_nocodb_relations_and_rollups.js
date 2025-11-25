@@ -6,12 +6,12 @@
  *   - LinkToAnotherRecord columns for multipleRecordLinks
  *   - Lookup columns for multipleLookupValues / lookup
  *   - Rollup columns for rollup
- *   - Formula columns for formula
+ *   - Formula columns for formula (with Airtable→Noco-ish translation)
  *
  * IMPORTANT:
- *   - This script does NOT try to PATCH or DELETE existing columns.
- *   - Existing LongText columns created by create_nocodb_from_schema.js remain as legacy.
- *   - New, correctly-typed columns are created with unique names where needed.
+ *   - This script will try to delete placeholder LongText columns created
+ *     in the first pass if they share the same title as an Airtable
+ *     linked-record field, so that the new relation can take the original name.
  *
  * Env vars:
  *   NOCODB_URL        base URL to NocoDB (e.g. http://localhost:8080)
@@ -89,33 +89,6 @@ function buildAirtableMaps(schema) {
   }
 
   return { tablesById, tablesByName, fieldsById };
-}
-
-/**
- * Rewrite Airtable-style field refs {fldXXXX} into {Field Name}
- * using the schema's fieldsById map. This helps NocoDB resolve
- * referenced columns, instead of seeing unknown fld IDs.
- */
-function rewriteFormulaFieldIds(formula, airtableMaps) {
-  if (!formula || !airtableMaps || !airtableMaps.fieldsById) return formula;
-
-  return formula.replace(/\{(fld[A-Za-z0-9]+)\}/g, (match, fldId) => {
-    const f = airtableMaps.fieldsById[fldId];
-    if (!f || !f.name) return match;
-    return `{${f.name}}`;
-  });
-}
-
-/**
- * Detect Airtable-only / obviously unsupported functions.
- * For these, we don't even try to create a real Formula in NocoDB,
- * and instead go straight to the LongText _formula_src fallback.
- */
-function formulaUsesUnsupportedFunctions(formula) {
-  if (!formula) return false;
-  const unsupportedPattern =
-    /\b(DATETIME_FORMAT|DATEADD|SET_TIMEZONE|RECORD_ID|CREATED_TIME|BLANK|SWITCH)\b/;
-  return unsupportedPattern.test(formula);
 }
 
 // ---------- NOCO META HELPERS ----------
@@ -204,7 +177,7 @@ function findExistingLinkColumn(parentTable, childId) {
     if (col.uidt === 'LinkToAnotherRecord') {
       try {
         const opt = col.colOptions || {};
-        if (opt.fk_related_model_id === childId) {
+        if (opt.fk_related_model_id === childId || opt.related_table_id === childId) {
           return col;
         }
       } catch {
@@ -214,6 +187,8 @@ function findExistingLinkColumn(parentTable, childId) {
   }
   return null;
 }
+
+// ---------- COLUMN CREATION HELPERS ----------
 
 // Choose a unique title / column_name for new column
 function chooseUniqueColumnName(nocoTable, baseTitle, suffixHint) {
@@ -247,7 +222,56 @@ function chooseUniqueColumnName(nocoTable, baseTitle, suffixHint) {
   return { title: titleCandidate, column_name: nameCandidate };
 }
 
-// ---------- COLUMN CREATION HELPERS ----------
+/**
+ * Best-effort Airtable → Noco-ish formula transformation.
+ *
+ * Goal: avoid hard Noco errors like "Function DATETIME_FORMAT is not available"
+ * and "Primary key not found" while keeping something logically similar.
+ *
+ * We do NOT try to be perfectly faithful to Airtable; this is a migration.
+ */
+function transformAirtableFormulaToNoco(original) {
+  if (!original) return original;
+
+  let f = String(original);
+
+  // Flatten newlines & extra indentation – Noco formula parser is picky.
+  f = f.replace(/\r?\n\s*/g, ' ');
+
+  // If the formula is just an Airtable view/public link with RECORD_ID(),
+  // it is meaningless in Noco. Replace with a simple constant string.
+  if (/airtable\.com/i.test(f) && /RECORD_ID\s*\(\s*\)/i.test(f)) {
+    return '"Migrated from Airtable (link not preserved)"';
+  }
+
+  // SET_TIMEZONE(expr, "America/Denver") → expr
+  f = f.replace(
+    /SET_TIMEZONE\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
+    '$1'
+  );
+
+  // DATETIME_FORMAT(expr, "pattern") or DATETIME_FORMAT(expr, 'pattern') → expr
+  f = f.replace(
+    /DATETIME_FORMAT\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
+    '$1'
+  );
+
+  // CREATED_TIME() → NOW()
+  f = f.replace(/CREATED_TIME\s*\(\s*\)/gi, 'NOW()');
+
+  // TRUE() / FALSE() → TRUE / FALSE (simplify)
+  f = f.replace(/\bTRUE\s*\(\s*\)/gi, 'TRUE');
+  f = f.replace(/\bFALSE\s*\(\s*\)/gi, 'FALSE');
+
+  // RECORD_ID() is Airtable-specific; remove it so Noco doesn't throw
+  // "Primary key not found".
+  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
+
+  // Small cleanup: multiple spaces → single
+  f = f.replace(/\s+/g, ' ').trim();
+
+  return f;
+}
 
 // Create a LinkToAnotherRecord column on parentTable → childTable
 async function createLinkColumn({ parentTable, childTable, baseTitle }) {
@@ -268,8 +292,8 @@ async function createLinkColumn({ parentTable, childTable, baseTitle }) {
   );
 
   /**
-   * For NocoDB 0.263.x, relation creation via /meta/tables/{tableId}/columns
-   * is happiest when we send:
+   * For NocoDB v2 meta API (0.263.x), relation creation via /meta/tables/{tableId}/columns
+   * works if we send:
    *   - parentId: parent table id
    *   - childId:  related (target) table id
    *   - type:    'relation'
@@ -277,7 +301,7 @@ async function createLinkColumn({ parentTable, childTable, baseTitle }) {
    *   - meta:    JSON-encoded relation_type + related_table_id
    */
   const relationMeta = {
-    relation_type: 'mm',           // many-to-many by default
+    relation_type: 'mm', // many-to-many by default
     related_table_id: childTable.id,
   };
 
@@ -295,6 +319,10 @@ async function createLinkColumn({ parentTable, childTable, baseTitle }) {
     const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
     const res = await http.post(url, body);
     const col = res.data;
+    // add into in-memory meta so later lookups see it
+    parentTable.columns = parentTable.columns || [];
+    parentTable.columns.push(col);
+
     logInfo(
       `  Created LinkToAnotherRecord column "${col.title}" on "${parentTable.title}" -> "${childTable.title}".`
     );
@@ -337,6 +365,9 @@ async function createLookupColumn({
     const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
     const res = await http.post(url, body);
     const col = res.data;
+    parentTable.columns = parentTable.columns || [];
+    parentTable.columns.push(col);
+
     logInfo(
       `  Created Lookup "${col.title}" on "${parentTable.title}" from relation "${relationColumn.title}" -> "${targetColumn.title}".`
     );
@@ -381,6 +412,9 @@ async function createRollupColumn({
     const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
     const res = await http.post(url, body);
     const col = res.data;
+    parentTable.columns = parentTable.columns || [];
+    parentTable.columns.push(col);
+
     logInfo(
       `  Created Rollup "${col.title}" on "${parentTable.title}" using "${aggFunction}" from "${targetColumn.title}".`
     );
@@ -395,50 +429,12 @@ async function createRollupColumn({
   }
 }
 
-// Shared helper: create a LongText column that stores the original formula
-async function createFormulaFallbackColumn({ parentTable, baseTitle, formula }) {
-  const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
-
-  const fallbackNameBase = `${baseTitle}_formula_src`;
-  const { title: fbTitle, column_name: fbColName } = chooseUniqueColumnName(
-    parentTable,
-    fallbackNameBase,
-    ''
-  );
-
-  const fbBody = {
-    parentId: parentTable.id,
-    title: fbTitle,
-    column_name: fbColName,
-    uidt: 'LongText',
-    colOptions: {
-      default: formula,
-    },
-  };
-
-  try {
-    const fbRes = await http.post(url, fbBody);
-    const fbCol = fbRes.data;
-    logInfo(
-      `  Created LongText column "${fbCol.title}" on "${parentTable.title}" holding original formula expression.`
-    );
-    return fbCol;
-  } catch (fbErr) {
-    logError(
-      `  Failed to create fallback "_formula_src" column for "${baseTitle}" on "${parentTable.title}": ${
-        fbErr.response ? JSON.stringify(fbErr.response.data) : fbErr.message
-      }`
-    );
-    return null;
-  }
-}
-
-// Create a Formula column (with fallback if needed)
+// Create a Formula column (with fallback LongText preservation)
 async function createFormulaColumn({
   parentTable,
   baseTitle,
   formula,
-  airtableMaps,
+  originalFormula,
 }) {
   if (!formula) {
     logWarn(
@@ -447,32 +443,9 @@ async function createFormulaColumn({
     return null;
   }
 
-  // Rewrite Airtable field IDs -> field names
-  let transformedFormula = formula;
-  if (airtableMaps) {
-    const rewritten = rewriteFormulaFieldIds(formula, airtableMaps);
-    if (rewritten !== formula) {
-      logInfo(
-        `  Rewrote formula for "${baseTitle}" on "${parentTable.title}" from Airtable field IDs to names.`
-      );
-    }
-    transformedFormula = rewritten;
-  }
+  const finalFormula = formula;
+  const preserved = originalFormula || formula;
 
-  // If the formula clearly uses Airtable-only functions, don't bother
-  // trying to create a real Formula in NocoDB: go straight to fallback.
-  if (formulaUsesUnsupportedFunctions(transformedFormula)) {
-    logWarn(
-      `  Formula "${baseTitle}" on "${parentTable.title}" uses Airtable-only functions; preserving expression in LongText only.`
-    );
-    return await createFormulaFallbackColumn({
-      parentTable,
-      baseTitle,
-      formula: transformedFormula,
-    });
-  }
-
-  // Attempt to create a real Formula column in NocoDB.
   const { title, column_name } = chooseUniqueColumnName(
     parentTable,
     baseTitle,
@@ -484,7 +457,7 @@ async function createFormulaColumn({
     title,
     column_name,
     uidt: 'Formula',
-    formula: transformedFormula,
+    formula: finalFormula,
   };
 
   const url = `/api/v2/meta/tables/${parentTable.id}/columns`;
@@ -492,30 +465,65 @@ async function createFormulaColumn({
   try {
     const res = await http.post(url, body);
     const col = res.data;
+    parentTable.columns = parentTable.columns || [];
+    parentTable.columns.push(col);
+
     logInfo(
-      `  Created Formula "${col.title}" on "${parentTable.title}" with expression: ${transformedFormula}`
+      `  Created Formula "${col.title}" on "${parentTable.title}" with expression: ${finalFormula}`
     );
     return col;
   } catch (err) {
     const msg = err.response ? JSON.stringify(err.response.data) : err.message;
     logWarn(
-      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${transformedFormula}"): ${msg}`
+      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${finalFormula}"): ${msg}`
     );
     logWarn(
       `  Creating a LongText "_formula_src" column instead so the Airtable expression is preserved.`
     );
 
-    return await createFormulaFallbackColumn({
+    // Fallback: create a LongText column that just stores the expression string
+    const fallbackNameBase = `${baseTitle}_formula_src`;
+    const { title: fbTitle, column_name: fbColName } = chooseUniqueColumnName(
       parentTable,
-      baseTitle,
-      formula: transformedFormula,
-    });
+      fallbackNameBase,
+      ''
+    );
+
+    const fbBody = {
+      parentId: parentTable.id,
+      title: fbTitle,
+      column_name: fbColName,
+      uidt: 'LongText',
+      colOptions: {
+        default: preserved,
+      },
+    };
+
+    try {
+      const fbRes = await http.post(url, fbBody);
+      const fbCol = fbRes.data;
+      parentTable.columns = parentTable.columns || [];
+      parentTable.columns.push(fbCol);
+
+      logInfo(
+        `  Created LongText column "${fbCol.title}" on "${parentTable.title}" holding original formula expression.`
+      );
+      return fbCol;
+    } catch (fbErr) {
+      logError(
+        `  Failed to create fallback "_formula_src" column for "${baseTitle}" on "${parentTable.title}": ${
+          fbErr.response ? JSON.stringify(fbErr.response.data) : fbErr.message
+        }`
+      );
+      return null;
+    }
   }
 }
 
 // ---------- PER-FIELD HANDLERS ----------
 
-// Ensure link column exists for a given Airtable multipleRecordLinks field
+// Ensure link column exists for a given Airtable multipleRecordLinks field,
+// and try to remove the LongText placeholder created in pass 1.
 async function ensureLinkForAirtableField({
   atTable,
   atField,
@@ -562,6 +570,29 @@ async function ensureLinkForAirtableField({
       `  No matching Noco table for Airtable table "${targetAtTable.name}" (for link field "${atField.name}"); skipping.`
     );
     return null;
+  }
+
+  // If a placeholder column with the same title exists and is NOT a link,
+  // try to delete it so the new LinkToAnotherRecord can take its place.
+  const existingSameTitle = findNocoColumnByTitle(parentNoco, atField.name);
+  if (existingSameTitle && !isLinkToAnotherRecord(existingSameTitle)) {
+    try {
+      const delUrl = `/api/v2/meta/tables/${parentNoco.id}/columns/${existingSameTitle.id}`;
+      await http.delete(delUrl);
+      // remove from in-memory meta
+      parentNoco.columns = (parentNoco.columns || []).filter(
+        (c) => c.id !== existingSameTitle.id
+      );
+      logInfo(
+        `  Deleted placeholder column "${existingSameTitle.title}" on "${parentNoco.title}" before creating relation.`
+      );
+    } catch (err) {
+      logWarn(
+        `  Could not delete placeholder column "${existingSameTitle.title}" on "${parentNoco.title}"; relation column will be created with a suffix. Reason: ${
+          err.response ? JSON.stringify(err.response.data) : err.message
+        }`
+      );
+    }
   }
 
   return await createLinkColumn({
@@ -730,7 +761,7 @@ async function handleRollupField({
   });
 }
 
-// Handle formula
+// Handle formula (with transform)
 async function handleFormulaField({
   atTable,
   atField,
@@ -738,7 +769,7 @@ async function handleFormulaField({
   nocoMeta,
 }) {
   const options = atField.options || {};
-  const formula = options.formula;
+  const rawFormula = options.formula;
 
   const parentNoco = findNocoTableForAirtableTable(atTable, nocoMeta);
   if (!parentNoco) {
@@ -748,11 +779,13 @@ async function handleFormulaField({
     return;
   }
 
+  const transformed = transformAirtableFormulaToNoco(rawFormula);
+
   await createFormulaColumn({
     parentTable: parentNoco,
     baseTitle: atField.name,
-    formula,
-    airtableMaps,
+    formula: transformed,
+    originalFormula: rawFormula,
   });
 }
 
