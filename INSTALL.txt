@@ -4,7 +4,7 @@ For a NocoDB installation:
 
 On Windows (Quick Test Install) - 
 
-Download and Install using the latest (0.263.4 or earlier with support for V2 API) Windows installer executable from https://github.com/nocodb/nocodb.
+Download and Install using the latest (0.265.1 or later with support for V3 API) Windows installer executable from https://github.com/nocodb/nocodb.
 
 Access NocoDB: Open your web browser and go to http://localhost:8080/dashboard
 
@@ -14,7 +14,7 @@ Create a new token from your profile's Account Settings.
 Configure your environment
 
 $env:NOCODB_URL = "http://localhost:8080"
-$env:NOCODB_BASE_ID = "pf7ja4bl3alukow"
-$env:NOCODB_API_TOKEN = "XmNqqcf7VG1m-yQRpHAS7ZnErLuooT95Y2kYfwNI"
+$env:NOCODB_BASE_ID = "pjcpqa3vq0wga6a"
+$env:NOCODB_API_TOKEN = "onpAQC2gEw0DpQGbgnm--o1FANM-bCejC6N5lWhy"
 
 Proceed with schema\INSTALL_nocodb.txt
