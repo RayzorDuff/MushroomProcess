@@ -55,13 +55,14 @@ if (!NOCODB_BASE_ID) {
 
 if (!NOCODB_API_TOKEN) {
   console.error(
-    '[FATAL] NOCODB_API_TOKEN (or NOCODB_AUTH_TOKEN / NOCODB_TOKEN / NC_TOKEN) must be set.'
+    '[FATAL] NOCODB_API_TOKEN (or NOCODB_API_TOKEN / NOCODB_TOKEN / NC_TOKEN) must be set.'
   );
   process.exit(1);
 }
 
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
+// console.log(`[INFO] Auth Token  : ${NOCODB_API_TOKEN}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
 
 const META_BASE = `/api/v3/meta/bases/${NOCODB_BASE_ID}`;
@@ -69,9 +70,19 @@ const META_TABLES = `${META_BASE}/tables`;
 const META_TABLE_FIELDS = (tableId) => `${META_BASE}/tables/${tableId}/fields`;
 const META_FIELD = (fieldId) => `${META_BASE}/fields/${fieldId}`;
 
-// -----------------------------------------------------------------------------
-// HTTP CLIENT (v3 meta)
-// -----------------------------------------------------------------------------
+// ---------- BASIC LOGGING HELPERS ----------
+
+function logInfo(msg) {
+  console.log(`[INFO] ${msg}`);
+}
+function logWarn(msg) {
+  console.warn(`[WARN] ${msg}`);
+}
+function logError(msg) {
+  console.error(`[ERROR] ${msg}`);
+}
+
+// ---------- HTTP CLIENT (v3) ----------
 
 const http = axios.create({
   baseURL: NOCODB_URL.replace(/\/+$/, ''),
@@ -91,23 +102,7 @@ async function apiCall(method, url, body) {
   throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
 }
 
-// -----------------------------------------------------------------------------
-// LOG HELPERS
-// -----------------------------------------------------------------------------
-
-function logInfo(msg) {
-  console.log(`[INFO] ${msg}`);
-}
-function logWarn(msg) {
-  console.warn(`[WARN] ${msg}`);
-}
-function logError(msg) {
-  console.error(`[ERROR] ${msg}`);
-}
-
-// -----------------------------------------------------------------------------
-// LOAD AIRTABLE SCHEMA
-// -----------------------------------------------------------------------------
+// ---------- LOAD AIRTABLE SCHEMA ----------
 
 function loadAirtableSchema(schemaPath) {
   const full = path.resolve(schemaPath);
@@ -118,6 +113,7 @@ function loadAirtableSchema(schemaPath) {
   return JSON.parse(raw);
 }
 
+// Build convenient maps: tablesById, tablesByName
 function buildAirtableMaps(schema) {
   const tablesById = {};
   const tablesByName = {};
@@ -127,12 +123,13 @@ function buildAirtableMaps(schema) {
     tablesByName[table.name] = table;
   }
 
-  return { tablesById, tablesByName };
+  return {
+    tablesById,
+    tablesByName,
+  };
 }
 
-// -----------------------------------------------------------------------------
-// FETCH NOCO TABLE + FIELD METADATA (v3)
-// -----------------------------------------------------------------------------
+// ---------- FETCH NOCO TABLE + FIELD METADATA (v3) ----------
 
 async function fetchNocoTablesWithFields() {
   logInfo(`Fetching NocoDB tables for base ${NOCODB_BASE_ID} ...`);
@@ -140,21 +137,20 @@ async function fetchNocoTablesWithFields() {
   const url = `${META_TABLES}?include_fields=true`;
   const data = await apiCall('get', url);
 
-  // v3 meta may return an array of tables or { list: [...] }
+  // v3 meta sometimes returns { list: [...] } or an array
   let tables = data;
   if (data && Array.isArray(data.list)) {
     tables = data.list;
   }
   if (!Array.isArray(tables)) {
-    throw new Error(
-      `Unexpected response for tables: ${JSON.stringify(data).slice(0, 500)}`
-    );
+    throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
   }
 
-  logInfo(`Fetched ${tables.length} tables from NocoDB base.`);
+  logInfo(`Fetched ${tables.length} NocoDB tables.`);
   return tables;
 }
 
+// Find Noco table by Airtable table name (case-sensitive)
 function findNocoTableForAirtableTable(atTable, nocoTables) {
   return (
     nocoTables.find((t) => t.title === atTable.name) ||
@@ -172,19 +168,25 @@ async function refreshNocoFieldsForTable(table) {
   const url = `${META_TABLES}/${table.id}`; // GET table schema
   const data = await apiCall('get', url);
 
-  const fields = Array.isArray(data.fields) ? data.fields : [];
+  let fields = data && data.fields ? data.fields : [];
+  if (!Array.isArray(fields)) {
+    throw new Error(
+      `Unexpected fields response for table ${table.title}: ${JSON.stringify(data).slice(0, 500)}`
+    );
+  }
   table.fields = fields;
-
   logInfo(
     `  Refreshed fields for table "${table.title || table.name}": ${fields.length} field(s).`
   );
-
   return fields;
 }
 
-// -----------------------------------------------------------------------------
-// NAME HELPERS
-// -----------------------------------------------------------------------------
+// Helper: get logical type name from a field (v3 might use type or uidt)
+function fieldType(field) {
+  return field.type || field.uidt || null;
+}
+
+// ---------- NAME HELPERS ----------
 
 function chooseUniqueFieldName(table, baseTitle, suffix) {
   const existingTitles = new Set(
@@ -223,24 +225,25 @@ function chooseUniqueFieldName(table, baseTitle, suffix) {
   return { title: finalTitle, column_name: finalColumnName };
 }
 
-// -----------------------------------------------------------------------------
-// FORMULA TRANSLATION (Airtable -> Noco-ish, best-effort)
-// -----------------------------------------------------------------------------
+// ---------- FORMULA TRANSLATION ----------
 
 function translateAirtableFormulaToNoco(atFormula) {
   if (!atFormula || typeof atFormula !== 'string') return atFormula;
 
   let f = atFormula;
 
+  // Normalize newlines
   f = f.replace(/\r\n/g, '\n');
 
-  // DATETIME_FORMAT(date, 'pattern') -> date
+  // DATETIME_FORMAT(date, 'pattern') or DATETIME_FORMAT(expr, "pattern") -> expr
+  // (Noco's formula engine in v3 does not support DATETIME_FORMAT, and this is
+  // used primarily for label text here.)
   f = f.replace(
     /DATETIME_FORMAT\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
     '$1'
   );
 
-  // DATEADD(date, n, 'unit') -> date
+  // DATEADD(date, n, 'unit') -> date (drop offset, keep validity)
   f = f.replace(
     /DATEADD\s*\(\s*([^,]+)\s*,\s*[^,]+,\s*'[^']*'\s*\)/gi,
     '$1'
@@ -262,9 +265,10 @@ function translateAirtableFormulaToNoco(atFormula) {
   // BLANK() -> ""
   f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
-  // RECORD_ID() -> "" to avoid PK complaints
+  // RECORD_ID() -> "" (avoid Noco complaining about PK)
   f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
 
+  // Cleanup whitespace for readability
   f = f.replace(/[ \t]+/g, ' ');
   f = f.replace(/\n\s+/g, '\n');
   f = f.trim();
@@ -296,6 +300,7 @@ async function deleteFieldById(fieldId) {
 // FORMULA FIELD CREATION (with LongText fallback)
 // -----------------------------------------------------------------------------
 
+// LongText fallback for rejected formulas
 async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
   const { title, column_name } = chooseUniqueFieldName(
     parentTable,
@@ -303,35 +308,39 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     '(fallback)'
   );
 
-  const payload = {
+  const body = {
+    // v3-style
     type: 'LongText',
     title,
     column_name,
+    // v2-style keys that v3 still understands (avoids "dt" undefined)
+    dt: 'text',
+    uidt: 'LongText',
   };
 
+  const url = `${META_BASE}/tables/${parentTable.id}/fields`;
+
   try {
-    const created = await createFieldOnTable(parentTable.id, payload);
+    const res = await http.post(url, body);
+    const field = res.data;
     parentTable.fields = parentTable.fields || [];
-    parentTable.fields.push(created);
+    parentTable.fields.push(field);
 
     logInfo(
-      `  Created LongText fallback "${created.title}" on "${parentTable.title}" to preserve formula "${baseTitle}".`
+      `  Created LongText "${field.title}" on "${parentTable.title}" to preserve original formula expression.`
     );
-    return created;
+    return field;
   } catch (err) {
+    const msg = err.response ? JSON.stringify(err.response.data) : err.message;
     logError(
-      `  Failed to create LongText fallback for formula "${baseTitle}" on "${parentTable.title}": ${err.message}`
+      `  Failed to create fallback LongText for formula "${baseTitle}" on "${parentTable.title}": ${msg}`
     );
     return null;
   }
 }
 
-async function createFormulaField({
-  parentTable,
-  baseTitle,
-  formula,
-  originalFormula,
-}) {
+// Create Formula field
+async function createFormulaField({ parentTable, baseTitle, formula, originalFormula }) {
   if (!formula) {
     logWarn(
       `  Formula field "${baseTitle}" on "${parentTable.title}" has no options.formula; skipping.`
@@ -348,31 +357,43 @@ async function createFormulaField({
     '(formula)'
   );
 
-  const payload = {
+  const body = {
+    // v3-style
     type: 'Formula',
     title,
     column_name,
     options: {
       formula: translated,
     },
+    // v2-style keys that v3 still understands
+    dt: 'formula',
+    uidt: 'Formula',
+    colOptions: {
+      formula: translated,
+    },
   };
 
+  const url = `${META_BASE}/tables/${parentTable.id}/fields`;
+
   try {
-    const created = await createFieldOnTable(parentTable.id, payload);
+    const res = await http.post(url, body);
+    const field = res.data;
     parentTable.fields = parentTable.fields || [];
-    parentTable.fields.push(created);
+    parentTable.fields.push(field);
 
     logInfo(
-      `  Created Formula "${created.title}" on "${parentTable.title}" with expression: ${translated}`
+      `  Created Formula "${field.title}" on "${parentTable.title}" with expression: ${translated}`
     );
-    return created;
+    return field;
   } catch (err) {
+    const msg = err.response ? JSON.stringify(err.response.data) : err.message;
     logWarn(
-      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${translated}"): ${err.message}`
+      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${translated}"): ${msg}`
     );
     logWarn(
-      '  Creating LongText "_formula_src" fallback column instead to preserve Airtable expression.'
+      `  Creating a LongText "_formula_src" field instead so the Airtable expression is preserved.`
     );
+
     return await createFormulaFallbackField({
       parentTable,
       baseTitle,
@@ -381,10 +402,7 @@ async function createFormulaField({
   }
 }
 
-// -----------------------------------------------------------------------------
-// LINK (LTAR) FIELD CREATION (bidirectional mm)
-// -----------------------------------------------------------------------------
-
+// Create LinkToAnotherRecord field (parent side)
 async function createLinkField({
   parentTable,
   targetTable,
@@ -396,39 +414,53 @@ async function createLinkField({
     '(link)'
   );
 
-  const payload = {
+  const body = {
+    // v3-style
     type: 'LinkToAnotherRecord',
     title,
     column_name,
     options: {
-      relation_type: 'mm',           // LTAR mode: all multi
+      relation_type: 'mm', // LTAR mode: all multi
       related_table_id: targetTable.id,
+    },
+    // v2-style keys that v3 still understands (avoids dt undefined)
+    dt: 'mm',
+    uidt: 'LinkToAnotherRecord',
+    colOptions: {
+      type: 'mm',
+      fk_related_model_id: targetTable.id,
     },
   };
 
+  const url = `${META_BASE}/tables/${parentTable.id}/fields`;
+
   try {
-    const created = await createFieldOnTable(parentTable.id, payload);
+    const res = await http.post(url, body);
+    const field = res.data;
     parentTable.fields = parentTable.fields || [];
-    parentTable.fields.push(created);
+    parentTable.fields.push(field);
 
     logInfo(
-      `  Created LinkToAnotherRecord "${created.title}" on "${parentTable.title}" -> "${targetTable.title}".`
+      `  Created LinkToAnotherRecord "${field.title}" on "${parentTable.title}" -> "${targetTable.title}".`
     );
-    return created;
+    return field;
   } catch (err) {
+    const msg = err.response ? JSON.stringify(err.response.data) : err.message;
     logError(
-      `  Failed to create LinkToAnotherRecord "${baseTitle}" on "${parentTable.title}" -> "${targetTable.title}": ${err.message}`
+      `  Failed to create LinkToAnotherRecord "${baseTitle}" on "${parentTable.title}" -> "${targetTable.title}": ${msg}`
     );
     return null;
   }
 }
 
+// Create inverse link (bidirectional) on target table
 async function createInverseLinkField({
   parentTable,
   parentField,
   targetTable,
 }) {
-  const baseTitle = `${parentTable.title || parentTable.name || 'parent'}s`;
+  // Inverse field name = plural table name (per your spec).
+  const baseTitle = `${parentTable.title}s`; // simple pluralization
 
   const { title, column_name } = chooseUniqueFieldName(
     targetTable,
@@ -436,7 +468,8 @@ async function createInverseLinkField({
     '(inverse)'
   );
 
-  const payload = {
+  const body = {
+    // v3-style
     type: 'LinkToAnotherRecord',
     title,
     column_name,
@@ -444,28 +477,37 @@ async function createInverseLinkField({
       relation_type: 'mm',
       related_table_id: parentTable.id,
     },
+    // v2-style keys
+    dt: 'mm',
+    uidt: 'LinkToAnotherRecord',
+    colOptions: {
+      type: 'mm',
+      fk_related_model_id: parentTable.id,
+    },
   };
 
+  const url = `${META_BASE}/tables/${targetTable.id}/fields`;
+
   try {
-    const created = await createFieldOnTable(targetTable.id, payload);
+    const res = await http.post(url, body);
+    const field = res.data;
     targetTable.fields = targetTable.fields || [];
-    targetTable.fields.push(created);
+    targetTable.fields.push(field);
 
     logInfo(
-      `  Created inverse LinkToAnotherRecord "${created.title}" on "${targetTable.title}" -> "${parentTable.title}".`
+      `  Created inverse LinkToAnotherRecord "${field.title}" on "${targetTable.title}" -> "${parentTable.title}".`
     );
-    return created;
+    return field;
   } catch (err) {
+    const msg = err.response ? JSON.stringify(err.response.data) : err.message;
     logError(
-      `  Failed to create inverse link on "${targetTable.title}" for "${parentField.title}": ${err.message}`
+      `  Failed to create inverse link on "${targetTable.title}" for "${parentField.title}": ${msg}`
     );
     return null;
   }
 }
 
-// -----------------------------------------------------------------------------
-// HANDLERS FOR SPECIFIC AIRTABLE FIELD TYPES
-// -----------------------------------------------------------------------------
+// ---------- PER-FIELD HANDLER ----------
 
 async function ensureLinkForAirtableField({
   atTable,
@@ -483,6 +525,7 @@ async function ensureLinkForAirtableField({
     return;
   }
 
+  // Avoid reversed Airtable link definitions
   if (options.isReversed) {
     logInfo(
       `  Skipping reversed link field "${atField.name}" in "${atTable.name}" (options.isReversed=true).`
@@ -509,31 +552,32 @@ async function ensureLinkForAirtableField({
   }
   if (!childNoco) {
     logWarn(
-      `  No matching Noco table for linked Airtable table "${targetAtTable.name}" (for link field "${atField.name}"); skipping.`
+      `  No matching Noco table for Airtable table "${targetAtTable.name}" (for link field "${atField.name}"); skipping.`
     );
     return;
   }
 
+  // Refresh fields so we see anything created earlier in this run
   await refreshNocoFieldsForTable(parentNoco);
   await refreshNocoFieldsForTable(childNoco);
 
-  const existing = (parentNoco.fields || []).find(
-    (f) => (f.title || f.name) === atField.name
-  );
-
-  if (existing && existing.type === 'LinkToAnotherRecord') {
+  // If a field with the same title already exists on parent, and it's already a LinkToAnotherRecord, do nothing.
+  const existing = (parentNoco.fields || []).find((f) => f.title === atField.name);
+  const existingType = existing ? fieldType(existing) : null;
+  if (existing && existingType === 'LinkToAnotherRecord') {
     logInfo(
       `  LinkToAnotherRecord already exists for "${atField.name}" on "${parentNoco.title}"; skipping creation.`
     );
     return;
   }
 
+  // If a LongText placeholder with same title exists, delete it before creating link
   if (existing && existing.type === 'LongText') {
     try {
       await deleteFieldById(existing.id);
       parentNoco.fields = parentNoco.fields.filter((f) => f.id !== existing.id);
       logInfo(
-        `  Removed LongText placeholder "${existing.title}" on "${parentNoco.title}" before creating link.`
+        `  Removed LongText placeholder "${existing.title}" on "${parentNoco.title}" before creating Formula.`
       );
     } catch (err) {
       logWarn(
@@ -542,14 +586,15 @@ async function ensureLinkForAirtableField({
     }
   }
 
+  // Create the main link
   const linkField = await createLinkField({
     parentTable: parentNoco,
     targetTable: childNoco,
     baseTitle: atField.name,
   });
-
   if (!linkField) return;
 
+  // Create inverse link on the child (bidirectional by default)
   await createInverseLinkField({
     parentTable: parentNoco,
     parentField: linkField,
@@ -565,13 +610,11 @@ async function processAirtableField({
 }) {
   const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
   if (!parentNoco) {
-    logWarn(
-      `  No matching Noco table for Airtable table "${atTable.name}"; skipping field "${atField.name}".`
-    );
+    logWarn(`  No matching Noco table for Airtable table "${atTable.name}"; skipping.`);
     return;
   }
 
-  // Link fields
+  // Multiple record links -> LinkToAnotherRecord
   if (atField.type === 'multipleRecordLinks') {
     await ensureLinkForAirtableField({
       atTable,
@@ -582,23 +625,23 @@ async function processAirtableField({
     return;
   }
 
-  // Formula fields
+  // Formula field -> Formula
   if (atField.type === 'formula') {
     const options = atField.options || {};
     const formula = options.formula;
     await refreshNocoFieldsForTable(parentNoco);
 
-    const existing = (parentNoco.fields || []).find(
-      (f) => (f.title || f.name) === atField.name
-    );
-
-    if (existing && existing.type === 'Formula') {
+    // If a field with same title already exists and is Formula, skip
+    const existing = (parentNoco.fields || []).find((f) => f.title === atField.name);
+    const existingType = existing ? fieldType(existing) : null;
+    if (existing && existingType === 'Formula') {
       logInfo(
         `  Formula field "${atField.name}" already exists on "${parentNoco.title}"; skipping.`
       );
       return;
     }
 
+    // If there's a LongText placeholder with same title, delete it
     if (existing && existing.type === 'LongText') {
       try {
         await deleteFieldById(existing.id);
@@ -607,8 +650,9 @@ async function processAirtableField({
           `  Removed LongText placeholder "${existing.title}" on "${parentNoco.title}" before creating Formula.`
         );
       } catch (err) {
+        const msg = err.response ? JSON.stringify(err.response.data) : err.message;
         logWarn(
-          `  Failed to delete LongText placeholder "${existing.title}" on "${parentNoco.title}": ${err.message}`
+          `  Failed to delete LongText placeholder "${existing.title}" on "${parentNoco.title}": ${msg}`
         );
       }
     }
@@ -626,9 +670,7 @@ async function processAirtableField({
   // lookup / rollup will be added later once relations are stable
 }
 
-// -----------------------------------------------------------------------------
-// MAIN
-// -----------------------------------------------------------------------------
+// ---------- MAIN ----------
 
 async function main() {
   try {
@@ -649,11 +691,9 @@ async function main() {
       }
     }
 
-    logInfo('Done creating relations and formulas for v3.');
+    logInfo('Done.');
   } catch (err) {
-    logError(
-      `Fatal error in create_nocodb_relations_and_rollups_v3: ${err.message}`
-    );
+    logError(`Fatal error in create_nocodb_relations_and_rollups_v3: ${err.message}`);
     process.exitCode = 1;
   }
 }
