@@ -50,6 +50,32 @@ Logs failures with full response bodies
 
 No silent fallback to LongText except for formulas you explicitly approved
 
+8.  V2 and V3 compatibility
+
+Version selection & meta prefix
+
+New env var NOCODB_API_VERSION → IS_V2 / IS_V3.
+
+New META_PREFIX:
+
+v2: /api/v2/meta
+v3: /api/v3/meta
+
+META_TABLES, META_TABLE_FIELDS(tableId), and META_FIELD(fieldId) now depend on version:
+
+v3
+
+List tables: /api/v3/meta/bases/{baseId}/tables
+Create field: /api/v3/meta/bases/{baseId}/tables/{tableId}/fields
+Delete field: /api/v3/meta/bases/{baseId}/fields/{fieldId} 
+openapi_V3
+
+v2
+
+List tables: /api/v2/meta/bases/{baseId}/tables
+Create column: /api/v2/meta/tables/{tableId}/columns
+Delete column: /api/v2/meta/columns/{columnId} 
+openapi_V2
 
 TODO:
 
