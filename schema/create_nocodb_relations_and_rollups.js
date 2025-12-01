@@ -7,27 +7,38 @@
  *   - Creates LinkToAnotherRecord relations for Airtable multipleRecordLinks
  *   - Creates Formula fields for Airtable formula fields
  *   - Deletes LongText placeholders created by first-pass schema import
- *   - Uses NocoDB v3 META API:
+ *   - Supports NocoDB v2 and v3 META APIs:
  *
- *     GET    /api/v3/meta/bases/{baseId}/tables?include_fields=true
- *     GET    /api/v3/meta/bases/{baseId}/tables/{tableId}        (table schema incl. fields[])
- *     POST   /api/v3/meta/bases/{baseId}/tables/{tableId}/fields (create field)
- *     DELETE /api/v3/meta/bases/{baseId}/fields/{fieldId}        (delete field)
+ *     v3:
+ *       GET    /api/v3/meta/bases/{baseId}/tables?include_fields=true
+ *       GET    /api/v3/meta/bases/{baseId}/tables/{tableId}        (fields[])
+ *       POST   /api/v3/meta/bases/{baseId}/tables/{tableId}/fields (create field)
+ *       DELETE /api/v3/meta/bases/{baseId}/fields/{fieldId}        (delete field)
  *
- * Environment variables:
- *   NOCODB_URL        (e.g. http://localhost:8080)
- *   NOCODB_BASE_ID    (required)
- *   NOCODB_API_TOKEN  (or NOCODB_AUTH_TOKEN / NOCODB_TOKEN / NC_TOKEN)
- *   SCHEMA_PATH       (defaults to ./export/_schema.json)
+ *     v2:
+ *       GET    /api/v2/meta/bases/{baseId}/tables                  (table list)
+ *       GET    /api/v2/meta/tables/{tableId}                       (columns[])
+ *       POST   /api/v2/meta/tables/{tableId}/columns               (create column)
+ *       DELETE /api/v2/meta/columns/{columnId}                     (delete column)
+ *
+ * Usage:
+ *   node create_nocodb_relations_and_rollups_v3.js
+ *
+ * Env:
+ *   NOCODB_URL         (default: http://localhost:8080)
+ *   NOCODB_BASE_ID     (required)
+ *   NOCODB_API_TOKEN   (or NC_TOKEN, etc.)
+ *   NOCODB_API_VERSION (optional: "v2" or "v3"; default "v2")
+ *   SCHEMA_PATH        (default: ./export/_schema.json)
  */
 
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-// -----------------------------------------------------------------------------
-// ENV & CONFIG
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// ENV + CONFIG
+// --------------------------------------------
 
 const NOCODB_URL =
   process.env.NOCODB_URL ||
@@ -45,17 +56,17 @@ const NOCODB_API_TOKEN =
 
 const SCHEMA_PATH =
   process.env.SCHEMA_PATH ||
-  path.join(__dirname, 'export', '_schema.json');
+  path.join(process.cwd(), 'export', '_schema.json');
 
 if (!NOCODB_BASE_ID) {
-  console.error('[FATAL] NOCODB_BASE_ID must be set in the environment.');
+  console.error(
+    'ERROR: NOCODB_BASE_ID is required (the NocoDB base / project id).'
+  );
   process.exit(1);
 }
 
-if (!NOCODB_API_TOKEN) {
-  console.error(
-    '[FATAL] NOCODB_API_TOKEN (or NOCODB_AUTH_TOKEN / NOCODB_TOKEN / NC_TOKEN) must be set.'
-  );
+if (!fs.existsSync(SCHEMA_PATH)) {
+  console.error(`ERROR: SCHEMA_PATH does not exist: ${SCHEMA_PATH}`);
   process.exit(1);
 }
 
@@ -64,46 +75,94 @@ console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
 // console.log(`[INFO] Auth Token  : ${NOCODB_API_TOKEN}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
 
-const META_BASE = `/api/v3/meta/bases/${NOCODB_BASE_ID}`;
-const META_TABLES = `${META_BASE}/tables`;
-const META_TABLE_FIELDS = (tableId) => `${META_BASE}/tables/${tableId}/fields`;
-const META_FIELD = (fieldId) => `${META_BASE}/fields/${fieldId}`;
+const NOCODB_API_VERSION =
+  (process.env.NOCODB_API_VERSION || 'v2').toString().toLowerCase();
 
-// ---------- BASIC LOGGING HELPERS ----------
+const IS_V3 =
+  NOCODB_API_VERSION === '3' ||
+  NOCODB_API_VERSION === 'v3' ||
+  NOCODB_API_VERSION === 'api_v3';
+
+const IS_V2 = !IS_V3;
+
+console.log(
+  `[INFO] Meta API : ${IS_V2 ? 'v2 (/api/v2/meta)' : 'v3 (/api/v3/meta)'}`
+);
+
+const META_PREFIX = IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
+
+// Base-level tables listing endpoint is the same shape in v2 & v3
+const META_TABLES = `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables`;
+
+// Field creation endpoint differs between v2 & v3.
+const META_TABLE_FIELDS = (tableId) =>
+  IS_V2
+    ? `${META_PREFIX}/tables/${tableId}/columns`
+    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}/fields`;
+
+// Field (column) delete endpoint.
+const META_FIELD = (fieldId) =>
+  IS_V2
+    ? `${META_PREFIX}/columns/${fieldId}`
+    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/fields/${fieldId}`;
+
+// --------------------------------------------
+// BASIC LOGGING HELPERS
+// --------------------------------------------
 
 function logInfo(msg) {
   console.log(`[INFO] ${msg}`);
 }
+
 function logWarn(msg) {
   console.warn(`[WARN] ${msg}`);
 }
+
 function logError(msg) {
   console.error(`[ERROR] ${msg}`);
 }
 
-// ---------- HTTP CLIENT (v3) ----------
+// --------------------------------------------
+// AXIOS INSTANCE
+// --------------------------------------------
 
-const http = axios.create({
+const api = axios.create({
   baseURL: NOCODB_URL.replace(/\/+$/, ''),
   headers: {
-    'Content-Type': 'application/json',
     'xc-token': NOCODB_API_TOKEN,
+    'Content-Type': 'application/json',
   },
+  timeout: 60000,
   validateStatus: () => true,
 });
 
-async function apiCall(method, url, body) {
-  const res = await http.request({ method, url, data: body });
-  if (res.status >= 200 && res.status < 300) {
-    return res.data;
+async function apiCall(method, url, data) {
+  try {
+    const res = await api.request({
+      method,
+      url,
+      data,
+    });
+    if (res.status >= 200 && res.status < 300) {
+      return res.data;
+    }
+    const payload = res.data ? JSON.stringify(res.data) : res.statusText;
+    throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);    
+  } catch (err) {
+    const status = err.response && err.response.status;
+    const body =
+      err.response && err.response.data
+        ? JSON.stringify(err.response.data).slice(0, 500)
+        : String(err);
+    throw new Error(
+      `API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}`
+    );
   }
-  const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-  throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
 }
 
-// -----------------------------------------------------------------------------
-// LOAD AIRTABLE SCHEMA
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// LOAD AIRTABLE _schema.json
+// --------------------------------------------
 
 function loadAirtableSchema(schemaPath) {
   const full = path.resolve(schemaPath);
@@ -127,54 +186,121 @@ function buildAirtableMaps(schema) {
   return { tablesById, tablesByName };
 }
 
-// -----------------------------------------------------------------------------
-// FETCH NOCO TABLE + FIELD METADATA (v3)
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// NOCO: FETCH TABLES + FIELDS
+// --------------------------------------------
 
+/**
+ * Fetch all NocoDB tables for the base, including field/column metadata.
+ *
+ * v3:
+ *   GET /api/v3/meta/bases/{baseId}/tables?include_fields=true
+ *
+ * v2:
+ *   GET /api/v2/meta/bases/{baseId}/tables         (list only)
+ *   GET /api/v2/meta/tables/{tableId}             (per-table columns[])
+ */
 async function fetchNocoTablesWithFields() {
-  logInfo(`Fetching NocoDB tables for base ${NOCODB_BASE_ID} ...`);
+  logInfo(
+    `Fetching NocoDB tables for base ${NOCODB_BASE_ID} using ${
+      IS_V2 ? 'v2' : 'v3'
+    } meta API ...`
+  );
 
-  const url = `${META_TABLES}?include_fields=true`;
-  const data = await apiCall('get', url);
+  if (!IS_V2) {
+    // v3 can include fields inline
+    const url = `${META_TABLES}?include_fields=true`;
+    const data = await apiCall('get', url);
 
-  // v3 meta sometimes returns { list: [...] } or an array
+    let tables = data;
+    if (data && Array.isArray(data.list)) {
+      tables = data.list;
+    }
+    if (!Array.isArray(tables)) {
+      throw new Error(
+        `Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`
+      );
+    }
+
+    logInfo(`Fetched ${tables.length} NocoDB tables (v3, inline fields).`);
+    return tables;
+  }
+
+  // v2 does not support include_fields on the /bases/{baseId}/tables endpoint;
+  // we fetch tables first, then hydrate their columns via /meta/tables/{tableId}
+  const data = await apiCall('get', META_TABLES);
   let tables = data;
   if (data && Array.isArray(data.list)) {
     tables = data.list;
   }
   if (!Array.isArray(tables)) {
     throw new Error(
-      `Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`
+      `Unexpected tables response (v2): ${JSON.stringify(data).slice(0, 500)}`
     );
   }
 
-  logInfo(`Fetched ${tables.length} NocoDB tables.`);
+  for (const table of tables) {
+    await refreshNocoFieldsForTable(table);
+  }
+
+  logInfo(`Fetched ${tables.length} NocoDB tables (v2, columns hydrated).`);
   return tables;
 }
 
-// Find Noco table by Airtable table name (case-sensitive)
+// Find Noco table by Airtable table name
 function findNocoTableForAirtableTable(atTable, nocoTables) {
-  return (
-    nocoTables.find((t) => t.title === atTable.name) ||
-    nocoTables.find((t) => t.name === atTable.name) ||
-    null
+  const exact = nocoTables.find(
+    (t) => (t.title || t.name || t.table_name) === atTable.name
+  );
+  if (exact) return exact;
+
+  const lower = atTable.name.toLowerCase();
+  return nocoTables.find(
+    (t) =>
+      (t.title && t.title.toLowerCase() === lower) ||
+      (t.name && t.name.toLowerCase() === lower) ||
+      (t.table_name && t.table_name.toLowerCase() === lower)
   );
 }
 
+// --------------------------------------------
+// NOCO: FIELDS / COLUMNS HELPERS
+// --------------------------------------------
+
 /**
- * Refresh fields for a given Noco table using v3 "get table schema":
+ * Refresh fields/columns for a NocoDB table in-place.
+ *
+ * v3:
  *   GET /api/v3/meta/bases/{baseId}/tables/{tableId}
- * The response contains `fields: [...]`.
+ *   -> data.fields[]
+ *
+ * v2:
+ *   GET /api/v2/meta/tables/{tableId}
+ *   -> data.columns[]
  */
 async function refreshNocoFieldsForTable(table) {
-  const url = `${META_TABLES}/${table.id}`;
+  const url = IS_V2
+    ? `/api/v2/meta/tables/${table.id}`
+    : `${META_TABLES}/${table.id}`;
+
   const data = await apiCall('get', url);
 
-  const fields = Array.isArray(data.fields) ? data.fields : [];
+  let fields;
+  if (IS_V2) {
+    // v2 table meta exposes columns[]
+    const columns = Array.isArray(data.columns) ? data.columns : [];
+    fields = columns;
+  } else {
+    // v3 table meta exposes fields[]
+    fields = Array.isArray(data.fields) ? data.fields : [];
+  }
+
   table.fields = fields;
 
   logInfo(
-    `  Refreshed fields for table "${table.title || table.name}": ${fields.length} field(s).`
+    `  Refreshed fields for table "${
+      table.title || table.name || table.table_name
+    }": ${fields.length} field(s).`
   );
 
   return fields;
@@ -185,49 +311,56 @@ function fieldType(field) {
   return field.type || field.uidt || null;
 }
 
-// -----------------------------------------------------------------------------
-// NAME HELPERS
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// NAME / SLUG HELPERS
+// --------------------------------------------
 
-function chooseUniqueFieldName(table, baseTitle, suffix) {
-  const existingTitles = new Set(
-    (table.fields || [])
-      .map((f) => f.title || f.name)
-      .filter(Boolean)
-  );
-  const existingColumnNames = new Set(
-    (table.fields || [])
-      .map((f) => f.column_name)
-      .filter(Boolean)
-  );
-
-  let title = baseTitle;
-  if (existingTitles.has(title)) {
-    title = suffix ? `${baseTitle} ${suffix}` : baseTitle;
-  }
-
-  let column_name = (title || 'field')
+function slugify(name) {
+  return name
+    .toString()
+    .trim()
     .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_]/g, '');
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
 
-  if (!column_name) {
-    column_name = `field_${Date.now()}`;
+
+
+/**
+ * Choose a unique field (column) name for a table, based on a seed title.
+ *
+ * Returns:
+ *   { title, column_name }
+ */
+function chooseUniqueFieldName(table, baseTitle, suffix) {
+  const suggestedTitle = suffix
+    ? `${baseTitle} ${suffix}`
+    : baseTitle;
+
+  const fields = table.fields || [];
+  const existingNames = new Set(
+    fields.map((f) => f.title || f.name || f.column_name).filter(Boolean)
+  );
+
+  let title = suggestedTitle;
+  let i = 1;
+  while (existingNames.has(title)) {
+    i += 1;
+    title = `${suggestedTitle} (${i})`;
   }
 
-  let finalTitle = title;
-  let finalColumnName = column_name;
-  let i = 2;
-  while (
-    existingTitles.has(finalTitle) ||
-    existingColumnNames.has(finalColumnName)
-  ) {
-    finalTitle = `${title} (${i})`;
-    finalColumnName = `${column_name}_${i}`;
-    i++;
+  const baseSlug = slugify(title);
+  let column_name = baseSlug;
+  const existingColNames = new Set(
+    fields.map((f) => f.name || f.column_name || f.title).filter(Boolean)
+  );
+  let j = 1;
+  while (existingColNames.has(column_name)) {
+    j += 1;
+    column_name = `${baseSlug}_${j}`;
   }
 
-  return { title: finalTitle, column_name: finalColumnName };
+  return { title, column_name };
 }
 
 // -----------------------------------------------------------------------------
@@ -283,9 +416,9 @@ function translateAirtableFormulaToNoco(atFormula) {
   return f;
 }
 
-// -----------------------------------------------------------------------------
-// FIELD CRUD HELPERS (v3 meta)
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// CREATE / DELETE FIELD (COLUMN) WRAPPERS
+// --------------------------------------------
 
 async function createFieldOnTable(tableId, payload) {
   const url = META_TABLE_FIELDS(tableId);
@@ -294,7 +427,7 @@ async function createFieldOnTable(tableId, payload) {
 
 async function deleteFieldById(fieldId) {
   const url = META_FIELD(fieldId);
-  await apiCall('delete', url);
+  return await apiCall('delete', url);
 }
 
 // -----------------------------------------------------------------------------
@@ -317,7 +450,7 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     // v2-style keys that v3 still understands (avoids "dt" undefined)
     dt: 'text',
     uidt: 'LongText',
-  };
+  }; 
 
   try {
     const field = await createFieldOnTable(parentTable.id, body);
@@ -336,6 +469,37 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     return null;
   }
 }
+
+
+// --------------------------------------------
+// AIRTABLE HELPERS
+// --------------------------------------------
+
+/**
+ * Get Airtable "multipleRecordLinks" fields for a table.
+ */
+function getAirtableLinkFields(atTable) {
+  return (atTable.fields || []).filter(
+    (f) => f.type === 'multipleRecordLinks'
+  );
+}
+
+/**
+ * Get Airtable formula fields (type === 'formula').
+ */
+function getAirtableFormulaFields(atTable) {
+  return (atTable.fields || []).filter((f) => f.type === 'formula');
+}
+
+// --------------------------------------------
+// FORMULA TRANSLATION
+// --------------------------------------------
+
+
+
+// --------------------------------------------
+// CREATE FORMULA FIELD ON A NOCO TABLE
+// --------------------------------------------
 
 async function createFormulaField({
   parentTable,
@@ -367,12 +531,15 @@ async function createFormulaField({
     options: {
       formula: translated,
     },
-    // v2-style keys that v3 still understands
+    // v2-style keys & aliases that v3 still understands
     dt: 'formula',
     uidt: 'Formula',
     colOptions: {
       formula: translated,
     },
+    // v2 schema uses formula_raw; also include formula for extra safety
+    formula: translated,
+    formula_raw: translated,
   };
 
   try {
@@ -401,9 +568,9 @@ async function createFormulaField({
   }
 }
 
-// -----------------------------------------------------------------------------
-// LINK (LTAR) FIELD CREATION (bidirectional mm)
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// CREATE LINKTOANOTHERRECORD FIELD
+// --------------------------------------------
 
 async function createLinkField({
   parentTable,
@@ -415,47 +582,107 @@ async function createLinkField({
     baseTitle,
     '(link)'
   );
-  
 
-  const body = {
-   "type": "LinkToAnotherRecord",
-    "title": title,
-    "id": column_name,
-    options: {
-      "relation_type": "mm",  
-      "related_table_id": targetTable.id
+  let body;
+
+  if (IS_V2) {
+    // v2: Links / LinkToAnotherRecord are created as normal columns with
+    //     uidt = 'Links' or 'LinkToAnotherRecord' and colOptions specifying
+    //     the relationship. colOptions uses fk_parent_column_id and
+    //     fk_child_column_id, which must be valid column IDs (typically the
+    //     primary-key columns of the two tables).
+    //
+    //     FieldTypeLinks / FieldTypeLinkToAnotherRecord schema (v2 OpenAPI):
+    //       {
+    //         "title": "...",
+    //         "uidt": "Links" | "LinkToAnotherRecord",
+    //         "colOptions": {
+    //           "type": "hm" | "mm",
+    //           "fk_child_column_id": "<column-id>",
+    //           "fk_parent_column_id": "<column-id>"
+    //         }
+    //       }
+    //
+    // We look up the PK columns on the parent & target tables and wire them.
+    const parentPk =
+      (parentTable.fields || []).find((c) => c.pk === 1 || c.pk === true) ||
+      (parentTable.fields || []).find((c) => c.pv === 1 || c.pv === true);
+    const childPk =
+      (targetTable.fields || []).find((c) => c.pk === 1 || c.pk === true) ||
+      (targetTable.fields || []).find((c) => c.pv === 1 || c.pv === true);
+
+    if (!parentPk || !childPk) {
+      const parentTitle = parentTable.title || parentTable.name;
+      const targetTitle = targetTable.title || targetTable.name;
+      throw new Error(
+        `Could not find primary key columns for link "${title}" on "${parentTitle}" -> "${targetTitle}".`
+      );
     }
-  };
+
+    body = {
+      title,
+      column_name,
+      uidt: 'Links',
+      parentId: parentPk.id,
+      childId: childPk.id,
+      type: 'mm',
+      colOptions: {
+        type: 'mm',
+        fk_parent_column_id: parentPk.id,
+        fk_child_column_id: childPk.id,
+      },
+    };
+  } else {
+    // v3: modern LinkToAnotherRecord with options.relation_type / related_table_id
+    body = {
+      title,
+      type: 'LinkToAnotherRecord',
+      options: {
+        relation_type: 'mm',
+        related_table_id: targetTable.id,
+      },
+    };
+  }
 
   try {
     const field = await createFieldOnTable(parentTable.id, body);
     parentTable.fields = parentTable.fields || [];
     parentTable.fields.push(field);
 
-    const fieldTitle = body.title || field.title || field.name || field.column_name;
+    const fieldTitle =
+      body.title || field.title || field.name || field.column_name;
     const parentTitle = parentTable.title || parentTable.name;
     const targetTitle = targetTable.title || targetTable.name;
 
     logInfo(
-      `  Created LinkToAnotherRecord "${fieldTitle}" on "${parentTitle}" -> "${targetTitle}".`
+      `  Created Link field "${fieldTitle}" on "${parentTitle}" -> "${targetTitle}".`
     );
     return field;
   } catch (err) {
     const parentTitle = parentTable.title || parentTable.name;
     const targetTitle = targetTable.title || targetTable.name;
     logError(
-      `  Failed to create LinkToAnotherRecord "${baseTitle}" on "${parentTitle}" (${parentTable.id}) -> "${targetTitle}" (${targetTable.id} - ${targetTable.type}): ${err.message}`
+      `  Failed to create Link field "${baseTitle}" on "${parentTitle}" (${parentTable.id}) -> "${targetTitle}" (${targetTable.id}): ${err.message}`
     );
     return null;
   }
-} 
-
+}
 // Create inverse link (bidirectional) on target table
 async function createInverseLinkField({
   parentTable,
   parentField,
   targetTable,
 }) {
+  if (IS_V2) {
+    // v2: server auto-creates the inverse side when you create a Links column.
+    const parentTitle = parentTable.title || parentTable.name;
+    const targetTitle = targetTable.title || targetTable.name;
+    logInfo(
+      `  (v2) Skipping explicit inverse link on "${targetTitle}" – NocoDB will create the inverse for "${parentTitle}" automatically.`
+    );
+    return null;
+  }
+
   const baseTitle = `${parentTable.title || parentTable.name}s`;
 
   const { title, column_name } = chooseUniqueFieldName(
@@ -465,14 +692,12 @@ async function createInverseLinkField({
   );
 
   const body = {
-    "type": "LinkToAnotherRecord",
-    "title": title,
-    "id": column_name,    
-
+    type: 'LinkToAnotherRecord',
+    title,
     options: {
-      "relation_type": "mm",
-      "related_table_id": parentTable.id
-    }
+      relation_type: 'mm',
+      related_table_id: parentTable.id,
+    },
   };
 
   try {
@@ -480,7 +705,8 @@ async function createInverseLinkField({
     targetTable.fields = targetTable.fields || [];
     targetTable.fields.push(field);
 
-    const fieldTitle = body.title || field.title || field.name || field.column_name;
+    const fieldTitle =
+      body.title || field.title || field.name || field.column_name;
     const parentTitle = parentTable.title || parentTable.name;
     const targetTitle = targetTable.title || targetTable.name;
 
@@ -559,9 +785,9 @@ async function ensureLinkForAirtableField({
   );
   const existingType = existing ? fieldType(existing) : null;
 
-  if (existing && existingType === 'LinkToAnotherRecord') {
+  if (existing && (existingType === 'LinkToAnotherRecord' || existingType === 'Links')) {
     logInfo(
-      `  LinkToAnotherRecord already exists for "${atField.name}" on "${parentNoco.title}"; skipping creation.`
+      `  Link field already exists for "${atField.name}" on "${parentNoco.title}"; skipping creation.`
     );
     return;
   }
@@ -667,9 +893,10 @@ async function processAirtableField({
   // lookup / rollup will be added later once relations are stable
 }
 
-// -----------------------------------------------------------------------------
-// MAIN
-// -----------------------------------------------------------------------------
+// --------------------------------------------
+// MAIN RELATION + FORMULA CREATION LOGIC
+// --------------------------------------------
+
 
 async function main() {
   try {
@@ -690,10 +917,10 @@ async function main() {
       }
     }
 
-    logInfo('Done creating relations and formulas for v3.');
+    logInfo('Done creating relations and formulas.');
   } catch (err) {
     logError(
-      `Fatal error in create_nocodb_relations_and_rollups_v3: ${err.message}`
+      `Fatal error in create_nocodb_relations_and_rollups: ${err.message}`
     );
     process.exitCode = 1;
   }
