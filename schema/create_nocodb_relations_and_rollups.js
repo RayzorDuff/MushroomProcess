@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * create_nocodb_relations_and_rollups_v3.js
+ * create_nocodb_relations_and_rollups.js
  *
  * Second-pass migration script:
  *   - Creates LinkToAnotherRecord relations for Airtable multipleRecordLinks
@@ -30,6 +30,8 @@
  *   NOCODB_API_TOKEN   (or NC_TOKEN, etc.)
  *   NOCODB_API_VERSION (optional: "v2" or "v3"; default "v2")
  *   SCHEMA_PATH        (default: ./export/_schema.json)
+ *   NOCODB_RECREATE_LINKS   ("true" to actually delete/recreate link columns)
+ *   NOCODB_RECREATE_ROLLUPS ("true" reserved for future auto-rollup creation)
  */
 
 const fs = require('fs');
@@ -89,6 +91,17 @@ console.log(
   `[INFO] Meta API : ${IS_V2 ? 'v2 (/api/v2/meta)' : 'v3 (/api/v3/meta)'}`
 );
 
+// New env toggles for link / rollup recreation
+const RECREATE_LINKS = /^true$/i.test(
+  process.env.NOCODB_RECREATE_LINKS || ''
+);
+const RECREATE_ROLLUPS = /^true$/i.test(
+  process.env.NOCODB_RECREATE_ROLLUPS || ''
+);
+
+console.log(`[INFO] Recreate links  : ${RECREATE_LINKS}`);
+console.log(`[INFO] Recreate rollups: ${RECREATE_ROLLUPS}`);
+
 const META_PREFIX = IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
 
 // Base-level tables listing endpoint is the same shape in v2 & v3
@@ -147,7 +160,7 @@ async function apiCall(method, url, data) {
       return res.data;
     }
     const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-    throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);    
+    throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
   } catch (err) {
     const status = err.response && err.response.status;
     const body =
@@ -173,17 +186,26 @@ function loadAirtableSchema(schemaPath) {
   return JSON.parse(raw);
 }
 
-// Build convenient maps: tablesById, tablesByName
+// Build convenient maps: tablesById, tablesByName, fieldsById, fieldsByTableAndId
 function buildAirtableMaps(schema) {
   const tablesById = {};
   const tablesByName = {};
+  const fieldsById = {};
+  const fieldsByTableAndId = {};
 
   for (const table of schema.tables || []) {
     tablesById[table.id] = table;
     tablesByName[table.name] = table;
+
+    const perTable = {};
+    for (const field of table.fields || []) {
+      fieldsById[field.id] = field;
+      perTable[field.id] = field;
+    }
+    fieldsByTableAndId[table.id] = perTable;
   }
 
-  return { tablesById, tablesByName };
+  return { tablesById, tablesByName, fieldsById, fieldsByTableAndId };
 }
 
 // --------------------------------------------
@@ -247,7 +269,7 @@ async function fetchNocoTablesWithFields() {
   return tables;
 }
 
-// Find Noco table by Airtable table name
+// Find Noco table by Airtable table
 function findNocoTableForAirtableTable(atTable, nocoTables) {
   const exact = nocoTables.find(
     (t) => (t.title || t.name || t.table_name) === atTable.name
@@ -324,8 +346,6 @@ function slugify(name) {
     .replace(/^_+|_+$/g, '');
 }
 
-
-
 /**
  * Choose a unique field (column) name for a table, based on a seed title.
  *
@@ -362,6 +382,13 @@ function chooseUniqueFieldName(table, baseTitle, suffix) {
 
   return { title, column_name };
 }
+
+// -----------------------------------------------------------------------------
+// MANUAL DESCRIPTION ACCUMULATORS
+// -----------------------------------------------------------------------------
+
+const manualLinkDescriptions = [];
+const manualRollupDescriptions = [];
 
 // -----------------------------------------------------------------------------
 // FORMULA TRANSLATION (Airtable -> Noco-ish, best-effort)
@@ -450,7 +477,7 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     // v2-style keys that v3 still understands (avoids "dt" undefined)
     dt: 'text',
     uidt: 'LongText',
-  }; 
+  };
 
   try {
     const field = await createFieldOnTable(parentTable.id, body);
@@ -469,7 +496,6 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     return null;
   }
 }
-
 
 // --------------------------------------------
 // AIRTABLE HELPERS
@@ -490,12 +516,6 @@ function getAirtableLinkFields(atTable) {
 function getAirtableFormulaFields(atTable) {
   return (atTable.fields || []).filter((f) => f.type === 'formula');
 }
-
-// --------------------------------------------
-// FORMULA TRANSLATION
-// --------------------------------------------
-
-
 
 // --------------------------------------------
 // CREATE FORMULA FIELD ON A NOCO TABLE
@@ -591,19 +611,6 @@ async function createLinkField({
     //     the relationship. colOptions uses fk_parent_column_id and
     //     fk_child_column_id, which must be valid column IDs (typically the
     //     primary-key columns of the two tables).
-    //
-    //     FieldTypeLinks / FieldTypeLinkToAnotherRecord schema (v2 OpenAPI):
-    //       {
-    //         "title": "...",
-    //         "uidt": "Links" | "LinkToAnotherRecord",
-    //         "colOptions": {
-    //           "type": "hm" | "mm",
-    //           "fk_child_column_id": "<column-id>",
-    //           "fk_parent_column_id": "<column-id>"
-    //         }
-    //       }
-    //
-    // We look up the PK columns on the parent & target tables and wire them.
     const parentPk =
       (parentTable.fields || []).find((c) => c.pk === 1 || c.pk === true) ||
       (parentTable.fields || []).find((c) => c.pv === 1 || c.pv === true);
@@ -667,6 +674,7 @@ async function createLinkField({
     return null;
   }
 }
+
 // Create inverse link (bidirectional) on target table
 async function createInverseLinkField({
   parentTable,
@@ -760,6 +768,28 @@ async function ensureLinkForAirtableField({
     return;
   }
 
+  // If we are NOT recreating links, just record a manual description and return.
+  if (!RECREATE_LINKS) {
+    const descParts = [];
+    descParts.push(
+      `Column "${atField.name}" on table "${atTable.name}" should be a link to table "${targetAtTable.name}".`
+    );
+    descParts.push(
+      `Airtable: type "multipleRecordLinks", fieldId="${atField.id}", linkedTableId="${linkedTableId}".`
+    );
+
+    manualLinkDescriptions.push({
+      table: atTable.name,
+      column: atField.name,
+      description: descParts.join(' '),
+    });
+
+    logInfo(
+      `  Recorded manual link description for "${atField.name}" on "${atTable.name}" (no automatic link creation because NOCODB_RECREATE_LINKS is not "true").`
+    );
+    return;
+  }
+
   const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
   const childNoco = findNocoTableForAirtableTable(targetAtTable, nocoTables);
 
@@ -823,6 +853,79 @@ async function ensureLinkForAirtableField({
   });
 }
 
+function recordRollupDescription({
+  atTable,
+  atField,
+  airtableMaps,
+}) {
+  const options = atField.options || {};
+  const recordLinkFieldId = options.recordLinkFieldId;
+  const fieldIdInLinkedTable = options.fieldIdInLinkedTable;
+
+  let linkFieldName = null;
+  let linkedTableName = null;
+  let targetFieldName = null;
+  let aggregation = null;
+
+  // Resolve link field on same table
+  if (recordLinkFieldId) {
+    const linkField =
+      (atTable.fields || []).find((f) => f.id === recordLinkFieldId) || null;
+    if (linkField) {
+      linkFieldName = linkField.name;
+
+      const linkOpts = linkField.options || {};
+      const linkedTableId = linkOpts.linkedTableId;
+      if (linkedTableId) {
+        const linkedAtTable = airtableMaps.tablesById[linkedTableId];
+        if (linkedAtTable) {
+          linkedTableName = linkedAtTable.name;
+
+          if (fieldIdInLinkedTable) {
+            const targetField =
+              (linkedAtTable.fields || []).find(
+                (f) => f.id === fieldIdInLinkedTable
+              ) || null;
+            if (targetField) {
+              targetFieldName = targetField.name;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Aggregation hint, if present
+  aggregation =
+    options.aggregationFunction ||
+    options.aggregation ||
+    (options.result && options.result.type) ||
+    null;
+
+  const parts = [];
+  parts.push(
+    `Column "${atField.name}" on table "${atTable.name}" should be a rollup.`
+  );
+  if (linkFieldName) {
+    parts.push(`It uses link field "${linkFieldName}".`);
+  }
+  if (linkedTableName) {
+    parts.push(`The link points to table "${linkedTableName}".`);
+  }
+  if (targetFieldName) {
+    parts.push(`It rolls up field "${targetFieldName}" in that table.`);
+  }
+  if (aggregation) {
+    parts.push(`Airtable aggregation: ${JSON.stringify(aggregation)}.`);
+  }
+
+  manualRollupDescriptions.push({
+    table: atTable.name,
+    column: atField.name,
+    description: parts.join(' '),
+  });
+}
+
 async function processAirtableField({
   atTable,
   atField,
@@ -837,7 +940,7 @@ async function processAirtableField({
     return;
   }
 
-  // Multiple record links -> LinkToAnotherRecord
+  // Multiple record links -> LinkToAnotherRecord (or manual instructions)
   if (atField.type === 'multipleRecordLinks') {
     await ensureLinkForAirtableField({
       atTable,
@@ -848,7 +951,7 @@ async function processAirtableField({
     return;
   }
 
-  // Formula field -> Formula
+  // Formula field -> Formula (unchanged behavior)
   if (atField.type === 'formula') {
     const options = atField.options || {};
     const formula = options.formula;
@@ -890,13 +993,29 @@ async function processAirtableField({
     return;
   }
 
-  // lookup / rollup will be added later once relations are stable
+  // Rollup: do not auto-create right now; record manual instructions.
+  if (atField.type === 'rollup') {
+    recordRollupDescription({ atTable, atField, airtableMaps });
+
+    if (!RECREATE_ROLLUPS) {
+      logInfo(
+        `  Recorded manual rollup description for "${atField.name}" on "${atTable.name}" (no automatic rollup creation because NOCODB_RECREATE_ROLLUPS is not "true").`
+      );
+    } else {
+      logInfo(
+        `  NOCODB_RECREATE_ROLLUPS is "true" but automatic rollup creation is not implemented; recorded manual description instead.`
+      );
+    }
+
+    return;
+  }
+
+  // lookup / other types can be added later once relations are stable
 }
 
 // --------------------------------------------
 // MAIN RELATION + FORMULA CREATION LOGIC
 // --------------------------------------------
-
 
 async function main() {
   try {
@@ -918,6 +1037,29 @@ async function main() {
     }
 
     logInfo('Done creating relations and formulas.');
+
+    // After formulas are processed, dump manual instructions for links / rollups.
+    if (!RECREATE_LINKS && manualLinkDescriptions.length > 0) {
+      logInfo(
+        'Manual link creation instructions (NOCODB_RECREATE_LINKS is not "true"; no link columns were auto-recreated):'
+      );
+      manualLinkDescriptions.forEach((d) => {
+        console.log(
+          `MANUAL_LINK\tTable="${d.table}"\tColumn="${d.column}"\t${d.description}`
+        );
+      });
+    }
+
+    if (!RECREATE_ROLLUPS && manualRollupDescriptions.length > 0) {
+      logInfo(
+        'Manual rollup creation instructions (NOCODB_RECREATE_ROLLUPS is not "true"; no rollup columns were auto-recreated):'
+      );
+      manualRollupDescriptions.forEach((d) => {
+        console.log(
+          `MANUAL_ROLLUP\tTable="${d.table}"\tColumn="${d.column}"\t${d.description}`
+        );
+      });
+    }
   } catch (err) {
     logError(
       `Fatal error in create_nocodb_relations_and_rollups: ${err.message}`

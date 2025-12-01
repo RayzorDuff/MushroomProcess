@@ -16,6 +16,14 @@ Configure your environment
 $env:NOCODB_URL = "http://localhost:8080"
 $env:NOCODB_BASE_ID = "pfqzirdzyykqjsr"
 $env:NOCODB_API_TOKEN = "WhpknS27GxvON_NiEEVSjm311wyo9NA2CNoNklNK"
+
+# Support intended for v2 or v3 API
 $env:NOCODB_API_VERSION = "v2"
+
+# Support intended for recreating links, although this is not currently working
+# Link targets are documented instead
+$env:NOCODB_RECREATE_LINKS = "false"
+$env:NOCODB_RECREATE_ROLLUPS = "false"
+
 
 Proceed with schema\INSTALL_nocodb.txt
