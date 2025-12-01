@@ -24,6 +24,7 @@ $env:NOCODB_API_VERSION = "v2"
 # Link targets are documented instead
 $env:NOCODB_RECREATE_LINKS = "false"
 $env:NOCODB_RECREATE_ROLLUPS = "false"
+$env:NOCODB_RECREATE_LOOKUPS = "false"
 
 
 Proceed with schema\INSTALL_nocodb.txt
