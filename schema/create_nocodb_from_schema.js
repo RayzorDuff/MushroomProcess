@@ -162,9 +162,34 @@ async function createNocoTableFromAirtableTable(ncClient, baseId, airTable) {
   console.log(`\n[INFO] Creating NocoDB table for Airtable table: "${tableName}"`);
 
   const columnDefs = [];
+  
+  // Either the first field or a special new field is primary key
+  let firstfieldpk = false;
+  
+  // Create a special PK for NocoDB
+  if (!firstfieldpk) {
+    const name = "nocopk";
+
+    const col = {
+      column_name: name,
+      title: name,
+      uidt: "Number",
+      pk: true
+    };
+
+    columnDefs.push(col);
+  }
+
   for (const field of airTable.fields || []) {
-    const col = mapFieldToNocoColumn(field);
-    if (col) columnDefs.push(col);
+    let col = mapFieldToNocoColumn(field);
+    if (col) {
+      // Specify that the first Airtable field is PK
+      if (firstfieldpk) {
+        firstfieldpk = false;
+        col.pk = true;
+      }
+      columnDefs.push(col);
+    }
   }
 
   if (!columnDefs.length) {

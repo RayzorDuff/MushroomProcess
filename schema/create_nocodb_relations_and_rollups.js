@@ -6,6 +6,7 @@
  * Second-pass migration script:
  *   - Creates LinkToAnotherRecord relations for Airtable multipleRecordLinks
  *   - Creates Formula fields for Airtable formula fields
+ *   - Creates Rollup and Lookup fields (when enabled via env flags)
  *   - Deletes LongText placeholders created by first-pass schema import
  *   - Supports NocoDB v2 and v3 META APIs:
  *
@@ -25,14 +26,14 @@
  *   node create_nocodb_relations_and_rollups.js
  *
  * Env:
- *   NOCODB_URL         (default: http://localhost:8080)
- *   NOCODB_BASE_ID     (required)
- *   NOCODB_API_TOKEN   (or NC_TOKEN, etc.)
- *   NOCODB_API_VERSION (optional: "v2" or "v3"; default "v2")
- *   SCHEMA_PATH        (default: ./export/_schema.json)
+ *   NOCODB_URL             (default: http://localhost:8080)
+ *   NOCODB_BASE_ID         (required)
+ *   NOCODB_API_TOKEN       (or NC_TOKEN, etc.)
+ *   NOCODB_API_VERSION     (optional: "v2" or "v3"; default "v2")
+ *   SCHEMA_PATH            (default: ./export/_schema.json)
  *   NOCODB_RECREATE_LINKS   ("true" to actually delete/recreate link columns)
- *   NOCODB_RECREATE_ROLLUPS ("true" reserved for future auto-rollup/lookup creation)
- *   NOCODB_RECREATE_LOOKUPS ("true" reserved for future lookup creation)
+ *   NOCODB_RECREATE_ROLLUPS ("true" to actually create rollup columns)
+ *   NOCODB_RECREATE_LOOKUPS ("true" to actually create lookup columns)
  */
 
 const fs = require('fs');
@@ -253,8 +254,7 @@ async function fetchNocoTablesWithFields() {
     return tables;
   }
 
-  // v2 does not support include_fields on the /bases/{baseId}/tables endpoint;
-  // we fetch tables first, then hydrate their columns via /meta/tables/{tableId}
+  // v2: fetch tables first, then hydrate their columns via /meta/tables/{tableId}
   const data = await apiCall('get', META_TABLES);
   let tables = data;
   if (data && Array.isArray(data.list)) {
@@ -408,7 +408,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   // Normalize newlines
   f = f.replace(/\r\n/g, '\n');
 
-  // Normalize curly / smart quotes to straight quotes (Noco's parser is picky)
+  // Normalize curly / smart quotes to straight quotes
   f = f.replace(/[“”]/g, '"');
   f = f.replace(/[‘’]/g, "'");
 
@@ -423,15 +423,13 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
     });
   }
 
-  // DATETIME_FORMAT(date, 'pattern') or DATETIME_FORMAT(expr, "pattern") -> expr
-  // (Noco's formula engine in v3 does not support DATETIME_FORMAT, and this is
-  // used primarily for label text here.)
+  // DATETIME_FORMAT(date, pattern) -> date
   f = f.replace(
     /DATETIME_FORMAT\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
     '$1'
   );
 
-  // DATEADD(date, n, 'unit') -> date (drop offset, keep validity)
+  // DATEADD(date, n, 'unit') -> date
   f = f.replace(
     /DATEADD\s*\(\s*([^,]+)\s*,\s*[^,]+,\s*'[^']*'\s*\)/gi,
     '$1'
@@ -453,26 +451,21 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   // BLANK() -> ""
   f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
-  // RECORD_ID() -> "" (avoid Noco complaining about PK)
+  // RECORD_ID() -> ""
   f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
 
-  // Airtable sometimes uses <> for "not equal" – Noco uses !=
+  // <> -> !=
   f = f.replace(/<>/g, '!=');
 
-  // Convert Airtable-style equality (`=`) into Noco-style (`==`) in the common patterns
-  //
-  // Examples it fixes:
-  //   {product_type} = "freezedriedmushrooms"
-  //   LOWER({process_type}) = "pasteurize"
-  //   {is_regulated}=TRUE
+  // Convert `{field} = value` to `{field} == value`
   f = f.replace(/(\{[^}]+\})\s*=\s*/g, '$1 == ');
   f = f.replace(/(\))\s*=\s*/g, '$1 == ');
 
-  // Also normalize explicit TRUE / FALSE comparisons if they slipped through
+  // Normalize TRUE/FALSE comparisons
   f = f.replace(/\s==\s*TRUE\b/gi, ' == TRUE');
   f = f.replace(/\s==\s*FALSE\b/gi, ' == FALSE');
 
-  // Cleanup whitespace for readability
+  // Cleanup whitespace
   f = f.replace(/[ \t]+/g, ' ');
   f = f.replace(/\n\s+/g, '\n');
   f = f.trim();
@@ -579,7 +572,7 @@ async function createFormulaField({
   const { title, column_name } = chooseUniqueFieldName(
     parentTable,
     baseTitle,
-    '(formula)'
+//    '(formula)'
   );
 
   const body = {
@@ -639,7 +632,7 @@ async function createLinkField({
   const { title, column_name } = chooseUniqueFieldName(
     parentTable,
     baseTitle,
-    '(link)'
+//    '(link)'
   );
 
   let body;
@@ -681,14 +674,13 @@ async function createLinkField({
   } else {
     // v3: more explicit 'LinkToAnotherRecord' type with options.targetTableId
     body = {
-      type: 'LinkToAnotherRecord',
-      title,
-      column_name,
-      uidt: 'LinkToAnotherRecord',
-      dt: 'linkToAnotherRecord',
+      "type": "LinkToAnotherRecord",
+      "title": title,
+      "id": column_name,
       options: {
-        targetTableId: targetTable.id,
-      },
+        "relation_type": "mm",  
+        "related_table_id": targetTable.id
+      }
     };
   }
 
@@ -737,7 +729,7 @@ async function createInverseLinkField({
   const { title, column_name } = chooseUniqueFieldName(
     targetTable,
     baseTitle,
-    '(inverse)'
+//    '(inverse)'
   );
 
   const body = {
@@ -895,7 +887,7 @@ async function ensureLinkForAirtableField({
 }
 
 // --------------------------------------------
-// MANUAL LINK DESCRIPTION
+// MANUAL DESCRIPTORS
 // --------------------------------------------
 
 function recordLinkDescription({
@@ -1072,6 +1064,403 @@ function recordLookupDescription({
   });
 }
 
+// -----------------------------------------------------------------------------
+// ROLLUP / LOOKUP CREATION HELPERS
+// -----------------------------------------------------------------------------
+
+function mapAirtableRollupFunction(fn) {
+  if (!fn) return 'sum';
+  const s = String(fn).toLowerCase();
+
+  if (s.includes('count') && s.includes('distinct')) return 'countDistinct';
+  if (s.includes('count') && s.includes('unique')) return 'countDistinct';
+  if (s.startsWith('count')) return 'count';
+
+  if (s.startsWith('sum') && s.includes('distinct')) return 'sumDistinct';
+  if (s.startsWith('sum')) return 'sum';
+
+  if ((s.startsWith('avg') || s.startsWith('average')) && s.includes('distinct')) {
+    return 'avgDistinct';
+  }
+  if (s.startsWith('avg') || s.startsWith('average')) return 'avg';
+
+  if (s.startsWith('min')) return 'min';
+  if (s.startsWith('max')) return 'max';
+
+  return 'sum';
+}
+
+async function createRollupField({
+  atTable,
+  atField,
+  airtableMaps,
+  nocoTables,
+}) {
+  const options = atField.options || {};
+  const recordLinkFieldId = options.recordLinkFieldId;
+  const fieldIdInLinkedTable = options.fieldIdInLinkedTable;
+
+  if (!recordLinkFieldId || !fieldIdInLinkedTable) {
+    logWarn(
+      `  Rollup "${atField.name}" on "${atTable.name}" is missing recordLinkFieldId or fieldIdInLinkedTable; cannot auto-create.`
+    );
+    return false;
+  }
+
+  const linkField =
+    (atTable.fields || []).find((f) => f.id === recordLinkFieldId) || null;
+  if (!linkField) {
+    logWarn(
+      `  Rollup "${atField.name}" on "${atTable.name}" references unknown link field id="${recordLinkFieldId}".`
+    );
+    return false;
+  }
+
+  const linkOpts = linkField.options || {};
+  const linkedTableId = linkOpts.linkedTableId;
+  if (!linkedTableId) {
+    logWarn(
+      `  Rollup "${atField.name}" on "${atTable.name}" link field "${linkField.name}" has no linkedTableId.`
+    );
+    return false;
+  }
+
+  const linkedAtTable = airtableMaps.tablesById[linkedTableId];
+  if (!linkedAtTable) {
+    logWarn(
+      `  Rollup "${atField.name}" on "${atTable.name}" references unknown Airtable linked table id="${linkedTableId}".`
+    );
+    return false;
+  }
+
+  const targetAtField =
+    (linkedAtTable.fields || []).find((f) => f.id === fieldIdInLinkedTable) ||
+    null;
+  if (!targetAtField) {
+    logWarn(
+      `  Rollup "${atField.name}" on "${atTable.name}" references unknown fieldIdInLinkedTable="${fieldIdInLinkedTable}" on table "${linkedAtTable.name}".`
+    );
+    return false;
+  }
+
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
+  const linkedNoco = findNocoTableForAirtableTable(linkedAtTable, nocoTables);
+
+  if (!parentNoco) {
+    logWarn(
+      `  Cannot find Noco parent table for rollup "${atField.name}" on "${atTable.name}".`
+    );
+    return false;
+  }
+  if (!linkedNoco) {
+    logWarn(
+      `  Cannot find Noco linked table for rollup "${atField.name}" on "${atTable.name}" -> "${linkedAtTable.name}".`
+    );
+    return false;
+  }
+
+  await refreshNocoFieldsForTable(parentNoco);
+  await refreshNocoFieldsForTable(linkedNoco);
+
+  const relationNocoField = (parentNoco.fields || []).find(
+    (f) => (f.title || f.name) === linkField.name
+  );
+  if (!relationNocoField) {
+    logWarn(
+      `  Cannot find Noco relation column "${linkField.name}" on table "${parentNoco.title || parentNoco.name}" required for rollup "${atField.name}".`
+    );
+    return false;
+  }
+
+  // NEW: verify that the "relation" column is actually a link column
+  const relationType = fieldType(relationNocoField);
+  if (
+    relationType !== 'Links' &&
+    relationType !== 'LinkToAnotherRecord'
+  ) {
+    logWarn(
+      `  Column "${relationNocoField.title || relationNocoField.name}" on "${parentNoco.title || parentNoco.name}" is not a link-type column (uidt=${relationType ||
+        'unknown'}); cannot auto-create rollup "${atField.name}". ` +
+        `Ensure the link is migrated (NOCODB_RECREATE_LINKS="true" or created manually) before rollups.`
+    );
+    return false;
+  }
+
+  const targetNocoField = (linkedNoco.fields || []).find(
+    (f) => (f.title || f.name) === targetAtField.name
+  );
+  if (!targetNocoField) {
+    logWarn(
+      `  Cannot find Noco target column "${targetAtField.name}" on table "${linkedNoco.title || linkedNoco.name}" required for rollup "${atField.name}".`
+    );
+    return false;
+  }
+
+  const existing = (parentNoco.fields || []).find(
+    (f) => (f.title || f.name) === atField.name
+  );
+  const existingType = existing ? fieldType(existing) : null;
+
+  if (existing && (existingType === 'Rollup' || existingType === 'RollupField')) {
+    logInfo(
+      `  Rollup field "${atField.name}" already exists on "${parentNoco.title || parentNoco.name}"; skipping.`
+    );
+    return true;
+  }
+
+  if (existing && existingType === 'LongText') {
+    try {
+      await deleteFieldById(existing.id);
+      parentNoco.fields = parentNoco.fields.filter((f) => f.id !== existing.id);
+      logInfo(
+        `  Removed LongText placeholder "${existing.title}" on "${parentNoco.title || parentNoco.name}" before creating Rollup.`
+      );
+    } catch (err) {
+      logWarn(
+        `  Failed to delete LongText placeholder "${existing.title}" on "${parentNoco.title || parentNoco.name}": ${err.message}`
+      );
+    }
+  }
+
+  const aggFn = mapAirtableRollupFunction(
+    options.aggregationFunction ||
+      options.aggregation ||
+      (options.result && options.result.type)
+  );
+
+  const { title, column_name } = chooseUniqueFieldName(
+    parentNoco,
+    atField.name,
+//    '(rollup)'
+  );
+
+  let body;
+
+  if (IS_V3) {
+    body = {
+      title,
+      type: 'Rollup',
+      options: {
+        related_field_id: relationNocoField.id,
+        related_table_rollup_field_id: targetNocoField.id,
+        rollup_function: aggFn,
+      },
+    };
+  } else {
+    body = {
+      title,
+      uidt: 'Rollup',
+      fk_relation_column_id: relationNocoField.id,
+      fk_rollup_column_id: targetNocoField.id,
+      rollup_function: aggFn,
+      colOptions: {
+        fk_relation_column_id: relationNocoField.id,
+        fk_rollup_column_id: targetNocoField.id,
+        rollup_function: aggFn,
+      },
+    };
+  }
+
+  try {
+    const field = await createFieldOnTable(parentNoco.id, body);
+    parentNoco.fields = parentNoco.fields || [];
+    parentNoco.fields.push(field);
+
+    const fieldTitle =
+      body.title || field.title || field.name || field.column_name;
+    logInfo(
+      `  Created Rollup "${fieldTitle}" on "${parentNoco.title || parentNoco.name}" via relation "${linkField.name}" -> "${linkedAtTable.name}.${targetAtField.name}" (fn=${aggFn}).`
+    );
+    return true;
+  } catch (err) {
+    logWarn(
+      `  Failed to create Rollup "${atField.name}" on "${parentNoco.title || parentNoco.name}": ${err.message}`
+    );
+    return false;
+  }
+}
+
+async function createLookupField({
+  atTable,
+  atField,
+  airtableMaps,
+  nocoTables,
+}) {
+  const options = atField.options || {};
+  const recordLinkFieldId = options.recordLinkFieldId;
+  const fieldIdInLinkedTable = options.fieldIdInLinkedTable;
+
+  if (!recordLinkFieldId || !fieldIdInLinkedTable) {
+    logWarn(
+      `  Lookup "${atField.name}" on "${atTable.name}" is missing recordLinkFieldId or fieldIdInLinkedTable; cannot auto-create.`
+    );
+    return false;
+  }
+
+  const linkField =
+    (atTable.fields || []).find((f) => f.id === recordLinkFieldId) || null;
+  if (!linkField) {
+    logWarn(
+      `  Lookup "${atField.name}" on "${atTable.name}" references unknown link field id="${recordLinkFieldId}".`
+    );
+    return false;
+  }
+
+  const linkOpts = linkField.options || {};
+  const linkedTableId = linkOpts.linkedTableId;
+  if (!linkedTableId) {
+    logWarn(
+      `  Lookup "${atField.name}" on "${atTable.name}" link field "${linkField.name}" has no linkedTableId.`
+    );
+    return false;
+  }
+
+  const linkedAtTable = airtableMaps.tablesById[linkedTableId];
+  if (!linkedAtTable) {
+    logWarn(
+      `  Lookup "${atField.name}" on "${atTable.name}" references unknown Airtable linked table id="${linkedTableId}".`
+    );
+    return false;
+  }
+
+  const targetAtField =
+    (linkedAtTable.fields || []).find((f) => f.id === fieldIdInLinkedTable) ||
+    null;
+  if (!targetAtField) {
+    logWarn(
+      `  Lookup "${atField.name}" on "${atTable.name}" references unknown fieldIdInLinkedTable="${fieldIdInLinkedTable}" on table "${linkedAtTable.name}".`
+    );
+    return false;
+  }
+
+  const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
+  const linkedNoco = findNocoTableForAirtableTable(linkedAtTable, nocoTables);
+
+  if (!parentNoco) {
+    logWarn(
+      `  Cannot find Noco parent table for lookup "${atField.name}" on "${atTable.name}".`
+    );
+    return false;
+  }
+  if (!linkedNoco) {
+    logWarn(
+      `  Cannot find Noco linked table for lookup "${atField.name}" on "${atTable.name}" -> "${linkedAtTable.name}".`
+    );
+    return false;
+  }
+
+  await refreshNocoFieldsForTable(parentNoco);
+  await refreshNocoFieldsForTable(linkedNoco);
+
+  const relationNocoField = (parentNoco.fields || []).find(
+    (f) => (f.title || f.name) === linkField.name
+  );
+  if (!relationNocoField) {
+    logWarn(
+      `  Cannot find Noco relation column "${linkField.name}" on table "${parentNoco.title || parentNoco.name}" required for lookup "${atField.name}".`
+    );
+    return false;
+  }
+
+  // NEW: verify that the "relation" column is actually a link column
+  const relationType = fieldType(relationNocoField);
+  if (
+    relationType !== 'Links' &&
+    relationType !== 'LinkToAnotherRecord'
+  ) {
+    logWarn(
+      `  Column "${relationNocoField.title || relationNocoField.name}" on "${parentNoco.title || parentNoco.name}" is not a link-type column (uidt=${relationType ||
+        'unknown'}); cannot auto-create lookup "${atField.name}". ` +
+        `Ensure the link is migrated (NOCODB_RECREATE_LINKS="true" or created manually) before lookups.`
+    );
+    return false;
+  }
+
+  const targetNocoField = (linkedNoco.fields || []).find(
+    (f) => (f.title || f.name) === targetAtField.name
+  );
+  if (!targetNocoField) {
+    logWarn(
+      `  Cannot find Noco target column "${targetAtField.name}" on table "${linkedNoco.title || linkedNoco.name}" required for lookup "${atField.name}".`
+    );
+    return false;
+  }
+
+  const existing = (parentNoco.fields || []).find(
+    (f) => (f.title || f.name) === atField.name
+  );
+  const existingType = existing ? fieldType(existing) : null;
+
+  if (existing && (existingType === 'Lookup' || existingType === 'LookupField')) {
+    logInfo(
+      `  Lookup field "${atField.name}" already exists on "${parentNoco.title || parentNoco.name}"; skipping.`
+    );
+    return true;
+  }
+
+  if (existing && existingType === 'LongText') {
+    try {
+      await deleteFieldById(existing.id);
+      parentNoco.fields = parentNoco.fields.filter((f) => f.id !== existing.id);
+      logInfo(
+        `  Removed LongText placeholder "${existing.title}" on "${parentNoco.title || parentNoco.name}" before creating Lookup.`
+      );
+    } catch (err) {
+      logWarn(
+        `  Failed to delete LongText placeholder "${existing.title}" on "${parentNoco.title || parentNoco.name}": ${err.message}`
+      );
+    }
+  }
+
+  const { title, column_name } = chooseUniqueFieldName(
+    parentNoco,
+    atField.name,
+//    '(lookup)'
+  );
+
+  let body;
+
+  if (IS_V3) {
+    body = {
+      title,
+      type: 'Lookup',
+      options: {
+        related_field_id: relationNocoField.id,
+        related_table_lookup_field_id: targetNocoField.id,
+      },
+    };
+  } else {
+    body = {
+      title,
+      uidt: 'Lookup',
+      fk_relation_column_id: relationNocoField.id,
+      fk_lookup_column_id: targetNocoField.id,
+      colOptions: {
+        fk_relation_column_id: relationNocoField.id,
+        fk_lookup_column_id: targetNocoField.id,
+      },
+    };
+  }
+
+  try {
+    const field = await createFieldOnTable(parentNoco.id, body);
+    parentNoco.fields = parentNoco.fields || [];
+    parentNoco.fields.push(field);
+
+    const fieldTitle =
+      body.title || field.title || field.name || field.column_name;
+    logInfo(
+      `  Created Lookup "${fieldTitle}" on "${parentNoco.title || parentNoco.name}" via relation "${linkField.name}" -> "${linkedAtTable.name}.${targetAtField.name}".`
+    );
+    return true;
+  } catch (err) {
+    logWarn(
+      `  Failed to create Lookup "${atField.name}" on "${parentNoco.title || parentNoco.name}": ${err.message}`
+    );
+    return false;
+  }
+}
+
 // --------------------------------------------
 // MAIN FIELD PROCESSOR
 // --------------------------------------------
@@ -1145,34 +1534,54 @@ async function processAirtableField({
     return;
   }
 
-  // Rollup: do not auto-create right now; record manual instructions.
+  // Rollup
   if (atField.type === 'rollup') {
-    recordRollupDescription({ atTable, atField, airtableMaps });
-
     if (!RECREATE_ROLLUPS) {
+      recordRollupDescription({ atTable, atField, airtableMaps });
       logInfo(
         `  Recorded manual rollup description for "${atField.name}" on "${atTable.name}" (no automatic rollup creation because NOCODB_RECREATE_ROLLUPS is not "true").`
       );
-    } else {
+      return;
+    }
+
+    const ok = await createRollupField({
+      atTable,
+      atField,
+      airtableMaps,
+      nocoTables,
+    });
+
+    if (!ok) {
+      recordRollupDescription({ atTable, atField, airtableMaps });
       logInfo(
-        `  NOCODB_RECREATE_ROLLUPS is "true" but automatic rollup creation is not implemented; recorded manual description instead.`
+        `  Rollup "${atField.name}" on "${atTable.name}" could not be auto-created; recorded manual rollup description instead.`
       );
     }
 
     return;
   }
 
-  // Lookup (Airtable "multipleLookupValues") – also do not auto-create, but record manual instructions.
+  // Lookup (Airtable "multipleLookupValues")
   if (atField.type === 'multipleLookupValues') {
-    recordLookupDescription({ atTable, atField, airtableMaps });
-
     if (!RECREATE_LOOKUPS) {
+      recordLookupDescription({ atTable, atField, airtableMaps });
       logInfo(
         `  Recorded manual lookup description for "${atField.name}" on "${atTable.name}" (no automatic lookup creation because NOCODB_RECREATE_LOOKUPS is not "true").`
       );
-    } else {
+      return;
+    }
+
+    const ok = await createLookupField({
+      atTable,
+      atField,
+      airtableMaps,
+      nocoTables,
+    });
+
+    if (!ok) {
+      recordLookupDescription({ atTable, atField, airtableMaps });
       logInfo(
-        `  NOCODB_RECREATE_LOOKUPS is "true" but automatic lookup creation is not implemented; recorded manual description instead.`
+        `  Lookup "${atField.name}" on "${atTable.name}" could not be auto-created; recorded manual lookup description instead.`
       );
     }
 
@@ -1183,7 +1592,7 @@ async function processAirtableField({
 }
 
 // --------------------------------------------
-// MAIN RELATION + FORMULA CREATION LOGIC
+// MAIN
 // --------------------------------------------
 
 async function main() {
@@ -1205,9 +1614,9 @@ async function main() {
       }
     }
 
-    if (!RECREATE_LINKS && manualLinkDescriptions.length > 0) {
+    if (manualLinkDescriptions.length > 0) {
       logInfo(
-        'Manual link creation instructions (NOCODB_RECREATE_LINKS is not "true"; no link columns were auto-recreated):'
+        'Manual link creation instructions (either because NOCODB_RECREATE_LINKS is not "true" or link creation failed):'
       );
       manualLinkDescriptions.forEach((d) => {
         console.log(
@@ -1216,9 +1625,9 @@ async function main() {
       });
     }
 
-    if (!RECREATE_ROLLUPS && manualRollupDescriptions.length > 0) {
+    if (manualRollupDescriptions.length > 0) {
       logInfo(
-        'Manual rollup creation instructions (NOCODB_RECREATE_ROLLUPS is not "true"; no rollup columns were auto-recreated):'
+        'Manual rollup creation instructions (either because NOCODB_RECREATE_ROLLUPS is not "true" or rollup creation failed):'
       );
       manualRollupDescriptions.forEach((d) => {
         console.log(
@@ -1227,9 +1636,9 @@ async function main() {
       });
     }
 
-    if (!RECREATE_LOOKUPS && manualLookupDescriptions.length > 0) {
+    if (manualLookupDescriptions.length > 0) {
       logInfo(
-        'Manual lookup creation instructions (NOCODB_RECREATE_LOOKUPS is not "true"; no lookup columns were auto-recreated):'
+        'Manual lookup creation instructions (either because NOCODB_RECREATE_LOOKUPS is not "true" or lookup creation failed):'
       );
       manualLookupDescriptions.forEach((d) => {
         console.log(
