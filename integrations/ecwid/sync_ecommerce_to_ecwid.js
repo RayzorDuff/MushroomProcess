@@ -1,11 +1,28 @@
 /**
- *  Script: sync_ecommerce_to_ecwid.js
- *  Purpose: Read ecommerce mapping table in Airtable and push inventory
- *           quantities to Ecwid (store 95802503) by SKU.
+ * Script: sync_ecommerce_to_ecwid.js
+ * Version: 2025-12-02.2
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
  *
- *  Usage:
- *    npm install node-fetch@2 dotenv
- *    node sync_ecommerce_to_ecwid.js
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * ============================================================================= 
+ * Purpose: Read ecommerce mapping table in Airtable and push inventory
+ *          quantities to Ecwid (store 95802503) by SKU.
+ *
+ * Usage:
+ *   npm install node-fetch@2 dotenv
+ *   node sync_ecommerce_to_ecwid.js
  */
 
 const {
