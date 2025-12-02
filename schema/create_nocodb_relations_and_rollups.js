@@ -702,6 +702,43 @@ async function createFormulaField({
   }
 }
 
+function determineRelationTypeForAirtableLink(atField, airtableMaps) {
+  if (!atField || !airtableMaps || !airtableMaps.fieldsById) {
+    return 'mm';
+  }
+
+  const opts = atField.options || {};
+  const fSingle = !!opts.prefersSingleRecordLink;
+
+  let invSingle = null;
+  if (opts.inverseLinkFieldId) {
+    const inv = airtableMaps.fieldsById[opts.inverseLinkFieldId];
+    if (inv && inv.options) {
+      invSingle = !!inv.options.prefersSingleRecordLink;
+    }
+  }
+
+  // If we don't know the inverse, pick something reasonable:
+  if (invSingle === null) {
+    // If this side is single but inverse is unknown, treat as hm;
+    // otherwise default to mm.
+    return fSingle ? 'hm' : 'mm';
+  }
+
+  // Both sides allow multiple -> many-to-many
+  if (!fSingle && !invSingle) {
+    return 'mm';
+  }
+
+  // Both sides prefer single -> one-to-one
+  if (fSingle && invSingle) {
+    return 'oo';
+  }
+
+  // Mixed single/multi -> one-to-many
+  return 'hm';
+}
+
 // --------------------------------------------
 // CREATE LINKTOANOTHERRECORD FIELD
 // --------------------------------------------
@@ -710,12 +747,14 @@ async function createLinkField({
   parentTable,
   targetTable,
   baseTitle,
+  relationType,
 }) {
   const { title, column_name } = chooseUniqueFieldName(
     parentTable,
     baseTitle,
 //    '(link)'
   );
+  const relType = relationType || 'mm';
 
   let body;
 
@@ -740,15 +779,17 @@ async function createLinkField({
       );
     }
 
+    const effectiveType = relType === 'oo' ? 'hm' : relType;
+
     body = {
       title,
       column_name,
       uidt: 'Links',
       parentId: parentPk.id,
       childId: childPk.id,
-      type: 'mm',
+      type: effectiveType,
       colOptions: {
-        type: 'mm',
+        type: effectiveType,
         fk_parent_column_id: parentPk.id,
         fk_child_column_id: childPk.id,
       },
@@ -756,13 +797,13 @@ async function createLinkField({
   } else {
     // v3: more explicit 'LinkToAnotherRecord' type with options.targetTableId
     body = {
-      "type": "LinkToAnotherRecord",
-      "title": title,
-      "id": column_name,
+      type: 'LinkToAnotherRecord',
+      title: title,
+      id: column_name,
       options: {
-        "relation_type": "mm",  
-        "related_table_id": targetTable.id
-      }
+        relation_type: relType,
+        related_table_id: targetTable.id,
+      },
     };
   }
 
@@ -777,7 +818,7 @@ async function createLinkField({
     const targetTitle = targetTable.title || targetTable.name;
 
     logInfo(
-      `  Created Link field "${fieldTitle}" on "${parentTitle}" -> "${targetTitle}".`
+      `  Created Link field "${fieldTitle}" on "${parentTitle}" -> "${targetTitle}" (relation_type=${relType}).`
     );
     return field;
   } catch (err) {
@@ -795,6 +836,7 @@ async function createInverseLinkField({
   parentTable,
   parentField,
   targetTable,
+  relationType,
 }) {
   if (IS_V2) {
     // v2: server auto-creates the inverse side when you create a Links column.
@@ -814,11 +856,14 @@ async function createInverseLinkField({
 //    '(inverse)'
   );
 
+
+  const relType = relationType || 'mm';
+
   const body = {
     type: 'LinkToAnotherRecord',
     title,
     options: {
-      relation_type: 'mm',
+      relation_type: relType,
       related_table_id: parentTable.id,
     },
   };
@@ -834,7 +879,7 @@ async function createInverseLinkField({
     const targetTitle = targetTable.title || targetTable.name;
 
     logInfo(
-      `  Created inverse LinkToAnotherRecord "${fieldTitle}" on "${targetTitle}" -> "${parentTitle}".`
+      `  Created inverse LinkToAnotherRecord "${fieldTitle}" on "${targetTitle}" -> "${parentTitle}" (relation_type=${relType}).`
     );
     return field;
   } catch (err) {
@@ -882,6 +927,11 @@ async function ensureLinkForAirtableField({
     );
     return;
   }
+
+  const relationType = determineRelationTypeForAirtableLink(
+    atField,
+    airtableMaps
+  );
 
   // If we are NOT recreating links, just record a manual description and return.
   if (!RECREATE_LINKS) {
@@ -956,6 +1006,7 @@ async function ensureLinkForAirtableField({
     parentTable: parentNoco,
     targetTable: childNoco,
     baseTitle: atField.name,
+    relationType,
   });
 
   if (!linkField) return;
@@ -965,6 +1016,7 @@ async function ensureLinkForAirtableField({
     parentTable: parentNoco,
     parentField: linkField,
     targetTable: childNoco,
+    relationType,
   });
 }
 
