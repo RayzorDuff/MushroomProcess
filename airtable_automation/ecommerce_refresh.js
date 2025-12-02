@@ -267,9 +267,13 @@ try {
       const useBy = prod.getCellValue(PROD_USE_BY_FIELD);
       if (!isNotExpired(useBy)) continue;
 
-      const storage = prod.getCellValue(PROD_STORAGE_FIELD);
-      const storageName = storage && storage.name ? storage.name : null;
-      if (storageName === 'Shipped') continue;
+      // storage_location is a link to locations (single link)
+      // e.g. [{ id: 'rec...', name: 'Shipped' }]
+      const storageLinks = prod.getCellValue(PROD_STORAGE_FIELD) || [];
+      const isShipped = storageLinks.some(
+        (link) => (link.name || '').trim() === 'Shipped'
+      );
+      if (isShipped) continue;
 
       productLinks.push({ id: prod.id });
     }
