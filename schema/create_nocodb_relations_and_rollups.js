@@ -395,6 +395,7 @@ function chooseUniqueFieldName(table, baseTitle, suffix) {
 const manualLinkDescriptions = [];
 const manualRollupDescriptions = [];
 const manualLookupDescriptions = [];
+const manualFormulaFallbacks = [];
 
 // -----------------------------------------------------------------------------
 // FORMULA TRANSLATION (Airtable -> Noco-ish, best-effort)
@@ -473,6 +474,53 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   return f;
 }
 
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function formulaReferencesLookupInUnsupportedWay(formula, atTable, airtableMaps) {
+  if (!formula || !atTable || !airtableMaps || !airtableMaps.fieldsByTableAndId) {
+    return false;
+  }
+
+  const perTable = airtableMaps.fieldsByTableAndId[atTable.id] || {};
+  const lookupIds = Object.keys(perTable).filter((fid) => {
+    const fld = perTable[fid];
+    return fld && fld.type === 'multipleLookupValues';
+  });
+
+  if (!lookupIds.length) return false;
+
+  const f = String(formula);
+
+  for (const fid of lookupIds) {
+    const token = `{${fid}}`;
+    const tokenEsc = escapeRegex(token);
+
+    // Numeric aggregates of lookup arrays (unsupported)
+    const aggRe = new RegExp(
+      `\\b(SUM|MAX|MIN|AVG|COUNT)\\s*\\(\\s*${tokenEsc}\\s*\\)`,
+      'i'
+    );
+    if (aggRe.test(f)) {
+      return true;
+    }
+
+    // IF({lookup}, ...) / SWITCH({lookup}, ...) style conditions on arrays (unsupported)
+    const ifRe = new RegExp(`\\bIF\\s*\\(\\s*${tokenEsc}`, 'i');
+    if (ifRe.test(f)) {
+      return true;
+    }
+
+    const switchRe = new RegExp(`\\bSWITCH\\s*\\(\\s*${tokenEsc}`, 'i');
+    if (switchRe.test(f)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // --------------------------------------------
 // CREATE / DELETE FIELD (COLUMN) WRAPPERS
 // --------------------------------------------
@@ -515,9 +563,21 @@ async function createFormulaFallbackField({ parentTable, baseTitle, formula }) {
     parentTable.fields.push(field);
 
     const fieldTitle = body.title || field.title || field.name || field.column_name;
+    const parentTitle =
+      parentTable.title || parentTable.name || parentTable.table_name;
+
     logInfo(
-      `  Created LongText "${fieldTitle}" on "${parentTable.title}" to preserve original formula expression.`
+      `  Created LongText "${fieldTitle}" on "${parentTitle}" to preserve original formula expression.`
     );
+
+    // Track this so we can summarize all formula fallbacks at the end.
+    manualFormulaFallbacks.push({
+      table: parentTitle,
+      column: baseTitle,
+      fieldTitle,
+      formula,
+    });
+
     return field;
   } catch (err) {
     logError(
@@ -569,37 +629,59 @@ async function createFormulaField({
   const translated = translateAirtableFormulaToNoco(formula, atTable, airtableMaps);
   const preserved = originalFormula || formula;
 
+  // Pre-detect formulas that use lookup (multipleLookupValues) fields in ways
+  // NocoDB cannot evaluate (numeric aggregates or IF/SWITCH on arrays).
+  if (formulaReferencesLookupInUnsupportedWay(formula, atTable, airtableMaps)) {
+    logWarn(
+      `  Formula "${baseTitle}" on "${parentTable.title}" references lookup fields in a way NocoDB cannot evaluate; preserving as LongText instead.`
+    );
+    return await createFormulaFallbackField({
+      parentTable,
+      baseTitle,
+      formula: preserved,
+    });
+  }
+
   const { title, column_name } = chooseUniqueFieldName(
     parentTable,
     baseTitle,
 //    '(formula)'
   );
 
-  const body = {
-    // v3-style
-    type: 'Formula',
-    title,
-    column_name,
-    options: {
+  let body;
+
+  if (IS_V3) {
+    // v3: clean Formula payload – Noco expects type + options.formula
+    body = {
+      type: 'Formula',
+      title,
+      column_name,
+      options: {
+        formula: translated,
+      },
+    };
+  } else {
+    // v2: uses uidt/dt/colOptions/formula_raw
+    body = {
+      title,
+      column_name,
+      uidt: 'Formula',
+      dt: 'formula',
+      colOptions: {
+        formula: translated,
+      },
       formula: translated,
-    },
-    // v2-style keys & aliases that v3 still understands
-    dt: 'formula',
-    uidt: 'Formula',
-    colOptions: {
-      formula: translated,
-    },
-    // v2 schema uses formula_raw; also include formula for extra safety
-    formula: translated,
-    formula_raw: translated,
-  };
+      formula_raw: translated,
+    };
+  }
 
   try {
     const field = await createFieldOnTable(parentTable.id, body);
     parentTable.fields = parentTable.fields || [];
     parentTable.fields.push(field);
 
-    const fieldTitle = body.title || field.title || field.name || field.column_name;
+    const fieldTitle =
+      body.title || field.title || field.name || field.column_name;
     logInfo(
       `  Created Formula "${fieldTitle}" on "${parentTable.title}" with expression: ${translated}`
     );
@@ -1495,19 +1577,19 @@ async function processAirtableField({
     const options = atField.options || {};
     const formula = options.formula;
     await refreshNocoFieldsForTable(parentNoco);
-
+  
     const existing = (parentNoco.fields || []).find(
       (f) => (f.title || f.name) === atField.name
     );
     const existingType = existing ? fieldType(existing) : null;
-
+  
     if (existing && existingType === 'Formula') {
       logInfo(
         `  Formula field "${atField.name}" already exists on "${parentNoco.title}"; skipping.`
       );
       return;
     }
-
+  
     if (existing && existingType === 'LongText') {
       try {
         await deleteFieldById(existing.id);
@@ -1521,7 +1603,7 @@ async function processAirtableField({
         );
       }
     }
-
+  
     await createFormulaField({
       parentTable: parentNoco,
       baseTitle: atField.name,
@@ -1530,7 +1612,7 @@ async function processAirtableField({
       atTable,
       airtableMaps,
     });
-
+  
     return;
   }
 
@@ -1644,6 +1726,24 @@ async function main() {
         console.log(
           `MANUAL_LOOKUP\tTable="${d.table}"\tColumn="${d.column}"\t${d.description}`
         );
+      });
+    }
+    
+    // Manual formula fallbacks: Airtable formulas that could not be auto-created
+    // and were preserved in LongText "_formula_src" columns.
+    if (manualFormulaFallbacks.length) {
+      logInfo('----------------------------------------------');
+      logInfo(
+        'Manual formulas (Airtable expressions preserved in LongText "_formula_src" columns):'
+      );
+    
+      manualFormulaFallbacks.forEach((item, idx) => {
+        const prefix = `${idx + 1}. [${item.table}] ${item.column}`;
+        logInfo(`  ${prefix}`);
+        logInfo(
+          `     Review LongText field "${item.fieldTitle}" and recreate a NocoDB Formula field manually if desired.`
+        );
+        logInfo(`     Original expression: ${item.formula}`);
       });
     }
   } catch (err) {
