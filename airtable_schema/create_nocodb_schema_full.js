@@ -1230,6 +1230,7 @@ async function ensureLinkForAirtableField({
       relationType,
     });
   }
+}
 
 // --------------------------------------------
 // MANUAL DESCRIPTORS
@@ -1412,7 +1413,6 @@ function recordLookupDescription({
 // -----------------------------------------------------------------------------
 // ROLLUP / LOOKUP CREATION HELPERS
 // -----------------------------------------------------------------------------
-
 function mapAirtableRollupFunction(fn) {
   if (!fn) return 'sum';
   const s = String(fn).toLowerCase();
@@ -2292,4 +2292,3 @@ async function main() {
 if (require.main === module) {
   main();
 }
-
