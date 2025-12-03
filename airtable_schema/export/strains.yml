@@ -32,10 +32,14 @@
   strain_id: STR-PsilocybeNatalensis
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recV9ephQ5NJProZu
+  ecommerce:
+  - recRYm0k8IbIlR1ny
   species_strain: Chestnut
   strain_id: STR-Chestnut
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recWQlBg26y23ZRWT
+  ecommerce:
+  - recJyn2tt8HX8fIxi
   species_strain: Turkey Tail
   strain_id: STR-TurkeyTail
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -54,6 +58,8 @@
   strain_id: STR-AlbinoMelmak
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: reckNIjMtUO20q0f9
+  ecommerce:
+  - recQnYKAQQqDrEnm2
   species_strain: "Lion\u2019s Mane"
   strain_id: STR-LionsMane
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -86,6 +92,8 @@
   strain_id: STR-KingOyster
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recxZKdhM1v5Wh51M
+  ecommerce:
+  - recXRvKLhWYAArICp
   species_strain: Red Reishi
   strain_id: STR-RedReishi
 - airtable_createdTime: '2025-09-23T00:54:57.000Z'

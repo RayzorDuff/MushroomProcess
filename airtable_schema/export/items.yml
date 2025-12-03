@@ -44,6 +44,11 @@
   category: fruiting_block
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
+  ecommerce:
+  - recQnYKAQQqDrEnm2
+  - recRYm0k8IbIlR1ny
+  - recJyn2tt8HX8fIxi
+  - recXRvKLhWYAArICp
   item_id: FB-MM75-LG
   name: Large Masters Mix 75/25
 - airtable_createdTime: '2025-09-21T20:08:29.000Z'
@@ -60,7 +65,7 @@
   default_unit_size_lb: 5
   default_unit_size_oz: 80
   item_id: SUB-MM50-5
-  name: Masters Mix 50/50 (Hardwood/Soy)
+  name: Masters Mix 50/50
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recElBASw3SYIGDqy
   category: grain
@@ -76,21 +81,25 @@
   default_unit_size_lb: 5
   default_unit_size_oz: 80
   item_id: SUB-MM75-5
-  name: Masters Mix 75/25 (Hardwood/Soy)
+  name: Masters Mix 75/25
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recJgSj2nMQhhMQm3
   category: substrate
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  ecommerce:
+  - rec02VOqyUOnHMPzQ
   item_id: SUB-CVG-5
-  name: Coco Verm Gypsum (CVG)
+  name: Coco Verm Gypsum
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recM75qospUCh1DQ3
   category: grain
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  ecommerce:
+  - rec3dwVTZ2HA22RjN
   item_id: GRAIN-OWM-2
   name: Organic Wheat/Millet
 - airtable_createdTime: '2025-10-27T01:03:20.000Z'
@@ -125,16 +134,20 @@
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
   default_unit_size_oz: 120
+  ecommerce:
+  - recVcvY7l7e4nk4Vt
   item_id: SUB-MM75-7_5
-  name: Masters Mix 75/25 (Hardwood/Soy)
+  name: Masters Mix 75/25
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recaOtqLL80xSaYLT
   category: substrate
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
+  ecommerce:
+  - recgTNdPtGsE6oyvi
   item_id: SUB-MM75-2_5
-  name: Masters Mix 75/25 (Hardwood/Soy)
+  name: Masters Mix 75/25
 - airtable_createdTime: '2025-10-27T00:03:31.000Z'
   airtable_id: reccntFuiyUAopZsM
   category: agar_flask
@@ -156,7 +169,7 @@
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
   item_id: SUB-MM50-2_5
-  name: Masters Mix 50/50 (Hardwood/Soy)
+  name: Masters Mix 50/50
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recfe2XhEw2mDbQIw
   category: freezer_tray
@@ -169,13 +182,15 @@
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
   item_id: SUB-CVG-2_5
-  name: Coco Verm Gypsum (CVG)
+  name: Coco Verm Gypsum
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recocMHgTLuGMcxPf
   category: grain
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  ecommerce:
+  - recwcDAQy89XAYJ2d
   item_id: GRAIN-OATS-2
   name: Oats
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
@@ -200,7 +215,7 @@
   default_unit_size_lb: 7.5
   default_unit_size_oz: 120
   item_id: SUB-MM50-7_5
-  name: Masters Mix 50/50 (Hardwood/Soy)
+  name: Masters Mix 50/50
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: rect5ScMzcq9NLMEL
   category: grain
@@ -222,6 +237,8 @@
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  ecommerce:
+  - recIo7Q8Si74dzuDk
   item_id: GRAIN-WBS-2
   name: Wild Bird Seed
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
@@ -229,6 +246,11 @@
   category: fd_batch
   item_id: FD-BATCH
   name: Freeze-Dry Batch
+- airtable_createdTime: '2025-11-17T20:40:29.000Z'
+  airtable_id: recyRbrcLoSgSLG5W
+  category: untracked_source
+  item_id: UNTRACKED-SOURCE
+  name: Untracked Source
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: reczPINTjlieWiqX3
   category: freezedriedmushrooms
