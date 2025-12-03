@@ -31,6 +31,17 @@
                         "icon": "check"
                     },
                     "type": "checkbox"
+                },
+                {
+                    "id": "fldwVGA64CPu1k8I8",
+                    "name": "ecommerce",
+                    "options": {
+                        "inverseLinkFieldId": "fldUOYMKdmLoLaPoy",
+                        "isReversed": false,
+                        "linkedTableId": "tblhBJqzL8mXqYw8j",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
                 }
             ],
             "id": "tblbx0LJNAs8NE4xd",
@@ -188,17 +199,17 @@
                                     {
                                         "color": "greenLight2",
                                         "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
+                                        "name": "Coco Verm Gypsum"
                                     },
                                     {
                                         "color": "yellowLight2",
                                         "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                        "name": "Masters Mix 50/50"
                                     },
                                     {
                                         "color": "orangeLight2",
                                         "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                        "name": "Masters Mix 75/25"
                                     },
                                     {
                                         "color": "redLight2",
@@ -284,6 +295,11 @@
                                         "color": "orangeBright",
                                         "id": "selOEATpiFFellbj9",
                                         "name": "Agar Plate 90x15mm"
+                                    },
+                                    {
+                                        "color": "grayBright",
+                                        "id": "selhOsGMgvy13DWdp",
+                                        "name": "Untracked Source"
                                     }
                                 ]
                             },
@@ -366,6 +382,11 @@
                                         "color": "pinkBright",
                                         "id": "selph3FcnuUpNr1aL",
                                         "name": "plate"
+                                    },
+                                    {
+                                        "color": "blueLight2",
+                                        "id": "selAQIwgql1UIreAY",
+                                        "name": "untracked_source"
                                     }
                                 ]
                             },
@@ -424,11 +445,6 @@
                         }
                     },
                     "type": "date"
-                },
-                {
-                    "id": "fld4nOtqPTDRkehs6",
-                    "name": "label_template_id",
-                    "type": "multilineText"
                 },
                 {
                     "id": "fldd1njLVghnzCL7z",
@@ -493,17 +509,17 @@
                                     {
                                         "color": "greenLight2",
                                         "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
+                                        "name": "Coco Verm Gypsum"
                                     },
                                     {
                                         "color": "yellowLight2",
                                         "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                        "name": "Masters Mix 50/50"
                                     },
                                     {
                                         "color": "orangeLight2",
                                         "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                        "name": "Masters Mix 75/25"
                                     },
                                     {
                                         "color": "redLight2",
@@ -589,6 +605,11 @@
                                         "color": "orangeBright",
                                         "id": "selOEATpiFFellbj9",
                                         "name": "Agar Plate 90x15mm"
+                                    },
+                                    {
+                                        "color": "grayBright",
+                                        "id": "selhOsGMgvy13DWdp",
+                                        "name": "Untracked Source"
                                     }
                                 ]
                             },
@@ -671,6 +692,11 @@
                                         "color": "pinkBright",
                                         "id": "selph3FcnuUpNr1aL",
                                         "name": "plate"
+                                    },
+                                    {
+                                        "color": "blueLight2",
+                                        "id": "selAQIwgql1UIreAY",
+                                        "name": "untracked_source"
                                     }
                                 ]
                             },
@@ -956,7 +982,7 @@
                     "id": "fldg5EftGwMNxsvTV",
                     "name": "label_companyaddress_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"RegulatedBusinessAddressAndContact\", \"MyBuinessAddressAndContact\"),\r\n  \"MyBuinessAddressAndContact\")\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"RegulatedBusinessAddressAndContact\\nhttps://www.regulatedbusiness.com/\", \"MyBuinessAddressAndContact\\nhttps://www.mybusiness.com\"),\r\n  \"MyBuinessAddressAndContact\\nhttps://www.mybusiness.com\")\r\n",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldyTHxlQx1gW7fAS",
@@ -1133,6 +1159,28 @@
                         }
                     },
                     "type": "formula"
+                },
+                {
+                    "id": "fldA9jVI9wdPTPitN",
+                    "name": "ecommerce",
+                    "options": {
+                        "inverseLinkFieldId": "fldk7eLtmpyyxNPnt",
+                        "isReversed": false,
+                        "linkedTableId": "tblhBJqzL8mXqYw8j",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldf4gzsAkPDkWIEx",
+                    "name": "ecommerce_orders",
+                    "options": {
+                        "inverseLinkFieldId": "fldBeiYxWJWevTntu",
+                        "isReversed": false,
+                        "linkedTableId": "tblWXZlk8KB29P312",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
                 }
             ],
             "id": "tbl51zhGGDuaL2Sm4",
@@ -1200,17 +1248,17 @@
                                     {
                                         "color": "greenLight2",
                                         "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
+                                        "name": "Coco Verm Gypsum"
                                     },
                                     {
                                         "color": "yellowLight2",
                                         "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                        "name": "Masters Mix 50/50"
                                     },
                                     {
                                         "color": "orangeLight2",
                                         "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                        "name": "Masters Mix 75/25"
                                     },
                                     {
                                         "color": "redLight2",
@@ -1296,6 +1344,11 @@
                                         "color": "orangeBright",
                                         "id": "selOEATpiFFellbj9",
                                         "name": "Agar Plate 90x15mm"
+                                    },
+                                    {
+                                        "color": "grayBright",
+                                        "id": "selhOsGMgvy13DWdp",
+                                        "name": "Untracked Source"
                                     }
                                 ]
                             },
@@ -1368,17 +1421,6 @@
                         }
                     },
                     "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fld0PLyJJ5TBsuEKw",
-                    "name": "events_id",
-                    "options": {
-                        "inverseLinkFieldId": "fldLTAkYPWj5ZkDwY",
-                        "isReversed": false,
-                        "linkedTableId": "tblSFVpaC8X07Xyvn",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
                 },
                 {
                     "id": "fldC2b7y49UhM5X55",
@@ -1748,11 +1790,6 @@
                     "type": "singleSelect"
                 },
                 {
-                    "id": "fldfuliJKb42gXCot",
-                    "name": "action_params",
-                    "type": "multilineText"
-                },
-                {
                     "id": "fldjZLkZ8RpHTF1V1",
                     "name": "events",
                     "options": {
@@ -1837,6 +1874,11 @@
                                         "color": "pinkBright",
                                         "id": "selph3FcnuUpNr1aL",
                                         "name": "plate"
+                                    },
+                                    {
+                                        "color": "blueLight2",
+                                        "id": "selAQIwgql1UIreAY",
+                                        "name": "untracked_source"
                                     }
                                 ]
                             },
@@ -1847,12 +1889,12 @@
                 },
                 {
                     "id": "fldTD39GlgYuKlV8O",
-                    "name": "lc_lot_id",
+                    "name": "target_lot_ids",
                     "options": {
-                        "inverseLinkFieldId": "fldEuk0FFNuH8Kfwk",
+                        "inverseLinkFieldId": "fldayvQVo4H2XUY3B",
                         "isReversed": false,
                         "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": true
+                        "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
                 },
@@ -1918,7 +1960,7 @@
                     "id": "fldHrFJi9OqWWlfxu",
                     "name": "grain_inputs",
                     "options": {
-                        "inverseLinkFieldId": "fldaiXuK0YxqdtBHQ",
+                        "inverseLinkFieldId": "fldUfNL8tqdLmomEH",
                         "isReversed": false,
                         "linkedTableId": "tblL2oACeE9P92BRA",
                         "prefersSingleRecordLink": false
@@ -1967,7 +2009,7 @@
                     "id": "fld0yK31UNRiH8jiV",
                     "name": "substrate_inputs",
                     "options": {
-                        "inverseLinkFieldId": "fld1qHfvydisfXFXE",
+                        "inverseLinkFieldId": "fldl83vhqoA1Me22a",
                         "isReversed": false,
                         "linkedTableId": "tblL2oACeE9P92BRA",
                         "prefersSingleRecordLink": false
@@ -2160,17 +2202,6 @@
                     "type": "number"
                 },
                 {
-                    "id": "fldFUIvc225pYY8d2",
-                    "name": "source_blocks",
-                    "options": {
-                        "inverseLinkFieldId": "fldtyuP0SCpnqpAtI",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
                     "id": "fldKSKRIdEUFYZgDt",
                     "name": "ui_error",
                     "type": "multilineText"
@@ -2284,6 +2315,11 @@
                                         "color": "pinkBright",
                                         "id": "selph3FcnuUpNr1aL",
                                         "name": "plate"
+                                    },
+                                    {
+                                        "color": "blueLight2",
+                                        "id": "selAQIwgql1UIreAY",
+                                        "name": "untracked_source"
                                     }
                                 ]
                             },
@@ -2331,17 +2367,17 @@
                                     {
                                         "color": "greenLight2",
                                         "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
+                                        "name": "Coco Verm Gypsum"
                                     },
                                     {
                                         "color": "yellowLight2",
                                         "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                        "name": "Masters Mix 50/50"
                                     },
                                     {
                                         "color": "orangeLight2",
                                         "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                        "name": "Masters Mix 75/25"
                                     },
                                     {
                                         "color": "redLight2",
@@ -2427,6 +2463,11 @@
                                         "color": "orangeBright",
                                         "id": "selOEATpiFFellbj9",
                                         "name": "Agar Plate 90x15mm"
+                                    },
+                                    {
+                                        "color": "grayBright",
+                                        "id": "selhOsGMgvy13DWdp",
+                                        "name": "Untracked Source"
                                     }
                                 ]
                             },
@@ -2509,6 +2550,11 @@
                                         "color": "pinkBright",
                                         "id": "selph3FcnuUpNr1aL",
                                         "name": "plate"
+                                    },
+                                    {
+                                        "color": "blueLight2",
+                                        "id": "selAQIwgql1UIreAY",
+                                        "name": "untracked_source"
                                     }
                                 ]
                             },
@@ -2555,7 +2601,7 @@
                     "id": "fld2msIyGSTSGHX2r",
                     "name": "casing_lot_id",
                     "options": {
-                        "inverseLinkFieldId": "fld12p5fUicYrYXqT",
+                        "inverseLinkFieldId": "fld16hZXn3AMRqqJU",
                         "isReversed": false,
                         "linkedTableId": "tblL2oACeE9P92BRA",
                         "prefersSingleRecordLink": true
@@ -2648,11 +2694,12 @@
                     "id": "fldmx5RDnELMNEUEm",
                     "name": "label_inoc_line",
                     "options": {
-                        "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD'),\r\n  IF(\r\n    {fldZLdt5XUuUlksGL},\r\n    \"Inoculated: \" & DATETIME_FORMAT({fldZLdt5XUuUlksGL}, 'YYYY-MM-DD')\r\n  )\r\n)\r\n",
+                        "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD') & \" \",\r\n  IF(\r\n    {fldZLdt5XUuUlksGL},\r\n    \"Inoculated: \" & DATETIME_FORMAT({fldZLdt5XUuUlksGL}, 'YYYY-MM-DD') & \" \"\r\n  )\r\n) & {fldc6ASAfjsjEts33}\r\n  ",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldjcFYOzKgv4U3qD",
-                            "fldZLdt5XUuUlksGL"
+                            "fldZLdt5XUuUlksGL",
+                            "fldc6ASAfjsjEts33"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -2778,61 +2825,6 @@
                         "inverseLinkFieldId": "fldzMn7oEAYLRFMll",
                         "isReversed": false,
                         "linkedTableId": "tbl3sLXGbpqiaeaHI",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fldEuk0FFNuH8Kfwk",
-                    "name": "From field: lc_lot_id",
-                    "options": {
-                        "inverseLinkFieldId": "fldTD39GlgYuKlV8O",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fld12p5fUicYrYXqT",
-                    "name": "From field: casing_lot_id",
-                    "options": {
-                        "inverseLinkFieldId": "fld2msIyGSTSGHX2r",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fldtyuP0SCpnqpAtI",
-                    "name": "From field: source_blocks",
-                    "options": {
-                        "inverseLinkFieldId": "fldFUIvc225pYY8d2",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fld1qHfvydisfXFXE",
-                    "name": "From field: substrate_inputs",
-                    "options": {
-                        "inverseLinkFieldId": "fld0yK31UNRiH8jiV",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fldaiXuK0YxqdtBHQ",
-                    "name": "From field: grain_inputs",
-                    "options": {
-                        "inverseLinkFieldId": "fldHrFJi9OqWWlfxu",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
@@ -3135,41 +3127,6 @@
                     "type": "rollup"
                 },
                 {
-                    "id": "fld9HB4yExmNqWUax",
-                    "name": "plateType",
-                    "options": {
-                        "choices": [
-                            {
-                                "color": "blueLight2",
-                                "id": "selkxM3gBYWDJET9p",
-                                "name": "Master"
-                            },
-                            {
-                                "color": "cyanLight2",
-                                "id": "sel8dV0Uq48E6g4sP",
-                                "name": "Working"
-                            }
-                        ]
-                    },
-                    "type": "singleSelect"
-                },
-                {
-                    "id": "fldzpusFFQlZGXIfv",
-                    "name": "platePourDate",
-                    "options": {
-                        "dateFormat": {
-                            "format": "l",
-                            "name": "local"
-                        },
-                        "timeFormat": {
-                            "format": "h:mma",
-                            "name": "12hour"
-                        },
-                        "timeZone": "client"
-                    },
-                    "type": "dateTime"
-                },
-                {
                     "id": "fldc6ASAfjsjEts33",
                     "name": "source_lot_id",
                     "options": {
@@ -3205,6 +3162,17 @@
                     "type": "multipleRecordLinks"
                 },
                 {
+                    "id": "fldDWHUcKYT5WFEOi",
+                    "name": "ecommerce",
+                    "options": {
+                        "inverseLinkFieldId": "fldJUlBxQywcmO0k6",
+                        "isReversed": false,
+                        "linkedTableId": "tblhBJqzL8mXqYw8j",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
                     "id": "fldzvTCADuXr1WRdM",
                     "name": "From field: PlateSourceLot",
                     "options": {
@@ -3220,6 +3188,50 @@
                     "name": "From field: parent_lot_id",
                     "options": {
                         "inverseLinkFieldId": "fldHpMIA1mMX0wiFP",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldayvQVo4H2XUY3B",
+                    "name": "From field: target_lot_ids",
+                    "options": {
+                        "inverseLinkFieldId": "fldTD39GlgYuKlV8O",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldUfNL8tqdLmomEH",
+                    "name": "From field: grain_inputs",
+                    "options": {
+                        "inverseLinkFieldId": "fldHrFJi9OqWWlfxu",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldl83vhqoA1Me22a",
+                    "name": "From field: substrate_inputs",
+                    "options": {
+                        "inverseLinkFieldId": "fld0yK31UNRiH8jiV",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fld16hZXn3AMRqqJU",
+                    "name": "From field: casing_lot_id",
+                    "options": {
+                        "inverseLinkFieldId": "fld2msIyGSTSGHX2r",
                         "isReversed": false,
                         "linkedTableId": "tblL2oACeE9P92BRA",
                         "prefersSingleRecordLink": false
@@ -3273,17 +3285,17 @@
                             {
                                 "color": "greenLight2",
                                 "id": "selEarzPlvCfhOsUV",
-                                "name": "Coco Verm Gypsum (CVG)"
+                                "name": "Coco Verm Gypsum"
                             },
                             {
                                 "color": "yellowLight2",
                                 "id": "selkx4dJ0X4teqqRs",
-                                "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                "name": "Masters Mix 50/50"
                             },
                             {
                                 "color": "orangeLight2",
                                 "id": "selNyrCoYL3I29LDA",
-                                "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                "name": "Masters Mix 75/25"
                             },
                             {
                                 "color": "redLight2",
@@ -3369,6 +3381,11 @@
                                 "color": "orangeBright",
                                 "id": "selOEATpiFFellbj9",
                                 "name": "Agar Plate 90x15mm"
+                            },
+                            {
+                                "color": "grayBright",
+                                "id": "selhOsGMgvy13DWdp",
+                                "name": "Untracked Source"
                             }
                         ]
                     },
@@ -3443,6 +3460,11 @@
                                 "color": "pinkBright",
                                 "id": "selph3FcnuUpNr1aL",
                                 "name": "plate"
+                            },
+                            {
+                                "color": "blueLight2",
+                                "id": "selAQIwgql1UIreAY",
+                                "name": "untracked_source"
                             }
                         ]
                     },
@@ -3594,11 +3616,6 @@
                     "type": "multipleRecordLinks"
                 },
                 {
-                    "id": "fldVE13vmDRKWtmuB",
-                    "name": "lots 3",
-                    "type": "singleLineText"
-                },
-                {
                     "id": "fldm83pLRGxW7aFJg",
                     "name": "lots 4",
                     "options": {
@@ -3616,6 +3633,17 @@
                         "inverseLinkFieldId": "fldP4Z6zvyPoVHTdC",
                         "isReversed": false,
                         "linkedTableId": "tbl51zhGGDuaL2Sm4",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldpSqnJkI7TzW4HQ",
+                    "name": "ecommerce",
+                    "options": {
+                        "inverseLinkFieldId": "fld7UmdsUlfZPgC20",
+                        "isReversed": false,
+                        "linkedTableId": "tblhBJqzL8mXqYw8j",
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
@@ -3680,40 +3708,6 @@
                     "name": "substrate_inputs (from lot_id)",
                     "options": {
                         "fieldIdInLinkedTable": "fld0yK31UNRiH8jiV",
-                        "isValid": true,
-                        "recordLinkFieldId": "fld99g2StSeRBo6KW",
-                        "result": {
-                            "options": {
-                                "isReversed": false,
-                                "prefersSingleRecordLink": false
-                            },
-                            "type": "multipleRecordLinks"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldfGSOXA63fHgADr",
-                    "name": "From field: substrate_inputs (from lot_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fld1qHfvydisfXFXE",
-                        "isValid": true,
-                        "recordLinkFieldId": "fld99g2StSeRBo6KW",
-                        "result": {
-                            "options": {
-                                "isReversed": false,
-                                "prefersSingleRecordLink": false
-                            },
-                            "type": "multipleRecordLinks"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldyzxuzzXD2kSgpL",
-                    "name": "From field: grain_inputs (from lot_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldaiXuK0YxqdtBHQ",
                         "isValid": true,
                         "recordLinkFieldId": "fld99g2StSeRBo6KW",
                         "result": {
@@ -4031,13 +4025,7 @@
                 {
                     "id": "fldLTAkYPWj5ZkDwY",
                     "name": "lots",
-                    "options": {
-                        "inverseLinkFieldId": "fld0PLyJJ5TBsuEKw",
-                        "isReversed": false,
-                        "linkedTableId": "tblL2oACeE9P92BRA",
-                        "prefersSingleRecordLink": false
-                    },
-                    "type": "multipleRecordLinks"
+                    "type": "singleLineText"
                 }
             ],
             "id": "tblSFVpaC8X07Xyvn",
@@ -4083,11 +4071,6 @@
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fldTFF7bhcg9l5JVP",
-                    "name": "lots 2",
-                    "type": "singleLineText"
                 },
                 {
                     "id": "fldtuwdjrqvR4K5g5",
@@ -4256,17 +4239,17 @@
                                     {
                                         "color": "greenLight2",
                                         "id": "selEarzPlvCfhOsUV",
-                                        "name": "Coco Verm Gypsum (CVG)"
+                                        "name": "Coco Verm Gypsum"
                                     },
                                     {
                                         "color": "yellowLight2",
                                         "id": "selkx4dJ0X4teqqRs",
-                                        "name": "Masters Mix 50/50 (Hardwood/Soy)"
+                                        "name": "Masters Mix 50/50"
                                     },
                                     {
                                         "color": "orangeLight2",
                                         "id": "selNyrCoYL3I29LDA",
-                                        "name": "Masters Mix 75/25 (Hardwood/Soy)"
+                                        "name": "Masters Mix 75/25"
                                     },
                                     {
                                         "color": "redLight2",
@@ -4352,6 +4335,11 @@
                                         "color": "orangeBright",
                                         "id": "selOEATpiFFellbj9",
                                         "name": "Agar Plate 90x15mm"
+                                    },
+                                    {
+                                        "color": "grayBright",
+                                        "id": "selhOsGMgvy13DWdp",
+                                        "name": "Untracked Source"
                                     }
                                 ]
                             },
@@ -4473,15 +4461,6 @@
                     "type": "number"
                 },
                 {
-                    "id": "fldDZ9DQYN9OlqEEF",
-                    "name": "create_lots",
-                    "options": {
-                        "color": "greenBright",
-                        "icon": "check"
-                    },
-                    "type": "checkbox"
-                },
-                {
                     "id": "fldN3FzkHFrlRm8KM",
                     "name": "planned_unit_size",
                     "options": {
@@ -4562,13 +4541,8 @@
                     "type": "singleSelect"
                 },
                 {
-                    "id": "fldxCDgUbMcY9sVRM",
-                    "name": "lots",
-                    "type": "singleLineText"
-                },
-                {
                     "id": "fldOQZGMLCuYyAEKr",
-                    "name": "lots 2",
+                    "name": "lots",
                     "options": {
                         "inverseLinkFieldId": "fldWQpUbiM0DIprJw",
                         "isReversed": false,
@@ -5149,6 +5123,369 @@
                 {
                     "id": "viw7Bj81RiAVe7Mkc",
                     "name": "Queue_All",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "fields": [
+                {
+                    "id": "fldLhUbZoGIRU0DNe",
+                    "name": "name",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fld7UmdsUlfZPgC20",
+                    "name": "item_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldpSqnJkI7TzW4HQ",
+                        "isReversed": false,
+                        "linkedTableId": "tblMB3eUSqLq5Tujy",
+                        "prefersSingleRecordLink": true
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldUOYMKdmLoLaPoy",
+                    "name": "strain_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldwVGA64CPu1k8I8",
+                        "isReversed": false,
+                        "linkedTableId": "tblbx0LJNAs8NE4xd",
+                        "prefersSingleRecordLink": true
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldXTrg2Rm0AIEoOd",
+                    "name": "status",
+                    "options": {
+                        "choices": [
+                            {
+                                "color": "blueLight2",
+                                "id": "selF7OnEGx8L65x77",
+                                "name": "Sterilized"
+                            },
+                            {
+                                "color": "cyanLight2",
+                                "id": "selVfZFnE8DMEf6gx",
+                                "name": "Pasteurized"
+                            },
+                            {
+                                "color": "tealLight2",
+                                "id": "sel7Y5IgfdoyEcd3b",
+                                "name": "FullyColonized"
+                            },
+                            {
+                                "color": "greenLight2",
+                                "id": "sel3iH5fd9tzq2wbj",
+                                "name": "Inoculated"
+                            }
+                        ]
+                    },
+                    "type": "singleSelect"
+                },
+                {
+                    "id": "fldk7eLtmpyyxNPnt",
+                    "name": "products",
+                    "options": {
+                        "inverseLinkFieldId": "fldA9jVI9wdPTPitN",
+                        "isReversed": false,
+                        "linkedTableId": "tbl51zhGGDuaL2Sm4",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldJUlBxQywcmO0k6",
+                    "name": "lots",
+                    "options": {
+                        "inverseLinkFieldId": "fldDWHUcKYT5WFEOi",
+                        "isReversed": false,
+                        "linkedTableId": "tblL2oACeE9P92BRA",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldvcCXRo3a7T3xKh",
+                    "name": "ecwid_sku",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fldTrxOkGBK1ZnYOh",
+                    "name": "sync_to_ecwid",
+                    "options": {
+                        "color": "greenBright",
+                        "icon": "thumbsUp"
+                    },
+                    "type": "checkbox"
+                },
+                {
+                    "id": "fldUk1kj48ubbslWR",
+                    "name": "notes",
+                    "type": "multilineText"
+                },
+                {
+                    "id": "fldHLrV4DAOHe1ur1",
+                    "name": "ecwid_category",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fldmuweHn1q3XMK3u",
+                    "name": "ecwid_price",
+                    "options": {
+                        "precision": 2
+                    },
+                    "type": "number"
+                },
+                {
+                    "id": "fld24zMC7Z4Fzi4VD",
+                    "name": "ecwid_stock",
+                    "options": {
+                        "precision": 0
+                    },
+                    "type": "number"
+                },
+                {
+                    "id": "fldFUbyQ5vcX3wci8",
+                    "name": "ecwid_url",
+                    "type": "url"
+                },
+                {
+                    "id": "fldD8K3aUyGAM4bDD",
+                    "name": "ecwid_image",
+                    "options": {
+                        "isReversed": true
+                    },
+                    "type": "multipleAttachments"
+                },
+                {
+                    "id": "fldLoqJECuJzcTCFk",
+                    "name": "available_from_products",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldgzDEo51u33bNf3",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldk7eLtmpyyxNPnt",
+                        "referencedFieldIds": [],
+                        "result": {
+                            "options": {
+                                "precision": 0
+                            },
+                            "type": "number"
+                        }
+                    },
+                    "type": "rollup"
+                },
+                {
+                    "id": "fldD5BCrjbbiQ8cZj",
+                    "name": "available_from_lots",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldhtBJ3a1S81mDlY",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldJUlBxQywcmO0k6",
+                        "referencedFieldIds": [],
+                        "result": {
+                            "options": {
+                                "precision": 0
+                            },
+                            "type": "number"
+                        }
+                    },
+                    "type": "rollup"
+                },
+                {
+                    "id": "fldfZuhmRecY12ttD",
+                    "name": "available_qty_ecwid",
+                    "options": {
+                        "formula": "{fldD5BCrjbbiQ8cZj} + {fldLoqJECuJzcTCFk}",
+                        "isValid": true,
+                        "referencedFieldIds": [
+                            "fldD5BCrjbbiQ8cZj",
+                            "fldLoqJECuJzcTCFk"
+                        ],
+                        "result": {
+                            "options": {
+                                "precision": 0
+                            },
+                            "type": "number"
+                        }
+                    },
+                    "type": "formula"
+                },
+                {
+                    "id": "fldYxY64m9oGsgSrk",
+                    "name": "ecommerce_orders",
+                    "options": {
+                        "inverseLinkFieldId": "fldfyhIGH0Py8CfKS",
+                        "isReversed": false,
+                        "linkedTableId": "tblWXZlk8KB29P312",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                }
+            ],
+            "id": "tblhBJqzL8mXqYw8j",
+            "name": "ecommerce",
+            "primaryFieldId": "fldLhUbZoGIRU0DNe",
+            "views": [
+                {
+                    "id": "viwI4yqRSs1mbYwuM",
+                    "name": "Grid view",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwnGMNFMLxWcnsyL",
+                    "name": "Grid view copy",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "fields": [
+                {
+                    "id": "fldJjOSEW3O0mHFI1",
+                    "name": "name",
+                    "type": "multilineText"
+                },
+                {
+                    "id": "fldeCD2Zzeg03QC1j",
+                    "name": "ecwid_order_id",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fldGRCrT8YDsd1rm1",
+                    "name": "order_number",
+                    "options": {
+                        "precision": 0
+                    },
+                    "type": "number"
+                },
+                {
+                    "id": "fldNzzDbyK0594KxU",
+                    "name": "status",
+                    "options": {
+                        "choices": [
+                            {
+                                "color": "blueLight2",
+                                "id": "selnpHO75QjucB4BW",
+                                "name": "PAID"
+                            },
+                            {
+                                "color": "cyanLight2",
+                                "id": "selyDOAB77hEs4GIa",
+                                "name": "SHIPPED"
+                            },
+                            {
+                                "color": "tealLight2",
+                                "id": "selCX69OPB91AMixj",
+                                "name": "CANCELLED"
+                            },
+                            {
+                                "color": "greenLight2",
+                                "id": "selbqhgmPDlh2nV3A",
+                                "name": "PROCESSING"
+                            },
+                            {
+                                "color": "yellowLight2",
+                                "id": "selu3S8uKdLAMx2Tf",
+                                "name": "AWAITING_PAYMENT"
+                            },
+                            {
+                                "color": "orangeLight2",
+                                "id": "selhi5zHVWLISD02s",
+                                "name": "AWAITING_FULFILLMENT"
+                            },
+                            {
+                                "color": "redLight2",
+                                "id": "sel1sxkRE8djuNHRC",
+                                "name": "AWAITING_SHIPMENT"
+                            },
+                            {
+                                "color": "pinkLight2",
+                                "id": "selaQapwmeQQo0Y10",
+                                "name": "RETURNED"
+                            },
+                            {
+                                "color": "purpleLight2",
+                                "id": "seleGwfSDSkymbsbA",
+                                "name": "DELIVERED"
+                            },
+                            {
+                                "color": "grayLight2",
+                                "id": "selvio8tZQa7IMLNh",
+                                "name": "WILL_NOT_DELIVER"
+                            }
+                        ]
+                    },
+                    "type": "singleSelect"
+                },
+                {
+                    "id": "fldJ332jwIcUEg0yA",
+                    "name": "order_date",
+                    "options": {
+                        "dateFormat": {
+                            "format": "YYYY-MM-DD",
+                            "name": "iso"
+                        },
+                        "timeFormat": {
+                            "format": "HH:mm",
+                            "name": "24hour"
+                        },
+                        "timeZone": "utc"
+                    },
+                    "type": "dateTime"
+                },
+                {
+                    "id": "fldw2gIR2sUhBh0Lf",
+                    "name": "customer_name",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fld2aAoMxpwNJVuyo",
+                    "name": "customer_email",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fldqOmRR90h3X9Pzk",
+                    "name": "items_json",
+                    "type": "multilineText"
+                },
+                {
+                    "id": "fldBeiYxWJWevTntu",
+                    "name": "products",
+                    "options": {
+                        "inverseLinkFieldId": "fldf4gzsAkPDkWIEx",
+                        "isReversed": false,
+                        "linkedTableId": "tbl51zhGGDuaL2Sm4",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldfyhIGH0Py8CfKS",
+                    "name": "ecommerce",
+                    "options": {
+                        "inverseLinkFieldId": "fldYxY64m9oGsgSrk",
+                        "isReversed": false,
+                        "linkedTableId": "tblhBJqzL8mXqYw8j",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldybS4OyYh47mt1e",
+                    "name": "ecwid_skus",
+                    "type": "multilineText"
+                }
+            ],
+            "id": "tblWXZlk8KB29P312",
+            "name": "ecommerce_orders",
+            "primaryFieldId": "fldJjOSEW3O0mHFI1",
+            "views": [
+                {
+                    "id": "viwFqEIqfVIKfqCp4",
+                    "name": "Grid view",
                     "type": "grid"
                 }
             ]

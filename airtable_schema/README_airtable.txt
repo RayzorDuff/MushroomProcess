@@ -22,7 +22,7 @@ $env:AIRTABLE_KEY = "patyyy"
 $env:AIRTABLE_BASE = "appxxxx"
 $env:PATH += "C:\Python313;C:\Python313\Scripts;$Env:APPDATA\Python\Python313\Scripts"
 
-airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue 
+airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
 
 Import
 

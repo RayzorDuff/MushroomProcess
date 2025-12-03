@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2025-11-17.2
+ * Version: 2025-11-18.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -240,7 +240,9 @@
     // --- Update source lot (volumes, status, notes) ------------------------
     const sourceUpdates = {
       action: null,
-      override_inoc_time: null
+      override_inoc_time: null,
+      lc_volume_ml: null,
+      target_lot_ids: null
     };
 
     if (!isUntrackedSource && isLiquidSource && totalVolumeUsed > 0) {

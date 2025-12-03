@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2025-10-19.2
+ * Version: 2025-12-01.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -21,6 +21,11 @@
  * Notes:
  * - Added: ApplyBeneficialTrichoderma, ApplyNematodes, ApplyDiatomaceousEarth (log-only actions).
  * - Changed: ApplyCasing no longer requires a casing lot.
+ * - 2025-10-19.3:
+ *   - For MoveToFridge, ColdShock, and StartFruiting:
+ *     - Ensure a FullyColonized event exists for the lot.
+ *     - If missing (and not a vendor LC syringe), set status to FullyColonized
+ *       and log a FullyColonized event before transitioning.
  */
 try {
   const { lotId } = input.config();
@@ -104,16 +109,62 @@ try {
     }
   } catch {}
 
-  async function guardFullyColonizedForChillishActions() {
+  /**
+   * Ensure that a FullyColonized event exists for this lot.
+   * If not present and this is not a vendor LC syringe, we:
+   *   - set the lot status to FullyColonized (if not already),
+   *   - and log a FullyColonized event.
+   *
+   * This allows the UI / history to always show that anything
+   * moved to Fridge / Fruiting / ColdShock was considered fully colonized.
+   */
+  async function ensureFullyColonizedHistoryForTransition() {
     const isVendorSyringe = (itemCategory === 'lc_syringe');
-    if (!isVendorSyringe && statusName !== 'FullyColonized') {
-      await failWithUI('Only FullyColonized lots may be moved to Fridge or Cold Shock (vendor LC syringes excepted).');
+    if (isVendorSyringe) {
+      // Do not force FullyColonized status/event for vendor LC syringes.
+      return;
+    }
+
+    const typeField = eventsTbl.getField('type');
+    const fullyChoice = (typeField.options?.choices || []).find(c => c.name === 'FullyColonized');
+    if (!fullyChoice) {
+      // If events.type doesn't have FullyColonized, we can't log it; just return.
+      return;
+    }
+
+    // Scan events for this lot / type = FullyColonized
+    const q = await eventsTbl.selectRecordsAsync({ fields: ['lot_id', 'type'] });
+    let hasFully = false;
+    for (const r of q.records) {
+      const typeVal = r.getCellValue('type'); // single select: {id, name}
+      if (!typeVal || typeVal.id !== fullyChoice.id) continue;
+
+      const lotLinks = r.getCellValue('lot_id') || [];
+      if (lotLinks.some(l => l.id === lot.id)) {
+        hasFully = true;
+        break;
+      }
+    }
+
+    if (!hasFully) {
+      // No need to set status as it will be reset to the correct final status next
+      // then log the FullyColonized event.
+      //if (statusName !== 'FullyColonized') {
+      //  await setStatus(lot.id, 'FullyColonized');
+      //}
+      await logEvent(lot.id, 'FullyColonized', 'Dark Room');
     }
   }
 
+  // ---------------------------------------------------------------------------
   // Standard status transitions
+  // ---------------------------------------------------------------------------
+
   if (action === 'MoveToFridge') {
-    await guardFullyColonizedForChillishActions();
+    // New behavior: assume lot is fully colonized if we're moving it,
+    // and make sure history reflects that.
+    await ensureFullyColonizedHistoryForTransition();
+
     await setStatus(lot.id, 'Fridge');
     const fridgeLoc = await findLocationByName('Fridge');
     if (fridgeLoc && hasField(lotsTbl, 'location_id')) {
@@ -125,7 +176,9 @@ try {
   }
 
   if (action === 'ColdShock') {
-    await guardFullyColonizedForChillishActions();
+    // Same colonization assumption/handling for ColdShock.
+    await ensureFullyColonizedHistoryForTransition();
+
     await setStatus(lot.id, 'Fridge');
     const fridgeLoc = await findLocationByName('Fridge');
     if (fridgeLoc && hasField(lotsTbl, 'location_id')) {
@@ -163,6 +216,9 @@ try {
   }
 
   if (action === 'StartFruiting') {
+    // Also ensure a FullyColonized event before starting fruiting.
+    await ensureFullyColonizedHistoryForTransition();
+
     await setStatus(lot.id, 'Fruiting');
     const fruitLoc = await findLocationByName('Fruiting Chamber');
     if (fruitLoc && hasField(lotsTbl, 'location_id')) {
