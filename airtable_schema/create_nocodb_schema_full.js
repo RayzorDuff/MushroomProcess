@@ -133,6 +133,9 @@ const debugData = {
 // NEW: formulas we want to retry at the end
 const deferredFormulaCreates = [];
 
+// Track which Airtable link pairs we've already created in NocoDB
+const processedAirtableLinkPairs = new Set();
+
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
@@ -543,9 +546,11 @@ function normalizeLinkName(name) {
   // Strip older helper prefixes we might have used
   n = n.replace(/^From field:\s*/i, '');
 
-  // Strip trailing parentheses / numeric variants: "lots (2)", "lots 2"
-  n = n.replace(/\s*\(\d+\)\s*$/, '');
-  n = n.replace(/\s+\d+$/, '');
+  // NOTE:
+  // We intentionally DO NOT strip numeric suffixes anymore (e.g. "lots 2", "products 2").
+  // Airtable uses names like "lots 2", "lots 4", "products 2" as *distinct* link fields,
+  // and we need those to exist in NocoDB for data migration. Collapsing them would cause
+  // us to skip creating the additional links.
 
   // Basic lower-casing
   return n.toLowerCase();
@@ -1203,6 +1208,33 @@ async function ensureLinkForAirtableField({
     );
     return;
   }
+  
+  // Avoid creating the same logical relation twice.
+  // Airtable models each relation as two fields (one on each table),
+  // connected via options.inverseLinkFieldId. NocoDB v3 automatically
+  // creates the inverse LinkToAnotherRecord field, so if we create a link
+  // from *both* sides, NocoDB ends up with duplicate fields like "lots1".
+  const inverseId = options.inverseLinkFieldId;
+  if (inverseId) {
+    // Compute a canonical, order-independent pair key (smallest id first)
+    const thisId = atField.id;
+    const pairIds = [thisId, inverseId].sort();
+    const pairKey = pairIds.join('::');
+
+    if (processedAirtableLinkPairs.has(pairKey)) {
+      // This pair was already handled when we processed the other side.
+      // Skip creating another LinkToAnotherRecord here to avoid duplicates
+      // like "lots1", "ecommerce1", etc.
+      logInfo(
+        `  Skipping secondary side of link pair "${atField.name}" in "${atTable.name}" (inverse of ${inverseId}).`
+      );
+      return;
+    }
+
+    // First time we see this pair; mark it as processed so the matching
+    // inverse field won't create a duplicate relation later.
+    processedAirtableLinkPairs.add(pairKey);
+  }  
 
   const targetAtTable = airtableMaps.tablesById[linkedTableId];
   if (!targetAtTable) {
