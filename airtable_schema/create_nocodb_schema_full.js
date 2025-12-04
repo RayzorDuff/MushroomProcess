@@ -101,6 +101,11 @@ const RECREATE_LOOKUPS = /^true$/i.test(
 const DEBUG_OUTPUT_PATH =
   process.env.NOCODB_DEBUG_PATH ||
   path.join(process.cwd(), 'nocodb_migration_debug.json');
+  
+// Optional: export of final NocoDB schema for comparison with Airtable _schema.json
+const NOCO_SCHEMA_EXPORT_PATH =
+  process.env.NOCODB_SCHEMA_EXPORT_PATH ||
+  path.join(process.cwd(), 'export', '_schema_nocodb.json');  
 
 // In-memory debug structure
 const debugData = {
@@ -2225,6 +2230,34 @@ async function processAirtableField({
 // WRITE DEBUG JSON
 // --------------------------------------------
 
+function writeNocoSchemaExport(tables) {
+  try {
+    const normalized = (tables || []).map((t) => ({
+      id: t.id,
+      name: t.title || t.name || t.table_name,
+      fields: (t.fields || []).map((f) => ({
+        id: f.id,
+        name: f.title || f.name || f.column_name,
+        type: fieldType(f),
+        // keep raw options metadata so you can inspect relations/lookups/rollups if needed
+        options: f.options || f.colOptions || undefined,
+      })),
+    }));
+
+    const dir = path.dirname(NOCO_SCHEMA_EXPORT_PATH);
+    fs.mkdirSync(dir, { recursive: true });
+
+    fs.writeFileSync(
+      NOCO_SCHEMA_EXPORT_PATH,
+      JSON.stringify({ tables: normalized }, null, 2),
+      'utf8'
+    );
+    logInfo(`NocoDB schema export written to: ${NOCO_SCHEMA_EXPORT_PATH}`);
+  } catch (err) {
+    logError(`Failed to write NocoDB schema export: ${err.message}`);
+  }
+}
+
 function writeDebugJson() {
   try {
     fs.writeFileSync(DEBUG_OUTPUT_PATH, JSON.stringify(debugData, null, 2), 'utf8');
@@ -2388,8 +2421,16 @@ async function main() {
 
       await stabilize("final formulas");
       nocoTables = await fetchNocoTablesWithFields();
+      
+      // Ensure fields are hydrated before exporting schema
+      for (const t of nocoTables) {
+        await refreshNocoFieldsForTable(t);
+      }
     }
 
+    // Export final NocoDB schema snapshot for comparison with Airtable _schema.json
+    writeNocoSchemaExport(nocoTables);
+    
     // Manual instructions
     if (manualLinkDescriptions.length > 0) {
       logInfo('Manual link instructions:');
