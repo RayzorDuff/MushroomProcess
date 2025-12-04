@@ -125,6 +125,9 @@ const debugData = {
   }
 };
 
+// NEW: formulas we want to retry at the end
+const deferredFormulaCreates = [];
+
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
@@ -528,6 +531,21 @@ function slugify(name) {
     .replace(/^_+|_+$/g, '');
 }
 
+function normalizeLinkName(name) {
+  if (!name) return '';
+  let n = name.trim();
+
+  // Strip older helper prefixes we might have used
+  n = n.replace(/^From field:\s*/i, '');
+
+  // Strip trailing parentheses / numeric variants: "lots (2)", "lots 2"
+  n = n.replace(/\s*\(\d+\)\s*$/, '');
+  n = n.replace(/\s+\d+$/, '');
+
+  // Basic lower-casing
+  return n.toLowerCase();
+}
+
 /**
  * Choose a unique field (column) name for a table, based on a seed title.
  *
@@ -656,41 +674,29 @@ function escapeRegex(s) {
 }
 
 function formulaReferencesLookupInUnsupportedWay(formula, atTable, airtableMaps) {
-  if (!formula || !atTable || !airtableMaps || !airtableMaps.fieldsByTableAndId) {
+  if (!formula || !atTable || !airtableMaps) {
     return false;
   }
 
-  const perTable = airtableMaps.fieldsByTableAndId[atTable.id] || {};
-  const lookupIds = Object.keys(perTable).filter((fid) => {
-    const fld = perTable[fid];
-    return fld && fld.type === 'multipleLookupValues';
-  });
+  const fields = atTable.fields || [];
 
-  if (!lookupIds.length) return false;
+  // Names of any lookup / rollup fields on this table
+  const badNames = fields
+    .filter((fld) =>
+      fld &&
+      (fld.type === 'multipleLookupValues' || fld.type === 'rollup')
+    )
+    .map((fld) => fld.name)
+    .filter(Boolean);
+
+  if (!badNames.length) return false;
 
   const f = String(formula);
 
-  for (const fid of lookupIds) {
-    const token = `{${fid}}`;
-    const tokenEsc = escapeRegex(token);
-
-    // Numeric aggregates of lookup arrays (unsupported)
-    const aggRe = new RegExp(
-      `\\b(SUM|MAX|MIN|AVG|COUNT)\\s*\\(\\s*${tokenEsc}\\s*\\)`,
-      'i'
-    );
-    if (aggRe.test(f)) {
-      return true;
-    }
-
-    // IF({lookup}, ...) / SWITCH({lookup}, ...) style conditions on arrays (unsupported)
-    const ifRe = new RegExp(`\\bIF\\s*\\(\\s*${tokenEsc}`, 'i');
-    if (ifRe.test(f)) {
-      return true;
-    }
-
-    const switchRe = new RegExp(`\\bSWITCH\\s*\\(\\s*${tokenEsc}`, 'i');
-    if (switchRe.test(f)) {
+  // If the formula references ANY of those fields by {Field Name}, treat as unsupported
+  for (const name of badNames) {
+    const re = new RegExp(`\\{${escapeRegex(name)}\\}`, 'i');
+    if (re.test(f)) {
       return true;
     }
   }
@@ -802,6 +808,8 @@ async function createFormulaField({
   originalFormula,
   atTable,
   airtableMaps,
+  atField,
+  finalAttempt, // optional, boolean
 }) {
   if (!formula) {
     logWarn(
@@ -876,26 +884,58 @@ async function createFormulaField({
 
     return field;
   } catch (err) {
+    const parentTitle = parentTable.title || parentTable.name || parentTable.table_name;
+    const reason = err && err.message ? err.message : String(err);
+
+    if (finalAttempt) {
+      // Final attempt: give up and create fallback
+      logWarn(
+        `  NocoDB rejected Formula "${baseTitle}" on "${parentTitle}" even on final attempt (expression "${translated}"): ${reason}`
+      );
+      logWarn(
+        `  Creating a LongText "_formula_src" field instead so the Airtable expression is preserved.`
+      );
+
+      debugData.failed.formulas.push({
+        table: parentTitle,
+        field: baseTitle,
+        reason: `Final attempt failed: ${reason}`,
+        translated
+      });
+
+      return await createFormulaFallbackField({
+        parentTable,
+        baseTitle,
+        formula: preserved,
+      });
+    }
+
+    // First attempt: defer until after links/lookups/rollups exist
     logWarn(
-      `  NocoDB rejected Formula "${baseTitle}" on "${parentTable.title}" (expression "${translated}"): ${err.message}`
+      `  NocoDB rejected Formula "${baseTitle}" on "${parentTitle}" (expression "${translated}") on first attempt: ${reason}`
     );
     logWarn(
-      `  Creating a LongText "_formula_src" field instead so the Airtable expression is preserved.`
+      `  Deferring formula "${baseTitle}" for retry after all link/lookup/rollup phases.`
     );
 
+    deferredFormulaCreates.push({
+      atTableId: atTable.id,
+      atFieldId: atTable && atField ? atField.id : null, // kept for possible future use
+      atFieldName: atField && atField.name ? atField.name : baseTitle,
+      baseTitle,
+    });
+
+    // Also record in debug as deferred
     debugData.failed.formulas.push({
-      table: parentTable.title || parentTable.name,
+      table: parentTitle,
       field: baseTitle,
-      reason: "NocoDB rejected formula",
+      reason: `Deferred for retry: ${reason}`,
       translated
     });
 
-    return await createFormulaFallbackField({
-      parentTable,
-      baseTitle,
-      formula: preserved,
-    });
+    return null;
   }
+
 }
 
 // --------------------------------------------
@@ -1053,6 +1093,17 @@ async function createInverseLinkField({
   targetTable,
   relationType,
 }) {
+  // For v3, NocoDB automatically manages inverse relations.
+  // Creating them manually causes duplicate alias columns like "lotss", "productss", etc.
+  if (IS_V3) {
+    const parentTitle = parentTable.title || parentTable.name || parentTable.table_name;
+    const targetTitle = targetTable.title || targetTable.name || targetTable.table_name;
+    logInfo(
+      `  (v3) Skipping explicit inverse link "${parentTitle}" -> "${targetTitle}" (NocoDB auto-creates inverse).`
+    );
+    return null;
+  }
+
   if (IS_V2) {
     logInfo(
       `  (v2) Skipping explicit inverse link on "${targetTable.title}" – NocoDB creates inverse automatically.`
@@ -1176,18 +1227,34 @@ async function ensureLinkForAirtableField({
 
   const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
   const childNoco = findNocoTableForAirtableTable(targetAtTable, nocoTables);
-
+  
   if (!parentNoco || !childNoco) {
     logWarn(
       `  Missing Noco table(s) for link field "${atField.name}" on "${atTable.name}".`
     );
     return;
   }
-
+  
   // Refresh fields so we see anything created earlier in this run
   await refreshNocoFieldsForTable(parentNoco);
   await refreshNocoFieldsForTable(childNoco);
-
+  
+  const normalizedAtName = normalizeLinkName(atField.name);
+  const existingLink = (parentNoco.fields || []).find((f) => {
+    const t = fieldType(f);
+    if (t !== 'Links' && t !== 'LinkToAnotherRecord') return false;
+    const n = normalizeLinkName(f.title || f.name || f.column_name);
+    return n === normalizedAtName;
+  });
+  
+  if (existingLink) {
+    const parentTitle = parentNoco.title || parentNoco.name || parentNoco.table_name;
+    logInfo(
+      `  Link field already exists (by normalized name) for "${atField.name}" on "${parentTitle}" as "${existingLink.title || existingLink.name || existingLink.column_name}". Skipping.`
+    );
+    return;
+  }
+  
   const existing = (parentNoco.fields || []).find(
     (f) => (f.title || f.name) === atField.name
   );
@@ -1413,8 +1480,21 @@ function recordLookupDescription({
 // -----------------------------------------------------------------------------
 // ROLLUP / LOOKUP CREATION HELPERS
 // -----------------------------------------------------------------------------
-function mapAirtableRollupFunction(fn) {
-  if (!fn) return 'sum';
+function mapAirtableRollupFunction(fn, targetType, rollupName) {
+  const t = (targetType || '').toString().toLowerCase();
+  const name = (rollupName || '').toString().toLowerCase();
+
+  if (!fn) {
+    // If Airtable didn't specify, guess based on target type + name.
+    if (t === 'date' || t === 'datetime') {
+      if (name.startsWith('first_')) return 'min';
+      if (name.startsWith('last_')) return 'max';
+      return 'max';
+    }
+    // Default for numeric-ish data
+    return 'sum';
+  }
+
   const s = String(fn).toLowerCase();
 
   if (s.includes('count') && s.includes('distinct')) return 'countDistinct';
@@ -1431,6 +1511,13 @@ function mapAirtableRollupFunction(fn) {
 
   if (s.startsWith('min')) return 'min';
   if (s.startsWith('max')) return 'max';
+
+  // Fallback by target type if the string is unknown
+  if (t === 'date' || t === 'datetime') {
+    if (name.startsWith('first_')) return 'min';
+    if (name.startsWith('last_')) return 'max';
+    return 'max';
+  }
 
   return 'sum';
 }
@@ -1560,11 +1647,15 @@ async function createRollupField({
       );
     }
   }
+  
+  const targetTypeName = fieldType(targetNocoField);
 
   const aggFn = mapAirtableRollupFunction(
     options.aggregationFunction ||
       options.aggregation ||
-      (options.result && options.result.type)
+      (options.result && options.result.type),
+    targetTypeName,
+    atField.name
   );
 
   const { title, column_name } = chooseUniqueFieldName(
@@ -2068,6 +2159,8 @@ async function processAirtableField({
       originalFormula: formula,
       atTable,
       airtableMaps,
+      atField,
+      finalAttempt: false,
     });
 
     return;
@@ -2168,6 +2261,25 @@ async function main() {
     // Refresh Noco table structures
     let nocoTables = await fetchNocoTablesWithFields();
 
+    // After first-pass table creation, before buildDependencyGraph(...)
+    logInfo("PHASE 0.5: Creating formula fields...");
+    for (const atTable of schema.tables || []) {
+     const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
+     if (!parentNoco) continue;
+     for (const atField of atTable.fields || []) {
+       if (atField.type === 'formula') {
+         await processAirtableField({
+           atTable,
+           atField,
+           airtableMaps,
+           nocoTables,
+         });
+       }
+     }
+    }
+    await stabilize("formulas");
+    nocoTables = await fetchNocoTablesWithFields();
+   
     // Dependency graph
     const graph = buildDependencyGraph(schema, airtableMaps);
 
@@ -2238,6 +2350,45 @@ async function main() {
 
     // Retry pass
     await retryFailedPhaseItems(graph, airtableMaps, nocoTables);
+
+    // Final phase: retry deferred formulas now that all links/lookups/rollups exist
+    if (deferredFormulaCreates.length) {
+      logInfo("FINAL PHASE: Retrying deferred formulas after all relations/rollups/lookups are created...");
+
+      // Refresh Noco tables once before we start
+      nocoTables = await fetchNocoTablesWithFields();
+
+      for (const item of deferredFormulaCreates) {
+        const atTable = airtableMaps.tablesById[item.atTableId];
+        if (!atTable) continue;
+
+        const atField = (atTable.fields || []).find(f => f.name === item.atFieldName);
+        if (!atField || atField.type !== 'formula') continue;
+
+        const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
+        if (!parentNoco) continue;
+
+        await refreshNocoFieldsForTable(parentNoco);
+
+        const options = atField.options || {};
+        const formula = options.formula;
+        if (!formula) continue;
+
+        await createFormulaField({
+          parentTable: parentNoco,
+          baseTitle: atField.name,
+          formula,
+          originalFormula: formula,
+          atTable,
+          airtableMaps,
+          atField,
+          finalAttempt: true,
+        });
+      }
+
+      await stabilize("final formulas");
+      nocoTables = await fetchNocoTablesWithFields();
+    }
 
     // Manual instructions
     if (manualLinkDescriptions.length > 0) {
