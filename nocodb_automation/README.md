@@ -1,36 +1,80 @@
-﻿# NocoDB Automation Kit
+﻿# NocoDB & Retool Interface Bundle
 
-This folder contains Node handlers to mirror your Airtable automations using NocoDBâ€™s REST API.
+_Generated from the original `README.txt` (2025-11-11)._
 
-## Environment
-- `NOCO_BASE_URL` e.g. `https://nocodb.yourdomain.tld`
-- `NOCO_PROJECT`  project slug (e.g., `mushroom_inventory`)
-- `NOCO_TOKEN`    personal access token
+This folder contains:
 
-## Wiring (NocoDB Button â†’ Webhook)
-Create a Button field â†’ â€œRun Webhookâ€ (POST) â†’ your service endpoint. Example JSON bodies:
+- **NocoDB creator scripts (Node.js)** – create views that mirror Airtable Interfaces.
+- **Retool how-to text files** – instructions for building matching dashboards in Retool.
 
-**Sterilizer OUT**
-```json
-{ "run_id": "{{row.id}}" }
-**LC â†’ Grain**
-```json
-{
-  "grain_lot_id": "{{row.id}}",
-  "lc_lot_id": "{{row.lc_lot_id}}",
-  "lc_volume_ml": "{{row.lc_volume_ml}}",
-  "override_inoc_time": "{{row.override_inoc_time}}",
-  "operator": "{{row.operator}}"
-}
-**Spawn to Bulk**
-```json
-{
-  "row_id": "{{row.id}}",
-  "grain_inputs": "{{row.grain_inputs}}",
-  "substrate_inputs": "{{row.substrate_inputs}}",
-  "output_count": "{{row.output_count}}",
-  "operator": "{{row.operator}}"
-}
+The goal is to approximate the Airtable operator experience (per station) using:
 
-Each script writes any validation messages to the relevant recordâ€™s ui_error.
-Adjust table/field names if your NocoDB schema differs from Airtableâ€™s.
+- NocoDB views and filters, plus
+- Retool as a richer frontend when needed.
+
+---
+
+## 1. Environment
+
+All NocoDB scripts here expect the following environment variables:
+
+```bash
+NOCO_BASE_URL=https://your-nocodb-instance.com
+NOCO_PROJECT=mushroom_inventory
+NOCO_TOKEN=YOUR_API_TOKEN
+```
+
+These must match your NocoDB deployment:
+
+- `NOCO_BASE_URL` – Base URL, e.g. `http://localhost:8080` or your server’s HTTPS URL.
+- `NOCO_PROJECT` – NocoDB project slug containing the MushroomProcess tables.
+- `NOCO_TOKEN` – Personal access token with read/write rights to that project.
+
+---
+
+## 2. Running a View-Creator Script
+
+Each `nocodb_create_*_view.js` script creates or updates a NocoDB view for a specific workflow.
+
+Example:
+
+```bash
+node nocodb_create_spawn_to_bulk_view.js
+```
+
+Typical responsibilities:
+
+- Create a view on the appropriate table (e.g., `lots`).
+- Apply filters (e.g., only show lots at a particular stage).
+- Define visible columns and default sort orders.
+
+After running a script, check NocoDB’s UI to confirm the view appears as expected.
+
+---
+
+## 3. Retool How-To Files
+
+For each interface, you’ll see corresponding Retool instructions such as:
+
+- `Retool_Dark_Room.txt`
+- `Retool_Fruiting.txt`
+- `Retool_Spawn_to_Bulk.txt`
+- etc.
+
+Each document typically covers:
+
+- Which NocoDB API endpoints to use.
+- Suggested layout (tables, forms, buttons).
+- How to bind actions (e.g., PATCH requests to update status, call automation webhooks).
+- Where to surface error messages (analogous to Airtable’s `ui_error`).
+
+Use these notes to rebuild the equivalent of the Airtable Interfaces in Retool, backed by the NocoDB schema.
+
+---
+
+## 4. Notes
+
+- Scripts assume NocoDB v2/v3-style endpoints (e.g. `/api/v2` or `/api/v3`).
+- Field names and filters mirror the Airtable schema as exported to `_schema.json`.
+  - If your NocoDB schema diverges, you may need to tweak field/table names in the scripts.
+- Keep your NocoDB environment variables in sync with the ones used in `nocodb_automation/` and the print daemon.

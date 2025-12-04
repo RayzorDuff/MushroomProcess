@@ -1,84 +1,172 @@
-Plug-and-play PowerShell setup that:
+# Print Daemon  
+_Label printing for Airtable / NocoDB `print_queue`_
 
-reads your .env (key=value) safely,
+This folder contains:
 
-verifies Node & your Windows printer,
+- `print-daemon.js` – Node.js script that:
+  - Watches a `print_queue` view/table.
+  - Renders 4×2 inch label PDFs (with optional logo and QR code).
+  - Sends them to a Windows thermal printer.
+  - Updates each row’s status (`print_status`, `error_msg`, `pdf_path`).
 
-starts the Node print daemon (print-daemon.js),
+- PowerShell helpers:
+  - `Start-PrintDaemon.ps1`, `Stop-PrintDaemon.ps1`
+  - `Install-PrintDaemonService.ps1`, `Uninstall-PrintDaemonService.ps1`
+  - Other scripts to verify Node, printers, and logs.
 
-writes rotating logs,
+It supports both **Airtable** (legacy) and **NocoDB** as the backend for print jobs.
 
-and (optionally) installs it as a Windows service via NSSM.
+---
 
-You can copy/paste these files into the same folder as print-daemon.js and .env.
+## 1. Prerequisites
 
-1) Folder layout
+- **OS:** Windows (scripts are Windows-oriented).
+- **Node.js:** Install from <https://nodejs.org/en/download>.
+- **Printer:** 4×2" thermal printer (tested with **JADENS JD268BT-CA**) configured in Windows.
+- **PDF viewer:** Portable `SumatraPDF.exe` in the daemon folder (optional but recommended).
+
+Typical folder layout:
+
+```text
 C:\print-daemon\
   .env
   print-daemon.js
-  logo.png                 # optional
+  logo.png               # optional, black & white
+  SumatraPDF.exe         # optional, portable viewer
   Start-PrintDaemon.ps1
   Stop-PrintDaemon.ps1
-  Install-PrintDaemonService.ps1   # optional (NSSM)
-  Uninstall-PrintDaemonService.ps1 # optional (NSSM)
+  Install-PrintDaemonService.ps1
+  Uninstall-PrintDaemonService.ps1
   logs\
+```
 
+---
 
-Create logs\ once (or the script will create it).
+## 2. Node Dependencies
 
-2) Start script (reads .env + starts Node)
+The daemon uses libraries such as:
 
-Start-PrintDaemon.ps1
+- `pdfkit` – render crisp vector PDFs (great for 203 dpi label printers).
+- `qrcode` – generate QR codes from public links.
+- `pdf-to-printer` – send PDFs to your Windows printer.
 
-<# 
-  Starts the JD268BT-CA print daemon.
-  - Loads .env into process env (in case any tool other than dotenv needs it)
-  - Verifies Node.js, printer, and npm deps
-  - Launches node print-daemon.js with stdout/stderr to logs
-#>
+Install dependencies in the daemon folder:
 
+```bash
+npm install
+```
 
-3) Stop script
+(Or install the specific modules if you prefer a slimmer setup.)
 
-Stop-PrintDaemon.ps1
+---
 
+## 3. Configuration – `.env`
 
-4) (Optional) Install as a Windows Service via NSSM
+Create a `.env` file in the daemon folder. Depending on your backend, include:
 
-This keeps it running in the background after reboots. Requires NSSM (https://nssm.cc/download
-).
+### Airtable (legacy)
 
-5) How to run
+```dotenv
+AIRTABLE_BASE_ID=appXXXXXXXXXXXXXX
+AIRTABLE_TOKEN=patXXXXXXXXXXXXXX
+AIRTABLE_PRINT_QUEUE_TABLE=print_queue
+PRINTER_NAME=Your Printer Name Here
+```
 
-Open PowerShell as your user (or Admin if installing a service):
+### NocoDB (new)
 
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```dotenv
+NOCODB_URL=http://your-nocodb-host        # e.g. http://localhost:8080
+NOCODB_API_TOKEN=your_api_token           # NocoDB API token
+NOCODB_QUEUE_TABLE_ID=print_queue         # table ID/slug for print_queue
+PRINTER_NAME=Your Printer Name Here
+```
 
-cd C:\print-daemon
+Notes:
 
-# One-time (installs deps, checks printer, then starts in background)
-.\Start-PrintDaemon.ps1
+- `PRINTER_NAME` must exactly match the Windows printer name in **Settings → Printers & Scanners**.
+  - If omitted, the system default printer is used.
+- Ensure the printer’s **default paper size** is set to **4×2 inch** in Printing Preferences.
 
-# …later, to stop:
-.\Stop-PrintDaemon.ps1
+---
 
-Foreground mode (for live console output while testing):
+## 4. Running the Daemon (Foreground)
 
-.\Start-PrintDaemon.ps1 -Foreground
+From PowerShell in the daemon directory:
 
-As a service:
+```powershell
+node .\print-daemon.js
+```
 
-# Make sure NSSM is installed and in PATH
-.\Install-PrintDaemonService.ps1
-# To remove later:
-.\Uninstall-PrintDaemonService.ps1
+The script:
 
-Notes that save headaches
+- Reads `.env` using `dotenv`.
+- Polls the configured backend (`print_queue` in Airtable or NocoDB).
+- For each row with `print_status = "Queued"`:
+  - Generates a label PDF (optionally embedding `logo.png` and a QR code).
+  - Sends it to the configured printer.
+  - Updates the row to `Printed` or `Error` (and writes `error_msg`, `pdf_path` as appropriate).
 
-Ensure your Windows printer Printing Preferences default to 4×2 in media for the JD268BT-CA.
+Leave this process running in a console, or convert it to a Windows service (see below).
 
-The Node script you already have uses dotenv, so it will read .env as long as the working directory is correct (the scripts above ensure that).
+---
 
-If your printer name differs, set PRINTER_NAME in .env to exactly how it appears in “Printers & Scanners.” The start script will warn if it can’t find it.
+## 5. Running as a Windows Service (NSSM)
 
-Logs live in .\logs\. If you prefer one combined log, adjust the start script.
+The PowerShell helpers offer a “plug-and-play” service setup (assuming [NSSM](https://nssm.cc/) is installed and in `PATH`).
+
+1. **Install the service**
+
+   ```powershell
+   .\Install-PrintDaemonService.ps1
+   ```
+
+   This script typically:
+
+   - Validates Node and the printer.
+   - Configures NSSM to run `node print-daemon.js` in the correct working directory.
+   - Sets up log files under `.\logs\`.
+
+2. **Remove the service**
+
+   ```powershell
+   .\Uninstall-PrintDaemonService.ps1
+   ```
+
+3. **Start/stop manually**
+
+   ```powershell
+   .\Start-PrintDaemon.ps1
+   .\Stop-PrintDaemon.ps1
+   ```
+
+---
+
+## 6. NocoDB vs Airtable Mode
+
+- **DONE:**
+  - The daemon can pull print jobs from NocoDB instead of Airtable.
+  - It updates `print_status`, `error_msg`, and `pdf_path` directly in NocoDB.
+
+- **TODO:**
+  - Some sterilizer-run / lot printing paths may still use Airtable for the “Steri Sheet” and will be migrated later.
+
+To switch modes:
+
+1. Update `.env` to point either at Airtable variables or at NocoDB variables.
+2. Restart the daemon or Windows service.
+
+---
+
+## 7. Troubleshooting
+
+- If no labels print:
+  - Check logs in `.\logs\`.
+  - Confirm `print_status = "Queued"` in your `print_queue`.
+  - Verify `PRINTER_NAME` matches the Windows printer exactly.
+
+- If labels are the wrong size:
+  - Confirm the printer’s default media is 4×2" in the Windows driver.
+  - Check any scaling options in `pdf-to-printer` configuration (if exposed).
+
+This daemon is the glue that turns `print_queue` rows from the automations into physical labels on blocks, bags, and finished products.
