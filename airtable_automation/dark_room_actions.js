@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2025-12-01.1
+ * Version: 2025-12-04.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -272,7 +272,7 @@ try {
       }
     }
 
-    await lotsTbl.updateRecordAsync(lot.id, { action: null, ui_error: null, ui_error_at: null });
+    await lotsTbl.updateRecordAsync(lot.id, { action: null, ui_error: null, ui_error_at: null, casing_applied_at: nowIso});
     return;
   }
 
