@@ -1,4 +1,5 @@
 # MushroomProcess  
+
 _Airtable / NocoDB Inventory, Traceability & Labeling System_
 
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.

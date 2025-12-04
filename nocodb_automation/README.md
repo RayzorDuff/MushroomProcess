@@ -1,7 +1,5 @@
 ﻿# NocoDB & Retool Interface Bundle
 
-_Generated from the original `README.txt` (2025-11-11)._
-
 This folder contains:
 
 - **NocoDB creator scripts (Node.js)** – create views that mirror Airtable Interfaces.
