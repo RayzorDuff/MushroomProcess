@@ -1,3 +1,69 @@
+## [v1.0.3-beta] – 2025-12-04 (nocodb_migration)
+
+> This release is cut from the `nocodb_migration` branch and adds an experimental **NocoDB path** alongside the existing Airtable flows. Airtable behavior remains effectively the same as v1.0.2-beta; the new work is focused on schema migration, NocoDB automations, and interface generation.
+
+### NocoDB schema & migration tooling
+
+- **Generalized schema JSON** so a single exported `_schema.json` from `airtable-export` can be used to recreate **either**:
+  - a clean Airtable base, or  
+  - a NocoDB project with matching tables and fields. :contentReference[oaicite:1]{index=1}
+- Added an **initial script to create a NocoDB project from an Airtable `_schema.json` export**, wiring up tables and columns based on Airtable metadata. :contentReference[oaicite:2]{index=2}
+- Introduced a **two-pass column creation flow** for NocoDB:
+  - first pass creates “simple” columns;  
+  - second pass adds relationships and more complex fields;  
+  - with **fallback link-column creation** when metadata is incomplete. :contentReference[oaicite:3]{index=3}
+- Implemented **automatic relationship table creation** that respects Airtable’s **many-to-many, one-to-many, and one-to-one** link patterns during NocoDB link creation. :contentReference[oaicite:4]{index=4}
+- Added a script to **generate SQL DDL from `_schema.json`** plus documentation for how to apply the generated SQL in a NocoDB-backed database. :contentReference[oaicite:5]{index=5}
+- Tightened mapping to NocoDB’s internal types:
+  - use **valid NocoDB `uidt` values**;  
+  - allow NocoDB to infer `dt` / `dtx` from `uidt` instead of forcing them;  
+  - skip `LinkToAnotherRecord` fields in the basic mapper where appropriate. :contentReference[oaicite:6]{index=6}
+- Fixed an **“undefined dt”** error path by requiring primary keys on tables before certain migration steps run. :contentReference[oaicite:7]{index=7}
+
+### NocoDB meta-API support & robustness
+
+- Added support for **both NocoDB v2 and v3 meta APIs**, selectable via an **environment variable**, so you can switch between API versions while working around v3 issues. :contentReference[oaicite:8]{index=8}
+- Iterated on the v3 field-creation flow to track and work around an internal NocoDB bug (“Cannot read …” when creating certain `LinkToAnotherRecord` fields). :contentReference[oaicite:9]{index=9}
+- Added **retry logic for formula creation**:
+  - formulas are applied *after* links and lookups have been created;  
+  - failed formulas are retried, then surfaced in a manual-steps report. :contentReference[oaicite:10]{index=10}
+- Improved handling of **Airtable-style inverse link fields** that already contain data, avoiding destructive updates while creating NocoDB relationships. :contentReference[oaicite:11]{index=11}
+- New tooling to **dump a NocoDB schema to JSON** and **compare it to the Airtable `_schema.json`**, making it easier to verify that migration output matches the source base. :contentReference[oaicite:12]{index=12}
+
+### NocoDB automations
+
+- Added an initial **`nocodb_automation/`** package with Node.js handlers that mirror the core Airtable automations (sterilizer, inoculation, spawn to bulk, harvest, packaging, etc.) but talk to NocoDB via its REST API. :contentReference[oaicite:13]{index=13}
+- Brought over the **multi-target inoculation** workflow so you can inoculate multiple targets from a single source in the NocoDB path, matching the behavior already available on Airtable. :contentReference[oaicite:14]{index=14}
+- Ensured that automations remain compatible with existing changes such as:
+  - inoculation from untracked sources;  
+  - `lc_volume_ml` / `target_lot_ids` reset on the source lot;  
+  - Fully-Colonized event history for items moved to Fridge, ColdShock, and Fruiting. :contentReference[oaicite:15]{index=15}
+
+### NocoDB interfaces & Retool
+
+- Introduced **`nocodb_interfaces/`** containing:
+  - scripts to create NocoDB views that approximate the Airtable Interfaces, and  
+  - **Retool how-to documentation** for each interface. :contentReference[oaicite:16]{index=16}
+- Added detailed **interface descriptions** focused on NocoDB/Retool, with enough information to:
+  - recreate Interfaces on a fresh Airtable base, or  
+  - drive equivalent NocoDB views / Retool apps. :contentReference[oaicite:17]{index=17}
+- Updated the **top-level README** to clearly describe the dual path:
+  - Airtable schema + automations + interfaces, and  
+  - NocoDB schema generation, automations, and interfaces / Retool guidance. :contentReference[oaicite:18]{index=18}
+- Added a dedicated **README for `nocodb_interfaces/`** describing the new scripts and their usage (creation of views, Retool glue, and assumptions about the schema).
+
+### Print daemon: NocoDB support
+
+- Extended the **print daemon** so it can **poll NocoDB** in addition to Airtable, still targeting 4×2 thermal labels (e.g., JADENS JD268BT-CA). :contentReference[oaicite:19]{index=19}
+- Kept existing behavior for Airtable intact while wiring in NocoDB connection details via environment variables.
+
+### Documentation & housekeeping
+
+- **Top-level README** rewritten for **combined Airtable/NocoDB support**, including updated repository layout and “how the system hangs together” with both backends. :contentReference[oaicite:20]{index=20}
+- Added / updated READMEs for the new `nocodb_automation` and `nocodb_interfaces` directories with setup and usage notes. :contentReference[oaicite:21]{index=21}
+- Cleaned up INSTALL / README duplication in the root and subdirectories, ensuring Airtable-specific instructions live with the Airtable tooling and NocoDB setup is described alongside the migration scripts. :contentReference[oaicite:22]{index=22}
+- Added extra logging (including timestamps) in migration / casing scripts to make troubleshooting NocoDB migrations easier. :contentReference[oaicite:23]{index=23}
+
 v1.0.2-beta
 
 * Inoculation workflow:
