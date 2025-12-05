@@ -1,78 +1,140 @@
-﻿# NocoDB & Retool Interface Bundle
+﻿# NocoDB Automations
 
-This folder contains:
+This folder contains the Node-based handlers that replace Airtable Automations when running MushroomProcess on NocoDB instead of Airtable.
 
-- **NocoDB creator scripts (Node.js)** – create views that mirror Airtable Interfaces.
-- **Retool how-to text files** – instructions for building matching dashboards in Retool.
+These handlers perform actions equivalent to the Airtable scripts found in `airtable_automation/`, including:
+- Status transitions of substrate/lots
+- Creation of event records
+- Triggering print queue inserts
+- Updating linked records
+- Performing validations and writing error messages
 
-The goal is to approximate the Airtable operator experience (per station) using:
-
-- NocoDB views and filters, plus
-- Retool as a richer frontend when needed.
+They are invoked from NocoDB using **webhook Buttons** or from Retool via REST calls.
 
 ---
 
-## 1. Environment
+## How This Works
 
-All NocoDB scripts here expect the following environment variables:
+### 1. Configure Button Fields in NocoDB
+For each workflow action (e.g. Sterilizer OUT, Spawn to Bulk, Harvest Packaging), you attach a Button column in NocoDB that triggers a webhook.
+
+Example configuration:
+- Type: `Button`
+- Mode: `Webhook remotely`
+- Method: `POST`
+- URL: The endpoint of your automation handler (e.g.: `/automation/spawnToBulk`)
+
+When a user clicks a button in the row interface, the automation handler receives the record ID and performs the operation.
+
+---
+
+## 2. Environment Variables
+
+Automation handlers expect these env variables:
 
 ```bash
-NOCO_BASE_URL=https://your-nocodb-instance.com
-NOCO_PROJECT=mushroom_inventory
-NOCO_TOKEN=YOUR_API_TOKEN
+NOCODB_URL=http://localhost:8080
+NOCODB_TOKEN=your_api_token_here
+NOCODB_API_VERSION=v3
 ```
 
-These must match your NocoDB deployment:
-
-- `NOCO_BASE_URL` – Base URL, e.g. `http://localhost:8080` or your server’s HTTPS URL.
-- `NOCO_PROJECT` – NocoDB project slug containing the MushroomProcess tables.
-- `NOCO_TOKEN` – Personal access token with read/write rights to that project.
-
----
-
-## 2. Running a View-Creator Script
-
-Each `nocodb_create_*_view.js` script creates or updates a NocoDB view for a specific workflow.
-
-Example:
+Optional helpers:
 
 ```bash
-node nocodb_create_spawn_to_bulk_view.js
+LOG_AUTOMATION=true
+STRICT_VALIDATION=true
 ```
 
-Typical responsibilities:
+---
 
-- Create a view on the appropriate table (e.g., `lots`).
-- Apply filters (e.g., only show lots at a particular stage).
-- Define visible columns and default sort orders.
+## 3. Workflow Example
 
-After running a script, check NocoDB’s UI to confirm the view appears as expected.
+### Spawn-to-Bulk Action
+
+When the Spawn-To-Bulk button triggers:
+
+**Payload example**
+```json
+{
+  "recordId": "recXXXXXXXXXXXX",
+  "table": "lots"
+}
+```
+
+The handler will:
+1. Validate state
+2. Create new `events` rows
+3. Update status/action fields
+4. Push a print job to `print_queue`
+
+This is equal to `spawn_to_bulk/actions.js` in Airtable.
 
 ---
 
-## 3. Retool How-To Files
+## 4. File Structure
 
-For each interface, you’ll see corresponding Retool instructions such as:
+```text
+nocodb_automation/
+  spawn_to_bulk.js
+  sterilizer_in.js
+  sterilizer_out.js
+  harvest.js
+  util/
+    noco_client.js
+    logger.js
+    field_map.js
+```
 
-- `Retool_Dark_Room.txt`
-- `Retool_Fruiting.txt`
-- `Retool_Spawn_to_Bulk.txt`
-- etc.
-
-Each document typically covers:
-
-- Which NocoDB API endpoints to use.
-- Suggested layout (tables, forms, buttons).
-- How to bind actions (e.g., PATCH requests to update status, call automation webhooks).
-- Where to surface error messages (analogous to Airtable’s `ui_error`).
-
-Use these notes to rebuild the equivalent of the Airtable Interfaces in Retool, backed by the NocoDB schema.
+### Key roles
+- `noco_client.js` → wraps calls into NocoDB REST API
+- `field_map.js` → maps canonical names → actual DB names
+- `*_actions.js` → each workflow
 
 ---
 
-## 4. Notes
+## 5. Running Locally
 
-- Scripts assume NocoDB v2/v3-style endpoints (e.g. `/api/v2` or `/api/v3`).
-- Field names and filters mirror the Airtable schema as exported to `_schema.json`.
-  - If your NocoDB schema diverges, you may need to tweak field/table names in the scripts.
-- Keep your NocoDB environment variables in sync with the ones used in `nocodb_automation/` and the print daemon.
+```bash
+npm install
+node spawn_to_bulk.js
+```
+
+You should test with a sandbox base before using production.
+
+---
+
+## 6. Deployment Options
+
+Recommended:
+- pm2
+- docker container
+- systemd unit
+- NSSM windows service
+
+Example for pm2:
+
+```bash
+pm2 start sterilizer_out.js --name steri-out
+pm2 start spawn_to_bulk.js --name spawn-bulk
+pm2 save
+```
+
+---
+
+## 7. Comparison with Airtable Automations
+
+| Capability               | Airtable Automations | NocoDB Automations  |
+|-------------------------|----------------------|---------------------|
+| Runs inside UI          | Yes                  | No                  |
+| Trigger sources         | UI buttons/scripts   | Webhook button      |
+| Logs                    | Inline UI logs       | Console/Files        |
+| External API access     | Limited              | Full Node access    |
+| Scheduling              | Limited              | cron/pm2/systemd    |
+
+---
+
+## 8. Notes
+
+- Ensure button fields always send the correct row ID.
+- Use logging during deployment to validate state updates.
+- Keep `print_queue` IDs consistent when switching backends.
