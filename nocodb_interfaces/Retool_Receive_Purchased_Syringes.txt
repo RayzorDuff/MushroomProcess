@@ -1,0 +1,35 @@
+﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Interface Name: Receive Purchased Syringes
+Generated: 2025-11-11 17:05
+Table: lots
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1) Resource
+   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
+   - Header: xc-token: {{ {{ global.noco_token }} }}
+
+2) Query: getData
+   - GET /tables/lots/rows
+   - Optional where JSON:
+{"condition":"AND","children":[{"column_name":"item_category","comparator":"in","value":["lc_syringe_purchased"]}]}
+
+
+   - Transform: return data.list
+
+3) Table
+   - Data: {{ getData.data }}
+   - Visible columns: lot_id, item_name, strain_species_strain, remaining_volume_ml, operator, notes, ui_error
+   - Grouping:
+  - strain_species_strain (asc)
+   - Sorting:
+  None
+
+4) Record Form
+   - Initial data: {{ table1.selectedRow.data }}
+   - Editable fields: lot_id, item_name, strain_species_strain, remaining_volume_ml, operator, notes, ui_error
+
+5) Actions
+  - { "title":"Receive","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"ReceiveSyringe"}]}}
+
+6) Notes
+   Tracks incoming vendor syringes; sets remaining_volume_ml.

@@ -1,0 +1,99 @@
+﻿──────────────────────────────────────────────
+Retool Screen: Inoculate
+──────────────────────────────────────────────
+
+Purpose:
+NocoDB/Retool equivalent of the Airtable "Inoculate" interface.
+Implements source-first multi-target inoculation, including support
+for untracked_source items.
+
+──────────────────────────────────────────────
+
+1. Data Queries
+
+Query: getSourceLots
+  GET /tables/lots/rows
+  where:
+    item_category IN ["lc_flask","lc_syringe","plate","grain","untracked_source"]
+    status        IN ["Sterilized","Sealed","Ready"]
+
+  sort:
+    item_category asc
+    strain_id asc
+    sterilized_at asc
+
+
+Query: getTargetCandidates
+  GET /tables/lots/rows
+  where:
+    item_category IN ["grain","lc_flask","plate"]
+    status        IN ["Sterilized","Sealed","Ready"]
+    lot_id != selectedSourceLot.lot_id
+
+
+Query: updateSourceLot
+  PATCH /tables/lots/rows/{{ selectedSourceLot.id }}
+  Body:
+    {
+      "lc_volume_ml": {{ SourceForm.lc_volume_ml }},
+      "target_lot_ids": {{ TargetTable.selectedRowKeys }},
+      "override_inoc_time": {{ SourceForm.override_inoc_time }},
+      "operator": {{ SourceForm.operator }},
+      "notes": {{ SourceForm.notes }}
+    }
+
+
+Query: triggerInoculate
+  PATCH /tables/lots/rows/{{ selectedSourceLot.id }}
+  { "action": "Inoculate" }
+
+
+──────────────────────────────────────────────
+
+2. Layout
+
+LEFT PANEL — SourceLotsTable
+  - Displays filtered source lots
+  - On select:
+        set selectedSourceLotId
+        run getTargetCandidates
+        update SourceForm with selected row
+
+RIGHT PANEL — SourceForm
+  - lot_id (read only)
+  - item_id (read only)
+  - strain_id (read only)
+  - remaining_volume_ml (read only)
+  - lc_volume_ml (editable)
+  - target_lot_ids via TargetTable selection
+  - override_inoc_time
+  - operator
+  - notes
+        - Required when source.category == "untracked_source"
+  - ui_error (read only)
+  - validation (read only)
+
+TargetLotsTable (multi-select)
+  - Multi-row selection, returns array of target lot ids
+
+Buttons:
+  - Save Selection → calls updateSourceLot
+  - Inoculate Lot → calls triggerInoculate
+
+──────────────────────────────────────────────
+
+3. Behavior (Script-Matched)
+
+- Liquid sources require volume, and must have enough remaining_volume_ml
+- Grain/plate sources cannot have volume > 0
+- Untracked_source requires notes
+- Notes propagated to all targets and cleared on source
+- All targets get:
+    status = Colonizing
+    inoculated_at
+    strain_id copied from source
+    source_lot_id = source
+
+──────────────────────────────────────────────
+End of file
+──────────────────────────────────────────────

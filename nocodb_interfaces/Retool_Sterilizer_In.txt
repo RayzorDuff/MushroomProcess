@@ -1,0 +1,34 @@
+﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Interface Name: Sterilizer In
+Generated: 2025-11-11 17:05
+Table: sterilization_runs
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1) Resource
+   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
+   - Header: xc-token: {{ {{ global.noco_token }} }}
+
+2) Query: getData
+   - GET /tables/sterilization_runs/rows
+   - Optional where JSON:
+None
+
+   - Transform: return data.list
+
+3) Table
+   - Data: {{ getData.data }}
+   - Visible columns: steri_run_id, planned_item, planned_recipe, planned_unit_size, planned_count, process_type, target_temp_c, pressure_mode, start_time, operator, notes, ui_error
+   - Grouping:
+  - process_type (asc)
+   - Sorting:
+  None
+
+4) Record Form
+   - Initial data: {{ table1.selectedRow.data }}
+   - Editable fields: steri_run_id, planned_item, planned_recipe, planned_unit_size, planned_count, process_type, target_temp_c, pressure_mode, start_time, operator, notes, ui_error
+
+5) Actions
+  - { "title":"Start Run","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"StartRun"}]}}
+
+6) Notes
+   Validates planned_count/unit_size/start_time/operator.

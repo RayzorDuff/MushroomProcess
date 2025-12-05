@@ -1,0 +1,34 @@
+﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Interface Name: Landing
+Generated: 2025-11-11 17:05
+Table: lots
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1) Resource
+   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
+   - Header: xc-token: {{ {{ global.noco_token }} }}
+
+2) Query: getData
+   - GET /tables/lots/rows
+   - Optional where JSON:
+None
+
+   - Transform: return data.list
+
+3) Table
+   - Data: {{ getData.data }}
+   - Visible columns: lot_id, item_name, status, strain_species_strain, ui_error
+   - Grouping:
+  None
+   - Sorting:
+  - created_at desc
+
+4) Record Form
+   - Initial data: {{ table1.selectedRow.data }}
+   - Editable fields: lot_id, item_name, status, strain_species_strain, ui_error
+
+5) Actions
+  None
+
+6) Notes
+   Simple landing view; adapt as dashboard in Retool.

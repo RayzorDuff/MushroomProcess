@@ -1,0 +1,35 @@
+﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+Interface Name: Harvest
+Generated: 2025-11-11 17:05
+Table: products
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1) Resource
+   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
+   - Header: xc-token: {{ {{ global.noco_token }} }}
+
+2) Query: getData
+   - GET /tables/products/rows
+   - Optional where JSON:
+{"condition":"AND","children":[{"column_name":"harvest_item_category","comparator":"in","value":["fresh_tray","freezer_tray"]}]}
+
+
+   - Transform: return data.list
+
+3) Table
+   - Data: {{ getData.data }}
+   - Visible columns: product_id, harvest_item, source_block_ids, harvest_weight_g, flush_no, operator, notes, ui_error, tray_state
+   - Grouping:
+  - flush_no (asc)
+   - Sorting:
+  None
+
+4) Record Form
+   - Initial data: {{ table1.selectedRow.data }}
+   - Editable fields: product_id, harvest_item, source_block_ids, harvest_weight_g, flush_no, operator, notes, ui_error, tray_state
+
+5) Actions
+  - { "title":"Harvest","type":"createRow","meta":{"defaults":{"tray_state":"fresh_tray"}}}
+
+6) Notes
+   Creates tray products tied to fruiting blocks; multiple harvests per block supported.
