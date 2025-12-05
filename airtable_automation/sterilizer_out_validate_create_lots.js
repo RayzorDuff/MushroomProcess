@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2025-10-16.1
+ * Version: 2025-12-02.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -96,7 +96,6 @@ if (errs.length) {
   await safeUpdate(runsTbl, run.id, {
     ui_error: errs.join(' '),
     ui_error_at: new Date().toISOString(),
-    create_lots: false,
     action: null
   });
   throw new Error('Sterilizer OUT validation failed.');
@@ -199,7 +198,6 @@ await safeUpdate(runsTbl, run.id, {
   end_time: tsDate,
   ui_error: null,
   ui_error_at: null,
-  create_lots: false,
   action: null
 });
 

@@ -45,6 +45,10 @@ These steps assume you start from an Airtable base that already matches the Mush
 
 1. **Install `airtable-export` from Git** (preferred over `pip`):
 
++
++git clone https://github.com/simonw/airtable-export
+
+
    ```bash
    git clone https://github.com/simonw/airtable-export.git
 
@@ -54,6 +58,10 @@ These steps assume you start from an Airtable base that already matches the Mush
    # ensure the older PyPI package doesn't shadow your local clone
    pip uninstall -y airtable-export
    pip install -e airtable-export
+
+   cd .\airtable-export\
+   pip install setuptools
+   .\setup.py install
    ```
 
 2. **Get your Python location (Windows example):**
@@ -71,6 +79,10 @@ These steps assume you start from an Airtable base that already matches the Mush
      - Per-table `*.json` or `*.ndjson` files (optional data).
 
    Point the output to this folder’s `export/` directory, or move the files there afterward.
+
+   ```bash
+   airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
+   ```
 
 4. **Template / redact `_schema.json` (optional)**
 
@@ -118,7 +130,7 @@ You can also go the other direction: use `_schema.json` to rebuild a fresh Airta
 
 4. **Run your Airtable schema script**
 
-   - Use your script of choice (not included here yet) to:
+   - Use your script of choice (use create_airtable_from_schema.js as a base for developing your own) to:
      - Iterate `_schema.json`
      - Create tables
      - Create fields with correct types, options, and relationships
