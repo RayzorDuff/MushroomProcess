@@ -163,8 +163,7 @@ Ensure this directory structure:
 
 ```text
 airtable_schema/
-  create_nocodb_from_schema.js
-  create_nocodb_relations_and_rollups.js
+  create_nocodb_schema_full.js
   export/
     _schema.json
     lots.json
@@ -186,49 +185,37 @@ $env:NOCODB_RECREATE_ROLLUPS = "true"
 $env:NOCODB_RECREATE_LOOKUPS = "true"
 ```
 
-### 3.3. Pass 1 – Create base tables & primitive columns
+### 3.3. All passes – Create base tables & primitive columns as well as relationships & formulas 
 
 ```powershell
-node .\create_nocodb_from_schema.js > basic_columns.log 2>&1
-```
-
-- This reads `_schema.json` and creates NocoDB tables with basic columns (text, numbers, dates, etc.).
-- After this pass, you should see all tables in NocoDB with primitive columns in place.
-
-### 3.4. Pass 2 – Relationships & formulas
-
-```powershell
-node .\create_nocodb_relations_and_rollups.js > relations_rollups.log 2>&1
+node .\create_nocodb_schema_full.js > full_import.log 2>&1
 ```
 
 This script:
 
 - Parses link-to-record fields from `_schema.json`.
 - Creates relations between tables in NocoDB.
-- Creates appropriate formula columns where possible (e.g., simple computed fields).
+- Creates appropriate formula, rollups, and lookup columns where possible (e.g., simple computed fields).
+
+### 3.4. Compare the AirTable _schema.json with the NocoDB _schema_nocodb.json to identify discrepancies
+
+```powershell
+node .\compare_schemas.js > schema_comparison.log 2>&1
+```
+
+Review the output from compare_schemas.js as well as the direction from the output of create_nocodb_schema_full.js to determine manual modifications necessary.
 
 ---
 
 ## 4. Status & Limitations
 
-From the current `create_nocodb_relations_and_rollups.js` specification:
+From the current `create_nocodb_schema_full.js` specification:
 
-1. **Lookups and Rollups are partially scaffolded**
+1. **Some discrepancies between link columns and created formulas**
 
-   - The script currently focuses on:
-     - Base tables
-     - Primitive columns
-     - Relations
-     - Formulas
-   - Lookup and rollup columns are recognized in `_schema.json`, but automated creation is not fully implemented yet.
-
-2. **No full “relation → lookup → rollup” chains in a single pass**
-
-   - Complex chains like:
-     - `Table A` → link to `Table B`
-     - `Table A` lookup of `Table B` field
-     - `Table A` rollup over that lookup
-   - Are not yet created end-to-end automatically.
+   - Primary keys are added to the schema and are different from Airtable defined keys as NocoDB does not allow LongText primary keys.
+   - NocoDB creates inverse links that sometimes confuse Airtable's pre-created inverse links.
+   - Some functions referencing rollup or lookup fields are not created and must be created manually following the migration.
    - NocoDB’s v3 LTAR (Linked Table And Rollup) metadata is still evolving; scripts expect to be revisited once the API stabilizes.
 
 3. **Data import to NocoDB**
