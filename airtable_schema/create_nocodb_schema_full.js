@@ -377,20 +377,34 @@ if (primaryField) {
       airTable // airtableMaps omitted
     );
 
-    const pkCol = {
-      column_name: primaryField.name,
-      title: primaryField.name,
-      uidt: "Formula",
-      dt: "formula",
-      colOptions: {
+    if (IS_V3) {
+      // For v3 API: use `type` + `options.formula`
+      const pkCol = {
+        column_name: primaryField.name,
+        title: primaryField.name,
+        type: "Formula",
+        options: {
+          formula: translatedFormula,
+        },
+        pk: true,
+      };
+      columnDefs.push(pkCol);
+    } else {
+      // For v2 API: uidt Formula, but underlying DB type must be real
+      const pkCol = {
+        column_name: primaryField.name,
+        title: primaryField.name,
+        uidt: "Formula",
+        dt: "text",                 // <— was "formula"
+        colOptions: {
+          formula: translatedFormula,
+        },
         formula: translatedFormula,
-      },
-      formula: translatedFormula,
-      formula_raw: translatedFormula,
-      pk: true,
-    };
-
-    columnDefs.push(pkCol);
+        formula_raw: translatedFormula,
+        pk: true,
+      };
+      columnDefs.push(pkCol);
+    }
   } else {
       // First field is a “normal” field – map it and mark it as PK.
       let mappedPkCol = mapFieldToNocoColumn_FirstPass(primaryField);
@@ -701,14 +715,14 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   // DATETIME_FORMAT(date, pattern) -> date
   f = f.replace(
     /DATETIME_FORMAT\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
-    '$1'
+    'DATESTR($1)'
   );
 
   // DATEADD(date, n, 'unit') -> date
-  f = f.replace(
-    /DATEADD\s*\(\s*([^,]+)\s*,\s*[^,]+,\s*'[^']*'\s*\)/gi,
-    '$1'
-  );
+  //f = f.replace(
+  //  /DATEADD\s*\(\s*([^,]+)\s*,\s*[^,]+,\s*'[^']*'\s*\)/gi,
+  //  '$1'
+  //);
 
   // SET_TIMEZONE(date, "TZ") -> date
   f = f.replace(
@@ -724,10 +738,10 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   f = f.replace(/\bFALSE\s*\(\s*\)/gi, 'FALSE');
 
   // BLANK() -> ""
-  f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
+  //f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
   // RECORD_ID() -> ""
-  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
+  //f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');
@@ -1017,11 +1031,12 @@ async function createFormulaField({
     };
   } else {
     // v2: uses uidt/dt/colOptions/formula_raw
+    // IMPORTANT: underlying DB type must be something real (e.g. text), not "formula"
     body = {
       title,
       column_name,
       uidt: 'Formula',
-      dt: 'formula',
+      dt: 'text',            // <— was 'formula'
       colOptions: {
         formula: translated,
       },
