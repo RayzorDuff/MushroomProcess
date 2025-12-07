@@ -363,26 +363,35 @@ async function createNocoTableFromAirtableTable_FirstPass(
   //
   // STEP 1: try to use the FIRST Airtable field as the PK.
   //
-  if (primaryField) {
-    if (primaryField.type === "formula") {
-      // First field is a formula – create a Formula PK and preserve the expression.
-      const formula = (primaryField.options && primaryField.options.formula) || "";
+if (primaryField) {
+  if (primaryField.type === "formula") {
+    // First field is a formula – translate it for NocoDB and use it as PK.
+    const rawFormula =
+      (primaryField.options && primaryField.options.formula) || "";
 
-      const pkCol = {
-        column_name: primaryField.name,
-        title: primaryField.name,
-        uidt: "Formula",
-        dt: "formula",
-        colOptions: {
-          formula,
-        },
-        formula,
-        formula_raw: formula,
-        pk: true,
-      };
+    // We only need basic translation (e.g., DATETIME_FORMAT -> DATESTR)
+    // AirtableMaps isn't available here, but that's fine because your PK
+    // formulas don't reference other fields.
+    const translatedFormula = translateAirtableFormulaToNoco(
+      rawFormula,
+      airTable // airtableMaps omitted
+    );
 
-      columnDefs.push(pkCol);
-    } else {
+    const pkCol = {
+      column_name: primaryField.name,
+      title: primaryField.name,
+      uidt: "Formula",
+      dt: "formula",
+      colOptions: {
+        formula: translatedFormula,
+      },
+      formula: translatedFormula,
+      formula_raw: translatedFormula,
+      pk: true,
+    };
+
+    columnDefs.push(pkCol);
+  } else {
       // First field is a “normal” field – map it and mark it as PK.
       let mappedPkCol = mapFieldToNocoColumn_FirstPass(primaryField);
 
@@ -786,6 +795,92 @@ async function createFieldOnTable(tableId, payload) {
 async function deleteFieldById(fieldId) {
   const url = META_FIELD(fieldId);
   return await apiCall('delete', url);
+}
+
+async function renameAutoInverseLinkField({
+  parentNoco,
+  childNoco,
+  linkField,
+  existingChildLinksToParent,
+  newInverseTitle,
+}) {
+  // Ensure fields are up to date
+  await refreshNocoFieldsForTable(childNoco);
+
+  const isLinkToParent = (f) => {
+    const t = fieldType(f);
+    if (t !== "Links" && t !== "LinkToAnotherRecord") return false;
+
+    const opt = f.options || f.colOptions || {};
+    const relatedId =
+      opt.related_table_id ||
+      opt.fk_related_model_id ||
+      opt.fk_relation_id;
+
+    return String(relatedId) === String(parentNoco.id);
+  };
+
+  const linkFieldId = linkField && linkField.id;
+
+  // Candidates: link fields that:
+  //  - point to parentNoco
+  //  - did NOT exist before we created linkField
+  //  - are NOT the primary linkField itself
+  const candidates = (childNoco.fields || []).filter((f) => {
+    if (!isLinkToParent(f)) return false;
+
+    // Skip any link that was already present before we created the primary link
+    if (existingChildLinksToParent && existingChildLinksToParent.has(f.id)) {
+      return false;
+    }
+
+    // Skip the primary field we just created; we never want to rename
+    // the Airtable-named primary link, especially for self-links.
+    if (linkFieldId && f.id === linkFieldId) {
+      return false;
+    }
+
+    return true;
+  });
+
+  if (candidates.length !== 1) {
+    if (candidates.length === 0) {
+      logWarn(
+        `  Could not find auto-inverse link on "${childNoco.title || childNoco.name}" to rename to "${newInverseTitle}".`
+      );
+    } else {
+      logWarn(
+        `  Multiple auto-inverse links found on "${childNoco.title || childNoco.name}" for parent "${parentNoco.title || parentNoco.name}" – not renaming.`
+      );
+    }
+    return;
+  }
+
+  const autoField = candidates[0];
+  const currentTitle =
+    autoField.title || autoField.name || autoField.column_name;
+
+  // Already has the desired name
+  if (currentTitle === newInverseTitle) {
+    return;
+  }
+
+  const payload = {
+    title: newInverseTitle,
+  };
+
+  try {
+    await apiCall("patch", META_FIELD(autoField.id), payload);
+    autoField.title = newInverseTitle;
+
+    logInfo(
+      `  Renamed auto-inverse link "${currentTitle}" on "${childNoco.title || childNoco.name}" to Airtable field name "${newInverseTitle}".`
+    );
+  } catch (err) {
+    logWarn(
+      `  Failed to rename auto-inverse link "${currentTitle}" on "${childNoco.title || childNoco.name}" to "${newInverseTitle}": ${err.message}`
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1242,6 +1337,72 @@ async function createInverseLinkField({
 }
 
 // --------------------------------------------
+// LINK PAIR PRIMARY-SIDE HEURISTICS
+// --------------------------------------------
+
+function isFromStyleLinkName(name) {
+  if (!name) return false;
+  const n = String(name).trim().toLowerCase();
+  return n.startsWith('from ') || n.startsWith('from field:');
+}
+
+function isIdStyleLinkName(name) {
+  if (!name) return false;
+  const n = String(name).trim().toLowerCase();
+  // Treat "*_id" or "id" suffix as more "data-bearing" (e.g. lot_id, product_id)
+  if (/_id$/.test(n)) return true;
+  if (/\sid$/.test(n)) return true;
+  return false;
+}
+
+function hasNumericSuffix(name) {
+  if (!name) return false;
+  // Matches "lots 2", "products 4", etc.
+  return /\s+\d+$/.test(String(name).trim());
+}
+
+/**
+ * Decide which side of an Airtable link pair should be treated as "primary"
+ * when creating the NocoDB LinkToAnotherRecord field.
+ *
+ * Returns the field.id that should be PRIMARY. The other side is secondary.
+ */
+function choosePrimaryFieldIdForLinkPair(atField, inverseField) {
+  if (!inverseField) {
+    return atField.id;
+  }
+
+  const thisName = atField.name || '';
+  const otherName = inverseField.name || '';
+
+  const thisFrom = isFromStyleLinkName(thisName);
+  const otherFrom = isFromStyleLinkName(otherName);
+
+  const thisIdStyle = isIdStyleLinkName(thisName);
+  const otherIdStyle = isIdStyleLinkName(otherName);
+
+  const thisNumeric = hasNumericSuffix(thisName);
+  const otherNumeric = hasNumericSuffix(otherName);
+
+  // 1) Prefer ID-style names (lot_id, product_id, strain_id, etc.)
+  if (thisIdStyle && !otherIdStyle) return atField.id;
+  if (!thisIdStyle && otherIdStyle) return inverseField.id;
+
+  // 2) Prefer names with numeric suffix if the other side is the "base" name
+  //    (e.g. "lots 2" vs "lots").
+  if (thisNumeric && !otherNumeric) return atField.id;
+  if (!thisNumeric && otherNumeric) return inverseField.id;
+
+  // 3) Prefer non-"From" names over "From field: ..." / "From ..."
+  if (!thisFrom && otherFrom) return atField.id;
+  if (thisFrom && !otherFrom) return inverseField.id;
+
+  // 4) Fallback: stable choice based on lexicographically smaller id
+  const pairIds = [atField.id, inverseField.id].sort();
+  return pairIds[0];
+}
+
+// --------------------------------------------
 // LINK HANDLER
 // --------------------------------------------
 
@@ -1275,26 +1436,57 @@ async function ensureLinkForAirtableField({
   // creates the inverse LinkToAnotherRecord field, so if we create a link
   // from *both* sides, NocoDB ends up with duplicate fields like "lots1".
   const inverseId = options.inverseLinkFieldId;
-  if (inverseId) {
-    // Compute a canonical, order-independent pair key (smallest id first)
-    const thisId = atField.id;
-    const pairIds = [thisId, inverseId].sort();
-    const pairKey = pairIds.join('::');
+  let inverseField = null;
+  let isPrimarySide = true;
+  let pairKey = null;
 
+  if (inverseId) {
+    const thisId = atField.id;
+    inverseField =
+      (airtableMaps &&
+        airtableMaps.fieldsById &&
+        airtableMaps.fieldsById[inverseId]) ||
+      null;
+
+    // Decide which side we *want* to treat as primary based on naming
+    const primaryId = inverseField
+      ? choosePrimaryFieldIdForLinkPair(atField, inverseField)
+      : thisId;
+
+    const secondaryId = primaryId === thisId ? inverseId : thisId;
+
+    isPrimarySide = (thisId === primaryId);
+
+    // Canonical pair key (order-independent) for tracking
+    const pairIds = [primaryId, secondaryId].sort();
+    pairKey = pairIds.join("::");
+
+    if (!isPrimarySide) {
+      // Secondary side: we won't create a second LinkToAnotherRecord here.
+      // The primary side will create the relation and we'll rename the
+      // auto-inverse on this table to match this Airtable field name.
+      if (processedAirtableLinkPairs.has(pairKey)) {
+        logInfo(
+          `  Skipping secondary side of link pair "${atField.name}" in "${atTable.name}" (inverse of ${inverseId}) – relation already created and inverse will be renamed.`
+        );
+      } else {
+        logInfo(
+          `  Skipping secondary side of link pair "${atField.name}" in "${atTable.name}" in favor of primary "${inverseField ? inverseField.name : inverseId}".`
+        );
+      }
+      return;
+    }
+
+    // We are on the chosen primary side; only create the relation once.
     if (processedAirtableLinkPairs.has(pairKey)) {
-      // This pair was already handled when we processed the other side.
-      // Skip creating another LinkToAnotherRecord here to avoid duplicates
-      // like "lots1", "ecommerce1", etc.
       logInfo(
-        `  Skipping secondary side of link pair "${atField.name}" in "${atTable.name}" (inverse of ${inverseId}).`
+        `  Link pair for "${atField.name}" in "${atTable.name}" already processed on its primary side; skipping.`
       );
       return;
     }
 
-    // First time we see this pair; mark it as processed so the matching
-    // inverse field won't create a duplicate relation later.
     processedAirtableLinkPairs.add(pairKey);
-  }  
+  }
 
   const targetAtTable = airtableMaps.tablesById[linkedTableId];
   if (!targetAtTable) {
@@ -1352,6 +1544,23 @@ async function ensureLinkForAirtableField({
     return;
   }
   
+  // Snapshot existing child-side links to this parent, so we can identify
+  // which auto-inverse was created after we add the primary link.
+  const existingChildLinksToParent = new Set(
+    (childNoco.fields || [])
+      .filter((f) => {
+        const t = fieldType(f);
+        if (t !== "Links" && t !== "LinkToAnotherRecord") return false;
+        const opt = f.options || f.colOptions || {};
+        const relatedId =
+          opt.related_table_id ||
+          opt.fk_related_model_id ||
+          opt.fk_relation_id;
+        return relatedId === parentNoco.id;
+      })
+      .map((f) => f.id)
+  );
+  
   const existing = (parentNoco.fields || []).find(
     (f) => (f.title || f.name) === atField.name
   );
@@ -1385,6 +1594,20 @@ async function ensureLinkForAirtableField({
     baseTitle: atField.name,
     relationType,
   });
+  
+  // For v3: NocoDB automatically creates the inverse link on childNoco
+  // when we create the link on parentNoco. If this Airtable link had an
+  // inverse side, rename that auto-inverse on childNoco to match the
+  // Airtable field name on the other table (Option B).
+  if (IS_V3 && inverseField && isPrimarySide && linkField) {
+    await renameAutoInverseLinkField({
+      parentNoco,
+      childNoco,
+      linkField,
+      existingChildLinksToParent,
+      newInverseTitle: inverseField.name,
+    });
+  }
 
   if (linkField) {
     await createInverseLinkField({
