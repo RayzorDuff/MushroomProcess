@@ -348,23 +348,78 @@ function mapFieldToNocoColumn_FirstPass(field) {
   return col;
 }
 
-async function createNocoTableFromAirtableTable_FirstPass(ncClient, baseId, airTable) {
+async function createNocoTableFromAirtableTable_FirstPass(
+  ncClient,
+  baseId,
+  airTable
+) {
   const tableName = airTable.name;
   console.log(`\n[INFO] Creating NocoDB table for Airtable table: "${tableName}"`);
 
   const columnDefs = [];
+  const fields = airTable.fields || [];
+  const primaryField = fields[0] || null;
 
-  // Special PK for NocoDB
-  const name = "nocopk";
-  const pkCol = {
-    column_name: name,
-    title: name,
-    uidt: "Number",
-    pk: true
-  };
-  columnDefs.push(pkCol);
+  //
+  // STEP 1: try to use the FIRST Airtable field as the PK.
+  //
+  if (primaryField) {
+    if (primaryField.type === "formula") {
+      // First field is a formula – create a Formula PK and preserve the expression.
+      const formula = (primaryField.options && primaryField.options.formula) || "";
 
-  for (const field of airTable.fields || []) {
+      const pkCol = {
+        column_name: primaryField.name,
+        title: primaryField.name,
+        uidt: "Formula",
+        dt: "formula",
+        colOptions: {
+          formula,
+        },
+        formula,
+        formula_raw: formula,
+        pk: true,
+      };
+
+      columnDefs.push(pkCol);
+    } else {
+      // First field is a “normal” field – map it and mark it as PK.
+      let mappedPkCol = mapFieldToNocoColumn_FirstPass(primaryField);
+
+      // If the mapping returns null (e.g. unsupported type), we’ll fall back below.
+      if (mappedPkCol) {
+        mappedPkCol.pk = true;
+        columnDefs.push(mappedPkCol);
+      }
+    }
+  }
+
+  //
+  // STEP 2: if we *still* don't have a PK (e.g. first field was a link/lookup/rollup),
+  // fall back to the old numeric nocopk behavior.
+  //
+  const hasPk =
+    columnDefs.length > 0 &&
+    columnDefs.some((c) => c.pk === true || c.pk === 1);
+
+  if (!hasPk) {
+    const name = "nocopk";
+    const pkCol = {
+      column_name: name,
+      title: name,
+      uidt: "Number",
+      pk: true,
+    };
+    columnDefs.push(pkCol);
+  }
+
+  //
+  // STEP 3: add the remaining Airtable fields (skipping the one we already used as PK).
+  //
+  for (const field of fields) {
+    // Skip the first field if we already turned it into the PK
+    if (primaryField && field.id === primaryField.id) continue;
+
     let col = mapFieldToNocoColumn_FirstPass(field);
     if (col) {
       columnDefs.push(col);
@@ -385,13 +440,18 @@ async function createNocoTableFromAirtableTable_FirstPass(ncClient, baseId, airT
   };
 
   try {
-    const url = `${NOCODB_URL.replace(/\/+$/, "")}/api/v2/meta/bases/${baseId}/tables`;
+    const url = `${NOCODB_URL.replace(
+      /\/+$/,
+      ""
+    )}/api/v2/meta/bases/${baseId}/tables`;
     console.log(
       `  [DEBUG] Payload for table "${tableName}":`,
       JSON.stringify(payload, null, 2)
     );
     const res = await ncClient.post(url, payload);
-    console.log(`  [OK] Created table "${tableName}" (id: ${res.data?.id || "unknown"})`);
+    console.log(
+      `  [OK] Created table "${tableName}" (id: ${res.data?.id || "unknown"})`
+    );
   } catch (err) {
     console.error(`  [ERROR] Failed to create table "${tableName}"`);
     if (err.response) {
