@@ -136,6 +136,9 @@ const deferredFormulaCreates = [];
 // Track which Airtable link pairs we've already created in NocoDB
 const processedAirtableLinkPairs = new Set();
 
+const nocopkName = 'nocopk';
+const nocohashName = 'nocohash';
+  
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
@@ -361,83 +364,135 @@ async function createNocoTableFromAirtableTable_FirstPass(
   const primaryField = fields[0] || null;
 
   //
-  // STEP 1: try to use the FIRST Airtable field as the PK.
+  // STEP 1: always create a dedicated NocoDB numeric PK.
+  //         This avoids trying to back the primary key with a formula type,
+  //         which is not a real SQL type in Postgres.
   //
-if (primaryField) {
-  if (primaryField.type === "formula") {
-    // First field is a formula – translate it for NocoDB and use it as PK.
-    const rawFormula =
-      (primaryField.options && primaryField.options.formula) || "";
-
-    // We only need basic translation (e.g., DATETIME_FORMAT -> DATESTR)
-    // AirtableMaps isn't available here, but that's fine because your PK
-    // formulas don't reference other fields.
-    const translatedFormula = translateAirtableFormulaToNoco(
-      rawFormula,
-      airTable // airtableMaps omitted
-    );
-
+  if (primaryField) {
+    //
+    // Primary key: dedicated auto-increment numeric column
+    //
     if (IS_V3) {
-      // For v3 API: use `type` + `options.formula`
+      // v3 style PK – AutoNumber
       const pkCol = {
-        column_name: primaryField.name,
-        title: primaryField.name,
-        type: "Formula",
-        options: {
-          formula: translatedFormula,
-        },
+        column_name: nocopkName,
+        title: nocopkName,
+        type: 'AutoNumber',
+        ai: true,
         pk: true,
       };
       columnDefs.push(pkCol);
     } else {
-      // For v2 API: uidt Formula, but underlying DB type must be real
+      // v2 style PK – ID with autoincrement
       const pkCol = {
-        column_name: primaryField.name,
-        title: primaryField.name,
-        uidt: "Formula",
-        dt: "text",                 // <— was "formula"
-        colOptions: {
-          formula: translatedFormula,
-        },
-        formula: translatedFormula,
-        formula_raw: translatedFormula,
+        column_name: nocopkName,
+        title: nocopkName,   
+        uidt: 'ID',
+        dt: 'int8',          // a real DB type behind the scenes
+        ai: true,
         pk: true,
+        nn: true,
       };
       columnDefs.push(pkCol);
     }
-  } else {
-      // First field is a “normal” field – map it and mark it as PK.
-      let mappedPkCol = mapFieldToNocoColumn_FirstPass(primaryField);
 
-      // If the mapping returns null (e.g. unsupported type), we’ll fall back below.
-      if (mappedPkCol) {
-        mappedPkCol.pk = true;
-        columnDefs.push(mappedPkCol);
+    //
+    // Secondary UUID column: auto-generated via gen_random_uuid()
+    //
+    if (IS_V3) {
+      // v3 meta uses `type` + `options` (same pattern as Formula fields)
+      const hashCol = {
+        column_name: nocohashName,
+        title: nocohashName,
+        type: 'SpecificDBType',
+        options: {
+          dbType: 'uuid',                 // Postgres uuid type
+          dbDefaultValue: 'gen_random_uuid()',
+          nn: true,
+          un: true,
+        },
+        description: 'Auto-generated UUID',
+      };
+
+      columnDefs.push(hashCol);
+    } else {
+      // v2 meta style – use uidt/dt + default/nn/un flags
+      const hashCol = {
+        column_name: nocohashName,
+        title: nocohashName,
+        uidt: 'SpecificDBType',
+        dt: 'uuid',
+        dtxp: JSON.stringify({ length: 36 }), // harmless metadata
+        default: 'gen_random_uuid()',
+        nn: true,     // not null
+        un: true,     // unique
+      };
+
+      columnDefs.push(hashCol);
+    }  
+
+    // STEP 2: create concrete Airtable fields.
+    //         The *first* Airtable field becomes the NocoDB "display value"
+    //         (pv=true) instead of the PK. 
+    if (primaryField.type === "formula") {
+      // First field is a formula – translate it for NocoDB and use it as PK.
+      const rawFormula =
+        (primaryField.options && primaryField.options.formula) || "";
+  
+      // We only need basic translation (e.g., DATETIME_FORMAT -> DATESTR)
+      // AirtableMaps isn't available here, but that's fine because your PK
+      // formulas don't reference other fields.
+      const translatedFormula = translateAirtableFormulaToNoco(
+        rawFormula,
+        airTable // airtableMaps omitted
+      );
+  
+      if (IS_V3) {
+        // For v3 API: use `type` + `options.formula`
+        const pkCol = {
+          column_name: primaryField.name,
+          title: primaryField.name,
+          type: "Formula",
+          options: {
+            formula: translatedFormula,
+          },
+          pv: true,
+        };
+        
+        
+        columnDefs.push(pkCol);
+      } else {
+        // For v2 API: uidt Formula, but underlying DB type must be real
+        const pkCol = {
+          column_name: primaryField.name,
+          title: primaryField.name,
+          uidt: "Formula",
+          dt: "text",                 // <— was "formula"
+          colOptions: {
+            formula: translatedFormula,
+          },
+          formula: translatedFormula,
+          formula_raw: translatedFormula,
+          pv: true,
+        };
+        columnDefs.push(pkCol);
       }
+      
+    } else {
+        // First field is a “normal” field – map it and mark it as PK.
+        let mappedPkCol = mapFieldToNocoColumn_FirstPass(primaryField);
+  
+        // If the mapping returns null (e.g. unsupported type), we’ll fall back below.
+        if (mappedPkCol) {
+          mappedPkCol.pv = true;
+          columnDefs.push(mappedPkCol);
+        }    
     }
   }
 
-  //
-  // STEP 2: if we *still* don't have a PK (e.g. first field was a link/lookup/rollup),
-  // fall back to the old numeric nocopk behavior.
-  //
-  const hasPk =
-    columnDefs.length > 0 &&
-    columnDefs.some((c) => c.pk === true || c.pk === 1);
-
-  if (!hasPk) {
-    const name = "nocopk";
-    const pkCol = {
-      column_name: name,
-      title: name,
-      uidt: "Number",
-      pk: true,
-    };
-    columnDefs.push(pkCol);
-  }
 
   //
-  // STEP 3: add the remaining Airtable fields (skipping the one we already used as PK).
+  // STEP 3: add the remaining Airtable fields (skipping the one we already used as PV).
   //
   for (const field of fields) {
     // Skip the first field if we already turned it into the PK
@@ -447,7 +502,7 @@ if (primaryField) {
     if (col) {
       columnDefs.push(col);
     }
-  }
+  }  
 
   if (!columnDefs.length) {
     console.warn(
@@ -741,7 +796,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   //f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
   // RECORD_ID() -> ""
-  //f = f.replace(/RECORD_ID\s*\(\s*\)/gi, '""');
+  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `{${nocohashName}}`);
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');
@@ -989,6 +1044,7 @@ async function createFormulaField({
   airtableMaps,
   atField,
   finalAttempt, // optional, boolean
+  isDisplayValue, // optional, boolean
 }) {
   if (!formula) {
     logWarn(
@@ -1043,6 +1099,12 @@ async function createFormulaField({
       formula: translated,
       formula_raw: translated,
     };
+  }
+  
+  // If this formula corresponds to the first Airtable field, mark it
+  // as the Display Value in NocoDB.
+  if (isDisplayValue) {
+    body.pv = true;
   }
 
   try {
@@ -2487,6 +2549,11 @@ async function processAirtableField({
       }
     }
 
+    const isDisplayValue =
+      atTable.fields &&
+      atTable.fields.length > 0 &&
+      atTable.fields[0].id === atField.id;
+
     await createFormulaField({
       parentTable: parentNoco,
       baseTitle: atField.name,
@@ -2496,6 +2563,7 @@ async function processAirtableField({
       airtableMaps,
       atField,
       finalAttempt: false,
+      isDisplayValue,
     });
 
     return;
@@ -2737,6 +2805,11 @@ async function main() {
         const formula = options.formula;
         if (!formula) continue;
 
+        const isDisplayValue =
+          atTable.fields &&
+          atTable.fields.length > 0 &&
+          atTable.fields[0].id === atField.id;
+
         await createFormulaField({
           parentTable: parentNoco,
           baseTitle: atField.name,
@@ -2746,6 +2819,7 @@ async function main() {
           airtableMaps,
           atField,
           finalAttempt: true,
+          isDisplayValue,
         });
       }
 
