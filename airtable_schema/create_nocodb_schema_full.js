@@ -86,6 +86,8 @@ const IS_V3 =
 
 const IS_V2 = !IS_V3;
 
+console.log(`[INFO] NOCODB_API_VERSION = ${NOCODB_API_VERSION}, IS_V3 = ${IS_V3}, IS_V2 = ${IS_V2}`);
+
 // New env toggles for link / rollup / lookup recreation
 const RECREATE_LINKS = /^true$/i.test(
   process.env.NOCODB_RECREATE_LINKS || ''
@@ -137,7 +139,7 @@ const deferredFormulaCreates = [];
 const processedAirtableLinkPairs = new Set();
 
 const nocopkName = 'nocopk';
-const nocohashName = 'nocohash';
+const nocoUUIDName = 'nocouuid';
   
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
@@ -401,34 +403,34 @@ async function createNocoTableFromAirtableTable_FirstPass(
     //
     if (IS_V3) {
       // v3 meta uses `type` + `options` (same pattern as Formula fields)
-      const hashCol = {
-        column_name: nocohashName,
-        title: nocohashName,
+      const uuidCol = {
+        column_name: nocoUUIDName,
+        title: nocoUUIDName,
         type: 'SpecificDBType',
         options: {
           dbType: 'uuid',                 // Postgres uuid type
-          dbDefaultValue: 'gen_random_uuid()',
+          default_value: 'gen_random_uuid()',
           nn: true,
           un: true,
         },
         description: 'Auto-generated UUID',
       };
 
-      columnDefs.push(hashCol);
+      columnDefs.push(uuidCol);
     } else {
       // v2 meta style – use uidt/dt + default/nn/un flags
-      const hashCol = {
-        column_name: nocohashName,
-        title: nocohashName,
+      const uuidCol = {
+        column_name: nocoUUIDName,
+        title: nocoUUIDName,
         uidt: 'SpecificDBType',
         dt: 'uuid',
         dtxp: JSON.stringify({ length: 36 }), // harmless metadata
-        default: 'gen_random_uuid()',
+        default_value: 'gen_random_uuid()',
         nn: true,     // not null
         un: true,     // unique
       };
 
-      columnDefs.push(hashCol);
+      columnDefs.push(uuidCol);
     }  
 
     // STEP 2: create concrete Airtable fields.
@@ -796,7 +798,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   //f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
   // RECORD_ID() -> ""
-  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `{${nocohashName}}`);
+  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `{${nocoUUIDName}}`);
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');
@@ -1241,36 +1243,44 @@ async function createLinkField({
 
   if (IS_V2) {
     // v2: Links / LinkToAnotherRecord are created as normal columns with
-    //     uidt = 'Links' or 'LinkToAnotherRecord' and colOptions specifying
-    //     the relationship. colOptions uses fk_parent_column_id and
-    //     fk_child_column_id, which must be valid column IDs (typically the
-    //     primary-key columns of the two tables).
-    const parentPk =
-      (parentTable.fields || []).find((c) => c.pk === 1 || c.pk === true) ||
-      (parentTable.fields || []).find((c) => c.pv === 1 || c.pv === true);
-    const childPk =
-      (targetTable.fields || []).find((c) => c.pk === 1 || c.pk === true) ||
-      (targetTable.fields || []).find((c) => c.pv === 1 || c.pv === true);
-
+    //     uidt = 'Links' and colOptions specifying the relationship.
+    // IMPORTANT: always use the *real PK* column (nocopk), never the display value,
+    // otherwise the m2m join table ends up with varchar FKs and we get
+    // "operator does not exist: character varying = integer" errors.
+    const parentPk = (parentTable.fields || []).find(
+      (c) => c.pk === 1 || c.pk === true
+    );
+    const childPk = (targetTable.fields || []).find(
+      (c) => c.pk === 1 || c.pk === true
+    );
+  
+    const parentTitle = parentTable.title || parentTable.name;
+    const targetTitle = targetTable.title || targetTable.name;
+  
     if (!parentPk || !childPk) {
-      const parentTitle = parentTable.title || parentTable.name;
-      const targetTitle = targetTable.title || targetTable.name;
       throw new Error(
-        `Could not find primary keys for link "${title}" on "${parentTitle}" -> "${targetTitle}".`
+        `Could not find *primary key* columns for link "${title}" on "${parentTitle}" -> "${targetTitle}". Make sure nocopk is created as PK.`
       );
     }
-
-    const effectiveType = relType === 'oo' ? 'hm' : relType;
-
+  
+    const effectiveType =
+      relType === 'hm' || relType === 'ho'
+        ? 'hm'
+        : relType === 'mm'
+        ? 'mm'
+        : 'hm';
+  
     body = {
       title,
       column_name,
       uidt: 'Links',
-      parentId: parentPk.id,
-      childId: childPk.id,
+      // v2 expects table IDs here, not column IDs
+      parentId: parentTable.id,
+      childId: targetTable.id,
       type: effectiveType,
       colOptions: {
         type: effectiveType,
+        // These remain column IDs (PKs) for the relation wiring
         fk_parent_column_id: parentPk.id,
         fk_child_column_id: childPk.id,
       },
