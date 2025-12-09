@@ -401,6 +401,9 @@ async function createNocoTableFromAirtableTable_FirstPass(
     //
     // Secondary UUID column: auto-generated via gen_random_uuid()
     //
+    //
+    // Secondary UUID column: auto-generated via gen_random_uuid()
+    //
     if (IS_V3) {
       // v3 meta uses `type` + `options` (same pattern as Formula fields)
       const uuidCol = {
@@ -409,7 +412,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         type: 'SpecificDBType',
         options: {
           dbType: 'uuid',                 // Postgres uuid type
-          default_value: 'gen_random_uuid()',
+          dbDefaultValue: 'gen_random_uuid()', // <-- important key
           nn: true,
           un: true,
         },
@@ -425,13 +428,13 @@ async function createNocoTableFromAirtableTable_FirstPass(
         uidt: 'SpecificDBType',
         dt: 'uuid',
         dtxp: JSON.stringify({ length: 36 }), // harmless metadata
-        default_value: 'gen_random_uuid()',
+        default: 'gen_random_uuid()',         // <-- use `default`, not `default_value`
         nn: true,     // not null
         un: true,     // unique
       };
 
       columnDefs.push(uuidCol);
-    }  
+    }
 
     // STEP 2: create concrete Airtable fields.
     //         The *first* Airtable field becomes the NocoDB "display value"
@@ -798,7 +801,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   //f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
 
   // RECORD_ID() -> ""
-  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `{${nocoUUIDName}}`);
+  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `CONCAT({${nocoUUIDName}}}, "")`);
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');
@@ -1356,12 +1359,14 @@ async function createInverseLinkField({
     return null;
   }
 
+/*
   if (IS_V2) {
     logInfo(
       `  (v2) Skipping explicit inverse link on "${targetTable.title}" – NocoDB creates inverse automatically.`
     );
     return null;
   }
+*/
 
   const baseTitle = `${parentTable.title || parentTable.name}s`;
 
