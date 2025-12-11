@@ -2024,6 +2024,47 @@ async function createRollupField({
     );
     return false;
   }
+  
+  // Detect Airtable chains that NocoDB cannot represent:
+  //   - rollup over a lookup field on another table
+  //   - rollup over another rollup field on another table
+  // NocoDB rollups must aggregate primitive fields (number/date/etc.), not
+  // other computed fields like lookups or rollups.
+  if (
+    targetAtField.type === 'multipleLookupValues' ||
+    targetAtField.type === 'rollup'
+  ) {
+    const msg =
+      `  Rollup "${atField.name}" on "${atTable.name}" aggregates ` +
+      `"${targetAtField.name}" on "${linkedAtTable.name}", which is a ` +
+      `${targetAtField.type} field (lookup/rollup). ` +
+      `NocoDB does not support rollups over lookup/rollup fields on another table. ` +
+      `Consider rolling up a primitive field instead (or materializing this value).`;
+
+    logError(msg);
+
+    // Record in manual rollup descriptions so it shows up in the summary.
+    manualRollupDescriptions.push({
+      table: atTable.name,
+      field: atField.name,
+      reason:
+        'Unsupported chained rollup: target field is lookup/rollup on another table',
+      details: msg,
+    });
+
+    // And in the debug JSON.
+    debugData.failed.rollups.push({
+      table: atTable.name,
+      field: atField.name,
+      reason:
+        'unsupported_chained_rollup_target_is_lookup_or_rollup',
+      linkField: linkField.name,
+      targetField: targetAtField.name,
+    });
+
+    // Skip creating this rollup; NocoDB cannot represent it.
+    return false;
+  }  
 
   const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
   const linkedNoco = findNocoTableForAirtableTable(linkedAtTable, nocoTables);
@@ -2226,6 +2267,41 @@ async function createLookupField({
     logWarn(
       `  Lookup "${atField.name}" references missing fieldIdInLinkedTable="${fieldIdInLinkedTable}".`
     );
+    return false;
+  }
+
+  // Detect Airtable chains that NocoDB cannot represent:
+  //   - lookup of a rollup field on another table
+  // NocoDB lookups can dereference primitive/link fields but not rollups.
+  if (targetAtField.type === 'rollup') {
+    const msg =
+      `  Lookup "${atField.name}" on "${atTable.name}" targets rollup field ` +
+      `"${targetAtField.name}" on "${linkedAtTable.name}". ` +
+      `NocoDB does not support lookups of rollup fields on another table. ` +
+      `Consider materializing this rollup into a normal field in Airtable, ` +
+      `or flattening the dependency.`;
+
+    logError(msg);
+
+    // Record in manual lookup descriptions so you can see it in the summary.
+    manualLookupDescriptions.push({
+      table: atTable.name,
+      field: atField.name,
+      reason:
+        'Unsupported chained lookup: target field is rollup on another table',
+      details: msg,
+    });
+
+    // Also track in debugData.failed.lookups for the JSON debug output.
+    debugData.failed.lookups.push({
+      table: atTable.name,
+      field: atField.name,
+      reason: 'unsupported_chained_lookup_target_is_rollup',
+      linkField: linkField.name,
+      targetField: targetAtField.name,
+    });
+
+    // Skip creating this lookup; NocoDB cannot represent it.
     return false;
   }
 
