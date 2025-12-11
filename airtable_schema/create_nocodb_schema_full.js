@@ -79,6 +79,13 @@ if (!fs.existsSync(SCHEMA_PATH)) {
 const NOCODB_API_VERSION =
   (process.env.NOCODB_API_VERSION || 'v2').toString().toLowerCase();
 
+// Optional per-feature API version for Link creation.
+// If NOCODB_API_VERSION_LINKS is not set, we fall back to NOCODB_API_VERSION.
+const NOCODB_API_VERSION_LINKS =
+  (process.env.NOCODB_API_VERSION_LINKS || NOCODB_API_VERSION)
+    .toString()
+    .toLowerCase();
+
 const IS_V3 =
   NOCODB_API_VERSION === '3' ||
   NOCODB_API_VERSION === 'v3' ||
@@ -86,7 +93,15 @@ const IS_V3 =
 
 const IS_V2 = !IS_V3;
 
+const LINKS_IS_V3 =
+  NOCODB_API_VERSION_LINKS === '3' ||
+  NOCODB_API_VERSION_LINKS === 'v3' ||
+  NOCODB_API_VERSION_LINKS === 'api_v3';
+
+const LINKS_IS_V2 = !LINKS_IS_V3;
+
 console.log(`[INFO] NOCODB_API_VERSION = ${NOCODB_API_VERSION}, IS_V3 = ${IS_V3}, IS_V2 = ${IS_V2}`);
+console.log(`[INFO] NOCODB_API_VERSION_LINKS = ${NOCODB_API_VERSION_LINKS}, LINKS_IS_V3 = ${LINKS_IS_V3}, LINKS_IS_V2 = ${LINKS_IS_V2}`);
 
 // New env toggles for link / rollup / lookup recreation
 const RECREATE_LINKS = /^true$/i.test(
@@ -145,7 +160,9 @@ console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
 console.log(
-  `[INFO] Meta API : ${IS_V2 ? 'v2 (/api/v2/meta)' : 'v3 (/api/v3/meta)'}`
+  `[INFO] Links API: ${
+    LINKS_IS_V2 ? 'v2 (/api/v2/meta)' : 'v3 (/api/v3/meta)'
+  }`
 );
 console.log(`[INFO] Recreate links  : ${RECREATE_LINKS}`);
 console.log(`[INFO] Recreate rollups: ${RECREATE_ROLLUPS}`);
@@ -168,6 +185,20 @@ const META_FIELD = (fieldId) =>
   IS_V2
     ? `${META_PREFIX}/columns/${fieldId}`
     : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/fields/${fieldId}`;
+    
+// Link-specific meta endpoints so we can talk to v3 for links even when the
+// rest of the script uses v2 meta APIs.
+const LINK_META_PREFIX = LINKS_IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
+
+const LINK_META_TABLE_FIELDS = (tableId) =>
+  LINKS_IS_V2
+    ? `${LINK_META_PREFIX}/tables/${tableId}/columns`
+    : `${LINK_META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}/fields`;
+
+const LINK_META_FIELD = (fieldId) =>
+  LINKS_IS_V2
+    ? `${LINK_META_PREFIX}/columns/${fieldId}`
+    : `${LINK_META_PREFIX}/bases/${NOCODB_BASE_ID}/fields/${fieldId}`;    
 
 // --------------------------------------------
 // BASIC LOGGING HELPERS
@@ -401,9 +432,6 @@ async function createNocoTableFromAirtableTable_FirstPass(
     //
     // Secondary UUID column: auto-generated via gen_random_uuid()
     //
-    //
-    // Secondary UUID column: auto-generated via gen_random_uuid()
-    //
     if (IS_V3) {
       // v3 meta uses `type` + `options` (same pattern as Formula fields)
       const uuidCol = {
@@ -412,7 +440,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         type: 'SpecificDBType',
         options: {
           dbType: 'uuid',                 // Postgres uuid type
-          dbDefaultValue: 'gen_random_uuid()', // <-- important key
+          defaultValue: 'gen_random_uuid()',
           nn: true,
           un: true,
         },
@@ -428,7 +456,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         uidt: 'SpecificDBType',
         dt: 'uuid',
         dtxp: JSON.stringify({ length: 36 }), // harmless metadata
-        default: 'gen_random_uuid()',         // <-- use `default`, not `default_value`
+        default: 'gen_random_uuid()',
         nn: true,     // not null
         un: true,     // unique
       };
@@ -866,6 +894,12 @@ async function createFieldOnTable(tableId, payload) {
   return await apiCall('post', url, payload);
 }
 
+// Separate helper for Link fields, allowing a different meta API version.
+async function createFieldOnTableForLinks(tableId, payload) {
+  const url = LINK_META_TABLE_FIELDS(tableId);
+  return await apiCall('post', url, payload);
+}
+
 async function deleteFieldById(fieldId) {
   const url = META_FIELD(fieldId);
   return await apiCall('delete', url);
@@ -946,6 +980,7 @@ async function renameAutoInverseLinkField({
   try {
     await apiCall("patch", META_FIELD(autoField.id), payload);
     autoField.title = newInverseTitle;
+    autoField.column_name = newInverseTitle;
 
     logInfo(
       `  Renamed auto-inverse link "${currentTitle}" on "${childNoco.title || childNoco.name}" to Airtable field name "${newInverseTitle}".`
@@ -1244,7 +1279,7 @@ async function createLinkField({
 
   let body;
 
-  if (IS_V2) {
+  if (LINKS_IS_V2) {
     // v2: Links / LinkToAnotherRecord are created as normal columns with
     //     uidt = 'Links' and colOptions specifying the relationship.
     // IMPORTANT: always use the *real PK* column (nocopk), never the display value,
@@ -1302,7 +1337,7 @@ async function createLinkField({
   }
 
   try {
-    const field = await createFieldOnTable(parentTable.id, body);
+    const field = await createFieldOnTableForLinks(parentTable.id, body);
     parentTable.fields = parentTable.fields || [];
     parentTable.fields.push(field);
 
@@ -1350,7 +1385,7 @@ async function createInverseLinkField({
 }) {
   // For v3, NocoDB automatically manages inverse relations.
   // Creating them manually causes duplicate alias columns like "lotss", "productss", etc.
-  if (IS_V3) {
+  if (LINKS_IS_V3) {
     const parentTitle = parentTable.title || parentTable.name || parentTable.table_name;
     const targetTitle = targetTable.title || targetTable.name || targetTable.table_name;
     logInfo(
@@ -1360,7 +1395,7 @@ async function createInverseLinkField({
   }
 
 /*
-  if (IS_V2) {
+  if (LINKS_IS_V2) {
     logInfo(
       `  (v2) Skipping explicit inverse link on "${targetTable.title}" – NocoDB creates inverse automatically.`
     );
@@ -1691,7 +1726,7 @@ async function ensureLinkForAirtableField({
   // when we create the link on parentNoco. If this Airtable link had an
   // inverse side, rename that auto-inverse on childNoco to match the
   // Airtable field name on the other table (Option B).
-  if (IS_V3 && inverseField && isPrimarySide && linkField) {
+  if (LINKS_IS_V3 && inverseField && isPrimarySide && linkField) {
     await renameAutoInverseLinkField({
       parentNoco,
       childNoco,

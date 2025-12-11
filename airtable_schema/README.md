@@ -179,7 +179,8 @@ $env:NOCODB_BASE_ID   = "p_your_base_id_here"     # from NocoDB UI
 $env:NOCODB_API_TOKEN = "your_api_token_here"     # personal access token
 
 # Optional: help scripts know which metadata to recreate
-$env:NOCODB_API_VERSION      = "v3"
+$env:NOCODB_API_VERSION      = "v2"
+$env:NOCODB_API_VERSION_LINKS= "v3"
 $env:NOCODB_RECREATE_LINKS   = "true"
 $env:NOCODB_RECREATE_ROLLUPS = "true"
 $env:NOCODB_RECREATE_LOOKUPS = "true"
