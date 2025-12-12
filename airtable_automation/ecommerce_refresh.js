@@ -1,6 +1,6 @@
 /**
  *  Script: ecommerce_refresh.js
- *  Version: 2025-11-22.1
+ *  Version: 2025-12-10.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -37,7 +37,7 @@
  *
  *  Products:
  *    - products.use_by, if set, must be NOT expired (>= today).
- *    - products.storage_location != "Shipped".
+ *    - products.storage_location NOT IN ("Shipped", "Expired", "Consumed").
  *
  *  Lots:
  *    - lots.use_by, if set, must be NOT expired (>= today).
@@ -97,7 +97,10 @@ const ECOM_LOTS_FIELD     = 'lots';        // link to lots
 const PROD_ITEM_FIELD    = 'item_id';           // link to items
 const PROD_STRAIN_FIELD  = 'strain_id';         // link to strains
 const PROD_USE_BY_FIELD  = 'use_by';            // date
-const PROD_STORAGE_FIELD = 'storage_location';  // single select, includes "Shipped"
+const PROD_STORAGE_FIELD = 'storage_location';  // single select, includes "Shipped," "Expired," and "Consumed"
+
+// Products in these storage locations are excluded (treated as unavailable)
+const EXCLUDED_STORAGE_LOCATIONS = ['Shipped', 'Expired', 'Consumed'];
 
 // lots fields
 const LOT_ITEM_FIELD    = 'item_id';    // link to items
@@ -270,10 +273,11 @@ try {
       // storage_location is a link to locations (single link)
       // e.g. [{ id: 'rec...', name: 'Shipped' }]
       const storageLinks = prod.getCellValue(PROD_STORAGE_FIELD) || [];
-      const isShipped = storageLinks.some(
-        (link) => (link.name || '').trim() === 'Shipped'
-      );
-      if (isShipped) continue;
+      const isExcludedLocation = storageLinks.some((link) => {
+        const name = (link.name || '').trim();
+        return EXCLUDED_STORAGE_LOCATIONS.includes(name);
+      });
+      if (isExcludedLocation) continue;
 
       productLinks.push({ id: prod.id });
     }

@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2025-12-04.1
+ * Version: 2025-12-12.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -24,7 +24,7 @@
  * - 2025-10-19.3:
  *   - For MoveToFridge, ColdShock, and StartFruiting:
  *     - Ensure a FullyColonized event exists for the lot.
- *     - If missing (and not a vendor LC syringe), set status to FullyColonized
+ *     - If missing, set status to FullyColonized
  *       and log a FullyColonized event before transitioning.
  */
 try {
@@ -111,7 +111,7 @@ try {
 
   /**
    * Ensure that a FullyColonized event exists for this lot.
-   * If not present and this is not a vendor LC syringe, we:
+   * If not present, we:
    *   - set the lot status to FullyColonized (if not already),
    *   - and log a FullyColonized event.
    *
@@ -119,12 +119,6 @@ try {
    * moved to Fridge / Fruiting / ColdShock was considered fully colonized.
    */
   async function ensureFullyColonizedHistoryForTransition() {
-    const isVendorSyringe = (itemCategory === 'lc_syringe');
-    if (isVendorSyringe) {
-      // Do not force FullyColonized status/event for vendor LC syringes.
-      return;
-    }
-
     const typeField = eventsTbl.getField('type');
     const fullyChoice = (typeField.options?.choices || []).find(c => c.name === 'FullyColonized');
     if (!fullyChoice) {
