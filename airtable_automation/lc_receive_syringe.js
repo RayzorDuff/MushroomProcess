@@ -1,6 +1,6 @@
 /**
  * Script: lc_receive_syringe.js
- * Version: 2025-10-16.1
+ * Version: 2025-12-12.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -127,31 +127,11 @@ while (remaining > 0) {
   remaining -= batch;
 }
 
-// ---- Create a Received event per unit (good for traceability) ----
-for (let i = 0; i < createdLotIds.length; i += 50) {
-  const slice = createdLotIds.slice(i, i + 50);
-  await eventsTbl.createRecordsAsync(slice.map(id => {
-    const e = {
-      fields: {
-        lot_id: [{ id }],
-        type: { id: receivedEvt.id },
-        station: 'Receiving',
-        fields_json: JSON.stringify({
-          vendor_name: vendor || null,
-          vendor_batch: vendorBatch || null,
-          unit_volume_ml: unitVol
-        })
-      }
-    };
-    if (tsWritable) e.fields.timestamp = nowIso;
-    return e;
-  }));
-}
-
+// ---- Create a Received event per unit (good for traceability) - This is handled by the dark room handler on action change ----
 // ---- Neutralize the staging row so it won't re-trigger ----
 await lotsTbl.updateRecordAsync(staging.id, {
-  receive_count: 0
-  // If you also set action/flags, clear them here too (e.g., action: null)
+  receive_count: 0,
+  action: "MoveToFridge",
 });
 
 output.set('created_count', createdLotIds.length);

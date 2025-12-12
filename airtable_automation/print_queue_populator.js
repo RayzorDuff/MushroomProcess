@@ -89,6 +89,8 @@ if (eventType === 'Inoculated' || eventType === 'LCInoculate' || eventType === '
   }
 } else if (eventType === 'Spawned' || eventType === 'SpawnedToBulk') {
   labelType = 'Bulk_Created';
+} else if (eventType === 'Received' ) {
+  labelType = 'LC_Syringe_Received';
 }
 if (!labelType) return;
 
