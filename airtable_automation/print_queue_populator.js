@@ -27,6 +27,13 @@ const lotsTbl       = base.getTable('lots');
 const itemsTbl      = base.getTable('items');
 const printQueueTbl = base.getTable('print_queue');
 
+function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 function toName(val) {
   if (val == null) return '';
   if (typeof val === 'string') return val;
@@ -70,10 +77,17 @@ const lotId = lotLink.id;
 let itemCategory = '';
 try {
   const lot = await lotsTbl.selectRecordAsync(lotId);
-  const lotItem = lot?.getCellValue('item_id')?.[0] || null;
-  if (lotItem) {
-    const itemRec = await itemsTbl.selectRecordAsync(lotItem.id);
-    itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
+
+  // Prefer materialized category if present
+  itemCategory = (lot?.getCellValueAsString('item_category_mat') || '').toLowerCase();
+
+  if (!itemCategory) {
+    // fallback to old behavior
+    const lotItem = lot?.getCellValue('item_id')?.[0] || null;
+    if (lotItem) {
+      const itemRec = await itemsTbl.selectRecordAsync(lotItem.id);
+      itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
+    }
   }
 } catch {}
 

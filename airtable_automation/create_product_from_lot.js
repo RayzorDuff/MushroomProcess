@@ -60,6 +60,12 @@ const CONSUME_SOURCE_LOT = true; // set false if you do NOT want to auto-consume
 
 /* ----------------------------- Utilities ------------------------------ */
 function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 function getStr(rec, field) {
   try { return (rec.getCellValueAsString(field) || '').trim(); } catch { return ''; }
 }
@@ -180,8 +186,12 @@ const now = new Date();
 const inocAt  = lot.getCellValue('inoculated_at') || null;
 const spawnAt = lot.getCellValue('spawned_at') || null;
 
-const itemName = getStr(lotItem, 'name').toLowerCase();
-const itemCat  = getStr(lotItem, 'category').toLowerCase();
+const itemNameRaw = getStr(lotItem, 'name');
+const itemCatRaw  = getStr(lotItem, 'category');
+
+const itemName = itemNameRaw.toLowerCase();
+const itemCat  = itemCatRaw.toLowerCase();
+
 const isFreezeDried =
   itemCat === 'freezedriedmushrooms' || itemName.includes('freeze dried');
 
@@ -214,6 +224,15 @@ const createPayload = {
 if (wantsOriginLotIdsJson) createPayload.origin_lot_ids_json = toJSON([lotIdText]);
 if (wantsNetG)  createPayload.net_weight_g  = netG;
 if (wantsNetOz) createPayload.net_weight_oz = netOz;
+
+if (hasField(productsTbl, 'name_mat')) {
+  const v = coerceValueForField(productsTbl, 'name_mat', itemNameRaw);
+  if (v != null) createPayload.name_mat = v;
+}
+if (hasField(productsTbl, 'item_category_mat')) {
+  const v = coerceValueForField(productsTbl, 'item_category_mat', itemCatRaw);
+  if (v != null) createPayload.item_category_mat = v;
+}
 
 let prodId = null;
 try {

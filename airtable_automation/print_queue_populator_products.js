@@ -29,6 +29,13 @@ const itemsTbl      = base.getTable('items');
 const productsTbl   = base.getTable('products');
 const printQueueTbl = base.getTable('print_queue');
 
+function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 function toName(val) {
   if (val == null) return '';
   if (typeof val === 'string') return val;
@@ -67,9 +74,24 @@ if (!productId) throw new Error('Missing input: productId');
 const prod = await productsTbl.selectRecordAsync(productId);
 if (!prod) throw new Error('Product not found');
 
-const cat = (prod.getCellValueAsString('item_category') || '').toLowerCase();
-console.log('Product category : ', cat);
-//const isPack = (cat === 'freezedriedmushrooms' || cat === 'fresh_mushrooms');
+let itemCategory = '';
+try {
+
+  // Prefer materialized category if present
+  itemCategory = (prod?.getCellValueAsString('item_category_mat') || '').toLowerCase();
+
+  if (!itemCategory) {
+    // fallback to old behavior
+    const prodItem = prod?.getCellValue('item_id')?.[0] || null;
+    if (prodItem) {
+      const itemRec = await itemsTbl.selectRecordAsync(prodItem.id);
+      itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
+    }
+  }
+} catch {}
+  
+console.log('Product item category : ', itemCategory);
+//const isPack = (itemCategory === 'freezedriedmushrooms' || itemCategory === 'fresh_mushrooms');
 //if (!isPack) {console.log('found no freezedried');return;}
 
 const labelType = 'Product_Package';

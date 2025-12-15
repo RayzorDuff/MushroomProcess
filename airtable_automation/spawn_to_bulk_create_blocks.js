@@ -81,6 +81,12 @@ const eventsTbl  = base.getTable('events');
 //////////////////////////// UTILITIES /////////////////////////////////////////
 
 function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 function num(val) {
   if (val == null) return null;
   if (typeof val === 'number') return Number.isFinite(val) ? val : null;
@@ -243,11 +249,19 @@ const itemIdToRecordId = async (codes) => {
   const uniq = Array.from(new Set(codes));
   const foundMap = new Map();
   // Fetch items table (single pass) and index by item_id text
-  const all = await itemsTbl.selectRecordsAsync({ fields: ['item_id'] });
+  const all = await itemsTbl.selectRecordsAsync({ fields: ['item_id','name','category'] });
+
   const index = new Map();
+  const codeToId = new Map();
+  const idToMeta = new Map();
+  
   for (const it of all.records) {
     const code = getStr(it, 'item_id');
-    if (code) index.set(code, it.id);
+    if (code) codeToId.set(code, it.id);
+    idToMeta.set(it.id, {
+      name: it.getCellValueAsString('name') || '',
+      category: it.getCellValueAsString('category') || ''
+    });
   }
   for (const code of uniq) {
     foundMap.set(code, index.get(code) || null);
@@ -279,6 +293,19 @@ const makeFields = (i) => {
   // inherit output recipe if staging has one
   const outRecLink = staging.getCellValue('recipe_id');
   if (outRecLink && outRecLink.length) fields.recipe_id = [{ id: outRecLink[0].id }];
+
+  const meta = (itemRecId && idToMeta.get(itemRecId)) || { name:'', category:'' };
+  const itemName = meta.name;
+  const itemCat  = meta.category;
+  
+  if (hasField(lotsTbl, 'item_name_mat')) {
+    const v = coerceValueForField(lotsTbl, 'item_name_mat', itemName);
+    if (v != null) fields.item_name_mat = v;
+  }
+  if (hasField(lotsTbl, 'item_category_mat')) {
+    const v = coerceValueForField(lotsTbl, 'item_category_mat', itemCat);
+    if (v != null) fields.item_category_mat = v;
+  }
 
   // Link inputs on the NEW block (not on parents)
   try { lotsTbl.getField('grain_inputs');     fields.grain_inputs     = grainIds.map(id => ({ id })); } catch {}

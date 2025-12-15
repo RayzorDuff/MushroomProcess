@@ -38,6 +38,8 @@ const eventsTbl   = base.getTable('events');
 //  console.log('events', `${e.id} :: ${e.name} [${e.type}]`);
 //}
 
+function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+
 const block = await lotsTbl.selectRecordAsync(blockLotId);
 if (!block) throw new Error('Fruiting block not found');
 
@@ -57,6 +59,13 @@ if (errs.length) {
 
 // Look up the harvest item's category to seed tray_state
 const itemRec = await itemsTbl.selectRecordAsync(harvestItem.id);
+if (hasField(productsTbl, 'name_mat')) productsTbl; // no-op; just confirms existence
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 const itemCat = itemRec?.getCellValueAsString('category')?.toLowerCase() || '';
 if (!['fresh_tray','freezer_tray'].includes(itemCat)) {
   // allow it but warn on the record; default to freezer_tray to keep the flow moving
@@ -81,6 +90,17 @@ const prodFields = {
   tray_state: { id: trayChoice.id }
 };
 //if (srcStrain) prodFields.strain_id = [{ id: srcStrain.id }]; // remove if you kept Option A strictly lookup-only
+const itemName = itemRec?.getCellValueAsString('name') || '';
+const itemCat  = itemRec?.getCellValueAsString('category') || '';
+
+if (hasField(productsTbl, 'name_mat')) {
+  const v = coerceValueForField(productsTbl, 'name_mat', itemName);
+  if (v != null) prodFields.name_mat = v;
+}
+if (hasField(productsTbl, 'item_category_mat')) {
+  const v = coerceValueForField(productsTbl, 'item_category_mat', itemCat);
+  if (v != null) prodFields.item_category_mat = v;
+}
 
 const [productId] = await productsTbl.createRecordsAsync([{ fields: prodFields }]);
 

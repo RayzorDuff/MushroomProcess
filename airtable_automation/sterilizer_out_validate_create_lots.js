@@ -30,6 +30,12 @@ const eventsTbl = base.getTable('events');
 
 /* ---------- helpers ---------- */
 function hasField(tbl, name){ try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 function fieldType(tbl, name){ try { return tbl.getField(name).type; } catch { return null; } }
 function isLinkField(tbl, name){ return fieldType(tbl, name) === 'multipleRecordLinks'; }
 function num(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
@@ -142,7 +148,25 @@ for (let i = 0; i < goodCount; i++) {
     ...(linkRunOnLot ? { steri_run_id: [{ id: run.id }] } : {})
   };
   if (proc === 'pasteurize' && statusPasteurized) fields.status = { id: statusPasteurized.id };
-  else if (statusSterilized)                      fields.status = { id: statusSterilized.id };
+  else if (statusSterilized) fields.status = { id: statusSterilized.id };
+  
+  const procName = proc === 'pasteurize' ? 'Pasteurize' : 'Sterilize';
+  const itemName = itemRec?.getCellValueAsString('name') || '';
+  const itemCat  = itemRec?.getCellValueAsString('category') || '';
+
+  if (hasField(lotsTbl, 'item_name_mat')) {
+    const v = coerceValueForField(lotsTbl, 'item_name_mat', itemName);
+    if (v != null) fields.item_name_mat = v;
+  }
+  if (hasField(lotsTbl, 'item_category_mat')) {
+    const v = coerceValueForField(lotsTbl, 'item_category_mat', itemCat);
+  if (v != null) fields.item_category_mat = v;
+  }
+  if (hasField(lotsTbl, 'process_type_mat')) {
+    const v = coerceValueForField(lotsTbl, 'process_type_mat', procName);
+    if (v != null) fields.process_type_mat = v;
+  }
+  
   creates.push({ fields });
 }
 const createdLotIds = [];
