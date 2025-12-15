@@ -155,6 +155,8 @@ const processedAirtableLinkPairs = new Set();
 
 const nocopkName = 'nocopk';
 const nocoUUIDName = 'nocouuid';
+const nocoCreatedTime = 'CreatedAt';
+const nocoModifiedTime = 'UpdatedAt';
   
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
@@ -413,6 +415,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         type: 'AutoNumber',
         ai: true,
         pk: true,
+        description: 'Auto-generated Primary Key',
       };
       columnDefs.push(pkCol);
     } else {
@@ -425,6 +428,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         ai: true,
         pk: true,
         nn: true,
+        description: 'Auto-generated Primary Key',
       };
       columnDefs.push(pkCol);
     }
@@ -459,6 +463,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
         default: 'gen_random_uuid()',
         nn: true,     // not null
         un: true,     // unique
+        description: 'Auto-generated UUID',
       };
 
       columnDefs.push(uuidCol);
@@ -802,6 +807,11 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
 
   // DATETIME_FORMAT(date, pattern) -> date
   f = f.replace(
+    /DATETIME_FORMAT\s*\(\s*CREATED_TIME\s*\(\s*\)\s*,\s*(['"])YYMMDD\1\s*\)\s*;?/gi,
+    `RIGHT(CONCAT(YEAR({${nocoCreatedTime}}), ""), 2) + MONTH({${nocoCreatedTime}}) + DAY({${nocoCreatedTime}})`
+  );
+  
+  f = f.replace(
     /DATETIME_FORMAT\s*\(\s*([^,]+)\s*,\s*("[^"]*"|'[^']*')\s*\)/gi,
     'DATESTR($1)'
   );
@@ -818,8 +828,11 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
     '$1'
   );
 
-  // CREATED_TIME() -> NOW()
-  f = f.replace(/CREATED_TIME\s*\(\s*\)/gi, 'NOW()');
+  // CREATED_TIME() -> {CreatedAt}
+  f = f.replace(/CREATED_TIME\s*\(\s*\)/gi, `{${nocoCreatedTime}}`);
+
+  // LAST_MODIFIED_TIME() -> {UpdatedAt}
+  f = f.replace(/LAST_MODIFIED_TIME\s*\(\s*\)/gi, `{${nocoModifiedTime}}`);
 
   // TRUE() / FALSE() -> TRUE / FALSE
   f = f.replace(/\bTRUE\s*\(\s*\)/gi, 'TRUE');
