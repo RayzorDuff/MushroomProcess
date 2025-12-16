@@ -7,6 +7,7 @@
   - recJgSj2nMQhhMQm3
   name: 5lb Pasteurized Coco Coir
   status: Pasteurized
+  sync_to_ecwid: true
 - airtable_createdTime: '2025-11-21T21:53:49.000Z'
   airtable_id: rec3dwVTZ2HA22RjN
   available_from_lots: 0
@@ -16,6 +17,7 @@
   - recM75qospUCh1DQ3
   name: 2lb Sterilized Organic Wheat Millet
   status: Sterilized
+  sync_to_ecwid: true
 - airtable_createdTime: '2025-11-21T21:52:39.000Z'
   airtable_id: recIo7Q8Si74dzuDk
   available_from_lots: 0
@@ -25,6 +27,7 @@
   - recwdBny04rzSGGrO
   name: 2lb Sterilized Wild Bird Seed
   status: Sterilized
+  sync_to_ecwid: true
 - airtable_createdTime: '2025-11-22T02:43:14.000Z'
   airtable_id: recJyn2tt8HX8fIxi
   available_from_lots: 0
@@ -82,6 +85,7 @@
   status: FullyColonized
   strain_id:
   - recxZKdhM1v5Wh51M
+  sync_to_ecwid: true
 - airtable_createdTime: '2025-11-22T02:39:11.000Z'
   airtable_id: recgTNdPtGsE6oyvi
   available_from_lots: 0
@@ -101,3 +105,4 @@
   - recocMHgTLuGMcxPf
   name: 2lb Sterilized Oats
   status: Sterilized
+  sync_to_ecwid: true
