@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2025-12-02.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)

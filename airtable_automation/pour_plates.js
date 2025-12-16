@@ -1,6 +1,6 @@
 /**
  * Script: pour_plates.js
- * Version: 2025-10-31.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -94,7 +94,7 @@ try {
   const plateGroupId = `PLATEGRP-${Date.now()}`;
   
   // Clear errors and action
-  // ? Mark source agar flask as consumed
+  // Mark source agar flask as consumed
   await lotsTbl.updateRecordAsync(sourceLot.id, {
     ui_error: null,
     status: { name: 'Consumed' },

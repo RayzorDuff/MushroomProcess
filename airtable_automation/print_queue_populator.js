@@ -1,6 +1,6 @@
 /**
  * Script: print_queue_populator.js
- * Version: 2025-12-12.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -98,7 +98,7 @@ if (eventType === 'Inoculated' || eventType === 'LCInoculate' || eventType === '
     labelType = 'Grain_Inoculated';
   } else if (itemCategory === 'plate') {
     labelType = 'Plate_Inoculated';
-  } else if (itemCategory === 'flask') {  
+  } else if (itemCategory === 'lc_flask') {  
     labelType = 'LC_Flask_Inoculated';
   }
 } else if (eventType === 'Spawned' || eventType === 'SpawnedToBulk') {
@@ -139,4 +139,3 @@ await printQueueTbl.createRecordAsync({
 });
 
 return;
-

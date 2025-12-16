@@ -1,6 +1,6 @@
 /**
  * Script: lc_receive_syringe.js
- * Version: 2025-12-12.2
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -24,7 +24,19 @@ try {
   const { stagingId } = input.config();
 
   const lotsTbl = base.getTable("lots");
+  const itemsTbl = base.getTable("items");
   const eventsTbl = base.getTable("events");
+  
+  function hasField(tbl, name) {
+    try { tbl.getField(name); return true; } catch { return false; }
+  }
+
+  function coerceValueForField(table, fieldName, valueStr) {
+    if (!valueStr) return null;
+    const f = table.getField(fieldName);
+    if (f.type === "singleSelect") return { name: valueStr };
+    return valueStr; // singleLineText, etc.
+  }  
 
   // Load staging row (this will be updated in-place)
   const staging = await lotsTbl.selectRecordAsync(stagingId);
@@ -103,6 +115,11 @@ try {
   }
 
   // ---- Update staging lot IN-PLACE ----
+  // Load item record for materialized fields (name/category)
+  const itemRec = itemLink ? await itemsTbl.selectRecordAsync(itemLink.id) : null;
+  const itemName = itemRec?.getCellValueAsString("name") || "";
+  const itemCat  = itemRec?.getCellValueAsString("category") || "";  
+
   const lotUpdate = {
     qty: 1,
     status: { id: fridgeChoice.id },
@@ -118,6 +135,16 @@ try {
     // Optional: if you use action to drive UI buttons/automations
     action: moveToFridgeChoice ? { id: moveToFridgeChoice.id } : null,
   };
+  
+  // Materialize item fields (type-safe)
+  if (hasField(lotsTbl, "item_name_mat")) {
+    const v = coerceValueForField(lotsTbl, "item_name_mat", itemName);
+    if (v != null) lotUpdate.item_name_mat = v;
+  }
+  if (hasField(lotsTbl, "item_category_mat")) {
+    const v = coerceValueForField(lotsTbl, "item_category_mat", itemCat);
+    if (v != null) lotUpdate.item_category_mat = v;
+  }  
 
   // Optional date field
   if (recDate) lotUpdate.received_date = recDate;
