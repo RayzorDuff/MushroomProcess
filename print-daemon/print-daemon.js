@@ -312,7 +312,7 @@ function measureTextHeight(doc, text, width, fontName, fontSize, opts = {}) {
   const prevFont = doc._font;
   const prevSize = doc._fontSize;
   doc.font(fontName).fontSize(fontSize);
-  const h = doc.heightOfString(String(text || ''), { width, .opts });
+  const h = doc.heightOfString(String(text || ''), { width, ...opts });
   doc.font(prevFont).fontSize(prevSize);
   return h;
 }
