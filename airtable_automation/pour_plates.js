@@ -1,6 +1,6 @@
 /**
  * Script: pour_plates.js
- * Version: 2025-10-31.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -38,6 +38,13 @@ try {
   //  console.log('events', `${e.id} :: ${e.name} [${e.type}]`);
   //}
 
+  function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+  function coerceValueForField(table, fieldName, valueStr) {
+    if (!valueStr) return null;
+    const f = table.getField(fieldName);
+    if (f.type === 'singleSelect') return { name: valueStr };
+    return valueStr; // singleLineText, etc.
+  }
   const sourceLot = await lotsTbl.selectRecordAsync(sourceLotId);
   if (!sourceLot) throw new Error("Source lot not found");
 
@@ -87,7 +94,7 @@ try {
   const plateGroupId = `PLATEGRP-${Date.now()}`;
   
   // Clear errors and action
-  // ? Mark source agar flask as consumed
+  // Mark source agar flask as consumed
   await lotsTbl.updateRecordAsync(sourceLot.id, {
     ui_error: null,
     status: { name: 'Consumed' },
@@ -98,15 +105,29 @@ try {
   const platesToCreate = [];
 
   for (let i = 0; i < plateCount; i++) {
-    platesToCreate.push({
+    const rec = {
       item_id: [{ id: plateItem.id }],
       recipe_id: [{ id: sourceRecipe.id }],
       parent_lot_id: [{ id: sourceLot.id }],
-      status : { name: sourceStatus },
-      plate_group_id: plateGroupId
-    });
+      status: { name: sourceStatus },
+      plate_group_id: plateGroupId,
+    };
+  
+    const itemName = plateItem?.getCellValueAsString('name') || '';
+    const itemCat  = plateItem?.getCellValueAsString('category') || '';
+  
+    if (hasField(lotsTbl, 'item_name_mat')) {
+      const v = coerceValueForField(lotsTbl, 'item_name_mat', itemName);
+      if (v != null) rec.item_name_mat = v;
+    }
+    if (hasField(lotsTbl, 'item_category_mat')) {
+      const v = coerceValueForField(lotsTbl, 'item_category_mat', itemCat);
+      if (v != null) rec.item_category_mat = v;
+    }
+  
+    platesToCreate.push(rec);
   }
-
+  
   const createdPlateIds = [];
   for (let i = 0; i < platesToCreate.length; i += 50) {
     const batch = await lotsTbl.createRecordsAsync(

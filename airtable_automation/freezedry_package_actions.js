@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-10-16.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -27,6 +27,7 @@ const { productId } = input.config();
 
 const productsTbl = base.getTable('products');
 const eventsTbl   = base.getTable('events');
+const itemsTbl = base.getTable('items');
 
 const src = await productsTbl.selectRecordAsync(productId);
 if (!src) throw new Error('Source product not found');
@@ -37,7 +38,6 @@ const packageItemCategory= (src.getCellValueAsString('package_item_category') ||
 const trayState          = (src.getCellValueAsString('tray_state') || '').toLowerCase();
 const sizeG              = Number(src.getCellValue('package_size_g') ?? NaN);
 const count              = Number(src.getCellValue('package_count') ?? NaN);
-const driedG             = Number(src.getCellValue('dried_weight_g') ?? NaN);
 const useBy              = src.getCellValue('use_by');
 const loc                = src.getCellValue('storage_location')?.[0] || null;
 
@@ -48,8 +48,14 @@ if (!packageItem) errs.push('Select package_item (retail SKU).');
 if (packageItemCategory !== 'freezedriedmushrooms') errs.push('package_item must have category "freezedriedmushrooms".');
 if (!Number.isFinite(sizeG) || sizeG <= 0) errs.push('Set package_size_g to a positive number.');
 if (!Number.isFinite(count) || count < 1) errs.push('Set package_count to 1 or more.');
-if (!Number.isFinite(driedG) || driedG <= 0) errs.push('Enter dried_weight_g before packaging.');
 
+function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
 if (errs.length) {
   await productsTbl.updateRecordAsync(src.id, {
     ui_error: errs.join(' '),
@@ -79,6 +85,8 @@ if (originLinks.length) {
   } catch {}
 }
 
+const itemRec = await itemsTbl.selectRecordAsync(packageItem.id);
+
 // Create finished packaged products
 const batch = [];
 for (let i = 0; i < count; i++) {
@@ -91,6 +99,16 @@ for (let i = 0; i < count; i++) {
     use_by: finalUseBy
   };
   if (loc) f.storage_location = [{ id: loc.id }];
+
+  if (hasField(productsTbl, 'name_mat')) {
+    const v = coerceValueForField(productsTbl, 'name_mat', itemRec.getCellValueAsString('name') || '');
+    if (v != null) f.name_mat = v;
+  }
+  if (hasField(productsTbl, 'item_category_mat')) {
+    const v = coerceValueForField(productsTbl, 'item_category_mat', itemRec.getCellValueAsString('category') || '');
+    if (v != null) f.item_category_mat = v;
+  }
+
   batch.push({ fields: f });
 }
 for (let i = 0; i < batch.length; i += 50) {

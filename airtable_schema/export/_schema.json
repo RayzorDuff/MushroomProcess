@@ -309,6 +309,11 @@
                     "type": "multipleLookupValues"
                 },
                 {
+                    "id": "fldl45lXo0Jr4kQpf",
+                    "name": "name_mat",
+                    "type": "singleLineText"
+                },
+                {
                     "id": "fldELkpWppI7EegBB",
                     "name": "item_category",
                     "options": {
@@ -396,6 +401,11 @@
                     "type": "multipleLookupValues"
                 },
                 {
+                    "id": "fldxEMPeLKGwRCK2M",
+                    "name": "item_category_mat",
+                    "type": "singleLineText"
+                },
+                {
                     "id": "fldYzm8YZpYgYMXcH",
                     "name": "origin_lot_ids_json",
                     "type": "multilineText"
@@ -477,7 +487,7 @@
                         "inverseLinkFieldId": "fldXBYfxu9u1YZp9p",
                         "isReversed": false,
                         "linkedTableId": "tblMB3eUSqLq5Tujy",
-                        "prefersSingleRecordLink": false
+                        "prefersSingleRecordLink": true
                     },
                     "type": "multipleRecordLinks"
                 },
@@ -1181,6 +1191,17 @@
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldazcqL0L0HfNdYf",
+                    "name": "events",
+                    "options": {
+                        "inverseLinkFieldId": "fldrPNBJbRahOoryi",
+                        "isReversed": false,
+                        "linkedTableId": "tblSFVpaC8X07Xyvn",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
                 }
             ],
             "id": "tbl51zhGGDuaL2Sm4",
@@ -1356,6 +1377,11 @@
                         }
                     },
                     "type": "multipleLookupValues"
+                },
+                {
+                    "id": "fldyTUBk7GuOEPJ9t",
+                    "name": "item_name_mat",
+                    "type": "singleLineText"
                 },
                 {
                     "id": "fldwy2yLO6KxK2TZk",
@@ -1888,6 +1914,16 @@
                     "type": "multipleLookupValues"
                 },
                 {
+                    "id": "fldw7DNOwFyj4GoRH",
+                    "name": "item_category_mat",
+                    "type": "singleLineText"
+                },
+                {
+                    "id": "fldqaL8xvhMmM2kSD",
+                    "name": "process_type_mat",
+                    "type": "singleLineText"
+                },
+                {
                     "id": "fldTD39GlgYuKlV8O",
                     "name": "target_lot_ids",
                     "options": {
@@ -2188,14 +2224,6 @@
                 {
                     "id": "fld26lj7zLFP2Hpvj",
                     "name": "total_volume_ml",
-                    "options": {
-                        "precision": 0
-                    },
-                    "type": "number"
-                },
-                {
-                    "id": "fldavbj6D5l6zIY3x",
-                    "name": "receive_count",
                     "options": {
                         "precision": 0
                     },
@@ -2567,35 +2595,17 @@
                     "id": "fldBhj23rWX38hIlP",
                     "name": "fresh_tray_count",
                     "options": {
-                        "fieldIdInLinkedTable": "fldELkpWppI7EegBB",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldZ8sIC8TQHkmB6V",
-                        "referencedFieldIds": [],
-                        "result": {
-                            "options": {
-                                "precision": 0
-                            },
-                            "type": "number"
-                        }
+                        "precision": 0
                     },
-                    "type": "rollup"
+                    "type": "number"
                 },
                 {
                     "id": "fldZrX5TQVeRT3ULV",
                     "name": "frozen_tray_count",
                     "options": {
-                        "fieldIdInLinkedTable": "fldELkpWppI7EegBB",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldZ8sIC8TQHkmB6V",
-                        "referencedFieldIds": [],
-                        "result": {
-                            "options": {
-                                "precision": 0
-                            },
-                            "type": "number"
-                        }
+                        "precision": 0
                     },
-                    "type": "rollup"
+                    "type": "number"
                 },
                 {
                     "id": "fld2msIyGSTSGHX2r",
@@ -2762,6 +2772,11 @@
                                 "color": "greenLight2",
                                 "id": "selzbf1326ADKYbBC",
                                 "name": "Plate_Inoculated"
+                            },
+                            {
+                                "color": "yellowLight2",
+                                "id": "selAl4Csmq08r6n9s",
+                                "name": "LC_Syringe_Received"
                             }
                         ]
                     },
@@ -2771,7 +2786,7 @@
                     "id": "fld0bl7fyxvBw5JLQ",
                     "name": "label_title_lot",
                     "options": {
-                        "formula": "\r\nSWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Plate_Inoculated\", {flda6kMughavpdgSz} & \"\",  \r\n  \"Bulk_Created\", \r\n   {flda6kMughavpdgSz} & \"\",\r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Plate_Inoculated\", {flda6kMughavpdgSz} & \"\",  \r\n  \"Bulk_Created\", {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Syringe_Received\", {flda6kMughavpdgSz} & \"\",\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldWYfrlLWuKStK70",
@@ -2787,7 +2802,7 @@
                     "id": "fldyuV576405KZzeD",
                     "name": "label_subtitle_lot",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb \u2022 \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldWYfrlLWuKStK70",
@@ -2795,7 +2810,9 @@
                             "fldsaZpCoA5zvj5mL",
                             "fldLhJGi06oSX9Ddt",
                             "fldkVMtxjtdRDo6pp",
-                            "fldIs56WzEt6UFLfT"
+                            "fldIs56WzEt6UFLfT",
+                            "fldmvugXRhoPenPoK",
+                            "fldAcRp5Fpqalhkx4"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -2947,9 +2964,10 @@
                     "id": "fldGS78ngOyMeSkBD",
                     "name": "label_proc_line",
                     "options": {
-                        "formula": "IF(\r\n  {fldz6E3EogoO3Uw1E},\r\n  IF(\r\n    LOWER({fldBsxGzIXx2IO9Ts}) = \"pasteurize\",\r\n    \"Pasteurized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\"),\r\n    \"Sterilized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\")\r\n  )\r\n)\r\n",
+                        "formula": "IF({fldHE23rzuT56GoCK},\r\n    \"Received: \" & DATETIME_FORMAT({fldHE23rzuT56GoCK}, \"YYYY-MM-DD\"),\t\r\n  IF({fldz6E3EogoO3Uw1E},\r\n    IF(LOWER({fldBsxGzIXx2IO9Ts}) = \"pasteurize\",\r\n        \"Pasteurized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\"),\r\n        \"Sterilized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\")\r\n    )\r\n  )\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
+                            "fldHE23rzuT56GoCK",
                             "fldz6E3EogoO3Uw1E",
                             "fldBsxGzIXx2IO9Ts"
                         ],
@@ -3687,6 +3705,17 @@
                     "type": "multipleRecordLinks"
                 },
                 {
+                    "id": "fldrPNBJbRahOoryi",
+                    "name": "product_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldazcqL0L0HfNdYf",
+                        "isReversed": false,
+                        "linkedTableId": "tbl51zhGGDuaL2Sm4",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
                     "id": "fldAyohM5oFQlxq0Q",
                     "name": "grain_inputs (from lot_id)",
                     "options": {
@@ -3990,37 +4019,6 @@
                         }
                     },
                     "type": "formula"
-                },
-                {
-                    "id": "fldoRFwzAor8aU3g9",
-                    "name": "event_product_id",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldZ8sIC8TQHkmB6V",
-                        "isValid": true,
-                        "recordLinkFieldId": "fld99g2StSeRBo6KW",
-                        "result": {
-                            "options": {
-                                "isReversed": false,
-                                "prefersSingleRecordLink": false
-                            },
-                            "type": "multipleRecordLinks"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldLneBwMBLrR5U8H",
-                    "name": "event_product_name",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldlaQgdCm0cIPzBk",
-                        "isValid": true,
-                        "recordLinkFieldId": "fld99g2StSeRBo6KW",
-                        "referencedFieldIds": [],
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "rollup"
                 },
                 {
                     "id": "fldLTAkYPWj5ZkDwY",
@@ -4406,7 +4404,7 @@
                         "inverseLinkFieldId": "fldiRbqdGnQcuAsMV",
                         "isReversed": false,
                         "linkedTableId": "tblm263EWB0vsucXc",
-                        "prefersSingleRecordLink": false
+                        "prefersSingleRecordLink": true
                     },
                     "type": "multipleRecordLinks"
                 },
@@ -4787,6 +4785,11 @@
                                 "color": "yellowLight2",
                                 "id": "selPM7MVMnQeUuwyI",
                                 "name": "Plate_Inoculated"
+                            },
+                            {
+                                "color": "orangeLight2",
+                                "id": "selfkBvRPEG5azw5T",
+                                "name": "LC_Syringe_Received"
                             }
                         ]
                     },
@@ -4912,6 +4915,11 @@
                                         "color": "greenLight2",
                                         "id": "selzbf1326ADKYbBC",
                                         "name": "Plate_Inoculated"
+                                    },
+                                    {
+                                        "color": "yellowLight2",
+                                        "id": "selAl4Csmq08r6n9s",
+                                        "name": "LC_Syringe_Received"
                                     }
                                 ]
                             },

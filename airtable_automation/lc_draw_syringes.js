@@ -1,6 +1,6 @@
 /**
  * Script: lc_draw_syringes.js
- * Version: 2025-10-16.1
+ * Version: 2025-12-15.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -33,6 +33,14 @@ const eventsTbl   = base.getTable('events');
 function hasField(tbl, name) {
   try { tbl.getField(name); return true; } catch { return false; }
 }
+
+function coerceValueForField(table, fieldName, valueStr) {
+  if (!valueStr) return null;
+  const f = table.getField(fieldName);
+  if (f.type === 'singleSelect') return { name: valueStr };
+  return valueStr; // singleLineText, etc.
+}
+
 function datePlus(date, {days=0, months=0, years=0}) {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
@@ -82,6 +90,11 @@ if (errs.length) {
   throw new Error('LC – Make Syringes validation failed.');
 }
 
+// ---- Load syringe item record (for materialized product fields)
+const syringeItemRec = syringeItem ? await itemsTbl.selectRecordAsync(syringeItem.id) : null;
+const syringeItemName = syringeItemRec?.getCellValueAsString('name') || '';
+const syringeItemCat  = syringeItemRec?.getCellValueAsString('category') || '';
+
 // ---- Create syringe products
 const nowIso = new Date().toISOString();
 const prodBatch = [];
@@ -97,6 +110,16 @@ for (let i = 0; i < syringeCount; i++) {
   // If you store products' location, copy from flask.location_id (optional)
   const flaskLoc = flask.getCellValue('location_id')?.[0] || null;
   if (storageLocFieldExists && flaskLoc) f.storage_location = [{ id: flaskLoc.id }];
+
+  // Materialize product fields (type-safe)
+  if (hasField(productsTbl, 'name_mat')) {
+    const v = coerceValueForField(productsTbl, 'name_mat', syringeItemName);
+    if (v != null) f.name_mat = v;
+  }
+  if (hasField(productsTbl, 'item_category_mat')) {
+    const v = coerceValueForField(productsTbl, 'item_category_mat', syringeItemCat);
+    if (v != null) f.item_category_mat = v;
+  }
 
   prodBatch.push({ fields: f });
 }
