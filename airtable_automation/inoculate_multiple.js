@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2025-11-18.1
+ * Version: 2025-12-16.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -16,6 +16,8 @@
  *      - total_volume_ml / remaining_volume_ml updated
  *      - source_lot_id linked back to SOURCE lot
  *      - strain_id copied from SOURCE lot
+ *      - vendor_name and vendor_batch copied from SOURCE lot if they are set
+ *      - materialized fields set if they are not already
  *      - notes set from SOURCE notes when using untracked_source
  *
  *  Source remaining_volume_ml is decremented only when the source
@@ -30,6 +32,17 @@
     const lotsTbl   = base.getTable('lots');
     const itemsTbl  = base.getTable('items');
     const eventsTbl = base.getTable('events');
+
+    function hasField(tbl, name) {
+      try { tbl.getField(name); return true; } catch { return false; }
+    }
+
+    function coerceValueForField(table, fieldName, valueStr) {
+      if (!valueStr) return null;
+      const f = table.getField(fieldName);
+      if (f.type === 'singleSelect') return { name: valueStr };
+      return valueStr; // singleLineText, etc.
+    }    
 
     const { lotRecordId } = input.config();
     if (!lotRecordId) throw new Error('Missing lotRecordId');
@@ -88,6 +101,14 @@
     const isUntrackedSource = sourceCategory === 'untracked_source';
 
     const rawSourceNotes = sourceLot.getCellValue('notes') || '';
+
+    // Optional: vendor fields to propagate to targets (if present on source)
+    const sourceVendorName  = hasField(lotsTbl, 'vendor_name')
+      ? (sourceLot.getCellValueAsString?.('vendor_name') || sourceLot.getCellValue('vendor_name') || '')
+      : '';
+    const sourceVendorBatch = hasField(lotsTbl, 'vendor_batch')
+      ? (sourceLot.getCellValueAsString?.('vendor_batch') || sourceLot.getCellValue('vendor_batch') || '')
+      : '';    
 
     // --- Category-specific validation --------------------------------------
     if (isLiquidSource) {
@@ -183,6 +204,28 @@
         remaining_volume_ml: newRemaining,
         source_lot_id: [{ id: sourceLot.id }]
       };
+      
+      // --- Propagate vendor fields from source lot (if set on source) -----
+      if (sourceVendorName && hasField(lotsTbl, 'vendor_name')) {
+        lotUpdates.vendor_name = sourceVendorName;
+      }
+      if (sourceVendorBatch && hasField(lotsTbl, 'vendor_batch')) {
+        lotUpdates.vendor_batch = sourceVendorBatch;
+      }
+
+      // --- Ensure _mat fields are populated on target lots ----------------
+      // (Since we already loaded targetItem, this is cheap and prevents chains.)
+      const targetItemName = targetItem?.getCellValueAsString('name') || '';
+      const targetItemCat  = targetItem?.getCellValueAsString('category') || '';
+
+      if (hasField(lotsTbl, 'item_name_mat')) {
+        const v = coerceValueForField(lotsTbl, 'item_name_mat', targetItemName);
+        if (v != null) lotUpdates.item_name_mat = v;
+      }
+      if (hasField(lotsTbl, 'item_category_mat')) {
+        const v = coerceValueForField(lotsTbl, 'item_category_mat', targetItemCat);
+        if (v != null) lotUpdates.item_category_mat = v;
+      }      
 
       // Strain: propagate from source if present
       if (sourceStrainLink) {
