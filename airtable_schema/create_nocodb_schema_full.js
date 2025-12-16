@@ -808,7 +808,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   // DATETIME_FORMAT(date, pattern) -> date
   f = f.replace(
     /DATETIME_FORMAT\s*\(\s*CREATED_TIME\s*\(\s*\)\s*,\s*(['"])YYMMDD\1\s*\)\s*;?/gi,
-    `RIGHT(CONCAT(YEAR({${nocoCreatedTime}}), ""), 2) + MONTH({${nocoCreatedTime}}) + DAY({${nocoCreatedTime}})`
+    `RIGHT(CONCAT(YEAR({${nocoCreatedTime}}), ""), 2) + MONTH({${nocoCreatedTime}}) + DAY({${nocoCreatedTime}}) `
   );
   
   f = f.replace(
@@ -835,14 +835,35 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   f = f.replace(/LAST_MODIFIED_TIME\s*\(\s*\)/gi, `{${nocoModifiedTime}}`);
 
   // TRUE() / FALSE() -> TRUE / FALSE
-  f = f.replace(/\bTRUE\s*\(\s*\)/gi, 'TRUE');
-  f = f.replace(/\bFALSE\s*\(\s*\)/gi, 'FALSE');
+  //f = f.replace(/\bTRUE\s*\(\s*\)/gi, 'TRUE');
+  //f = f.replace(/\bFALSE\s*\(\s*\)/gi, 'FALSE');
 
   // BLANK() -> ""
-  //f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');
+  // IF({Field}, ...)
+  f = f.replace(
+    /\bIF\s*\(\s*(\{[^}]+\})\s*,/gi,
+    'IF(ISNOTBLANK($1),'
+  );
+  // IF(NOT({Field}), ...)
+  f = f.replace(
+    /\bIF\s*\(\s*NOT\s*\(\s*(\{[^}]+\})\s*\)\s*,/gi,
+    'IF(ISBLANK($1),'
+  );
+  // {Field} == BLANK() or ""
+  f = f.replace(
+    /\b(\{[^}]+\})\s*==?\s*(BLANK\s*\(\s*\)|""|'')/gi,
+    'ISBLANK($1)'
+  );
+  // {Field} != BLANK() or ""
+  f = f.replace(
+    /\b(\{[^}]+\})\s*!=\s*(BLANK\s*\(\s*\)|""|'')/gi,
+    'ISNOTBLANK($1)'
+  );  
+  // Final cleanup: BLANK() → ""
+  f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');  
 
   // RECORD_ID() -> ""
-  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `CONCAT({${nocoUUIDName}}}, "")`);
+  f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `CONCAT({${nocoUUIDName}}, "")`);
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');
