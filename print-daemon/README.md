@@ -30,7 +30,7 @@ Typical folder layout:
 
 ```text
 C:\print-daemon\
-  .env
+  .env.example
   print-daemon.js
   logo.png               # optional, black & white
   SumatraPDF.exe         # optional, portable viewer
@@ -63,23 +63,36 @@ npm install
 
 ## 3. Configuration – `.env`
 
-Create a `.env` file in the daemon folder. Depending on your backend, include:
+Create a `.env` file in the daemon folder (use .env.example as a basis). Depending on your backend, include:
+
+### Backend selector
+
+```dotenv
+# Defaults to "airtable" if omitted
+DB_BACKEND=Airtable   # or: NocoDB
+```
 
 ### Airtable (legacy)
 
 ```dotenv
 AIRTABLE_BASE_ID=appXXXXXXXXXXXXXX
-AIRTABLE_TOKEN=patXXXXXXXXXXXXXX
-AIRTABLE_PRINT_QUEUE_TABLE=print_queue
+AIRTABLE_API_KEY=patXXXXXXXXXXXXXX
+
+PRINT_QUEUE_TABLE=print_queue                 # table ID/slug for print_queue
+STERILIZATION_RUNS_TABLE=sterilization_runs   # table ID/slug for sterilization_runs
+LOTS_TABLE=lots                               # table ID/slug for lots
 PRINTER_NAME=Your Printer Name Here
 ```
 
 ### NocoDB (new)
 
 ```dotenv
-NOCODB_URL=http://your-nocodb-host        # e.g. http://localhost:8080
-NOCODB_API_TOKEN=your_api_token           # NocoDB API token
-NOCODB_QUEUE_TABLE_ID=print_queue         # table ID/slug for print_queue
+NOCODB_URL=http://your-nocodb-host            # e.g. http://localhost:8080
+NOCODB_API_TOKEN=your_api_token               # NocoDB API token
+
+PRINT_QUEUE_TABLE=print_queue                 # table ID/slug for print_queue
+STERILIZATION_RUNS_TABLE=sterilization_runs   # table ID/slug for sterilization_runs
+LOTS_TABLE=lots                               # table ID/slug for lots
 PRINTER_NAME=Your Printer Name Here
 ```
 
@@ -107,6 +120,18 @@ The script:
   - Generates a label PDF (optionally embedding `logo.png` and a QR code).
   - Sends it to the configured printer.
   - Updates the row to `Printed` or `Error` (and writes `error_msg`, `pdf_path` as appropriate).
+  
+  - Generates a label PDF (optionally embedding `logo.png` and a QR code).
+
+- For print jobs where `source_kind = "product"`:
+  - The daemon always prints the normal label (the same 4×2 product label as before).
+  - If `label_companyinfo_prod (from product_id)` is present (non-blank), the daemon prints a **second 4×2 label** immediately after the first.
+
+- The second label includes any of the following fields that are defined:
+  - `label_companyaddress_prod (from product_id)`
+  - `label_companyinfo_prod (from product_id)`
+  - `label_disclaimer_prod (from product_id)`
+  - `label_cottage_prod (from product_id)`
 
 Leave this process running in a console, or convert it to a Windows service (see below).
 
@@ -148,9 +173,6 @@ The PowerShell helpers offer a “plug-and-play” service setup (assuming [NSSM
 - **DONE:**
   - The daemon can pull print jobs from NocoDB instead of Airtable.
   - It updates `print_status`, `error_msg`, and `pdf_path` directly in NocoDB.
-
-- **TODO:**
-  - Some sterilizer-run / lot printing paths may still use Airtable for the “Steri Sheet” and will be migrated later.
 
 To switch modes:
 
