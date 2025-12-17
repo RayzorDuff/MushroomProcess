@@ -976,7 +976,7 @@
                     "id": "fldg5EftGwMNxsvTV",
                     "name": "label_companyaddress_prod",
                     "options": {
-                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBuinessAddressAndContact"),\r\n\"MyBuinessAddressAndContact\")",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBuinessAddressAndContact\"),\r\n\"MyBuinessAddressAndContact\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldIC7hRmODZ0X3p0",
