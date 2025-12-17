@@ -1,7 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * create_nocodb_schema_full.js
+ * Script: create_nocodb_schema_full.js
+ * Version: 2025-12-17.1
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * =============================================================================
  *
  * Combined first-pass + second-pass migration script:
  *   - Creates NocoDB tables & primitive fields from Airtable schema (_schema.json)
@@ -3005,6 +3022,48 @@ async function main() {
         await refreshNocoFieldsForTable(t);
       }
     }
+
+    // Final lookup fixup: ensure any Airtable lookups whose target columns
+    // were created in the final formula phase now exist in NocoDB.
+    logInfo("FINAL PHASE: Ensuring all remaining Airtable lookups exist in NocoDB.");
+    nocoTables = await fetchNocoTablesWithFields();
+
+    for (const atTable of schema.tables || []) {
+      const parentNoco = findNocoTableForAirtableTable(atTable, nocoTables);
+      if (!parentNoco) continue;
+
+      await refreshNocoFieldsForTable(parentNoco);
+
+      for (const atField of atTable.fields || []) {
+        if (atField.type !== 'multipleLookupValues') {
+          continue;
+        }
+
+        const existing = (parentNoco.fields || []).find(
+          (f) => (f.title || f.name) === atField.name
+        );
+        const existingType = existing ? fieldType(existing) : null;
+
+        // If the lookup already exists, skip it.
+        if (existing && (existingType === 'Lookup' || existingType === 'LookupField')) {
+          continue;
+        }
+
+        // Try to create the lookup now that all formulas/relations exist.
+        await createLookupField({
+          atTable,
+          atField,
+          airtableMaps,
+          nocoTables,
+        });
+
+        // Refresh in case we just added a field.
+        await refreshNocoFieldsForTable(parentNoco);
+      }
+    }
+
+    await stabilize("final lookup fixup");
+    nocoTables = await fetchNocoTablesWithFields();
 
     // Export final NocoDB schema snapshot for comparison with Airtable _schema.json
     writeNocoSchemaExport(nocoTables);
