@@ -1,4 +1,7 @@
-/** print-daemon-nocodb.js (NocoDB or Airtable backed print_queue, steri_sheet and lots updates)
+/**
+ * Script: print-daemon.js
+ * Version: 2025-12-17.1
+ * Summary: NocoDB or Airtable backed print_queue, steri_sheet and lots updates
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
  * Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -309,11 +312,15 @@ function selectLogoPath(company) {
 
 // Measure how tall text would be at fontName+fontSize within width
 function measureTextHeight(doc, text, width, fontName, fontSize, opts = {}) {
-  const prevFont = doc._font;
+  // NOTE: doc._font is an internal font object; passing it to doc.font(...)
+  // causes: "Not a supported font format or standard PDF font."
+  // So we restore using a standard font name (best-effort).
+  const prevFontName =
+    (doc._font && (doc._font.name || doc._font.postscriptName)) || 'Helvetica';
   const prevSize = doc._fontSize;
   doc.font(fontName).fontSize(fontSize);
   const h = doc.heightOfString(String(text || ''), { width, ...opts });
-  doc.font(prevFont).fontSize(prevSize);
+  doc.font(prevFontName).fontSize(prevSize);
   return h;
 }
 
@@ -473,6 +480,114 @@ async function renderLabelPDF(outPath, rec) {
       PAGE_H - M - QR_SIZE_PT,
       { width: QR_SIZE_PT, height: QR_SIZE_PT }
     );
+  }
+
+  doc.end();
+
+  await new Promise((res, rej) => {
+    stream.on('finish', res);
+    stream.on('error', rej);
+  });
+}
+
+/* ---------- Render product info/disclaimer label (2nd label) ---------- */
+async function renderProductInfoLabelPDF(outPath, rec) {
+  const L = gatherFields(rec);
+  if (L.kind !== 'product') return;
+  
+  const company = L.company || '';
+
+  const doc = new PDFDocument({
+    size: [PAGE_W, PAGE_H],
+    margins: { top: M, left: M, right: M, bottom: M },
+  });
+
+  const stream = fs.createWriteStream(outPath);
+  doc.pipe(stream);
+
+  if (DRAW_BORDER) {
+    doc.save();
+    doc
+      .lineWidth(0.7)
+      .rect(0.5, 0.5, PAGE_W - 1, PAGE_H - 1)
+      .stroke();
+    doc.restore();
+  }
+
+  const contentWidth = PAGE_W - 2 * M;
+  const contentHeight = PAGE_H - 2 * M;
+  let y = M;
+
+  // Layout:
+  //   Row 1 (two columns):
+  //     Left: company + address
+  //     Right: company info
+  //   Below (full width): cottage + disclaimer (if present)
+
+  const leftText = [company, L.companyAddr].filter((v) => String(v || '').trim()).join('\n');
+  const rightText = String(L.companyInfo || '').trim();
+
+  const bottomParts = [L.cottage, L.disclaimer].filter((v) => String(v || '').trim());
+  const bottomText = bottomParts.join('\n\n');
+
+  // Column geometry
+  const colGap = 8;
+  const leftW = Math.floor((contentWidth - colGap) * 0.48);
+  const rightW = contentWidth - colGap - leftW;
+  const leftX = M;
+  const rightX = M + leftW + colGap;
+
+  // Reserve some space for the bottom block if it exists
+  const reservedBottomH = bottomText ? Math.floor(contentHeight * 0.45) : 0;
+  const topMaxH = Math.max(20, contentHeight - reservedBottomH);
+
+  // Fit font size helper (choose size so the text fits max height)
+  function fitFontSize(txt, w, fontName, maxFont, minFont, maxH) {
+    if (!txt) return maxFont;
+    let size = maxFont;
+    while (size > minFont) {
+      const h = measureTextHeight(doc, txt, w, fontName, size, { lineGap: 1, paragraphGap: 2 });
+      if (h <= maxH) break;
+      size -= 0.5;
+    }
+    return size;
+  }
+
+  // Top row: shrink both columns as needed to fit topMaxH
+  const leftFont = fitFontSize(leftText, leftW, 'Helvetica-Bold', 9, 4.5, topMaxH);
+  const rightFont = fitFontSize(rightText, rightW, 'Helvetica', 8, 4.5, topMaxH);
+
+  // Draw left column (company + address)
+  if (leftText) {
+    doc.font('Helvetica-Bold').fontSize(leftFont);
+    doc.text(leftText, leftX, y, { width: leftW, lineGap: 1, paragraphGap: 2 });
+  }
+
+  // Draw right column (company info)
+  if (rightText) {
+    doc.font('Helvetica-Bold').fontSize(rightFont);
+    doc.text(rightText, rightX, y, { width: rightW, lineGap: 1, paragraphGap: 2 });
+  }
+
+  // Advance y by the larger of the two rendered heights
+  const leftH = leftText
+    ? doc.heightOfString(leftText, { width: leftW, lineGap: 1, paragraphGap: 2 })
+    : 0;
+  const rightH = rightText
+    ? doc.heightOfString(rightText, { width: rightW, lineGap: 1, paragraphGap: 2 })
+    : 0;
+  y += Math.max(leftH, rightH) + 6;
+
+  // Bottom full-width blocks (cottage + disclaimer)
+  if (bottomText) {
+    const remainingH = Math.max(10, (PAGE_H - M) - y);
+    drawBlock(doc, bottomText, M, y, contentWidth, 'Helvetica-Bold', {
+      maxFont: 7.5,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 3,
+      maxHeight: remainingH,
+    });
   }
 
   doc.end();
@@ -958,9 +1073,37 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
 
     const ok = await printLabelPdfWithFallback(out);
     if (!ok) throw new Error('Label print failed');
+    
+    console.log(`[OK] Label rendered (${kind}) → ${out}`);
+    
+    // --- Product-only: print second info label if companyInfo is present ---
+    const gathered = gatherFields(rec);
+    if (
+      gathered.kind === 'product' &&
+      String(gathered.companyInfo || '').trim()
+    ) {
+      // small driver delay between two prints, just like between jobs
+      await new Promise((resolve) =>
+        setTimeout(resolve, PRINT_DRIVER_DELAY)
+      );
+
+      const out2 = path.join(
+        archiveDir,
+        `label_info_${timestamp}_${id}.pdf`
+      );
+
+      await renderProductInfoLabelPDF(out2, rec);
+
+      // We intentionally do NOT overwrite pdf_path; primary label remains the canonical path.
+      const ok2 = await printLabelPdfWithFallback(out2);
+      if (!ok2) throw new Error('Product info label print failed');
+      
+      console.log(`[OK] Info Label rendered (${kind}) → ${out}`);
+      
+    }
 
     await markStatus(id, 'Printed', null);
-    console.log(`[OK] Lot label rendered → ${out}`);
+    
   } catch (err) {
     const msg = err?.message || String(err);
     await markStatus(id, 'Error', msg);

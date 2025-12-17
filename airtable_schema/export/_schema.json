@@ -406,11 +406,6 @@
                     "type": "singleLineText"
                 },
                 {
-                    "id": "fldYzm8YZpYgYMXcH",
-                    "name": "origin_lot_ids_json",
-                    "type": "multilineText"
-                },
-                {
                     "id": "fld4otBJtSaXoaCa4",
                     "name": "net_weight_g",
                     "options": {
@@ -460,25 +455,17 @@
                     "id": "fldd1njLVghnzCL7z",
                     "name": "public_link",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)\r\n",
+                        "formula": "IF(\r\n  OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)\r\n",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldyTHxlQx1gW7fAS",
-                            "fldE0GGqhKjV8kVqh"
+                            "fldxEMPeLKGwRCK2M",
+                            "fldIC7hRmODZ0X3p0"
                         ],
                         "result": {
                             "type": "singleLineText"
                         }
                     },
                     "type": "formula"
-                },
-                {
-                    "id": "fldifNzXUhh7SJbN5",
-                    "name": "dried_weight_g",
-                    "options": {
-                        "precision": 2
-                    },
-                    "type": "number"
                 },
                 {
                     "id": "fldP4Z6zvyPoVHTdC",
@@ -716,6 +703,35 @@
                     "type": "multipleLookupValues"
                 },
                 {
+                    "id": "fldmasAoE3hLznq9h",
+                    "name": "unit_lbs",
+                    "options": {
+                        "fieldIdInLinkedTable": "fld8k2F3ce0fx7yCq",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
+                    "id": "fld9C9D8M5WM00MEz",
+                    "name": "unit_size",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldPTVqPGEOa6aubh",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
+                        "result": {
+                            "options": {
+                                "precision": 2
+                            },
+                            "type": "number"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
                     "id": "fld3kzM8siqsRjT2I",
                     "name": "package_size_g",
                     "options": {
@@ -762,6 +778,11 @@
                     "type": "singleSelect"
                 },
                 {
+                    "id": "fldYzm8YZpYgYMXcH",
+                    "name": "origin_lot_ids_json",
+                    "type": "multilineText"
+                },
+                {
                     "id": "fldZKlmLflBlJOIri",
                     "name": "origin_lots",
                     "options": {
@@ -771,6 +792,23 @@
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldIC7hRmODZ0X3p0",
+                    "name": "origin_strain_regulated",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldOypOvF1UFyVo6v",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
+                        "result": {
+                            "options": {
+                                "color": "greenBright",
+                                "icon": "check"
+                            },
+                            "type": "checkbox"
+                        }
+                    },
+                    "type": "multipleLookupValues"
                 },
                 {
                     "id": "fldzea0ooNE7mFCRk",
@@ -919,68 +957,14 @@
                     "type": "singleSelect"
                 },
                 {
-                    "id": "fldyTHxlQx1gW7fAS",
-                    "name": "product_category",
-                    "options": {
-                        "choices": [
-                            {
-                                "color": "blueLight2",
-                                "id": "selt46LFTj2hXPskv",
-                                "name": "freezedriedmushrooms"
-                            },
-                            {
-                                "color": "cyanLight2",
-                                "id": "selVZeb6hXygzSVdW",
-                                "name": "freshmushrooms"
-                            }
-                        ]
-                    },
-                    "type": "singleSelect"
-                },
-                {
-                    "id": "fldIC7hRmODZ0X3p0",
-                    "name": "origin_strain_regulated",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldOypOvF1UFyVo6v",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
-                        "result": {
-                            "options": {
-                                "color": "greenBright",
-                                "icon": "check"
-                            },
-                            "type": "checkbox"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldE0GGqhKjV8kVqh",
-                    "name": "origin_regulated_any",
-                    "options": {
-                        "formula": "MAX({fldIC7hRmODZ0X3p0})",
-                        "isValid": true,
-                        "referencedFieldIds": [
-                            "fldIC7hRmODZ0X3p0"
-                        ],
-                        "result": {
-                            "options": {
-                                "precision": 0
-                            },
-                            "type": "number"
-                        }
-                    },
-                    "type": "formula"
-                },
-                {
                     "id": "fldaL52TEAxGFC82t",
                     "name": "label_company_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldELkpWppI7EegBB} = \"freezedriedmushrooms\",\r\n    {fldELkpWppI7EegBB} = \"fresh_mushrooms\",\r\n    {fldELkpWppI7EegBB} = \"freezer_tray\",\r\n    {fldELkpWppI7EegBB} = \"fresh_tray\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}=TRUE(), \"Regulated Business\", \"My Business\"),\r\n  \"My Business\"\r\n)",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"Regulated Business\", \r\n  \"My Business\"),\r\n\"My Business\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldELkpWppI7EegBB",
-                            "fldIC7hRmODZ0X3p0"
+                            "fldIC7hRmODZ0X3p0",
+                            "fldxEMPeLKGwRCK2M"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -992,11 +976,11 @@
                     "id": "fldg5EftGwMNxsvTV",
                     "name": "label_companyaddress_prod",
                     "options": {
-                        "formula": "IF(\r\n  OR(\r\n    {fldyTHxlQx1gW7fAS} = \"freezedriedmushrooms\",\r\n    {fldyTHxlQx1gW7fAS} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldE0GGqhKjV8kVqh}=1, \"RegulatedBusinessAddressAndContact\\nhttps://www.regulatedbusiness.com/\", \"MyBuinessAddressAndContact\\nhttps://www.mybusiness.com\"),\r\n  \"MyBuinessAddressAndContact\\nhttps://www.mybusiness.com\")\r\n",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBuinessAddressAndContact"),\r\n\"MyBuinessAddressAndContact\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldyTHxlQx1gW7fAS",
-                            "fldE0GGqhKjV8kVqh"
+                            "fldIC7hRmODZ0X3p0",
+                            "fldxEMPeLKGwRCK2M"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -1008,10 +992,11 @@
                     "id": "fldGTtEvHqgc1mtN8",
                     "name": "label_disclaimer_prod",
                     "options": {
-                        "formula": "IF({fldIC7hRmODZ0X3p0}=TRUE(), \r\n\"WARNING: Mature Psilocybe Cubensis fruiting bodies (mushrooms) contain psilocybin and may be illegal in some states.  Psilocybin is a Schedule I substance under the Controlled Substances Act.\", \r\n\"\")",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fruitingblock\"\r\n  ), \"\", \r\n  \"Disclaimer: Psilocybin is classified as a Schedule I controlled substance by the U.S. Drug Enforcement Administration (DEA). Unauthorized cultivation, possession, or distribution of psilocybin-containing mushrooms is illegal in most states. It is the responsibility of the buyer to research and comply with all local, state, and federal laws regarding mushroom cultivation. Please consult your local laws carefully before any attempt to grow mushrooms, as penalties for non-compliance can be significant.\"),\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldIC7hRmODZ0X3p0"
+                            "fldIC7hRmODZ0X3p0",
+                            "fldxEMPeLKGwRCK2M"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -1023,9 +1008,28 @@
                     "id": "fldbYsRjHg1jGj8je",
                     "name": "label_companyinfo_prod",
                     "options": {
-                        "formula": "\"MyBusinessOffering\"\r\n",
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"MyBusinessOffering\",\"\")\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fruiting_block\"\r\n  ), \"MyBusinessOffering\",\"\")\r\n)",
                         "isValid": true,
-                        "referencedFieldIds": [],
+                        "referencedFieldIds": [
+                            "fldIC7hRmODZ0X3p0",
+                            "fldxEMPeLKGwRCK2M"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "formula"
+                },
+                {
+                    "id": "fldFCJLIvGu2qVbeZ",
+                    "name": "label_cottage_prod",
+                    "options": {
+                        "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\"\")\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\"\")\r\n)",
+                        "isValid": true,
+                        "referencedFieldIds": [
+                            "fldIC7hRmODZ0X3p0",
+                            "fldxEMPeLKGwRCK2M"
+                        ],
                         "result": {
                             "type": "singleLineText"
                         }
@@ -1036,11 +1040,11 @@
                     "id": "fldBnCTkqhW0JDDd9",
                     "name": "label_title_prod",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    {fld9UNkz7HeovZ2df} & \" Grain\",       \r\n  \"substrate\",\r\n    {fld9UNkz7HeovZ2df} & \" Substrate\",\r\n  \"fruiting_block\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"lc_syringe\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"freezedriedmushrooms\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"freezer_tray\",\r\n    {fld9UNkz7HeovZ2df},    \r\n  \"fresh_tray\",\r\n    {fld9UNkz7HeovZ2df},     \r\n  \"fresh_mushrooms\", \r\n    {fld9UNkz7HeovZ2df},   \r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",               {fldl45lXo0Jr4kQpf} & \" Grain\",\r\n  \"substrate\",           {fldl45lXo0Jr4kQpf} & \" Substrate\",\r\n  \"fruiting_block\",      {fldl45lXo0Jr4kQpf},\r\n  \"lc_syringe\",          {fldl45lXo0Jr4kQpf},\r\n  \"freezedriedmushrooms\",{fldl45lXo0Jr4kQpf},\r\n  \"freezer_tray\",        {fldl45lXo0Jr4kQpf},\r\n  \"fresh_tray\",          {fldl45lXo0Jr4kQpf},\r\n  \"fresh_mushrooms\",     {fldl45lXo0Jr4kQpf},\r\n  \"\"\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldELkpWppI7EegBB",
-                            "fld9UNkz7HeovZ2df"
+                            "fldxEMPeLKGwRCK2M",
+                            "fldl45lXo0Jr4kQpf"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -1052,10 +1056,10 @@
                     "id": "fldzfOifL6FVKrVed",
                     "name": "label_subtitle_prod",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Grain\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Substrate\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \",\" \") & {fld0vFWc649maA7Vj} & \" Fruiting Block\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL \u2022 \", \"\")  & {fld0vFWc649maA7Vj}  & \" LC Syringe\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freeze Dried Mushrooms\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freezer Tray\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Fresh Tray\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Mushrooms\", \r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Grain\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \" & {fldCaAC0GQ4HQdkRw} & \"d Substrate\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" \u2022 \",\" \") & {fld0vFWc649maA7Vj} & \" Fruiting Block\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL \u2022 \", \"\")  & {fld0vFWc649maA7Vj}  & \" LC Syringe\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freeze Dried Mushrooms\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Freezer Tray\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Fresh Tray\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g \u2022 \", \"\") & {fld0vFWc649maA7Vj} &  \" Mushrooms\", \r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldELkpWppI7EegBB",
+                            "fldxEMPeLKGwRCK2M",
                             "fldmasAoE3hLznq9h",
                             "fldCaAC0GQ4HQdkRw",
                             "fld0vFWc649maA7Vj",
@@ -1101,13 +1105,13 @@
                     "type": "formula"
                 },
                 {
-                    "id": "fldFCJLIvGu2qVbeZ",
-                    "name": "label_cottage_prod",
+                    "id": "fldO99YbSV5seK1Ae",
+                    "name": "label_useby_prod",
                     "options": {
-                        "formula": "\r\nSWITCH(\r\n  {fldELkpWppI7EegBB},\r\n  \"grain\",\r\n    \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",       \r\n  \"substrate\",\r\n    \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\r\n  \"fruitingblock\",\r\n    \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\r\n  \"lc_syringe\",\r\n    \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\r\n  \"freezedriedmushrooms\",\r\n    \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\", \r\n  \"fresh_mushrooms\",\r\n    \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\", \r\n\"\")",
+                        "formula": "IF(\r\n  {fldm8L9e3hArmcIOf},\r\n  \"Use by: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fldm8L9e3hArmcIOf}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
-                            "fldELkpWppI7EegBB"
+                            "fldm8L9e3hArmcIOf"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -1125,50 +1129,6 @@
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
-                },
-                {
-                    "id": "fldmasAoE3hLznq9h",
-                    "name": "unit_lbs",
-                    "options": {
-                        "fieldIdInLinkedTable": "fld8k2F3ce0fx7yCq",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fld9C9D8M5WM00MEz",
-                    "name": "unit_size",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldPTVqPGEOa6aubh",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldZKlmLflBlJOIri",
-                        "result": {
-                            "options": {
-                                "precision": 2
-                            },
-                            "type": "number"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldO99YbSV5seK1Ae",
-                    "name": "label_useby_prod",
-                    "options": {
-                        "formula": "IF(\r\n  {fldm8L9e3hArmcIOf},\r\n  \"Use by: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fldm8L9e3hArmcIOf}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
-                        "isValid": true,
-                        "referencedFieldIds": [
-                            "fldm8L9e3hArmcIOf"
-                        ],
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "formula"
                 },
                 {
                     "id": "fldA9jVI9wdPTPitN",
@@ -1202,6 +1162,11 @@
                         "prefersSingleRecordLink": false
                     },
                     "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "fldx3RqIx1OG0egZd",
+                    "name": "notes",
+                    "type": "multilineText"
                 }
             ],
             "id": "tbl51zhGGDuaL2Sm4",
@@ -1646,7 +1611,7 @@
                     "id": "fld0xA2gWYClTTAFk",
                     "name": "use_by",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldb9Wl8lbMJpzVqy},\r\n  \"lc_flask\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months')),\r\n  \"lc_syringe\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months')),\r\n  \"grain\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months')),\r\n  \"substrate\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months')),\r\n  \"casing\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months')),\r\n  \"fruiting_block\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months')),\r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldb9Wl8lbMJpzVqy},\r\n  \"lc_flask\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months'),\"\"),\r\n  \"lc_syringe\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months'),\"\"),\r\n  \"grain\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"substrate\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"casing\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldb9Wl8lbMJpzVqy",
@@ -2004,6 +1969,19 @@
                     "type": "multipleRecordLinks"
                 },
                 {
+                    "id": "fldPZ4IqstB0rDnav",
+                    "name": "item_name_mat (from grain_inputs)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldyTUBk7GuOEPJ9t",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldHrFJi9OqWWlfxu",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
                     "id": "fldrv1VXZ9LnSMzl8",
                     "name": "inoculated_at (from grain_inputs)",
                     "options": {
@@ -2031,15 +2009,16 @@
                     "id": "fldT7IkbZv9nEjcvB",
                     "name": "name (from item_id) (from grain_inputs)",
                     "options": {
-                        "fieldIdInLinkedTable": "flda6kMughavpdgSz",
+                        "formula": "ARRAYSLICE({fldPZ4IqstB0rDnav}, 0, 1)",
                         "isValid": true,
-                        "recordLinkFieldId": "fldHrFJi9OqWWlfxu",
-                        "referencedFieldIds": [],
+                        "referencedFieldIds": [
+                            "fldPZ4IqstB0rDnav"
+                        ],
                         "result": {
                             "type": "singleLineText"
                         }
                     },
-                    "type": "rollup"
+                    "type": "formula"
                 },
                 {
                     "id": "fld0yK31UNRiH8jiV",
@@ -2053,10 +2032,23 @@
                     "type": "multipleRecordLinks"
                 },
                 {
+                    "id": "fldjBLOy9UQLYTmZv",
+                    "name": "item_name_mat (from substrate_inputs)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldyTUBk7GuOEPJ9t",
+                        "isValid": true,
+                        "recordLinkFieldId": "fld0yK31UNRiH8jiV",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
                     "id": "fldayxHaz17ZgfAt5",
                     "name": "process_type (from steri_run_id) (from substrate_inputs)",
                     "options": {
-                        "fieldIdInLinkedTable": "fldBsxGzIXx2IO9Ts",
+                        "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
                         "isValid": true,
                         "recordLinkFieldId": "fld0yK31UNRiH8jiV",
                         "referencedFieldIds": [],
@@ -2070,15 +2062,16 @@
                     "id": "fld7bNeLpJvxw4MPG",
                     "name": "name (from item_id) (from substrate_inputs)",
                     "options": {
-                        "fieldIdInLinkedTable": "flda6kMughavpdgSz",
+                        "formula": "ARRAYSLICE({fldjBLOy9UQLYTmZv}, 0, 1)",
                         "isValid": true,
-                        "recordLinkFieldId": "fld0yK31UNRiH8jiV",
-                        "referencedFieldIds": [],
+                        "referencedFieldIds": [
+                            "fldjBLOy9UQLYTmZv"
+                        ],
                         "result": {
                             "type": "singleLineText"
                         }
                     },
-                    "type": "rollup"
+                    "type": "formula"
                 },
                 {
                     "id": "fldHxWLBQLQ8CuV0g",
@@ -2704,7 +2697,7 @@
                     "id": "fldmx5RDnELMNEUEm",
                     "name": "label_inoc_line",
                     "options": {
-                        "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD') & \" \",\r\n  IF(\r\n    {fldZLdt5XUuUlksGL},\r\n    \"Inoculated: \" & DATETIME_FORMAT({fldZLdt5XUuUlksGL}, 'YYYY-MM-DD') & \" \"\r\n  )\r\n) & {fldc6ASAfjsjEts33}\r\n  ",
+                        "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD') & \" \",\r\n  IF(\r\n    {fldZLdt5XUuUlksGL},\r\n    \"Inoculated: \" & DATETIME_FORMAT({fldZLdt5XUuUlksGL}, 'YYYY-MM-DD') & \" \",\r\n    \"\"\r\n  )) & {fldc6ASAfjsjEts33}",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldjcFYOzKgv4U3qD",
@@ -2721,7 +2714,7 @@
                     "id": "fldf3uvlIcTsLLtxf",
                     "name": "label_spawned_line",
                     "options": {
-                        "formula": "IF(\r\n  {fldsdkJ6tJlpOQ5xN},\r\n  \"Spawned: \" & DATETIME_FORMAT({fldsdkJ6tJlpOQ5xN}, 'YYYY-MM-DD'),\r\n  IF(\r\n    {fld0iehgMuka4Xpqm}, \r\n    \"Spawned: \" & DATETIME_FORMAT({fld0iehgMuka4Xpqm}, 'YYYY-MM-DD')\r\n  )\r\n)\r\n",
+                        "formula": "IF(\r\n  {fldsdkJ6tJlpOQ5xN},\r\n  \"Spawned: \" & DATETIME_FORMAT({fldsdkJ6tJlpOQ5xN}, 'YYYY-MM-DD'),\r\n  IF(\r\n    {fld0iehgMuka4Xpqm}, \r\n    \"Spawned: \" & DATETIME_FORMAT({fld0iehgMuka4Xpqm}, 'YYYY-MM-DD'),\r\n    \"\"\r\n  ))",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldsdkJ6tJlpOQ5xN",
@@ -2786,11 +2779,11 @@
                     "id": "fld0bl7fyxvBw5JLQ",
                     "name": "label_title_lot",
                     "options": {
-                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Plate_Inoculated\", {flda6kMughavpdgSz} & \"\",  \r\n  \"Bulk_Created\", {flda6kMughavpdgSz} & \"\",\r\n  \"LC_Syringe_Received\", {flda6kMughavpdgSz} & \"\",\r\n\"\")",
+                        "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture \u2014 Flask\",\r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldWYfrlLWuKStK70",
-                            "flda6kMughavpdgSz"
+                            "fldyTUBk7GuOEPJ9t"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -2836,26 +2829,32 @@
                     "type": "formula"
                 },
                 {
-                    "id": "fldxl9AqRl011mZss",
-                    "name": "print_queue",
+                    "id": "fldGS78ngOyMeSkBD",
+                    "name": "label_proc_line",
                     "options": {
-                        "inverseLinkFieldId": "fldzMn7oEAYLRFMll",
-                        "isReversed": false,
-                        "linkedTableId": "tbl3sLXGbpqiaeaHI",
-                        "prefersSingleRecordLink": false
+                        "formula": "IF({fldHE23rzuT56GoCK},\r\n    \"Received: \" & DATETIME_FORMAT({fldHE23rzuT56GoCK}, \"YYYY-MM-DD\"),\t\r\n  IF({fldz6E3EogoO3Uw1E},\r\n    IF(LOWER({fldqaL8xvhMmM2kSD}) = \"pasteurize\",\r\n        \"Pasteurized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\"),\r\n        \"Sterilized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\")\r\n    ),\"\"\r\n  ))",
+                        "isValid": true,
+                        "referencedFieldIds": [
+                            "fldHE23rzuT56GoCK",
+                            "fldz6E3EogoO3Uw1E",
+                            "fldqaL8xvhMmM2kSD"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
                     },
-                    "type": "multipleRecordLinks"
+                    "type": "formula"
                 },
                 {
                     "id": "fldalWvxa178ySlRh",
                     "name": "label_graininputblocks_line",
                     "options": {
-                        "formula": "IF(\r\n  {fld0iehgMuka4Xpqm},\r\n  {fldT7IkbZv9nEjcvB} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
+                        "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldT7IkbZv9nEjcvB} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fld0iehgMuka4Xpqm",
-                            "fldT7IkbZv9nEjcvB",
-                            "fldrv1VXZ9LnSMzl8"
+                            "fldrv1VXZ9LnSMzl8",
+                            "fldT7IkbZv9nEjcvB"
                         ],
                         "result": {
                             "type": "singleLineText"
@@ -2867,7 +2866,7 @@
                     "id": "fldLKeIjT9w9wvHKQ",
                     "name": "label_substrateinputblocks_line",
                     "options": {
-                        "formula": "IF(\r\n  {fld0iehgMuka4Xpqm},\r\n  {fldayxHaz17ZgfAt5} & \"d \" & {fld7bNeLpJvxw4MPG},\r\n  BLANK()\r\n)",
+                        "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldayxHaz17ZgfAt5} & \"d \" & {fld7bNeLpJvxw4MPG},\r\n  \"\"\r\n)",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fld0iehgMuka4Xpqm",
@@ -2879,6 +2878,17 @@
                         }
                     },
                     "type": "formula"
+                },
+                {
+                    "id": "fldxl9AqRl011mZss",
+                    "name": "print_queue",
+                    "options": {
+                        "inverseLinkFieldId": "fldzMn7oEAYLRFMll",
+                        "isReversed": false,
+                        "linkedTableId": "tbl3sLXGbpqiaeaHI",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
                 },
                 {
                     "id": "fldz4I7Lxe1kqNye7",
@@ -2959,23 +2969,6 @@
                         "timeZone": "client"
                     },
                     "type": "dateTime"
-                },
-                {
-                    "id": "fldGS78ngOyMeSkBD",
-                    "name": "label_proc_line",
-                    "options": {
-                        "formula": "IF({fldHE23rzuT56GoCK},\r\n    \"Received: \" & DATETIME_FORMAT({fldHE23rzuT56GoCK}, \"YYYY-MM-DD\"),\t\r\n  IF({fldz6E3EogoO3Uw1E},\r\n    IF(LOWER({fldBsxGzIXx2IO9Ts}) = \"pasteurize\",\r\n        \"Pasteurized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\"),\r\n        \"Sterilized: \" & DATETIME_FORMAT({fldz6E3EogoO3Uw1E}, \"YYYY-MM-DD\")\r\n    )\r\n  )\r\n)",
-                        "isValid": true,
-                        "referencedFieldIds": [
-                            "fldHE23rzuT56GoCK",
-                            "fldz6E3EogoO3Uw1E",
-                            "fldBsxGzIXx2IO9Ts"
-                        ],
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "formula"
                 },
                 {
                     "id": "fldi4Tt7Xzu9vfeBY",
@@ -4681,58 +4674,6 @@
                     "type": "multipleLookupValues"
                 },
                 {
-                    "id": "fldtLqkn0zheugFGp",
-                    "name": "label_company_prod (from product_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldaL52TEAxGFC82t",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldWyM7fFYv6aT4ZN",
-                    "name": "label_title_prod (from product_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldBnCTkqhW0JDDd9",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldU01Dwd7Lj4PT6P",
-                    "name": "label_subtitle_prod (from product_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fldzfOifL6FVKrVed",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
-                    "id": "fldRlsD6fnPSXP4Un",
-                    "name": "label_footer_prod (from product_id)",
-                    "options": {
-                        "fieldIdInLinkedTable": "fld5uqXwMBcpYtI2f",
-                        "isValid": true,
-                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
-                        "result": {
-                            "type": "singleLineText"
-                        }
-                    },
-                    "type": "multipleLookupValues"
-                },
-                {
                     "id": "fldSOOtkOfU2vopVE",
                     "name": "print_status",
                     "options": {
@@ -4820,6 +4761,22 @@
                         }
                     },
                     "type": "createdTime"
+                },
+                {
+                    "id": "fldZ8oLCXsNgqnbZy",
+                    "name": "run_id",
+                    "options": {
+                        "inverseLinkFieldId": "fldYfZN0vDlT7rzLW",
+                        "isReversed": false,
+                        "linkedTableId": "tblexT4KCfiMdc3bn",
+                        "prefersSingleRecordLink": false
+                    },
+                    "type": "multipleRecordLinks"
+                },
+                {
+                    "id": "flds0OvxvgufsRU1c",
+                    "name": "target_printer",
+                    "type": "singleLineText"
                 },
                 {
                     "id": "flde2DNfnjbwiE2Zg",
@@ -4981,20 +4938,56 @@
                     "type": "multipleLookupValues"
                 },
                 {
-                    "id": "fldZ8oLCXsNgqnbZy",
-                    "name": "run_id",
+                    "id": "fldtLqkn0zheugFGp",
+                    "name": "label_company_prod (from product_id)",
                     "options": {
-                        "inverseLinkFieldId": "fldYfZN0vDlT7rzLW",
-                        "isReversed": false,
-                        "linkedTableId": "tblexT4KCfiMdc3bn",
-                        "prefersSingleRecordLink": false
+                        "fieldIdInLinkedTable": "fldaL52TEAxGFC82t",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+                        "result": {
+                            "type": "singleLineText"
+                        }
                     },
-                    "type": "multipleRecordLinks"
+                    "type": "multipleLookupValues"
                 },
                 {
-                    "id": "flds0OvxvgufsRU1c",
-                    "name": "target_printer",
-                    "type": "singleLineText"
+                    "id": "fldWyM7fFYv6aT4ZN",
+                    "name": "label_title_prod (from product_id)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldBnCTkqhW0JDDd9",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
+                    "id": "fldU01Dwd7Lj4PT6P",
+                    "name": "label_subtitle_prod (from product_id)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fldzfOifL6FVKrVed",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
+                },
+                {
+                    "id": "fldRlsD6fnPSXP4Un",
+                    "name": "label_footer_prod (from product_id)",
+                    "options": {
+                        "fieldIdInLinkedTable": "fld5uqXwMBcpYtI2f",
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "type": "multipleLookupValues"
                 },
                 {
                     "id": "fldObwJ2LlM1TS23Y",
@@ -5306,7 +5299,7 @@
                     "id": "fldfZuhmRecY12ttD",
                     "name": "available_qty_ecwid",
                     "options": {
-                        "formula": "{fldD5BCrjbbiQ8cZj} + {fldLoqJECuJzcTCFk}",
+                        "formula": "SUM({fldD5BCrjbbiQ8cZj},{fldLoqJECuJzcTCFk})",
                         "isValid": true,
                         "referencedFieldIds": [
                             "fldD5BCrjbbiQ8cZj",

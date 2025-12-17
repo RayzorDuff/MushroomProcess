@@ -74,6 +74,10 @@ These steps assume you start from an Airtable base that already matches the Mush
 3. **Run `airtable-export` against your base:**
 
    - Create an Airtable Personal Access Token with schema + data read permissions for the base.
+   ```bash
+   $env:AIRTABLE_KEY = "YOUR_API_KEY_HERE"
+   $env:AIRTABLE_BASE = "YOUR_BASE_ID_HERE"
+   ```
    - Use `airtable-export` to dump:
      - `_schema.json` (schema only)
      - Per-table `*.json` or `*.ndjson` files (optional data).

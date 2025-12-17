@@ -120,6 +120,18 @@ The script:
   - Generates a label PDF (optionally embedding `logo.png` and a QR code).
   - Sends it to the configured printer.
   - Updates the row to `Printed` or `Error` (and writes `error_msg`, `pdf_path` as appropriate).
+  
+  - Generates a label PDF (optionally embedding `logo.png` and a QR code).
+
+- For print jobs where `source_kind = "product"`:
+  - The daemon always prints the normal label (the same 4×2 product label as before).
+  - If `label_companyinfo_prod (from product_id)` is present (non-blank), the daemon prints a **second 4×2 label** immediately after the first.
+
+- The second label includes any of the following fields that are defined:
+  - `label_companyaddress_prod (from product_id)`
+  - `label_companyinfo_prod (from product_id)`
+  - `label_disclaimer_prod (from product_id)`
+  - `label_cottage_prod (from product_id)`
 
 Leave this process running in a console, or convert it to a Windows service (see below).
 
