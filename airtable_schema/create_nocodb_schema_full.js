@@ -816,11 +816,18 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
     'DATESTR($1)'
   );
 
-  // DATEADD(date, n, 'unit') -> date
-  //f = f.replace(
-  //  /DATEADD\s*\(\s*([^,]+)\s*,\s*[^,]+,\s*'[^']*'\s*\)/gi,
-  //  '$1'
-  //);
+  // DATEADD(date, n, 'unit') -> DATEADD(date, n, 'unit') with singular unit
+  // Airtable uses plural: 'days','months','years','hours','minutes','seconds'
+  // NocoDB expects singular: 'day','month','year','hour','minute','second'
+  f = f.replace(
+    /\bDATEADD\s*\(\s*([^,]+?)\s*,\s*([^,]+?)\s*,\s*(['"])\s*(years?|months?|days?|hours?|minutes?|seconds?)\s*\3\s*\)/gi,
+    (m, dateExpr, nExpr, quote, unit) => {
+      const u = unit.toLowerCase().trim();
+      const singular =
+        u.endsWith('s') && !u.endsWith('ss') ? u.slice(0, -1) : u; // safe enough here
+      return `DATEADD(${dateExpr.trim()}, ${nExpr.trim()}, ${quote}${singular}${quote})`;
+    }
+  );
 
   // SET_TIMEZONE(date, "TZ") -> date
   f = f.replace(
@@ -844,6 +851,7 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
     /\bIF\s*\(\s*(\{[^}]+\})\s*,/gi,
     'IF(ISNOTBLANK($1),'
   );
+  
   // IF(NOT({Field}), ...)
   f = f.replace(
     /\bIF\s*\(\s*NOT\s*\(\s*(\{[^}]+\})\s*\)\s*,/gi,
@@ -861,6 +869,12 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
   );  
   // Final cleanup: BLANK() → ""
   f = f.replace(/\bBLANK\s*\(\s*\)/gi, '""');  
+
+  // SUM replaced by ADD
+  f = f.replace(
+    /\bSUM\s*\(\s*([^,]+?)\s*,\s*((?:[^()]+|\([^()]*\))+)\s*\)/gi,
+    'ADD($1, $2)'
+  );
 
   // RECORD_ID() -> ""
   f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `CONCAT({${nocoUUIDName}}, "")`);
