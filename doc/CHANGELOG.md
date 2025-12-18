@@ -1,3 +1,131 @@
+## v1.0.4-beta
+
+_This release includes updates from both the `nocodb_migration` branch and recent fixes on the `production` branch. It continues the migration work toward full NocoDB compatibility while refining Airtable automations, Ecwid sync logic, and schema tooling._
+
+---
+
+## NocoDB Schema Migration & Postgres Compatibility
+
+- Replaced the prior two-step NocoDB creation process with a **single unified migration script** (`create_nocodb_schema_full.js`) that:
+  - creates all tables,
+  - establishes relationships,
+  - creates lookups, rollups, and formulas,
+  - logs remaining manual steps.
+- Updated Airtable-schema documentation to reflect the new **one-pass migration workflow** and added guidance for comparing Airtable `_schema.json` to the NocoDB-generated schema.
+- Improved Postgres compatibility across migration scripts, resolving issues found during full-schema imports into a Postgres-backed NocoDB instance.
+- Added support for NocoDB’s **v2 meta API** (alongside v3). Link-field creation can now route through v2 to avoid v3-related link bugs.
+- Extended schema mapping rules:
+  - standardized display fields and primary key selection,
+  - enforced safe PK handling when formulas live in the primary key column,
+  - improved inference of NocoDB `uidt` → SQL types.
+- Added detection and safe fallback handling for NocoDB limitations:
+  - rollups cannot aggregate other rollups/lookups,
+  - lookups cannot target rollup fields across tables.
+
+---
+
+## Primary Keys, UUIDs, and System Timestamps
+
+- Introduced consistent handling for **synthetic PKs and UUID columns** (`nocopk`, `nocouuid`) when Airtable tables lack suitable primary keys.
+- Implemented correct Postgres defaults for UUIDs (`gen_random_uuid()`), plus a helper script to **repair columns** where the API failed to apply the default.
+- Added explicit mapping of `CREATED_TIME()` formulas from Airtable to NocoDB’s **system-managed `CreatedAt`**, including translation of  
+  `DATETIME_FORMAT(CREATED_TIME(), 'YYMMDD')`  
+  into  
+  `RIGHT(YEAR(NOW()),2) + MONTH(NOW()) + DAY(NOW())`.
+
+---
+
+## Relationship & Link Field Improvements
+
+- Cleaned up and renamed NocoDB-generated inverse link fields to better match the Airtable schema, reducing drift.
+- Improved formula cleanup when formulas appear in primary key columns, ensuring validity under NocoDB evaluation rules.
+- Reintroduced the example `create_airtable_from_schema` helper script for round-tripping schema creation in Airtable.
+- Removed deprecated fields such as `lots.create_lots` from schema exports and NocoDB builders.
+
+---
+
+## NocoDB Automations (Parity with Airtable)
+
+- Expanded `nocodb_automation/README.md` with:
+  - webhook configuration instructions,
+  - API-version guidance,
+  - detailed environment variable documentation,
+  - stricter validation options and logging controls (`LOG_AUTOMATION`, `STRICT_VALIDATION`).
+- Ensured support for all recent Airtable automation improvements:
+  - untracked-source inoculation,
+  - multi-target inoculation,
+  - Fully-Colonized event consistency logic,
+  - improved syringe labeling workflows.
+
+---
+
+## Interfaces & Retool (NocoDB Path)
+
+- Updated `nocodb_interfaces` documentation with instructions for generating views that correspond to Airtable Interfaces.
+- Added guidance for building equivalent Retool apps for:
+  - inoculation,
+  - sterilization runs,
+  - spawn-to-bulk workflows,
+  - harvesting and packaging,
+  - dark room management.
+- Added notes on regenerating interfaces directly from a fresh Airtable schema export or reconstructing them entirely in NocoDB/Retool.
+
+---
+
+# Production Branch Fixes Included in This Release
+
+These changes were made on `production` after `v1.0.3-beta` and are incorporated into `v1.0.4-beta`.
+
+## Airtable Automations — LC Syringes & Labeling
+
+- **Single-syringe receiving flow:**  
+  `lc_receive_syringe` now processes *exactly one* syringe per run using a staging lot, removing the older `receive_count` logic entirely.
+- Added **automatic label printing** for received syringes by populating `print_queue`.
+- Updated related automations (`print_queue_populator.js`, `dark_room_actions.js`) to support labeling and simplify Fully-Colonized event patterns.
+
+---
+
+## Ecwid Sync Refinements
+
+- Inventory sync now excludes items in the following locations:
+  - **Shipped**
+  - **Expired**
+  - **Consumed**
+- Prevents outdated or unavailable inventory from being listed in Ecwid.
+- Updated logic in both `ecommerce_refresh.js` and `populate_ecommerce_products_lots.js`.
+
+---
+
+## Sterilizer Automation Cleanup
+
+- Removed references to the deprecated `create_lots` flag in  
+  `sterilizer_out_validate_create_lots.js` to match the updated schema.
+
+---
+
+## Documentation & Developer Experience
+
+- Reintroduced and expanded tooling for rebuilding Airtable from schema JSON.
+- Updated top-level README and Airtable schema README with clearer installation and usage notes (including Windows-specific steps).
+- General cleanup and consistency fixes applied across schema tools and automations.
+
+---
+
+## Summary
+
+`v1.0.4-beta` is a major step forward in the NocoDB migration effort, delivering:
+
+- A unified NocoDB schema generation workflow  
+- Improved Postgres support  
+- Better PK/UUID handling  
+- More robust timestamp and formula translation  
+- Updated automations and labeling workflows  
+- Safer Ecwid sync behavior  
+- Cleaner schema and documentation  
+
+This release strengthens cross-backend support while keeping Airtable fully functional.
+
+
 ## [v1.0.3-beta] – 2025-12-04 (nocodb_migration)
 
 > This release is cut from the `nocodb_migration` branch and adds an experimental **NocoDB path** alongside the existing Airtable flows. Airtable behavior remains effectively the same as v1.0.2-beta; the new work is focused on schema migration, NocoDB automations, and interface generation.
