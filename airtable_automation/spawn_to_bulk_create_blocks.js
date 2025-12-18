@@ -1,6 +1,6 @@
 /**
  * Script: spawn_to_bulk_create_blocks.js
- * Version: 2025-12-15.2
+ * Version: 2025-12-18.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -279,6 +279,17 @@ async function main() {
     if (hasField(lotsTbl, 'parents_json')) fields.parents_json = JSON.stringify(parentIds);
     if (hasField(lotsTbl, 'strain_id')) fields.strain_id = [{ id: strainId }];
     if (hasField(lotsTbl, 'spawned_at')) fields.spawned_at = tsDate;
+
+    // Set lot.use_by for fruiting blocks: 3 months from spawn
+    try {
+      const d = new Date(tsDate);
+      if (!Number.isNaN(d.getTime())) {
+        d.setMonth(d.getMonth() + 3);
+        fields.use_by = d;
+      }
+    } catch (e) {
+      // If date math fails, leave use_by unset.
+    }
 
     // Optional: inherit recipe_id from staging (if present)
     const outRecipe = (staging.getCellValue('recipe_id') || [])[0]?.id;

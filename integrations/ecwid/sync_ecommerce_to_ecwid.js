@@ -36,7 +36,8 @@ const {
 const {
   AIRTABLE_ECOMMERCE_TABLE,
   AIRTABLE_ECOMMERCE_SKU_FIELD,
-  AIRTABLE_ECOMMERCE_QTY_FIELD,
+  AIRTABLE_ECOMMERCE_QTY_FROM_PRODUCTS_FIELD,
+  AIRTABLE_ECOMMERCE_QTY_FROM_LOTS_FIELD,
   AIRTABLE_ECOMMERCE_ACTIVE_FIELD,
 } = process.env;
 
@@ -44,7 +45,8 @@ function assertEnv() {
   const required = [
     'AIRTABLE_ECOMMERCE_TABLE',
     'AIRTABLE_ECOMMERCE_SKU_FIELD',
-    'AIRTABLE_ECOMMERCE_QTY_FIELD',
+    'AIRTABLE_ECOMMERCE_QTY_FROM_PRODUCTS_FIELD',
+    'AIRTABLE_ECOMMERCE_QTY_FROM_LOTS_FIELD',
 
   ];
 
@@ -66,13 +68,25 @@ function shouldSkipRecord(record) {
   const fields = record.fields || {};
 
   const sku = fields[AIRTABLE_ECOMMERCE_SKU_FIELD];
-  const qtyRaw = fields[AIRTABLE_ECOMMERCE_QTY_FIELD];
+  const qtyFromProductsRaw = fields[AIRTABLE_ECOMMERCE_QTY_FROM_PRODUCTS_FIELD];
+  const qtyFromLotsRaw = fields[AIRTABLE_ECOMMERCE_QTY_FROM_LOTS_FIELD];
 
   if (!sku || String(sku).trim() === '') return true;
 
-  const quantity = Number(qtyRaw);
-  if (!Number.isFinite(quantity) || quantity < 0) return true;
+  const qtyFromProducts = Number(qtyFromProductsRaw);
+  const qtyFromLots = Number(qtyFromLotsRaw);
 
+  const hasProductsQty = Number.isFinite(qtyFromProducts);
+  const hasLotsQty = Number.isFinite(qtyFromLots);
+
+  // Preserve previous behavior: if we don't have any numeric quantity at all, skip.
+  if (!hasProductsQty && !hasLotsQty) return true;
+
+  const quantity =
+    (hasProductsQty ? qtyFromProducts : 0) +
+    (hasLotsQty ? qtyFromLots : 0);
+
+  if (!Number.isFinite(quantity) || quantity < 0) return true;
 
   return false;
 }
@@ -80,9 +94,21 @@ function shouldSkipRecord(record) {
 async function syncRecord(record) {
   const fields = record.fields || {};
   const sku = String(fields[AIRTABLE_ECOMMERCE_SKU_FIELD]).trim();
-  const quantity = Number(fields[AIRTABLE_ECOMMERCE_QTY_FIELD]);
+  const qtyFromProducts = Number(fields[AIRTABLE_ECOMMERCE_QTY_FROM_PRODUCTS_FIELD]);
+  const qtyFromLots = Number(fields[AIRTABLE_ECOMMERCE_QTY_FROM_LOTS_FIELD]);
 
-  console.log(`\nSyncing record ${record.id}: SKU=${sku} => quantity=${quantity}`);
+  const hasProductsQty = Number.isFinite(qtyFromProducts);
+  const hasLotsQty = Number.isFinite(qtyFromLots);
+
+  const quantity =
+    (hasProductsQty ? qtyFromProducts : 0) +
+    (hasLotsQty ? qtyFromLots : 0);
+
+  console.log(
+    `\nSyncing record ${record.id}: SKU=${sku} ` +
+    `=> quantity=${quantity} (products=${hasProductsQty ? qtyFromProducts : 'n/a'}, ` +
+    `lots=${hasLotsQty ? qtyFromLots : 'n/a'})`
+  );
 
   const { product, variation } = await findEcwidProductBySku(sku);
 

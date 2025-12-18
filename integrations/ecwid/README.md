@@ -50,7 +50,9 @@ This script **pushes inventory quantities from Airtable to Ecwid**.
 It reads records from your Airtable **ecommerce** table:
 
 - `ecwid_sku` identifies the Ecwid product or variation.
-- `available_quantity` (or your equivalent field) contains the *precomputed internal availability*.
+- Two numeric fields (configured via environment variables, typically
+  `available_from_products` and `available_from_lots`) provide the internal availability components. Their sum is treated as the *precomputed internal
+  availability* that is pushed to Ecwid.
 
 For each SKU:
 
