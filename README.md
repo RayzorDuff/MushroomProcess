@@ -143,9 +143,44 @@ If you only want Airtable (no NocoDB yet):
 
 Once you have an Airtable base and `_schema.json`:
 
-1. **Install NocoDB (Windows quick test)**  
-   - Download the Windows installer from the NocoDB GitHub releases page.
-   - Install and then open: `http://localhost:8080/dashboard`.
+1. **Install NocoDB (Windows)**  
+   - Install Docker Desktop for Windows. 
+   - Open PowerShell or Command Prompt and navigate to your desired project directory.
+     Create a docker-compose.yml file.: 
+   ```bash
+    version: '3.8'
+
+    services:
+      nocodb:
+        image: nocodb/nocodb:latest
+        container_name: nocodb
+        ports:
+          - "8080:8080"
+        volumes:
+          - ./nocodb_data:/usr/app/data
+        environment:
+          NC_DB: "pg://postgres:5432?u=nocodb_user&p=nocodb_password&d=nocodb_db" # Connection string for PostgreSQL
+          NC_AUTH_JWT_SECRET: "your_strong_jwt_secret" # Replace with a strong secret
+        depends_on:
+          - postgres
+        restart: unless-stopped
+
+      postgres:
+        image: postgres:13
+        container_name: postgres_db
+        environment:
+          POSTGRES_DB: nocodb_db
+          POSTGRES_USER: nocodb_user
+          POSTGRES_PASSWORD: nocodb_password
+        volumes:
+          - ./postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
+   ```
+   - Launch docker
+   ```powershell
+      docker-compose up -d
+   ```
+   - Navigate to http://localhost:8080/
    - Create a new project (e.g. `MushroomProcess`).
    - Create an API token from your profile.
 

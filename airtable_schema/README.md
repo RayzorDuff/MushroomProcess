@@ -2,6 +2,13 @@
 
 _Airtable ↔ NocoDB from a shared `_schema.json`_
 
+## Verified working versions
+
+This repository state has been tested through a full schema import into:
+
+- **NocoDB**: `0.265.1`
+- **PostgreSQL**: `13`
+
 This folder holds everything needed to:
 
 1. **Export** an Airtable base’s schema (and data) to `_schema.json` using `airtable-export`.
@@ -200,6 +207,11 @@ $env:NOCODB_RECREATE_LOOKUPS = "true"
 
 ### 3.3. All passes – Create base tables & primitive columns as well as relationships & formulas 
 
+The NocoDB schema import script supports using different API versions for different feature sets:
+
+- `NOCODB_API_VERSION` controls table + field metadata operations (commonly `v2`)
+- `NOCODB_API_VERSION_LINKS` controls LTAR/link creation (commonly `v3`)
+
 ```powershell
 node .\create_nocodb_schema_full.js > full_import.log 2>&1
 ```
@@ -209,6 +221,10 @@ This script:
 - Parses link-to-record fields from `_schema.json`.
 - Creates relations between tables in NocoDB.
 - Creates appropriate formula, rollups, and lookup columns where possible (e.g., simple computed fields).
+
+You will still need to:
+
+- Manually edit the nocouuid field in each table to set the default value to gen_random_uuid().  See Limitations below.
 
 ### 3.4. Compare the AirTable _schema.json with the NocoDB _schema_nocodb.json to identify discrepancies
 
@@ -224,12 +240,22 @@ Review the output from compare_schemas.js as well as the direction from the outp
 
 From the current `create_nocodb_schema_full.js` specification:
 
-1. **Some discrepancies between link columns and created formulas**
+1. **Some discrepancies between Airtable and NocoDB are unavoidables**
 
    - Primary keys are added to the schema and are different from Airtable defined keys as NocoDB does not allow LongText primary keys.
    - NocoDB creates inverse links that sometimes confuse Airtable's pre-created inverse links.
-   - Some functions referencing rollup or lookup fields are not created and must be created manually following the migration.
-   - NocoDB’s v3 LTAR (Linked Table And Rollup) metadata is still evolving; scripts expect to be revisited once the API stabilizes.
+   - NocoDB has inherent limitations, such as having formulas add rollup counts or having DATESTR operate on a field that is not a date or datetime field.
+     This script may fail fields in these cases and modifications to Airtable schema may be in order.
+   - NocoDB creates inverse links automatically. The script renames these where possible to match Airtable naming, but extra LTAR columns may still appear.
+   - NocoDB does not support rollups over lookup/rollup fields on another table; these should be redesigned in Airtable prior to export
+      (e.g., roll up a primitive field or materialize the value).
+   - Some formulas are intentionally not created when they rely on unsupported constructs; these must be adjusted in the Airtable schema or created manually.
+   - NocoDB’s v3 LTAR metadata is still evolving; links creation via v3 may require stabilization steps and may be revisited as the API changes.
+
+2. ** gen_random_uuid() default value is not being held during nocuuid (Issue #7).
+
+   - The script attempts to create a nocouuid field that can be used for random text formulas, but the default value is not being held.  For now, the
+     workaround is to manually update the default value to gen_random_uuid() for PGSQL backends after the import is complete.
 
 3. **Data import to NocoDB**
 
