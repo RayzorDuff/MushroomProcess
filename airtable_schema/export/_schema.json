@@ -1024,7 +1024,7 @@
           "id": "fldFCJLIvGu2qVbeZ",
           "name": "label_cottage_prod",
           "options": {
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\"\")\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\"\")\r\n)",
+            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\r\n   IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n)",
             "isValid": true,
             "referencedFieldIds": [
               "fldIC7hRmODZ0X3p0",
@@ -1611,55 +1611,12 @@
           "id": "fld0xA2gWYClTTAFk",
           "name": "use_by",
           "options": {
-            "formula": "SWITCH(\r\n  {fldb9Wl8lbMJpzVqy},\r\n  \"lc_flask\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months'),\"\"),\r\n  \"lc_syringe\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 6, 'months'),\"\"),\r\n  \"grain\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"substrate\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"casing\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldZLdt5XUuUlksGL}, DATEADD({fldZLdt5XUuUlksGL}, 3, 'months'),\"\"),\r\n\"\")",
-            "isValid": true,
-            "referencedFieldIds": [
-              "fldb9Wl8lbMJpzVqy",
-              "fldZLdt5XUuUlksGL"
-            ],
-            "result": {
-              "type": "singleLineText"
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
             }
           },
-          "type": "formula"
-        },
-        {
-          "id": "fldZLdt5XUuUlksGL",
-          "name": "last_inoculation_date",
-          "options": {
-            "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
-            "isValid": true,
-            "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
-            "referencedFieldIds": [],
-            "result": {
-              "options": {
-                "dateFormat": {
-                  "format": "l",
-                  "name": "local"
-                },
-                "timeFormat": {
-                  "format": "h:mma",
-                  "name": "12hour"
-                },
-                "timeZone": "client"
-              },
-              "type": "dateTime"
-            }
-          },
-          "type": "rollup"
-        },
-        {
-          "id": "fldr7wPZJkblphYUh",
-          "name": "public_link",
-          "options": {
-            "formula": "\"https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=\" & RECORD_ID()",
-            "isValid": true,
-            "referencedFieldIds": [],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "type": "formula"
+          "type": "date"
         },
         {
           "id": "fld6sb0QHwAFRamFJ",
@@ -1988,22 +1945,12 @@
             "fieldIdInLinkedTable": "fldjcFYOzKgv4U3qD",
             "isValid": true,
             "recordLinkFieldId": "fldHrFJi9OqWWlfxu",
+            "referencedFieldIds": [],
             "result": {
-              "options": {
-                "dateFormat": {
-                  "format": "l",
-                  "name": "local"
-                },
-                "timeFormat": {
-                  "format": "h:mma",
-                  "name": "12hour"
-                },
-                "timeZone": "client"
-              },
-              "type": "dateTime"
+              "type": "singleLineText"
             }
           },
-          "type": "multipleLookupValues"
+          "type": "rollup"
         },
         {
           "id": "fldT7IkbZv9nEjcvB",
@@ -2032,6 +1979,19 @@
           "type": "multipleRecordLinks"
         },
         {
+          "id": "fldomaryNlKSgW3pI",
+          "name": "process_type_mat (from substrate_inputs)",
+          "options": {
+            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
+            "isValid": true,
+            "recordLinkFieldId": "fld0yK31UNRiH8jiV",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
           "id": "fldjBLOy9UQLYTmZv",
           "name": "item_name_mat (from substrate_inputs)",
           "options": {
@@ -2045,20 +2005,6 @@
           "type": "multipleLookupValues"
         },
         {
-          "id": "fldayxHaz17ZgfAt5",
-          "name": "process_type (from steri_run_id) (from substrate_inputs)",
-          "options": {
-            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
-            "isValid": true,
-            "recordLinkFieldId": "fld0yK31UNRiH8jiV",
-            "referencedFieldIds": [],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "type": "rollup"
-        },
-        {
           "id": "fld7bNeLpJvxw4MPG",
           "name": "name (from item_id) (from substrate_inputs)",
           "options": {
@@ -2066,6 +2012,21 @@
             "isValid": true,
             "referencedFieldIds": [
               "fldjBLOy9UQLYTmZv"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "formula"
+        },
+        {
+          "id": "fldayxHaz17ZgfAt5",
+          "name": "process_type (from steri_run_id) (from substrate_inputs)",
+          "options": {
+            "formula": "ARRAYSLICE({fldomaryNlKSgW3pI}, 0, 1)",
+            "isValid": true,
+            "referencedFieldIds": [
+              "fldomaryNlKSgW3pI"
             ],
             "result": {
               "type": "singleLineText"
@@ -2923,6 +2884,31 @@
           "type": "dateTime"
         },
         {
+          "id": "fldZLdt5XUuUlksGL",
+          "name": "last_inoculation_date",
+          "options": {
+            "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
+            "isValid": true,
+            "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
+            "referencedFieldIds": [],
+            "result": {
+              "options": {
+                "dateFormat": {
+                  "format": "l",
+                  "name": "local"
+                },
+                "timeFormat": {
+                  "format": "h:mma",
+                  "name": "12hour"
+                },
+                "timeZone": "client"
+              },
+              "type": "dateTime"
+            }
+          },
+          "type": "rollup"
+        },
+        {
           "id": "fldHPyNLj2jCblQTo",
           "name": "override_spawn_time",
           "options": {
@@ -2969,6 +2955,19 @@
             "timeZone": "client"
           },
           "type": "dateTime"
+        },
+        {
+          "id": "fldr7wPZJkblphYUh",
+          "name": "public_link",
+          "options": {
+            "formula": "\"https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=\" & RECORD_ID()",
+            "isValid": true,
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "formula"
         },
         {
           "id": "fldi4Tt7Xzu9vfeBY",
@@ -5228,25 +5227,6 @@
             }
           },
           "type": "rollup"
-        },
-        {
-          "id": "fldfZuhmRecY12ttD",
-          "name": "available_qty_ecwid",
-          "options": {
-            "formula": "SUM({fldD5BCrjbbiQ8cZj},{fldLoqJECuJzcTCFk})",
-            "isValid": true,
-            "referencedFieldIds": [
-              "fldD5BCrjbbiQ8cZj",
-              "fldLoqJECuJzcTCFk"
-            ],
-            "result": {
-              "options": {
-                "precision": 0
-              },
-              "type": "number"
-            }
-          },
-          "type": "formula"
         },
         {
           "id": "fldYxY64m9oGsgSrk",
