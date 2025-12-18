@@ -88,6 +88,14 @@ These steps assume you start from an Airtable base that already matches the Mush
    airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
    ```
 
+   Use the post-processor script to remove any "From field" style tables that were not removed from AirTable prior to export
+   as well as to change the business-specific identifiers within the schema to generic entries.
+
+   ```bash
+   copy export/_schema.json export/_schema.json.orig
+   node airtable_export_postprocess.js export/_schema.json.orig export/_schema.json
+   ```
+
 4. **Template / redact `_schema.json` (optional)**
 
    Before distributing your schema, replace business-specific values with generic placeholders. For example, search and replace names and URLs like:
