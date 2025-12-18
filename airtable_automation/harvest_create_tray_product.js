@@ -75,13 +75,6 @@ function coerceValueForField(table, fieldName, valueStr) {
   return valueStr; // singleLineText, etc.
 }
 
-// Look up the harvest item's category to seed tray_state
-const itemCat = itemRec?.getCellValueAsString('category')?.toLowerCase() || '';
-if (!['fresh_tray','freezer_tray'].includes(itemCat)) {
-  // allow it but warn on the record; default to freezer_tray to keep the flow moving
-  await lotsTbl.updateRecordAsync(block.id, { ui_error: `harvest_item.category "${itemCat}" not in {fresh_tray, freezer_tray}. Defaulting tray_state=freezer_tray.` });
-}
-
 // Partition selected items by category
 const byCat = { fresh_tray: [], freezer_tray: [] };
 for (const r of itemRecs) {

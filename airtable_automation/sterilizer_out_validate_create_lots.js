@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2025-12-15.2
+ * Version: 2025-12-18.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -109,6 +109,7 @@ if (errs.length) {
 
 /* ---------- resolve process type (pasteurize vs sterilize) ---------- */
 const itemRec = await itemsTbl.selectRecordAsync(plannedItem.id);
+const itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
 const processTypeRaw = asStr(run, 'process_type').toLowerCase();
 const targetTempC    = num(run.getCellValue('target_temp_c'));
 const pressureMode   = asStr(run, 'pressure_mode').toLowerCase();
@@ -117,8 +118,7 @@ function resolveProcess() {
   if (Number.isFinite(targetTempC) && targetTempC <= 100) return 'pasteurize';
   if (pressureMode === 'open') return 'pasteurize';
   if (Number.isFinite(targetTempC) && targetTempC >= 110) return 'sterilize';
-  const cat = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
-  if (cat === 'casing') return 'pasteurize';
+  if (itemCategory === 'casing') return 'pasteurize';
   return 'sterilize';
 }
 const proc = resolveProcess();
@@ -149,18 +149,30 @@ for (let i = 0; i < goodCount; i++) {
   };
   if (proc === 'pasteurize' && statusPasteurized) fields.status = { id: statusPasteurized.id };
   else if (statusSterilized) fields.status = { id: statusSterilized.id };
+
+  // Set lot.use_by for un-inoculated grain/substrate/casing lots: 3 months from sterilization
+  if (['grain', 'substrate', 'casing'].includes(itemCategory)) {
+    try {
+      const d = new Date(tsDate);
+      if (!Number.isNaN(d.getTime())) {
+        d.setMonth(d.getMonth() + 3);
+        fields.use_by = d;
+      }
+    } catch (e) {
+      // If date math fails, leave use_by unset.
+    }
+  }
   
   const procName = proc === 'pasteurize' ? 'Pasteurize' : 'Sterilize';
   const itemName = itemRec?.getCellValueAsString('name') || '';
-  const itemCat  = itemRec?.getCellValueAsString('category') || '';
 
   if (hasField(lotsTbl, 'item_name_mat')) {
     const v = coerceValueForField(lotsTbl, 'item_name_mat', itemName);
     if (v != null) fields.item_name_mat = v;
   }
   if (hasField(lotsTbl, 'item_category_mat')) {
-    const v = coerceValueForField(lotsTbl, 'item_category_mat', itemCat);
-  if (v != null) fields.item_category_mat = v;
+    const v = coerceValueForField(lotsTbl, 'item_category_mat', itemCategory);
+    if (v != null) fields.item_category_mat = v;
   }
   if (hasField(lotsTbl, 'process_type_mat')) {
     const v = coerceValueForField(lotsTbl, 'process_type_mat', procName);

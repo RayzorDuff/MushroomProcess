@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2025-12-16.1
+ * Version: 2025-12-18.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -33,6 +33,20 @@
     const itemsTbl  = base.getTable('items');
     const eventsTbl = base.getTable('events');
 
+/*
+    // DEBUG: List all fields so we can map field IDs -> names/types
+    for (const f of lotsTbl.fields) {
+      console.log('lots', `${f.id} :: ${f.name} [${f.type}]`);
+    }
+
+    for (const i of itemsTbl.fields) {
+      console.log('events', `${i.id} :: ${i.name} [${i.type}]`);
+    }
+
+    for (const e of eventsTbl.fields) {
+      console.log('events', `${e.id} :: ${e.name} [${e.type}]`);
+    }   
+*/
     function hasField(tbl, name) {
       try { tbl.getField(name); return true; } catch { return false; }
     }
@@ -207,10 +221,12 @@
       
       // --- Propagate vendor fields from source lot (if set on source) -----
       if (sourceVendorName && hasField(lotsTbl, 'vendor_name')) {
-        lotUpdates.vendor_name = sourceVendorName;
+        const v = coerceValueForField(lotsTbl, 'vendor_name', sourceVendorName);
+        if (v != null) lotUpdates.vendor_name = v;
       }
       if (sourceVendorBatch && hasField(lotsTbl, 'vendor_batch')) {
-        lotUpdates.vendor_batch = sourceVendorBatch;
+        const v = coerceValueForField(lotsTbl, 'vendor_batch', sourceVendorBatch);
+        if (v != null) lotUpdates.vendor_batch = v;        
       }
 
       // --- Ensure _mat fields are populated on target lots ----------------
@@ -225,7 +241,28 @@
       if (hasField(lotsTbl, 'item_category_mat')) {
         const v = coerceValueForField(lotsTbl, 'item_category_mat', targetItemCat);
         if (v != null) lotUpdates.item_category_mat = v;
-      }      
+      }
+
+      // Compute lot.use_by based on target category and inoculation time
+      let lotUseBy = null;
+      if (targetCategory === 'lc_flask') {
+        // Liquid culture flasks: 6 months from inoculation
+        const d = new Date(inocTime);
+        if (!Number.isNaN(d.getTime())) {
+          d.setMonth(d.getMonth() + 6);
+          lotUseBy = d;
+        }
+      } else if (targetCategory === 'grain') {
+        // Grain spawn: 3 months from inoculation
+        const d = new Date(inocTime);
+        if (!Number.isNaN(d.getTime())) {
+          d.setMonth(d.getMonth() + 3);
+          lotUseBy = d;
+        }
+      }
+      if (lotUseBy) {
+        lotUpdates.use_by = lotUseBy;
+      }
 
       // Strain: propagate from source if present
       if (sourceStrainLink) {
