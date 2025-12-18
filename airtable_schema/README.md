@@ -234,6 +234,46 @@ node .\compare_schemas.js > schema_comparison.log 2>&1
 
 Review the output from compare_schemas.js as well as the direction from the output of create_nocodb_schema_full.js to determine manual modifications necessary.
 
+### 3.5. Import Airtable-export JSON table data into NocoDB
+
+Once the schema has been created (section 3.3) and any required manual fixes are applied, you can import records from the airtable-export JSON files.
+
+This repository includes a data importer:
+
+- import_nocodb_data_from_airtable_export.js
+
+It reads export/{table}.json (array-of-records JSON) and performs an idempotent upsert using airtable_id:
+
+- Pass A: create/update non-link fields
+- Pass B: update link (LTAR) fields after row IDs exist
+
+#### Environment variables (PowerShell example)
+
+Use the same NocoDB env vars as the schema script:
+
+```powershell
+$env:NOCODB_URL = "http://localhost:8080" +$env:NOCODB_BASE_ID = "p_your_base_id_here"
+$env:NOCODB_API_TOKEN = "your_api_token_here" 
+
+# Optional
+$env:AIRTABLE_EXPORT_DIR = ".\\export" # default
+$env:NOCODB_BATCH_SIZE = "100" # default 100
+$env:NOCODB_DEBUG = "1" # verbose logging
+$env:TABLES = "items,locations,ecommerce" # import subset (optional)
+```
+
+#### Run the import
+
+```powershell
+node .\\import_nocodb_data_from_airtable_export.js > data_import.log 2>&1
+```
+
+#### Notes / expectations
+
+- The exporter in this repo writes link fields as arrays of Airtable record IDs (e.g. ["rec..."]). The importer translates those to arrays of NocoDB row IDs by looking up rows via airtable_id.
+- If you import only a subset of tables, links to tables you did not import will resolve to empty arrays (because the target rows do not exist yet). Re-run the importer later after importing the missing tables.
+- If you want a “clean re-import”, wipe the NocoDB table data first (either via UI or SQL), then rerun the importer.
+
 ---
 
 ## 4. Status & Limitations
