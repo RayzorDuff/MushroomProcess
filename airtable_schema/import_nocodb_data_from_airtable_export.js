@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js

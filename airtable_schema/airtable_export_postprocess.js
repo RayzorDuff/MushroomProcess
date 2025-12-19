@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('./load_env');
 /**
  * airtable_export_postprocess.js
  *

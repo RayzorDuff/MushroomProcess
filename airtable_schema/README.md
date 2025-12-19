@@ -2,6 +2,17 @@
 
 _Airtable ↔ NocoDB from a shared `_schema.json`_
 
+
+## Environment (.env)
+
+All scripts in this directory load environment variables from `airtable_schema/.env` automatically (if present).
+
+1. Copy `.env.example` → `.env`
+2. Fill in values
+3. Run the scripts normally (no need to set `$env:` variables).
+
+> Variables set in your shell still take precedence; `.env` only fills in missing keys.
+
 ## Verified working versions
 
 This repository state has been tested through a full schema import into:
@@ -191,6 +202,10 @@ airtable_schema/
 ```
 
 ### 3.2. Environment variables (PowerShell example)
+
+If you use `.env`, you can skip the PowerShell `$env:` setup below.
+
+PowerShell example (optional)
 
 ```powershell
 $env:NOCODB_URL       = "http://localhost:8080"   # or your cloud URL

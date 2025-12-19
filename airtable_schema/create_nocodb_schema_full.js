@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
  * Version: 2025-12-17.1

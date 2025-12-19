@@ -1,10 +1,38 @@
+#!/usr/bin/env node
+require('./load_env');
+/**
+ * Script: create_airtable_from_schema.js
+ * Version: 2025-12-17.1
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * =============================================================================
+/**
+
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-// TODO: Replace with your Airtable settings
-const AIRTABLE_BASE_ID = 'your_base_id';
-const AIRTABLE_ACCESS_TOKEN = 'your_access_token';
+// Airtable settings via .env (see .env.example)
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE;
+const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_KEY;
+
+if (!AIRTABLE_BASE_ID || !AIRTABLE_ACCESS_TOKEN) {
+  console.error('[ERROR] AIRTABLE_BASE_ID and AIRTABLE_TOKEN are required (or AIRTABLE_BASE/AIRTABLE_KEY).');
+  process.exit(1);
+}
 
 const API_BASE = `https://api.airtable.com/v0/bases/${AIRTABLE_BASE_ID}`;
 const HEADERS = {

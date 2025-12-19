@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('./load_env');
 
 // patch_nocouuid_default.js
 // One-off script to set gen_random_uuid() as the default for all `nocouuid` fields.
