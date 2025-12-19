@@ -236,20 +236,66 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
     }
     out = out.concat(list);
     if (list.length < limit) break;
-    offset = limit;
+    offset += limit;
   }
   return out;
 }
 
+async function createOneRow(tableId, rowObj) {
+  // Different NocoDB builds accept different shapes.
+  // Try the plain object first (most common for single row), then fallbacks.
+  const url = `/api/v2/tables/${tableId}/records`;
+  try {
+    return await apiCall('post', url, rowObj);
+  } catch (e1) {
+    try {
+      return await apiCall('post', url, { data: rowObj });
+    } catch (e2) {
+      return apiCall('post', url, { fields: rowObj });
+    }
+  }
+}
+
 async function createRows(tableId, rows) {
   if (!rows.length) return [];
+
+  // Try bulk first (fast path). In some NocoDB builds, bulk POST may "succeed"
+  // but only create 1 empty row (or return a non-bulk payload). Detect and fallback.
   const data = await apiCall('post', `/api/v2/tables/${tableId}/records`, { data: rows });
-  const list = Array.isArray(data?.list) ? data.list : data;
-  return Array.isArray(list) ? list : [];
+  const list = Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : null);
+
+  if (Array.isArray(list) && list.length === rows.length) {
+    return list;
+  }
+
+  // Suspicious response: bulk didn't create what we asked for.
+  // Fall back to reliable single-row inserts.
+  const got = Array.isArray(list) ? list.length : 0;
+  console.warn(
+    `[WARN] Bulk insert response for table ${tableId} did not match request: requested=${rows.length} got=${got}. Falling back to single inserts.`
+  );
+  // Optional debug: show first 1-2 rows we attempted
+  if (process.env.NOCODB_DEBUG === '1') {
+    console.warn('[DEBUG] First row payload keys:', Object.keys(rows[0] || {}));
+  }
+
+  const created = [];
+  for (const r of rows) {
+    const one = await createOneRow(tableId, r);
+    if (one && typeof one === 'object') created.push(one);
+  }
+  return created;
 }
 
 async function patchRow(tableId, rowId, fields) {
-  return apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, { data: fields });
+  // PATCH usually accepts a plain object body, but some builds used { data: {...} }.
+  try {
+    return await apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, fields);
+  } catch (e) {
+    const msg = (e && e.message) ? e.message : String(e);
+    debug(`patchRow(plain body) failed, retrying with {data:{...}}: ${msg}`);
+    return apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, { data: fields });
+  }
 }
 
 // ------------------------------
@@ -271,7 +317,7 @@ function readExportJson(tableName) {
 
 function chunk(arr, n) {
   const out = [];
-  for (let i = 0; i < arr.length; i = n) out.push(arr.slice(i, i + n));
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
   return out;
 }
 
@@ -284,6 +330,30 @@ function buildColumnIndex(columns) {
     if (c?.name) byName.set(c.name, c);
   }
   return { byTitle, byName };
+}
+
+// Normalize airtable-export record shapes:
+//  - Flattened: { airtable_id: "rec..", fieldA: ..., fieldB: ... }
+//  - Airtable-like: { id: "rec..", fields: { fieldA: ..., fieldB: ... } }
+function normalizeExportRecord(rec) {
+  if (!rec || typeof rec !== 'object') {
+    return { airtableId: null, fields: {} };
+  }
+
+  // Airtable API-style
+  if (rec.fields && typeof rec.fields === 'object') {
+    const airtableId = typeof rec.id === 'string' && rec.id.startsWith('rec') ? rec.id : null;
+    return { airtableId, fields: rec.fields };
+  }
+
+  // Flattened style
+  const airtableId =
+    rec.airtable_id ||
+    rec.airtableId ||
+    rec.record_id ||
+    (typeof rec.id === 'string' && rec.id.startsWith('rec') ? rec.id : null);
+
+  return { airtableId: airtableId || null, fields: rec };
 }
 
 function pickFieldsForPassA(record, colIndex) {
@@ -365,10 +435,10 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   const passA_update = []; // { rowId, fields, linkPayloads }
   const passB_links = [];  // { rowId, links }
 
-  for (const rec of exportRecs) {
-    const airtableId = rec?.airtable_id;
+  for (const rawRec of exportRecs) {
+    const { airtableId, fields: rec } = normalizeExportRecord(rawRec);
     if (!airtableId) {
-      debug('Skipping record without airtable_id', rec);
+      debug('Skipping record without Airtable record id', rawRec);
       continue;
     }
 
@@ -411,8 +481,8 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   // Prepare Pass B link updates (using current row ids)
-  for (const rec of exportRecs) {
-    const airtableId = rec?.airtable_id;
+  for (const rawRec of exportRecs) {
+    const { airtableId, fields: rec } = normalizeExportRecord(rawRec);
     if (!airtableId) continue;
     const rowId = mapAfter.get(airtableId);
     if (!rowId) continue;
