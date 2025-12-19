@@ -140,6 +140,68 @@ async function fetchTableColumns(tableId) {
   return cols;
 }
 
+async function patchColumn(columnId, payload) {
+  // v2 meta update
+  return apiCall('patch', `/api/v2/meta/columns/${columnId}`, payload);
+}
+
+async function fixBrokenSumRollupsForTable(tableMeta) {
+  const tableName = tableMeta?.title || tableMeta?.table_name || tableMeta?.name;
+  const tableId = tableMeta?.id;
+  if (!tableId) return { patched: 0, restored: 0, originals: [] };
+
+  const columns = await fetchTableColumns(tableId);
+  let patched = 0;
+  const originals = [];
+
+  for (const col of columns) {
+    const uidt = (col?.uidt || col?.type || '').toString();
+    if (uidt !== 'Rollup') continue;
+    const fn = (col?.rollup_function || col?.options?.rollup_function || '').toString().toLowerCase();
+    if (fn !== 'sum') continue;
+
+    // NocoDB generates SQL like sum(<expression>) for Rollups.
+    // If the rollup target column is text/formula, Postgres throws:
+    //   "function sum(text) does not exist"
+    // This breaks *any* SELECT that includes that rollup, and NocoDB tends to
+    // SELECT after inserts/updates, causing imports to fail.
+    //
+    // Workaround: temporarily change rollup_function to 'count' (works for any type).
+    const payload = {
+      uidt: 'Rollup',
+      title: col.title,
+      column_name: col.column_name || col.name || col.title,
+      fk_relation_column_id: col.fk_relation_column_id || col.options?.fk_relation_column_id,
+      fk_rollup_column_id: col.fk_rollup_column_id || col.options?.fk_rollup_column_id,
+      rollup_function: 'count',
+    };
+
+    originals.push({
+      columnId: col.id,
+      rollup_function: fn,
+      payload,
+      tableName,
+    });
+
+    log(`  [INFO] Patching Rollup "${payload.column_name}" on "${tableName}" from sum -> count (temporary) ...`);
+    await patchColumn(col.id, payload);
+    patched += 1;
+  }
+
+  return { patched, originals };
+}
+
+async function restoreSumRollups(originals) {
+  let restored = 0;
+  for (const o of originals) {
+    const payload = { ...o.payload, rollup_function: o.rollup_function };
+    log(`  [INFO] Restoring Rollup "${payload.column_name}" on "${o.tableName}" back to "${o.rollup_function}" ...`);
+    await patchColumn(o.columnId, payload);
+    restored += 1;
+  }
+  return restored;
+}
+
 // ------------------------------
 // Data helpers
 // ------------------------------
@@ -260,7 +322,7 @@ async function buildAirtableIdToRowIdMap(tableId) {
   // IMPORTANT: only fetch minimal fields to avoid NocoDB rollup/lookups exploding on select
   // (e.g. Postgres error "function sum(text) does not exist")
   // NOTE (NocoDB 0.265.1): `fields` can only include *real columns*. `id` is not a column.
-  // Ask only for airtable_id; the row identifier still comes back as `id` / `Id` / `nocopk`.
+  // Ask only for airtable_id; the row identifier still comes back as `id` / `Id` / `nocopk` depending on setup.
   const rows = await listAllRows(tableId, 1000, ['airtable_id']);
   const map = new Map();
   for (const r of rows) {
@@ -279,7 +341,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   const tableName = tableMeta?.title || tableMeta?.table_name;
   const tableId = tableMeta?.id;
   if (!tableName || !tableId) return;
-
+  
   // Ensure our natural key exists before we attempt reads with fields=airtable_id
   columns = await ensureAirtableIdColumn(tableMeta, columns);  
 
@@ -439,6 +501,25 @@ async function main() {
   log(`Export dir: ${AIRTABLE_EXPORT_DIR}`);
   log(`Batch size: ${NOCODB_BATCH_SIZE}`);
 
+  const FIX_SUM_ROLLUPS = (process.env.NOCODB_FIX_SUM_ROLLUPS || '1').toString() !== '0';
+  const RESTORE_ROLLUPS = (process.env.NOCODB_RESTORE_ROLLUPS || '0').toString() === '1';
+  let rollupOriginals = [];
+  
+  if (FIX_SUM_ROLLUPS) {
+    log('\n[INFO] Pre-flight: scanning for Rollup fields using rollup_function=sum (can break Postgres) ...');
+    for (const t of tables) {
+      const r = await fixBrokenSumRollupsForTable(t);
+      if (r?.originals?.length) rollupOriginals = rollupOriginals.concat(r.originals);
+    }
+    if (rollupOriginals.length) {
+      log(`[INFO] Patched ${rollupOriginals.length} Rollup field(s) from sum -> count to prevent Postgres errors during import.`);
+    } else {
+      log('[INFO] No sum-based Rollup fields found. Continuing.');
+    }
+  } else {
+    log('[INFO] Pre-flight Rollup fix disabled (NOCODB_FIX_SUM_ROLLUPS=0).');
+  }
+
   const allTableIdMaps = new Map(); // relatedTableId -> Map(airtable_id -> rowId)
 
   for (const name of tableNames) {
@@ -452,7 +533,13 @@ async function main() {
   }
 
   log('\nAll done.');
-  // NOTE: importTable() now self-heals by adding airtable_id if missing.  
+
+  if (RESTORE_ROLLUPS && rollupOriginals.length) {
+    log('\n[INFO] Restoring Rollup fields to original rollup_function values ...');
+    await restoreSumRollups(rollupOriginals);
+    log('[INFO] Rollup restore complete.');
+  }
+
 }
 
 main().catch((err) => {

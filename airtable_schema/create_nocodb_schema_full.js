@@ -1996,42 +1996,93 @@ function mapAirtableRollupFunction(fn, targetType, rollupName) {
   const t = (targetType || '').toString().toLowerCase();
   const name = (rollupName || '').toString().toLowerCase();
 
+  // NocoDB generates SQL aggregates like SUM(<expr>) for rollups.
+  // In Postgres, SUM(text) fails with:
+  //   "function sum(text) does not exist"
+  // which can break *any* SELECT that includes that rollup.
+  //
+  // So: only allow sum/avg when the target field type is clearly numeric.
+  function isNumericTargetType(typeName) {
+    const x = (typeName || '').toString().toLowerCase();
+
+    // Handle both Airtable-ish and Noco-ish names.
+    // (Noco often uses "Number", "Decimal", etc; we lower-case above.)
+    if (
+      x === 'number' ||
+      x === 'decimal' ||
+      x === 'currency' ||
+      x === 'percent' ||
+      x === 'integer' ||
+      x === 'int' ||
+      x === 'float' ||
+      x === 'rating'
+    ) {
+      return true;
+    }
+
+    // Some builds surface uidt/dt-ish strings; be permissive for numeric markers.
+    if (x.includes('number') || x.includes('decimal') || x.includes('currency')) {
+      return true;
+    }
+    if (x === 'int2' || x === 'int4' || x === 'int8' || x === 'numeric' || x === 'float4' || x === 'float8') {
+      return true;
+    }
+
+    return false;
+  }
+
+  const isDateish = t === 'date' || t === 'datetime';
+  const isNumeric = isNumericTargetType(t);
+
+  // If Airtable didn't specify, guess based on target type + name.
   if (!fn) {
-    // If Airtable didn't specify, guess based on target type + name.
-    if (t === 'date' || t === 'datetime') {
+    if (isDateish) {
       if (name.startsWith('first_')) return 'min';
       if (name.startsWith('last_')) return 'max';
       return 'max';
     }
-    // Default for numeric-ish data
-    return 'sum';
+    // Safe default:
+    // - numeric -> sum
+    // - everything else -> count (never sum(text))
+    return isNumeric ? 'sum' : 'count';
   }
 
   const s = String(fn).toLowerCase();
 
-  if (s.includes('count') && s.includes('distinct')) return 'countDistinct';
-  if (s.includes('count') && s.includes('unique')) return 'countDistinct';
+  // COUNT variants are always safe.
+  if (s.includes('count') && (s.includes('distinct') || s.includes('unique'))) {
+    return 'countDistinct';
+  }
   if (s.startsWith('count')) return 'count';
 
-  if (s.startsWith('sum') && s.includes('distinct')) return 'sumDistinct';
-  if (s.startsWith('sum')) return 'sum';
-
-  if ((s.startsWith('avg') || s.startsWith('average')) && s.includes('distinct')) {
-    return 'avgDistinct';
+  // SUM variants: only safe for numeric targets.
+  if (s.startsWith('sum') && (s.includes('distinct') || s.includes('unique'))) {
+    return isNumeric ? 'sumDistinct' : 'countDistinct';
   }
-  if (s.startsWith('avg') || s.startsWith('average')) return 'avg';
+  if (s.startsWith('sum')) {
+    return isNumeric ? 'sum' : 'count';
+  }
 
+  // AVG variants: only safe for numeric targets.
+  if ((s.startsWith('avg') || s.startsWith('average')) && (s.includes('distinct') || s.includes('unique'))) {
+    return isNumeric ? 'avgDistinct' : 'countDistinct';
+  }
+  if (s.startsWith('avg') || s.startsWith('average')) {
+    return isNumeric ? 'avg' : 'count';
+  }
+
+  // MIN/MAX are safe on many types (including text/date).
   if (s.startsWith('min')) return 'min';
   if (s.startsWith('max')) return 'max';
 
-  // Fallback by target type if the string is unknown
-  if (t === 'date' || t === 'datetime') {
+  // Unknown aggregation string: fall back safely.
+  if (isDateish) {
     if (name.startsWith('first_')) return 'min';
     if (name.startsWith('last_')) return 'max';
     return 'max';
   }
-
-  return 'sum';
+  
+  return isNumeric ? 'sum' : 'count';
 }
 
 // --------------------------------------------
