@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-12-20.1
+ * Version: 2025-12-21.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -20,6 +20,7 @@
  * Summary: Freeze Dry & Package – Actions
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
  */
+ 
 try {
 
   const { productId } = input.config();
@@ -30,19 +31,30 @@ try {
   
   const src = await productsTbl.selectRecordAsync(productId);
   if (!src) throw new Error('Source product not found');
-  
+
+  const storageFieldName = (() => {
+    try { productsTbl.getField('storage_location'); return 'storage_location'; } catch {}
+    throw new Error('Could not find products.storage_location.');
+  })();
+
+  const traystateFieldName = (() => {
+    try { productsTbl.getField('tray_state'); return 'tray_state'; } catch {}
+    throw new Error('Could not find products.tray_state.');
+  })();
+    
   // Read inputs
   const packageItem        = src.getCellValue('package_item')?.[0] || null;
   const packageItemCategory= (src.getCellValueAsString('package_item_category') || '').toLowerCase(); // lookup from items.category
-  const trayState          = (src.getCellValueAsString('tray_state') || '').toLowerCase();
+  const trayState          = (src.getCellValueAsString(traystateFieldName) || '').toLowerCase();
   const sizeG              = Number(src.getCellValue('package_size_g') ?? NaN);
   const count              = Number(src.getCellValue('package_count') ?? NaN);
   const useBy              = src.getCellValue('use_by');
-  const loc                = src.getCellValue('storage_location')?.[0] || null;
-  
+  // storage_location is a singleSelect; getCellValue returns { id, name } (or null)
+  const loc                = src.getCellValue(storageFieldName) || null;
+
   // Validate
   const errs = [];
-  if (trayState !== 'freezer_tray') errs.push('Packaging requires tray_state = freezer_tray.');
+  if (trayState !== 'freezer_tray') errs.push(`Packaging requires ${traystateFieldName} = freezer_tray.`);
   if (!packageItem) errs.push('Select package_item (retail SKU).');
   if (packageItemCategory !== 'freezedriedmushrooms') errs.push('package_item must have category "freezedriedmushrooms".');
   if (!Number.isFinite(sizeG) || sizeG <= 0) errs.push('Set package_size_g to a positive number.');
@@ -54,6 +66,18 @@ try {
     const f = table.getField(fieldName);
     if (f.type === 'singleSelect') return { name: valueStr };
     return valueStr; // singleLineText, etc.
+  }
+
+  function getSingleSelectChoiceId(table, fieldName, choiceName) {
+    const f = table.getField(fieldName);
+    if (f.type !== 'singleSelect') {
+      throw new Error(`${table.name}.${fieldName} is not a singleSelect field.`);
+    }
+    const choice = (f.options?.choices || []).find(c => c.name === choiceName);
+    if (!choice) {
+      throw new Error(`${table.name}.${fieldName} missing singleSelect choice "${choiceName}".`);
+    }
+    return choice.id;
   }
   
   // ----- NEW: multi-tray support via products.merge_tray_products -----
@@ -72,9 +96,9 @@ try {
       continue;
     }
     extraTrayRecords.push(rec);
-    const s = (rec.getCellValueAsString('tray_state') || '').toLowerCase();
+    const s = (rec.getCellValueAsString(traystateFieldName) || '').toLowerCase();
     if (s !== 'freezer_tray') {
-      errs.push(`Additional tray ${rec.name || rec.id} must have tray_state = freezer_tray.`);
+      errs.push(`Additional tray ${rec.name || rec.id} must have ${traystateFieldName} = freezer_tray.`);
     }
   }
   
@@ -91,9 +115,11 @@ try {
   await productsTbl.updateRecordAsync(src.id, { ui_error: null, ui_error_at: null });
   
   // Compute use_by (2 years default)
-  function addYearsISO(iso, years) { const d = new Date(iso); d.setFullYear(d.getFullYear() + years); return d.toISOString(); }
-  const nowIso = new Date().toISOString();
-  const finalUseBy = useBy || addYearsISO(nowIso, 2);
+  function addYearsDate(d, years) { const x = new Date(d); x.setFullYear(x.getFullYear() + years); return x; }
+  const now = new Date();
+  const nowIso = now.toISOString();
+  // Airtable date fields accept Date objects; keep existing value if present
+  const finalUseBy = useBy || addYearsDate(now, 2);
   
   // Gather origins from the primary tray plus any additional trays
   let origins = [];
@@ -127,6 +153,7 @@ try {
   }
   
   const itemRec = await itemsTbl.selectRecordAsync(packageItem.id);
+  if (!itemRec) throw new Error(`package_item record not found: ${packageItem.id}`);
   
   // Create finished packaged products
   const batch = [];
@@ -139,7 +166,10 @@ try {
       pack_date: nowIso,
       use_by: finalUseBy
     };
-    if (loc) f.storage_location = [{ id: loc.id }];
+    // If you want new packaged products to inherit storage_location from the tray record,
+    // storage_location is singleSelect so we set { id } (or { name }) not an array.
+    if (loc && loc.id) f[storageFieldName] = { id: loc.id };
+
   
     if (hasField(productsTbl, 'name_mat')) {
       const v = coerceValueForField(productsTbl, 'name_mat', itemRec.getCellValueAsString('name') || '');
@@ -161,44 +191,53 @@ try {
   const packageEvt = (evtTypeField.options?.choices || []).find(c => c.name === 'Package');
   if (packageEvt && origins.length) {
     const tsWritable = (() => { try { return eventsTbl.getField('timestamp').type === 'dateTime'; } catch { return false; }})();
-    const eBatch = origins.slice(0, 50).map(lotId => {
-      const f = {
-        lot_id: [{ id: lotId }],
-        type: { id: packageEvt.id },
-        station: 'Packaging Freeze-Dried',
-        fields_json: JSON.stringify({
-          from_product_id: src.id,
-          package_item_id: packageItem.id,
-          package_size_g: sizeG,
-          package_count: count
-        })
-      };
-      if (tsWritable) f.timestamp = nowIso;
-      return { fields: f };
-    });
-    for (let i = 0; i < eBatch.length; i += 50) {
-      await eventsTbl.createRecordsAsync(eBatch.slice(i, i + 50));
+    for (let i = 0; i < origins.length; i += 50) {
+      const eBatch = origins.slice(i, i + 50).map(lotId => {
+        const f = {
+          lot_id: [{ id: lotId }],
+          type: { id: packageEvt.id },
+          station: 'Packaging Freeze-Dried',
+          fields_json: JSON.stringify({
+            from_product_id: src.id,
+            package_item_id: packageItem.id,
+            package_size_g: sizeG,
+            package_count: count
+          })
+        };
+        if (tsWritable) f.timestamp = nowIso;
+        return { fields: f };
+      });
+      await eventsTbl.createRecordsAsync(eBatch);
     }
   }
   
-  // ✅ Mark the tray product(s) as empty so they disappear from the filtered interface
-  const trayStateField = productsTbl.getField('tray_state');
-  const emptyChoice = (trayStateField.options?.choices || []).find(c => c.name === 'empty_tray');
-  if (!emptyChoice) throw new Error('products.tray_state missing "empty_tray".');
+  // ✅ Mark the tray product(s) as empty and set storage_location = Consumed
+  const trayStateEmptyId = getSingleSelectChoiceId(productsTbl, traystateFieldName, 'empty_tray');
+  
+  
+  const consumedLocationId = getSingleSelectChoiceId(productsTbl, storageFieldName, 'Consumed');
   
   const trayUpdates = [];
   
   // Primary tray
   trayUpdates.push({
     id: src.id,
-    fields: { tray_state: { id: emptyChoice.id }, action: null }
+    fields: {
+      [traystateFieldName]: { id: trayStateEmptyId },
+      [storageFieldName]: { id: consumedLocationId },
+      action: null
+    }
   });
   
   // Any additional trays used via merge_tray_products
   for (const rec of extraTrayRecords) {
     trayUpdates.push({
       id: rec.id,
-      fields: { tray_state: { id: emptyChoice.id }, action: null }
+      fields: {
+        tray_state: { id: trayStateEmptyId },
+        [storageFieldName]: { id: consumedLocationId },
+        action: null
+      }
     });
   }
   
