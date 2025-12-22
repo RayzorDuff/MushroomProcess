@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-17.1
+ * Version: 2025-12-22.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -335,9 +335,23 @@ function mapFieldToNocoColumn_FirstPass(field) {
     return col;
   }
 
+  // --- Percent ---
+  if (type === 'percent') {
+    col.uidt = 'Percent';
+    return col;
+  }
+
   // --- Numbers & decimals ---
-  if (type === 'number' || type === 'percent') {
-    col.uidt = 'Number';
+  // Airtable "number" fields can be either integer-like or decimal-like depending
+  // on the configured precision (decimal places). If precision > 0, we must create
+  // a Decimal column in NocoDB (Postgres numeric) to avoid silent rounding and
+  // import failures when payloads contain decimals.
+  if (type === 'number' ) {
+    const precision =
+      field && field.options && typeof field.options.precision === 'number'
+        ? field.options.precision
+        : 0;
+    col.uidt = precision > 0 ? 'Decimal' : 'Number';
     return col;
   }
 
