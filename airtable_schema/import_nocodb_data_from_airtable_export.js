@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-18.1
+ * Version: 2025-12-22.1
  * =============================================================================
  * Imports Airtable table data exported by `airtable-export` (JSON arrays) into an
  * existing NocoDB base where the schema has already been created.
@@ -332,6 +332,26 @@ function buildColumnIndex(columns) {
   return { byTitle, byName };
 }
 
+function apiFieldName(col) {
+  // For v2 record create/patch payloads, NocoDB expects the *column title*.
+  // Using column_name works for some schemas, but silently drops fields for others.
+  return (col && (col.title || col.column_name || col.name)) || null;
+}
+
+function readFieldValue(record, col) {
+  // airtable-export may output field keys in a few forms:
+  //  - exact Airtable field name (often matches Noco title)
+  //  - snake_case (our generated column_name)
+  //  - already-normalized
+  // Try a few candidates without being too clever.
+  if (!record || !col) return undefined;
+  const candidates = [col.title, col.column_name, col.name].filter(Boolean);
+  for (const k of candidates) {
+    if (Object.prototype.hasOwnProperty.call(record, k)) return record[k];
+  }
+  return undefined;
+}
+
 // Normalize airtable-export record shapes:
 //  - Flattened: { airtable_id: "rec..", fieldA: ..., fieldB: ... }
 //  - Airtable-like: { id: "rec..", fields: { fieldA: ..., fieldB: ... } }
@@ -356,18 +376,38 @@ function normalizeExportRecord(rec) {
   return { airtableId: airtableId || null, fields: rec };
 }
 
+function isLinkLikeColumn(col) {
+  const t = (col?.uidt || col?.type || '').toString();
+  // NocoDB uses 'Links' for LTAR, but other builds/paths sometimes surface related types.
+  return (
+    t === 'Links' ||
+    t === 'LinkToAnotherRecord' ||
+    t === 'LinkToAnotherRecords' ||
+    t === 'Relation' ||
+    t === 'Lookup' ||
+    t === 'Rollup'
+  );
+}
+
+function getDisplayValueColumn(columns) {
+  // In v2 meta, the "primary value" column usually carries `pv: true`.
+  return (columns || []).find((c) => c?.pv === true) || null;
+}
+
 function pickFieldsForPassA(record, colIndex) {
   // Keep only columns present in NocoDB AND not Links uidt.
   const out = {};
   for (const [k, v] of Object.entries(record || {})) {
     const col = colIndex.byName.get(k) || colIndex.byTitle.get(k);
     if (!col) continue;
-    if ((col.uidt || '').toString() === 'Links') continue;
+    if (isLinkLikeColumn(col)) continue;
 
     // Skip null/undefined to avoid overwriting with null unless explicit
     if (typeof v === 'undefined') continue;
 
-    out[k] = v;
+    const apiKey = apiFieldName(col);
+    if (!apiKey) continue;
+    out[apiKey] = v;
   }
   return out;
 }
@@ -376,26 +416,32 @@ function extractLinkPayloads(record, linkCols) {
   // Return { fieldName: [airtable_id, ...], ... } limited to link columns
   const out = {};
   for (const c of linkCols) {
-    const k = c.column_name || c.title || c.name;
-    if (!k) continue;
-    const v = record?.[k];
+    const apiKey = apiFieldName(c);
+    if (!apiKey) continue;
+    const v = readFieldValue(record, c);
     if (!v) continue;
 
     // airtable-export emits link fields as arrays of Airtable record ids
     if (Array.isArray(v)) {
-      out[k] = v.filter((x) => typeof x === 'string' && x.trim());
+      out[apiKey] = v.filter((x) => typeof x === 'string' && x.trim());
     }
   }
   return out;
 }
 
-async function buildAirtableIdToRowIdMap(tableId) {
+async function buildAirtableIdToRowMaps(tableId, columns) {
   // IMPORTANT: only fetch minimal fields to avoid NocoDB rollup/lookups exploding on select
   // (e.g. Postgres error "function sum(text) does not exist")
   // NOTE (NocoDB 0.265.1): `fields` can only include *real columns*. `id` is not a column.
   // Ask only for airtable_id; the row identifier still comes back as `id` / `Id` / `nocopk` depending on setup.
-  const rows = await listAllRows(tableId, 1000, ['airtable_id']);
-  const map = new Map();
+  const pvCol = getDisplayValueColumn(columns || []);
+  const pvName = pvCol?.column_name || pvCol?.title || pvCol?.name;
+  const fieldList = ['airtable_id'];
+  if (pvName && pvName !== 'airtable_id') fieldList.push(pvName);
+
+  const rows = await listAllRows(tableId, 1000, fieldList);
+  const byAirtableId = new Map();
+  const byDisplayValue = new Map();
   for (const r of rows) {
     const at = r?.airtable_id;
     // NocoDB row identifier varies by endpoint/config:
@@ -403,9 +449,15 @@ async function buildAirtableIdToRowIdMap(tableId) {
     // - some setups: `Id`
     // - your Postgres schema shows `nocopk` as pk in SQL logs
     const id = r?.id ?? r?.Id ?? r?.nocopk;
-    if (at && id) map.set(at, id);
+    if (at && id) byAirtableId.set(String(at), id);
+    if (pvName && id) {
+      const pv = r?.[pvName];
+      if (pv !== null && typeof pv !== 'undefined' && String(pv).trim()) {
+        byDisplayValue.set(String(pv), id);
+      }
+    }
   }
-  return map;
+  return { byAirtableId, byDisplayValue, pvName };
 }
 
 async function importTable(tableMeta, columns, allTableIdMaps) {
@@ -425,10 +477,11 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   const colIndex = buildColumnIndex(columns);
-  const linkCols = columns.filter((c) => (c.uidt || '').toString() === 'Links');
+  const linkCols = (columns || []).filter((c) => (c?.uidt || c?.type || '').toString() === 'Links');
 
   // Existing map for upsert routing
-  const existingMap = await buildAirtableIdToRowIdMap(tableId);
+  const existingMapObj = await buildAirtableIdToRowMaps(tableId, columns);
+  const existingMap = existingMapObj.byAirtableId;  
   debug(`Existing rows with airtable_id: ${existingMap.size}`);
 
   const passA_create = [];
@@ -468,7 +521,8 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   // Refresh map after creates
-  const mapAfter = await buildAirtableIdToRowIdMap(tableId);
+  const mapAfterObj = await buildAirtableIdToRowMaps(tableId, columns);
+  const mapAfter = mapAfterObj.byAirtableId;
 
   // Pass A - updates
   if (passA_update.length) {
@@ -505,7 +559,8 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   // We'll attempt multiple keys to locate the related table id.
   const linkTargetByField = new Map();
   for (const c of linkCols) {
-    const field = c.column_name || c.title || c.name;
+    // Keys in `item.links` are API field names (prefer title).
+    const field = apiFieldName(c);
     if (!field) continue;
 
     const opt = c?.colOptions || c?.options || c?.column_options || {};
@@ -521,9 +576,10 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   // Build missing target maps lazily
-  async function getTargetMap(relatedTableId) {
+  async function getTargetMaps(relatedTableId) {
     if (allTableIdMaps.has(relatedTableId)) return allTableIdMaps.get(relatedTableId);
-    const m = await buildAirtableIdToRowIdMap(relatedTableId);
+    const targetCols = await fetchTableColumns(relatedTableId);
+    const m = await buildAirtableIdToRowMaps(relatedTableId, targetCols);
     allTableIdMaps.set(relatedTableId, m);
     return m;
   }
@@ -536,13 +592,25 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
         debug(`  [WARN] Could not determine related table id for link field ${tableName}.${field}`);
         continue;
       }
-      const targetMap = await getTargetMap(relatedTableId);
-      const rowIds = airtableIds
-        .map((atId) => targetMap.get(atId))
-        .filter(Boolean);
+      const targetMaps = await getTargetMaps(relatedTableId);
+      const byAirtableId = targetMaps.byAirtableId;
+      const byDisplayValue = targetMaps.byDisplayValue;
+
+      const resolved = [];
+      for (const v of vals || []) {
+        const s = String(v || '').trim();
+        if (!s) continue;
+        let rid = null;
+        if (s.startsWith('rec')) {
+          rid = byAirtableId.get(s);
+        } else {
+          rid = byDisplayValue.get(s) || byAirtableId.get(s);
+        }
+        if (rid) resolved.push(rid);
+      }
 
       // If Airtable had links but target doesn't exist, we still set empty array
-      patch[field] = rowIds;
+      patch[field] = resolved;
     }
 
     if (Object.keys(patch).length) {
