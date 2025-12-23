@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-22.1
+ * Version: 2025-12-22.2
  * =============================================================================
  * Imports Airtable table data exported by `airtable-export` (JSON arrays) into an
  * existing NocoDB base where the schema has already been created.
@@ -88,6 +88,28 @@ async function apiCall(method, url, data) {
 async function createColumnV2(tableId, columnPayload) {
   // v2: POST /api/v2/meta/tables/{tableId}/columns
   return apiCall('post', `/api/v2/meta/tables/${tableId}/columns`, columnPayload);
+}
+
+function isLinkColumn(c) {
+  // NocoDB can represent link fields differently depending on endpoint/version:
+  // - uidt: 'Links'
+  // - type: 'LinkToAnotherRecord', 'Rollup' 'Lookup'
+  // - options.type: 'mm'/'hm'/'bt' etc.
+  const uidt = (c?.uidt || '').toString();
+  const type = (c?.type || '').toString();
+  const opt = c?.colOptions || c?.options || c?.column_options || {};
+  const relType = (opt?.type || '').toString();
+
+  if (uidt === 'Links') return true;
+  if (uidt === 'LinkToAnotherRecord') return true;
+  if (type === 'LinkToAnotherRecord' || type === 'Rollup' || type === 'Lookup') return true;
+  if (relType === 'mm' || relType === 'hm' || relType === 'bt' || relType === 'oo') return true;
+
+  // Sometimes relation metadata shows up via fk_* keys
+  if (opt?.fk_related_model_id || opt?.fk_mm_model_id) return true;
+  if (c?.fk_related_model_id || c?.fk_mm_model_id) return true;
+
+  return false;
 }
 
 function normalizeColName(c) {
@@ -203,6 +225,42 @@ async function restoreSumRollups(originals) {
   return restored;
 }
 
+// Some NocoDB builds return records as:
+//   { id: 1, fields: { colA: ..., airtable_id: ... } }
+// Others return flattened:
+//   { id: 1, colA: ..., airtable_id: ... }
+// Normalize to flattened to keep the rest of the importer consistent.
+function flattenNocoRecord(rec) {
+  if (!rec || typeof rec !== 'object') return rec;
+
+  // Different builds/endpoints nest row values differently.
+  // Prefer the first object-like payload found among common keys.
+  const payload =
+    (rec.fields && typeof rec.fields === 'object' && rec.fields) ||
+    (rec.data && typeof rec.data === 'object' && rec.data) ||
+    (rec.row && typeof rec.row === 'object' && rec.row) ||
+    (rec.record && typeof rec.record === 'object' && rec.record) ||
+    (rec.values && typeof rec.values === 'object' && rec.values) ||
+    null;
+
+  if (!payload) return rec;
+
+  // Preserve identifiers on the top-level record, but merge payload into root.
+  const out = { ...payload, ...rec };
+  // Remove nesting keys so later code sees a flat object.
+  delete out.fields;
+  delete out.data;
+  delete out.row;
+  delete out.record;
+  delete out.values;
+  return out;
+}
+
+function flattenNocoList(list) {
+  if (!Array.isArray(list)) return list;
+  return list.map(flattenNocoRecord);
+}
+
 // ------------------------------
 // Data helpers
 // ------------------------------
@@ -225,7 +283,8 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
     }
 
     const data = await apiCall('get', `/api/v2/tables/${tableId}/records?${qs.toString()}`);
-    const list = Array.isArray(data?.list) ? data.list : data;
+    const rawList = Array.isArray(data?.list) ? data.list : data;
+    const list = flattenNocoList(rawList);
     if (!Array.isArray(list)) {
       throw new Error(
         `Unexpected records response for table ${tableId}: ${JSON.stringify(data).slice(
@@ -243,7 +302,8 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
 
 async function createOneRow(tableId, rowObj) {
   // Different NocoDB builds accept different shapes.
-  // Try the plain object first (most common for single row), then fallbacks.
+  // Empirically, some self-hosted builds accept a plain object, others want { data: ... }.
+  // Try plain first, then fall back.
   const url = `/api/v2/tables/${tableId}/records`;
   try {
     return await apiCall('post', url, rowObj);
@@ -259,23 +319,12 @@ async function createOneRow(tableId, rowObj) {
 async function createRows(tableId, rows) {
   if (!rows.length) return [];
 
-  // Try bulk first (fast path). In some NocoDB builds, bulk POST may "succeed"
-  // but only create 1 empty row (or return a non-bulk payload). Detect and fallback.
-  const data = await apiCall('post', `/api/v2/tables/${tableId}/records`, { data: rows });
-  const list = Array.isArray(data?.list) ? data.list : (Array.isArray(data) ? data : null);
-
-  if (Array.isArray(list) && list.length === rows.length) {
-    return list;
-  }
-
-  // Suspicious response: bulk didn't create what we asked for.
-  // Fall back to reliable single-row inserts.
-  const got = Array.isArray(list) ? list.length : 0;
-  console.warn(
-    `[WARN] Bulk insert response for table ${tableId} did not match request: requested=${rows.length} got=${got}. Falling back to single inserts.`
-  );
-  // Optional debug: show first 1-2 rows we attempted
+  // IMPORTANT:
+  // Bulk insert (POST {data:[...]}) has been observed to create the correct number of rows
+  // but with empty field values in some NocoDB builds. To keep imports reliable,
+  // we always insert rows one-by-one using createOneRow().
   if (process.env.NOCODB_DEBUG === '1') {
+    console.warn('[DEBUG] createRows(): bulk disabled; inserting one-by-one for reliability.');
     console.warn('[DEBUG] First row payload keys:', Object.keys(rows[0] || {}));
   }
 
@@ -295,6 +344,20 @@ async function patchRow(tableId, rowId, fields) {
     const msg = (e && e.message) ? e.message : String(e);
     debug(`patchRow(plain body) failed, retrying with {data:{...}}: ${msg}`);
     return apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, { data: fields });
+  }
+}
+
+async function linkRecords(tableId, linkFieldId, recordId, targetRecordIds) {
+  // NocoDB v2 linking API:
+  //   POST /api/v2/tables/{tableId}/links/{linkFieldId}/records/{recordId}
+  // Body is an object with key `Id`. Some builds respond with text/html "true".
+  // Send one request per target id to avoid ambiguity about array formats.
+  for (const targetId of targetRecordIds) {
+    await apiCall(
+      'post',
+      `/api/v2/tables/${tableId}/links/${linkFieldId}/records/${recordId}`,
+      { Id: targetId }
+    );
   }
 }
 
@@ -332,10 +395,68 @@ function buildColumnIndex(columns) {
   return { byTitle, byName };
 }
 
+// IMPORTANT: This file previously redefined apiFieldName() later and preferred `title`.
+// That breaks airtable-export JSON (snake_case keys) and causes empty rows in NocoDB.
+// Always use the real API key: column_name (snake_case).
 function apiFieldName(col) {
-  // For v2 record create/patch payloads, NocoDB expects the *column title*.
-  // Using column_name works for some schemas, but silently drops fields for others.
-  return (col && (col.title || col.column_name || col.name)) || null;
+  return (col && (col.column_name || col.name || col.title)) || null;
+}
+
+function getField(rec, key) {
+  if (!rec || !key) return undefined;
+  if (Object.prototype.hasOwnProperty.call(rec, key)) return rec[key];
+  // Common nested shapes: fields/data/row/record/values
+  for (const nestKey of ['fields', 'data', 'row', 'record', 'values']) {
+    const obj = rec[nestKey];
+    if (obj && typeof obj === 'object' && Object.prototype.hasOwnProperty.call(obj, key)) {
+      return obj[key];
+    }
+  }
+  // Normalized search
+  const want = normalizeKey(key);
+  for (const [rk, rv] of Object.entries(rec)) {
+    if (normalizeKey(rk) === want) return rv;
+  }
+  for (const nestKey of ['fields', 'data', 'row', 'record', 'values']) {
+    const obj = rec[nestKey];
+    if (!obj || typeof obj !== 'object') continue;
+    for (const [rk, rv] of Object.entries(obj)) {
+      if (normalizeKey(rk) === want) return rv;
+    }
+  }
+  return undefined;
+}
+
+function getRowId(rec) {
+  if (!rec || typeof rec !== 'object') return null;
+  return rec.id ?? rec.Id ?? rec.nocopk ?? getField(rec, 'id') ?? getField(rec, 'nocopk') ?? null;
+}
+
+function normalizeKey(s) {
+  // normalize to match "Item ID" vs "item_id" vs "item id"
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function findColumnByNormalizedKey(columns, wantNorm) {
+  const cols = columns || [];
+  for (const c of cols) {
+    const cand = [c?.column_name, c?.name, c?.title].filter(Boolean);
+    for (const k of cand) {
+      if (normalizeKey(k) === wantNorm) return c;
+    }
+  }
+  return null;
+}
+
+function getAirtableIdFieldKey(columns) {
+  // Prefer the actual API key (column_name/name/title) for the Airtable id column.
+  // This avoids silently writing to the wrong key and ending up with NULL airtable_id values,
+  // which makes Pass B impossible.
+  const col = findColumnByNormalizedKey(columns, 'airtableid');
+  if (!col) return 'airtable_id';
+  return apiFieldName(col) || 'airtable_id';
 }
 
 function readFieldValue(record, col) {
@@ -349,6 +470,20 @@ function readFieldValue(record, col) {
   for (const k of candidates) {
     if (Object.prototype.hasOwnProperty.call(record, k)) return record[k];
   }
+  
+  // Normalized-key fallback: matches "Item ID" vs "item_id" vs "item id"
+  const want = new Set(candidates.map(normalizeKey));
+  for (const rk of Object.keys(record)) {
+    if (want.has(normalizeKey(rk))) return record[rk];
+  }
+  
+  // Case-insensitive fallback (Airtable-export keys are often lowercased)
+  const lowerMap = new Map();
+  for (const rk of Object.keys(record)) lowerMap.set(rk.toLowerCase(), rk);
+  for (const k of candidates) {
+    const hit = lowerMap.get(String(k).toLowerCase());
+    if (hit && Object.prototype.hasOwnProperty.call(record, hit)) return record[hit];
+  }  
   return undefined;
 }
 
@@ -376,31 +511,44 @@ function normalizeExportRecord(rec) {
   return { airtableId: airtableId || null, fields: rec };
 }
 
-function isLinkLikeColumn(col) {
-  const t = (col?.uidt || col?.type || '').toString();
-  // NocoDB uses 'Links' for LTAR, but other builds/paths sometimes surface related types.
-  return (
-    t === 'Links' ||
-    t === 'LinkToAnotherRecord' ||
-    t === 'LinkToAnotherRecords' ||
-    t === 'Relation' ||
-    t === 'Lookup' ||
-    t === 'Rollup'
-  );
-}
 
 function getDisplayValueColumn(columns) {
   // In v2 meta, the "primary value" column usually carries `pv: true`.
   return (columns || []).find((c) => c?.pv === true) || null;
 }
 
+async function getRow(tableId, rowId, fields = []) {
+  const qs = new URLSearchParams();
+  if (Array.isArray(fields) && fields.length) {
+    for (const f of fields) {
+      if (f && String(f).trim()) qs.append('fields', String(f).trim());
+    }
+  }
+  const url = `/api/v2/tables/${tableId}/records/${rowId}${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const rec = await apiCall('get', url);
+  return flattenNocoRecord(rec);
+}
+
+async function patchLinkFieldWithRetry(tableId, rowId, fieldKey, resolvedIds) {
+  // Try array-of-ids first; if Noco ignores it, fall back to array-of-{id}.
+  await patchRow(tableId, rowId, { [fieldKey]: resolvedIds });
+  try {
+    const after = await getRow(tableId, rowId, [fieldKey]);
+    const v = after?.[fieldKey];
+    if (Array.isArray(v) && v.length) return;
+  } catch (_) {
+    // ignore readback errors; just try fallback
+  }
+  await patchRow(tableId, rowId, { [fieldKey]: resolvedIds.map((id) => ({ id })) });
+}
+
 function pickFieldsForPassA(record, colIndex) {
-  // Keep only columns present in NocoDB AND not Links uidt.
+  // Keep only columns present in NocoDB AND not LinkToAnotherRecord/Links.
   const out = {};
   for (const [k, v] of Object.entries(record || {})) {
     const col = colIndex.byName.get(k) || colIndex.byTitle.get(k);
     if (!col) continue;
-    if (isLinkLikeColumn(col)) continue;
+    if (isLinkColumn(col)) continue;
 
     // Skip null/undefined to avoid overwriting with null unless explicit
     if (typeof v === 'undefined') continue;
@@ -412,46 +560,98 @@ function pickFieldsForPassA(record, colIndex) {
   return out;
 }
 
-function extractLinkPayloads(record, linkCols) {
-  // Return { fieldName: [airtable_id, ...], ... } limited to link columns
+function coerceLinkIds(v) {
+  if (!v) return [];
+  // ["rec..."]
+  if (Array.isArray(v) && v.every((x) => typeof x === 'string' || x == null)) {
+    return v.map((x) => String(x || '').trim()).filter(Boolean);
+  }
+  // [{id:"rec..."}]
+  if (Array.isArray(v) && v.length && typeof v[0] === 'object' && v[0] !== null) {
+    return v
+      .map((o) => (o && (o.id || o.airtable_id || o.record_id)) ? String(o.id || o.airtable_id || o.record_id) : '')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function extractLinkPayloads(record, linkCols, linkColMap) {
+  // Return { fieldName: [airtable_id, ...], ... } for link columns
   const out = {};
+
+  // 1) Direct (old behavior): look up values by column meta
   for (const c of linkCols) {
     const apiKey = apiFieldName(c);
     if (!apiKey) continue;
     const v = readFieldValue(record, c);
-    if (!v) continue;
+    const ids = coerceLinkIds(v);
+    if (ids.length) out[apiKey] = ids;
+  }
+  if (Object.keys(out).length) return out;
 
-    // airtable-export emits link fields as arrays of Airtable record ids
-    if (Array.isArray(v)) {
-      out[apiKey] = v.filter((x) => typeof x === 'string' && x.trim());
-    }
+  // 2) Heuristic fallback: scan record keys for link-like arrays and match by normalized key
+  if (!record || typeof record !== 'object' || !linkColMap) return out;
+  for (const [rk, rv] of Object.entries(record)) {
+    const ids = coerceLinkIds(rv);
+    if (!ids.length) continue;
+    const nk = normalizeKey(rk);
+    const fieldKey = linkColMap.get(nk);
+    if (!fieldKey) continue;
+    out[fieldKey] = ids;
   }
   return out;
 }
 
 async function buildAirtableIdToRowMaps(tableId, columns) {
+  const AIRTABLE_ID_KEY = getAirtableIdFieldKey(columns);
   // IMPORTANT: only fetch minimal fields to avoid NocoDB rollup/lookups exploding on select
   // (e.g. Postgres error "function sum(text) does not exist")
   // NOTE (NocoDB 0.265.1): `fields` can only include *real columns*. `id` is not a column.
   // Ask only for airtable_id; the row identifier still comes back as `id` / `Id` / `nocopk` depending on setup.
   const pvCol = getDisplayValueColumn(columns || []);
   const pvName = pvCol?.column_name || pvCol?.title || pvCol?.name;
-  const fieldList = ['airtable_id'];
+  const fieldList = [AIRTABLE_ID_KEY];
   if (pvName && pvName !== 'airtable_id') fieldList.push(pvName);
 
-  const rows = await listAllRows(tableId, 1000, fieldList);
+  let rows = await listAllRows(tableId, 1000, fieldList);
+
+  // Some NocoDB builds accept the fields= filter but do NOT actually return the requested
+  // column values (they come back undefined), which makes byAirtableId empty and breaks Pass B.
+  // Detect and retry without fields filtering if that happens.
+  if (Array.isArray(rows) && rows.length) {
+    const anyAirtableId = rows.some((r) => {
+      const v = getField(r, AIRTABLE_ID_KEY);
+      return v != null && String(v).trim();
+    });
+    if (!anyAirtableId) {
+      debug(`[DEBUG] buildAirtableIdToRowMaps(${tableId}): rows returned but airtable_id missing with fields filter; retrying without fields=...`);
+      rows = await listAllRows(tableId, 1000, []);
+      if (NOCODB_DEBUG && Array.isArray(rows) && rows.length) {
+        // Print a shallow sample so we can see what shape Noco is returning
+        const sample = rows[0];
+        debug(`[DEBUG] buildAirtableIdToRowMaps(${tableId}): sample keys:`, Object.keys(sample || {}));
+        for (const nestKey of ['fields', 'data', 'row', 'record', 'values']) {
+          if (sample && sample[nestKey] && typeof sample[nestKey] === 'object') {
+            debug(`[DEBUG] buildAirtableIdToRowMaps(${tableId}): sample.${nestKey} keys:`, Object.keys(sample[nestKey]));
+          }
+        }
+      }      
+    }
+  }
+
   const byAirtableId = new Map();
   const byDisplayValue = new Map();
   for (const r of rows) {
-    const at = r?.airtable_id;
+    const at = getField(r, AIRTABLE_ID_KEY);
     // NocoDB row identifier varies by endpoint/config:
     // - v2 commonly: `id`
     // - some setups: `Id`
     // - your Postgres schema shows `nocopk` as pk in SQL logs
-    const id = r?.id ?? r?.Id ?? r?.nocopk;
+    const id = getRowId(r);
     if (at && id) byAirtableId.set(String(at), id);
     if (pvName && id) {
-      const pv = r?.[pvName];
+      const pv = getField(r, pvName);
       if (pv !== null && typeof pv !== 'undefined' && String(pv).trim()) {
         byDisplayValue.set(String(pv), id);
       }
@@ -467,7 +667,9 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   
   // Ensure our natural key exists before we attempt reads with fields=airtable_id
   columns = await ensureAirtableIdColumn(tableMeta, columns);  
-
+  const AIRTABLE_ID_KEY = getAirtableIdFieldKey(columns);
+  debug(`Using Airtable ID field key for ${tableName}: ${AIRTABLE_ID_KEY}`);
+ 
   const exportRecs = readExportJson(tableName);
   log(`\n== Importing table: ${tableName}  (export records: ${exportRecs.length})`);
 
@@ -477,7 +679,22 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   const colIndex = buildColumnIndex(columns);
-  const linkCols = (columns || []).filter((c) => (c?.uidt || c?.type || '').toString() === 'Links');
+  const linkCols = (columns || []).filter((c) => isLinkColumn(c));
+  if (NOCODB_DEBUG) {
+    const names = linkCols.map((c) => apiFieldName(c)).filter(Boolean);
+    debug(`Detected ${linkCols.length} link column(s) on ${tableName}:`, names);
+  }
+
+  // Build a normalized lookup map for link columns so "Item ID" matches "item_id"
+  const linkColMap = new Map(); // normalized -> apiFieldName
+  for (const c of linkCols) {
+    const k = apiFieldName(c);
+    if (!k) continue;
+    linkColMap.set(normalizeKey(k), k);
+    if (c?.title) linkColMap.set(normalizeKey(c.title), k);
+    if (c?.name) linkColMap.set(normalizeKey(c.name), k);
+    if (c?.column_name) linkColMap.set(normalizeKey(c.column_name), k);
+  }  
 
   // Existing map for upsert routing
   const existingMapObj = await buildAirtableIdToRowMaps(tableId, columns);
@@ -497,9 +714,10 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
 
     const fieldsA = pickFieldsForPassA(rec, colIndex);
     // Ensure natural key survives
-    fieldsA.airtable_id = airtableId;
+    delete fieldsA.airtable_id;
+    fieldsA[AIRTABLE_ID_KEY] = airtableId;
 
-    const links = extractLinkPayloads(rec, linkCols);
+    const links = extractLinkPayloads(rec, linkCols, linkColMap);
 
     const rowId = existingMap.get(airtableId);
     if (!rowId) {
@@ -523,6 +741,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   // Refresh map after creates
   const mapAfterObj = await buildAirtableIdToRowMaps(tableId, columns);
   const mapAfter = mapAfterObj.byAirtableId;
+  if (NOCODB_DEBUG) debug(`Map after creates (airtable_id -> rowId) size for ${tableName}: ${mapAfter.size}`); 
 
   // Pass A - updates
   if (passA_update.length) {
@@ -535,20 +754,29 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   // Prepare Pass B link updates (using current row ids)
+  let passB_missingRowId = 0;
+  let passB_linkExtracted = 0;
   for (const rawRec of exportRecs) {
     const { airtableId, fields: rec } = normalizeExportRecord(rawRec);
     if (!airtableId) continue;
     const rowId = mapAfter.get(airtableId);
-    if (!rowId) continue;
+    if (!rowId) {
+      passB_missingRowId += 1;
+      continue;
+    }
 
-    const links = extractLinkPayloads(rec, linkCols);
+    const links = extractLinkPayloads(rec, linkCols, linkColMap);
     if (!Object.keys(links).length) continue;
+    passB_linkExtracted += 1;
 
     passB_links.push({ rowId, links });
   }
 
   if (!passB_links.length) {
     log('  Pass B: no link fields to update.');
+    if (NOCODB_DEBUG) {
+      debug(`Pass B diagnostics for ${tableName}: missingRowId=${passB_missingRowId} linkExtracted=${passB_linkExtracted} linkCols=${linkCols.length}`);
+    }    
     return;
   }
 
@@ -557,6 +785,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   // For each link field, we need to know the target table to resolve airtable_id -> rowId.
   // In NocoDB meta, Links columns typically include `colOptions` / `options` / `fk_related_model_id`.
   // We'll attempt multiple keys to locate the related table id.
+  // Map: fieldName -> { relatedTableId, linkFieldId }
   const linkTargetByField = new Map();
   for (const c of linkCols) {
     // Keys in `item.links` are API field names (prefer title).
@@ -572,7 +801,11 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
       c?.fk_related_model_id ||
       c?.related_table_id;
 
-    if (relatedTableId) linkTargetByField.set(field, relatedTableId);
+    // For v2 link endpoints, we also need the link *field id* (column id).
+    const linkFieldId = c?.id;
+    if (relatedTableId && linkFieldId) {
+      linkTargetByField.set(field, { relatedTableId, linkFieldId });
+    }
   }
 
   // Build missing target maps lazily
@@ -585,19 +818,18 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   for (const item of passB_links) {
-    const patch = {};
     for (const [field, airtableIds] of Object.entries(item.links)) {
-      const relatedTableId = linkTargetByField.get(field);
-      if (!relatedTableId) {
+      const meta = linkTargetByField.get(field);
+      if (!meta?.relatedTableId || !meta?.linkFieldId) {
         debug(`  [WARN] Could not determine related table id for link field ${tableName}.${field}`);
         continue;
       }
-      const targetMaps = await getTargetMaps(relatedTableId);
+      const targetMaps = await getTargetMaps(meta.relatedTableId);
       const byAirtableId = targetMaps.byAirtableId;
       const byDisplayValue = targetMaps.byDisplayValue;
 
       const resolved = [];
-      for (const v of vals || []) {
+      for (const v of airtableIds || []) {
         const s = String(v || '').trim();
         if (!s) continue;
         let rid = null;
@@ -609,12 +841,11 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
         if (rid) resolved.push(rid);
       }
 
-      // If Airtable had links but target doesn't exist, we still set empty array
-      patch[field] = resolved;
-    }
+      if (!resolved.length) continue;
 
-    if (Object.keys(patch).length) {
-      await patchRow(tableId, item.rowId, patch);
+      // IMPORTANT: Use the NocoDB v2 links API (record PATCH often doesn't set LTAR reliably).
+      // This links each target record id to the source record for that link field.
+      await linkRecords(tableId, meta.linkFieldId, item.rowId, resolved);
     }
   }
 
