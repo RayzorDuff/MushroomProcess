@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.2
+ * Version: 2025-12-24.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -64,55 +64,21 @@ const log = (...args) => console.log(...args);
 // ------------------------------
 
 async function createColumn(tableId, columnPayload, { useLinksApi = false } = {}) {
-  // Routes v2 vs v3 + normalizes body (v3 requires {title, type})
-  return createMetaField(tableId, columnPayload, { useLinksApi });
+  // Backwards-compatible wrapper name.
+  // Uses the shared helper so request bodies and endpoints match NOCODB_API_VERSION.
+  return ENV.createMetaField(tableId, columnPayload, { useLinksApi });
 }
 
 function isLinkColumn(c) {
-  // NocoDB can represent link fields differently depending on endpoint/version:
-  // - uidt: 'Links'
-  // - type: 'LinkToAnotherRecord', 'Rollup' 'Lookup'
-  // - options.type: 'mm'/'hm'/'bt' etc.
-  const uidt = (c?.uidt || '').toString();
-  const type = (c?.type || '').toString();
-  const opt = c?.colOptions || c?.options || c?.column_options || {};
-  const relType = (opt?.type || '').toString();
-
-  if (uidt === 'Links') return true;
-  if (uidt === 'LinkToAnotherRecord') return true;
-  if (type === 'LinkToAnotherRecord' || type === 'Rollup' || type === 'Lookup') return true;
-  if (relType === 'mm' || relType === 'hm' || relType === 'bt' || relType === 'oo') return true;
-
-  // Sometimes relation metadata shows up via fk_* keys
-  if (opt?.fk_related_model_id || opt?.fk_mm_model_id) return true;
-  if (c?.fk_related_model_id || c?.fk_mm_model_id) return true;
-
-  return false;
+  return ENV.isLinkColumn(c);
 }
 
 function normalizeColName(c) {
-  return (c?.column_name || c?.name || c?.title || '').toString().trim();
+  return ENV.normalizeColName(c);
 }
 
 async function ensureAirtableIdColumn(tableMeta, columns) {
-  const tableId = tableMeta?.id;
-  const tableName = tableMeta?.title || tableMeta?.table_name || tableMeta?.name;
-  if (!tableId) return columns;
-
-  const has = (columns || []).some((c) => normalizeColName(c) === 'airtable_id');
-  if (has) return columns;
-
-  log(`  [INFO] Creating missing column "airtable_id" on table "${tableName}" ...`);
-  await createColumn(tableId, {
-    column_name: 'airtable_id',
-    title: 'airtable_id',
-    uidt: 'LongText',
-    // Keep it simple/portable: not all builds accept 'un' (unique) here.
-    // If you want uniqueness enforced at DB level, add a unique index manually later.
-  });
-
-  // Re-fetch columns so subsequent logic sees it.
-  return fetchTableColumns(tableId);
+  return ENV.ensureAirtableIdColumn(tableMeta, columns);
 }
 
 // ------------------------------
@@ -120,22 +86,22 @@ async function ensureAirtableIdColumn(tableMeta, columns) {
 // ------------------------------
 
 async function fetchTables() {
-  // Shared implementation (v2/v3 safe)
-  // Note: importer does not require hydrated fields here; it calls fetchTableColumns(tableId).
   const data = await apiCall('get', ENV.META_TABLES);
   const tables = Array.isArray(data?.list) ? data.list : data;
-  if (!Array.isArray(tables)) throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
+  if (!Array.isArray(tables)) {
+    throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
+  }
   return tables;
 }
 
 async function fetchTableColumns(tableId) {
-  // Shared implementation: returns columns[] (v2) or fields[] (v3)
   return ENV.fetchTableFields(tableId);
 }
 
 async function patchColumn(columnId, payload) {
-  // v2 vs v3 safe
-  return patchMetaField(columnId, payload);
+  // Backwards-compatible wrapper name.
+  // Uses the shared helper so endpoints match NOCODB_API_VERSION.
+  return ENV.patchMetaField(columnId, payload);
 }
 
 async function fixBrokenSumRollupsForTable(tableMeta) {

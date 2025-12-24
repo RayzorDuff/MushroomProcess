@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-24.2
+ * Version: 2025-12-24.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -284,7 +284,7 @@ function _normalizeCreateFieldPayload(payload, isV3) {
     p.type = (p.uidt || p.column_type || p.data_type || '').toString() || p.type;
   }
 
-  // NocoDB v3 APIs often use `default_value` (snake_case) but tolerate extras.
+  // Normalize default value casing
   if (typeof p.default_value === 'undefined' && typeof p.defaultValue !== 'undefined') {
     p.default_value = p.defaultValue;
     delete p.defaultValue;
@@ -296,10 +296,12 @@ function _normalizeCreateFieldPayload(payload, isV3) {
 //   GET /api/v2/meta/tables/{tableId}              -> { columns: [...] }
 // v3:
 //   GET /api/v3/meta/bases/{baseId}/tables/{id}    -> { fields: [...] }
-async function fetchTableMeta(tableId) {
-  const url = IS_V2
-    ? `${META_PREFIX}/tables/${tableId}`
-    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}`;
+async function fetchTableMeta(tableId, { useLinksApi = false } = {}) {
+  const isV3 = useLinksApi ? LINKS_IS_V3 : IS_V3;
+  const metaPrefix = useLinksApi ? LINK_META_PREFIX : META_PREFIX;
+  const url = !isV3
+    ? `${metaPrefix}/tables/${tableId}`
+    : `${metaPrefix}/bases/${NOCODB_BASE_ID}/tables/${tableId}`;
   return apiCall('get', url);
 }
 
@@ -308,8 +310,8 @@ function extractFieldsFromTableMeta(data) {
   return Array.isArray(cols) ? cols : [];
 }
 
-async function fetchTableFields(tableId) {
-  const data = await fetchTableMeta(tableId);
+async function fetchTableFields(tableId, { useLinksApi = false } = {}) {
+  const data = await fetchTableMeta(tableId, { useLinksApi });
   const fields = extractFieldsFromTableMeta(data);
   if (!Array.isArray(fields)) {
     throw new Error(
@@ -378,11 +380,57 @@ async function fetchMetaTables({ includeFields = false } = {}) {
   return tables;
 }
 
+function isLinkColumn(c) {
+  // NocoDB can represent link fields differently depending on endpoint/version:
+  // - uidt: 'Links'
+  // - type: 'LinkToAnotherRecord', 'Rollup' 'Lookup'
+  // - options.type: 'mm'/'hm'/'bt' etc.
+  const uidt = (c?.uidt || '').toString();
+  const type = (c?.type || '').toString();
+  const opt = c?.colOptions || c?.options || c?.column_options || {};
+  const relType = (opt?.type || '').toString();
+
+  if (uidt === 'Links') return true;
+  if (uidt === 'LinkToAnotherRecord') return true;
+  if (type === 'LinkToAnotherRecord' || type === 'Rollup' || type === 'Lookup') return true;
+  if (relType === 'mm' || relType === 'hm' || relType === 'bt' || relType === 'oo') return true;
+
+  // Sometimes relation metadata shows up via fk_* keys
+  if (opt?.fk_related_model_id || opt?.fk_mm_model_id) return true;
+  if (c?.fk_related_model_id || c?.fk_mm_model_id) return true;
+
+  return false;
+}
+
+function normalizeColName(c) {
+  return (c?.column_name || c?.name || c?.title || '').toString().trim();
+}
+
+async function ensureAirtableIdColumn(tableMeta, columns) {
+  const tableId = tableMeta?.id;
+  const tableName = tableMeta?.title || tableMeta?.table_name || tableMeta?.name;
+  if (!tableId) return columns;
+
+  const has = (columns || []).some((c) => normalizeColName(c) === 'airtable_id');
+  if (has) return columns;
+
+  logInfo(`Creating missing column "airtable_id" on table "${tableName}" ...`);
+  await createMetaField(tableId, {
+    column_name: 'airtable_id',
+    title: 'airtable_id',
+    uidt: 'LongText',
+  });
+
+  return fetchTableFields(tableId);
+}
+
 // ---------------------------------------------------------------------------
 // Logging helpers
 // ---------------------------------------------------------------------------
 
-function debug(...args) { if (NOCODB_DEBUG) console.log('[DEBUG]', ...args); }
+function debug(...args) {
+  if (NOCODB_DEBUG) console.log('[DEBUG]', ...args);
+}
 
 function logInfo(msg) {
   console.log(`[INFO] ${msg}`);
@@ -474,6 +522,9 @@ module.exports = {
   fetchMetaTables,
   createMetaField,
   patchMetaField,      
+  isLinkColumn,
+  normalizeColName,
+  ensureAirtableIdColumn,
   // api
   api,
   apiCall,

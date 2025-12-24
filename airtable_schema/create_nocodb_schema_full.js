@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-24.2
+ * Version: 2025-12-24.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -778,14 +778,14 @@ function formulaReferencesLookupInUnsupportedWay(formula, atTable, airtableMaps)
 // --------------------------------------------
 
 async function createFieldOnTable(tableId, payload) {
-  const url = META_TABLE_FIELDS(tableId);
-  return await apiCall('post', url, payload);
+  // Use shared helper to normalize request bodies per API version (v3 requires {title,type}).
+  return ENV.createMetaField(tableId, payload, { useLinksApi: false });
 }
 
 // Separate helper for Link fields, allowing a different meta API version.
 async function createFieldOnTableForLinks(tableId, payload) {
-  const url = LINK_META_TABLE_FIELDS(tableId);
-  return await apiCall('post', url, payload);
+  // Link fields may use a different meta API version.
+  return ENV.createMetaField(tableId, payload, { useLinksApi: true });
 }
 
 async function deleteFieldById(fieldId) {
