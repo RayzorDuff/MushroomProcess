@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-24.3
+ * Version: 2025-12-24.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1004,13 +1004,20 @@ async function createFormulaField({
   let body;
 
   if (IS_V3) {
-    // v3: clean Formula payload – Noco expects type + options.formula
+    // v3: Formula payload. Some NocoDB builds are picky here, so include both
+    // v3-style (type/options) and legacy (uidt/colOptions) fields.
     body = {
       type: 'Formula',
+      uidt: 'Formula',
       title,
       column_name,
+      dt: 'text',
       options: {
         formula: translated,
+        formula_raw: translated,
+      },
+      colOptions: {
+        formula_raw: translated,        
       },
     };
   } else {

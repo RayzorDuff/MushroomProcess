@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.3
+ * Version: 2025-12-24.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -71,6 +71,10 @@ async function createColumn(tableId, columnPayload, { useLinksApi = false } = {}
 
 function isLinkColumn(c) {
   return ENV.isLinkColumn(c);
+}
+
+function isWritableColumn(c) {
+  return ENV.isWritableColumn(c);
 }
 
 function normalizeColName(c) {
@@ -197,11 +201,76 @@ function flattenNocoList(list) {
   return list.map(flattenNocoRecord);
 }
 
+function safeStringify(x, maxLen = 800) {
+  try {
+    const s = typeof x === 'string' ? x : JSON.stringify(x);
+    return s.length > maxLen ? s.slice(0, maxLen) + '…' : s;
+  } catch {
+    const s = String(x);
+    return s.length > maxLen ? s.slice(0, maxLen) + '…' : s;
+  }
+}
+
+function parseVirtualColumnFromError(err) {
+  // Observed message patterns include:
+  //   Column "foo" is virtual and cannot be updated.
+  // Sometimes the JSON body is embedded/escaped inside the thrown Error string.
+  const msg = (err && err.message) ? err.message : String(err);
+  if (!msg) return null;
+
+  // Try raw match first
+  let m = msg.match(/Column\s+"([^"]+)"\s+is\s+virtual\s+and\s+cannot\s+be\s+updated/i);
+  if (m && m[1]) return m[1];
+
+  // Try unescaped quotes variant (e.g. Column \"foo\" is virtual...)
+  const unescaped = msg.replace(/\\"/g, '"');
+  m = unescaped.match(/Column\s+"([^"]+)"\s+is\s+virtual\s+and\s+cannot\s+be\s+updated/i);
+  if (m && m[1]) return m[1];
+
+  return null;
+}
+
+function stripField(obj, fieldName) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (!Object.prototype.hasOwnProperty.call(obj, fieldName)) return obj;
+  const copy = { ...obj };
+  delete copy[fieldName];
+  return copy;
+}
+
 // ------------------------------
 // Data helpers
 // ------------------------------
 
 async function listAllRows(tableId, limit = 1000, fields = []) {
+  // v2: { list: [...] } with offset/limit
+  // v3: { records: [...], next: "https://...page=2" } with page/pageSize
+  if (ENV.IS_V3) {
+    let page = 1;
+    const out = [];
+    while (true) {
+      const qs = new URLSearchParams();
+      qs.set('page', String(page));
+      qs.set('pageSize', String(limit));
+      if (Array.isArray(fields) && fields.length) {
+        for (const f of fields) {
+          if (f && String(f).trim()) qs.append('fields', String(f).trim());
+        }
+      }
+      const data = await apiCall('get', tableRecordsUrl(tableId, qs.toString(), false));
+      const rawList = Array.isArray(data?.records) ? data.records : data?.list;
+      const list = flattenNocoList(rawList);
+      if (!Array.isArray(list)) {
+        throw new Error(`Unexpected v3 records response for table ${tableId}: ${safeStringify(data)}`);
+      }
+      out.push(...list);
+      if (!data?.next) break;
+      page += 1;
+    }
+    return out;
+  }
+
+  // v2 path (existing behavior)
   let offset = 0;
   let out = [];
   while (true) {
@@ -216,17 +285,11 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
         if (f && String(f).trim()) qs.append('fields', String(f).trim());
       }
     }
-
     const data = await apiCall('get', tableRecordsUrl(tableId, qs.toString(), false));
     const rawList = Array.isArray(data?.list) ? data.list : data;
     const list = flattenNocoList(rawList);
     if (!Array.isArray(list)) {
-      throw new Error(
-        `Unexpected records response for table ${tableId}: ${JSON.stringify(data).slice(
-          0,
-          500
-        )}`
-      );
+      throw new Error(`Unexpected v2 records response for table ${tableId}: ${safeStringify(data)}`);
     }
     out = out.concat(list);
     if (list.length < limit) break;
@@ -237,17 +300,49 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
 
 async function createOneRow(tableId, rowObj) {
   // Different NocoDB builds accept different shapes.
-  // Empirically, some self-hosted builds accept a plain object, others want { data: ... }.
-  // Try plain first, then fall back.
-  try {
-    return await apiCall('post', tableRecordsUrl(tableId, false, false), rowObj);
-  } catch (e1) {
-    try {
-      return await apiCall('post', tableRecordsUrl(tableId, false, false), { data: rowObj });
-    } catch (e2) {
-      return await apiCall('post', tableRecordsUrl(tableId, false, false), { fields: rowObj });
+  // Also: some schemas expose virtual/computed columns that appear writable in meta,
+  // but fail at insert-time with:
+  //   Column "<x>" is virtual and cannot be updated.
+  //
+  // We auto-strip offending fields and retry.
+
+  const url = tableRecordsUrl(tableId, false, false);
+  const shapes = ENV.IS_V2
+    ? [(o) => o, (o) => ({ data: o }), (o) => ({ fields: o })]
+    : [(o) => ({ fields: o }), (o) => o, (o) => ({ data: o })];
+
+  let working = rowObj;
+  const stripped = new Set();
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let lastErr = null;
+
+    for (const shapeFn of shapes) {
+      try {
+        return await apiCall('post', url, shapeFn(working));
+      } catch (e) {
+        lastErr = e;
+      }
     }
+
+    // If we get a virtual column error, strip that field and try again.
+    const bad = parseVirtualColumnFromError(lastErr);
+    if (bad && !stripped.has(bad) && working && typeof working === 'object') {
+      stripped.add(bad);
+      working = stripField(working, bad);
+      continue;
+    }
+
+    // No virtual field found (or already stripped) — bubble the error with context.
+    const msg = (lastErr && lastErr.message) ? lastErr.message : String(lastErr);
+    throw new Error(
+      `createOneRow failed for table ${tableId}. ` +
+      `Stripped=[${Array.from(stripped).join(', ')}]. ` +
+      `LastError=${msg}`
+    );
   }
+
+  throw new Error(`createOneRow exceeded retry budget for table ${tableId}.`);
 }
 
 async function createRows(tableId, rows) {
@@ -266,11 +361,42 @@ async function createRows(tableId, rows) {
   }
 
   const created = [];
-  for (const r of rows) {
-    const one = await createOneRow(tableId, r);
-    if (one && typeof one === 'object') created.push(one);
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    try {
+      const one = await createOneRow(tableId, r);
+      if (one && typeof one === 'object') created.push(one);
+    } catch (e) {
+      // IMPORTANT: createRows already iterates row-by-row; add row context here.
+      // This helps diagnose “why didn’t error handling work?” when createOneRow bubbles.
+      const airtableId =
+        (r && typeof r === 'object' && (r.airtable_id || r.id || r.Id)) ? (r.airtable_id || r.id || r.Id) : null;
+      const msg = (e && e.message) ? e.message : String(e);
+      throw new Error(
+        `createRows failed for table ${tableId} at row ${i + 1}/${rows.length}` +
+        (airtableId ? ` (airtable_id=${airtableId})` : '') +
+        `: ${msg}`
+      );
+    }
   }
   return created;
+}
+
+function parseVirtualColumnFromError(err) {
+  const msg = (err && err.message) ? String(err.message) : String(err || '');
+  // Seen in your logs:
+  //   Column "available_from_products" is virtual and cannot be updated.
+  const m = msg.match(/Column\s+"([^"]+)"\s+is\s+virtual\s+and\s+cannot\s+be\s+updated/i);
+  if (m && m[1]) return m[1];
+  return null;
+}
+
+function stripColumn(obj, colName) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (!Object.prototype.hasOwnProperty.call(obj, colName)) return obj;
+  const out = { ...obj };
+  delete out[colName];
+  return out;
 }
 
 async function patchRow(tableId, rowId, fields, useLinksApi = false) {
@@ -278,6 +404,20 @@ async function patchRow(tableId, rowId, fields, useLinksApi = false) {
   try {
     return await apiCall('patch', tableRecordUrl(tableId, rowId, null, useLinksApi), fields);
   } catch (e) {
+    // If NocoDB complains a column is virtual, strip and retry once.
+    const badCol = parseVirtualColumnFromError(e);
+    if (badCol && fields && typeof fields === 'object' && Object.keys(fields).length) {
+      const reduced = stripColumn(fields, badCol);
+      if (reduced && Object.keys(reduced).length !== Object.keys(fields).length) {
+        log(`  [WARN] patchRow(): stripping virtual/non-writable column "${badCol}" and retrying.`);
+        try {
+          return await apiCall('patch', tableRecordUrl(tableId, rowId, null, useLinksApi), reduced);
+        } catch (_) {
+          // fall through to existing fallback shape retry
+          fields = reduced;
+        }
+      }
+    }    
     const msg = (e && e.message) ? e.message : String(e);
     debug(`patchRow(plain body) failed, retrying with {data:{...}}: ${msg}`);
     return apiCall('patch', tableRecordUrl(tableId, rowId, null, useLinksApi), { data: fields });
@@ -471,6 +611,9 @@ function pickFieldsForPassA(record, colIndex) {
   for (const [k, v] of Object.entries(record || {})) {
     const col = colIndex.byName.get(k) || colIndex.byTitle.get(k);
     if (!col) continue;
+    // Critical: do not attempt to write computed/virtual/read-only fields in Pass A
+    // (lookups, rollups, formulas, system fields, etc).
+    if (!isWritableColumn(col)) continue;
     if (isLinkColumn(col)) continue;
 
     // Skip null/undefined to avoid overwriting with null unless explicit
@@ -639,6 +782,8 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
     // Ensure natural key survives
     delete fieldsA.airtable_id;
     fieldsA[AIRTABLE_ID_KEY] = airtableId;
+    
+    debug(`[DEBUG] ${tableName}: PassA payload keys:`, Object.keys(fieldsA));
 
     const links = extractLinkPayloads(rec, linkCols, linkColMap);
 

@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-24.3
+ * Version: 2025-12-24.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -292,6 +292,36 @@ function _normalizeCreateFieldPayload(payload, isV3) {
   return p;
 }
 
+function _coerceV3FormulaPayloadToV2(payload) {
+  const p = payload ? { ...payload } : {};
+  const title = (p.title || p.column_name || p.name || 'formula').toString();
+  const column_name = (p.column_name || p.name || title).toString();
+
+  // v3 schema code tends to send formula in options.formula.
+  const formula_raw =
+    (p.colOptions && (p.colOptions.formula_raw || p.colOptions.formula)) ||
+    (p.options && (p.options.formula_raw || p.options.formula)) ||
+    p.formula_raw ||
+    '';
+
+  // v2 expects uidt + dt + colOptions.formula_raw
+  const out = {
+    title,
+    column_name,
+    uidt: 'Formula',
+    // IMPORTANT: underlying DB type must be something real (text is safe).
+    dt: 'text',
+    colOptions: {
+      formula_raw: String(formula_raw),
+    },
+  };
+
+  // Preserve display value flag if present
+  if (p.pv === true) out.pv = true;
+
+  return out;
+}
+
 // v2:
 //   GET /api/v2/meta/tables/{tableId}              -> { columns: [...] }
 // v3:
@@ -326,7 +356,33 @@ async function createMetaField(tableId, payload, { useLinksApi = false } = {}) {
   const urlBuilder = useLinksApi ? LINK_META_TABLE_FIELDS : META_TABLE_FIELDS;
   const url = urlBuilder(tableId);
   const body = _normalizeCreateFieldPayload(payload, isV3);
-  return apiCall('post', url, body);
+
+  try {
+    return await apiCall('post', url, body);
+  } catch (err) {
+    // NocoDB v3 meta API has been observed to reject certain Formula payloads with a
+    // server-side exception (e.g. 400 "Cannot read properties of undefined (reading 'id')"),
+    // even when the same formula succeeds via the v2 meta endpoint.
+    //
+    // To keep schema imports unblocked, fall back to v2 meta *only* for Formula fields
+    // when we're otherwise running on v3 meta.
+    const isFormula =
+      !!payload &&
+      typeof payload === 'object' &&
+      ((payload.type && String(payload.type) === 'Formula') ||
+        (payload.uidt && String(payload.uidt) === 'Formula'));
+
+    if (isV3 && !useLinksApi && isFormula) {
+      const v2Url = `/api/v2/meta/tables/${tableId}/columns`;
+      const v2Body = _coerceV3FormulaPayloadToV2(payload);
+      logWarn(
+        `v3 meta rejected Formula field; retrying via v2 meta endpoint: ${v2Url}`
+      );
+      return apiCall('post', v2Url, v2Body);
+    }
+
+    throw err;
+  }
 }
 
 async function patchMetaField(fieldId, payload, { useLinksApi = false } = {}) {
@@ -400,6 +456,80 @@ function isLinkColumn(c) {
   if (c?.fk_related_model_id || c?.fk_mm_model_id) return true;
 
   return false;
+}
+
+/**
+ * Returns true if a column/field is safe to write via row create/patch.
+ *
+ * Why this exists:
+ * - Airtable rollups/lookups/formulas frequently become "virtual" (computed) in NocoDB.
+ * - Some NocoDB endpoints/version combos do NOT label these consistently as uidt/type=Rollup|Lookup,
+ *   but they are still read-only and will cause imports to fail if included in the payload.
+ *
+ * We therefore treat any "virtual/system/computed" field as non-writable even if it looks like a normal column.
+ */
+function isWritableColumn(c) {
+  if (!c || typeof c !== 'object') return false;
+
+  const name = normalizeColName(c).toLowerCase();
+  const uidt = (c?.uidt || c?.type || '').toString();
+  const opt = c?.colOptions || c?.options || c?.column_options || {};
+
+  // Primary keys / auto fields / system-managed
+  // Noco often exposes these flags in different shapes depending on API version.
+  const pk =
+    c?.pk === true || c?.pk === 1 ||
+    opt?.pk === true || opt?.pk === 1;
+  const ai =
+    c?.ai === true || c?.ai === 1 ||
+    opt?.ai === true || opt?.ai === 1;
+  const system =
+    c?.system === true || c?.system === 1 ||
+    opt?.system === true || opt?.system === 1;
+
+  if (pk || ai || system) return false;
+
+  // Common non-writable system columns by name
+  // (varies by DB + Noco internal schema)
+  const NON_WRITABLE_NAMES = new Set([
+    'id',
+    'created_at',
+    'updated_at',
+    'createdat',
+    'updatedat',
+    'nocopk',
+    'nc_record_id',
+    'nc_created_at',
+    'nc_updated_at',
+  ]);
+  if (NON_WRITABLE_NAMES.has(name)) return false;
+
+  // Virtual/computed/read-only flags (varies by endpoint/build)
+  const virtual =
+    c?.virtual === true || c?.virtual === 1 ||
+    c?.is_virtual === true || c?.is_virtual === 1 ||
+    opt?.virtual === true || opt?.virtual === 1 ||
+    opt?.is_virtual === true || opt?.is_virtual === 1 ||
+    c?.readOnly === true || c?.readonly === true || c?.read_only === true ||
+    opt?.readOnly === true || opt?.readonly === true || opt?.read_only === true;
+  if (virtual) return false;
+
+  // Anything that is a relation/computed field should not be written as a normal scalar.
+  // NOTE: isLinkColumn already covers Links + many Rollup/Lookup representations,
+  // but we keep this list as a second line of defense.
+  const NON_WRITABLE_UIDT = new Set([
+    'Links',
+    'LinkToAnotherRecord',
+    'Lookup',
+    'Rollup',
+    'Formula',
+    'QrCode',
+    'Barcode',
+  ]);
+  if (NON_WRITABLE_UIDT.has(uidt)) return false;
+
+  // Otherwise OK to write
+  return true;
 }
 
 function normalizeColName(c) {
@@ -523,6 +653,7 @@ module.exports = {
   createMetaField,
   patchMetaField,      
   isLinkColumn,
+  isWritableColumn,
   normalizeColName,
   ensureAirtableIdColumn,
   // api
