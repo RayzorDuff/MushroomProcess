@@ -1,8 +1,24 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 /**
- * load_env.js
+ * Script: load_env.js
+ * Version: 2025-12-24.2
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
  *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * ============================================================================= 
  * Shared environment + API helpers for the airtable_schema scripts.
  *
  * Goals:
@@ -252,6 +268,117 @@ async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
 }
 
 // ---------------------------------------------------------------------------
+// Meta helpers (shared by schema + importer scripts)
+// ---------------------------------------------------------------------------
+
+function _normalizeCreateFieldPayload(payload, isV3) {
+  const p = payload ? { ...payload } : {};
+  if (!isV3) return p;
+
+  // v3 requires { title, type } (OpenAPI: FieldBaseCreate)
+  if (!p.title) {
+    p.title = (p.column_name || p.name || p.label || '').toString() || p.title;
+  }
+  if (!p.type) {
+    // Many scripts historically used `uidt` (UI data type) for field type.
+    p.type = (p.uidt || p.column_type || p.data_type || '').toString() || p.type;
+  }
+
+  // NocoDB v3 APIs often use `default_value` (snake_case) but tolerate extras.
+  if (typeof p.default_value === 'undefined' && typeof p.defaultValue !== 'undefined') {
+    p.default_value = p.defaultValue;
+    delete p.defaultValue;
+  }
+  return p;
+}
+
+// v2:
+//   GET /api/v2/meta/tables/{tableId}              -> { columns: [...] }
+// v3:
+//   GET /api/v3/meta/bases/{baseId}/tables/{id}    -> { fields: [...] }
+async function fetchTableMeta(tableId) {
+  const url = IS_V2
+    ? `${META_PREFIX}/tables/${tableId}`
+    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}`;
+  return apiCall('get', url);
+}
+
+function extractFieldsFromTableMeta(data) {
+  const cols = data?.columns || data?.fields || data?.list || [];
+  return Array.isArray(cols) ? cols : [];
+}
+
+async function fetchTableFields(tableId) {
+  const data = await fetchTableMeta(tableId);
+  const fields = extractFieldsFromTableMeta(data);
+  if (!Array.isArray(fields)) {
+    throw new Error(
+      `Unexpected fields response for ${tableId}: ${JSON.stringify(data).slice(0, 500)}`
+    );
+  }
+  return fields;
+}
+
+async function createMetaField(tableId, payload, { useLinksApi = false } = {}) {
+  const isV3 = useLinksApi ? LINKS_IS_V3 : IS_V3;
+  const urlBuilder = useLinksApi ? LINK_META_TABLE_FIELDS : META_TABLE_FIELDS;
+  const url = urlBuilder(tableId);
+  const body = _normalizeCreateFieldPayload(payload, isV3);
+  return apiCall('post', url, body);
+}
+
+async function patchMetaField(fieldId, payload, { useLinksApi = false } = {}) {
+  const urlBuilder = useLinksApi ? LINK_META_FIELD : META_FIELD;
+  const url = urlBuilder(fieldId);
+  return apiCall('patch', url, payload);
+}
+
+/**
+ * Refresh fields/columns for a NocoDB table in-place.
+ * - v2 stores fields under columns[]
+ * - v3 stores fields under fields[]
+ */
+async function fetchMetaFieldsForTable(tableId) {
+  const meta = await fetchTableMeta(tableId);
+  const fields = meta?.columns || meta?.fields || meta?.list || [];
+  if (!Array.isArray(fields)) {
+    throw new Error(
+      `Unexpected columns/fields response for ${tableId}: ${JSON.stringify(meta).slice(0, 500)}`
+    );
+  }
+  return fields;
+}
+
+/**
+ * Fetch all NocoDB tables for the base, including field/column metadata.
+ *
+ * v3:
+ *   GET /api/v3/meta/bases/{baseId}/tables?include_fields=true
+ *
+ * v2:
+ *   GET /api/v2/meta/bases/{baseId}/tables         (list only)
+ *   GET /api/v2/meta/tables/{tableId}             (per-table columns[])
+ */
+async function fetchMetaTables({ includeFields = false } = {}) {
+  if (IS_V3 && includeFields) {
+    const url = `${META_TABLES}?include_fields=true`;
+    const data = await apiCall('get', url);
+    const tables = Array.isArray(data?.list) ? data.list : data;
+    if (!Array.isArray(tables)) {
+      throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
+    }
+    return tables;
+  }
+
+  const data = await apiCall('get', META_TABLES);
+  const tables = Array.isArray(data?.list) ? data.list : data;
+  if (!Array.isArray(tables)) {
+    throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
+  }
+  return tables;
+}
+
+// ---------------------------------------------------------------------------
 // Logging helpers
 // ---------------------------------------------------------------------------
 
@@ -339,7 +466,14 @@ module.exports = {
   tableRecordsUrl,
   tableRecordUrl,
   linkRecordsUrl,
-  setLinksExact,  
+  setLinksExact,
+  // meta helpers
+  fetchTableMeta,
+  fetchTableFields,
+  fetchMetaFieldsForTable,
+  fetchMetaTables,
+  createMetaField,
+  patchMetaField,      
   // api
   api,
   apiCall,

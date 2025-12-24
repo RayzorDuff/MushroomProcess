@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.1
+ * Version: 2025-12-24.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -63,10 +63,9 @@ const log = (...args) => console.log(...args);
 // Meta write helpers
 // ------------------------------
 
-async function createColumn(tableId, columnPayload) {
-  // v2: POST /api/v2/meta/tables/{tableId}/columns
-  // v3: POST /api/v3/meta/bases/{baseId}/tables/{tableId}/fields
-  return apiCall('post', ENV.META_TABLE_FIELDS(tableId), columnPayload);
+async function createColumn(tableId, columnPayload, { useLinksApi = false } = {}) {
+  // Routes v2 vs v3 + normalizes body (v3 requires {title, type})
+  return createMetaField(tableId, columnPayload, { useLinksApi });
 }
 
 function isLinkColumn(c) {
@@ -121,34 +120,22 @@ async function ensureAirtableIdColumn(tableMeta, columns) {
 // ------------------------------
 
 async function fetchTables() {
+  // Shared implementation (v2/v3 safe)
+  // Note: importer does not require hydrated fields here; it calls fetchTableColumns(tableId).
   const data = await apiCall('get', ENV.META_TABLES);
   const tables = Array.isArray(data?.list) ? data.list : data;
-  if (!Array.isArray(tables)) {
-    throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
-  }
+  if (!Array.isArray(tables)) throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
   return tables;
 }
 
 async function fetchTableColumns(tableId) {
-  // v2: GET /api/v2/meta/tables/{tableId}
-  // v3: GET /api/v3/meta/bases/{baseId}/tables/{tableId}
-  const url = ENV.IS_V2
-    ? `${ENV.META_PREFIX}/tables/${tableId}`
-    : `${ENV.META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}`;
-  const data = await apiCall('get', url);
-  const cols = data?.columns || data?.fields || data?.list || [];
-  if (!Array.isArray(cols)) {
-    throw new Error(
-      `Unexpected columns response for ${tableId}: ${JSON.stringify(data).slice(0, 500)}`
-    );
-  }
-  return cols;
+  // Shared implementation: returns columns[] (v2) or fields[] (v3)
+  return ENV.fetchTableFields(tableId);
 }
 
 async function patchColumn(columnId, payload) {
-  // v2: PATCH /api/v2/meta/columns/{columnId}
-  // v3: PATCH /api/v3/meta/bases/{baseId}/fields/{fieldId}
-  return apiCall('patch', ENV.META_FIELD(columnId), payload);
+  // v2 vs v3 safe
+  return patchMetaField(columnId, payload);
 }
 
 async function fixBrokenSumRollupsForTable(tableMeta) {

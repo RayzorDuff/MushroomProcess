@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-22.1
+ * Version: 2025-12-24.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -482,57 +482,20 @@ async function createNocoTableFromAirtableTable_FirstPass(
 // --------------------------------------------
 
 /**
- * Fetch all NocoDB tables for the base, including field/column metadata.
- *
- * v3:
- *   GET /api/v3/meta/bases/{baseId}/tables?include_fields=true
- *
- * v2:
- *   GET /api/v2/meta/bases/{baseId}/tables         (list only)
- *   GET /api/v2/meta/tables/{tableId}             (per-table columns[])
+ * Shared implementation now lives in load_env.js
  */
 async function fetchNocoTablesWithFields() {
+  const tables = await fetchMetaTables({ includeFields: IS_V3 });
+  if (IS_V2) {
+    for (const table of tables) {
+      await refreshNocoFieldsForTable(table);
+    }
+  }
   logInfo(
-    `Fetching NocoDB tables for base ${NOCODB_BASE_ID} using ${
-      IS_V2 ? 'v2' : 'v3'
-    } meta API ...`
+    IS_V2
+      ? `Fetched ${tables.length} NocoDB tables (v2, columns hydrated).`
+      : `Fetched ${tables.length} NocoDB tables (v3, inline fields).`
   );
-
-  if (!IS_V2) {
-    const url = `${META_TABLES}?include_fields=true`;
-    const data = await apiCall('get', url);
-
-    let tables = data;
-    if (data && Array.isArray(data.list)) {
-      tables = data.list;
-    }
-    if (!Array.isArray(tables)) {
-      throw new Error(
-        `Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`
-      );
-    }
-
-    logInfo(`Fetched ${tables.length} NocoDB tables (v3, inline fields).`);
-    return tables;
-  }
-
-  // v2: fetch tables first, then hydrate their columns via /meta/tables/{tableId}
-  const data = await apiCall('get', META_TABLES);
-  let tables = data;
-  if (data && Array.isArray(data.list)) {
-    tables = data.list;
-  }
-  if (!Array.isArray(tables)) {
-    throw new Error(
-      `Unexpected tables response (v2): ${JSON.stringify(data).slice(0, 500)}`
-    );
-  }
-
-  for (const table of tables) {
-    await refreshNocoFieldsForTable(table);
-  }
-
-  logInfo(`Fetched ${tables.length} NocoDB tables (v2, columns hydrated).`);
   return tables;
 }
 
@@ -568,29 +531,8 @@ function findNocoTableForAirtableTable(atTable, nocoTables) {
  *   -> data.columns[]
  */
 async function refreshNocoFieldsForTable(table) {
-  const url = IS_V2
-    ? `${META_PREFIX}/tables/${table.id}`
-    : `${META_TABLES}/${table.id}`;
-
-  const data = await apiCall('get', url);
-
-  let fields;
-  if (IS_V2) {
-    // v2 table meta exposes columns[]
-    const columns = Array.isArray(data.columns) ? data.columns : [];
-    fields = columns;
-  } else {
-    // v3 table meta exposes fields[]
-    fields = Array.isArray(data.fields) ? data.fields : [];
-  }
-
+  const fields = await fetchMetaFieldsForTable(table.id);
   table.fields = fields;
-
-  logInfo(
-    `  Refreshed fields for table "${
-      table.title || table.name || table.table_name
-    }": ${fields.length} field(s).`
-  );
 
   return fields;
 }
