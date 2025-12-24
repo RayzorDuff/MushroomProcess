@@ -3,7 +3,22 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-22.2
+ * Version: 2025-12-24.1
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  * =============================================================================
  * Imports Airtable table data exported by `airtable-export` (JSON arrays) into an
  * existing NocoDB base where the schema has already been created.
@@ -18,6 +33,7 @@ require('./load_env');
  *   NOCODB_URL       e.g. http://localhost:8080
  *   NOCODB_BASE_ID   e.g. p_xxxxxxxx  (from NocoDB UI)
  *   NOCODB_API_TOKEN personal access token (xc-token)
+ *   NOCODB_API_VERSION       ("v2" or "v3"; default: "v2")
  *
  * Optional env:
  *   AIRTABLE_EXPORT_DIR   default: ./export
@@ -37,57 +53,20 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-const NOCODB_URL = (process.env.NOCODB_URL || '').toString();
-const NOCODB_BASE_ID = (process.env.NOCODB_BASE_ID || '').toString();
-const NOCODB_API_TOKEN =
-  (process.env.NOCODB_API_TOKEN || process.env.NOCODB_TOKEN || '').toString();
+// Shared API client + caller (already configured w/ NOCODB_URL + xc-token)
+const apiCall = ENV.apiCall;
 
-const AIRTABLE_EXPORT_DIR = (process.env.AIRTABLE_EXPORT_DIR || './export').toString();
-const NOCODB_BATCH_SIZE = Math.max(
-  1,
-  parseInt(process.env.NOCODB_BATCH_SIZE || '100', 10) || 100
-);
-const NOCODB_DEBUG = (process.env.NOCODB_DEBUG || '0').toString() === '1';
-
-if (!NOCODB_URL || !NOCODB_BASE_ID || !NOCODB_API_TOKEN) {
-  console.error(
-    'ERROR: Missing required env vars. Need NOCODB_URL, NOCODB_BASE_ID, NOCODB_API_TOKEN.'
-  );
-  process.exit(1);
-}
-
-function log(...args) {
-  console.log(...args);
-}
-function debug(...args) {
-  if (NOCODB_DEBUG) console.log('[DEBUG]', ...args);
-}
-
-const api = axios.create({
-  baseURL: NOCODB_URL.replace(/\/$/, ''),
-  headers: {
-    'xc-token': NOCODB_API_TOKEN,
-    'Content-Type': 'application/json',
-    accept: 'application/json',
-  },
-  timeout: 120000,
-  validateStatus: () => true,
-});
-
-async function apiCall(method, url, data) {
-  const res = await api.request({ method, url, data });
-  if (res.status >= 200 && res.status < 300) return res.data;
-  const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-  throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
-}
+// Local log alias (kept separate from load_env.js helpers for backwards compatibility)
+const log = (...args) => console.log(...args);
 
 // ------------------------------
-// Meta write helpers (v2)
+// Meta write helpers
 // ------------------------------
 
-async function createColumnV2(tableId, columnPayload) {
+async function createColumn(tableId, columnPayload) {
   // v2: POST /api/v2/meta/tables/{tableId}/columns
-  return apiCall('post', `/api/v2/meta/tables/${tableId}/columns`, columnPayload);
+  // v3: POST /api/v3/meta/bases/{baseId}/tables/{tableId}/fields
+  return apiCall('post', ENV.META_TABLE_FIELDS(tableId), columnPayload);
 }
 
 function isLinkColumn(c) {
@@ -125,7 +104,7 @@ async function ensureAirtableIdColumn(tableMeta, columns) {
   if (has) return columns;
 
   log(`  [INFO] Creating missing column "airtable_id" on table "${tableName}" ...`);
-  await createColumnV2(tableId, {
+  await createColumn(tableId, {
     column_name: 'airtable_id',
     title: 'airtable_id',
     uidt: 'LongText',
@@ -142,8 +121,7 @@ async function ensureAirtableIdColumn(tableMeta, columns) {
 // ------------------------------
 
 async function fetchTables() {
-  // v2 meta list
-  const data = await apiCall('get', `/api/v2/meta/bases/${NOCODB_BASE_ID}/tables`);
+  const data = await apiCall('get', ENV.META_TABLES);
   const tables = Array.isArray(data?.list) ? data.list : data;
   if (!Array.isArray(tables)) {
     throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
@@ -152,8 +130,12 @@ async function fetchTables() {
 }
 
 async function fetchTableColumns(tableId) {
-  const data = await apiCall('get', `/api/v2/meta/tables/${tableId}`);
-  // v2 returns { id, table_name, columns: [...] }
+  // v2: GET /api/v2/meta/tables/{tableId}
+  // v3: GET /api/v3/meta/bases/{baseId}/tables/{tableId}
+  const url = ENV.IS_V2
+    ? `${ENV.META_PREFIX}/tables/${tableId}`
+    : `${ENV.META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}`;
+  const data = await apiCall('get', url);
   const cols = data?.columns || data?.fields || data?.list || [];
   if (!Array.isArray(cols)) {
     throw new Error(
@@ -164,8 +146,9 @@ async function fetchTableColumns(tableId) {
 }
 
 async function patchColumn(columnId, payload) {
-  // v2 meta update
-  return apiCall('patch', `/api/v2/meta/columns/${columnId}`, payload);
+  // v2: PATCH /api/v2/meta/columns/{columnId}
+  // v3: PATCH /api/v3/meta/bases/{baseId}/fields/{fieldId}
+  return apiCall('patch', ENV.META_FIELD(columnId), payload);
 }
 
 async function fixBrokenSumRollupsForTable(tableMeta) {
@@ -266,7 +249,6 @@ function flattenNocoList(list) {
 // ------------------------------
 
 async function listAllRows(tableId, limit = 1000, fields = []) {
-  // GET /api/v2/tables/{tableId}/records?limit=...&offset=...
   let offset = 0;
   let out = [];
   while (true) {
@@ -282,7 +264,7 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
       }
     }
 
-    const data = await apiCall('get', `/api/v2/tables/${tableId}/records?${qs.toString()}`);
+    const data = await apiCall('get', tableRecordsUrl(tableId, qs.toString(), false));
     const rawList = Array.isArray(data?.list) ? data.list : data;
     const list = flattenNocoList(rawList);
     if (!Array.isArray(list)) {
@@ -304,14 +286,13 @@ async function createOneRow(tableId, rowObj) {
   // Different NocoDB builds accept different shapes.
   // Empirically, some self-hosted builds accept a plain object, others want { data: ... }.
   // Try plain first, then fall back.
-  const url = `/api/v2/tables/${tableId}/records`;
   try {
-    return await apiCall('post', url, rowObj);
+    return await apiCall('post', tableRecordsUrl(tableId, false, false), rowObj);
   } catch (e1) {
     try {
-      return await apiCall('post', url, { data: rowObj });
+      return await apiCall('post', tableRecordsUrl(tableId, false, false), { data: rowObj });
     } catch (e2) {
-      return apiCall('post', url, { fields: rowObj });
+      return await apiCall('post', tableRecordsUrl(tableId, false, false), { fields: rowObj });
     }
   }
 }
@@ -323,6 +304,9 @@ async function createRows(tableId, rows) {
   // Bulk insert (POST {data:[...]}) has been observed to create the correct number of rows
   // but with empty field values in some NocoDB builds. To keep imports reliable,
   // we always insert rows one-by-one using createOneRow().
+  //const data = await apiCall('post', tableRecordsUrl(tableId, null, false), { data: rows });
+  //const list = Array.isArray(data?.list) ? data.list : data;
+  //return Array.isArray(list) ? list : [];  
   if (process.env.NOCODB_DEBUG === '1') {
     console.warn('[DEBUG] createRows(): bulk disabled; inserting one-by-one for reliability.');
     console.warn('[DEBUG] First row payload keys:', Object.keys(rows[0] || {}));
@@ -336,28 +320,14 @@ async function createRows(tableId, rows) {
   return created;
 }
 
-async function patchRow(tableId, rowId, fields) {
+async function patchRow(tableId, rowId, fields, useLinksApi = false) {
   // PATCH usually accepts a plain object body, but some builds used { data: {...} }.
   try {
-    return await apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, fields);
+    return await apiCall('patch', tableRecordUrl(tableId, rowId, null, useLinksApi), fields);
   } catch (e) {
     const msg = (e && e.message) ? e.message : String(e);
     debug(`patchRow(plain body) failed, retrying with {data:{...}}: ${msg}`);
-    return apiCall('patch', `/api/v2/tables/${tableId}/records/${rowId}`, { data: fields });
-  }
-}
-
-async function linkRecords(tableId, linkFieldId, recordId, targetRecordIds) {
-  // NocoDB v2 linking API:
-  //   POST /api/v2/tables/{tableId}/links/{linkFieldId}/records/{recordId}
-  // Body is an object with key `Id`. Some builds respond with text/html "true".
-  // Send one request per target id to avoid ambiguity about array formats.
-  for (const targetId of targetRecordIds) {
-    await apiCall(
-      'post',
-      `/api/v2/tables/${tableId}/links/${linkFieldId}/records/${recordId}`,
-      { Id: targetId }
-    );
+    return apiCall('patch', tableRecordUrl(tableId, rowId, null, useLinksApi), { data: fields });
   }
 }
 
@@ -524,7 +494,7 @@ async function getRow(tableId, rowId, fields = []) {
       if (f && String(f).trim()) qs.append('fields', String(f).trim());
     }
   }
-  const url = `/api/v2/tables/${tableId}/records/${rowId}${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const url = tableRecordUrl(tableId, rowId, qs.toString(), false);
   const rec = await apiCall('get', url);
   return flattenNocoRecord(rec);
 }
@@ -845,7 +815,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
 
       // IMPORTANT: Use the NocoDB v2 links API (record PATCH often doesn't set LTAR reliably).
       // This links each target record id to the source record for that link field.
-      await linkRecords(tableId, meta.linkFieldId, item.rowId, resolved);
+      await setLinksExact(tableId, meta.linkFieldId, item.rowId, resolved);
     }
   }
 

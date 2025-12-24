@@ -59,28 +59,8 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-// --------------------------------------------
-// ENV + CONFIG
-// --------------------------------------------
-
-const NOCODB_URL =
-  process.env.NOCODB_URL ||
-  process.env.NC_URL ||
-  'http://localhost:8080';
-
-const NOCODB_BASE_ID = process.env.NOCODB_BASE_ID;
-
-const NOCODB_API_TOKEN =
-  process.env.NOCODB_API_TOKEN ||
-  process.env.NOCODB_AUTH_TOKEN ||
-  process.env.NOCODB_TOKEN ||
-  process.env.NC_TOKEN ||
-  '';
-
-const SCHEMA_PATH =
-  process.env.SCHEMA_PATH ||
-  path.join(process.cwd(), 'export', '_schema.json');
-
+// Shared API client + caller (already configured w/ NOCODB_URL + xc-token)
+const apiCall = ENV.apiCall;
 if (!NOCODB_BASE_ID) {
   console.error(
     'ERROR: NOCODB_BASE_ID is required (the NocoDB base / project id).'
@@ -92,31 +72,6 @@ if (!fs.existsSync(SCHEMA_PATH)) {
   console.error(`ERROR: SCHEMA_PATH does not exist: ${SCHEMA_PATH}`);
   process.exit(1);
 }
-
-const NOCODB_API_VERSION =
-  (process.env.NOCODB_API_VERSION || 'v2').toString().toLowerCase();
-
-// Optional per-feature API version for Link creation.
-// If NOCODB_API_VERSION_LINKS is not set, we fall back to NOCODB_API_VERSION.
-const NOCODB_API_VERSION_LINKS =
-  (process.env.NOCODB_API_VERSION_LINKS || NOCODB_API_VERSION)
-    .toString()
-    .toLowerCase();
-
-const IS_V3 =
-  NOCODB_API_VERSION === '3' ||
-  NOCODB_API_VERSION === 'v3' ||
-  NOCODB_API_VERSION === 'api_v3';
-
-const IS_V2 = !IS_V3;
-
-const LINKS_IS_V3 =
-  NOCODB_API_VERSION_LINKS === '3' ||
-  NOCODB_API_VERSION_LINKS === 'v3' ||
-  NOCODB_API_VERSION_LINKS === 'api_v3';
-
-const LINKS_IS_V2 = !LINKS_IS_V3;
-
 console.log(`[INFO] NOCODB_API_VERSION = ${NOCODB_API_VERSION}, IS_V3 = ${IS_V3}, IS_V2 = ${IS_V2}`);
 console.log(`[INFO] NOCODB_API_VERSION_LINKS = ${NOCODB_API_VERSION_LINKS}, LINKS_IS_V3 = ${LINKS_IS_V3}, LINKS_IS_V2 = ${LINKS_IS_V2}`);
 
@@ -187,91 +142,6 @@ console.log(`[INFO] Recreate links  : ${RECREATE_LINKS}`);
 console.log(`[INFO] Recreate rollups: ${RECREATE_ROLLUPS}`);
 console.log(`[INFO] Recreate lookups: ${RECREATE_LOOKUPS}`);
 console.log(`[INFO] Debug JSON path : ${DEBUG_OUTPUT_PATH}`);
-
-const META_PREFIX = IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
-
-// Base-level tables listing endpoint is the same shape in v2 & v3
-const META_TABLES = `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables`;
-
-// Field creation endpoint differs between v2 & v3.
-const META_TABLE_FIELDS = (tableId) =>
-  IS_V2
-    ? `${META_PREFIX}/tables/${tableId}/columns`
-    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}/fields`;
-
-// Field (column) delete endpoint.
-const META_FIELD = (fieldId) =>
-  IS_V2
-    ? `${META_PREFIX}/columns/${fieldId}`
-    : `${META_PREFIX}/bases/${NOCODB_BASE_ID}/fields/${fieldId}`;
-    
-// Link-specific meta endpoints so we can talk to v3 for links even when the
-// rest of the script uses v2 meta APIs.
-const LINK_META_PREFIX = LINKS_IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
-
-const LINK_META_TABLE_FIELDS = (tableId) =>
-  LINKS_IS_V2
-    ? `${LINK_META_PREFIX}/tables/${tableId}/columns`
-    : `${LINK_META_PREFIX}/bases/${NOCODB_BASE_ID}/tables/${tableId}/fields`;
-
-const LINK_META_FIELD = (fieldId) =>
-  LINKS_IS_V2
-    ? `${LINK_META_PREFIX}/columns/${fieldId}`
-    : `${LINK_META_PREFIX}/bases/${NOCODB_BASE_ID}/fields/${fieldId}`;    
-
-// --------------------------------------------
-// BASIC LOGGING HELPERS
-// --------------------------------------------
-
-function logInfo(msg) {
-  console.log(`[INFO] ${msg}`);
-}
-
-function logWarn(msg) {
-  console.warn(`[WARN] ${msg}`);
-}
-
-function logError(msg) {
-  console.error(`[ERROR] ${msg}`);
-}
-
-// --------------------------------------------
-// AXIOS INSTANCE
-// --------------------------------------------
-
-const api = axios.create({
-  baseURL: NOCODB_URL.replace(/\/+$/, ''),
-  headers: {
-    'xc-token': NOCODB_API_TOKEN,
-    'Content-Type': 'application/json',
-  },
-  timeout: 60000,
-  validateStatus: () => true,
-});
-
-async function apiCall(method, url, data) {
-  try {
-    const res = await api.request({
-      method,
-      url,
-      data,
-    });
-    if (res.status >= 200 && res.status < 300) {
-      return res.data;
-    }
-    const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-    throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
-  } catch (err) {
-    const status = err.response && err.response.status;
-    const body =
-      err.response && err.response.data
-        ? JSON.stringify(err.response.data).slice(0, 500)
-        : String(err);
-    throw new Error(
-      `API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}`
-    );
-  }
-}
 
 // --------------------------------------------
 // LOADING AIRTABLE SCHEMA
@@ -587,10 +457,7 @@ async function createNocoTableFromAirtableTable_FirstPass(
   };
 
   try {
-    const url = `${NOCODB_URL.replace(
-      /\/+$/,
-      ""
-    )}/api/v2/meta/bases/${baseId}/tables`;
+    const url = `${META_PREFIX}/bases/${baseId}/tables`;
     console.log(
       `  [DEBUG] Payload for table "${tableName}":`,
       JSON.stringify(payload, null, 2)
@@ -702,7 +569,7 @@ function findNocoTableForAirtableTable(atTable, nocoTables) {
  */
 async function refreshNocoFieldsForTable(table) {
   const url = IS_V2
-    ? `/api/v2/meta/tables/${table.id}`
+    ? `${META_PREFIX}/tables/${table.id}`
     : `${META_TABLES}/${table.id}`;
 
   const data = await apiCall('get', url);
