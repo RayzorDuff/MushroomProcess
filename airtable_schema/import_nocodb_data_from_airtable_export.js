@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.4
+ * Version: 2025-12-24.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -298,7 +298,7 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
   return out;
 }
 
-async function createOneRow(tableId, rowObj) {
+async function createOneRow(tableId, rowObj, verifyKey = null) {
   // Different NocoDB builds accept different shapes.
   // Also: some schemas expose virtual/computed columns that appear writable in meta,
   // but fail at insert-time with:
@@ -307,6 +307,14 @@ async function createOneRow(tableId, rowObj) {
   // We auto-strip offending fields and retry.
 
   const url = tableRecordsUrl(tableId, false, false);
+  
+  const wantsKey =
+    !!verifyKey &&
+    rowObj &&
+    typeof rowObj === 'object' &&
+    Object.prototype.hasOwnProperty.call(rowObj, verifyKey) &&
+    rowObj[verifyKey] != null;
+  
   const shapes = ENV.IS_V2
     ? [(o) => o, (o) => ({ data: o }), (o) => ({ fields: o })]
     : [(o) => ({ fields: o }), (o) => o, (o) => ({ data: o })];
@@ -319,10 +327,35 @@ async function createOneRow(tableId, rowObj) {
 
     for (const shapeFn of shapes) {
       try {
-        return await apiCall('post', url, shapeFn(working));
-      } catch (e) {
-        lastErr = e;
-      }
+        const created = await apiCall('post', url, shapeFn(working));
+        
+        // Guard against silent "empty row" inserts (seen in some v2 builds).
+        if (wantsKey) {
+          const flat = flattenNocoRecord(created);
+          const echoed = flat ? flat[verifyKey] : null;
+          
+          // Some builds do NOT echo the inserted fields in the POST response.
+          // If we at least have a created row id, verify by GET.
+          const createdId = getRowId(flat);
+          if (!echoed || String(echoed).trim() !== String(rowObj[verifyKey]).trim()) {
+            if (createdId != null) {
+              try {
+                const after = await getRow(tableId, createdId, [verifyKey]);
+                const persisted = after ? after[verifyKey] : null;
+                if (persisted && String(persisted).trim() === String(rowObj[verifyKey]).trim()) {
+                  return created;
+                }
+              } catch (_) {
+                // ignore readback error; fall through to try next shape
+              }
+            }
+            continue; // try next payload shape
+          }
+        }
+        return created;
+     } catch (e) {
+       lastErr = e;
+     }
     }
 
     // If we get a virtual column error, strip that field and try again.
@@ -345,7 +378,7 @@ async function createOneRow(tableId, rowObj) {
   throw new Error(`createOneRow exceeded retry budget for table ${tableId}.`);
 }
 
-async function createRows(tableId, rows) {
+async function createRows(tableId, rows, verifyKey = null) {
   if (!rows.length) return [];
 
   // IMPORTANT:
@@ -364,7 +397,7 @@ async function createRows(tableId, rows) {
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
     try {
-      const one = await createOneRow(tableId, r);
+      const one = await createOneRow(tableId, r, verifyKey);
       if (one && typeof one === 'object') created.push(one);
     } catch (e) {
       // IMPORTANT: createRows already iterates row-by-row; add row context here.
@@ -726,13 +759,85 @@ async function buildAirtableIdToRowMaps(tableId, columns) {
   return { byAirtableId, byDisplayValue, pvName };
 }
 
+/**
+ * When running NOCODB_API_VERSION=v2 with NOCODB_API_VERSION_LINKS=v3,
+ * the v2 meta endpoint can omit/misclassify LTAR (link) columns in some installs.
+ *
+ * That leads to:
+ *   - linkCols = []
+ *   - extractLinkPayloads() always returns {}
+ *   - "Pass B: no link fields to update."
+ *
+ * Fix: merge v2 meta fields with v3(meta-for-links) fields, then detect links.
+ */
+async function fetchMergedTableFields(tableId, baseColumns = []) {
+  // Normalize to array
+  let colsV2 = Array.isArray(baseColumns) ? baseColumns : [];
+
+  // If caller gave us nothing, fetch via default meta API (ENV.IS_V3 decides)
+  if (!colsV2.length) {
+    try {
+      colsV2 = await fetchTableFields(tableId);
+    } catch (e) {
+      colsV2 = [];
+    }
+  }
+
+  // Always attempt to fetch link-aware meta via LINKS API when available.
+  // This is especially important when NOCODB_API_VERSION=v2 and LINKS=v3.
+  let colsLinks = [];
+  try {
+    colsLinks = await fetchTableFields(tableId, { useLinksApi: true });
+  } catch (e) {
+    colsLinks = [];
+    if (NOCODB_DEBUG) {
+      debug(`[DEBUG] fetchMergedTableFields(${tableId}): could not fetch link-meta fields via useLinksApi=true: ${e?.message || e}`);
+    }
+  }
+
+  // Merge by best-effort stable key
+  const byKey = new Map();
+  const push = (c) => {
+    if (!c) return;
+    const key =
+      (c.id != null ? `id:${String(c.id)}` : null) ||
+      (c.column_name ? `col:${String(c.column_name)}` : null) ||
+      (c.name ? `name:${String(c.name)}` : null) ||
+      (c.title ? `title:${String(c.title)}` : null);
+    if (!key) return;
+    // Prefer link-meta version if it contains relation options
+    const prev = byKey.get(key);
+    if (!prev) return void byKey.set(key, c);
+    const prevOpt = prev?.colOptions || prev?.options || prev?.column_options;
+    const nextOpt = c?.colOptions || c?.options || c?.column_options;
+    const prevHasRel = !!(prevOpt?.fk_related_model_id || prevOpt?.fk_mm_model_id);
+    const nextHasRel = !!(nextOpt?.fk_related_model_id || nextOpt?.fk_mm_model_id);
+    if (!prevHasRel && nextHasRel) byKey.set(key, c);
+  };
+
+  for (const c of colsV2) push(c);
+  for (const c of colsLinks) push(c);
+
+  const merged = Array.from(byKey.values());
+  if (NOCODB_DEBUG) {
+    debug(`[DEBUG] fetchMergedTableFields(${tableId}): v2=${colsV2.length}, linkMeta=${colsLinks.length}, merged=${merged.length}`);
+  }
+  return merged;
+}
+
 async function importTable(tableMeta, columns, allTableIdMaps) {
   const tableName = tableMeta?.title || tableMeta?.table_name;
   const tableId = tableMeta?.id;
   if (!tableName || !tableId) return;
   
   // Ensure our natural key exists before we attempt reads with fields=airtable_id
-  columns = await ensureAirtableIdColumn(tableMeta, columns);  
+  // (ensureAirtableIdColumn() uses the default meta API)
+  columns = await ensureAirtableIdColumn(tableMeta, columns);
+
+  // IMPORTANT: merge in link-aware meta fields (v3 meta) so LTAR/link columns are visible,
+  // even when the primary import path is running on v2.
+  columns = await fetchMergedTableFields(tableId, columns);
+
   const AIRTABLE_ID_KEY = getAirtableIdFieldKey(columns);
   debug(`Using Airtable ID field key for ${tableName}: ${AIRTABLE_ID_KEY}`);
  
@@ -746,6 +851,21 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
 
   const colIndex = buildColumnIndex(columns);
   const linkCols = (columns || []).filter((c) => isLinkColumn(c));
+
+  // If we still didn't detect link columns, emit a very explicit diagnostic
+  // because this is the #1 reason links never get applied in Pass B.
+  if (!linkCols.length && NOCODB_DEBUG) {
+    const sample = (columns || []).slice(0, 15).map((c) => ({
+      id: c?.id,
+      title: c?.title,
+      name: c?.name,
+      column_name: c?.column_name,
+      uidt: c?.uidt,
+      type: c?.type,
+    }));
+    debug(`[DEBUG] ${tableName}: linkCols=0 after merge. Sample columns:`, sample);
+  }
+  
   if (NOCODB_DEBUG) {
     const names = linkCols.map((c) => apiFieldName(c)).filter(Boolean);
     debug(`Detected ${linkCols.length} link column(s) on ${tableName}:`, names);
@@ -800,7 +920,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
     log(`  Pass A: creating ${passA_create.length} row(s) in batches of ${NOCODB_BATCH_SIZE} ...`);
     for (const batch of chunk(passA_create, NOCODB_BATCH_SIZE)) {
       const rows = batch.map((x) => x.fieldsA);
-      await createRows(tableId, rows);
+      await createRows(tableId, rows, AIRTABLE_ID_KEY);
     }
   } else {
     log('  Pass A: no creates needed.');
