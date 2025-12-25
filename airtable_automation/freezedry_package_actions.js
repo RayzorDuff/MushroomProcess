@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-12-21.1
+ * Version: 2025-12-24.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -28,6 +28,7 @@ try {
   const productsTbl = base.getTable('products');
   const eventsTbl   = base.getTable('events');
   const itemsTbl = base.getTable('items');
+  const locationsTbl = base.getTable('locations');
   
   const src = await productsTbl.selectRecordAsync(productId);
   if (!src) throw new Error('Source product not found');
@@ -49,9 +50,8 @@ try {
   const sizeG              = Number(src.getCellValue('package_size_g') ?? NaN);
   const count              = Number(src.getCellValue('package_count') ?? NaN);
   const useBy              = src.getCellValue('use_by');
-  // storage_location is a singleSelect; getCellValue returns { id, name } (or null)
-  const loc                = src.getCellValue(storageFieldName) || null;
-
+  // storage_location is a link to locations (prefers single), so Airtable returns an array of linked records
+  const loc                = (src.getCellValue(storageFieldName) || [])[0] || null;
   // Validate
   const errs = [];
   if (trayState !== 'freezer_tray') errs.push(`Packaging requires ${traystateFieldName} = freezer_tray.`);
@@ -79,6 +79,22 @@ try {
     }
     return choice.id;
   }
+
+  // Look up locations by name (locations.primaryField is "name")
+  const locationsQuery = await locationsTbl.selectRecordsAsync();
+  const locationIdByName = new Map(
+    locationsQuery.records.map(r => [
+      (r.getCellValueAsString('name') || '').trim().toLowerCase(),
+      r.id
+    ])
+  );
+  function requireLocationIdByName(name) {
+    const id = locationIdByName.get(String(name).trim().toLowerCase());
+    if (!id) throw new Error(`locations record not found with name "${name}".`);
+    return id;
+  }
+  const consumedLocationRecId = requireLocationIdByName('Consumed');
+  const defaultProductsStorageRecId = requireLocationIdByName('Products Storage');
   
   // ----- NEW: multi-tray support via products.merge_tray_products -----
   const extraTrayRecords = [];
@@ -166,9 +182,9 @@ try {
       pack_date: nowIso,
       use_by: finalUseBy
     };
-    // If you want new packaged products to inherit storage_location from the tray record,
-    // storage_location is singleSelect so we set { id } (or { name }) not an array.
-    if (loc && loc.id) f[storageFieldName] = { id: loc.id };
+    // storage_location is a linked record to locations. Default to "Products Storage" if not set on source tray.
+    const packagedLocationId = (loc && loc.id) ? loc.id : defaultProductsStorageRecId;
+    f[storageFieldName] = [{ id: packagedLocationId }];
 
   
     if (hasField(productsTbl, 'name_mat')) {
@@ -211,11 +227,11 @@ try {
     }
   }
   
-  // ✅ Mark the tray product(s) as empty and set storage_location = Consumed
-  const trayStateEmptyId = getSingleSelectChoiceId(productsTbl, traystateFieldName, 'empty_tray');
-  
-  
-  const consumedLocationId = getSingleSelectChoiceId(productsTbl, storageFieldName, 'Consumed');
+  // ✅ Mark the tray product(s) as empty and set storage_location = "Consumed" (locations link)
+  // tray_state IS a single select (choices include empty_tray)
+  const trayStateField = productsTbl.getField(traystateFieldName);
+  const emptyChoice = (trayStateField.options?.choices || []).find(c => c.name === 'empty_tray');
+  if (!emptyChoice) throw new Error(`products.${traystateFieldName} missing singleSelect choice "empty_tray".`);
   
   const trayUpdates = [];
   
@@ -223,8 +239,8 @@ try {
   trayUpdates.push({
     id: src.id,
     fields: {
-      [traystateFieldName]: { id: trayStateEmptyId },
-      [storageFieldName]: { id: consumedLocationId },
+      [traystateFieldName]: { id: emptyChoice.id },
+      [storageFieldName]: [{ id: consumedLocationRecId }],
       action: null
     }
   });
@@ -234,8 +250,8 @@ try {
     trayUpdates.push({
       id: rec.id,
       fields: {
-        tray_state: { id: trayStateEmptyId },
-        [storageFieldName]: { id: consumedLocationId },
+        [traystateFieldName]: { id: emptyChoice.id },
+        [storageFieldName]: [{ id: consumedLocationRecId }],
         action: null
       }
     });
