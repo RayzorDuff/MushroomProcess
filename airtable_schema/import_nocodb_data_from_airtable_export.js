@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.5
+ * Version: 2025-12-24.6
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -187,6 +187,14 @@ function flattenNocoRecord(rec) {
 
   // Preserve identifiers on the top-level record, but merge payload into root.
   const out = { ...payload, ...rec };
+
+  // Some builds return the pk under nested payload but not on top-level.
+  // After merge, ensure common pk aliases exist at top-level when present.
+  if (out.id == null && out.ID != null) out.id = out.ID;
+  if (out.id == null && out.Id != null) out.id = out.Id;
+  if (out.id == null && out.pk != null) out.id = out.pk;
+  if (out.id == null && out.nocopk != null) out.id = out.nocopk;
+  
   // Remove nesting keys so later code sees a flat object.
   delete out.fields;
   delete out.data;
@@ -525,7 +533,21 @@ function getField(rec, key) {
 
 function getRowId(rec) {
   if (!rec || typeof rec !== 'object') return null;
-  return rec.id ?? rec.Id ?? rec.nocopk ?? getField(rec, 'id') ?? getField(rec, 'nocopk') ?? null;
+  // NocoDB row pk can show up under different keys depending on version/build/endpoint:
+  //   id / Id / ID / pk / nocopk  (and sometimes only nested)
+  return (
+    rec.id ??
+    rec.Id ??
+    rec.ID ??
+    rec.pk ??
+    rec.nocopk ??
+    getField(rec, 'id') ??
+    getField(rec, 'Id') ??
+    getField(rec, 'ID') ??
+    getField(rec, 'pk') ??
+    getField(rec, 'nocopk') ??
+    null
+  );
 }
 
 function normalizeKey(s) {
@@ -737,6 +759,21 @@ async function buildAirtableIdToRowMaps(tableId, columns) {
         }
       }      
     }
+
+    // IMPORTANT: Some builds omit the row identifier when fields= is present.
+    // If we can't resolve ANY row ids, Pass B will always report "no links to update"
+    // (because missingRowId=N causes every record to be skipped).
+    const anyRowId = rows.some((r) => getRowId(r) != null);
+    if (!anyRowId) {
+      debug(
+        `[DEBUG] buildAirtableIdToRowMaps(${tableId}): rows returned but row id missing with fields filter; retrying without fields=.`
+      );
+      rows = await listAllRows(tableId, 1000, []);
+      if (NOCODB_DEBUG && Array.isArray(rows) && rows.length) {
+        const sample = rows[0];
+        debug(`[DEBUG] buildAirtableIdToRowMaps(${tableId}): retry(no fields) sample keys:`, Object.keys(sample || {}));
+      }
+    }    
   }
 
   const byAirtableId = new Map();
@@ -975,6 +1012,21 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   // We'll attempt multiple keys to locate the related table id.
   // Map: fieldName -> { relatedTableId, linkFieldId }
   const linkTargetByField = new Map();
+
+  // IMPORTANT (mixed API versions):
+  // When NOCODB_API_VERSION="v2" but NOCODB_API_VERSION_LINKS="v3", we fetch
+  // column metadata through v2 meta endpoints, but we *write links* through the
+  // v3 links endpoints:
+  //   /api/v3/data/{baseId}/{tableId}/links/{linkFieldId}/{recordId}
+  //
+  // In that v3 URL, {linkFieldId} is NOT the v2 column UUID. It is the v3 field
+  // identifier, which (in practice) matches the field API name (column_name).
+  // If we pass c.id (v2 UUID) into the v3 path segment, link updates are no-ops.
+  //
+  // Therefore:
+  //   - For v2 links API: use c.id
+  //   - For v3 links API: use c.column_name (fallback to name/title)
+  
   for (const c of linkCols) {
     // Keys in `item.links` are API field names (prefer title).
     const field = apiFieldName(c);
@@ -990,9 +1042,12 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
       c?.related_table_id;
 
     // For v2 link endpoints, we also need the link *field id* (column id).
-    const linkFieldId = c?.id;
+    // For mixed deployments, c.id may be v2-style while LINKS v3 may require a v3 field id.
+    // Pass the strongest identifier we have; load_env.setLinksExact() will resolve refs for v3.
+    const linkFieldId = c?.id || c?.column_name || c?.name || c?.title;
+
     if (relatedTableId && linkFieldId) {
-      linkTargetByField.set(field, { relatedTableId, linkFieldId });
+      linkTargetByField.set(field, { relatedTableId, linkFieldId: String(linkFieldId) });
     }
   }
 
@@ -1033,6 +1088,10 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
 
       // IMPORTANT: Use the NocoDB v2 links API (record PATCH often doesn't set LTAR reliably).
       // This links each target record id to the source record for that link field.
+      if (process.env.NOCODB_DEBUG === '1') {
+        const u = ENV.linkRecordsUrl(tableId, meta.linkFieldId, item.rowId);
+        console.warn('[DEBUG] setLinksExact url:', u, 'resolved:', resolved.length);
+      }      
       await setLinksExact(tableId, meta.linkFieldId, item.rowId, resolved);
     }
   }

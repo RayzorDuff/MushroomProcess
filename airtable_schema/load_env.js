@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-24.4
+ * Version: 2025-12-24.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -219,10 +219,68 @@ function linkRecordsUrl(tableId, linkFieldId, recordId) {
     : `${LINK_DATA_PREFIX}/${tableId}/links/${linkFieldId}/${recordId}`;
 }
 
+// Cache for resolving a link field reference (often column_name/title) into the
+// concrete field identifier required by the v3 links endpoints.
+const _v3LinkFieldIdCache = new Map();
+
+function _normKey(s) {
+  return String(s || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+}
+
+function _looksLikeStableId(s) {
+  const v = String(s || '');
+  if (!v) return false;
+  // Heuristic: v3 field ids are usually opaque, URL-safe identifiers without spaces.
+  // We treat anything containing whitespace or obvious column_name punctuation as a ref.
+  if (/\s/.test(v)) return false;
+  if (v.includes('/')) return false;
+  if (v.includes('\\')) return false;
+  // Underscore is common in column_name refs (e.g. "strain_id").
+  if (v.includes('_')) return false;
+  return true;
+}
+
+async function resolveV3LinkFieldId(tableId, linkFieldRef) {
+  const ref = String(linkFieldRef || '');
+  const cacheKey = `${tableId}:${ref}`;
+  if (_v3LinkFieldIdCache.has(cacheKey)) return _v3LinkFieldIdCache.get(cacheKey);
+
+  // Pull v3 field metadata for this table via the LINKS meta version.
+  // This is important when NOCODB_API_VERSION="v2" but NOCODB_API_VERSION_LINKS="v3".
+  const fields = await fetchTableFields(tableId, { useLinksApi: true });
+  const nref = _normKey(ref);
+
+  // Try common keys: column_name, title, and a normalized API field name.
+  const match = fields.find((f) => {
+    const cn = _normKey(f?.column_name || f?.name);
+    const title = _normKey(f?.title || f?.name);
+    const api = _normKey(f?.name);
+    return nref === cn || nref === title || nref === api;
+  });
+
+  const id = match?.id || null;
+  _v3LinkFieldIdCache.set(cacheKey, id);
+  return id;
+}
+
 // Set a link field to match exactly the desired related-record ids.
 // Uses the data-links endpoints (v2 or v3) depending on NOCODB_API_VERSION_LINKS.
 async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
-  const url = linkRecordsUrl(tableId, linkFieldId, recordId);
+  let linkFieldRef = linkFieldId;
+  if (LINKS_IS_V3 && !_looksLikeStableId(linkFieldRef)) {
+    const resolved = await resolveV3LinkFieldId(tableId, linkFieldRef);
+    if (!resolved) {
+      throw new Error(
+        `Could not resolve v3 link field id for table=${tableId} ref=${linkFieldRef}`
+      );
+    }
+    linkFieldRef = resolved;
+  }
+
+  const url = linkRecordsUrl(tableId, linkFieldRef, recordId);
   const desired = Array.isArray(desiredIds) ? desiredIds : [];
 
   // Fetch current links
