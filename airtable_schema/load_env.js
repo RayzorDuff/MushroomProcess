@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-24.5
+ * Version: 2025-12-25.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -219,6 +219,35 @@ function linkRecordsUrl(tableId, linkFieldId, recordId) {
     : `${LINK_DATA_PREFIX}/${tableId}/links/${linkFieldId}/${recordId}`;
 }
 
+// ---------------------------------------------------------------------------
+// Links helpers
+// ---------------------------------------------------------------------------
+
+async function resolveV3LinkFieldId(tableId, linkFieldRef) {
+  if (!tableId || !linkFieldRef) return null;
+  const ref = String(linkFieldRef).trim();
+  if (!ref) return null;
+  try {
+    const meta = await fetchTableMeta(tableId, { useLinksApi: true });
+    const fields = extractFieldsFromTableMeta(meta);
+    const hit = (fields || []).find((f) => {
+      const id = f?.id != null ? String(f.id) : '';
+      const cn = (f?.column_name || f?.name || '').toString();
+      const title = (f?.title || f?.label || '').toString();
+      return id === ref || cn === ref || title === ref;
+    });
+    return hit?.id != null ? String(hit.id) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveLinkFieldId(tableId, linkFieldRef) {
+  if (!LINKS_IS_V3) return linkFieldRef;
+  const resolved = await resolveV3LinkFieldId(tableId, linkFieldRef);
+  return resolved || linkFieldRef;
+}
+
 // Cache for resolving a link field reference (often column_name/title) into the
 // concrete field identifier required by the v3 links endpoints.
 const _v3LinkFieldIdCache = new Map();
@@ -233,6 +262,14 @@ function _normKey(s) {
 function _looksLikeStableId(s) {
   const v = String(s || '');
   if (!v) return false;
+
+  // v2 column ids are frequently numeric-ish; they MUST NOT be treated as v3 field ids.
+  // If we treat these as "stable", LINKS=v3 will call /links/<v2id>/... which breaks.
+  if (/^\d+$/.test(v)) return false;
+
+  // Very short tokens are unlikely to be v3 ids (and are often internal numeric ids).
+  if (v.length < 8) return false;
+  
   // Heuristic: v3 field ids are usually opaque, URL-safe identifiers without spaces.
   // We treat anything containing whitespace or obvious column_name punctuation as a ref.
   if (/\s/.test(v)) return false;
@@ -240,6 +277,15 @@ function _looksLikeStableId(s) {
   if (v.includes('\\')) return false;
   // Underscore is common in column_name refs (e.g. "strain_id").
   if (v.includes('_')) return false;
+
+  // Must include at least one letter to avoid numeric / punctuation-only ids.
+  if (!/[a-z]/i.test(v)) return false;
+  
+  // NOTE:
+  // Titles like "ecommerce" were being misclassified as "stable ids" which prevented
+  // v3 resolution and caused: FIELD_NOT_FOUND (Field 'ecommerce' not found).
+  // Require a bit more entropy/length to treat as an opaque id.
+  if (v.length < 12) return false;
   return true;
 }
 
@@ -252,6 +298,13 @@ async function resolveV3LinkFieldId(tableId, linkFieldRef) {
   // This is important when NOCODB_API_VERSION="v2" but NOCODB_API_VERSION_LINKS="v3".
   const fields = await fetchTableFields(tableId, { useLinksApi: true });
   const nref = _normKey(ref);
+
+  // If caller already passed a real v3 field id, accept it as-is.
+  const direct = fields.find((f) => String(f?.id || '') === ref);
+  if (direct?.id) {
+    _v3LinkFieldIdCache.set(cacheKey, direct.id);
+    return direct.id;
+  } 
 
   // Try common keys: column_name, title, and a normalized API field name.
   const match = fields.find((f) => {
@@ -269,19 +322,44 @@ async function resolveV3LinkFieldId(tableId, linkFieldRef) {
 // Set a link field to match exactly the desired related-record ids.
 // Uses the data-links endpoints (v2 or v3) depending on NOCODB_API_VERSION_LINKS.
 async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
-  let linkFieldRef = linkFieldId;
-  if (LINKS_IS_V3 && !_looksLikeStableId(linkFieldRef)) {
-    const resolved = await resolveV3LinkFieldId(tableId, linkFieldRef);
-    if (!resolved) {
-      throw new Error(
-        `Could not resolve v3 link field id for table=${tableId} ref=${linkFieldRef}`
-      );
-    }
-    linkFieldRef = resolved;
+  // Backwards compatible signature:
+  //   setLinksExact(tableId, linkFieldId, recordId, desiredIds)
+  //   setLinksExact({ tableId, linkFieldId, recordId, desiredIds, relatedPkName })
+  //
+  // IMPORTANT: normalize args FIRST (before any v3 field-id resolution),
+  // otherwise callers passing an object can produce tables/[object Object].
+  let opts;
+  if (tableId && typeof tableId === 'object') {
+    opts = tableId;
+  } else {
+    opts = { tableId, linkFieldId, recordId, desiredIds };
   }
 
-  const url = linkRecordsUrl(tableId, linkFieldRef, recordId);
-  const desired = Array.isArray(desiredIds) ? desiredIds : [];
+  const tId = opts.tableId;
+  const rId = opts.recordId;
+  const desired = Array.isArray(opts.desiredIds) ? opts.desiredIds : [];
+  const relatedPkName = (opts.relatedPkName || '').toString().trim();
+
+  // Resolve the link field identifier for LINKS=v3:
+  // The v3 links endpoint typically needs the *v3 field id* in the URL path,
+  // and human refs like "ecommerce" often map to internal _nc_m2m_* columns.
+  let lfRef = opts.linkFieldId;
+  if (LINKS_IS_V3) {
+    try {
+      const resolved = await resolveV3LinkFieldId(tId, lfRef);
+      if (resolved) lfRef = resolved;
+    } catch (e) {
+      // Don't fail the whole import if one column can't be resolved.
+      // Fall back to caller-provided ref and let the API respond.
+      if (typeof debug === 'function') {
+        debug(
+          `[WARN] LINKS=v3: failed to resolve link field ref "${opts.linkFieldId}" for table=${tId}: ${e?.message || e}`
+        );
+      }
+    }
+  }
+
+  const url = linkRecordsUrl(tId, lfRef, rId);
 
   // Fetch current links
   const cur = await apiCall('get', url);
@@ -295,10 +373,12 @@ async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
         .map((x) => String(x));
     }
   } else {
+    // v3 /db/data/nc/{tableId}/{recordId}/{linkFieldId} commonly returns either
+    // an array of records, or { records: [...] }
     const records = Array.isArray(cur) ? cur : cur?.records;
     if (Array.isArray(records)) {
       currentIds = records
-        .map((r) => r?.id ?? r?.Id)
+        .map((r) => r?.id ?? r?.Id ?? r?.nocopk)
         .filter((x) => typeof x !== 'undefined' && x !== null)
         .map((x) => String(x));
     }
@@ -310,18 +390,36 @@ async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
   const toUnlink = [...have].filter((id) => !want.has(id));
   const toLink = [...want].filter((id) => !have.has(id));
 
+  // v2 link endpoints validate against the *related model primary key column name*.
+  // Allow the importer to pass relatedPkName; default to "nocopk".
+  const pk = relatedPkName || 'nocopk';
   if (toUnlink.length) {
-    const payload = LINKS_IS_V2
-      ? toUnlink.map((id) => ({ Id: id }))
-      : toUnlink.map((id) => ({ id }));
-    await apiCall('delete', url, payload);
+    let payload;
+    if (LINKS_IS_V2) {
+      payload = toUnlink.map((id) => {
+        const o = { [pk]: id };
+        // Some deployments accept "Id" as alias; include only if different.
+        if (pk !== 'Id') o.Id = id;
+        return o;
+      });
+    } else {
+      payload = toUnlink.map((id) => ({ id }));
+    }
+     await apiCall('delete', url, payload);
   }
 
   if (toLink.length) {
-    const payload = LINKS_IS_V2
-      ? toLink.map((id) => ({ Id: id }))
-      : toLink.map((id) => ({ id }));
-    await apiCall('post', url, payload);
+    let payload;
+    if (LINKS_IS_V2) {
+      payload = toLink.map((id) => {
+        const o = { [pk]: id };
+        if (pk !== 'Id') o.Id = id;
+        return o;
+      });
+    } else {
+      payload = toLink.map((id) => ({ id }));
+    }
+     await apiCall('post', url, payload);
   }
 }
 
@@ -702,6 +800,8 @@ module.exports = {
   tableRecordsUrl,
   tableRecordUrl,
   linkRecordsUrl,
+  resolveLinkFieldId,
+  resolveV3LinkFieldId,  
   setLinksExact,
   // meta helpers
   fetchTableMeta,

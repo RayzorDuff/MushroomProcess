@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-24.6
+ * Version: 2025-12-25.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -726,6 +726,15 @@ function extractLinkPayloads(record, linkCols, linkColMap) {
 
 async function buildAirtableIdToRowMaps(tableId, columns) {
   const AIRTABLE_ID_KEY = getAirtableIdFieldKey(columns);
+  // Primary key column name (needed for v2 links payload; many Postgres installs use "nocopk")
+  const pkCol = (Array.isArray(columns) ? columns : []).find((c) => {
+    if (!c) return false;
+    if (c.pk || c.primary_key || c.isPk || c.is_primary_key) return true;
+    const name = String(c.column_name || c.name || c.title || '').toLowerCase();
+    return name === 'nocopk' || name === 'id';
+  });
+  const pkName = pkCol ? (pkCol.column_name || pkCol.name || pkCol.title || 'nocopk') : 'nocopk';
+  
   // IMPORTANT: only fetch minimal fields to avoid NocoDB rollup/lookups exploding on select
   // (e.g. Postgres error "function sum(text) does not exist")
   // NOTE (NocoDB 0.265.1): `fields` can only include *real columns*. `id` is not a column.
@@ -793,7 +802,79 @@ async function buildAirtableIdToRowMaps(tableId, columns) {
       }
     }
   }
-  return { byAirtableId, byDisplayValue, pvName };
+  return { byAirtableId, byDisplayValue, pvName, pkName };
+}
+
+// ------------------------------
+// Link relationship helpers (Pass B)
+// ------------------------------
+
+function normalizeRelationType(rt) {
+  if (!rt) return null;
+  const s = String(rt).toLowerCase().trim();
+  // common nocodb shorthands / variants
+  if (s === 'hm' || s.includes('hasmany')) return 'hm';
+  if (s === 'bt' || s.includes('belongsto') || s.includes('manytoone')) return 'bt';
+  if (s === 'mm' || s.includes('manytomany')) return 'mm';
+  if (s === 'oo' || s.includes('onetoone')) return 'oo';
+  return s;
+}
+
+function parseLinkListIds(cur) {
+  // links endpoints return different shapes depending on NOCODB_API_VERSION_LINKS
+  const list = Array.isArray(cur?.list) ? cur.list : (Array.isArray(cur) ? cur : null);
+  const records = Array.isArray(cur?.records) ? cur.records : (Array.isArray(cur) ? cur : null);
+  const src = list || records || [];
+  return src
+    .map((r) => r?.Id ?? r?.id ?? r?.ID ?? r?.pk ?? r?.nocopk)
+    .filter((x) => typeof x !== 'undefined' && x !== null)
+    .map((x) => String(x));
+}
+
+async function resolveFkColumnName(childTableId, fkColumnId, fkColumnNameHint = null) {
+  if (fkColumnNameHint && String(fkColumnNameHint).trim()) return String(fkColumnNameHint).trim();
+  if (!childTableId || !fkColumnId) return null;
+  const cols = await fetchTableColumns(childTableId);
+  const hit = (cols || []).find((c) => String(c?.id) === String(fkColumnId));
+  if (!hit) return null;
+  return apiFieldName(hit);
+}
+
+async function setHasManyExactByForeignKey({
+  parentTableId,
+  parentRowId,
+  linkFieldId,
+  childTableId,
+  fkColumnId,
+  fkColumnNameHint,
+  desiredChildIds,
+}) {
+  // Determine FK column name on child
+  const fkColName = await resolveFkColumnName(childTableId, fkColumnId, fkColumnNameHint);
+  if (!fkColName) {
+    debug(
+      `  [WARN] hasMany: unable to resolve fk column name (childTableId=${childTableId}, fkColumnId=${fkColumnId})`
+    );
+    return;
+  }
+
+  // Read current linked children via links endpoint (works even when setting doesn't)
+  const cur = await apiCall('get', linkRecordsUrl(parentTableId, linkFieldId, parentRowId));
+  const currentIds = new Set(parseLinkListIds(cur));
+  const wantIds = new Set((desiredChildIds || []).map((x) => String(x)));
+
+  const toUnlink = [...currentIds].filter((id) => !wantIds.has(String(id)));
+  const toLink = [...wantIds].filter((id) => !currentIds.has(String(id)));
+
+  // Unlink: set FK to null on child rows that currently point to this parent, but shouldn't
+  for (const childRowId of toUnlink) {
+    await patchRow(childTableId, childRowId, { [fkColName]: null });
+  }
+
+  // Link: set FK to parentRowId on desired child rows
+  for (const childRowId of toLink) {
+    await patchRow(childTableId, childRowId, { [fkColName]: parentRowId });
+  }
 }
 
 /**
@@ -1010,7 +1091,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   // For each link field, we need to know the target table to resolve airtable_id -> rowId.
   // In NocoDB meta, Links columns typically include `colOptions` / `options` / `fk_related_model_id`.
   // We'll attempt multiple keys to locate the related table id.
-  // Map: fieldName -> { relatedTableId, linkFieldId }
+  // Map: fieldName -> { relatedTableId, linkFieldId, relationType, fkColumnId, fkColumnNameHint }
   const linkTargetByField = new Map();
 
   // IMPORTANT (mixed API versions):
@@ -1041,13 +1122,59 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
       c?.fk_related_model_id ||
       c?.related_table_id;
 
-    // For v2 link endpoints, we also need the link *field id* (column id).
-    // For mixed deployments, c.id may be v2-style while LINKS v3 may require a v3 field id.
-    // Pass the strongest identifier we have; load_env.setLinksExact() will resolve refs for v3.
-    const linkFieldId = c?.id || c?.column_name || c?.name || c?.title;
+    const relationType =
+      normalizeRelationType(opt?.relation_type) ||
+      normalizeRelationType(opt?.type) ||
+      normalizeRelationType(c?.relation_type) ||
+      normalizeRelationType(c?.type) ||
+      null;
+
+    const fkColumnId =
+      opt?.fk_column_id ||
+      opt?.fkColumnId ||
+      opt?.fk_child_column_id ||
+      opt?.fkChildColumnId ||
+      c?.fk_column_id ||
+      c?.fkColumnId ||
+      null;
+
+    // some builds include a column-name hint for the FK field
+    const fkColumnNameHint =
+      opt?.fk_column_name ||
+      opt?.fkColumnName ||
+      opt?.fk_child_column_name ||
+      opt?.fkChildColumnName ||
+      null;
+
+    // For link endpoints we need:
+    //  - LINKS=v2: numeric column id (c.id)
+    //  - LINKS=v3: the LTAR api key (usually column_name; sometimes an internal _nc_m2m_* name)
+    //
+    // IMPORTANT:
+    // In mixed deployments (API=v2, LINKS=v3), c.id is often a v2-style id and will not work
+    // in the v3 links endpoint path. Prefer column_name/name/title so load_env.setLinksExact()
+    // can resolve it to the correct v3 id.
+    const linkFieldId = ENV.LINKS_IS_V3
+      ? (c?.column_name || c?.name || c?.title)
+       : (c?.id || c?.column_name || c?.name || c?.title);
+
+    if (ENV.LINKS_IS_V3 && (!linkFieldId || linkFieldId === c?.id)) {
+      // Extra safety: if we somehow ended up using c.id on LINKS=v3, log it loudly.
+      // This is the exact regression that causes "no links updated" / silent no-ops.
+      debug(
+        `[WARN] LINKS=v3: linkFieldId resolved to c.id for ${tableName}.${field}. ` +
+        `c.id=${c?.id} column_name=${c?.column_name} title=${c?.title}`
+      );
+    }
 
     if (relatedTableId && linkFieldId) {
-      linkTargetByField.set(field, { relatedTableId, linkFieldId: String(linkFieldId) });
+      linkTargetByField.set(field, {
+        relatedTableId,
+        linkFieldId,
+        relationType,
+        fkColumnId,
+        fkColumnNameHint,
+      });
     }
   }
 
@@ -1092,7 +1219,62 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
         const u = ENV.linkRecordsUrl(tableId, meta.linkFieldId, item.rowId);
         console.warn('[DEBUG] setLinksExact url:', u, 'resolved:', resolved.length);
       }      
-      await setLinksExact(tableId, meta.linkFieldId, item.rowId, resolved);
+
+      const rt = normalizeRelationType(meta.relationType);
+
+      // hasMany: setting the virtual link field often does nothing.
+      // The reliable approach is to patch the child's FK column to the parent row id.
+      // (We still use the links endpoint only to *read* current children for exactness.)
+      if (rt === 'hm' && meta.fkColumnId) {
+        await setHasManyExactByForeignKey({
+          parentTableId: tableId,
+          parentRowId: item.rowId,
+          linkFieldId: meta.linkFieldId,
+          childTableId: meta.relatedTableId,
+          fkColumnId: meta.fkColumnId,
+          fkColumnNameHint: meta.fkColumnNameHint,
+          desiredChildIds: resolved,
+        });
+        continue;
+      }
+
+      // belongsTo / one-to-one: treat as singular
+      if ((rt === 'bt' || rt === 'oo') && resolved.length > 1) {
+        try {  
+          await ENV.setLinksExact({
+            tableId,
+            linkFieldId: meta.linkFieldId,
+            recordId: item.rowId,
+            desiredIds: [resolved[0]],
+            // For LINKS=v2, payload must include the related table PK column name.
+            // buildAirtableIdToRowMaps() detects it from the related table meta.
+            relatedPkName: targetMaps.pkName,
+          });          
+  
+        } catch (err) {
+          log(`  [WARN] Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${err?.message || err}`);
+          if (NOCODB_DEBUG) debug(err);
+        }        
+        
+        continue;
+      }
+      
+      try {  
+        // many-to-many (and unknown): use links API exact-set
+        // IMPORTANT: Use the NocoDB links API (record PATCH often doesn't set LTAR reliably).
+        await ENV.setLinksExact({
+          tableId,
+          linkFieldId: meta.linkFieldId,
+          recordId: item.rowId,
+          desiredIds: resolved,
+          // For LINKS=v2, payload must include the related table PK column name.
+          // buildAirtableIdToRowMaps() detects it from the related table meta.
+          relatedPkName: targetMaps.pkName,
+        });         
+      } catch (err) {
+        log(`  [WARN] Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${err?.message || err}`);
+        if (NOCODB_DEBUG) debug(err);
+      }
     }
   }
 
