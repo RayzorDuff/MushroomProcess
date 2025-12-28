@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-12-24.1
+ * Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -29,7 +29,10 @@ try {
   const eventsTbl   = base.getTable('events');
   const itemsTbl = base.getTable('items');
   const locationsTbl = base.getTable('locations');
-  
+  const lotsTbl = base.getTable('lots');
+  let strainsTbl = null;
+  try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
+    
   const src = await productsTbl.selectRecordAsync(productId);
   if (!src) throw new Error('Source product not found');
 
@@ -61,6 +64,64 @@ try {
   if (!Number.isFinite(count) || count < 1) errs.push('Set package_count to 1 or more.');
   
   function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+
+  async function buildStrainIdMap() {
+    const map = new Map();
+    if (!strainsTbl) return map;
+    try {
+      const q = await strainsTbl.selectRecordsAsync({ fields: ['strain_id'] });
+      for (const r of q.records) {
+        const sid = (r.getCellValueAsString('strain_id') || '').trim();
+        if (sid) map.set(sid.toLowerCase(), r.id);
+      }
+    } catch {}
+    return map;
+  }
+
+  function uniqLinks(links) {
+    const out = [];
+    const seen = new Set();
+    for (const l of (links || [])) {
+      const id = l?.id;
+      if (id && !seen.has(id)) { seen.add(id); out.push({ id }); }
+    }
+    return out;
+  }
+
+  function resolveStrainLinksFromLot(lotRec, strainIdMap) {
+    try {
+      const v = lotRec.getCellValue('strain_id');
+      if (Array.isArray(v) && v.length) {
+        if (v[0] && typeof v[0] === 'object' && v[0].id) return uniqLinks(v);
+        const mapped = v
+          .map(x => (typeof x === 'string' ? x.trim() : (x?.name || '').trim()))
+          .filter(Boolean)
+          .map(s => strainIdMap.get(s.toLowerCase()))
+          .filter(Boolean)
+          .map(id => ({ id }));
+        if (mapped.length) return uniqLinks(mapped);
+      }
+    } catch {}
+    const s = (lotRec.getCellValueAsString('strain_id') || '').trim();
+    if (s) {
+      const id = strainIdMap.get(s.toLowerCase());
+      if (id) return [{ id }];
+    }
+    return [];
+  }
+
+  async function resolveStrainLinksFromOriginLotIds(originLotIds, strainIdMap) {
+    for (const lotId of (originLotIds || [])) {
+      try {
+        const lotRec = await lotsTbl.selectRecordAsync(lotId);
+        if (!lotRec) continue;
+        const links = resolveStrainLinksFromLot(lotRec, strainIdMap);
+        if (links.length) return links;
+      } catch {}
+    }
+    return [];
+  }
+
   function coerceValueForField(table, fieldName, valueStr) {
     if (!valueStr) return null;
     const f = table.getField(fieldName);
@@ -182,6 +243,7 @@ try {
       pack_date: nowIso,
       use_by: finalUseBy
     };
+    if (hasField(productsTbl, 'strain_id') && strainLinksForPackage.length) f.strain_id = strainLinksForPackage;
     // storage_location is a linked record to locations. Default to "Products Storage" if not set on source tray.
     const packagedLocationId = (loc && loc.id) ? loc.id : defaultProductsStorageRecId;
     f[storageFieldName] = [{ id: packagedLocationId }];

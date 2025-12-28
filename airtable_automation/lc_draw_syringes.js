@@ -1,6 +1,6 @@
 /**
  * Script: lc_draw_syringes.js
- * Version: 2025-12-15.2
+ * Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -29,9 +29,56 @@ const lotsTbl     = base.getTable('lots');
 const itemsTbl    = base.getTable('items');
 const productsTbl = base.getTable('products');
 const eventsTbl   = base.getTable('events');
+let strainsTbl = null;
+try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
 
 function hasField(tbl, name) {
   try { tbl.getField(name); return true; } catch { return false; }
+}
+
+async function buildStrainIdMap() {
+  const map = new Map();
+  if (!strainsTbl) return map;
+  try {
+    const q = await strainsTbl.selectRecordsAsync({ fields: ['strain_id'] });
+    for (const r of q.records) {
+      const sid = (r.getCellValueAsString('strain_id') || '').trim();
+      if (sid) map.set(sid.toLowerCase(), r.id);
+    }
+  } catch {}
+  return map;
+}
+
+function uniqLinks(links) {
+  const out = [];
+  const seen = new Set();
+  for (const l of (links || [])) {
+    const id = l?.id;
+    if (id && !seen.has(id)) { seen.add(id); out.push({ id }); }
+  }
+  return out;
+}
+
+function resolveStrainLinksFromLot(lotRec, strainIdMap) {
+  try {
+    const v = lotRec.getCellValue('strain_id');
+    if (Array.isArray(v) && v.length) {
+      if (v[0] && typeof v[0] === 'object' && v[0].id) return uniqLinks(v);
+      const mapped = v
+        .map(x => (typeof x === 'string' ? x.trim() : (x?.name || '').trim()))
+        .filter(Boolean)
+        .map(s => strainIdMap.get(s.toLowerCase()))
+        .filter(Boolean)
+        .map(id => ({ id }));
+      if (mapped.length) return uniqLinks(mapped);
+    }
+  } catch {}
+  const s = (lotRec.getCellValueAsString('strain_id') || '').trim();
+  if (s) {
+    const id = strainIdMap.get(s.toLowerCase());
+    if (id) return [{ id }];
+  }
+  return [];
 }
 
 function coerceValueForField(table, fieldName, valueStr) {
@@ -69,6 +116,8 @@ const currentVol = Number(flask.getCellValue('remaining_volume_ml') ?? NaN);
 const storageLocFieldExists = hasField(productsTbl, 'storage_location');
 const originLotsFieldExists = hasField(productsTbl, 'origin_lots'); // link to lots on products
 const netVolFieldExists     = hasField(productsTbl, 'net_volume_ml'); // if you track 10ml explicitly
+const strainIdMap = hasField(productsTbl, 'strain_id') ? await buildStrainIdMap() : new Map();
+const strainLinksFromFlask = hasField(productsTbl, 'strain_id') ? resolveStrainLinksFromLot(flask, strainIdMap) : [];
 
 // ---- Validate
 const errs = [];
@@ -110,6 +159,7 @@ for (let i = 0; i < syringeCount; i++) {
   // If you store products' location, copy from flask.location_id (optional)
   const flaskLoc = flask.getCellValue('location_id')?.[0] || null;
   if (storageLocFieldExists && flaskLoc) f.storage_location = [{ id: flaskLoc.id }];
+  if (hasField(productsTbl, 'strain_id') && strainLinksFromFlask.length) f.strain_id = strainLinksFromFlask;
 
   // Materialize product fields (type-safe)
   if (hasField(productsTbl, 'name_mat')) {

@@ -1,6 +1,6 @@
 /**
  * Script: harvest_create_tray_product.js
- * Version: 2025-12-15.2
+ * Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -29,7 +29,9 @@ const lotsTbl     = base.getTable('lots');
 const itemsTbl    = base.getTable('items');
 const productsTbl = base.getTable('products');
 const eventsTbl   = base.getTable('events');
-
+let strainsTbl = null;
+try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
+ 
 //for (const f of productsTbl.fields) {
 //  console.log('products', `${f.id} :: ${f.name} [${f.type}]`);
 //}
@@ -75,6 +77,51 @@ function coerceValueForField(table, fieldName, valueStr) {
   return valueStr; // singleLineText, etc.
 }
 
+async function buildStrainIdMap() {
+  const map = new Map();
+  if (!strainsTbl) return map;
+  try {
+    const q = await strainsTbl.selectRecordsAsync({ fields: ['strain_id'] });
+    for (const r of q.records) {
+      const sid = (r.getCellValueAsString('strain_id') || '').trim();
+      if (sid) map.set(sid.toLowerCase(), r.id);
+    }
+  } catch {}
+  return map;
+}
+
+function uniqLinks(links) {
+  const out = [];
+  const seen = new Set();
+  for (const l of (links || [])) {
+    const id = l?.id;
+    if (id && !seen.has(id)) { seen.add(id); out.push({ id }); }
+  }
+  return out;
+}
+
+function resolveStrainLinksFromLot(lotRec, strainIdMap) {
+  try {
+    const v = lotRec.getCellValue('strain_id');
+    if (Array.isArray(v) && v.length) {
+      if (v[0] && typeof v[0] === 'object' && v[0].id) return uniqLinks(v);
+      const mapped = v
+        .map(x => (typeof x === 'string' ? x.trim() : (x?.name || '').trim()))
+        .filter(Boolean)
+        .map(s => strainIdMap.get(s.toLowerCase()))
+        .filter(Boolean)
+        .map(id => ({ id }));
+      if (mapped.length) return uniqLinks(mapped);
+    }
+  } catch {}
+  const s = (lotRec.getCellValueAsString('strain_id') || '').trim();
+  if (s) {
+    const id = strainIdMap.get(s.toLowerCase());
+    if (id) return [{ id }];
+  }
+  return [];
+}
+ 
 // Partition selected items by category
 const byCat = { fresh_tray: [], freezer_tray: [] };
 for (const r of itemRecs) {
@@ -106,7 +153,9 @@ if (wantFrozen && !trayChoiceFrozen) throw new Error('products.tray_state missin
  
 // Optional: copy strain from block (purely for display via lookups you already added)
 const srcStrain = block.getCellValue('strain_id')?.[0] || null;
-
+const strainIdMap = hasField(productsTbl, 'strain_id') ? await buildStrainIdMap() : new Map();
+const strainLinksFromBlock = hasField(productsTbl, 'strain_id') ? resolveStrainLinksFromLot(block, strainIdMap) : [];
+ 
 const nowIso = new Date().toISOString();
 const originPayload = {
   origin_lot_ids_json: JSON.stringify([block.id]),
@@ -141,6 +190,10 @@ for (const a of allocations) {
       tray_state: { id: a.trayChoice.id },
       net_weight_g: perTrayWeightG
     };
+    if (hasField(productsTbl, 'strain_id')) {
+      if (srcStrain && srcStrain.id) fields.strain_id = [{ id: srcStrain.id }];
+      else if (strainLinksFromBlock.length) fields.strain_id = strainLinksFromBlock;
+    }    
     if (hasField(productsTbl, 'name_mat')) {
       const v = coerceValueForField(productsTbl, 'name_mat', itemNameRaw);
       if (v != null) fields.name_mat = v;

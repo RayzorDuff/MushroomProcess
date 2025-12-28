@@ -1,6 +1,6 @@
 /**
  *  Script: create_product_from_lot.js
- *  Version: 2025-12-15.2
+ *  Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -54,6 +54,8 @@ const { lotId } = input.config();
 const lotsTbl   = base.getTable('lots');
 const itemsTbl  = base.getTable('items');
 const prodsTbl  = base.getTable('products');
+let strainsTbl = null;
+try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
 
 /* ------------------------------ Config -------------------------------- */
 const CONSUME_SOURCE_LOT = true; // set false if you do NOT want to auto-consume lots
@@ -91,6 +93,56 @@ function datePlus(dateLike, { days = 0, months = 0, years = 0 }) {
 }
 function isTruthy(v) { return !!(v || v === 0); }
 function toJSON(value) { try { return JSON.stringify(value); } catch { return '[]'; } }
+
+/* Strain helpers (supports migrating products.strain_id from lookup to link) */
+async function buildStrainIdMap() {
+  const map = new Map(); // key: normalized strain_id string -> strains record id
+  if (!strainsTbl) return map;
+  try {
+    const q = await strainsTbl.selectRecordsAsync({ fields: ['strain_id'] });
+    for (const r of q.records) {
+      const sid = (r.getCellValueAsString('strain_id') || '').trim();
+      if (sid) map.set(sid.toLowerCase(), r.id);
+    }
+  } catch {}
+  return map;
+}
+
+function uniqLinks(links) {
+  const out = [];
+  const seen = new Set();
+  for (const l of (links || [])) {
+    const id = l?.id;
+    if (id && !seen.has(id)) { seen.add(id); out.push({ id }); }
+  }
+  return out;
+}
+function resolveStrainLinksFromLot(lotRec, strainIdMap) {
+  // Prefer direct link field on lots.strain_id
+  try {
+    const v = lotRec.getCellValue('strain_id');
+    if (Array.isArray(v) && v.length) {
+      // If v is already an array of linked record objects, use their ids
+      if (v[0] && typeof v[0] === 'object' && v[0].id) return uniqLinks(v);
+      // If v is an array of strings (lookup), map by strains.strain_id
+      const mapped = v
+        .map(x => (typeof x === 'string' ? x.trim() : (x?.name || '').trim()))
+        .filter(Boolean)
+        .map(s => strainIdMap.get(s.toLowerCase()))
+        .filter(Boolean)
+        .map(id => ({ id }));
+      if (mapped.length) return uniqLinks(mapped);
+    }
+  } catch {}
+
+  // Fall back to cell string (covers singleLineText / formula / other)
+  const s = (getStr(lotRec, 'strain_id') || '').trim();
+  if (s) {
+    const id = strainIdMap.get(s.toLowerCase());
+    if (id) return [{ id }];
+  }
+  return [];
+}
 
 /* Unit conversions */
 const LB_TO_G  = 453.59237;
@@ -224,6 +276,13 @@ const createPayload = {
 if (wantsOriginLotIdsJson) createPayload.origin_lot_ids_json = toJSON([lotIdText]);
 if (wantsNetG)  createPayload.net_weight_g  = netG;
 if (wantsNetOz) createPayload.net_weight_oz = netOz;
+
+// Strain: set products.strain_id as a direct link (if the field exists)
+if (hasField(prodsTbl, 'strain_id')) {
+  const strainIdMap = await buildStrainIdMap();
+  const strainLinks = resolveStrainLinksFromLot(lot, strainIdMap);
+  if (strainLinks.length) createPayload.strain_id = strainLinks;
+}
 
 if (hasField(prodsTbl, 'name_mat')) {
   const v = coerceValueForField(prodsTbl, 'name_mat', itemNameRaw);
