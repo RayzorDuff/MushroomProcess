@@ -1,6 +1,6 @@
 /**
  *  Script: ecommerce_refresh.js
- *  Version: 2025-12-10.1
+ *  Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -80,6 +80,16 @@ function notify(msg){
   try { console.log(msg); } catch(_){}
 }
 
+/* ------------------------- Debug helpers ------------------------- */
+const DEBUG = true; // <-- set false to reduce output
+function dbg(msg){
+  if (!DEBUG) return;
+  try { console.log(`[DBG ecommerce_refresh] ${msg}`); } catch(_){}
+}
+function warn(msg){
+  try { console.log(`[WARN ecommerce_refresh] ${msg}`); } catch(_){}
+}
+
 /* ---------------------- Table handles & constants ---------------------- */
 
 const ecommerceTbl = base.getTable('ecommerce');
@@ -144,6 +154,15 @@ function firstLinkedId(rec, fieldName) {
   }
 }
 
+function firstLinked(rec, fieldName) {
+  try {
+    const arr = rec.getCellValue(fieldName) || [];
+    return arr.length ? { id: arr[0].id, name: arr[0].name || null } : { id: null, name: null };
+  } catch {
+    return { id: null, name: null };
+  }
+}
+
 /* --------------------------- Main logic ----------------------------- */
 
 try {
@@ -160,11 +179,18 @@ try {
   /** ecommerce.id -> { rec, itemId, strainId, statusName } */
   const ecommerceMeta = new Map();
 
-  for (const rec of ecommerceQuery.records) {
-    const itemId   = firstLinkedId(rec, ECOM_ITEM_FIELD);
-    const strainId = firstLinkedId(rec, ECOM_STRAIN_FIELD);
+  let ecommerceRowsTotal = 0;
+  let ecommerceRowsIndexed = 0;
+  let ecommerceRowsNoItem = 0;
 
-    if (!itemId) continue; // ecommerce rows must have an item to participate
+  for (const rec of ecommerceQuery.records) {
+    ecommerceRowsTotal++;
+    const item   = firstLinked(rec, ECOM_ITEM_FIELD);
+    const strain = firstLinked(rec, ECOM_STRAIN_FIELD);
+    const itemId   = item.id;
+    const strainId = strain.id;
+
+    if (!itemId) { ecommerceRowsNoItem++; continue; } // ecommerce rows must have an item to participate
 
     const statusCell = rec.getCellValue(ECOM_STATUS_FIELD);
     const statusName = statusCell && statusCell.name ? statusCell.name : null;
@@ -176,7 +202,12 @@ try {
     ecommerceByKey.get(key).push(rec);
 
     ecommerceMeta.set(rec.id, { rec, itemId, strainId, statusName });
+    ecommerceRowsIndexed++;
+
+    dbg(`Indexed ecommerce rec=${rec.id} item=${item.name || itemId} strain=${strain.name || (strainId || 'NONE')} status=${statusName || 'NONE'} key=${key}`);   
   }
+
+  dbg(`Ecommerce scan: total=${ecommerceRowsTotal} indexed=${ecommerceRowsIndexed} skipped_no_item=${ecommerceRowsNoItem} unique_keys=${ecommerceByKey.size}`);
 
   if (!ecommerceByKey.size) {
     notify('No ecommerce rows with item_id set. Nothing to refresh.');
@@ -201,14 +232,20 @@ try {
   const ecommerceIdsToRefresh = new Set();
 
   // --- Scan products ---
+  let productsTotal = 0;
+  let productsWithKey = 0;
+  let productsMatchedKey = 0;  
   for (const prod of productsQuery.records) {
+    productsTotal++;    
     const itemId   = firstLinkedId(prod, PROD_ITEM_FIELD);
     const strainId = firstLinkedId(prod, PROD_STRAIN_FIELD);
     const key = keyFor(itemId, strainId);
     if (!key) continue;
+    productsWithKey++;
 
     // Only care about keys that exist in ecommerce
     if (!ecommerceByKey.has(key)) continue;
+    productsMatchedKey++;    
 
     if (!productsByKey.has(key)) productsByKey.set(key, []);
     productsByKey.get(key).push(prod);
@@ -220,13 +257,19 @@ try {
   }
 
   // --- Scan lots ---
+  let lotsTotal = 0;
+  let lotsWithKey = 0;
+  let lotsMatchedKey = 0;  
   for (const lot of lotsQuery.records) {
+    lotsTotal++;    
     const itemId   = firstLinkedId(lot, LOT_ITEM_FIELD);
     const strainId = firstLinkedId(lot, LOT_STRAIN_FIELD);
     const key = keyFor(itemId, strainId);
     if (!key) continue;
+    lotsWithKey++;    
 
     if (!ecommerceByKey.has(key)) continue;
+    lotsMatchedKey++;    
 
     if (!lotsByKey.has(key)) lotsByKey.set(key, []);
     lotsByKey.get(key).push(lot);
@@ -235,6 +278,10 @@ try {
       ecommerceIdsToRefresh.add(ecomRec.id);
     }
   }
+
+  dbg(`Products scan: total=${productsTotal} with_key=${productsWithKey} matched_ecom_key=${productsMatchedKey} unique_matched_keys=${productsByKey.size}`);
+  dbg(`Lots scan:     total=${lotsTotal} with_key=${lotsWithKey} matched_ecom_key=${lotsMatchedKey} unique_matched_keys=${lotsByKey.size}`);
+  dbg(`Ecommerce rows to refresh: ${ecommerceIdsToRefresh.size}`);
 
   if (!ecommerceIdsToRefresh.size) {
     notify('No ecommerce rows matched by any products or lots. Nothing to update.');
@@ -259,8 +306,13 @@ try {
       ? LOT_STATUS_MAP[statusName]
       : [];
 
+    dbg(`Recompute ecommerce=${rec.id} key=${key} status=${statusName || 'NONE'} allowedLotStatuses=${allowedLotStatuses.length ? JSON.stringify(allowedLotStatuses) : '[]'} candidates: products=${candidateProducts.length} lots=${candidateLots.length}`);
+    if (!statusName) dbg(`  Note: ecommerce.status is blank -> lots will be empty (products still link if eligible).`);
+    if (statusName && !LOT_STATUS_MAP[statusName]) warn(`  ecommerce.status=${statusName} not in LOT_STATUS_MAP -> lots will be empty.`);
+
     // --- Filter candidates for products ---
     const productLinks = [];
+    const pStats = { candidates: candidateProducts.length, kept: 0, expired: 0, excludedLocation: 0 };    
     for (const prod of candidateProducts) {
       // Strain compatibility is already baked into the key:
       // - ecommerce.strain set  => key has that strain; only products with same strain contribute.
@@ -268,7 +320,7 @@ try {
       // So we only need to check use_by + storage_location here.
 
       const useBy = prod.getCellValue(PROD_USE_BY_FIELD);
-      if (!isNotExpired(useBy)) continue;
+      if (!isNotExpired(useBy)) { pStats.expired++; continue; }
 
       // storage_location is a link to locations (single link)
       // e.g. [{ id: 'rec...', name: 'Shipped' }]
@@ -277,30 +329,36 @@ try {
         const name = (link.name || '').trim();
         return EXCLUDED_STORAGE_LOCATIONS.includes(name);
       });
-      if (isExcludedLocation) continue;
+      if (isExcludedLocation) { pStats.excludedLocation++; continue; }
 
       productLinks.push({ id: prod.id });
+      pStats.kept++;      
     }
 
     // --- Filter candidates for lots ---
     const lotLinks = [];
+    const lStats = { candidates: candidateLots.length, kept: 0, expired: 0, noStatus: 0, statusMismatch: 0 };
     for (const lot of candidateLots) {
       const useBy = lot.getCellValue(LOT_USE_BY_FIELD);
-      if (!isNotExpired(useBy)) continue;
+      if (!isNotExpired(useBy)) { lStats.expired++; continue; }
 
       const status = lot.getCellValue(LOT_STATUS_FIELD);
       const statusNameLot = status && status.name ? status.name : null;
 
-      if (!statusNameLot) continue;
-      if (!allowedLotStatuses.includes(statusNameLot)) continue;
-
+      if (!statusNameLot) { lStats.noStatus++; continue; }
+      if (!allowedLotStatuses.includes(statusNameLot)) { lStats.statusMismatch++; continue; }
+ 
       lotLinks.push({ id: lot.id });
+      lStats.kept++;       
     }
+
+    dbg(`  Product filter: kept=${pStats.kept}/${pStats.candidates} expired=${pStats.expired} excludedLocation=${pStats.excludedLocation}`);
+    dbg(`  Lot filter:     kept=${lStats.kept}/${lStats.candidates} expired=${lStats.expired} noStatus=${lStats.noStatus} statusMismatch=${lStats.statusMismatch}`);
 
     await safeUpdate(ecommerceTbl, rec.id, {
       [ECOM_PRODUCTS_FIELD]: productLinks,
       [ECOM_LOTS_FIELD]: lotLinks,
-    });
+    });   
   }
 
   // Throttle updates slightly to avoid hitting Airtable rate limits
