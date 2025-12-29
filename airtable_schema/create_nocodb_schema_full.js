@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-29.2
+ * Version: 2025-12-29.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -360,14 +360,18 @@ async function createNocoTableFromAirtableTable_FirstPass(
 
       columnDefs.push(uuidCol);
     } else {
-      // v2 meta style – use uidt/dt + default/nn/un flags
+      // v2 meta style – use uidt/dt + cdf/nn/un flags
       const uuidCol = {
         column_name: nocoUUIDName,
         title: nocoUUIDName,
         uidt: 'SpecificDBType',
         dt: 'uuid',
         dtxp: JSON.stringify({ length: 36 }), // harmless metadata
-        default: 'gen_random_uuid()',
+        // IMPORTANT:
+        // In the v2 meta API, the column default is provided via `cdf`.
+        // Using `default` is silently ignored, which is why nocouuid ends up
+        // with no default in the UI even though the payload includes it.
+        cdf: 'gen_random_uuid()',
         nn: true,     // not null
         un: true,     // unique
         description: 'Auto-generated UUID',
