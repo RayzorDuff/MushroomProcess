@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-28.1
+ * Version: 2025-12-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -381,11 +381,19 @@ async function createNocoTableFromAirtableTable_FirstPass(
       // We only need basic translation (e.g., DATETIME_FORMAT -> DATESTR)
       // AirtableMaps isn't available here, but that's fine because your PK
       // formulas don't reference other fields.
-      const translatedFormula = translateAirtableFormulaToNoco(
+      const translatedFormulaBase = translateAirtableFormulaToNoco(
         rawFormula,
         airTable // airtableMaps omitted
       );
-  
+
+      // IMPORTANT:
+      // If the Airtable primary (PV) field is a formula, NocoDB will always recompute it
+      // on insert/update, which can "reset" imported IDs that depend on CREATED_TIME().
+      // We add a companion writable text field (<pv>_legacy) and wrap the formula so
+      // the legacy value wins when present.
+      const legacyPvFieldName = `${primaryField.name}_legacy`;
+      const translatedFormula = `IF(LEN({${legacyPvFieldName}}) > 0, {${legacyPvFieldName}}, ${translatedFormulaBase})`;
+   
       if (IS_V3) {
         // For v3 API: use `type` + `options.formula`
         const pkCol = {
@@ -397,9 +405,29 @@ async function createNocoTableFromAirtableTable_FirstPass(
           },
           pv: true,
         };
-        
-        
+                
         columnDefs.push(pkCol);
+
+        // Add companion legacy text field (writable) used to preserve Airtable PV values during import.
+        const legacyCol = IS_V3
+          ? {
+              type: 'LongText',
+              column_name: legacyPvFieldName,
+              title: legacyPvFieldName,
+              dt: 'text',
+              uidt: 'LongText',
+              description: `Imported Airtable legacy value for ${primaryField.name}; used to override PV formula during import.`,
+            }
+          : {
+              column_name: legacyPvFieldName,
+              title: legacyPvFieldName,
+              uidt: 'LongText',
+              dt: 'text',
+              description: `Imported Airtable legacy value for ${primaryField.name}; used to override PV formula during import.`,
+            };
+            
+        columnDefs.push(legacyCol);        
+
       } else {
         // For v2 API: uidt Formula, but underlying DB type must be real
         const pkCol = {
@@ -414,7 +442,29 @@ async function createNocoTableFromAirtableTable_FirstPass(
           formula_raw: translatedFormula,
           pv: true,
         };
+        
         columnDefs.push(pkCol);
+
+        // Add companion legacy text field (writable) used to preserve Airtable PV values during import.
+        const legacyCol = IS_V3
+          ? {
+              type: 'LongText',
+              column_name: legacyPvFieldName,
+              title: legacyPvFieldName,
+              dt: 'text',
+              uidt: 'LongText',
+              description: `Imported Airtable legacy value for ${primaryField.name}; used to override PV formula during import.`,
+            }
+          : {
+              column_name: legacyPvFieldName,
+              title: legacyPvFieldName,
+              uidt: 'LongText',
+              dt: 'text',
+              description: `Imported Airtable legacy value for ${primaryField.name}; used to override PV formula during import.`,
+            };
+
+        columnDefs.push(legacyCol);
+
       }
       
     } else {

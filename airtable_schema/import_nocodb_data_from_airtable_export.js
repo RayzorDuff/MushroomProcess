@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-26.1
+ * Version: 2025-12-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -75,6 +75,12 @@ function isLinkColumn(c) {
 
 function isWritableColumn(c) {
   return ENV.isWritableColumn(c);
+}
+
+function isFormulaColumn(col) {
+  // v2 meta uses uidt; v3 uses `type` (sometimes also uidt).
+  const t = (col && (col.uidt || col.type)) ? String(col.uidt || col.type) : '';
+  return t.toLowerCase() === 'formula';
 }
 
 function normalizeColName(c) {
@@ -1074,6 +1080,37 @@ async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
     fieldsA[AIRTABLE_ID_KEY] = airtableId;
     
     debug(`[DEBUG] ${tableName}: PassA payload keys:`, Object.keys(fieldsA));
+
+    // If the table's PV (display) column is a Formula, we cannot write it directly.
+    // To preserve imported Airtable PV values (often dependent on CREATED_TIME()),
+    // we write the value into a companion <pv>_legacy text column (created by the schema script),
+    // and the PV formula is wrapped to prefer that legacy value when present.
+    const pvCol = getDisplayValueColumn(columns);
+    if (pvCol && isFormulaColumn(pvCol)) {
+      const legacyName = `${pvCol.title || pvCol.column_name || pvCol.name}_legacy`;
+      const legacyCol = colIndex.byName.get(legacyName) || colIndex.byTitle.get(legacyName);
+      const srcKeyCandidates = [
+        pvCol.title,
+        pvCol.name,
+        pvCol.column_name,
+        apiFieldName(pvCol),
+      ].filter(Boolean);
+
+      let legacyValue = null;
+      for (const k of srcKeyCandidates) {
+        if (Object.prototype.hasOwnProperty.call(rec, k) && rec[k] != null && String(rec[k]).trim() !== '') {
+          legacyValue = rec[k];
+          break;
+        }
+      }
+
+      if (legacyCol && legacyValue != null) {
+        const legacyApiKey = apiFieldName(legacyCol);
+        if (legacyApiKey) {
+          fieldsA[legacyApiKey] = legacyValue;
+        }
+      }
+    }
 
     const links = extractLinkPayloads(rec, linkCols, linkColMap);
 
