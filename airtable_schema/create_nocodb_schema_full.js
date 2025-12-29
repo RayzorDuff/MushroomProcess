@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-29.1
+ * Version: 2025-12-29.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -221,7 +221,13 @@ function mapFieldToNocoColumn_FirstPass(field) {
       field && field.options && typeof field.options.precision === 'number'
         ? field.options.precision
         : 0;
-    col.uidt = precision > 0 ? 'Decimal' : 'Number';
+    // Some bases have Airtable number fields configured with precision=0 but
+    // still contain fractional values (e.g. remaining_volume_ml: 292.5).
+    // In Postgres-backed NocoDB, uidt=Number often maps to bigint, which will
+    // reject decimals during import. For fields that are likely to be fractional,
+    // default to Decimal even if Airtable reports precision=0.
+    const mightBeFractional = /(^|_)ml$|(^|_)g$|(^|_)oz$|(^|_)lbs$|volume|weight|mass|dose|ratio/i.test(String(name));
+    col.uidt = (precision > 0 || mightBeFractional) ? 'Decimal' : 'Number';
     return col;
   }
 

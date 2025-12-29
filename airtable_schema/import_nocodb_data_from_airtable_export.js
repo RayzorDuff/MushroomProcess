@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-29.1
+ * Version: 2025-12-29.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -81,6 +81,41 @@ function isFormulaColumn(col) {
   // v2 meta uses uidt; v3 uses `type` (sometimes also uidt).
   const t = (col && (col.uidt || col.type)) ? String(col.uidt || col.type) : '';
   return t.toLowerCase() === 'formula';
+}
+
+function isIntegerDbType(col) {
+  // NocoDB meta sometimes includes an underlying DB type hint (dt).
+  // We treat int-like types as integer-only (e.g. Postgres bigint/int).
+  const dt = String(col?.dt || col?.data_type || '').toLowerCase();
+  if (!dt) return false;
+  // numeric/decimal/float/double should allow fractional.
+  if (dt.includes('numeric') || dt.includes('decimal') || dt.includes('float') || dt.includes('double')) return false;
+  return dt.includes('int');
+}
+
+function coerceValueForColumn(value, col, warnOnceKey) {
+  // Most common hard failure: fractional value being inserted into bigint/int.
+  if (value == null) return value;
+
+  const uidt = String(col?.uidt || col?.type || '').toLowerCase();
+
+  if (uidt === 'number' && isIntegerDbType(col)) {
+    let n = value;
+    if (typeof n === 'string' && n.trim() !== '' && !Number.isNaN(Number(n))) n = Number(n);
+    if (typeof n === 'number' && Number.isFinite(n) && !Number.isInteger(n)) {
+      // Round to nearest int to keep import moving; legacy source retains original.
+      const rounded = Math.round(n);
+      const key = warnOnceKey || (col?.column_name || col?.name || col?.title || 'number');
+      if (!coerceValueForColumn._warned) coerceValueForColumn._warned = new Set();
+      if (!coerceValueForColumn._warned.has(key)) {
+        coerceValueForColumn._warned.add(key);
+        log(`[WARN] Coercing fractional value -> integer for column "${key}" (dt=${col?.dt || 'unknown'}). Example: ${n} -> ${rounded}`);
+      }
+      return rounded;
+    }
+  }
+
+  return value;
 }
 
 function normalizeColName(c) {
@@ -682,7 +717,7 @@ function pickFieldsForPassA(record, colIndex) {
 
     const apiKey = apiFieldName(col);
     if (!apiKey) continue;
-    out[apiKey] = v;
+    out[apiKey] = coerceValueForColumn(v, col, apiKey);
   }
   return out;
 }
