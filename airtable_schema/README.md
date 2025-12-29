@@ -242,10 +242,6 @@ This script:
 - Creates relations between tables in NocoDB.
 - Creates appropriate formula, rollups, and lookup columns where possible (e.g., simple computed fields).
 
-You will still need to:
-
-- Manually edit the nocouuid field in each table to set the default value to gen_random_uuid().  See Limitations below.
-
 ### 3.4. Compare the AirTable _schema.json with the NocoDB _schema_nocodb.json to identify discrepancies
 
 ```powershell
@@ -311,17 +307,6 @@ From the current `create_nocodb_schema_full.js` specification:
       (e.g., roll up a primitive field or materialize the value).
    - Some formulas are intentionally not created when they rely on unsupported constructs; these must be adjusted in the Airtable schema or created manually.
    - NocoDB’s v3 LTAR metadata is still evolving; links creation via v3 may require stabilization steps and may be revisited as the API changes.
-
-2. ** gen_random_uuid() default value is not being held during nocuuid (Issue #7).
-
-   - The script attempts to create a nocouuid field that can be used for random text formulas, but the default value is not being held.  For now, the
-     workaround is to manually update the default value to gen_random_uuid() for PGSQL backends after the import is complete.
-
-3. **Data import to NocoDB**
-
-   - The sample TODO is to:
-     - Map Airtable functions → NocoDB expressions (e.g., rollups → `SUM`, `COUNT`, `MIN`, `MAX`, etc.).
-     - Add a script to import records from the per-table JSON/NDJSON into NocoDB via `/api/v2/tables/:tableId/records`.
 
 ---
 
