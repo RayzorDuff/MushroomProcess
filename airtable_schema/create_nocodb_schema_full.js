@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-24.4
+ * Version: 2025-12-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1135,11 +1135,12 @@ function determineRelationTypeForAirtableLink(atField, airtableMaps) {
     }
   }
 
-  // If we don't know the inverse, pick something reasonable:
+  // If the inverse is unknown, fall back to a conservative default.
+  // (We'll still only create the relationship once via the primary-side selection.)
   if (invSingle === null) {
     // If this side is single but inverse is unknown, treat as hm;
     // otherwise default to mm.
-    return fSingle ? 'hm' : 'mm';
+    return fSingle ? 'bt' : 'mm';
   }
 
   // Both sides allow multiple -> many-to-many
@@ -1152,8 +1153,10 @@ function determineRelationTypeForAirtableLink(atField, airtableMaps) {
     return 'oo';
   }
 
-  // Mixed single/multi -> one-to-many
-  return 'hm';
+  // Mixed single/multi -> one-to-many, but direction matters:
+  // - Single-link on THIS side => Belongs-To (many rows here can point to one parent row)
+  // - Multi-link on THIS side  => Has-Many (collection)
+  return fSingle ? 'bt' : 'hm';
 }
 
 // --------------------------------------------
@@ -1406,6 +1409,17 @@ function choosePrimaryFieldIdForLinkPair(atField, inverseField) {
   const thisNumeric = hasNumericSuffix(thisName);
   const otherNumeric = hasNumericSuffix(otherName);
 
+  const thisSingle = !!(atField?.options && atField.options.prefersSingleRecordLink);
+  const otherSingle = !!(inverseField?.options && inverseField.options.prefersSingleRecordLink);
+  // v3 meta API cannot create relation_type=bt directly. For one-to-many links,
+  // we MUST create the relationship from the Has-Many side so NocoDB auto-creates
+  // the Belongs-To field on the other side (which we then rename to match Airtable).
+  if (LINKS_IS_V3 && thisSingle !== otherSingle) {
+    // Prefer the multi-link side as primary creator.
+    if (!thisSingle && otherSingle) return atField.id;
+    if (thisSingle && !otherSingle) return inverseField.id;
+  }  
+
   // 1) Prefer ID-style names (lot_id, product_id, strain_id, etc.)
   if (thisIdStyle && !otherIdStyle) return atField.id;
   if (!thisIdStyle && otherIdStyle) return inverseField.id;
@@ -1621,7 +1635,7 @@ async function ensureLinkForAirtableField({
   // when we create the link on parentNoco. If this Airtable link had an
   // inverse side, rename that auto-inverse on childNoco to match the
   // Airtable field name on the other table (Option B).
-  if (LINKS_IS_V3 && inverseField && isPrimarySide && linkField) {
+  if ((LINKS_IS_V3 || LINKS_IS_V2) && inverseField && isPrimarySide && linkField) {
     await renameAutoInverseLinkField({
       parentNoco,
       childNoco,

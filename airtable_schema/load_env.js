@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-25.1
+ * Version: 2025-12-26.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -319,9 +319,62 @@ async function resolveV3LinkFieldId(tableId, linkFieldRef) {
   return id;
 }
 
+function isWritableLinkColumn(c) {
+  // We only want link columns that can be *set*.
+  // In relational backing DBs, HasMany is typically derived from the FK on the other table
+  // and is not writable via link endpoints.
+  const uidt = (c?.uidt || '').toString();
+  const type = (c?.type || '').toString();
+  const opt = c?.colOptions || c?.options || c?.column_options || {};
+  const relType = (opt?.type || '').toString(); // mm/hm/bt/oo
+
+  // If it is explicitly a derived/virtual kind, skip it.
+  if (type === 'Lookup' || type === 'Rollup' || uidt === 'Lookup' || uidt === 'Rollup') return false;
+
+  // HasMany should be derived; you set the FK (belongsTo) on the other side.
+  if (relType === 'hm') return false;
+
+  // BelongsTo, Many-to-many, One-to-one are writable relations
+  if (relType === 'bt' || relType === 'mm' || relType === 'oo') return true;
+
+  // If NocoDB marks it as Links but doesn't declare relType, treat as writable by default.
+  if (uidt === 'Links' || uidt === 'LinkToAnotherRecord') return true;
+
+  return false;
+}
+
+function _coerceIdScalar(x) {
+  if (x == null) return x;
+  if (typeof x === 'string' || typeof x === 'number') return x;
+  if (typeof x === 'object') {
+    return (
+      x?.id ??
+      x?._id ??
+      x?.column_id ??
+      x?.columnId ??
+      x?.table_id ??
+      x?.tableId ??
+      x?.fk_column_id ??
+      x?.fkColumnId ??
+      undefined
+    );
+  }
+  return undefined;
+}
+
 // Set a link field to match exactly the desired related-record ids.
 // Uses the data-links endpoints (v2 or v3) depending on NOCODB_API_VERSION_LINKS.
 async function setLinksExact(tableId, linkFieldId, recordId, desiredIds) {
+  tableId = _coerceIdScalar(tableId);
+  linkFieldId = _coerceIdScalar(linkFieldId);
+  recordId = _coerceIdScalar(recordId);
+
+  if (!tableId || !linkFieldId || !recordId) {
+    throw new Error(
+      `setLinksExact missing identifiers: tableId=${String(tableId)} linkFieldId=${String(linkFieldId)} recordId=${String(recordId)}`
+    );
+  }
+  
   // Backwards compatible signature:
   //   setLinksExact(tableId, linkFieldId, recordId, desiredIds)
   //   setLinksExact({ tableId, linkFieldId, recordId, desiredIds, relatedPkName })
@@ -812,6 +865,7 @@ module.exports = {
   patchMetaField,      
   isLinkColumn,
   isWritableColumn,
+  isWritableLinkColumn,   
   normalizeColName,
   ensureAirtableIdColumn,
   // api

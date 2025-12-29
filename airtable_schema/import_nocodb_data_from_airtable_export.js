@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-25.1
+ * Version: 2025-12-26.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -809,6 +809,56 @@ async function buildAirtableIdToRowMaps(tableId, columns) {
 // Link relationship helpers (Pass B)
 // ------------------------------
 
+// Cache: (tableId|columnId) -> best ref to use for LINKS endpoint
+// - LINKS=v2: wants column UUID-ish id in path
+// - LINKS=v3: wants v3 field ref in path (and load_env will resolve to v3 field id)
+const _linksFieldRefCache = new Map();
+
+async function resolveLinksFieldRef(tableId, columnId, columnNameHint = null) {
+  const cacheKey = `${String(tableId)}|${String(columnId || columnNameHint || '')}`;
+  if (_linksFieldRefCache.has(cacheKey)) return _linksFieldRefCache.get(cacheKey);
+
+  // LINKS=v2: the links URL expects the column id in the path.
+  if (ENV.LINKS_IS_V2) {
+    const ref = columnId || columnNameHint || null;
+    _linksFieldRefCache.set(cacheKey, ref);
+    return ref;
+  }
+
+  // LINKS=v3: prefer an API-name-like ref (column_name / name / title),
+  // because setLinksExact() will resolve it to the v3 field id.
+  if (columnNameHint && typeof columnNameHint === 'string' && columnNameHint.trim()) {
+    const ref = columnNameHint.trim();
+    _linksFieldRefCache.set(cacheKey, ref);
+    return ref;
+  }
+
+  // If we were given a column id (common in _schema_nocodb.json: fk_child_column_id),
+  // look up that column and use its column_name.
+  try {
+    const cols = await fetchTableColumns(tableId);
+    const hit = (Array.isArray(cols) ? cols : []).find((c) => String(c?.id) === String(columnId));
+    const ref = hit ? (hit.column_name || hit.name || hit.title) : null;
+    _linksFieldRefCache.set(cacheKey, ref);
+    return ref;
+  } catch (_) {
+    _linksFieldRefCache.set(cacheKey, null);
+    return null;
+  }
+}
+
+function uniqStrings(arr) {
+  const out = [];
+  const seen = new Set();
+  for (const x of arr || []) {
+    const s = String(x);
+    if (!s || seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out;
+}
+
 function normalizeRelationType(rt) {
   if (!rt) return null;
   const s = String(rt).toLowerCase().trim();
@@ -943,7 +993,7 @@ async function fetchMergedTableFields(tableId, baseColumns = []) {
   return merged;
 }
 
-async function importTable(tableMeta, columns, allTableIdMaps) {
+async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
   const tableName = tableMeta?.title || tableMeta?.table_name;
   const tableId = tableMeta?.id;
   if (!tableName || !tableId) return;
@@ -968,7 +1018,9 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   const colIndex = buildColumnIndex(columns);
-  const linkCols = (columns || []).filter((c) => isLinkColumn(c));
+  // Only attempt to write "real" relations. HasMany/Lookup/Rollup are often derived/virtual.
+  const linkCols = (columns || []).filter((c) => isLinkColumn(c) && ENV.isWritableLinkColumn(c));
+
 
   // If we still didn't detect link columns, emit a very explicit diagnostic
   // because this is the #1 reason links never get applied in Pass B.
@@ -1048,6 +1100,23 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   const mapAfterObj = await buildAirtableIdToRowMaps(tableId, columns);
   const mapAfter = mapAfterObj.byAirtableId;
   if (NOCODB_DEBUG) debug(`Map after creates (airtable_id -> rowId) size for ${tableName}: ${mapAfter.size}`); 
+
+  // Make sure global maps include this table's final mapping before any Pass B runs.
+  allTableIdMaps.set(tableId, mapAfterObj);
+
+  // If we're deferring Pass B globally (recommended), return what Pass B needs.
+  if (opts.deferLinks) {
+    return {
+      tableMeta,
+      tableId,
+      tableName,
+      columns,
+      exportRecs,
+      mapAfterObj,
+      linkCols,
+      linkColMap,
+    };
+  }
 
   // Pass A - updates
   if (passA_update.length) {
@@ -1212,12 +1281,58 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
       }
 
       if (!resolved.length) continue;
+      const resolvedUniq = uniqStrings(resolved);
 
-      // IMPORTANT: Use the NocoDB v2 links API (record PATCH often doesn't set LTAR reliably).
-      // This links each target record id to the source record for that link field.
+      // --- IMPORTANT: HasMany (hm) is virtual in NocoDB and not writable.
+      // Airtable-export may store the relationship list on the "hm" side (e.g. items.ecommerce = [rec...]).
+      // To materialize it, we must update the *child* table’s belongsTo (bt) field (fk_child_column_id).
+      //
+      // In NocoDB schema meta, hm columns frequently include:
+      //   options.fk_child_column_id = <bt field id on the child table>
+      // We use that to link each child row back to the parent row.
+      if (meta?.relationType === 'hm') {
+        if (!meta?.fkColumnId) {
+          debug(
+            `  [WARN] hm link field missing fkColumnId (fk_child_column_id) for ${tableName}.${field}; ` +
+            `cannot materialize hasMany by updating child belongsTo.`
+          );
+          continue;
+        }
+
+        const childLinkFieldRef = await resolveLinksFieldRef(
+          meta.relatedTableId,
+          meta.fkColumnId,
+          meta.fkColumnNameHint
+        );
+        if (!childLinkFieldRef) {
+          debug(
+            `  [WARN] Could not resolve child belongsTo field ref for hm ${tableName}.${field}. ` +
+            `relatedTableId=${meta.relatedTableId} fkColumnId=${meta.fkColumnId}`
+          );
+          continue;
+        }
+
+        // For each child record, set its belongsTo to exactly [parentRowId]
+        for (const childRowId of resolvedUniq) {
+          try {
+            await setLinksExact(meta.relatedTableId, childLinkFieldRef, childRowId, [item.rowId]);
+          } catch (err) {
+            log(
+              `  [WARN] hm materialization failed for ${tableName}.${field}: ` +
+              `childTable=${meta.relatedTableId} childRowId=${childRowId} parentRowId=${item.rowId}: ` +
+              `${err?.message || err}`
+            );
+            if (NOCODB_DEBUG) debug(err);
+          }
+        }
+        continue;
+      }
+
+      // Normal writable relations (bt/mm/oo):
+      // Use links endpoints to set the source record’s link field to the desired related ids.
       if (process.env.NOCODB_DEBUG === '1') {
         const u = ENV.linkRecordsUrl(tableId, meta.linkFieldId, item.rowId);
-        console.warn('[DEBUG] setLinksExact url:', u, 'resolved:', resolved.length);
+          console.warn('[DEBUG] setLinksExact url:', u, 'resolved:', resolvedUniq.length);
       }      
 
       const rt = normalizeRelationType(meta.relationType);
@@ -1233,7 +1348,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
           childTableId: meta.relatedTableId,
           fkColumnId: meta.fkColumnId,
           fkColumnNameHint: meta.fkColumnNameHint,
-          desiredChildIds: resolved,
+          desiredChildIds: resolvedUniq,
         });
         continue;
       }
@@ -1245,7 +1360,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
             tableId,
             linkFieldId: meta.linkFieldId,
             recordId: item.rowId,
-            desiredIds: [resolved[0]],
+            desiredIds: [resolvedUniq[0]],
             // For LINKS=v2, payload must include the related table PK column name.
             // buildAirtableIdToRowMaps() detects it from the related table meta.
             relatedPkName: targetMaps.pkName,
@@ -1266,7 +1381,7 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
           tableId,
           linkFieldId: meta.linkFieldId,
           recordId: item.rowId,
-          desiredIds: resolved,
+          desiredIds: resolvedUniq,
           // For LINKS=v2, payload must include the related table PK column name.
           // buildAirtableIdToRowMaps() detects it from the related table meta.
           relatedPkName: targetMaps.pkName,
@@ -1279,6 +1394,117 @@ async function importTable(tableMeta, columns, allTableIdMaps) {
   }
 
   log('  [OK] Done.');
+}
+
+async function runPassB(job, allTableIdMaps) {
+  if (!job) return;
+  const {
+    tableMeta,
+    tableId,
+    tableName,
+    columns,
+    exportRecs,
+    mapAfterObj,
+    linkCols,
+    linkColMap,
+  } = job;
+
+  // Safety: ensure we have final map for this table registered
+  if (mapAfterObj) allTableIdMaps.set(tableId, mapAfterObj);
+
+  if (!linkCols || !linkCols.length) {
+    log(`  Pass B: no writable link fields to update for ${tableName}.`);
+    return;
+  }
+
+  const mapAfter = mapAfterObj?.byAirtableId || new Map();
+
+  const passB_links = [];
+  let passB_missingRowId = 0;
+  let passB_linkExtracted = 0;
+  for (const rawRec of exportRecs) {
+    const { airtableId, fields: rec } = normalizeExportRecord(rawRec);
+    if (!airtableId) continue;
+    const rowId = mapAfter.get(airtableId);
+    if (!rowId) {
+      passB_missingRowId += 1;
+      continue;
+    }
+
+    const links = extractLinkPayloads(rec, linkCols, linkColMap);
+    if (!Object.keys(links).length) continue;
+    passB_linkExtracted += 1;
+    passB_links.push({ rowId, links });
+  }
+
+  if (!passB_links.length) {
+    log(`  Pass B: no link values found to apply for ${tableName}.`);
+    if (NOCODB_DEBUG) {
+      debug(
+        `Pass B diagnostics for ${tableName}: missingRowId=${passB_missingRowId} linkExtracted=${passB_linkExtracted} linkCols=${linkCols.length}`
+      );
+    }
+    return;
+  }
+
+  log(`  Pass B: updating link fields for ${passB_links.length} row(s) ...`);
+
+  // Map: fieldName -> { relatedTableId, linkFieldId }
+  const linkTargetByField = new Map();
+  for (const c of linkCols) {
+    const field = apiFieldName(c);
+    if (!field) continue;
+
+    const opt = c?.colOptions || c?.options || c?.column_options || {};
+    const relatedTableId =
+      opt?.fk_related_model_id ||
+      opt?.relatedTableId ||
+      opt?.related_table_id ||
+      opt?.fk_mm_model_id ||
+      c?.fk_related_model_id ||
+      c?.related_table_id;
+
+    // IMPORTANT: allow non-id refs; load_env.setLinksExact will resolve for v3 if needed
+    const linkFieldId = c?.id || c?.column_name || c?.name || c?.title || field;
+    if (relatedTableId && linkFieldId) {
+      linkTargetByField.set(field, { relatedTableId, linkFieldId });
+    }
+  }
+
+  // Build missing target maps lazily
+  async function getTargetMaps(relatedTableId) {
+    if (allTableIdMaps.has(relatedTableId)) return allTableIdMaps.get(relatedTableId);
+    const targetCols = await fetchTableColumns(relatedTableId);
+    const m = await buildAirtableIdToRowMaps(relatedTableId, targetCols);
+    allTableIdMaps.set(relatedTableId, m);
+    return m;
+  }
+
+  for (const item of passB_links) {
+    for (const [field, airtableIds] of Object.entries(item.links)) {
+      const meta = linkTargetByField.get(field);
+      if (!meta) continue;
+
+      const targetMaps = await getTargetMaps(meta.relatedTableId);
+      const byAirtableId = targetMaps?.byAirtableId || new Map();
+
+      const resolved = (airtableIds || [])
+        .map((aid) => byAirtableId.get(aid))
+        .filter((x) => x !== undefined && x !== null)
+        .map((x) => String(x));
+
+      if (!resolved.length) continue;
+
+      try {
+        await setLinksExact(tableId, meta.linkFieldId, item.rowId, resolved);
+      } catch (e) {
+        warn(`Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${e?.message || e}`);
+        if (NOCODB_DEBUG) debug(e);
+      }
+    }
+  }
+
+  log(`  [OK] Pass B complete for ${tableName}.`);
 }
 
 async function main() {
@@ -1319,16 +1545,25 @@ async function main() {
     log('[INFO] Pre-flight Rollup fix disabled (NOCODB_FIX_SUM_ROLLUPS=0).');
   }
 
-  const allTableIdMaps = new Map(); // relatedTableId -> Map(airtable_id -> rowId)
+  const allTableIdMaps = new Map();
+  const passBJobs = [];
 
-  for (const name of tableNames) {
-    const t = tablesByName.get(name);
-    if (!t) {
-      log(`[WARN] Table not found in NocoDB base: ${name} (skipping)`);
+  // Pass A for ALL tables first
+  for (const tableName of tableNames) {
+    const tableMeta = tablesByName.get(tableName);
+    if (!tableMeta) {
+      warn(`Table not found in base: ${tableName}`);
       continue;
     }
-    const cols = await fetchTableColumns(t.id);
-    await importTable(t, cols, allTableIdMaps);
+    const columns = await fetchTableColumns(tableMeta.id);
+    const job = await importTable(tableMeta, columns, allTableIdMaps, { deferLinks: true });
+    if (job) passBJobs.push(job);
+  }
+
+  // Pass B for ALL tables after Pass A has fully populated row-id maps
+  log(`\n=== Starting Pass B for ${passBJobs.length} table(s) (after Pass A for all tables) ===\n`);
+  for (const job of passBJobs) {
+    await runPassB(job, allTableIdMaps);
   }
 
   log('\nAll done.');
