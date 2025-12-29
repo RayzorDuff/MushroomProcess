@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-12-28.1
+ * Version: 2025-12-28.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -231,7 +231,11 @@ try {
   
   const itemRec = await itemsTbl.selectRecordAsync(packageItem.id);
   if (!itemRec) throw new Error(`package_item record not found: ${packageItem.id}`);
-  
+
+  // Strain: set products.strain_id directly during migration away from lookup
+  const strainIdMap = hasField(productsTbl, 'strain_id') ? await buildStrainIdMap() : new Map();
+  const strainLinksForPackage = hasField(productsTbl, 'strain_id') ? await resolveStrainLinksFromOriginLotIds(origins, strainIdMap) : [];
+     
   // Create finished packaged products
   const batch = [];
   for (let i = 0; i < count; i++) {
