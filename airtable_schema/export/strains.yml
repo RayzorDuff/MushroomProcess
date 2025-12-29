@@ -5,6 +5,10 @@
   strain_id: STR-Melmak
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: rec7lLl0rRBhkwO6H
+  ecommerce:
+  - recXsvzkxihvq5OEO
+  - rec1l48bgP4oen0dg
+  - recgstukGWwQwhOBI
   species_strain: Bronze Reishi
   strain_id: STR-BronzeReishi
 - airtable_createdTime: '2025-12-12T17:44:11.000Z'
@@ -28,6 +32,10 @@
   strain_id: STR-GoldenTeacher
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recHQHphF8J6rBHPE
+  ecommerce:
+  - recmq8dsmN1EMusGQ
+  - recBfOBojQZlUKsIW
+  - recYTzvlqNTXHvawc
   species_strain: Branched Oyster
   strain_id: STR-BranchedOyster
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -39,12 +47,17 @@
   airtable_id: recV9ephQ5NJProZu
   ecommerce:
   - recRYm0k8IbIlR1ny
+  - recT6P7uEB8P0nyYw
+  - recJ0Sy8OEkHjYlns
+  - recyKXNWcvve4pweO
   species_strain: Chestnut
   strain_id: STR-Chestnut
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recWQlBg26y23ZRWT
   ecommerce:
   - recJyn2tt8HX8fIxi
+  - recWdvTkDFYpLWygR
+  - recAzjpFOyz2waprM
   species_strain: Turkey Tail
   strain_id: STR-TurkeyTail
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -65,6 +78,7 @@
   airtable_id: reckNIjMtUO20q0f9
   ecommerce:
   - recQnYKAQQqDrEnm2
+  - rec7U4A2SSRKwD3SC
   species_strain: "Lion\u2019s Mane"
   strain_id: STR-LionsMane
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -79,6 +93,10 @@
   strain_id: STR-APE
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recszNf2WlZjSQqyL
+  ecommerce:
+  - rec5XW9o8RaPGPb5i
+  - reci0PAX15UT6HasR
+  - recF3He1PR1Bo9voi
   species_strain: Blue Oyster
   strain_id: STR-BlueOyster
 - airtable_createdTime: '2025-09-23T00:51:37.000Z'
@@ -104,6 +122,8 @@
   airtable_id: recxZKdhM1v5Wh51M
   ecommerce:
   - recXRvKLhWYAArICp
+  - recWyQtfuAL3pUM7l
+  - rec3ArssudPfyLSlL
   species_strain: Red Reishi
   strain_id: STR-RedReishi
 - airtable_createdTime: '2025-09-23T00:54:57.000Z'

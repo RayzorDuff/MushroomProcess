@@ -42,6 +42,17 @@
             "prefersSingleRecordLink": false
           },
           "type": "multipleRecordLinks"
+        },
+        {
+          "id": "fld2E0hIBgudxjzX9",
+          "name": "products",
+          "options": {
+            "inverseLinkFieldId": "flda0L76dXoFvneR7",
+            "isReversed": false,
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "prefersSingleRecordLink": false
+          },
+          "type": "multipleRecordLinks"
         }
       ],
       "id": "tblbx0LJNAs8NE4xd",
@@ -778,6 +789,17 @@
           "type": "singleSelect"
         },
         {
+          "id": "fldBO53sbKJROLDZs",
+          "name": "merge_tray_products",
+          "options": {
+            "inverseLinkFieldId": "fldvVExZjY7NPsLc6",
+            "isReversed": false,
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "prefersSingleRecordLink": false
+          },
+          "type": "multipleRecordLinks"
+        },
+        {
           "id": "fldYzm8YZpYgYMXcH",
           "name": "origin_lot_ids_json",
           "type": "multilineText"
@@ -792,23 +814,6 @@
             "prefersSingleRecordLink": false
           },
           "type": "multipleRecordLinks"
-        },
-        {
-          "id": "fldIC7hRmODZ0X3p0",
-          "name": "origin_strain_regulated",
-          "options": {
-            "fieldIdInLinkedTable": "fldOypOvF1UFyVo6v",
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "result": {
-              "options": {
-                "color": "greenBright",
-                "icon": "check"
-              },
-              "type": "checkbox"
-            }
-          },
-          "type": "multipleLookupValues"
         },
         {
           "id": "fldzea0ooNE7mFCRk",
@@ -882,31 +887,42 @@
           "type": "multipleLookupValues"
         },
         {
-          "id": "fldIgcDEVeIShaj7N",
+          "id": "flda0L76dXoFvneR7",
           "name": "strain_id",
           "options": {
-            "fieldIdInLinkedTable": "fldWQu8KSiOuzHCMb",
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "result": {
-              "options": {
-                "isReversed": false,
-                "prefersSingleRecordLink": false
-              },
-              "type": "multipleRecordLinks"
-            }
+            "inverseLinkFieldId": "fld2E0hIBgudxjzX9",
+            "isReversed": false,
+            "linkedTableId": "tblbx0LJNAs8NE4xd",
+            "prefersSingleRecordLink": true
           },
-          "type": "multipleLookupValues"
+          "type": "multipleRecordLinks"
         },
         {
           "id": "fld0vFWc649maA7Vj",
           "name": "species_strain",
           "options": {
-            "fieldIdInLinkedTable": "fldsaZpCoA5zvj5mL",
+            "fieldIdInLinkedTable": "fldD0EgJs9l6OVC78",
             "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "recordLinkFieldId": "flda0L76dXoFvneR7",
             "result": {
               "type": "multilineText"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
+          "id": "fldIC7hRmODZ0X3p0",
+          "name": "origin_strain_regulated",
+          "options": {
+            "fieldIdInLinkedTable": "flddfCW96yf23sj7K",
+            "isValid": true,
+            "recordLinkFieldId": "flda0L76dXoFvneR7",
+            "result": {
+              "options": {
+                "color": "greenBright",
+                "icon": "check"
+              },
+              "type": "checkbox"
             }
           },
           "type": "multipleLookupValues"
@@ -1077,11 +1093,10 @@
           "id": "fld5uqXwMBcpYtI2f",
           "name": "label_footer_prod",
           "options": {
-            "formula": "{fldgzDEo51u33bNf3} & IF({fldZKlmLflBlJOIri}, \" • Lot(s): \" & {fldZKlmLflBlJOIri} & \"\", \"\")",
+            "formula": "{fldgzDEo51u33bNf3}",
             "isValid": true,
             "referencedFieldIds": [
-              "fldgzDEo51u33bNf3",
-              "fldZKlmLflBlJOIri"
+              "fldgzDEo51u33bNf3"
             ],
             "result": {
               "type": "singleLineText"
@@ -1176,6 +1191,11 @@
         {
           "id": "viwpy514tPsCmTCQy",
           "name": "Grid view",
+          "type": "grid"
+        },
+        {
+          "id": "viw7fwcselxr7YBjP",
+          "name": "Active Products",
           "type": "grid"
         }
       ]
@@ -3196,6 +3216,11 @@
           "id": "viwRhgfSZBWtN2mvV",
           "name": "Gallery",
           "type": "gallery"
+        },
+        {
+          "id": "viwu96JIPlYXCYv1h",
+          "name": "Active Lots",
+          "type": "grid"
         }
       ]
     },
@@ -3631,6 +3656,93 @@
           "type": "multipleRecordLinks"
         },
         {
+          "id": "fldijxNbKQpGy1gll",
+          "name": "status (from lot_id)",
+          "options": {
+            "fieldIdInLinkedTable": "fld8pIo7WQgkzVNJa",
+            "isValid": true,
+            "recordLinkFieldId": "fld99g2StSeRBo6KW",
+            "result": {
+              "options": {
+                "choices": [
+                  {
+                    "color": "blueLight2",
+                    "id": "selF0DbIDYO2X4p9i",
+                    "name": "Planned"
+                  },
+                  {
+                    "color": "cyanLight2",
+                    "id": "sel2p4ElN3ULnaMy1",
+                    "name": "Sterilized"
+                  },
+                  {
+                    "color": "greenLight1",
+                    "id": "selBAWxSlIQFeUYKn",
+                    "name": "Pasteurized"
+                  },
+                  {
+                    "color": "tealLight2",
+                    "id": "selMZWyInImf0qLtS",
+                    "name": "Sealed"
+                  },
+                  {
+                    "color": "greenLight2",
+                    "id": "sel8YVcsfM4xjVwTE",
+                    "name": "Inoculated"
+                  },
+                  {
+                    "color": "pinkLight2",
+                    "id": "selWlWcRSQyaoCV8B",
+                    "name": "Spawned"
+                  },
+                  {
+                    "color": "yellowLight2",
+                    "id": "sel1btsp9HYQehU0f",
+                    "name": "Colonizing"
+                  },
+                  {
+                    "color": "orangeLight2",
+                    "id": "selBw6bOoI99ElDNU",
+                    "name": "FullyColonized"
+                  },
+                  {
+                    "color": "redLight2",
+                    "id": "selGC7gHcbw4dSvri",
+                    "name": "Fridge"
+                  },
+                  {
+                    "color": "tealLight1",
+                    "id": "selL83LM8NtCvO5QJ",
+                    "name": "ColdShock"
+                  },
+                  {
+                    "color": "purpleLight2",
+                    "id": "selXI9sAXAGMbrhU7",
+                    "name": "Fruiting"
+                  },
+                  {
+                    "color": "blueLight1",
+                    "id": "selyDmEG5dqQyly1y",
+                    "name": "Consumed"
+                  },
+                  {
+                    "color": "grayLight2",
+                    "id": "selPJoYLC3HmekrgA",
+                    "name": "Retired"
+                  },
+                  {
+                    "color": "cyanLight1",
+                    "id": "selArHxOCPglho7JC",
+                    "name": "Frozen"
+                  }
+                ]
+              },
+              "type": "singleSelect"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
           "id": "fldrPNBJbRahOoryi",
           "name": "product_id",
           "options": {
@@ -3640,6 +3752,23 @@
             "prefersSingleRecordLink": false
           },
           "type": "multipleRecordLinks"
+        },
+        {
+          "id": "fldDgC301C8gjGxpT",
+          "name": "storage_location (from product_id)",
+          "options": {
+            "fieldIdInLinkedTable": "fldY5DwAvYBzLdY0m",
+            "isValid": true,
+            "recordLinkFieldId": "fldrPNBJbRahOoryi",
+            "result": {
+              "options": {
+                "isReversed": false,
+                "prefersSingleRecordLink": false
+              },
+              "type": "multipleRecordLinks"
+            }
+          },
+          "type": "multipleLookupValues"
         },
         {
           "id": "fldAyohM5oFQlxq0Q",
@@ -5050,11 +5179,6 @@
           "type": "grid"
         },
         {
-          "id": "viwUiUGEt6dfL9cA1",
-          "name": "Queue_Lots_Test",
-          "type": "grid"
-        },
-        {
           "id": "viw7Bj81RiAVe7Mkc",
           "name": "Queue_All",
           "type": "grid"
@@ -5247,11 +5371,6 @@
         {
           "id": "viwI4yqRSs1mbYwuM",
           "name": "Grid view",
-          "type": "grid"
-        },
-        {
-          "id": "viwnGMNFMLxWcnsyL",
-          "name": "Grid view copy",
           "type": "grid"
         }
       ]

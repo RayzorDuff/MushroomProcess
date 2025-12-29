@@ -13,8 +13,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 | lots            | link/id   |
 | regulated       | checkbox  |
 | ecommerce       | link/id   |
+| products          | link/id     |
 ---
-
 ## ✅ `recipes`
 
 | Field              | Type          |
@@ -27,7 +27,6 @@ This document maps all tables and their fields as defined in the current Airtabl
 | lots               | link/id       |
 | sterilization_runs | link/id       |
 ---
-
 ## ✅ `products`
 
 | Field                     | Type          |
@@ -55,7 +54,7 @@ This document maps all tables and their fields as defined in the current Airtabl
 | label_spawned_prod        | lookup        |
 | label_proc_prod           | lookup        |
 | process_type              | lookup        |
-| strain_id                 | lookup        |
+| strain_id                   | link/id         |
 | species_strain            | lookup        |
 | ui_error                  | long text     |
 | ui_error_at               | date/time     |
@@ -80,8 +79,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 | item_category_mat         | single line   |
 | events                    | link/id       |
 | notes                     | long text     |
+| merge_tray_products         | link/id         |
 ---
-
 ## ✅ `lots`
 
 | Field                                                    | Type          |
@@ -103,7 +102,7 @@ This document maps all tables and their fields as defined in the current Airtabl
 | location_id                                              | link/id       |
 | operator                                                 | single select |
 | created_at                                               | created time  |
-| use_by                                                   | formula       |
+| use_by                                                     | date            |
 | last_inoculation_date                                    | rollup        |
 | public_link                                              | formula       |
 | action                                                   | single select |
@@ -114,10 +113,10 @@ This document maps all tables and their fields as defined in the current Airtabl
 | vendor_name (from lc_lot_id)                             | lookup        |
 | lc_volume_ml                                             | number        |
 | grain_inputs                                             | link/id       |
-| inoculated_at (from grain_inputs)                        | lookup        |
+| inoculated_at (from grain_inputs)                          | rollup          |
 | name (from item_id) (from grain_inputs)                  | formula       |
 | substrate_inputs                                         | link/id       |
-| process_type (from steri_run_id) (from substrate_inputs) | rollup        |
+| process_type (from steri_run_id) (from substrate_inputs)   | formula         |
 | name (from item_id) (from substrate_inputs)              | formula       |
 | output_count                                             | number        |
 | fruiting_goal                                            | single select |
@@ -180,19 +179,13 @@ This document maps all tables and their fields as defined in the current Airtabl
 | plate_group_id                                           | long text     |
 | parent_lot_id                                            | link/id       |
 | ecommerce                                                | link/id       |
-| From field: PlateSourceLot                               | link/id       |
-| From field: parent_lot_id                                | link/id       |
-| From field: target_lot_ids                               | link/id       |
-| From field: grain_inputs                                 | link/id       |
-| From field: substrate_inputs                             | link/id       |
-| From field: casing_lot_id                                | link/id       |
 | item_name_mat                                            | single line   |
 | item_category_mat                                        | single line   |
 | process_type_mat                                         | single line   |
 | item_name_mat (from grain_inputs)                        | lookup        |
 | item_name_mat (from substrate_inputs)                    | lookup        |
+| process_type_mat (from substrate_inputs)                   | lookup          |
 ---
-
 ## ✅ `items`
 
 | Field                 | Type          |
@@ -213,7 +206,6 @@ This document maps all tables and their fields as defined in the current Airtabl
 | products 2            | link/id       |
 | ecommerce             | link/id       |
 ---
-
 ## ✅ `events`
 
 | Field                                      | Type          |
@@ -232,8 +224,9 @@ This document maps all tables and their fields as defined in the current Airtabl
 | event_time_for_rollup                      | formula       |
 | lots                                       | single line   |
 | product_id                                 | link/id       |
+| status (from lot_id)                         | lookup          |
+| storage_location (from product_id)           | lookup          |
 ---
-
 ## ✅ `locations`
 
 | Field    | Type        |
@@ -244,7 +237,6 @@ This document maps all tables and their fields as defined in the current Airtabl
 | lots     | link/id     |
 | products | link/id     |
 ---
-
 ## ✅ `sterilization_runs`
 
 | Field                                 | Type          |
@@ -273,7 +265,6 @@ This document maps all tables and their fields as defined in the current Airtabl
 | override_end_time                     | date/time     |
 | print_queue                           | link/id       |
 ---
-
 ## ✅ `print_queue`
 
 | Field                                         | Type          |
@@ -315,7 +306,6 @@ This document maps all tables and their fields as defined in the current Airtabl
 | label_spawned_prod (from product_id)          | lookup        |
 | label_inoc_prod (from product_id)             | lookup        |
 ---
-
 ## ✅ `ecommerce`
 
 | Field                   | Type          |
@@ -333,13 +323,11 @@ This document maps all tables and their fields as defined in the current Airtabl
 | ecwid_price             | number        |
 | ecwid_stock             | number        |
 | ecwid_url               | url           |
-| ecwid_image             | attachment    |
+| ecwid_image               | multipleAttachments |
 | available_from_products | rollup        |
 | available_from_lots     | rollup        |
-| available_qty_ecwid     | formula       |
 | ecommerce_orders        | link/id       |
 ---
-
 ## ✅ `ecommerce_orders`
 
 | Field          | Type          |

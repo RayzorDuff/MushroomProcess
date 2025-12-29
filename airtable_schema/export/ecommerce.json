@@ -12,6 +12,36 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2025-12-26T18:38:01.000Z",
+        "airtable_id": "rec1l48bgP4oen0dg",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "name": "Large 7.5lb Bronze Reishi Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:37:02.000Z",
+        "airtable_id": "rec3ArssudPfyLSlL",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Red Reishi Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-21T21:53:49.000Z",
         "airtable_id": "rec3dwVTZ2HA22RjN",
         "available_from_lots": 0,
@@ -24,6 +54,79 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2025-12-26T18:18:44.000Z",
+        "airtable_id": "rec5XW9o8RaPGPb5i",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Blue Oyster",
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:15:42.000Z",
+        "airtable_id": "rec7U4A2SSRKwD3SC",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Lion's Mane",
+        "strain_id": [
+            "reckNIjMtUO20q0f9"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:37:18.000Z",
+        "airtable_id": "recAzjpFOyz2waprM",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Turkey Tail Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recWQlBg26y23ZRWT"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:38:42.000Z",
+        "airtable_id": "recBfOBojQZlUKsIW",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "name": "Large 7.5lb Branched Oyster Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recHQHphF8J6rBHPE"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:37:27.000Z",
+        "airtable_id": "recF3He1PR1Bo9voi",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Blue Oyster Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-21T21:52:39.000Z",
         "airtable_id": "recIo7Q8Si74dzuDk",
         "available_from_lots": 0,
@@ -33,6 +136,21 @@
         ],
         "name": "2lb Sterilized Wild Bird Seed",
         "status": "Sterilized",
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:36:45.000Z",
+        "airtable_id": "recJ0Sy8OEkHjYlns",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Chestnut Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
         "sync_to_ecwid": true
     },
     {
@@ -58,7 +176,7 @@
         "item_id": [
             "recDO7zTvQ1KaQksg"
         ],
-        "name": "Large 7.5lb Lions Mane Fruiting Block",
+        "name": "Large 7.5lb Lion's Mane Fruiting Block",
         "status": "FullyColonized",
         "strain_id": [
             "reckNIjMtUO20q0f9"
@@ -81,6 +199,20 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2025-12-26T18:17:19.000Z",
+        "airtable_id": "recT6P7uEB8P0nyYw",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Chestnut",
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-22T02:39:49.000Z",
         "airtable_id": "recVcvY7l7e4nk4Vt",
         "available_from_lots": 0,
@@ -93,6 +225,34 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2025-12-26T18:17:41.000Z",
+        "airtable_id": "recWdvTkDFYpLWygR",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Turkey Tail",
+        "strain_id": [
+            "recWQlBg26y23ZRWT"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:16:23.000Z",
+        "airtable_id": "recWyQtfuAL3pUM7l",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Red Reishi",
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-21T20:11:15.000Z",
         "airtable_id": "recXRvKLhWYAArICp",
         "available_from_lots": 0,
@@ -100,10 +260,39 @@
         "item_id": [
             "recDO7zTvQ1KaQksg"
         ],
-        "name": "Large 7.5 lb Reishi Fruiting Block",
+        "name": "Large 7.5 lb Red Reishi Fruiting Block",
         "status": "FullyColonized",
         "strain_id": [
             "recxZKdhM1v5Wh51M"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:16:59.000Z",
+        "airtable_id": "recXsvzkxihvq5OEO",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Bronze Reishi",
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:37:38.000Z",
+        "airtable_id": "recYTzvlqNTXHvawc",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Branched Oyster Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recHQHphF8J6rBHPE"
         ],
         "sync_to_ecwid": true
     },
@@ -120,6 +309,50 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2025-12-26T18:37:08.000Z",
+        "airtable_id": "recgstukGWwQwhOBI",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Bronze Reishi Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:38:32.000Z",
+        "airtable_id": "reci0PAX15UT6HasR",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "name": "Large 7.5lb Blue Oyster Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:18:03.000Z",
+        "airtable_id": "recmq8dsmN1EMusGQ",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "reczPINTjlieWiqX3"
+        ],
+        "name": "Freeze Dried Branched Oyster",
+        "strain_id": [
+            "recHQHphF8J6rBHPE"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-22T02:30:19.000Z",
         "airtable_id": "recwcDAQy89XAYJ2d",
         "available_from_lots": 0,
@@ -129,6 +362,21 @@
         ],
         "name": "2lb Sterilized Oats",
         "status": "Sterilized",
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2025-12-26T18:36:18.000Z",
+        "airtable_id": "recyKXNWcvve4pweO",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "name": "Small 2.5lb Lion's Mane Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
         "sync_to_ecwid": true
     }
 ]

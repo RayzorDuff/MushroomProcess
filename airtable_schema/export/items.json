@@ -62,7 +62,10 @@
             "recXRvKLhWYAArICp",
             "recQnYKAQQqDrEnm2",
             "recRYm0k8IbIlR1ny",
-            "recJyn2tt8HX8fIxi"
+            "recJyn2tt8HX8fIxi",
+            "rec1l48bgP4oen0dg",
+            "reci0PAX15UT6HasR",
+            "recBfOBojQZlUKsIW"
         ],
         "item_id": "FB-MM75-LG",
         "name": "Large Masters Mix 75/25"
@@ -163,6 +166,15 @@
         "category": "fruiting_block",
         "default_unit_size": "2.5lb",
         "default_unit_size_lb": 2.5,
+        "ecommerce": [
+            "recyKXNWcvve4pweO",
+            "recJ0Sy8OEkHjYlns",
+            "rec3ArssudPfyLSlL",
+            "recgstukGWwQwhOBI",
+            "recAzjpFOyz2waprM",
+            "recF3He1PR1Bo9voi",
+            "recYTzvlqNTXHvawc"
+        ],
         "item_id": "FB-MM75-SM",
         "name": "Small Masters Mix 75/25"
     },
@@ -331,6 +343,15 @@
         "category": "freezedriedmushrooms",
         "default_unit_size": "1oz",
         "default_unit_size_oz": 1,
+        "ecommerce": [
+            "rec7U4A2SSRKwD3SC",
+            "recWyQtfuAL3pUM7l",
+            "recXsvzkxihvq5OEO",
+            "recT6P7uEB8P0nyYw",
+            "recWdvTkDFYpLWygR",
+            "recmq8dsmN1EMusGQ",
+            "rec5XW9o8RaPGPb5i"
+        ],
         "item_id": "MUSH-DRIED-1OZ",
         "name": "Freeze-Dried Mushrooms (1 oz)"
     }
