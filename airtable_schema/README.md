@@ -114,6 +114,11 @@ These steps assume you start from an Airtable base that already matches the Mush
    node airtable_export_postprocess.js export/_schema.json.orig export/_schema.json
    ```
 
+   The post-processor supports two environment toggles (use `.env` or shell env vars):
+
+   - `POSTPROCESS_REWRITE_COMPANY` (default `true`): rewrite company/branding formulas to generic placeholders.
+   - `POSTPROCESS_REMOVE_EXTRA_FIELDS` (default `true`): remove Airtable-export helper fields like `From field: ...`.
+
 4. **Template / redact `_schema.json` (optional)**
 
    Before distributing your schema, replace business-specific values with generic placeholders. For example, search and replace names and URLs like:

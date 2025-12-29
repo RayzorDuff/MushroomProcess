@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-26.1
+ * Version: 2025-12-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -136,6 +136,21 @@ const NOCODB_BATCH_SIZE = Math.max(
   parseInt(process.env.NOCODB_BATCH_SIZE || '100', 10) || 100
 );
 const NOCODB_DEBUG = (process.env.NOCODB_DEBUG || '0').toString() === '1';
+
+// ---------------------------------------------------------------------------
+// Generic env helpers
+// ---------------------------------------------------------------------------
+
+function envBool(varName, defaultValue = false) {
+  const raw = process.env[varName];
+  if (typeof raw === 'undefined') return !!defaultValue;
+  const v = String(raw).trim().toLowerCase();
+  if (!v) return false;
+  if (['1', 'true', 't', 'yes', 'y', 'on'].includes(v)) return true;
+  if (['0', 'false', 'f', 'no', 'n', 'off'].includes(v)) return false;
+  // Fallback: any non-empty string that isn't an explicit false is true.
+  return true;
+}
 
 const META_PREFIX = IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
 
@@ -831,6 +846,7 @@ module.exports = {
   NOCODB_API_VERSION_LINKS,
   NOCODB_BATCH_SIZE,
   NOCODB_DEBUG,
+  envBool,
   AIRTABLE_EXPORT_DIR,
   SCHEMA_PATH,  
   IS_V2,

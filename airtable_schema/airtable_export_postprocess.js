@@ -2,7 +2,23 @@
 require('./load_env');
 /**
  * airtable_export_postprocess.js
+ * Version: 2025-12-29.1
+ * =============================================================================
+ *  Copyright © 2025 Dank Mushrooms, LLC
+ *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
  *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * =============================================================================
  * Post-process Airtable schema export JSON:
  *  - Removes Airtable "lookup/rollup (from ...)" helper fields (names containing " (from ").
  *  - Rewrites specific company/branding formulas by FIELD NAME (not by old string content),
@@ -18,6 +34,18 @@ require('./load_env');
  */
 
 const fs = require("fs");
+
+// Feature toggles
+// Defaults preserve existing behavior (both steps enabled).
+const POSTPROCESS_REWRITE_COMPANY =
+  typeof global.envBool === 'function'
+    ? global.envBool('POSTPROCESS_REWRITE_COMPANY', true)
+    : (process.env.POSTPROCESS_REWRITE_COMPANY || 'true').toString().toLowerCase() === 'true';
+
+const POSTPROCESS_REMOVE_EXTRA_FIELDS =
+  typeof global.envBool === 'function'
+    ? global.envBool('POSTPROCESS_REMOVE_EXTRA_FIELDS', true)
+    : (process.env.POSTPROCESS_REMOVE_EXTRA_FIELDS || 'true').toString().toLowerCase() === 'true';
 
 function readJson(path) {
   const raw = fs.readFileSync(path, "utf8");
@@ -176,18 +204,30 @@ function main() {
   const schema = readJson(inPath);
 
   let removed = 0;
-  for (const table of schema.tables || []) {
-    if (!table || !Array.isArray(table.fields)) continue;
-    removed += removeFromFields(table);
+  if (POSTPROCESS_REMOVE_EXTRA_FIELDS) {
+    for (const table of schema.tables || []) {
+      if (!table || !Array.isArray(table.fields)) continue;
+      removed += removeFromFields(table);
+    }
   }
 
-  rewriteCompanyFormulasProducts(schema);
-  rewriteCompanyFormulasLots(schema);
+  if (POSTPROCESS_REWRITE_COMPANY) {
+    rewriteCompanyFormulasProducts(schema);
+    rewriteCompanyFormulasLots(schema);
+  }
   
   writeJson(outPath, schema);
 
   console.log(`Wrote ${outPath}`);
-  console.log(`Removed ${removed} " From: " fields`);
+  if (POSTPROCESS_REMOVE_EXTRA_FIELDS) {
+    console.log(`Removed ${removed} " From: " fields`);
+  } else {
+    console.log('Skipped removing extra fields (POSTPROCESS_REMOVE_EXTRA_FIELDS=false)');
+  }
+
+  if (!POSTPROCESS_REWRITE_COMPANY) {
+    console.log('Skipped company formula rewrites (POSTPROCESS_REWRITE_COMPANY=false)');
+  }
 }
 
 main();
