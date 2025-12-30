@@ -61,6 +61,12 @@ const ENABLE_BULK_IMPORT = ENV.envBool('NOCODB_ENABLE_BULK_IMPORT', false);
 
 // Local log alias (kept separate from load_env.js helpers for backwards compatibility)
 const log = (...args) => console.log(...args);
+// Some call sites historically used warn(); keep a stable alias.
+const warn = (msg, ...rest) => {
+  // Prefer the shared logger if present so output matches other scripts.
+  if (ENV && typeof ENV.logWarn === 'function') return ENV.logWarn([msg, ...rest].join(' '));
+  return console.warn(`[WARN] ${msg}`, ...rest);
+};
 
 // ------------------------------
 // Resume / checkpoint helpers
@@ -1681,7 +1687,7 @@ async function runPassB(job, allTableIdMaps) {
       try {
         await setLinksExact(tableId, meta.linkFieldId, item.rowId, resolved);
       } catch (e) {
-        warn(`Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${e?.message || e}`);
+        log(`  [WARN] Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${e?.message || e}`);
         if (NOCODB_DEBUG) debug(e);
       }
     }
@@ -1744,7 +1750,7 @@ async function main() {
   for (const tableName of tableNames) {
     const tableMeta = tablesByName.get(tableName);
     if (!tableMeta) {
-      warn(`Table not found in base: ${tableName}`);
+      log(`  [WARN] Table not found in base: ${tableName}`);
       continue;
     }
     const columns = await fetchTableColumns(tableMeta.id);

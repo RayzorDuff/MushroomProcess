@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-29.2
+ * Version: 2025-12-29.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -168,17 +168,6 @@ const NOCODB_DEBUG = envBool('NOCODB_DEBUG', false);
 // ---------------------------------------------------------------------------
 // Generic env helpers
 // ---------------------------------------------------------------------------
-
-function envBool(varName, defaultValue = false) {
-  const raw = process.env[varName];
-  if (typeof raw === 'undefined') return !!defaultValue;
-  const v = String(raw).trim().toLowerCase();
-  if (!v) return false;
-  if (['1', 'true', 't', 'yes', 'y', 'on'].includes(v)) return true;
-  if (['0', 'false', 'f', 'no', 'n', 'off'].includes(v)) return false;
-  // Fallback: any non-empty string that isn't an explicit false is true.
-  return true;
-}
 
 const META_PREFIX = IS_V2 ? '/api/v2/meta' : '/api/v3/meta';
 
@@ -842,59 +831,99 @@ const api = axios.create({
 });
 
 async function apiCall(method, url, data) {
-  const maxAttempts = NOCODB_HTTP_RETRIES + 1;
+  const baseMaxAttempts = NOCODB_HTTP_RETRIES + 1;
+
+  // Postgres transient states sometimes bubble up through NocoDB as:
+  //   HTTP 400 { error: "DATABASE_ERROR", code: "57P03" }
+  // This is not a schema/data issue; it usually means Postgres is still starting
+  // or recovering. Treat as transient and retry with a longer backoff budget.
+  const EXTRA_DB_ATTEMPTS = 12;
+
+  function isDbTransientPayload(d) {
+    const code = (d && (d.code || d.pgcode || d.sqlState))
+      ? String(d.code || d.pgcode || d.sqlState)
+      : '';
+    const err = (d && (d.error || d.err || d.message))
+      ? String(d.error || d.err || d.message)
+      : '';
+    // 57P03 = "cannot connect now" / "the database system is starting up"
+    // 57P01/57P02 also represent shutdown/crash states.
+    if (code === '57P03' || code === '57P01' || code === '57P02') return true;
+    if (/57P0[123]/.test(err)) return true;
+    if (/DATABASE_ERROR/i.test(err) && /57P0[123]/.test(JSON.stringify(d))) return true;
+    return false;
+  }
+
+  function isTransientStatus(status) {
+    return [408, 425, 429, 500, 502, 503, 504].includes(status);
+  }
+
+  let sawDbTransient = false;
+  const maxAttempts = baseMaxAttempts + EXTRA_DB_ATTEMPTS;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const res = await api.request({
-        method,
-        url,
-        data,
-      });
+      const res = await api.request({ method, url, data });
 
       if (res.status >= 200 && res.status < 300) {
         return res.data;
       }
 
-      // Retry on common transient status codes (rate limit / gateway / timeout)
-      const transient = [408, 425, 429, 500, 502, 503, 504].includes(res.status);
-      if (transient && attempt < maxAttempts) {
-        const waitMs = NOCODB_HTTP_RETRY_BACKOFF_MS * attempt;
+      const dbTransient = res.status === 400 && isDbTransientPayload(res.data);
+      if (dbTransient) sawDbTransient = true;
+
+      const transient = isTransientStatus(res.status) || dbTransient;
+      const inBudget = attempt < (dbTransient ? maxAttempts : baseMaxAttempts);
+
+      if (transient && inBudget) {
+        const base = NOCODB_HTTP_RETRY_BACKOFF_MS;
+        const waitMs = dbTransient ? Math.max(2000, base * attempt * 2) : base * attempt;
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
 
       const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-      throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
+      const e = new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
+      // Attach response so the catch block can surface status reliably.
+      e.response = res;
+      throw e;
     } catch (err) {
-      const status = err.response && err.response.status;
+      const status = err && err.response ? err.response.status : undefined;
+      const dataPayload = err && err.response ? err.response.data : undefined;
+
       const isTimeout =
         (err && (err.code === 'ECONNABORTED' || String(err.message || '').toLowerCase().includes('timeout'))) ||
         status === 408;
 
-      const transient =
-        isTimeout ||
-        status === 425 ||
-        status === 429 ||
-        (typeof status === 'number' && status >= 500);
+      const dbTransient = status === 400 && isDbTransientPayload(dataPayload);
+      if (dbTransient) sawDbTransient = true;
 
-      if (transient && attempt < maxAttempts) {
-        const waitMs = NOCODB_HTTP_RETRY_BACKOFF_MS * attempt;
+      const transient = isTimeout || isTransientStatus(status) || dbTransient;
+      const inBudget = attempt < (dbTransient ? maxAttempts : baseMaxAttempts);
+
+      if (transient && inBudget) {
+        const base = NOCODB_HTTP_RETRY_BACKOFF_MS;
+        const waitMs = dbTransient ? Math.max(2000, base * attempt * 2) : base * attempt;
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
 
       const body =
-        err.response && err.response.data
-          ? JSON.stringify(err.response.data).slice(0, 500)
-          : String(err);
-      throw new Error(
-        `API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}`
-      );
+        dataPayload != null
+          ? JSON.stringify(dataPayload).slice(0, 500)
+          : String(err && err.message ? err.message : err);
+
+      const hint = sawDbTransient
+        ? ' (hint: Postgres reported a transient state; check DB health/restarts)'
+        : '';
+
+      throw new Error(`API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}${hint}`);
     }
   }
 
-  throw new Error(`API ${method.toUpperCase()} ${url} failed: exceeded retry budget.`);
+  throw new Error(
+    `API ${method.toUpperCase()} ${url} failed: exceeded retry budget${sawDbTransient ? ' (Postgres transient state)' : ''}.`
+  );
 }
 
 module.exports = {
