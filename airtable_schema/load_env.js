@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-29.1
+ * Version: 2025-12-29.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -32,6 +32,7 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+// (no external deps)
 
 // ---------------------------------------------------------------------------
 // Minimal .env loader
@@ -89,6 +90,17 @@ function loadDotEnv(envPath = path.join(__dirname, '.env')) {
 // Load immediately when required
 loadDotEnv();
 
+function envBool(varName, defaultValue = false) {
+  const raw = process.env[varName];
+  if (typeof raw === 'undefined') return !!defaultValue;
+  const v = String(raw).trim().toLowerCase();
+  if (!v) return false;
+  if (['1', 'true', 't', 'yes', 'y', 'on'].includes(v)) return true;
+  if (['0', 'false', 'f', 'no', 'n', 'off'].includes(v)) return false;
+  // Fallback: any non-empty string that isn't an explicit false is true.
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // ENV + VERSION SWITCHING
 // ---------------------------------------------------------------------------
@@ -135,7 +147,23 @@ const NOCODB_BATCH_SIZE = Math.max(
   1,
   parseInt(process.env.NOCODB_BATCH_SIZE || '100', 10) || 100
 );
-const NOCODB_DEBUG = (process.env.NOCODB_DEBUG || '0').toString() === '1';
+
+const NOCODB_HTTP_TIMEOUT_MS = Math.max(
+  1000,
+  parseInt(process.env.NOCODB_HTTP_TIMEOUT_MS || '120000', 10) || 120000
+);
+
+const NOCODB_HTTP_RETRIES = Math.max(
+  0,
+  parseInt(process.env.NOCODB_HTTP_RETRIES || '3', 10) || 3
+);
+
+const NOCODB_HTTP_RETRY_BACKOFF_MS = Math.max(
+  0,
+  parseInt(process.env.NOCODB_HTTP_RETRY_BACKOFF_MS || '750', 10) || 750
+);
+
+const NOCODB_DEBUG = envBool('NOCODB_DEBUG', false);
 
 // ---------------------------------------------------------------------------
 // Generic env helpers
@@ -809,32 +837,64 @@ const api = axios.create({
     'Content-Type': 'application/json',
     accept: 'application/json',
   },
-  timeout: 120000,
+  timeout: NOCODB_HTTP_TIMEOUT_MS,
   validateStatus: () => true,
 });
 
 async function apiCall(method, url, data) {
-  try {
-    const res = await api.request({
-      method,
-      url,
-      data,
-    });
-    if (res.status >= 200 && res.status < 300) {
-      return res.data;
+  const maxAttempts = NOCODB_HTTP_RETRIES + 1;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await api.request({
+        method,
+        url,
+        data,
+      });
+
+      if (res.status >= 200 && res.status < 300) {
+        return res.data;
+      }
+
+      // Retry on common transient status codes (rate limit / gateway / timeout)
+      const transient = [408, 425, 429, 500, 502, 503, 504].includes(res.status);
+      if (transient && attempt < maxAttempts) {
+        const waitMs = NOCODB_HTTP_RETRY_BACKOFF_MS * attempt;
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+
+      const payload = res.data ? JSON.stringify(res.data) : res.statusText;
+      throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
+    } catch (err) {
+      const status = err.response && err.response.status;
+      const isTimeout =
+        (err && (err.code === 'ECONNABORTED' || String(err.message || '').toLowerCase().includes('timeout'))) ||
+        status === 408;
+
+      const transient =
+        isTimeout ||
+        status === 425 ||
+        status === 429 ||
+        (typeof status === 'number' && status >= 500);
+
+      if (transient && attempt < maxAttempts) {
+        const waitMs = NOCODB_HTTP_RETRY_BACKOFF_MS * attempt;
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+
+      const body =
+        err.response && err.response.data
+          ? JSON.stringify(err.response.data).slice(0, 500)
+          : String(err);
+      throw new Error(
+        `API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}`
+      );
     }
-    const payload = res.data ? JSON.stringify(res.data) : res.statusText;
-    throw new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
-  } catch (err) {
-    const status = err.response && err.response.status;
-    const body =
-      err.response && err.response.data
-        ? JSON.stringify(err.response.data).slice(0, 500)
-        : String(err);
-    throw new Error(
-      `API ${method.toUpperCase()} ${url} failed (status=${status}): ${body}`
-    );
   }
+
+  throw new Error(`API ${method.toUpperCase()} ${url} failed: exceeded retry budget.`);
 }
 
 module.exports = {
@@ -845,6 +905,9 @@ module.exports = {
   NOCODB_API_VERSION,
   NOCODB_API_VERSION_LINKS,
   NOCODB_BATCH_SIZE,
+  NOCODB_HTTP_TIMEOUT_MS,
+  NOCODB_HTTP_RETRIES,
+  NOCODB_HTTP_RETRY_BACKOFF_MS,  
   NOCODB_DEBUG,
   envBool,
   AIRTABLE_EXPORT_DIR,

@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-29.2
+ * Version: 2025-12-29.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -56,8 +56,54 @@ const axios = require('axios');
 // Shared API client + caller (already configured w/ NOCODB_URL + xc-token)
 const apiCall = ENV.apiCall;
 
+// Optional: enable bulk insert (POST {data:[...]}) for speed. Default is OFF for safety.
+const ENABLE_BULK_IMPORT = ENV.envBool('NOCODB_ENABLE_BULK_IMPORT', false);
+
 // Local log alias (kept separate from load_env.js helpers for backwards compatibility)
 const log = (...args) => console.log(...args);
+
+// ------------------------------
+// Resume / checkpoint helpers
+// ------------------------------
+//
+// When Pass A runs for many tables, a failure mid-run used to lose the in-memory Pass B job list.
+// These helpers let you resume after a failure without losing the Pass B plan.
+//
+// Env:
+//   NOCODB_RESUME=1                 -> enable resume behavior
+//   NOCODB_CHECKPOINT_FILE=<path>   -> defaults to .nocodb_import_checkpoint.json
+//
+const RESUME_ENABLED = ENV.envBool('NOCODB_RESUME', false);
+const CHECKPOINT_FILE = (process.env.NOCODB_CHECKPOINT_FILE || '.nocodb_import_checkpoint.json').toString();
+
+function loadCheckpoint() {
+  if (!RESUME_ENABLED) return { completedPassA: [], completedPassB: [] };
+  try {
+    if (!fs.existsSync(CHECKPOINT_FILE)) return { completedPassA: [], completedPassB: [] };
+    const raw = fs.readFileSync(CHECKPOINT_FILE, 'utf-8');
+    const data = JSON.parse(raw);
+    return {
+      completedPassA: Array.isArray(data?.completedPassA) ? data.completedPassA : [],
+      completedPassB: Array.isArray(data?.completedPassB) ? data.completedPassB : [],
+    };
+  } catch (_) {
+    return { completedPassA: [], completedPassB: [] };
+  }
+}
+
+function saveCheckpoint(cp) {
+  if (!RESUME_ENABLED) return;
+  const safe = {
+    completedPassA: Array.isArray(cp?.completedPassA) ? cp.completedPassA : [],
+    completedPassB: Array.isArray(cp?.completedPassB) ? cp.completedPassB : [],
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    fs.writeFileSync(CHECKPOINT_FILE, JSON.stringify(safe, null, 2));
+  } catch (e) {
+    console.warn(`[WARN] Could not write checkpoint file ${CHECKPOINT_FILE}: ${e?.message || e}`);
+  }
+}
 
 // ------------------------------
 // Meta write helpers
@@ -430,15 +476,37 @@ async function createOneRow(tableId, rowObj, verifyKey = null) {
 async function createRows(tableId, rows, verifyKey = null) {
   if (!rows.length) return [];
 
-  // IMPORTANT:
-  // Bulk insert (POST {data:[...]}) has been observed to create the correct number of rows
-  // but with empty field values in some NocoDB builds. To keep imports reliable,
-  // we always insert rows one-by-one using createOneRow().
-  //const data = await apiCall('post', tableRecordsUrl(tableId, null, false), { data: rows });
-  //const list = Array.isArray(data?.list) ? data.list : data;
-  //return Array.isArray(list) ? list : [];  
-  if (process.env.NOCODB_DEBUG === '1') {
-    console.warn('[DEBUG] createRows(): bulk disabled; inserting one-by-one for reliability.');
+  // Bulk insert (POST {data:[...]}) can be much faster, but some NocoDB builds have
+  // been observed to create the correct number of rows with empty field values.
+  // Default remains row-by-row for reliability; bulk can be enabled explicitly.
+  if (ENABLE_BULK_IMPORT) {
+    try {
+      const data = await apiCall('post', tableRecordsUrl(tableId, null, false), { data: rows });
+      const list = Array.isArray(data?.list) ? data.list : data;
+      const created = Array.isArray(list) ? list : [];
+
+      // Lightweight sanity check: if verifyKey is provided, ensure at least one created row
+      // includes it (some buggy builds return empty objects / omit fields).
+      if (verifyKey && created.length) {
+        const ok = created.some((r) => r && typeof r === 'object' && typeof r[verifyKey] !== 'undefined');
+        if (!ok) {
+          throw new Error(`Bulk insert returned ${created.length} row(s) but none contained verifyKey=${verifyKey}`);
+        }
+      }
+
+      if (NOCODB_DEBUG) {
+        console.warn(`[DEBUG] createRows(): bulk enabled; created ${created.length}/${rows.length} row(s).`);
+      }
+      return created;
+    } catch (e) {
+      const msg = (e && e.message) ? e.message : String(e);
+      console.warn(`[WARN] Bulk insert failed or looked unsafe; falling back to row-by-row. Reason: ${msg}`);
+      // Fall through to row-by-row path below.
+    }
+  }
+
+  if (NOCODB_DEBUG) {
+    console.warn('[DEBUG] createRows(): inserting one-by-one for reliability.');
     console.warn('[DEBUG] First row payload keys:', Object.keys(rows[0] || {}));
   }
 
@@ -783,7 +851,12 @@ async function buildAirtableIdToRowMaps(tableId, columns) {
   const pvCol = getDisplayValueColumn(columns || []);
   const pvName = pvCol?.column_name || pvCol?.title || pvCol?.name;
   const fieldList = [AIRTABLE_ID_KEY];
-  if (pvName && pvName !== 'airtable_id') fieldList.push(pvName);
+
+  // Ensure the primary key field is requested when using fields= filters.
+  // Some NocoDB builds omit the row identifier unless the pk column is included.
+  if (pkName && !fieldList.includes(pkName) && pkName !== AIRTABLE_ID_KEY) fieldList.push(pkName);
+
+  if (pvName && pvName !== 'airtable_id' && pvName !== AIRTABLE_ID_KEY && !fieldList.includes(pvName)) fieldList.push(pvName);
 
   let rows = await listAllRows(tableId, 1000, fieldList);
 
@@ -1032,6 +1105,44 @@ async function fetchMergedTableFields(tableId, baseColumns = []) {
     debug(`[DEBUG] fetchMergedTableFields(${tableId}): v2=${colsV2.length}, linkMeta=${colsLinks.length}, merged=${merged.length}`);
   }
   return merged;
+}
+
+async function preparePassBJob(tableMeta, columns, allTableIdMaps) {
+  const tableName = tableMeta?.title || tableMeta?.table_name;
+  const tableId = tableMeta?.id;
+  if (!tableName || !tableId) return null;
+
+  columns = await ensureAirtableIdColumn(tableMeta, columns);
+  columns = await fetchMergedTableFields(tableId, columns);
+
+  const exportRecs = readExportJson(tableName);
+  if (!exportRecs.length) return null;
+
+  const linkCols = (columns || []).filter((c) => isLinkColumn(c) && ENV.isWritableLinkColumn(c));
+
+  const linkColMap = new Map();
+  for (const c of linkCols) {
+    const k = apiFieldName(c);
+    if (!k) continue;
+    linkColMap.set(normalizeKey(k), k);
+    if (c?.title) linkColMap.set(normalizeKey(c.title), k);
+    if (c?.name) linkColMap.set(normalizeKey(c.name), k);
+    if (c?.column_name) linkColMap.set(normalizeKey(c.column_name), k);
+  }
+
+  const mapAfterObj = await buildAirtableIdToRowMaps(tableId, columns);
+  allTableIdMaps.set(tableId, mapAfterObj);
+
+  return {
+    tableMeta,
+    tableId,
+    tableName,
+    columns,
+    exportRecs,
+    mapAfterObj,
+    linkCols,
+    linkColMap,
+  };
 }
 
 async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
@@ -1619,6 +1730,15 @@ async function main() {
 
   const allTableIdMaps = new Map();
   const passBJobs = [];
+  const checkpoint = loadCheckpoint();
+  const completedPassA = new Set(checkpoint.completedPassA || []);
+  const completedPassB = new Set(checkpoint.completedPassB || []);
+
+  if (RESUME_ENABLED) {
+    log(`\n[INFO] Resume enabled. Checkpoint file: ${CHECKPOINT_FILE}`);
+    if (completedPassA.size) log(`[INFO] Pass A already completed for: ${Array.from(completedPassA).join(', ')}`);
+    if (completedPassB.size) log(`[INFO] Pass B already completed for: ${Array.from(completedPassB).join(', ')}`);
+  }
 
   // Pass A for ALL tables first
   for (const tableName of tableNames) {
@@ -1628,14 +1748,35 @@ async function main() {
       continue;
     }
     const columns = await fetchTableColumns(tableMeta.id);
-    const job = await importTable(tableMeta, columns, allTableIdMaps, { deferLinks: true });
+    let job = null;
+
+    if (RESUME_ENABLED && completedPassA.has(tableName)) {
+      // Pass A was already completed in a prior run; just prepare the Pass B job using current DB state.
+      job = await preparePassBJob(tableMeta, columns, allTableIdMaps);
+    } else {
+      job = await importTable(tableMeta, columns, allTableIdMaps, { deferLinks: true });
+      if (RESUME_ENABLED) {
+        completedPassA.add(tableName);
+        saveCheckpoint({ completedPassA: Array.from(completedPassA), completedPassB: Array.from(completedPassB) });
+      }
+    }
+
     if (job) passBJobs.push(job);
   }
 
   // Pass B for ALL tables after Pass A has fully populated row-id maps
   log(`\n=== Starting Pass B for ${passBJobs.length} table(s) (after Pass A for all tables) ===\n`);
   for (const job of passBJobs) {
+    const tn = job?.tableName || job?.tableMeta?.title || job?.tableMeta?.table_name;
+    if (RESUME_ENABLED && tn && completedPassB.has(tn)) {
+      log(`  [SKIP] Pass B already completed for ${tn} (checkpoint).`);
+      continue;
+    }
     await runPassB(job, allTableIdMaps);
+    if (RESUME_ENABLED && tn) {
+      completedPassB.add(tn);
+      saveCheckpoint({ completedPassA: Array.from(completedPassA), completedPassB: Array.from(completedPassB) });
+    }
   }
 
   log('\nAll done.');
