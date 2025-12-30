@@ -1,3 +1,67 @@
+## v1.0.5-beta
+
+_This release includes production-branch fixes and refinements since `v1.0.4-beta`, with a focus on stability, data integrity, and correctness across automations and inventory workflows. Issues #6, #7, and #8 are resolved in this release._
+
+---
+
+## Automation Correctness & Data Integrity
+
+- **Issue #6 – Storage location consistency on tray emptying (resolved).**  
+  When trays are emptied, automations now correctly update **both**:
+  - `products.tray_state` → `empty_tray`
+  - `products.storage_location` → `Consumed`  
+  This ensures downstream inventory logic, reporting, and ecommerce sync accurately reflect consumed product state.
+
+- **Issue #7 – Robust handling of linked fields during automation updates (resolved).**  
+  Fixed cases where automations attempted to write single-select or scalar values into **linked-record fields**, resulting in Airtable API errors.  
+  Link updates are now:
+  - properly resolved to record IDs,
+  - skipped or defaulted safely when targets are missing,
+  - logged clearly when corrective action is required.
+
+- **Issue #8 – Default storage location enforcement (resolved).**  
+  Automations now guarantee that newly created or updated products always have a valid `storage_location`.  
+  If unset or invalid, the location is automatically defaulted to **“Products Storage”**, preventing orphaned inventory records and downstream sync issues.
+
+---
+
+## Inventory & Workflow Improvements
+
+- Improved tray-lifecycle automation logic so product state transitions (filled → fruiting → harvested → empty) are handled deterministically and idempotently.
+- Reduced edge cases where partial automation runs could leave products in ambiguous states.
+- Improved guard-clauses and validation around automation inputs to avoid silent failures.
+
+---
+
+## Error Handling & Logging
+
+- Added clearer error messages and logging paths when automations encounter:
+  - missing linked records,
+  - invalid field values,
+  - unexpected schema mismatches.
+- Improved resilience of long-running automations by ensuring recoverable failures do not halt batch execution.
+
+---
+
+## Schema & Documentation Alignment
+
+- Minor documentation updates to reflect corrected automation behavior and resolved edge cases.
+- Ensured automation assumptions remain aligned with the current Airtable schema (no reliance on deprecated fields).
+
+---
+
+## Summary
+
+`v1.0.5-beta` is a **production-stability release** that:
+
+- Resolves **Issues #6, #7, and #8**
+- Fixes incorrect handling of linked-record fields
+- Enforces consistent storage-location state
+- Improves automation resilience and correctness
+- Reduces the risk of inventory drift and API errors
+
+This release is recommended for all production deployments prior to further feature expansion.
+
 ## v1.0.4-beta
 
 _This release includes updates from both the `nocodb_migration` branch and recent fixes on the `production` branch. It continues the migration work toward full NocoDB compatibility while refining Airtable automations, Ecwid sync logic, and schema tooling._

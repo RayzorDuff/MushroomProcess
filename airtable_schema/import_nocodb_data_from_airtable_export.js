@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2025-12-29.3
+ * Version: 2025-12-29.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -67,6 +67,137 @@ const warn = (msg, ...rest) => {
   if (ENV && typeof ENV.logWarn === 'function') return ENV.logWarn([msg, ...rest].join(' '));
   return console.warn(`[WARN] ${msg}`, ...rest);
 };
+
+// ------------------------------
+// Retry + Link retry-queue helpers
+// ------------------------------
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function isRetryableApiError(err) {
+  const msg = (err && err.message) ? String(err.message) : String(err || '');
+  const m = msg.toLowerCase();
+  return (
+    m.includes('timeout') ||
+    m.includes('econnreset') ||
+    m.includes('socket hang up') ||
+    m.includes('etimedout') ||
+    m.includes('ecanceled') ||
+    m.includes('502') ||
+    m.includes('503') ||
+    m.includes('504')
+  );
+}
+
+async function apiCallWithRetry(method, url, data, { retries = 6, baseDelayMs = 750 } = {}) {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await apiCall(method, url, data);
+    } catch (err) {
+      attempt += 1;
+      if (attempt > retries || !isRetryableApiError(err)) throw err;
+      const delay = Math.min(30000, baseDelayMs * Math.pow(2, attempt - 1));
+      log(`[WARN] Retryable API error on ${method.toUpperCase()} ${url} (attempt ${attempt}/${retries}): ${err?.message || err}`);
+      await sleep(delay);
+    }
+  }
+}
+
+// Persisted queue for failed link updates so reruns can pick up where they left off.
+// Does NOT require env vars; defaults are used if not provided.
+const LINK_RETRY_QUEUE_PATH = process.env.NOCODB_LINK_RETRY_QUEUE_PATH
+  ? path.resolve(process.cwd(), process.env.NOCODB_LINK_RETRY_QUEUE_PATH)
+  : path.resolve(process.cwd(), '.nocodb_link_retry_queue.json');
+
+function readJsonFileSafe(p, fallback) {
+  try {
+    if (!fs.existsSync(p)) return fallback;
+    const raw = fs.readFileSync(p, 'utf8');
+    if (!raw || !raw.trim()) return fallback;
+    return JSON.parse(raw);
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function writeJsonFileSafe(p, obj) {
+  try {
+    fs.writeFileSync(p, JSON.stringify(obj, null, 2));
+  } catch (e) {
+    log(`[WARN] Could not write ${p}: ${e?.message || e}`);
+  }
+}
+
+function loadLinkRetryQueue() {
+  const q = readJsonFileSafe(LINK_RETRY_QUEUE_PATH, []);
+  return Array.isArray(q) ? q : [];
+}
+
+function saveLinkRetryQueue(queue) {
+  if (!Array.isArray(queue)) return;
+  writeJsonFileSafe(LINK_RETRY_QUEUE_PATH, queue);
+}
+
+function enqueueLinkRetry(queue, item, err) {
+  const now = new Date().toISOString();
+  const next = {
+    ...item,
+    attempts: Number(item?.attempts || 0),
+    lastError: err ? String(err?.message || err).slice(0, 800) : undefined,
+    lastAt: now,
+    firstAt: item?.firstAt || now,
+  };
+  queue.push(next);
+}
+
+let LINK_RETRY_QUEUE = null;
+
+async function drainLinkRetryQueue(queue, { maxAttempts = 10 } = {}) {
+  if (!Array.isArray(queue) || !queue.length) return;
+
+  const remaining = [];
+  for (const job of queue) {
+    if (!job) continue;
+    const attempts = Number(job.attempts || 0);
+    if (attempts >= maxAttempts) {
+      remaining.push(job);
+      continue;
+    }
+
+    try {
+      await ENV.setLinksExact({
+        tableId: job.tableId,
+        linkFieldId: job.linkFieldId,
+        recordId: job.recordId,
+        desiredIds: job.desiredIds,
+        relatedPkName: job.relatedPkName || null,
+      });
+      // success -> drop
+    } catch (err) {
+      const updated = {
+        ...job,
+        attempts: attempts + 1,
+        lastError: String(err?.message || err).slice(0, 800),
+        lastAt: new Date().toISOString(),
+      };
+      remaining.push(updated);
+      log(`[WARN] Link retry failed (${updated.attempts}/${maxAttempts}) for table=${job.tableName || job.tableId} recordId=${job.recordId} field=${job.field || job.linkFieldId}: ${updated.lastError}`);
+      await sleep(500);
+    }
+  }
+
+  queue.length = 0;
+  queue.push(...remaining);
+  saveLinkRetryQueue(queue);
+
+  if (queue.length) {
+    log(`[WARN] Link retry queue remaining: ${queue.length} item(s) (persisted to ${LINK_RETRY_QUEUE_PATH}).`);
+  } else {
+    try { if (fs.existsSync(LINK_RETRY_QUEUE_PATH)) fs.unlinkSync(LINK_RETRY_QUEUE_PATH); } catch (_) {}
+    log('[OK] Link retry queue drained.');
+  }
+}
 
 // ------------------------------
 // Resume / checkpoint helpers
@@ -358,7 +489,7 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
           if (f && String(f).trim()) qs.append('fields', String(f).trim());
         }
       }
-      const data = await apiCall('get', tableRecordsUrl(tableId, qs.toString(), false));
+      const data = await apiCallWithRetry('get', tableRecordsUrl(tableId, qs.toString(), false));
       const rawList = Array.isArray(data?.records) ? data.records : data?.list;
       const list = flattenNocoList(rawList);
       if (!Array.isArray(list)) {
@@ -386,7 +517,7 @@ async function listAllRows(tableId, limit = 1000, fields = []) {
         if (f && String(f).trim()) qs.append('fields', String(f).trim());
       }
     }
-    const data = await apiCall('get', tableRecordsUrl(tableId, qs.toString(), false));
+    const data = await apiCallWithRetry('get', tableRecordsUrl(tableId, qs.toString(), false));
     const rawList = Array.isArray(data?.list) ? data.list : data;
     const list = flattenNocoList(rawList);
     if (!Array.isArray(list)) {
@@ -1511,6 +1642,22 @@ async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
               `childTable=${meta.relatedTableId} childRowId=${childRowId} parentRowId=${item.rowId}: ` +
               `${err?.message || err}`
             );
+            if (LINK_RETRY_QUEUE) {
+              enqueueLinkRetry(
+                LINK_RETRY_QUEUE,
+                {
+                  tableId: meta.relatedTableId,
+                  tableName: String(meta.relatedTableId),
+                  field: String(childLinkFieldRef),
+                  linkFieldId: String(childLinkFieldRef),
+                  recordId: String(childRowId),
+                  desiredIds: [String(item.rowId)],
+                  relatedPkName: null,
+                },
+                err
+              );
+              saveLinkRetryQueue(LINK_RETRY_QUEUE);
+            }            
             if (NOCODB_DEBUG) debug(err);
           }
         }
@@ -1557,6 +1704,22 @@ async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
   
         } catch (err) {
           log(`  [WARN] Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${err?.message || err}`);
+          if (LINK_RETRY_QUEUE) {
+            enqueueLinkRetry(
+              LINK_RETRY_QUEUE,
+              {
+                tableId,
+                tableName,
+                field,
+                linkFieldId: meta.linkFieldId,
+                recordId: item.rowId,
+                desiredIds: (rt === 'bt' || rt === 'oo') ? [resolvedUniq[0]] : resolvedUniq,
+                relatedPkName: targetMaps.pkName,
+              },
+              err
+            );
+            saveLinkRetryQueue(LINK_RETRY_QUEUE);
+          }
           if (NOCODB_DEBUG) debug(err);
         }        
         
@@ -1577,6 +1740,22 @@ async function importTable(tableMeta, columns, allTableIdMaps, opts = {}) {
         });         
       } catch (err) {
         log(`  [WARN] Link update failed for ${tableName}.${field} rowId=${item.rowId}: ${err?.message || err}`);
+        if (LINK_RETRY_QUEUE) {
+          enqueueLinkRetry(
+            LINK_RETRY_QUEUE,
+            {
+              tableId,
+              tableName,
+              field,
+              linkFieldId: meta.linkFieldId,
+              recordId: item.rowId,
+              desiredIds: (rt === 'bt' || rt === 'oo') ? [resolvedUniq[0]] : resolvedUniq,
+              relatedPkName: targetMaps.pkName,
+            },
+            err
+          );
+          saveLinkRetryQueue(LINK_RETRY_QUEUE);
+        }
         if (NOCODB_DEBUG) debug(err);
       }
     }
@@ -1715,6 +1894,12 @@ async function main() {
   log(`Export dir: ${AIRTABLE_EXPORT_DIR}`);
   log(`Batch size: ${NOCODB_BATCH_SIZE}`);
 
+  // Load any persisted failed link updates from previous runs.
+  LINK_RETRY_QUEUE = loadLinkRetryQueue();
+  if (LINK_RETRY_QUEUE.length) {
+    log(`[INFO] Loaded ${LINK_RETRY_QUEUE.length} link retry item(s) from ${LINK_RETRY_QUEUE_PATH}.`);
+  }
+
   const FIX_SUM_ROLLUPS = (process.env.NOCODB_FIX_SUM_ROLLUPS || '1').toString() !== '0';
   const RESTORE_ROLLUPS = (process.env.NOCODB_RESTORE_ROLLUPS || '0').toString() === '1';
   let rollupOriginals = [];
@@ -1791,6 +1976,13 @@ async function main() {
     log('\n[INFO] Restoring Rollup fields to original rollup_function values ...');
     await restoreSumRollups(rollupOriginals);
     log('[INFO] Rollup restore complete.');
+  }
+
+  // Best-effort: retry any failed link updates (and persist any remaining).
+  if (LINK_RETRY_QUEUE && LINK_RETRY_QUEUE.length) {
+    log(`
+[INFO] Retrying ${LINK_RETRY_QUEUE.length} queued link update(s) ...`);
+    await drainLinkRetryQueue(LINK_RETRY_QUEUE);
   }
 
 }

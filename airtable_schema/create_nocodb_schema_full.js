@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-29.3
+ * Version: 2025-12-29.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -778,6 +778,9 @@ function translateAirtableFormulaToNoco(atFormula, atTable, airtableMaps) {
 
   // RECORD_ID() -> ""
   f = f.replace(/RECORD_ID\s*\(\s*\)/gi, `CONCAT({${nocoUUIDName}}, "")`);
+
+  // CONCATENATE() -> "CONCAT"
+  f = f.replace(/CONCATENATE\s*\(\s*([^,]+)\s*\)/gi, 'CONCAT($1)');
 
   // <> -> !=
   f = f.replace(/<>/g, '!=');

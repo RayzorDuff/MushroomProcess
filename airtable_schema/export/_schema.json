@@ -248,6 +248,16 @@
                     "name": "Freeze-Dried Mushrooms (5 g)"
                   },
                   {
+                    "color": "blueBright",
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)"
+                  },
+                  {
+                    "color": "cyanBright",
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)"
+                  },
+                  {
                     "color": "cyanLight1",
                     "id": "selsrXRNcv0HjhQ48",
                     "name": "Freezer Tray"
@@ -553,6 +563,16 @@
                     "color": "blueLight1",
                     "id": "selP2dElMMdtEHsQB",
                     "name": "Freeze-Dried Mushrooms (5 g)"
+                  },
+                  {
+                    "color": "blueBright",
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)"
+                  },
+                  {
+                    "color": "cyanBright",
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)"
                   },
                   {
                     "color": "cyanLight1",
@@ -1072,7 +1092,7 @@
           "id": "fldzfOifL6FVKrVed",
           "name": "label_subtitle_prod",
           "options": {
-            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d Grain\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d Substrate\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \" Fruiting Block\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \" LC Syringe\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \" Freeze Dried Mushrooms\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \" Freezer Tray\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \" Fresh Tray\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \" Mushrooms\", \r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")",
             "isValid": true,
             "referencedFieldIds": [
               "fldxEMPeLKGwRCK2M",
@@ -1290,6 +1310,16 @@
                     "color": "blueLight1",
                     "id": "selP2dElMMdtEHsQB",
                     "name": "Freeze-Dried Mushrooms (5 g)"
+                  },
+                  {
+                    "color": "blueBright",
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)"
+                  },
+                  {
+                    "color": "cyanBright",
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)"
                   },
                   {
                     "color": "cyanLight1",
@@ -2199,7 +2229,7 @@
           "id": "fld26lj7zLFP2Hpvj",
           "name": "total_volume_ml",
           "options": {
-            "precision": 0
+            "precision": 2
           },
           "type": "number"
         },
@@ -2228,7 +2258,7 @@
           "id": "fldIs56WzEt6UFLfT",
           "name": "remaining_volume_ml",
           "options": {
-            "precision": 0
+            "precision": 2
           },
           "type": "number"
         },
@@ -2405,6 +2435,16 @@
                     "color": "blueLight1",
                     "id": "selP2dElMMdtEHsQB",
                     "name": "Freeze-Dried Mushrooms (5 g)"
+                  },
+                  {
+                    "color": "blueBright",
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)"
+                  },
+                  {
+                    "color": "cyanBright",
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)"
                   },
                   {
                     "color": "cyanLight1",
@@ -3292,6 +3332,16 @@
                 "name": "Freeze-Dried Mushrooms (5 g)"
               },
               {
+                "color": "blueBright",
+                "id": "selmOdBkKZgRuG9qa",
+                "name": "Freeze-Dried Capsules (5g)"
+              },
+              {
+                "color": "cyanBright",
+                "id": "seluLMLnPuQL7cTjD",
+                "name": "Freeze-Dried Capsules (10g)"
+              },
+              {
                 "color": "cyanLight1",
                 "id": "selsrXRNcv0HjhQ48",
                 "name": "Freezer Tray"
@@ -3505,6 +3555,11 @@
                 "color": "orangeLight2",
                 "id": "selp8pnYcFMRnlNs7",
                 "name": "5g"
+              },
+              {
+                "color": "grayLight2",
+                "id": "seltBOPirmDorREkL",
+                "name": "10g"
               },
               {
                 "color": "redLight2",
@@ -4215,6 +4270,11 @@
                     "name": "5g"
                   },
                   {
+                    "color": "grayLight2",
+                    "id": "seltBOPirmDorREkL",
+                    "name": "10g"
+                  },
+                  {
                     "color": "redLight2",
                     "id": "selC7MfaopXMozR4b",
                     "name": "n/a"
@@ -4328,6 +4388,16 @@
                     "color": "blueLight1",
                     "id": "selP2dElMMdtEHsQB",
                     "name": "Freeze-Dried Mushrooms (5 g)"
+                  },
+                  {
+                    "color": "blueBright",
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)"
+                  },
+                  {
+                    "color": "cyanBright",
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)"
                   },
                   {
                     "color": "cyanLight1",
@@ -4648,7 +4718,15 @@
         {
           "id": "fldczHB6DuZtVJdt1",
           "name": "print_id",
-          "type": "autoNumber"
+          "options": {
+            "formula": "\"PRINT-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
+            "isValid": true,
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "formula"
         },
         {
           "id": "fld30QSxuOyp9wOMj",

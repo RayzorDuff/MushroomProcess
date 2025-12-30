@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Script: load_env.js
- * Version: 2025-12-29.3
+ * Version: 2025-12-29.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -834,18 +834,25 @@ async function apiCall(method, url, data) {
   const baseMaxAttempts = NOCODB_HTTP_RETRIES + 1;
 
   // Postgres transient states sometimes bubble up through NocoDB as:
-  //   HTTP 400 { error: "DATABASE_ERROR", code: "57P03" }
-  // This is not a schema/data issue; it usually means Postgres is still starting
-  // or recovering. Treat as transient and retry with a longer backoff budget.
+  //   HTTP 400/422 { error: "DATABASE_ERROR", code: "57P03" }
+  // This is not a schema/data issue; it usually means Postgres is still starting,
+  // restarting, or temporarily refusing connections. Treat as transient and retry
+  // with a longer backoff budget.
   const EXTRA_DB_ATTEMPTS = 12;
 
   function isDbTransientPayload(d) {
-    const code = (d && (d.code || d.pgcode || d.sqlState))
-      ? String(d.code || d.pgcode || d.sqlState)
-      : '';
-    const err = (d && (d.error || d.err || d.message))
-      ? String(d.error || d.err || d.message)
-      : '';
+    // Common forms:
+    //   { error: "DATABASE_ERROR", code: "57P03" }
+    //   { error: { message: "...", code: "57P03" } }
+    const code =
+      d && (d.code || d.pgcode || d.sqlState || (d.error && d.error.code))
+        ? String(d.code || d.pgcode || d.sqlState || (d.error && d.error.code))
+        : '';
+    const err =
+      d && (d.error || d.err || d.message || (d.error && d.error.message))
+        ? String(d.error || d.err || d.message || (d.error && d.error.message))
+        : '';
+
     // 57P03 = "cannot connect now" / "the database system is starting up"
     // 57P01/57P02 also represent shutdown/crash states.
     if (code === '57P03' || code === '57P01' || code === '57P02') return true;
@@ -865,11 +872,10 @@ async function apiCall(method, url, data) {
     try {
       const res = await api.request({ method, url, data });
 
-      if (res.status >= 200 && res.status < 300) {
-        return res.data;
-      }
+      if (res.status >= 200 && res.status < 300) return res.data;
 
-      const dbTransient = res.status === 400 && isDbTransientPayload(res.data);
+      const dbTransient =
+        (res.status === 400 || res.status === 422) && isDbTransientPayload(res.data);
       if (dbTransient) sawDbTransient = true;
 
       const transient = isTransientStatus(res.status) || dbTransient;
@@ -878,13 +884,17 @@ async function apiCall(method, url, data) {
       if (transient && inBudget) {
         const base = NOCODB_HTTP_RETRY_BACKOFF_MS;
         const waitMs = dbTransient ? Math.max(2000, base * attempt * 2) : base * attempt;
+        if (NOCODB_DEBUG) {
+          console.log(
+            `[DEBUG] Retrying API ${method.toUpperCase()} ${url} (status=${res.status}) in ${waitMs}ms ...`
+          );
+        }
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
 
       const payload = res.data ? JSON.stringify(res.data) : res.statusText;
       const e = new Error(`${method.toUpperCase()} ${url} -> ${res.status} ${payload}`);
-      // Attach response so the catch block can surface status reliably.
       e.response = res;
       throw e;
     } catch (err) {
@@ -895,7 +905,8 @@ async function apiCall(method, url, data) {
         (err && (err.code === 'ECONNABORTED' || String(err.message || '').toLowerCase().includes('timeout'))) ||
         status === 408;
 
-      const dbTransient = status === 400 && isDbTransientPayload(dataPayload);
+      const dbTransient =
+        (status === 400 || status === 422) && isDbTransientPayload(dataPayload);
       if (dbTransient) sawDbTransient = true;
 
       const transient = isTimeout || isTransientStatus(status) || dbTransient;
@@ -904,6 +915,11 @@ async function apiCall(method, url, data) {
       if (transient && inBudget) {
         const base = NOCODB_HTTP_RETRY_BACKOFF_MS;
         const waitMs = dbTransient ? Math.max(2000, base * attempt * 2) : base * attempt;
+        if (NOCODB_DEBUG) {
+          console.log(
+            `[DEBUG] Retrying API ${method.toUpperCase()} ${url} (status=${status}) in ${waitMs}ms ...`
+          );
+        }
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
