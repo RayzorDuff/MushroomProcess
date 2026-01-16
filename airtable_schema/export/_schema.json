@@ -1217,6 +1217,16 @@
           "id": "viw7fwcselxr7YBjP",
           "name": "Active Products",
           "type": "grid"
+        },
+        {
+          "id": "viwUL4gsb8bAIROHp",
+          "name": "Active Rooted Psyche",
+          "type": "grid"
+        },
+        {
+          "id": "viwcx0xtA7pRoyigo",
+          "name": "All Rooted Psyche",
+          "type": "grid"
         }
       ]
     },
@@ -1724,6 +1734,11 @@
                 "name": "Contaminated"
               },
               {
+                "color": "tealBright",
+                "id": "selarxrteYChhVhhF",
+                "name": "Inviable"
+              },
+              {
                 "color": "redLight2",
                 "id": "selnTHfgknaQHBZK2",
                 "name": "SpawnToBulk"
@@ -2006,7 +2021,7 @@
           "id": "fldT7IkbZv9nEjcvB",
           "name": "name (from item_id) (from grain_inputs)",
           "options": {
-            "formula": "ARRAYSLICE({fldPZ4IqstB0rDnav}, 0, 1)",
+            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldPZ4IqstB0rDnav}, 0, 1)),'[\"{}]', '')",
             "isValid": true,
             "referencedFieldIds": [
               "fldPZ4IqstB0rDnav"
@@ -2058,7 +2073,7 @@
           "id": "fld7bNeLpJvxw4MPG",
           "name": "name (from item_id) (from substrate_inputs)",
           "options": {
-            "formula": "ARRAYSLICE({fldjBLOy9UQLYTmZv}, 0, 1)",
+            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldjBLOy9UQLYTmZv}, 0, 1)),'[\"{}]', '')",
             "isValid": true,
             "referencedFieldIds": [
               "fldjBLOy9UQLYTmZv"
@@ -2073,7 +2088,7 @@
           "id": "fldayxHaz17ZgfAt5",
           "name": "process_type (from steri_run_id) (from substrate_inputs)",
           "options": {
-            "formula": "ARRAYSLICE({fldomaryNlKSgW3pI}, 0, 1)",
+            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldomaryNlKSgW3pI}, 0, 1)),'[\"{}]', '')",
             "isValid": true,
             "referencedFieldIds": [
               "fldomaryNlKSgW3pI"
@@ -4073,6 +4088,11 @@
                 "color": "cyanDark1",
                 "id": "selAbRO8pULo5Jc8i",
                 "name": "PlateUsedToInoculatePlate"
+              },
+              {
+                "color": "tealDark1",
+                "id": "selcR45QJOjR0TvjJ",
+                "name": "Inviable"
               }
             ]
           },
@@ -5492,6 +5512,11 @@
                 "color": "tealLight2",
                 "id": "selCX69OPB91AMixj",
                 "name": "CANCELLED"
+              },
+              {
+                "color": "blueLight1",
+                "id": "selIFRcl64qgEccok",
+                "name": "AWAITING_PROCESSING"
               },
               {
                 "color": "greenLight2",

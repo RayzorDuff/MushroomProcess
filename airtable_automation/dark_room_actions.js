@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2025-12-12.1
+ * Version: 2026-01-16.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -190,7 +190,7 @@ try {
     return;
   }
 
-  if (action === 'Contaminated') {
+  if (action === 'Contaminated' || action === 'Inviable') {
     const sf = lotsTbl.getField('status');
     const retired = choiceByName(sf, 'Retired') || choiceByName(sf, 'Consumed');
     if (!retired) {
@@ -198,7 +198,7 @@ try {
       throw new Error(`lots.status missing "Retired" (or Consumed). Has: ${names}`);
     }
     await lotsTbl.updateRecordAsync(lot.id, { status: { id: retired.id } });
-    await logEvent(lot.id, 'Contaminated', 'Dark Room');
+    await logEvent(lot.id, action, 'Dark Room');
     await lotsTbl.updateRecordAsync(lot.id, { action: null, ui_error: null, ui_error_at: null });
     return;
   }
