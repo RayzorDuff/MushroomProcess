@@ -1,4 +1,4 @@
-param([string]$ServiceName = "JD268BTPrintDaemon")
+param([string]$ServiceName = "MushroomProcessPrintDaemon")
 $nssm = "nssm.exe"
 & $nssm stop $ServiceName
 & $nssm remove $ServiceName confirm

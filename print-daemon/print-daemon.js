@@ -20,7 +20,29 @@
  * =============================================================================
 **/
 
-require('dotenv').config();
+/**
+ * Multi-instance support:
+ * - You can run multiple daemons on the same machine by setting DAEMON_INSTANCE_ID (and optionally ENV_FILE).
+ * - Each instance uses its own logs/temp paths and can filter/claim jobs independently.
+ */
+
+// Support loading a non-default env file BEFORE reading process.env settings.
+// Usage:
+//   node print-daemon.js --env-file C:\path\to\.env.nontrays
+// or set ENV_FILE / DOTENV_CONFIG_PATH in the environment.
+const dotenv = require('dotenv');
+const argv = process.argv.slice(2);
+function getArgValue(flag) {
+  const idx = argv.findIndex(a => a === flag || a.startsWith(flag + '='));
+  if (idx < 0) return '';
+  const a = argv[idx];
+  if (a.includes('=')) return a.split('=').slice(1).join('=').trim();
+  return String(argv[idx + 1] || '').trim();
+}
+const envFileFromArg = getArgValue('--env-file') || getArgValue('--env') || '';
+const ENV_FILE = envFileFromArg || process.env.ENV_FILE || process.env.DOTENV_CONFIG_PATH || '';
+dotenv.config(ENV_FILE ? { path: ENV_FILE } : undefined);
+
 const axios = require('axios').default;
 const fs = require('fs');
 const path = require('path');
@@ -29,8 +51,18 @@ const QRCode = require('qrcode');
 const { print } = require('pdf-to-printer');
 const { spawn } = require('child_process');
 
-const LOG_DIR = process.env.LOG_DIR || process.env.PDF_ARCHIVE_DIR || './logs';
+const os = require('os');
+
+const INSTANCE_ID = (process.env.DAEMON_INSTANCE_ID || process.env.INSTANCE_ID || '').trim()
+  || `${os.hostname()}-${process.pid}`;
+
+// Instance-scoped directories to avoid collisions when multiple daemons run on the same machine.
+const BASE_LOG_DIR = process.env.LOG_DIR || process.env.PDF_ARCHIVE_DIR || './logs';
+const LOG_DIR = path.resolve(__dirname, BASE_LOG_DIR, INSTANCE_ID);
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+
+const TEMP_DIR = path.resolve(__dirname, process.env.TEMP_DIR || path.join('tmp', INSTANCE_ID));
+if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
 
 function nowStamp() {
   return new Date().toISOString().replace(/[:.]/g, '-');
@@ -42,6 +74,23 @@ const STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || 'steril
 const LOTS_TABLE = process.env.LOTS_TABLE || 'lots';
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || 'Queue_All';
+
+// Optional: job routing without relying on Airtable views.
+// If PRINT_TARGET_VALUE is set, the daemon will only process jobs where
+//   {PRINT_TARGET_FIELD} == PRINT_TARGET_VALUE
+// Example:
+//   PRINT_TARGET_FIELD=print_target
+//   PRINT_TARGET_VALUE=ZEBRA
+const PRINT_TARGET_FIELD = (process.env.PRINT_TARGET_FIELD || 'print_target').trim();
+const PRINT_TARGET_VALUE = (process.env.PRINT_TARGET_VALUE || '').trim();
+
+// Optional: further Airtable formula/NocoDB where clause overrides (advanced).
+const AIRTABLE_EXTRA_FILTER_FORMULA = (process.env.AIRTABLE_EXTRA_FILTER_FORMULA || '').trim();
+const NOCODB_EXTRA_WHERE = (process.env.NOCODB_EXTRA_WHERE || '').trim();
+
+// Optional: allow disabling sterilizer sheet printing for secondary daemon instances.
+const ENABLE_STERI_SHEETS = String(process.env.ENABLE_STERI_SHEETS || 'true').toLowerCase() === 'true';
+
 
 const AIRTABLE_BASE_ID = (process.env.AIRTABLE_BASE_ID);
 const AIRTABLE_API_KEY =
@@ -124,6 +173,56 @@ const SUMATRA_SETTINGS = process.env.SUMATRA_PRINT_SETTINGS || 'noscale,portrait
 
 const PRINT_DRIVER_DELAY = parseInt(process.env.PRINT_DRIVER_DELAY) || 1000;
 
+/* --- multi-instance / printer locking --- */
+const LOCK_DIR = path.resolve(__dirname, process.env.LOCK_DIR || 'locks');
+if (!fs.existsSync(LOCK_DIR)) fs.mkdirSync(LOCK_DIR, { recursive: true });
+
+const PRINTER_LOCK_TIMEOUT_MS = safeNum(process.env.PRINTER_LOCK_TIMEOUT_MS, 60000);
+const PRINTER_LOCK_RETRY_MS = safeNum(process.env.PRINTER_LOCK_RETRY_MS, 250);
+
+function lockFileForPrinter(printerName) {
+  const safe = String(printerName || 'default')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .slice(0, 120);
+  return path.join(LOCK_DIR, `printer_${safe}.lock`);
+}
+
+async function withPrinterLock(printerName, fn) {
+  // If no printer name, skip locking (Windows default printer).
+  if (!printerName) return await fn();
+
+  const lockPath = lockFileForPrinter(printerName);
+  const start = Date.now();
+  let fd = null;
+
+  while (Date.now() - start < PRINTER_LOCK_TIMEOUT_MS) {
+    try {
+    // Claim the job early (helps avoid collisions and makes debugging easier)
+    await markStatus(id, 'Printing', null);
+
+      fd = fs.openSync(lockPath, 'wx'); // exclusive create
+      fs.writeFileSync(fd, `${INSTANCE_ID} ${new Date().toISOString()}
+`, { encoding: 'utf8' });
+      break;
+    } catch (e) {
+      // lock held: retry
+      await new Promise(r => setTimeout(r, PRINTER_LOCK_RETRY_MS));
+    }
+  }
+
+  if (!fd) {
+    throw new Error(`Timed out waiting for printer lock: ${printerName} (${lockPath})`);
+  }
+
+  try {
+    return await fn();
+  } finally {
+    try { fs.closeSync(fd); } catch {}
+    try { fs.unlinkSync(lockPath); } catch {}
+  }
+}
+
+
 /* --- sheet-specific env --- */
 
 const STERI_SHEET_PRINTER = process.env.STERI_SHEET_PRINTER || ''; // never fall back to label printer
@@ -164,19 +263,47 @@ const LINE_GAP = 2;
 async function fetchQueued(viewName) {
 
   if (DB_BACKEND === 'airtable') {
-    const params = new URLSearchParams({
-      view: viewName,
-      filterByFormula: `({print_status} = 'Queued')`,
-      maxRecords: '25'
-    });
+// Build Airtable filter formula:
+// - always require print_status='Queued'
+// - optionally require print_target match (PRINT_TARGET_VALUE)
+// - optionally AND in AIRTABLE_EXTRA_FILTER_FORMULA
+const parts = [`({print_status} = 'Queued')`];
+
+if (PRINT_TARGET_VALUE) {
+  parts.push(`({${PRINT_TARGET_FIELD}} = '${PRINT_TARGET_VALUE.replace(/'/g, "\\'")}')`);
+}
+if (AIRTABLE_EXTRA_FILTER_FORMULA) {
+  parts.push(`(${AIRTABLE_EXTRA_FILTER_FORMULA})`);
+}
+
+const filterByFormula = parts.length === 1 ? parts[0] : `AND(${parts.join(',')})`;
+
+const params = new URLSearchParams({
+  view: viewName,
+  filterByFormula,
+  maxRecords: '25'
+});
     
     const { data } = await API.get(`${PRINT_QUEUE_TABLE}?${params.toString()}`);
     return data.records || [];
   
   } else {
     // "viewName" is ignored for NocoDB, kept for API compatibility with old code.
+    // Build NocoDB where clause:
+    // - always require print_status='Queued'
+    // - optionally require print_target match (PRINT_TARGET_VALUE)
+    // - optionally AND in NOCODB_EXTRA_WHERE (advanced)
+    let where = '(print_status,eq,Queued)';
+    if (PRINT_TARGET_VALUE) {
+      const t = `(${PRINT_TARGET_FIELD},eq,${PRINT_TARGET_VALUE})`;
+      where = `and(${where},${t})`;
+    }
+    if (NOCODB_EXTRA_WHERE) {
+      where = `and(${where},(${NOCODB_EXTRA_WHERE}))`;
+    }
+
     const params = {
-      where: '(print_status,eq,Queued)',
+      where,
       limit: 25,
       offset: 0,
       sort: 'Id,asc',
@@ -198,30 +325,47 @@ async function fetchQueued(viewName) {
 /**
  * Update a single print_queue record's status (and optional error_msg) in NocoDB.
  */
+/**
+ * Update fields on a print_queue record (Airtable or NocoDB).
+ */
+async function updateQueueRecord(id, fields) {
+  if (id == null) return;
+  if (!fields || typeof fields !== 'object') return;
+
+  if (DB_BACKEND === 'airtable') {
+    const payload = { records: [{ id, fields }], typecast: true };
+    await API.patch(PRINT_QUEUE_TABLE, payload);
+  } else {
+    const url = `/api/v2/tables/${encodeURIComponent(PRINT_QUEUE_TABLE)}/records/${encodeURIComponent(id)}`;
+    await NC.patch(url, fields);
+  }
+}
+
+/**
+ * Update print_status (and optional error_msg) and stamp printed/claimed metadata.
+ * - When status is set to 'Printing', the daemon will set claimed_by/claimed_at (if those fields exist).
+ * - When status is set to 'Printed', the daemon will set printed_by/printed_at (if those fields exist).
+ */
 async function markStatus(id, status, errorMsg = null) {
   if (id == null) return;
 
-  if (DB_BACKEND === 'airtable') {
-    const payload = {
-      records: [{ id, fields: { print_status: status, error_msg: errorMsg } }],
-      typecast: true,
-    };
-    await API.patch(PRINT_QUEUE_TABLE, payload);
-  } else {
-    const payload = {
-      print_status: status,
-    };
-    if (errorMsg) {
-      payload.error_msg = String(errorMsg);
-    }
-  
-    const url = `/api/v2/tables/${encodeURIComponent(PRINT_QUEUE_TABLE)}/records/${encodeURIComponent(
-      id
-    )}`;
-  
-    await NC.patch(url, payload);
+  const fields = { print_status: status };
+  if (errorMsg !== undefined) fields.error_msg = errorMsg;
+
+  const iso = new Date().toISOString();
+
+  if (String(status).toLowerCase() === 'printing') {
+    fields.claimed_by = INSTANCE_ID;
+    fields.claimed_at = iso;
   }
+  if (String(status).toLowerCase() === 'printed') {
+    fields.printed_by = INSTANCE_ID;
+    fields.printed_at = iso;
+  }
+
+  await updateQueueRecord(id, fields);
 }
+
 
 /* ---------- Gather label fields ---------- */
 function gatherFields(rec) {
@@ -929,34 +1073,36 @@ async function printWithSumatraTo(
 }
 
 async function printLabelPdfWithFallback(pdfPath) {
-  // Try Sumatra, then pdf-to-printer
-  const ok = await printWithSumatraTo(
-    PRINTER,
-    pdfPath,
-    SUMATRA_SETTINGS
-  );
-  if (ok) return true;
+  return await withPrinterLock(PRINTER, async () => {
+    // Try Sumatra, then pdf-to-printer
+    const ok = await printWithSumatraTo(
+      PRINTER,
+      pdfPath,
+      SUMATRA_SETTINGS
+    );
+    if (ok) return true;
 
-  try {
-    const opts = { printer: PRINTER, silent: true, margin: 0 };
+    try {
+      const opts = { printer: PRINTER, silent: true, margin: 0 };
 
-    if (FORM_NAME) {
-      opts.paperSize = FORM_NAME;
-    } else {
-      opts.paperSize = {
-        width: LABEL_W_IN || 4,
-        height: LABEL_H_IN || 2,
-      };
-      opts.landscape =
-        ORIENT === 'landscape' || FORCE_LAND;
+      if (FORM_NAME) {
+        opts.paperSize = FORM_NAME;
+      } else {
+        opts.paperSize = {
+          width: LABEL_W_IN || 4,
+          height: LABEL_H_IN || 2,
+        };
+        opts.landscape =
+          ORIENT === 'landscape' || FORCE_LAND;
+      }
+
+      await print(pdfPath, opts);
+      return true;
+    } catch (e) {
+      console.error('pdf-to-printer failed:', e.message || e);
+      return false;
     }
-
-    await print(pdfPath, opts);
-    return true;
-  } catch (e) {
-    console.error('pdf-to-printer failed:', e.message || e);
-    return false;
-  }
+  });
 }
 
 async function printSheetPdfNoFallback(
@@ -968,12 +1114,14 @@ async function printSheetPdfNoFallback(
   const target = jobPrinter || preferredPrinter || '';
   if (!target) return false;
 
-  const ok = await printWithSumatraTo(
-    target,
-    pdfPath,
-    'noscale,portrait'
-  );
-  return ok;
+  return await withPrinterLock(target, async () => {
+    const ok = await printWithSumatraTo(
+      target,
+      pdfPath,
+      'noscale,portrait'
+    );
+    return ok;
+  });
 }
 
 /* ---------- Process (branch by source_kind) ---------- */
@@ -984,9 +1132,11 @@ async function processRecord(rec) {
   const kind = (toFlat(f.source_kind) || '').toLowerCase();
 
   try {
-    const archiveDir = process.env.PDF_ARCHIVE_DIR
-      ? path.resolve(__dirname, process.env.PDF_ARCHIVE_DIR)
-      : path.join(__dirname, 'logs');
+    const archiveDir = path.resolve(
+      __dirname,
+      (process.env.PDF_ARCHIVE_DIR || BASE_LOG_DIR),
+      INSTANCE_ID
+    );
 
     if (!fs.existsSync(archiveDir)) {
       fs.mkdirSync(archiveDir, { recursive: true });
@@ -1049,28 +1199,11 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     );
     await renderLabelPDF(out, rec);
 
-    // Write PDF path back to the active backend
-    if (DB_BACKEND === 'airtable') {
-      try {
-        await API.patch(PRINT_QUEUE_TABLE, {
-          records: [{ id, fields: { pdf_path: out } }],
-          typecast: true,
-        });
-      } catch {}
-    } else {
-      try {
-        const url = `/api/v2/tables/${encodeURIComponent(
-          PRINT_QUEUE_TABLE
-        )}/records/${encodeURIComponent(id)}`;
-        await NC.patch(url, { pdf_path: out });
-      } catch (e) {
-        console.error(
-          'Failed to update pdf_path in NocoDB queue:',
-          e.message || e
-        );
-      }
-    }
-
+    // Write PDF path back to the active backend (best-effort)
+    try {
+      await updateQueueRecord(id, { pdf_path: out });
+    } catch {}
+    
     const ok = await printLabelPdfWithFallback(out);
     if (!ok) throw new Error('Label print failed');
     
@@ -1119,7 +1252,20 @@ async function cycle() {
       const kind = (
         toFlat(rec.fields?.source_kind) || ''
       ).toLowerCase();
-
+    
+      // Safety net: enforce PRINT_TARGET filtering even if the backend view/formula was misconfigured.
+      if (PRINT_TARGET_VALUE) {
+        const v = toFlat(rec.fields?.[PRINT_TARGET_FIELD]);
+        if (String(v || '').trim() !== PRINT_TARGET_VALUE) {
+          continue;
+        }
+      }
+    
+      // Optional: only one daemon instance should print sterilizer sheets.
+      if (!ENABLE_STERI_SHEETS && kind === 'steri_sheet') {
+        continue;
+      }
+    
       try {
         await processRecord(rec);
       } catch (ep) {
@@ -1146,7 +1292,7 @@ async function cycle() {
   }
 }
 
-console.log('JD268BT-CA print daemon (NocoDB queue)…');
+console.log(`MushroomProcess print daemon [${INSTANCE_ID}] (backend=${DB_BACKEND}) starting…`);
 console.log(
   `Queue: ${QUEUE_VIEW} | Poll: ${POLL_MS}ms | Label printer: ${
     PRINTER || '(default)'

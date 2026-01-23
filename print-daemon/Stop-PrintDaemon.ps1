@@ -1,12 +1,30 @@
 [CmdletBinding()]
 param(
-  [string]$WorkingDir = $PSScriptRoot
+  [string]$WorkingDir = $PSScriptRoot,
+  [string]$EnvFile = ".env",
+  [string]$InstanceId = ""
 )
+
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$pidFile = Join-Path $WorkingDir 'print-daemon.pid'
+# Determine instance ID (matches Start-PrintDaemon.ps1 naming)
+$inst = $InstanceId
+if (-not $inst) {
+  # best-effort: parse DAEMON_INSTANCE_ID from env file
+  $envPath = Join-Path $WorkingDir $EnvFile
+  if (Test-Path $envPath) {
+    $line = (Get-Content $envPath | Where-Object { $_ -match '^\s*DAEMON_INSTANCE_ID\s*=' } | Select-Object -First 1)
+    if ($line) {
+      $parts = $line.Split('=',2)
+      if ($parts.Count -eq 2) { $inst = $parts[1].Trim().Trim('"').Trim("'") }
+    }
+  }
+}
+if (-not $inst) { $inst = "default" }
+
+$pidFile = Join-Path $WorkingDir ("print-daemon.$inst.pid")
 if (-not (Test-Path $pidFile)) {
   Write-Warning "PID file not found: $pidFile"
   return

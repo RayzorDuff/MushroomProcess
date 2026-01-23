@@ -107,6 +107,34 @@ Notes:
 ## 4. Running the Daemon (Foreground)
 
 From PowerShell in the daemon directory:
+### Multi-instance (two printers / one host)
+
+If you want **two daemons on the same Windows machine** (e.g., one for trays on the JD-268 and one for everything else on the Zebra GK420t), use **two separate env files** and a unique `DAEMON_INSTANCE_ID` for each.
+
+Example:
+
+- `.env.trays`  
+  - `DAEMON_INSTANCE_ID=trays`
+  - `QUEUE_VIEW=Queue_All_Trays` *(or)* `PRINT_TARGET_VALUE=TRAYS`
+  - `PRINTER_NAME=JD-268BT_Bluetooth`
+  - `ENABLE_STERI_SHEETS=false`
+
+- `.env.labels`  
+  - `DAEMON_INSTANCE_ID=labels`
+  - `QUEUE_VIEW=Queue_All_but_Trays` *(or)* `PRINT_TARGET_VALUE=ZEBRA`
+  - `PRINTER_NAME=Zebra GK420t`
+  - `ENABLE_STERI_SHEETS=true`
+  - `STERI_SHEET_PRINTER=Your Letter Printer`
+
+Run each instance:
+
+```powershell
+.\Start-PrintDaemon.ps1 -EnvFile .env.trays  -InstanceId trays
+.\Start-PrintDaemon.ps1 -EnvFile .env.labels -InstanceId labels
+```
+
+The daemon creates per-instance log/PDF directories and uses lock files to prevent printer collisions.
+
 
 ```powershell
 node .\print-daemon.js

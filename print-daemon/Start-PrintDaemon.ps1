@@ -1,5 +1,5 @@
 ﻿<# 
-  Starts the JD268BT-CA print daemon.
+  Starts the MushroomProcess print daemon.
   - Loads .env into process env (in case any tool other than dotenv needs it)
   - Verifies Node.js, printer, and npm deps
   - Launches node print-daemon.js with stdout/stderr to logs
@@ -8,6 +8,8 @@
 [CmdletBinding()]
 param(
   [string]$WorkingDir = $PSScriptRoot,
+  [string]$EnvFile = ".env",   # supports multi-instance: pass ".env.trays" / ".env.nontrays"
+  [string]$InstanceId = "",    # optional: overrides DAEMON_INSTANCE_ID for this process
   [switch]$NoInstall,          # skip npm install
   [switch]$Foreground          # run in foreground (no background process/log redirect)
 )
@@ -56,7 +58,13 @@ Set-Location $WorkingDir
 Write-Info "WorkingDir: $(Get-Location)"
 
 # Load .env into the PowerShell process (Node also loads via dotenv)
-Import-DotEnv -Path (Join-Path $WorkingDir '.env')
+Import-DotEnv -Path (Join-Path $WorkingDir $EnvFile)
+# Optional: set instance ID for multi-instance safety (propagates to Node)
+if ($InstanceId) {
+  [System.Environment]::SetEnvironmentVariable("DAEMON_INSTANCE_ID", $InstanceId, "Process")
+  $env:DAEMON_INSTANCE_ID = $InstanceId
+}
+
 
 # Required envs (Node script has defaults, but we warn here)
 $baseId = $env:AIRTABLE_BASE_ID
@@ -85,7 +93,10 @@ if (-not $NoInstall) {
 }
 
 # Ensure logs dir
-$logsDir = Join-Path $WorkingDir 'logs'
+$inst = $env:DAEMON_INSTANCE_ID
+if (-not $inst) { $inst = "default" }
+$logsDir = Join-Path (Join-Path $WorkingDir 'logs') $inst
+
 if (-not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
 
 # Check printer (if PRINTER_NAME present)
@@ -95,18 +106,18 @@ Ensure-Printer -PrinterName $env:PRINTER_NAME
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $stdoutLog = Join-Path $logsDir "stdout_$stamp.log"
 $stderrLog = Join-Path $logsDir "stderr_$stamp.log"
-$pidFile   = Join-Path $WorkingDir 'print-daemon.pid'
+$pidFile   = Join-Path $WorkingDir ("print-daemon.$inst.pid")
 
 # Start process
 if ($Foreground) {
   Write-Info "Starting daemon in FOREGROUND� (Ctrl+C to stop)"
   # Foreground: just run node, console output visible
-  node .\print-daemon.js
+  node .\print-daemon.js --env-file (Join-Path $WorkingDir $EnvFile)
 } else {
   Write-Info "Starting daemon in BACKGROUND�"
   $psi = New-Object System.Diagnostics.ProcessStartInfo
   $psi.FileName = "node"
-  $psi.Arguments = "print-daemon.js"
+  $psi.Arguments = "print-daemon.js --env-file `"" + (Join-Path $WorkingDir $EnvFile) + "`""
   $psi.WorkingDirectory = $WorkingDir
   $psi.RedirectStandardOutput = $true
   $psi.RedirectStandardError  = $true
