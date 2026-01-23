@@ -45,7 +45,7 @@ Filter Conditions:
 
 status is any of → Fruiting
 
-item_id has none of → LC-FLASK-300, LC-SYRINGE-200
+item_category has any of → fruiting_block
 
 These filters restrict the displayed records to active fruiting lots, excluding all liquid culture flask/syringe types.
 

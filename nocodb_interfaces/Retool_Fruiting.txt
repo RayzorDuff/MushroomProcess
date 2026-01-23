@@ -1,36 +1,88 @@
-﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Interface Name: Fruiting
-Generated: 2025-11-11 17:05
-Table: lots
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+------------------------------------------------------------
+Retool UI Spec: Fruiting Room
+Generated: 2026-01-23
+Primary Table: lots
+------------------------------------------------------------
 
 1) Resource
-   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
-   - Header: xc-token: {{ {{ global.noco_token }} }}
+   - Create a REST Resource named "NocoDB"
+   - Base URL: {YOUR_NOCO_BASE_URL}/api/v2
+   - Headers:
+       xc-token: { { global.noco_token } }
+       accept: application/json
 
 2) Query: getData
-   - GET /tables/lots/rows
-   - Optional where JSON:
-{"condition":"AND","children":[{"column_name":"status","comparator":"in","value":["Fruiting"]},{"column_name":"item_category","comparator":"in","value":["fruiting_block"]}]}
-
-
+   - Method: GET
+   - Endpoint: /tables/lots/rows
+   - Query params (optional):
+       where = {
+  "condition": "AND",
+  "children": [
+    {
+      "column_name": "status",
+      "comparator": "in",
+      "value": [
+        "Fruiting"
+      ]
+    },
+    {
+      "column_name": "item_category",
+      "comparator": "in",
+      "value": [
+        "fruiting_block"
+      ]
+    }
+  ]
+}
    - Transform: return data.list
 
-3) Table
-   - Data: {{ getData.data }}
-   - Visible columns: lot_id, item_name, status, action, operator, notes, ui_error
-   - Grouping:
-  - strain_species_strain (asc)
-   - Sorting:
-  None
+3) Table: Fruiting RoomTable
+   - Data: { getData.data }
+   - Primary key column: id (or lot_id if you prefer)
+   - Visible columns:
+       - action
+       - casing_applied_at
+       - fruiting_goal
+       - item_category
+       - item_id
+       - lot_id
+       - name (from item_id)
+       - notes
+       - spawned_at
+       - status
+       - strain_species_strain
+       - ui_error
+       - unit_size
+   - Grouping (if supported):
+       - name (asc)
+       - strain_species_strain (asc)
 
-4) Record Form
-   - Initial data: {{ table1.selectedRow.data }}
-   - Editable fields: lot_id, item_name, status, action, operator, notes, ui_error
+4) Record Form: Fruiting RoomForm
+   - Initial data: { Fruiting RoomTable.selectedRow.data }
+   - Editable fields (recommended):
+       - action
+       - casing_applied_at
+       - fruiting_goal
+       - item_category
+       - item_id
+       - lot_id
+       - name (from item_id)
+       - notes
+       - spawned_at
+       - status
+       - strain_species_strain
+       - ui_error
+       - unit_size
 
-5) Actions
-  - { "title":"Start Fruiting","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"StartFruiting"}]}}
-  - { "title":"Composted","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"Composted"}]}}
+5) Actions (button bar)
+   NOTE: These mirror Airtable’s pattern of writing to the single-select field `action`.
+   - Button: Contaminated  → PATCH selected row: set action = Contaminated
+   - Button: Compost Block  → PATCH selected row: set action = Composted
+   - Button: Apply Beneficial Trichoderma  → PATCH selected row: set action = ApplyBeneficialTrichoderma
+   - Button: Apply Nematodes  → PATCH selected row: set action = ApplyNematodes
 
-6) Notes
-   Tracks fruiting lifecycle; 'Composted' finalizes a block.
+   Implementation approach:
+   - Create a Query "setAction" (PATCH /tables/lots/rows/{{ id }})
+   - Body example:
+       { "action": "<VALUE>" }
+   - Each button triggers setAction with VALUE set to the desired action string.

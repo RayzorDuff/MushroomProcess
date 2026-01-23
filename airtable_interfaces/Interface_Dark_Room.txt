@@ -8,11 +8,12 @@ DATA & LAYOUT
 • Title: Dark Room
 • Data Source: lots
 • Filter:
-    status is any of [Inoculated, Colonizing, Fully Colonized]
+    status is any of [Inoculated, Colonizing, Fully Colonized, Fridge]
 • Sort: None
 • Group By: 
     1. item_id (A→Z)
-    2. strain_species_strain (A→Z)
+    2. status (First→Last)
+    3. strain_species_strain (A→Z)
 • List Item Fields:
     - Title: lot_id
     - Field 1: status
@@ -28,124 +29,46 @@ DATA & LAYOUT
 ----------------------------------------
 FIELDS SHOWN IN RECORD DETAIL
 ----------------------------------------
-1. Lot
-2. Item (linked field; shows item_id and name)
-3. Species
-4. Casing Lot
-5. Label Created At
-6. Grain Inoculated At
-7. Status
-8. Notes
-9. Validation
+1. lot_id
+2. item_id
+3. strain_species_strain
+4. casing_lot_id
+5. inoculated_at
+6. spawned_at
+7. casing_applied_at
+8. created_at
+9. status
+10. notes
+11. ui_error
+12. validation
 
 ----------------------------------------
 SECTIONS
 ----------------------------------------
+0. Record Button (top-right)
+   - Apply Casing  (action = ApplyCasing)
+
 1. Modify Status
    - Description: Actions for items remaining in the Dark Room
-   - Buttons: Shake and Break, Fully Colonized
+   - Buttons:
+       • Shake and Break  (action = Shake)
+       • Fully Colonized  (action = FullyColonized)
 
 2. Move Inventory
    - Description: Actions for items moving from the Dark Room to the Fridge
-   - Buttons: Cold Shock, Move to Fridge
+   - Buttons:
+       • Move to Fridge   (action = MoveToFridge)
+       • Cold Shock       (action = ColdShock)
 
 3. Transition Inventory
    - Description: Actions for items moving out of the Dark Room
-   - Buttons: Contaminated, Start Fruiting
+   - Buttons:
+       • Contaminated     (action = Contaminated)
+       • Inviable         (action = Inviable)
 
 4. Organism Introduction
    - Description: Actions for introducing organisms to the block substrate
-   - Buttons: Apply Diatomaceous Earth, Add Nematodes
-
-----------------------------------------
-BUTTONS AND ACTION LOGIC
-----------------------------------------
-(Each button uses Airtable “Update record” actions targeting the current Record Detail.)
-
-1. Apply Casing
-   - Set action = "ApplyCasing"
-   - Label After: "Casing Applied"
-   - Show check icon: true
-   - Color: Default (gray to pink)
-   - Record Source: Record Detail
-
-2. Shake and Break
-   - Set action = "Shake"
-   - Label After: "Shaken!"
-   - Show check icon: true
-   - Color: Default (gray to green)
-   - Record Source: Record Detail
-
-3. Fully Colonized
-   - Set action = "FullyColonized"
-   - Label After: "Marked as Colonized!"
-   - Show check icon: true
-   - Color: Default (gray to green)
-   - Record Source: Record Detail
-
-4. Cold Shock
-   - Set action = "ColdShock"
-   - Set status = "ColdShock"
-   - Label After: "Cold Shocked"
-   - Show check icon: true
-   - Color: Default (gray to teal)
-   - Record Source: Record Detail
-
-5. Move to Fridge
-   - Set action = "MoveToFridge"
-   - Label After: "Moved to Fridge!"
-   - Show check icon: true
-   - Color: Default (gray to yellow)
-   - Record Source: Record Detail
-
-6. Contaminated
-   - Set status = "Retired"
-   - Set action = "Contaminated"
-   - Label After: "Marked as Contaminated"
-   - Show check icon: true
-   - Color: Default (gray to orange)
-   - Record Source: Record Detail
-
-7. Start Fruiting
-   - Set action = "StartFruiting"
-   - Label After: "Updated"
-   - Show check icon: true
-   - Color: Gray → Green
-   - Record Source: Record Detail
-   - After update: move to next record
-
-8. Apply Beneficial Trichoderma
-   - Set action = "ApplyBeneficialTrichoderma"
-   - Label After: "Beneficial Trichoderma Applied"
-   - Show check icon: true
-   - Color: Default (gray to pink)
-   - Record Source: Record Detail
-
-9. Apply Diatomaceous Earth
-   - Set action = "ApplyDiatomaceousEarth"
-   - Label After: "Diatomaceous Earth Applied"
-   - Show check icon: true
-   - Color: Default (gray to green)
-   - Record Source: Record Detail
-
-10. Add Nematodes
-    - Set action = "AddNematodes"
-    - Label After: "Nematodes Applied"
-    - Show check icon: true
-    - Color: Gray → Green
-    - Record Source: Record Detail
-
-----------------------------------------
-NOTES ON FUNCTIONAL GROUPINGS
-----------------------------------------
-- Buttons are grouped logically to reflect workflow stages:
-  • Modify Status: in-process changes within dark room
-  • Move Inventory: physical relocation events
-  • Transition Inventory: stage progression or contamination
-  • Organism Introduction: biological control measures
-
-- Each button updates “action” (and sometimes “status”) field in the `lots` table.
-- Validation field appears informational and is not modified by buttons.
-
-
-
+   - Buttons:
+       • Apply Beneficial Trichoderma (action = ApplyBeneficialTrichoderma)
+       • Add Nematodes               (action = ApplyNematodes)
+       • Apply Diatomaceous Earth    (action = ApplyDiatomaceousEarth)
