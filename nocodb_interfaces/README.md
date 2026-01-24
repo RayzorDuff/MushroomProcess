@@ -1,14 +1,16 @@
-﻿# NocoDB & Retool Interface Bundle
+﻿# NocoDB + Appsmith Interface Bundle
 
 This folder contains:
 
 - **NocoDB creator scripts (Node.js)** – create views that mirror the Airtable Interfaces.
-- **Retool how-to text files** – instructions for building matching dashboards in Retool.
+- **Appsmith how-to text files** – instructions for building matching dashboards in Appsmith.
+- **Retool how-to text files** – legacy instructions (kept for reference).
 
 The goal is to approximate the Airtable operator experience (per station) using:
 
 - NocoDB views and filters, plus
-- Retool as a richer frontend when needed.
+- Appsmith as the frontend
+- n8n for automation workflows (replacing Airtable Scripting)
 
 ---
 
@@ -50,11 +52,11 @@ After running a script, check NocoDB’s UI to confirm the view appears as expec
 
 ---
 
-## 3. Retool How-To Files
+## 3. Appsmith How-To Files
 
-For each interface, you’ll see corresponding Retool instructions such as:
+For each interface, you’ll see corresponding Appsmith instructions such as:
 
-- `Retool_Dark_Room.txt`
+- `Appsmith_Dark_Room.txt`
 - `Retool_Fruiting.txt`
 - `Retool_Spawn_to_Bulk.txt`
 - etc.
@@ -66,7 +68,10 @@ Each document typically covers:
 - How to bind actions (e.g., PATCH requests to update status, call automation webhooks).
 - Where to surface error messages (analogous to Airtable’s `ui_error`).
 
-Use these notes to rebuild the equivalent of the Airtable Interfaces in Retool, backed by the NocoDB schema.
+Use these notes to rebuild the equivalent of the Airtable Interfaces in Appsmith, backed by the NocoDB schema.
+
+### Legacy Retool specs
+Retool specs are still present as `Retool_*.txt` for reference, but are not the recommended path if you’re using Appsmith + n8n.
 
 ---
 
@@ -76,3 +81,12 @@ Use these notes to rebuild the equivalent of the Airtable Interfaces in Retool, 
 - Field names and filters mirror the Airtable schema as exported to `_schema.json`.
   - If your NocoDB schema diverges, you may need to tweak field/table names in the scripts.
 - Keep your NocoDB environment variables in sync with the ones used in `nocodb_automation/` and the print daemon.
+
+---
+
+## 4. n8n Automation Strategy
+
+Airtable’s scripts in `airtable_automation/` are the current “source of truth” for workflow logic.
+When migrating, move this logic to **n8n** (webhooks or polling), and keep Appsmith focused on UI.
+
+See: `Appsmith_N8N_Automation_Strategy.md`.

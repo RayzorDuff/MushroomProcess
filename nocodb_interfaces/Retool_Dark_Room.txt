@@ -1,40 +1,90 @@
-﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Interface Name: Dark Room
-Generated: 2025-11-11 17:05
-Table: lots
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+------------------------------------------------------------
+Retool UI Spec: Dark Room
+Generated: 2026-01-23
+Primary Table: lots
+------------------------------------------------------------
 
 1) Resource
-   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
-   - Header: xc-token: {{ {{ global.noco_token }} }}
+   - Create a REST Resource named "NocoDB"
+   - Base URL: {YOUR_NOCO_BASE_URL}/api/v2
+   - Headers:
+       xc-token: { { global.noco_token } }
+       accept: application/json
 
 2) Query: getData
-   - GET /tables/lots/rows
-   - Optional where JSON:
-{"condition":"AND","children":[{"column_name":"status","comparator":"in","value":["Inoculated","Colonizing","FullyColonized","Fridge"]},{"column_name":"item_category","comparator":"in","value":["fruiting_block","grain","lc_flask","lc_syringe"]}]}
-
-
+   - Method: GET
+   - Endpoint: /tables/lots/rows
+   - Query params (optional):
+       where = {
+  "condition": "AND",
+  "children": [
+    {
+      "column_name": "status",
+      "comparator": "in",
+      "value": [
+        "Inoculated",
+        "Colonizing",
+        "Fully Colonized",
+        "Fridge"
+      ]
+    }
+  ]
+}
    - Transform: return data.list
 
-3) Table
-   - Data: {{ getData.data }}
-   - Visible columns: lot_id, item_name, status, action, casing_lot_id, operator, notes, ui_error
-   - Grouping:
-  - status (asc)
-   - Sorting:
-  None
+3) Table: Dark RoomTable
+   - Data: { getData.data }
+   - Primary key column: id (or lot_id if you prefer)
+   - Visible columns:
+       - action
+       - casing_applied_at
+       - casing_lot_id
+       - created_at
+       - inoculated_at
+       - item_id
+       - lot_id
+       - notes
+       - spawned_at
+       - status
+       - strain_species_strain
+       - ui_error
+       - validation
+   - Grouping (if supported):
+       - item_id (asc)
+       - status (asc)
+       - strain_species_strain (asc)
 
-4) Record Form
-   - Initial data: {{ table1.selectedRow.data }}
-   - Editable fields: lot_id, item_name, status, action, casing_lot_id, operator, notes, ui_error
+4) Record Form: Dark RoomForm
+   - Initial data: { Dark RoomTable.selectedRow.data }
+   - Editable fields (recommended):
+       - action
+       - casing_applied_at
+       - casing_lot_id
+       - inoculated_at
+       - item_id
+       - lot_id
+       - notes
+       - spawned_at
+       - status
+       - strain_species_strain
+       - ui_error
+       - validation
 
-5) Actions
-  - { "title":"Shake","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"Shake"}]}}
-  - { "title":"Move to Fridge","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"MoveToFridge"}]}}
-  - { "title":"Cold Shock","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"ColdShock"}]}}
-  - { "title":"Apply Casing","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"ApplyCasing"}]}}
-  - { "title":"Start Fruiting","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"StartFruiting"}]}}
-  - { "title":"Contaminated","type":"updateRow","meta":{"updates":[{"column_name":"action","value":"Contaminated"}]}}
+5) Actions (button bar)
+   NOTE: These mirror Airtable’s pattern of writing to the single-select field `action`.
+   - Button: Shake and Break  → PATCH selected row: set action = Shake
+   - Button: Fully Colonized  → PATCH selected row: set action = FullyColonized
+   - Button: Move to Fridge  → PATCH selected row: set action = MoveToFridge
+   - Button: Cold Shock  → PATCH selected row: set action = ColdShock
+   - Button: Contaminated  → PATCH selected row: set action = Contaminated
+   - Button: Inviable  → PATCH selected row: set action = Inviable
+   - Button: Apply Beneficial Trichoderma  → PATCH selected row: set action = ApplyBeneficialTrichoderma
+   - Button: Add Nematodes  → PATCH selected row: set action = ApplyNematodes
+   - Button: Apply Diatomaceous Earth  → PATCH selected row: set action = ApplyDiatomaceousEarth
+   - Button: Apply Casing  → PATCH selected row: set action = ApplyCasing
 
-6) Notes
-   Validation: FullyColonized for fridge/cold shock (except vendor syringes); ApplyCasing only for fruiting_block.
+   Implementation approach:
+   - Create a Query "setAction" (PATCH /tables/lots/rows/{{ id }})
+   - Body example:
+       { "action": "<VALUE>" }
+   - Each button triggers setAction with VALUE set to the desired action string.

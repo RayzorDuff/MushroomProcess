@@ -1,0 +1,71 @@
+------------------------------------------------------------
+Appsmith UI Spec: Package Freeze Dried
+Generated: 2026-01-23
+Primary Table: products
+------------------------------------------------------------
+
+This spec mirrors the Airtable interface behavior using:
+- Appsmith for UI (tables/forms/buttons)
+- NocoDB as the backend (REST API)
+- n8n for automation workflows (server-side equivalents of `airtable_automation/*`)
+
+1) Datasource: NocoDB (REST API)
+   - In Appsmith, create a **REST API datasource** named `NocoDB`
+   - Base URL: `{{appsmith.store.NOCO_BASE_URL}}/api/v2`
+   - Default Headers:
+       - `xc-token`: `{{appsmith.store.NOCO_TOKEN}}`
+       - `accept`: `application/json`
+
+   Suggested Appsmith “store” values (set once on app load):
+   - `NOCO_BASE_URL` (e.g. `https://your-nocodb.example.com`)
+   - `NOCO_TOKEN`
+
+2) Query: getData
+   - Create a query named `getData` (Datasource: `NocoDB`)
+   - Method: `GET`
+   - URL: `/tables/products/rows`
+   - Params:
+       - `where`: (JSON)
+         {"condition":"AND","children":[{"column_name":"tray_state","comparator":"eq","value":"freezer_tray"}]}
+   - Response transform (Appsmith):
+       - Use `{{ getData.data.list }}` as the table data source
+
+3) Widget: Table
+   - Add a **Table** widget, e.g. `tblMain`
+   - Table Data: `{{ getData.data.list }}`
+   - Suggested visible columns:
+       - Grouping:
+       - strain_species_strain (asc)
+       - Sorting:
+
+4) Widget: Record Editor
+   - Use either:
+       (a) a **Form** bound to `{{tblMain.selectedRow}}`, or
+       (b) a **Modal** containing inputs bound to `{{tblMain.selectedRow}}`
+   - On save, run `updateRow` (PATCH) (see below).
+
+5) Mutations
+   A) Query: updateRow
+      - Method: `PATCH`
+      - URL: `/tables/products/rows/{{ tblMain.selectedRow.id }}`
+      - Body (example):
+          {
+            "notes": {{ inpNotes.text }},
+            "status": {{ selStatus.selectedOptionValue }}
+          }
+
+   B) Action buttons (mirroring Airtable’s `action` single-select pattern)
+      - Create a query `setAction` (PATCH same URL as `updateRow`) with body:
+          { "action": {{ appsmith.store.pendingAction }} }
+      - Each button does:
+          1) `storeValue('pendingAction', '<ACTION>')`
+          2) run `setAction.run()`
+
+6) Automation handoff to n8n (recommended)
+   - In Airtable, many workflows are “set `action` → script runs → clears `action` / advances status”.
+   - In NocoDB + Appsmith, replicate this by triggering n8n when an `action` is set.
+   - Two common patterns:
+       A) Appsmith button calls an n8n webhook directly (best for deterministic UI actions).
+       B) NocoDB webhook (or n8n polling) watches for `action != null` and processes it.
+
+   See: `nocodb_interfaces/Appsmith_N8N_Automation_Strategy.md`.

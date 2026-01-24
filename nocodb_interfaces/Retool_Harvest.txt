@@ -1,35 +1,42 @@
-﻿â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Interface Name: Harvest
-Generated: 2025-11-11 17:05
-Table: products
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+------------------------------------------------------------
+Retool UI Spec: Harvest
+Generated: 2026-01-23
+Primary Table: lots
+------------------------------------------------------------
 
 1) Resource
-   - REST Resource ""NocoDB"": base = https://your-nocodb-instance.com/api/v2
-   - Header: xc-token: {{ {{ global.noco_token }} }}
+   - Create a REST Resource named "NocoDB"
+   - Base URL: {YOUR_NOCO_BASE_URL}/api/v2
+   - Headers:
+       xc-token: { { global.noco_token } }
+       accept: application/json
 
 2) Query: getData
-   - GET /tables/products/rows
-   - Optional where JSON:
-{"condition":"AND","children":[{"column_name":"harvest_item_category","comparator":"in","value":["fresh_tray","freezer_tray"]}]}
-
-
+   - Method: GET
+   - Endpoint: /tables/lots/rows
+   - Query params (optional):
+       where = {}
    - Transform: return data.list
 
-3) Table
-   - Data: {{ getData.data }}
-   - Visible columns: product_id, harvest_item, source_block_ids, harvest_weight_g, flush_no, operator, notes, ui_error, tray_state
-   - Grouping:
-  - flush_no (asc)
-   - Sorting:
-  None
+3) Table: HarvestTable
+   - Data: { getData.data }
+   - Primary key column: id (or lot_id if you prefer)
+   - Visible columns:
 
-4) Record Form
-   - Initial data: {{ table1.selectedRow.data }}
-   - Editable fields: product_id, harvest_item, source_block_ids, harvest_weight_g, flush_no, operator, notes, ui_error, tray_state
+   - Grouping (if supported):
+       - item_id (asc)
 
-5) Actions
-  - { "title":"Harvest","type":"createRow","meta":{"defaults":{"tray_state":"fresh_tray"}}}
+4) Record Form: HarvestForm
+   - Initial data: { HarvestTable.selectedRow.data }
+   - Editable fields (recommended):
 
-6) Notes
-   Creates tray products tied to fruiting blocks; multiple harvests per block supported.
+
+5) Actions (button bar)
+   NOTE: These mirror Airtable’s pattern of writing to the single-select field `action`.
+
+
+   Implementation approach:
+   - Create a Query "setAction" (PATCH /tables/lots/rows/{{ id }})
+   - Body example:
+       { "action": "<VALUE>" }
+   - Each button triggers setAction with VALUE set to the desired action string.

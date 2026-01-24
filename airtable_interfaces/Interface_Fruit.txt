@@ -1,4 +1,4 @@
-Interface Name: Fruit
+Interface Name: Fruiting Room
 Source Table: lots
 Record View: Record Detail
 
@@ -8,7 +8,7 @@ DATA & LAYOUT
 • Title: Fruit
 • Data Source: lots
 • Filter:
-    1. status is any of [Colonizing, Fruiting, Fully Colonized]
+    1. status is any of [Fruiting]
     2. item_category has any of [fruiting_block]
 • Sort: None
 • Group By: 
@@ -34,82 +34,28 @@ DATA & LAYOUT
 ----------------------------------------
 FIELDS SHOWN IN RECORD DETAIL
 ----------------------------------------
-1. Grain Input (name from item_id)
-2. Substrate Input (name from item_id)
-3. Size (unit_size)
-4. Category (item_category)
-5. Strain (strain_species_strain)
-6. Fruiting Goal (fruiting_goal)
-7. Notes (notes)
+1. name (from item_id) (from grain_inputs)
+2. name (from item_id) (from substrate_inputs)
+3. unit_size
+4. item_category
+5. strain_species_strain
+6. spawned_at
+7. casing_applied_at
+8. fruiting_goal
+9. notes
+10. ui_error
 
 ----------------------------------------
 SECTIONS
 ----------------------------------------
 1. Transition Block
    - Description: Transition a block into or out of the fruiting chamber
-   - Buttons: Compost Block, Start Fruiting
+   - Buttons:
+       • Contaminated   (action = Contaminated)
+       • Compost Block  (action = Composted)
 
 2. Organism Introduction
    - Description: Actions for introducing organisms to the block substrate
-   - Buttons: Apply Diatomaceous Earth, Apply Casing, Apply Nematodes, Apply Beneficial Trichoderma
-
-----------------------------------------
-BUTTONS AND ACTION LOGIC
-----------------------------------------
-(Each button uses Airtable “Update record” actions targeting the current Record Detail.)
-
-1. Compost Block
-   - Set action = "Composted"
-   - Set status = "Retired"
-   - Label After: "Composted"
-   - Show check icon: true
-   - Color: Default (gray → yellow)
-   - Record Source: Record Detail
-
-2. Start Fruiting
-   - Set status = "Fruiting"
-   - Set action = "StartFruiting"
-   - Label After: "Fruiting Started"
-   - Show check icon: true
-   - Color: Default (gray → purple)
-   - Record Source: Record Detail
-
-3. Apply Diatomaceous Earth
-   - Set action = "ApplyDiatomaceousEarth"
-   - Label After: "Diatomaceous Earth Applied"
-   - Show check icon: true
-   - Color: Default (gray → green)
-   - Record Source: Record Detail
-
-4. Apply Casing
-   - Set action = "ApplyCasing"
-   - Label After: "Casing Applied"
-   - Show check icon: true
-   - Color: Default (gray → pink)
-   - Record Source: Record Detail
-
-5. Apply Nematodes
-   - Set action = "ApplyNematodes"
-   - Label After: "Nematodes Applied"
-   - Show check icon: true
-   - Color: Default (gray → purple)
-   - Record Source: Record Detail
-
-6. Apply Beneficial Trichoderma
-   - Set action = "ApplyBeneficialTrichoderma"
-   - Label After: "Beneficial Trichoderma Applied"
-   - Show check icon: true
-   - Color: Default (gray → pink)
-   - Record Source: Record Detail
-
-----------------------------------------
-NOTES ON FUNCTIONAL GROUPINGS
-----------------------------------------
-- **Transition Block section** handles major workflow transitions (into fruiting or retiring blocks).
-- **Organism Introduction section** handles biological interventions within active fruiting operations.
-- All buttons update “action” (and sometimes “status”) fields in the `lots` table.
-- The “item_category = fruiting_block” filter ensures only fruiting-stage inventory appears.
-- No advanced conditional visibility rules are applied (Visibility: Always enabled).
-
-
-
+   - Buttons:
+       • Apply Beneficial Trichoderma (action = ApplyBeneficialTrichoderma)
+       • Apply Nematodes             (action = ApplyNematodes)

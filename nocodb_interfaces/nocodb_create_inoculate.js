@@ -1,78 +1,108 @@
-﻿/**
- * nocodb_create_inoculate.js
+/**
+ * Auto-generated from airtable_interfaces/Interface_Inoculate.txt
+ * Interface: Inoculate
+ * Table: lots
  *
- * Replacement for nocodb_create_inoculate_lc_to_grain_view.js
- * for the new source-first, multi-target inoculation flow.
- *
- * This script expects a helper function `createOrUpdateView(tableName, viewDef)`
- * which does the actual NocoDB API call or SQL. If your existing migration
- * scripts use a different helper (e.g. createView, upsertView, etc.), simply
- * swap that in and keep the viewDefinition object intact.
+ * Creates (or updates) a NocoDB grid view that mirrors the Airtable Interface:
+ * - Filters
+ * - Grouping
+ * - Visible fields (best-effort)
+ * - Row actions (best-effort; depends on your NocoDB build)
  */
+'use strict';
 
-const { createOrUpdateView } = require('./nocodb_view_helpers'); // adjust path/name if needed
+const BASE_URL = process.env.NOCO_BASE_URL;
+const PROJECT_SLUG = process.env.NOCO_PROJECT;
+const API_TOKEN = process.env.NOCO_TOKEN;
 
-async function main() {
-  const tableName = 'lots';
-
-  const viewDefinition = {
-    name: 'Inoculate',
-    title: 'Inoculate',
-    type: 'grid',          // standard grid view
-    isDefault: false,
-
-    // Filter: show candidate SOURCE lots
-    // item_category in (lc_flask, plate, grain) AND status in (Sterilized, Sealed, Ready)
-    filter: {
-      op: 'and',
-      items: [
-        {
-          column: 'item_category',
-          op: 'in',
-          value: ['lc_flask', 'plate', 'grain']
-        },
-        {
-          column: 'status',
-          op: 'in',
-          value: ['Sterilized', 'Sealed', 'Ready']
-        }
-      ]
-    },
-
-    // Sort / group are advisory; the UI layer (Retool) may also apply its own.
-    sort: [
-      { column: 'item_category', direction: 'asc' },
-      { column: 'strain_id',     direction: 'asc' },
-      { column: 'sterilized_at', direction: 'asc' }
-    ],
-
-    // Columns visible in the grid; you can add/remove to match your base.
-    columns: [
-      { name: 'lot_id',             visible: true }, // primary key
-      { name: 'item_category',      visible: true },
-      { name: 'status',             visible: true },
-      { name: 'strain_id',          visible: true },
-      { name: 'unit_size',          visible: true },
-      { name: 'remaining_volume_ml',visible: true },
-      { name: 'lc_volume_ml',       visible: true }, // per-target volume on source
-      { name: 'target_lot_ids',     visible: true }, // multi-link to targets
-      { name: 'override_inoc_time', visible: true },
-      { name: 'operator',           visible: true },
-      { name: 'notes',              visible: true },
-      { name: 'ui_error',           visible: true },
-      { name: 'validation',         visible: true }
-    ]
-  };
-
-  await createOrUpdateView(tableName, viewDefinition);
-  console.log('Inoculate view created/updated successfully.');
+if (!BASE_URL || !PROJECT_SLUG || !API_TOKEN) {
+  console.error('Missing env. Expected NOCO_BASE_URL, NOCO_PROJECT, NOCO_TOKEN.');
+  process.exit(1);
 }
 
-if (require.main === module) {
-  main().catch((err) => {
-    console.error('Error creating Inoculate view:', err);
-    process.exit(1);
+async function api(path, method = 'GET', body) {
+  const url = `${BASE_URL.replace(/\/$/, '')}/api/v2/${path.replace(/^\//, '')}`;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      accept: 'application/json',
+      'xc-token': API_TOKEN,
+      'content-type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API ${method} ${url} failed (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
+async function getTable(tableName) {
+  const tables = await api(`meta/projects/${PROJECT_SLUG}/tables`);
+  const list = tables.list || tables;
+  const table = list.find(t => t.title === tableName || t.table_name === tableName || t.name === tableName);
+  if (!table) throw new Error(`Table "${tableName}" not found in project "${PROJECT_SLUG}"`);
+  return table;
+}
+
+async function upsertView(tableId, title, meta) {
+  // Try to find existing
+  let views;
+  try {
+    views = await api(`meta/tables/${tableId}/views`);
+  } catch (e) {
+    // fallback older path
+    views = await api(`tables/${tableId}/views`);
+  }
+  const list = views.list || views;
+  const existing = list.find(v => v.title === title);
+  if (existing) {
+    return api(`meta/views/${existing.id}`, 'PATCH', { title, meta });
+  }
+  return api(`meta/tables/${tableId}/views`, 'POST', {
+    title,
+    type: 'grid',
+    fk_model_id: tableId,
+    meta,
   });
 }
 
-module.exports = { main };
+async function createViewAction(viewId, title, updates) {
+  try {
+    await api(`meta/views/${viewId}/actions`, 'POST', {
+      title,
+      type: 'updateRow',
+      meta: { updates },
+    });
+    console.log(`  ✓ Added action: ${title}`);
+  } catch (e) {
+    console.warn(`  ! Skipped action "${title}" (view actions not supported or endpoint differs).`);
+  }
+}
+
+async function main() {
+  console.log(`🔧 Upserting view: Inoculate`);
+  const table = await getTable('lots');
+  const meta = {
+    fields: [
+  "item_category",
+  "lot_id",
+  "remaining_volume_ml (if applicable)",
+  "status",
+  "strain_id"
+],
+    sort: [],
+    allowExport: false,
+    allowPrint: true,
+  };
+
+  const view = await upsertView(table.id, 'Inoculate', meta);
+  console.log(`✅ View ready: ${view.title || 'Inoculate'} (id=${view.id || 'unknown'})`);
+
+}
+
+main().catch(err => {
+  console.error('ERROR:', err.message);
+  process.exit(1);
+});
