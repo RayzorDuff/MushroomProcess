@@ -159,3 +159,11 @@ No separate field is required.
 # Environment Variables
 
 See .env.example and rename to .env
+
+# Usage
+
+```bash
+npm install node-fetch@2 dotenv
+node sync_ecommerce_to_ecwid.js
+node sync_ecwid_to_ecommerce_orders.js
+```
