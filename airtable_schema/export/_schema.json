@@ -4784,6 +4784,19 @@
           "type": "multipleRecordLinks"
         },
         {
+          "id": "fldzs9byHVVlp2h31",
+          "name": "item_category_mat (from lot_id)",
+          "options": {
+            "fieldIdInLinkedTable": "fldw7DNOwFyj4GoRH",
+            "isValid": true,
+            "recordLinkFieldId": "fldzMn7oEAYLRFMll",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
           "id": "fld94nolXzlrsADqY",
           "name": "public_link (from lot_id)",
           "options": {
@@ -4819,6 +4832,19 @@
             "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
+        },
+        {
+          "id": "fldISpmpR8c0JrT9b",
+          "name": "item_category_mat (from product_id)",
+          "options": {
+            "fieldIdInLinkedTable": "fldxEMPeLKGwRCK2M",
+            "isValid": true,
+            "recordLinkFieldId": "fldkr3OaVmeFwKfNn",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "multipleLookupValues"
         },
         {
           "id": "fld9UvueBfCCz6QvL",
@@ -4934,8 +4960,67 @@
           "type": "multipleRecordLinks"
         },
         {
-          "id": "flds0OvxvgufsRU1c",
-          "name": "target_printer",
+          "id": "fld9zrOZzgsRuQq9q",
+          "name": "print_target",
+          "options": {
+            "formula": "IF({fld30QSxuOyp9wOMj} = \"steri_sheet\",\"SHEETS\", \r\n  IF(OR(\r\n    {fldISpmpR8c0JrT9b} = \"fresh_mushrooms\",\r\n    {fldISpmpR8c0JrT9b} = \"freezer_tray\",\r\n    {fldISpmpR8c0JrT9b} = \"fresh_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_mushrooms\",\r\n    {fldzs9byHVVlp2h31} = \"freezer_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_tray\"    \r\n  ), \"TRAYS\", \r\n  \"ZEBRA\"))",
+            "isValid": true,
+            "referencedFieldIds": [
+              "fld30QSxuOyp9wOMj",
+              "fldISpmpR8c0JrT9b",
+              "fldzs9byHVVlp2h31"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "formula"
+        },
+        {
+          "id": "fldzhqX1P2I0BdAtN",
+          "name": "claimed_by",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldPDM9dl6R5Ni556",
+          "name": "claimed_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "flds77pXCg5g9bZ4p",
+          "name": "printed_by",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldM8KIXnFEiLCvTl",
+          "name": "printed_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldDGIArWZ76FeBnu",
+          "name": "pdf_path",
           "type": "singleLineText"
         },
         {
@@ -5279,6 +5364,16 @@
         {
           "id": "viw7Bj81RiAVe7Mkc",
           "name": "Queue_All",
+          "type": "grid"
+        },
+        {
+          "id": "viwv95oaWugjCApl0",
+          "name": "Queue_All_but_Trays",
+          "type": "grid"
+        },
+        {
+          "id": "viwoifVv9Huueywaf",
+          "name": "Queue_All_Trays",
           "type": "grid"
         }
       ]
