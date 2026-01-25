@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2026-01-24.1
+ * Version: 2026-01-24.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -36,6 +36,16 @@ require('./load_env');
  *   NOCODB_API_TOKEN personal access token (xc-token) 
  *   NOCODB_API_VERSION       ("v2" or "v3"; default: "v2")
  *
+ * OPTIONAL: Postgres SQL export mode (no NocoDB API calls)
+ *   If POSTGRES_DATA_SQL_PATH is set, this script will generate INSERT statements
+ *   (and, optionally, junction-table inserts for multipleRecordLinks) suitable for
+ *   loading into an external Postgres database created by POSTGRES_SQL_PATH from
+ *   create_nocodb_schema_full.js.
+ *
+ *   POSTGRES_DATA_SQL_PATH   e.g. ./postgres/data.sql
+ *   POSTGRES_SCHEMA          Optional schema name (default: public)
+ *   POSTGRES_INCLUDE_LINK_TABLES  true/false (default: true)
+ * 
  * Optional env:
  *   AIRTABLE_EXPORT_DIR   default: ./export
  *   NOCODB_BATCH_SIZE     default: 100
@@ -53,6 +63,221 @@ require('./load_env');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+
+// --------------------------------------------
+// Postgres SQL export mode
+// --------------------------------------------
+
+const POSTGRES_DATA_SQL_PATH = (process.env.POSTGRES_DATA_SQL_PATH || '').toString().trim();
+const POSTGRES_SCHEMA = (process.env.POSTGRES_SCHEMA || 'public').toString().trim() || 'public';
+const POSTGRES_INCLUDE_LINK_TABLES = ENV.envBool('POSTGRES_INCLUDE_LINK_TABLES', true);
+const POSTGRES_MODE = !!POSTGRES_DATA_SQL_PATH;
+
+function pgQuoteIdent(name) {
+  return '"' + String(name).replace(/"/g, '""') + '"';
+}
+
+function pgQuoteLiteral(val) {
+  if (val == null) return 'NULL';
+  const s = String(val);
+  return "'" + s.replace(/'/g, "''") + "'";
+}
+
+function pgValue(val) {
+  if (val == null) return 'NULL';
+  if (typeof val === 'number') {
+    if (!Number.isFinite(val)) return 'NULL';
+    return String(val);
+  }
+  if (typeof val === 'boolean') return val ? 'TRUE' : 'FALSE';
+  // Date-ish strings should remain quoted.
+  if (typeof val === 'string') return pgQuoteLiteral(val);
+  // Arrays/objects -> jsonb
+  return pgQuoteLiteral(JSON.stringify(val)) + '::jsonb';
+}
+
+function extractAirtableId(rec) {
+  return rec?.airtable_id || rec?.id || rec?.AirtableId || null;
+}
+
+function extractAirtableFields(rec) {
+  // airtable-export JSON is usually either:
+  //  A) { id: 'rec...', fields: { ... } }
+  //  B) { id: 'rec...', ...fieldValues }
+  if (rec && typeof rec === 'object' && rec.fields && typeof rec.fields === 'object') {
+    return rec.fields;
+  }
+  const out = { ...rec };
+  delete out.id;
+  delete out.createdTime;
+  delete out.created_time;
+  delete out.lastModifiedTime;
+  delete out.last_modified_time;
+  delete out.airtable_id;
+  return out;
+}
+
+function pgColumnsForTable(atTable) {
+  const cols = [];
+  // Always insert airtable_id so we can attach relations later.
+  cols.push('airtable_id');
+  for (const atField of atTable.fields || []) {
+    const type = (atField?.type || '').toString();
+    if (type === 'multipleRecordLinks') continue; // handled via junction tables
+    const cn = ENV.normalizeColName(atField?.name || atField?.id);
+    if (!cn) continue;
+    if (cn === 'airtable_id' || cn === 'nocopk' || cn === 'nocouuid') continue;
+    cols.push(cn);
+  }
+  return cols;
+}
+
+function buildAirtableMapsForSchema(schema) {
+  const tableIdToTable = {};
+  for (const t of schema?.tables || []) {
+    if (t && t.id) tableIdToTable[t.id] = t;
+  }
+  return { tableIdToTable };
+}
+
+function generatePostgresInserts(schema, airtableMaps, exportDir, onlyTables = null) {
+  const lines = [];
+  lines.push('BEGIN;');
+  lines.push('');
+
+  const wanted = onlyTables && onlyTables.length
+    ? new Set(onlyTables.map((s) => String(s).trim()).filter(Boolean))
+    : null;
+
+  // Base table inserts
+  for (const atTable of schema.tables || []) {
+    const tNameRaw = atTable?.name || atTable?.title || atTable?.id;
+    if (wanted && !wanted.has(String(tNameRaw))) continue;
+    const tName = ENV.normalizeColName(tNameRaw);
+    const qTable = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(tName)}`;
+
+    const tablePath = path.join(exportDir, `${tNameRaw}.json`);
+    if (!fs.existsSync(tablePath)) {
+      // Also try normalized name file.
+      const alt = path.join(exportDir, `${tName}.json`);
+      if (!fs.existsSync(alt)) {
+        lines.push(`-- [WARN] Missing export file for table ${tNameRaw}: ${tablePath}`);
+        continue;
+      }
+    }
+    const jsonPath = fs.existsSync(tablePath) ? tablePath : path.join(exportDir, `${tName}.json`);
+    const raw = fs.readFileSync(jsonPath, 'utf8');
+    let records = [];
+    try {
+      records = JSON.parse(raw);
+    } catch (e) {
+      lines.push(`-- [WARN] Failed to parse ${jsonPath}: ${e?.message || e}`);
+      continue;
+    }
+    if (!Array.isArray(records) || records.length === 0) continue;
+
+    const cols = pgColumnsForTable(atTable);
+    const qCols = cols.map(pgQuoteIdent).join(', ');
+
+    lines.push(`-- Data: ${tNameRaw}`);
+
+    const BATCH = 250;
+    for (let i = 0; i < records.length; i += BATCH) {
+      const batch = records.slice(i, i + BATCH);
+      const valuesSql = [];
+      for (const rec of batch) {
+        const id = extractAirtableId(rec);
+        const fields = extractAirtableFields(rec);
+        const rowVals = [];
+        for (const c of cols) {
+          if (c === 'airtable_id') {
+            rowVals.push(pgValue(id));
+            continue;
+          }
+          rowVals.push(pgValue(fields?.[c]));
+        }
+        valuesSql.push('(' + rowVals.join(', ') + ')');
+      }
+      lines.push(`INSERT INTO ${qTable} (${qCols}) VALUES\n  ${valuesSql.join(',\n  ')}\nON CONFLICT (airtable_id) DO UPDATE SET ${cols
+        .filter((c) => c !== 'airtable_id')
+        .map((c) => `${pgQuoteIdent(c)} = EXCLUDED.${pgQuoteIdent(c)}`)
+        .join(', ')};`);
+      lines.push('');
+    }
+  }
+
+  // Link/junction table inserts (by airtable_id)
+  if (POSTGRES_INCLUDE_LINK_TABLES) {
+    for (const atTable of schema.tables || []) {
+      const fromNameRaw = atTable?.name || atTable?.title || atTable?.id;
+      if (wanted && !wanted.has(String(fromNameRaw))) continue;
+
+      const fromName = ENV.normalizeColName(fromNameRaw);
+
+      const tablePath = path.join(exportDir, `${fromNameRaw}.json`);
+      const alt = path.join(exportDir, `${fromName}.json`);
+      const jsonPath = fs.existsSync(tablePath) ? tablePath : (fs.existsSync(alt) ? alt : null);
+      if (!jsonPath) continue;
+
+      let records = [];
+      try {
+        records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      } catch {
+        continue;
+      }
+      if (!Array.isArray(records) || records.length === 0) continue;
+
+      for (const atField of atTable.fields || []) {
+        if ((atField?.type || '').toString() !== 'multipleRecordLinks') continue;
+
+        const linkedTableId =
+          atField?.options?.linkedTableId ||
+          atField?.options?.linkedTable ||
+          atField?.options?.foreignTableId ||
+          atField?.options?.foreignTable ||
+          null;
+
+        const linked = linkedTableId ? (airtableMaps?.tableIdToTable?.[linkedTableId] || null) : null;
+        const toName = ENV.normalizeColName(linked?.name || linked?.title || linked?.id || linkedTableId);
+        if (!toName) continue;
+
+        const fieldName = ENV.normalizeColName(atField?.name || atField?.id);
+        const joinName = ENV.normalizeColName(`${fromName}__${fieldName}__${toName}`);
+        const joinQName = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(joinName)}`;
+
+        const insertPairs = [];
+        for (const rec of records) {
+          const fromId = extractAirtableId(rec);
+          const fields = extractAirtableFields(rec);
+          const arr = fields?.[fieldName] || fields?.[atField?.name] || null;
+          if (!Array.isArray(arr) || arr.length === 0) continue;
+          for (const toId of arr) {
+            if (!toId) continue;
+            insertPairs.push([fromId, toId]);
+          }
+        }
+
+        if (!insertPairs.length) continue;
+        lines.push(`-- Link data: ${fromNameRaw}.${atField?.name || atField?.id} -> ${toName}`);
+        const BATCH = 500;
+        for (let i = 0; i < insertPairs.length; i += BATCH) {
+          const batch = insertPairs.slice(i, i + BATCH);
+          const valuesSql = batch
+            .map(([a, b]) => `(${pgValue(a)}, ${pgValue(b)})`)
+            .join(',\n  ');
+          lines.push(
+            `INSERT INTO ${joinQName} (from_airtable_id, to_airtable_id) VALUES\n  ${valuesSql}\nON CONFLICT DO NOTHING;`
+          );
+          lines.push('');
+        }
+      }
+    }
+  }
+
+  lines.push('COMMIT;');
+  lines.push('');
+  return lines.join('\n');
+}
 
 // Optional: target a specific NocoDB data source (e.g., an attached Postgres source).
 // If unset, the script uses the base default source (current behavior).
@@ -1947,6 +2172,27 @@ async function runPassB(job, allTableIdMaps) {
 }
 
 async function main() {
+  if (POSTGRES_MODE) {
+    const schemaPath = ENV.SCHEMA_PATH || path.join(AIRTABLE_EXPORT_DIR, '_schema.json');
+    if (!fs.existsSync(schemaPath)) {
+      throw new Error(`SCHEMA_PATH does not exist: ${schemaPath}`);
+    }
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+    const airtableMaps = buildAirtableMapsForSchema(schema);
+
+    const requested = (process.env.TABLES || '')
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+    const sql = generatePostgresInserts(schema, airtableMaps, AIRTABLE_EXPORT_DIR, requested);
+    const outPath = path.resolve(process.cwd(), POSTGRES_DATA_SQL_PATH);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    fs.writeFileSync(outPath, sql, 'utf8');
+    log(`[INFO] Postgres data SQL written to: ${outPath}`);
+    return;
+  }
+
   const tables = await fetchTables();
   const tablesByName = new Map();
   for (const t of tables) {

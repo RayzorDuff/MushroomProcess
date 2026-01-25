@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2026-01-24.1
+ * Version: 2026-01-24.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -41,6 +41,16 @@ require('./load_env');
  *   NOCODB_API_VERSION       ("v2" or "v3"; default: "v2")
  *   SCHEMA_PATH              (default: ./export/_schema.json)
  *
+ * OPTIONAL: Postgres SQL export mode (no NocoDB API calls)
+ *   POSTGRES_SQL_PATH        If set, write Postgres DDL to this path and exit.
+ *                             Example: ./postgres/schema.sql
+ *   POSTGRES_SCHEMA          Optional schema name (default: public)
+ *   POSTGRES_INCLUDE_LINK_TABLES  true/false (default: true)
+ *
+ * NOTE: This mode is intended for bootstrapping an *external* Postgres database
+ *       that will be attached to NocoDB as a data source. Computed columns
+ *       (lookup/rollup/formula) remain best handled by NocoDB metadata.
+ * 
  *   NOCODB_RECREATE_LINKS    ("true" to create LTAR columns)
  *   NOCODB_RECREATE_ROLLUPS  ("true" to create rollup columns)
  *   NOCODB_RECREATE_LOOKUPS  ("true" to create lookup columns)
@@ -140,12 +150,20 @@ async function fetchMetaTablesScoped({ includeFields = false } = {}) {
   throw lastErr || new Error('Failed to fetch meta tables');
 }
 
+// Postgres export mode: when enabled, we do NOT talk to NocoDB at all.
+// This is useful when you want to provision an external Postgres database
+// first, then attach it to NocoDB as a data source.
+const POSTGRES_SQL_PATH = (process.env.POSTGRES_SQL_PATH || '').toString().trim();
+const POSTGRES_SCHEMA = (process.env.POSTGRES_SCHEMA || 'public').toString().trim() || 'public';
+const POSTGRES_INCLUDE_LINK_TABLES = ENV.envBool('POSTGRES_INCLUDE_LINK_TABLES', true);
+
+const POSTGRES_MODE = !!POSTGRES_SQL_PATH;
+
 // Shared API client + caller (already configured w/ NOCODB_URL + xc-token)
 const apiCall = ENV.apiCall;
-if (!NOCODB_BASE_ID) {
-  console.error(
-    'ERROR: NOCODB_BASE_ID is required (the NocoDB base / project id).'
-  );
+
+if (!POSTGRES_MODE && !NOCODB_BASE_ID) {
+  console.error('ERROR: NOCODB_BASE_ID is required (the NocoDB base / project id).');
   process.exit(1);
 }
 
@@ -153,8 +171,11 @@ if (!fs.existsSync(SCHEMA_PATH)) {
   console.error(`ERROR: SCHEMA_PATH does not exist: ${SCHEMA_PATH}`);
   process.exit(1);
 }
-console.log(`[INFO] NOCODB_API_VERSION = ${NOCODB_API_VERSION}, IS_V3 = ${IS_V3}, IS_V2 = ${IS_V2}`);
-console.log(`[INFO] NOCODB_API_VERSION_LINKS = ${NOCODB_API_VERSION_LINKS}, LINKS_IS_V3 = ${LINKS_IS_V3}, LINKS_IS_V2 = ${LINKS_IS_V2}`);
+
+if (!POSTGRES_MODE) {
+  console.log(`[INFO] NOCODB_API_VERSION = ${NOCODB_API_VERSION}, IS_V3 = ${IS_V3}, IS_V2 = ${IS_V2}`);
+  console.log(`[INFO] NOCODB_API_VERSION_LINKS = ${NOCODB_API_VERSION_LINKS}, LINKS_IS_V3 = ${LINKS_IS_V3}, LINKS_IS_V2 = ${LINKS_IS_V2}`);
+}
 
 // New env toggles for link / rollup / lookup recreation
 const RECREATE_LINKS = /^true$/i.test(
@@ -2921,6 +2942,167 @@ function writeDebugJson() {
 }
 
 // --------------------------------------------
+// POSTGRES SQL EXPORT MODE
+// --------------------------------------------
+
+function pgQuoteIdent(name) {
+  return '"' + String(name).replace(/"/g, '""') + '"';
+}
+
+function pgQuoteLiteral(val) {
+  if (val == null) return 'NULL';
+  const s = String(val);
+  return "'" + s.replace(/'/g, "''") + "'";
+}
+
+function pgColumnTypeForAirtableField(atField) {
+  const t = (atField?.type || '').toString();
+  const opt = atField?.options || {};
+
+  // Keep storage generous; NocoDB computed fields can still be created on top.
+  switch (t) {
+    case 'singleLineText':
+    case 'multilineText':
+    case 'email':
+    case 'url':
+    case 'phoneNumber':
+    case 'barcode':
+    case 'externalSyncSource':
+      return 'text';
+    case 'number':
+      // Airtable can store integers or decimals. Prefer numeric for safety.
+      return 'numeric';
+    case 'currency':
+      return 'numeric';
+    case 'percent':
+      return 'numeric';
+    case 'rating':
+      return 'integer';
+    case 'checkbox':
+      return 'boolean';
+    case 'date':
+      return 'date';
+    case 'dateTime':
+    case 'createdTime':
+    case 'lastModifiedTime':
+      return 'timestamptz';
+    case 'singleSelect':
+      return 'text';
+    case 'multipleSelects':
+      // Preserve list values.
+      return 'jsonb';
+    case 'multipleAttachments':
+    case 'attachment':
+      return 'jsonb';
+    case 'multipleLookupValues':
+    case 'lookup':
+      return 'jsonb';
+    case 'rollup':
+      return 'jsonb';
+    case 'formula': {
+      // We keep the computed value (as exported) but do not attempt to parse
+      // Airtable formula syntax into SQL here.
+      const resultType = (opt?.result?.type || opt?.type || '').toString();
+      if (resultType === 'number') return 'numeric';
+      if (resultType === 'date') return 'date';
+      if (resultType === 'dateTime') return 'timestamptz';
+      if (resultType === 'checkbox' || resultType === 'boolean') return 'boolean';
+      return 'text';
+    }
+    case 'multipleRecordLinks':
+      // Stored in a junction table (if enabled). Not a direct column.
+      return null;
+    default:
+      // Unknown/unhandled Airtable field type. Keep it lossless.
+      return 'jsonb';
+  }
+}
+
+function generatePostgresDDL(schema, airtableMaps) {
+  const lines = [];
+
+  // gen_random_uuid() is provided by pgcrypto.
+  lines.push('BEGIN;');
+  lines.push('CREATE EXTENSION IF NOT EXISTS pgcrypto;');
+  lines.push(`CREATE SCHEMA IF NOT EXISTS ${pgQuoteIdent(POSTGRES_SCHEMA)};`);
+  lines.push('');
+
+  // Base tables
+  for (const atTable of schema.tables || []) {
+    const tName = normalizeColName(atTable);
+    const qTable = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(tName)}`;
+
+    lines.push(`-- Table: ${atTable?.name || atTable?.id}`);
+    lines.push(`CREATE TABLE IF NOT EXISTS ${qTable} (`);
+    lines.push('  nocopk bigserial PRIMARY KEY,');
+    lines.push('  nocouuid uuid NOT NULL DEFAULT gen_random_uuid(),');
+    lines.push('  airtable_id text UNIQUE,');
+
+    const fieldLines = [];
+    for (const atField of atTable.fields || []) {
+      const colName = normalizeColName(atField);
+      if (!colName) continue;
+      if (colName === 'nocopk' || colName === 'nocouuid' || colName === 'airtable_id') continue;
+
+      const pgType = pgColumnTypeForAirtableField(atField);
+      if (!pgType) continue; // links handled later
+
+      fieldLines.push(`  ${pgQuoteIdent(colName)} ${pgType}`);
+    }
+
+    // Add fields and audit timestamps, but keep it simple.
+    if (fieldLines.length) {
+      lines.push(fieldLines.join(',\n') + ',');
+    }
+    lines.push('  created_at timestamptz DEFAULT now(),');
+    lines.push('  updated_at timestamptz DEFAULT now()');
+    lines.push(');');
+    lines.push('');
+  }
+
+  // Junction tables for multipleRecordLinks
+  if (POSTGRES_INCLUDE_LINK_TABLES) {
+    for (const atTable of schema.tables || []) {
+      const fromName = normalizeColName(atTable);
+      const fromQName = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(fromName)}`;
+      for (const atField of atTable.fields || []) {
+        if ((atField?.type || '').toString() !== 'multipleRecordLinks') continue;
+
+        const linkedTableId =
+          atField?.options?.linkedTableId ||
+          atField?.options?.linkedTable ||
+          atField?.options?.foreignTableId ||
+          atField?.options?.foreignTable ||
+          null;
+
+        const linked = linkedTableId ? (airtableMaps?.tableIdToTable?.[linkedTableId] || null) : null;
+        const toName = normalizeColName(linked);
+        if (!toName) continue;
+        const toQName = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(toName)}`;
+
+        const fieldName = normalizeColName(atField);
+        const joinName = `${fromName}__${fieldName}__${toName}`;
+        const joinQName = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(joinName)}`;
+
+        lines.push(`-- Link table: ${fromName}.${fieldName} -> ${toName}`);
+        lines.push(`CREATE TABLE IF NOT EXISTS ${joinQName} (`);
+        lines.push('  from_airtable_id text NOT NULL,');
+        lines.push('  to_airtable_id text NOT NULL,');
+        lines.push('  PRIMARY KEY (from_airtable_id, to_airtable_id),');
+        lines.push(`  FOREIGN KEY (from_airtable_id) REFERENCES ${fromQName}(airtable_id) ON DELETE CASCADE,`);
+        lines.push(`  FOREIGN KEY (to_airtable_id) REFERENCES ${toQName}(airtable_id) ON DELETE CASCADE`);
+        lines.push(');');
+        lines.push('');
+      }
+    }
+  }
+
+  lines.push('COMMIT;');
+  lines.push('');
+  return lines.join('\n');
+}
+
+// --------------------------------------------
 // MAIN
 // --------------------------------------------
 
@@ -2928,6 +3110,16 @@ async function main() {
   try {
     const schema = loadAirtableSchema(SCHEMA_PATH);
     const airtableMaps = buildAirtableMaps(schema);
+
+    if (POSTGRES_MODE) {
+      const sql = generatePostgresDDL(schema, airtableMaps);
+      const outPath = path.resolve(process.cwd(), POSTGRES_SQL_PATH);
+      const outDir = path.dirname(outPath);
+      fs.mkdirSync(outDir, { recursive: true });
+      fs.writeFileSync(outPath, sql, 'utf8');
+      logInfo(`Postgres DDL written to: ${outPath}`);
+      return;
+    }
 
     // First-pass: create tables
     const ncClient = axios.create({
