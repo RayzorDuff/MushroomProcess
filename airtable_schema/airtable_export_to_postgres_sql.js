@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.1
+ * Version: 2026-01-25.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -231,7 +231,7 @@ function main() {
 
       const jn = `_m2m_${a}_${b}_${slug(f.name) || 'link'}`;
       const aCol = `${a}_id`;
-      const bCol = `${b}_id`;
+      const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
 
       junctions.push({ jn, a, b, aCol, bCol, linkFieldName: f.name });
 
@@ -444,6 +444,8 @@ function main() {
         const jn = `_m2m_${a}_${b}_${slug(f.name) || 'link'}`;
         const rawName = `${jn}__raw`;
         const cols = ['a_airtable_id', 'b_airtable_id'];
+        const aCol = `${a}_id`;
+        const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
 
         const jrows = [];
         for (const r of rowsRaw) {
@@ -464,7 +466,7 @@ function main() {
         loadSql.push(`\n-- Link field: ${aName}.${f.name} -> ${other.name}\n`);
         loadSql.push(`CREATE TEMP TABLE ${ident(rawName)}(${ident('a_airtable_id')} text, ${ident('b_airtable_id')} text);\n`);
         loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM '${path.relative(POSTGRES_OUT_DIR, csvPath).replace(/\\/g,'/')}' WITH (FORMAT csv, HEADER true);\n`);
-        loadSql.push(`INSERT INTO ${ident(jn)}(${ident(a + '_id')}, ${ident(b + '_id')})\n`);
+        loadSql.push(`INSERT INTO ${ident(jn)}(${ident(aCol)}, ${ident(bCol)})\n`);
         loadSql.push(`SELECT a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id;\n`);
         loadSql.push(`DROP TABLE ${ident(rawName)};\n`);
       }
