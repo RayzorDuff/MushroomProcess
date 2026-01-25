@@ -106,12 +106,20 @@ These steps assume you start from an Airtable base that already matches the Mush
    airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
    ```
 
+   We also need a complete dump of the table schema direct from airtable.
+
+   ```bash
+   curl.exe "https://api.airtable.com/v0/meta/bases/$Env:AIRTABLE_BASE/tables" -H "Authorization: Bearer $Env:AIRTABLE_KEY" --ssl-no-revoke  -o export/tables_dump.json
+   ```
+
    Use the post-processor script to remove any "From field" style tables that were not removed from AirTable prior to export
    as well as to change the business-specific identifiers within the schema to generic entries.
 
    ```bash
    copy export/_schema.json export/_schema.json.orig
+   copy export/tables_dump.json export/tables_dump.json.orig
    node airtable_export_postprocess.js export/_schema.json.orig export/_schema.json
+   node airtable_export_postprocess.js export/tables_dump.json.orig export/tables_dump.json
    ```
 
    The post-processor supports two environment toggles (use `.env` or shell env vars):
