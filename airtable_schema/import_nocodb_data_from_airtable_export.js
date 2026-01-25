@@ -3,7 +3,7 @@ require('./load_env');
 /* eslint-disable no-console */
 /**
  * Script: import_nocodb_data_from_airtable_export.js
- * Version: 2026-01-24.2
+ * Version: 2026-01-24.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -72,6 +72,39 @@ const POSTGRES_DATA_SQL_PATH = (process.env.POSTGRES_DATA_SQL_PATH || '').toStri
 const POSTGRES_SCHEMA = (process.env.POSTGRES_SCHEMA || 'public').toString().trim() || 'public';
 const POSTGRES_INCLUDE_LINK_TABLES = ENV.envBool('POSTGRES_INCLUDE_LINK_TABLES', true);
 const POSTGRES_MODE = !!POSTGRES_DATA_SQL_PATH;
+
+// CSV mode: generates a psql load script (POSTGRES_DATA_SQL_PATH) plus CSV files.
+// Use POSTGRES_DATA_FORMAT=insert to keep the old INSERT-based output.
+const POSTGRES_DATA_FORMAT = (process.env.POSTGRES_DATA_FORMAT || 'csv').toString().trim().toLowerCase();
+const POSTGRES_CSV_DIR = (process.env.POSTGRES_CSV_DIR || '').toString().trim();
+
+function csvCell(val) {
+  // Use \N for NULL to preserve empty-string vs NULL.
+  if (val == null) return '\\N';
+  if (typeof val === 'number') {
+    if (!Number.isFinite(val)) return '\\N';
+    return String(val);
+  }
+  if (typeof val === 'boolean') return val ? 'true' : 'false';
+  let s = '';
+  if (typeof val === 'string') s = val;
+  else s = JSON.stringify(val);
+  if (s.includes('"')) s = s.replace(/"/g, '""');
+  if (s.includes(',') || s.includes('\n') || s.includes('\r') || s.includes('"')) {
+    return '"' + s + '"';
+  }
+  return s;
+}
+
+function writeCsvFile(filePath, headerCols, rowsObjArray) {
+  const out = [];
+  out.push(headerCols.map(csvCell).join(','));
+  for (const row of rowsObjArray) {
+    out.push(headerCols.map((c) => csvCell(row[c])).join(','));
+  }
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, out.join('\n') + '\n', 'utf8');
+}
 
 function pgQuoteIdent(name) {
   return '"' + String(name).replace(/"/g, '""') + '"';
@@ -2185,11 +2218,158 @@ async function main() {
       .map((x) => x.trim())
       .filter(Boolean);
 
-    const sql = generatePostgresInserts(schema, airtableMaps, AIRTABLE_EXPORT_DIR, requested);
     const outPath = path.resolve(process.cwd(), POSTGRES_DATA_SQL_PATH);
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.writeFileSync(outPath, sql, 'utf8');
-    log(`[INFO] Postgres data SQL written to: ${outPath}`);
+    const outDir = path.dirname(outPath);
+
+    if (POSTGRES_DATA_FORMAT === 'insert') {
+      const sql = generatePostgresInserts(schema, airtableMaps, AIRTABLE_EXPORT_DIR, requested);
+      fs.mkdirSync(outDir, { recursive: true });
+      fs.writeFileSync(outPath, sql, 'utf8');
+      log(`[INFO] Postgres data SQL written to: ${outPath}`);
+      return;
+    }
+
+    // Default: CSV + psql \copy load script
+    const csvDir = POSTGRES_CSV_DIR
+      ? path.resolve(process.cwd(), POSTGRES_CSV_DIR)
+      : path.join(outDir, 'csv');
+    fs.mkdirSync(csvDir, { recursive: true });
+
+    const loadLines = [];
+    loadLines.push('BEGIN;');
+    loadLines.push('');
+
+    for (const atTable of schema.tables || []) {
+      const tNameRaw = atTable?.name || atTable?.title || atTable?.id;
+      if (requested.length && !requested.includes(String(tNameRaw))) continue;
+      const tName = ENV.normalizeColName(tNameRaw);
+      const qTable = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(tName)}`;
+
+      const tablePath = path.join(AIRTABLE_EXPORT_DIR, `${tNameRaw}.json`);
+      const alt = path.join(AIRTABLE_EXPORT_DIR, `${tName}.json`);
+      const jsonPath = fs.existsSync(tablePath) ? tablePath : (fs.existsSync(alt) ? alt : null);
+      if (!jsonPath) {
+        loadLines.push(`-- [WARN] Missing export file for table ${tNameRaw}`);
+        loadLines.push('');
+        continue;
+      }
+
+      let records;
+      try {
+        records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      } catch (e) {
+        loadLines.push(`-- [WARN] Failed to parse ${jsonPath}: ${e?.message || e}`);
+        loadLines.push('');
+        continue;
+      }
+      if (!Array.isArray(records) || records.length === 0) continue;
+
+      const cols = pgColumnsForTable(atTable);
+      // Dedupe columns case-insensitively to avoid "column specified more than once".
+      const seen = new Set();
+      const colsDedup = [];
+      for (const c of cols) {
+        const k = String(c).toLowerCase();
+        if (seen.has(k)) continue;
+        seen.add(k);
+        colsDedup.push(c);
+      }
+
+      const rows = [];
+      for (const rec of records) {
+        const id = extractAirtableId(rec);
+        const fields = extractAirtableFields(rec);
+        const row = {};
+        for (const c of colsDedup) {
+          if (c === 'airtable_id') row[c] = id;
+          else row[c] = fields?.[c];
+        }
+        rows.push(row);
+      }
+
+      const csvFile = path.join(csvDir, `${tName}.csv`);
+      writeCsvFile(csvFile, colsDedup, rows);
+      const relCsv = path.relative(outDir, csvFile).replace(/\\/g, '/');
+
+      loadLines.push(`-- Data: ${tNameRaw}`);
+      loadLines.push(
+        `\\copy ${qTable} (${colsDedup.map(pgQuoteIdent).join(', ')}) FROM '${relCsv}' WITH (FORMAT csv, HEADER true, NULL '\\\\N');`
+      );
+      loadLines.push('');
+    }
+
+    // Junction tables (links)
+    if (POSTGRES_INCLUDE_LINK_TABLES) {
+      for (const atTable of schema.tables || []) {
+        const fromNameRaw = atTable?.name || atTable?.title || atTable?.id;
+        if (requested.length && !requested.includes(String(fromNameRaw))) continue;
+        const fromName = ENV.normalizeColName(fromNameRaw);
+
+        const tablePath = path.join(AIRTABLE_EXPORT_DIR, `${fromNameRaw}.json`);
+        const alt = path.join(AIRTABLE_EXPORT_DIR, `${fromName}.json`);
+        const jsonPath = fs.existsSync(tablePath) ? tablePath : (fs.existsSync(alt) ? alt : null);
+        if (!jsonPath) continue;
+
+        let records;
+        try {
+          records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+        } catch {
+          continue;
+        }
+        if (!Array.isArray(records) || records.length === 0) continue;
+
+        for (const atField of atTable.fields || []) {
+          if ((atField?.type || '').toString() !== 'multipleRecordLinks') continue;
+
+          const linkedTableId =
+            atField?.options?.linkedTableId ||
+            atField?.options?.linkedTable ||
+            atField?.options?.foreignTableId ||
+            atField?.options?.foreignTable ||
+            null;
+
+          const linked = linkedTableId ? (airtableMaps?.tableIdToTable?.[linkedTableId] || null) : null;
+          const toName = ENV.normalizeColName(linked?.name || linked?.title || linked?.id || linkedTableId);
+          if (!toName) continue;
+
+          const fieldName = ENV.normalizeColName(atField?.name || atField?.id);
+          const joinName = ENV.normalizeColName(`${fromName}__${fieldName}__${toName}`);
+          const joinQName = `${pgQuoteIdent(POSTGRES_SCHEMA)}.${pgQuoteIdent(joinName)}`;
+
+          const pairs = [];
+          for (const rec of records) {
+            const fromId = extractAirtableId(rec);
+            const fields = extractAirtableFields(rec);
+            const arr = fields?.[fieldName] || fields?.[atField?.name] || null;
+            if (!Array.isArray(arr) || arr.length === 0) continue;
+            for (const toId of arr) {
+              if (!toId) continue;
+              pairs.push({ from_airtable_id: fromId, to_airtable_id: toId });
+            }
+          }
+          if (!pairs.length) continue;
+
+          const linkCols = ['from_airtable_id', 'to_airtable_id'];
+          const csvFile = path.join(csvDir, `${joinName}.csv`);
+          writeCsvFile(csvFile, linkCols, pairs);
+          const relCsv = path.relative(outDir, csvFile).replace(/\\/g, '/');
+
+          loadLines.push(`-- Link data: ${fromNameRaw}.${atField?.name || atField?.id} -> ${toName}`);
+          loadLines.push(
+            `\\copy ${joinQName} (${linkCols.map(pgQuoteIdent).join(', ')}) FROM '${relCsv}' WITH (FORMAT csv, HEADER true, NULL '\\\\N');`
+          );
+          loadLines.push('');
+        }
+      }
+    }
+
+    loadLines.push('COMMIT;');
+    loadLines.push('');
+
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(outPath, loadLines.join('\n'), 'utf8');
+    log(`[INFO] Postgres load script written to: ${outPath}`);
+    log(`[INFO] Postgres CSV directory: ${csvDir}`);
     return;
   }
 

@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2026-01-24.2
+ * Version: 2026-01-24.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -3046,6 +3046,8 @@ function generatePostgresDDL(schema, airtableMaps) {
 
       const pgType = pgColumnTypeForAirtableField(atField);
       if (!pgType) continue; // links handled later
+      
+      if((colName === 'created_at' || colName === 'updated_at') && pgType == 'timestamptz') continue; 
 
       fieldLines.push(`  ${pgQuoteIdent(colName)} ${pgType}`);
     }
