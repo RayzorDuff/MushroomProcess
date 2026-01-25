@@ -1,25 +1,25 @@
-airtable_id,airtable_createdtime,regulated,species_strain,strain_id
-rec4u3shq1dBitsnG,2025-09-16T01:30:40.000Z,true,Melmak,STR-Melmak
-rec7lLl0rRBhkwO6H,2025-09-16T01:30:40.000Z,,Bronze Reishi,STR-BronzeReishi
-rec91mqZG1AZdhopu,2025-12-12T17:44:11.000Z,true,Hillbilly,STR-Hillbilly
-rec93CSLs6HCiEGlJ,2025-09-16T01:30:40.000Z,true,Mazatapec,STR-Mazatapec
-recAJwZGQuVlEUFpb,2025-09-16T01:30:40.000Z,,Pearl Oyster,STR-PearlOyster
-recFnCOoLSfmoATeP,2025-09-16T01:30:40.000Z,true,Golden Teacher,STR-GoldenTeacher
-recHQHphF8J6rBHPE,2025-09-16T01:30:40.000Z,,Branched Oyster,STR-BranchedOyster
-recJOsHuiUV8NUynU,2025-09-16T01:30:40.000Z,true,Psilocybe Natalensis,STR-PsilocybeNatalensis
-recV9ephQ5NJProZu,2025-09-16T01:30:40.000Z,,Chestnut,STR-Chestnut
-recWQlBg26y23ZRWT,2025-09-16T01:30:40.000Z,,Turkey Tail,STR-TurkeyTail
-reccTSC4iIARZKDwn,2025-09-16T01:30:40.000Z,true,Cambodian Gold,STR-CambodianGold
-rechTbpjL4Nt9Tks0,2025-09-16T01:30:40.000Z,,Pink Oyster,STR-PinkOyster
-recjFKL1WgHB81QQZ,2025-09-16T01:30:40.000Z,true,Albino Melmak,STR-AlbinoMelmak
-reckNIjMtUO20q0f9,2025-09-16T01:30:40.000Z,,Lion’s Mane,STR-LionsMane
-recmu5LgteQ6xVWwG,2025-09-16T01:30:40.000Z,true,Penis Envy,STR-PE
-recrI6ixjt46LJgoI,2025-09-16T01:30:40.000Z,true,Albino Penis Envy,STR-APE
-recszNf2WlZjSQqyL,2025-09-16T01:30:40.000Z,,Blue Oyster,STR-BlueOyster
-recuFO98qhzhIFUmx,2025-09-23T00:51:37.000Z,true,Cambodian,STR-Cambodian
-recw292ouRGk021S6,2025-09-23T00:49:47.000Z,true,B Plus (B Positive),STR-BPlus
-recwa4hnchhLcvKQX,2025-12-12T17:43:05.000Z,true,Bluey Vuitton,STR-BlueyVuitton
-recx8dOsjCeAnkoBU,2025-09-16T01:30:40.000Z,,King Oyster,STR-KingOyster
-recxZKdhM1v5Wh51M,2025-09-16T01:30:40.000Z,,Red Reishi,STR-RedReishi
-recyRw3GyG1C63PQi,2025-09-23T00:54:57.000Z,true,Trinity,STR-Trinity
-recypkK5H1hqtX4g9,2025-09-16T01:30:40.000Z,true,Amazonian,STR-Amazonian
+airtable_id,strain_id,species_strain,regulated
+rec4u3shq1dBitsnG,STR-Melmak,Melmak,true
+rec7lLl0rRBhkwO6H,STR-BronzeReishi,Bronze Reishi,
+rec91mqZG1AZdhopu,STR-Hillbilly,Hillbilly,true
+rec93CSLs6HCiEGlJ,STR-Mazatapec,Mazatapec,true
+recAJwZGQuVlEUFpb,STR-PearlOyster,Pearl Oyster,
+recFnCOoLSfmoATeP,STR-GoldenTeacher,Golden Teacher,true
+recHQHphF8J6rBHPE,STR-BranchedOyster,Branched Oyster,
+recJOsHuiUV8NUynU,STR-PsilocybeNatalensis,Psilocybe Natalensis,true
+recV9ephQ5NJProZu,STR-Chestnut,Chestnut,
+recWQlBg26y23ZRWT,STR-TurkeyTail,Turkey Tail,
+reccTSC4iIARZKDwn,STR-CambodianGold,Cambodian Gold,true
+rechTbpjL4Nt9Tks0,STR-PinkOyster,Pink Oyster,
+recjFKL1WgHB81QQZ,STR-AlbinoMelmak,Albino Melmak,true
+reckNIjMtUO20q0f9,STR-LionsMane,Lion’s Mane,
+recmu5LgteQ6xVWwG,STR-PE,Penis Envy,true
+recrI6ixjt46LJgoI,STR-APE,Albino Penis Envy,true
+recszNf2WlZjSQqyL,STR-BlueOyster,Blue Oyster,
+recuFO98qhzhIFUmx,STR-Cambodian,Cambodian,true
+recw292ouRGk021S6,STR-BPlus,B Plus (B Positive),true
+recwa4hnchhLcvKQX,STR-BlueyVuitton,Bluey Vuitton,true
+recx8dOsjCeAnkoBU,STR-KingOyster,King Oyster,
+recxZKdhM1v5Wh51M,STR-RedReishi,Red Reishi,
+recyRw3GyG1C63PQi,STR-Trinity,Trinity,true
+recypkK5H1hqtX4g9,STR-Amazonian,Amazonian,true

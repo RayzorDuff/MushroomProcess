@@ -1,13 +1,13 @@
-airtable_id,airtable_createdtime,name
-rec2vUujZ5CYkEAzq,2025-12-10T16:00:57.000Z,Consumed
-rec5yepQsFWPbAYwF,2025-09-16T23:13:40.000Z,Dark Room
-rec8inZVweILZUJKv,2025-12-10T16:01:04.000Z,Expired
-rec8wChW6yuYDl51g,2025-09-21T00:53:37.000Z,Products Storage
-recIJAGJLaRV4yPIY,2025-09-17T18:58:51.000Z,Packaging
-recJxAz3OdFSxvs0l,2025-09-22T21:58:11.000Z,Fridge
-recbLNqFsbdV59RXV,2025-09-21T00:53:11.000Z,Artisan Shop
-recrz1MNPPquKoGUc,2025-09-17T18:58:21.000Z,Freezer
-rectvg66AQi3oswec,2025-09-22T21:58:18.000Z,Fruiting Chamber
-recu6GharOeZtmV9i,2025-09-16T23:13:40.000Z,Sterilizer
-recwRFW2aHlJivoX3,2025-11-21T20:48:15.000Z,Shipped
-recyOnO747Yc7ZYuk,2025-09-16T23:13:40.000Z,Inoculation Lab
+airtable_id,name,type,notes
+rec2vUujZ5CYkEAzq,Consumed,,
+rec5yepQsFWPbAYwF,Dark Room,,
+rec8inZVweILZUJKv,Expired,,
+rec8wChW6yuYDl51g,Products Storage,,
+recIJAGJLaRV4yPIY,Packaging,,
+recJxAz3OdFSxvs0l,Fridge,,
+recbLNqFsbdV59RXV,Artisan Shop,,
+recrz1MNPPquKoGUc,Freezer,,
+rectvg66AQi3oswec,Fruiting Chamber,,
+recu6GharOeZtmV9i,Sterilizer,,
+recwRFW2aHlJivoX3,Shipped,,
+recyOnO747Yc7ZYuk,Inoculation Lab,,
