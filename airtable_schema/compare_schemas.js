@@ -18,7 +18,7 @@ const path = require("path");
 
 // Input paths
 const AIRTABLE_SCHEMA = process.argv[2] || path.join(process.cwd(), "export", "_schema.json");
-const NOCO_SCHEMA = process.argv[3] || path.join(process.cwd(), "export", "_schema_nocodb.json");
+const NOCO_SCHEMA = process.argv[3] || path.join(process.cwd(), "../nocodb_schema/export", "_schema_nocodb.json");
 
 // Utility: normalized field name (same logic as migration script)
 function normalizeName(name) {
