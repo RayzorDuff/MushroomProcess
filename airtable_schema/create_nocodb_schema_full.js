@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_nocodb_schema_full.js
- * Version: 2025-12-29.4
+ * Version: 2026-01-24.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -36,6 +36,7 @@ require('./load_env');
  * ENV:
  *   NOCODB_URL               (default: http://localhost:8080)
  *   NOCODB_BASE_ID           (required)
+ *   NOCODB_SOURCE_ID         (optional NocoDB data source 
  *   NOCODB_API_TOKEN         (or NC_TOKEN)
  *   NOCODB_API_VERSION       ("v2" or "v3"; default: "v2")
  *   SCHEMA_PATH              (default: ./export/_schema.json)
@@ -58,6 +59,86 @@ require('./load_env');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+
+// Optional: target a specific NocoDB data source (e.g., an attached Postgres source).
+// If unset, the script uses the base default source (current behavior).
+const NOCODB_SOURCE_ID = (process.env.NOCODB_SOURCE_ID || '').toString().trim();
+
+// If NOCODB_SOURCE_ID is set but the NocoDB instance does not support source-scoped
+// table creation/listing APIs, we should *not* silently create tables in the base default source.
+// Set NOCODB_SOURCE_FALLBACK=true to restore the old 'try scoped then fall back to unscoped' behavior.
+const NOCODB_SOURCE_FALLBACK = /^true$/i.test(process.env.NOCODB_SOURCE_FALLBACK || '');
+ 
+// "sources/{sourceId}" table endpoints are not available on every NocoDB build
+// for the v2 meta API. When a Source ID is provided, prefer the v3 meta endpoint
+// for source-scoped table operations and fall back gracefully if unsupported.
+const SOURCE_META_PREFIX = '/api/v3/meta';
+
+function getErrStatus(err) {
+  // Works for:
+  //  - axios errors (err.response.status)
+  //  - load_env.js apiCall errors (message contains "status=###")
+  if (!err) return undefined;
+  if (err.response && typeof err.response.status === 'number') return err.response.status;
+  if (typeof err.status === 'number') return err.status;
+  if (typeof err.statusCode === 'number') return err.statusCode;
+  const msg = String(err.message || '');
+  const m = msg.match(/status\s*=\s*(\d{3})/i) || msg.match(/\b(\d{3})\b/);
+  if (m && m[1]) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
+}
+
+function metaTablesUrl(baseId, { sourceId, forceV3 = false } = {}) {
+  const prefix = forceV3 ? SOURCE_META_PREFIX : META_PREFIX;
+  if (sourceId) return `${prefix}/bases/${baseId}/sources/${sourceId}/tables`;
+  return `${prefix}/bases/${baseId}/tables`;
+}
+
+async function fetchMetaTablesScoped({ includeFields = false } = {}) {
+  const baseId = NOCODB_BASE_ID;
+  const tryUrls = [];
+  if (NOCODB_SOURCE_ID) {
+    // Prefer v3 source-scoped list, even if the main meta API is v2.
+    tryUrls.push(metaTablesUrl(baseId, { sourceId: NOCODB_SOURCE_ID, forceV3: true }));
+  }
+  // Fallback to whatever META_PREFIX is configured as.
+  // NOTE: unscoped URL targets the base default source.
+  if (!NOCODB_SOURCE_ID || NOCODB_SOURCE_FALLBACK) {
+    tryUrls.push(metaTablesUrl(baseId));
+  }
+
+  let lastErr;
+  for (const u0 of tryUrls) {
+    const wantsFields = includeFields && /\/api\/v3\/meta\//.test(u0);
+    const url = wantsFields ? `${u0}?include_fields=true` : u0;
+    try {
+      const data = await apiCall('get', url);
+      const tables = Array.isArray(data?.list) ? data.list : data;
+      if (!Array.isArray(tables)) {
+        throw new Error(`Unexpected tables response: ${JSON.stringify(data).slice(0, 500)}`);
+      }
+      return tables;
+    } catch (e) {
+      lastErr = e;
+      const status = getErrStatus(e);
+      if (NOCODB_SOURCE_ID && (status === 404 || status === 405)) continue;
+      throw e;
+    }
+  }
+  if (NOCODB_SOURCE_ID && !NOCODB_SOURCE_FALLBACK) {
+    throw new Error(
+      `Source-scoped table APIs are not supported by this NocoDB build (or are disabled). ` +
+      `Your server returned 404/405 for the /bases/{baseId}/sources/{sourceId}/tables endpoint. ` +
+      `To import into a specific Postgres data source, make that data source the BASE DEFAULT in the NocoDB UI, ` +
+      `or create a separate base that uses that Postgres source as its only/default source. ` +
+      `If you *want* to fall back to the base default source, set NOCODB_SOURCE_FALLBACK=true.`
+    );
+  }
+  throw lastErr || new Error('Failed to fetch meta tables');
+}
 
 // Shared API client + caller (already configured w/ NOCODB_URL + xc-token)
 const apiCall = ENV.apiCall;
@@ -132,6 +213,7 @@ const nocoModifiedTime = 'UpdatedAt';
   
 console.log(`[INFO] Base URL : ${NOCODB_URL}`);
 console.log(`[INFO] Base ID  : ${NOCODB_BASE_ID}`);
+console.log(`[INFO] Source ID: ${NOCODB_SOURCE_ID}`);
 console.log(`[INFO] Schema   : ${SCHEMA_PATH}`);
 console.log(
   `[INFO] Links API: ${
@@ -517,15 +599,39 @@ async function createNocoTableFromAirtableTable_FirstPass(
   };
 
   try {
-    const url = `${META_PREFIX}/bases/${baseId}/tables`;
+    // If NOCODB_SOURCE_ID is set, prefer the base+source create-table endpoint.
+    // IMPORTANT: source-scoped endpoints are generally exposed via v3 meta.
+    // If not supported by this NocoDB build, fall back to the unscoped endpoint.
+    const urls = [];
+    if (NOCODB_SOURCE_ID) urls.push(metaTablesUrl(baseId, { sourceId: NOCODB_SOURCE_ID, forceV3: true }));
+    if (NOCODB_SOURCE_ID) urls.push(metaTablesUrl(baseId, { sourceId: NOCODB_SOURCE_ID })); // legacy/alt
+    // Unscoped create targets the base default source.
+    if (!NOCODB_SOURCE_ID || NOCODB_SOURCE_FALLBACK) urls.push(metaTablesUrl(baseId));
+
     console.log(
       `  [DEBUG] Payload for table "${tableName}":`,
       JSON.stringify(payload, null, 2)
     );
-    const res = await ncClient.post(url, payload);
-    console.log(
-      `  [OK] Created table "${tableName}" (id: ${res.data?.id || "unknown"})`
-    );
+
+    let lastErr;
+    for (const url of urls) {
+      try {
+        const res = await ncClient.post(url, payload);
+        console.log(
+          `  [OK] Created table "${tableName}" (id: ${res.data?.id || "unknown"})`
+        );
+        return;
+      } catch (e) {
+        lastErr = e;
+        const status = getErrStatus(e);
+        if (NOCODB_SOURCE_ID && (status === 404 || status === 405)) {
+          // scoped endpoint not available → try fallback
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw lastErr || new Error('Failed to create table');
   } catch (err) {
     console.error(`  [ERROR] Failed to create table "${tableName}"`);
     if (err.response) {
@@ -545,18 +651,18 @@ async function createNocoTableFromAirtableTable_FirstPass(
  * Shared implementation now lives in load_env.js
  */
 async function fetchNocoTablesWithFields() {
-  const tables = await fetchMetaTables({ includeFields: IS_V3 });
-  if (IS_V2) {
-    for (const table of tables) {
-      await refreshNocoFieldsForTable(table);
-    }
-  }
-  logInfo(
-    IS_V2
-      ? `Fetched ${tables.length} NocoDB tables (v2, columns hydrated).`
-      : `Fetched ${tables.length} NocoDB tables (v3, inline fields).`
-  );
-  return tables;
+  const tables = await fetchMetaTablesScoped({ includeFields: IS_V3 });
+   if (IS_V2) {
+     for (const table of tables) {
+       await refreshNocoFieldsForTable(table);
+     }
+   }
+   logInfo(
+     IS_V2
+       ? `Fetched ${tables.length} NocoDB tables (v2, columns hydrated).`
+       : `Fetched ${tables.length} NocoDB tables (v3, inline fields).`
+   );
+   return tables;
 }
 
 // Find Noco table by Airtable table
