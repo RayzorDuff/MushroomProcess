@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.8
+ * Version: 2026-01-25.9
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -240,6 +240,30 @@ function compileFormulaExpr(raw, ctx) {
   const notes = [];
   const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
 
+  
+  function squashRedundantCasts(expr) {
+    let e = expr;
+    // iteratively squash repeated casts: (x::text)::text -> x::text
+    const rules = [
+      ['text','text'],
+      ['numeric','numeric'],
+      ['int','int'],
+      ['timestamp','timestamp'],
+      ['date','date'],
+      ['boolean','boolean'],
+    ];
+    for (let pass=0; pass<50; pass++) {
+      let changed = false;
+      for (const [t1,t2] of rules) {
+        const re = new RegExp(`\\)\s*::\s*${t1}\s*\\)\s*::\s*${t2}`, 'gi');
+        const next = e.replace(re, `)::${t1}`);
+        if (next !== e) { e = next; changed = true; }
+      }
+      if (!changed) break;
+    }
+    return e;
+  }
+
   function truthy(x) {
     const s = x.trim();
     // Airtable treats blank/empty as false for IF conditions.
@@ -275,12 +299,12 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'OR') return '(' + args.map(a=>`(${a})`).join(' OR ') + ')';
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
-    if (fn === 'LOWER' && args.length===1) return `LOWER(${ensureCast(args[0], 'text')})`;
+    if (fn === 'LOWER' && args.length >= 1) return `"lower"(${ensureCast(args[0], 'text')})`;
     if (fn === 'UPPER' && args.length===1) return `UPPER((${args[0]})::text)`;
     if (fn === 'LEN' && args.length===1) return `LENGTH((${args[0]})::text)`;
 
-    if (fn === 'LEFT' && args.length===2) return `LEFT(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
-    if (fn === 'RIGHT' && args.length===2) return `RIGHT(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
+    if (fn === 'LEFT' && args.length >= 2) return `"left"(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
+    if (fn === 'RIGHT' && args.length >= 2) return `"right"(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
     if (fn === 'MID' && args.length===3) return `SUBSTRING(${ensureCast(args[0], 'text')} FROM ${ensureCast(args[1],'int')} FOR ${ensureCast(args[2],'int')})`;
 
     if (fn === 'ROUND' && (args.length===1 || args.length===2)) {
@@ -440,13 +464,14 @@ function compileFormulaExpr(raw, ctx) {
     return s;
   }
 
-  const compiled = compileAllFunctions(expr);
+  let compiled = compileAllFunctions(expr);
 
   // Only null out when we actually encountered an unsupported Airtable function.
   // The compiled SQL legitimately contains function calls like to_char(), regexp_replace(), left(), right(), etc.
   if (notes && notes.length) {
     return { sql: 'NULL', notes };
   }
+  compiled = squashRedundantCasts(compiled);
   return { sql: compiled, notes: [] };
 }
 
