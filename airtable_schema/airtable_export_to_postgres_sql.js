@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.6
+ * Version: 2026-01-25.7
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -208,6 +208,10 @@ function compileFormulaExpr(raw, ctx) {
 
   expr = expr.replace(/\s+/g, ' ').trim();
 
+    // Convert Airtable "double quoted" strings to SQL single quotes (best-effort)
+  // Do this BEFORE field replacement so we don't turn SQL identifiers ("col") into string literals ('col').
+  expr = convertStringLiterals(expr);
+
   // Replace Airtable field references {fld...} with qualified identifiers.
   expr = expr.replace(/\{(fld[A-Za-z0-9]+)\}/g, (_m, fid) => {
     const col = ctx.fieldIdToCol.get(fid);
@@ -232,9 +236,6 @@ function compileFormulaExpr(raw, ctx) {
     }
     expr = out;
   }
-
-  // Convert Airtable "double quoted" strings to SQL single quotes (best-effort)
-  expr = convertStringLiterals(expr);
 
   const notes = [];
 
