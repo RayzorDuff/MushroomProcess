@@ -2018,21 +2018,6 @@
           "type": "rollup"
         },
         {
-          "id": "fldT7IkbZv9nEjcvB",
-          "name": "name (from item_id) (from grain_inputs)",
-          "options": {
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldPZ4IqstB0rDnav}, 0, 1)),'[\"{}]', '')",
-            "isValid": true,
-            "referencedFieldIds": [
-              "fldPZ4IqstB0rDnav"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "type": "formula"
-        },
-        {
           "id": "fld0yK31UNRiH8jiV",
           "name": "substrate_inputs",
           "options": {
@@ -2068,36 +2053,6 @@
             }
           },
           "type": "multipleLookupValues"
-        },
-        {
-          "id": "fld7bNeLpJvxw4MPG",
-          "name": "name (from item_id) (from substrate_inputs)",
-          "options": {
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldjBLOy9UQLYTmZv}, 0, 1)),'[\"{}]', '')",
-            "isValid": true,
-            "referencedFieldIds": [
-              "fldjBLOy9UQLYTmZv"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "type": "formula"
-        },
-        {
-          "id": "fldayxHaz17ZgfAt5",
-          "name": "process_type (from steri_run_id) (from substrate_inputs)",
-          "options": {
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldomaryNlKSgW3pI}, 0, 1)),'[\"{}]', '')",
-            "isValid": true,
-            "referencedFieldIds": [
-              "fldomaryNlKSgW3pI"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "type": "formula"
         },
         {
           "id": "fldHxWLBQLQ8CuV0g",
@@ -2711,7 +2666,6 @@
             "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
             "isValid": true,
             "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
-            "referencedFieldIds": [],
             "result": {
               "options": {
                 "dateFormat": {
@@ -2727,7 +2681,7 @@
               "type": "dateTime"
             }
           },
-          "type": "rollup"
+          "type": "multipleLookupValues"
         },
         {
           "id": "fldmx5RDnELMNEUEm",
@@ -2885,12 +2839,12 @@
           "id": "fldalWvxa178ySlRh",
           "name": "label_graininputblocks_line",
           "options": {
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldT7IkbZv9nEjcvB} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldPZ4IqstB0rDnav} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
               "fldrv1VXZ9LnSMzl8",
-              "fldT7IkbZv9nEjcvB"
+              "fldPZ4IqstB0rDnav"
             ],
             "result": {
               "type": "singleLineText"
@@ -2902,12 +2856,12 @@
           "id": "fldLKeIjT9w9wvHKQ",
           "name": "label_substrateinputblocks_line",
           "options": {
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldayxHaz17ZgfAt5} & \"d \" & {fld7bNeLpJvxw4MPG},\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldomaryNlKSgW3pI} & \"d \" & {fldjBLOy9UQLYTmZv},\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
-              "fldayxHaz17ZgfAt5",
-              "fld7bNeLpJvxw4MPG"
+              "fldomaryNlKSgW3pI",
+              "fldjBLOy9UQLYTmZv"
             ],
             "result": {
               "type": "singleLineText"

@@ -2021,21 +2021,6 @@
           "name": "inoculated_at (from grain_inputs)"
         },
         {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldPZ4IqstB0rDnav}, 0, 1)),'[\"{}]', '')",
-            "referencedFieldIds": [
-              "fldPZ4IqstB0rDnav"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldT7IkbZv9nEjcvB",
-          "name": "name (from item_id) (from grain_inputs)"
-        },
-        {
           "type": "multipleRecordLinks",
           "options": {
             "linkedTableId": "tblL2oACeE9P92BRA",
@@ -2071,36 +2056,6 @@
           },
           "id": "fldjBLOy9UQLYTmZv",
           "name": "item_name_mat (from substrate_inputs)"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldjBLOy9UQLYTmZv}, 0, 1)),'[\"{}]', '')",
-            "referencedFieldIds": [
-              "fldjBLOy9UQLYTmZv"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld7bNeLpJvxw4MPG",
-          "name": "name (from item_id) (from substrate_inputs)"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "REGEX_REPLACE(CONCATENATE(ARRAYSLICE({fldomaryNlKSgW3pI}, 0, 1)),'[\"{}]', '')",
-            "referencedFieldIds": [
-              "fldomaryNlKSgW3pI"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldayxHaz17ZgfAt5",
-          "name": "process_type (from steri_run_id) (from substrate_inputs)"
         },
         {
           "type": "number",
@@ -2708,12 +2663,11 @@
           "name": "unit_lbs"
         },
         {
-          "type": "rollup",
+          "type": "multipleLookupValues",
           "options": {
             "isValid": true,
             "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
             "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
-            "referencedFieldIds": [],
             "result": {
               "type": "dateTime",
               "options": {
@@ -2888,11 +2842,11 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldT7IkbZv9nEjcvB} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldPZ4IqstB0rDnav} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
               "fldrv1VXZ9LnSMzl8",
-              "fldT7IkbZv9nEjcvB"
+              "fldPZ4IqstB0rDnav"
             ],
             "result": {
               "type": "singleLineText"
@@ -2905,11 +2859,11 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldayxHaz17ZgfAt5} & \"d \" & {fld7bNeLpJvxw4MPG},\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldomaryNlKSgW3pI} & \"d \" & {fldjBLOy9UQLYTmZv},\r\n  \"\"\r\n)",
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
-              "fldayxHaz17ZgfAt5",
-              "fld7bNeLpJvxw4MPG"
+              "fldomaryNlKSgW3pI",
+              "fldjBLOy9UQLYTmZv"
             ],
             "result": {
               "type": "singleLineText"
