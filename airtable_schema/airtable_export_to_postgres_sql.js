@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.10
+ * Version: 2026-01-25.11
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -724,17 +724,28 @@ function main() {
           const otherField = findFieldById(other, targetFieldId);
           if (!otherField) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
 
-          // Determine target expression: physical column OR compiled formula
+          // Determine target expression and join target: prefer physical base table when possible,
+// otherwise join the computed view vc_<table> so we can reference lookup/rollup/formula outputs safely.
           let targetExpr = null;
           const physicalCols = physicalColsByTableSlug.get(b) || new Set();
           const targetSlug = slug(otherField.name);
 
+          // Decide whether we must join to computed view:
+          // - formulas are computed (even if they only reference physical cols)
+          // - lookups/rollups are computed
+          // - any non-physical target column must come from vc_<table>
+          const targetIsComputed = (otherField.type === 'formula' || otherField.type === 'lookup' || otherField.type === 'rollup' || !physicalCols.has(targetSlug));
+          const joinRel = targetIsComputed ? ident('vc_' + b) : ident(b);
+
           if (otherField.type === 'formula' && otherField.options && otherField.options.formula) {
+            // Compile formula in the context of the joined relation (btbl alias).
             targetExpr = compileFormulaFor(other, otherField, 'btbl');
+          } else if (targetIsComputed) {
+            // lookup/rollup or computed column available on vc_<table>
+            targetExpr = `btbl.${ident(targetSlug)}::text`;
           } else if (physicalCols.has(targetSlug)) {
             targetExpr = `btbl.${ident(targetSlug)}::text`;
           } else {
-            // computed-on-computed (lookup -> lookup/rollup) not supported yet
             targetExpr = null;
           }
 
@@ -755,7 +766,7 @@ function main() {
             `array_agg((${targetExpr}) ORDER BY (${targetExpr})) FILTER (WHERE (${targetExpr}) IS NOT NULL), ` +
             `'{}'::text[]) ` +
             `FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)} j ` +
-            `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(b)} btbl ON btbl.nocopk = j.${ident(bCol)} ` +
+            `JOIN ${ident(POSTGRES_SCHEMA)}.${joinRel} btbl ON btbl.nocopk = j.${ident(bCol)} ` +
             `WHERE j.${ident(aCol)} = base.nocopk) AS ${outCol}`;
 
           lookupExprs.push(expr);
