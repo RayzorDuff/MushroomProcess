@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.7
+ * Version: 2026-01-25.8
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -238,6 +238,15 @@ function compileFormulaExpr(raw, ctx) {
   }
 
   const notes = [];
+  const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
+
+  function truthy(x) {
+    const s = x.trim();
+    // Airtable treats blank/empty as false for IF conditions.
+    // If condition is a bare field reference, compile to ISNOTBLANK style.
+    if (/^(base|btbl|comp)\."[^"]+"$/.test(s)) return `NULLIF(${s}::text,'') IS NOT NULL`;
+    return s;
+  }
 
   function mapDatetimeFormat(fmt) {
     const f = fmt.replace(/^'|'$/g,'');
@@ -247,33 +256,40 @@ function compileFormulaExpr(raw, ctx) {
 
   function splitArgs(inner) { return splitTopLevelArgs(inner); }
 
+  function ensureCast(expr, castType) {
+    const s = String(expr).trim();
+    const re = new RegExp(`::\\s*${castType}\\s*$`, 'i');
+    if (re.test(s)) return s;
+    return `(${s})::${castType}`;
+  }
+
   // Compile a single function call NAME(args...) where args are already compiled SQL expressions.
   function compileFunc(name, args) {
     const fn = name.toUpperCase();
 
     if (fn === 'IF' && (args.length === 2 || args.length === 3)) {
       const cond=args[0], tVal=args[1], fVal=(args.length===3?args[2]:'NULL');
-      return `CASE WHEN (${cond}) THEN (${tVal}) ELSE (${fVal}) END`;
+      return `CASE WHEN (${truthy(cond)}) THEN (${tVal}) ELSE (${fVal}) END`;
     }
     if (fn === 'AND') return '(' + args.map(a=>`(${a})`).join(' AND ') + ')';
     if (fn === 'OR') return '(' + args.map(a=>`(${a})`).join(' OR ') + ')';
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
-    if (fn === 'LOWER' && args.length===1) return `LOWER((${args[0]})::text)`;
+    if (fn === 'LOWER' && args.length===1) return `LOWER(${ensureCast(args[0], 'text')})`;
     if (fn === 'UPPER' && args.length===1) return `UPPER((${args[0]})::text)`;
     if (fn === 'LEN' && args.length===1) return `LENGTH((${args[0]})::text)`;
 
-    if (fn === 'LEFT' && args.length===2) return `LEFT((${args[0]})::text, (${args[1]})::int)`;
-    if (fn === 'RIGHT' && args.length===2) return `RIGHT((${args[0]})::text, (${args[1]})::int)`;
-    if (fn === 'MID' && args.length===3) return `SUBSTRING((${args[0]})::text FROM (${args[1]})::int FOR (${args[2]})::int)`;
+    if (fn === 'LEFT' && args.length===2) return `LEFT(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
+    if (fn === 'RIGHT' && args.length===2) return `RIGHT(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
+    if (fn === 'MID' && args.length===3) return `SUBSTRING(${ensureCast(args[0], 'text')} FROM ${ensureCast(args[1],'int')} FOR ${ensureCast(args[2],'int')})`;
 
     if (fn === 'ROUND' && (args.length===1 || args.length===2)) {
       const d = args.length===2 ? args[1] : '0';
-      return `ROUND((${args[0]})::numeric, (${d})::int)`;
+      return `ROUND(${ensureCast(args[0],'numeric')}, ${ensureCast(d,'int')})`;
     }
 
-    if (fn === 'VALUE' && args.length===1) return `NULLIF((${args[0]})::text,'')::numeric`;
-    if (fn === 'SUM') return '(' + args.map(a=>`COALESCE((${a})::numeric,0)`).join(' + ') + ')';
+    if (fn === 'VALUE' && args.length===1) return ensureCast(`NULLIF((${args[0]})::text,'')`, 'numeric');
+    if (fn === 'SUM') return '(' + args.map(a=>`COALESCE(${ensureCast(a,'numeric')},0)`).join(' + ') + ')';
     if (fn === 'CONCAT' || fn === 'CONCATENATE') {
       // If single arg looks like array, turn into array_to_string; otherwise concat as text.
       if (args.length===1) return `array_to_string((${args[0]})::text[], '')`;
@@ -287,9 +303,12 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'ISBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NULL))`;
     if (fn === 'ISNOTBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NOT NULL))`;
 
-    if (fn === 'DATETIME_FORMAT' && args.length>=2) {
-      const fmt = mapDatetimeFormat(args[1]);
-      return `to_char((${args[0]})::timestamp, ${fmt})`;
+    if (fn === 'DATETIME_FORMAT') {
+      const dtArg = args[0];
+      const fmtArg = (args.length>=2 ? args[1] : `'YYYY-MM-DD'`);
+
+      const fmt = mapDatetimeFormat(fmtArg);
+      return `to_char((${dtArg})::timestamp, ${fmt})`;
     }
     if (fn === 'CREATED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_created_at')}`;
     if (fn === 'LAST_MODIFIED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_updated_at')}`;
@@ -307,7 +326,7 @@ function compileFormulaExpr(raw, ctx) {
       const unit = (args[2]||'').replace(/^'|'$/g,'').toLowerCase();
       const unitMap = { years:'year', year:'year', months:'month', month:'month', days:'day', day:'day', hours:'hour', hour:'hour', minutes:'minute', minute:'minute', seconds:'second', second:'second' };
       const u = unitMap[unit] || unit;
-      return `((${args[0]})::timestamp + ((${args[1]})::numeric * (INTERVAL '1 ' || ${literalText(''+u)})))`;
+      return `((${args[0]})::timestamp + (${ensureCast(args[1],'numeric')} * (INTERVAL '1 ' || ${literalText(''+u)})))`;
     }
 
     if (fn === 'REGEX_REPLACE' && (args.length===3 || args.length===4)) {
@@ -392,6 +411,7 @@ function compileFormulaExpr(raw, ctx) {
           const before = s.slice(0,l).match(/([A-Za-z_][A-Za-z0-9_]*)\s*$/);
           if (!before) continue;
           const name = before[1];
+          if (!AIRTABLE_FUNCS.has(name.toUpperCase())) continue;
           const nameStart = l - before[0].length;
           const inner = s.slice(l+1, i);
           // Ensure inner has no unmatched parens (it is innermost by stack mechanics)
