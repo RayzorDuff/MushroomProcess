@@ -1,6 +1,6 @@
 /**
  * Script: print-daemon.js
- * Version: 2025-12-17.1
+ * Version: 2026-01-26.1
  * Summary: NocoDB or Airtable backed print_queue, steri_sheet and lots updates
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
@@ -63,6 +63,92 @@ if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
 const TEMP_DIR = path.resolve(__dirname, process.env.TEMP_DIR || path.join('tmp', INSTANCE_ID));
 if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
+/* ---------- Logging ---------- */
+const LOG_LEVEL = String(process.env.LOG_LEVEL || (process.env.VERBOSE ? 'debug' : 'info')).toLowerCase();
+const LOG_JSON = String(process.env.LOG_JSON || 'false').toLowerCase() === 'true';
+const LOG_TO_FILE = String(process.env.LOG_TO_FILE || 'true').toLowerCase() === 'true';
+const LOG_TO_CONSOLE = String(process.env.LOG_TO_CONSOLE || 'true').toLowerCase() === 'true';
+const LOG_FILE_BASENAME = (process.env.LOG_FILE || 'daemon.log').trim();
+const LOG_FILE_PATH = path.join(BASE_LOG_DIR, INSTANCE_ID + "_" + LOG_FILE_BASENAME);
+const MAX_LOG_BYTES = safeNum(process.env.MAX_LOG_BYTES, 5 * 1024 * 1024); // 5MB
+const MAX_LOG_BACKUPS = safeNum(process.env.MAX_LOG_BACKUPS, 5);
+
+const LEVELS = { error: 0, warn: 1, info: 2, debug: 3, trace: 4 };
+const ACTIVE_LEVEL = (LOG_LEVEL in LEVELS) ? LEVELS[LOG_LEVEL] : LEVELS.info;
+
+function rotateLogIfNeeded() {
+  if (!LOG_TO_FILE) return;
+  try {
+    if (!fs.existsSync(LOG_FILE_PATH)) return;
+    const st = fs.statSync(LOG_FILE_PATH);
+    if (!st.isFile() || st.size < MAX_LOG_BYTES) return;
+
+    // Shift backups: .4 -> .5, .3 -> .4, ... .1 -> .2, base -> .1
+    for (let i = MAX_LOG_BACKUPS - 1; i >= 1; i--) {
+      const from = `${LOG_FILE_PATH}.${i}`;
+      const to = `${LOG_FILE_PATH}.${i + 1}`;
+      if (fs.existsSync(from)) {
+        try { fs.renameSync(from, to); } catch {}
+      }
+    }
+    try { fs.renameSync(LOG_FILE_PATH, `${LOG_FILE_PATH}.1`); } catch {}
+  } catch {}
+}
+
+function writeLogLine(line) {
+  if (LOG_TO_CONSOLE) {
+    // Console output
+    process.stdout.write(line + "\n");
+  }
+  if (LOG_TO_FILE) {
+    rotateLogIfNeeded();
+    try {
+      fs.appendFileSync(LOG_FILE_PATH, line + "\n", { encoding: 'utf8' });
+    } catch {}
+  }
+}
+
+function logLine(level, msg, meta) {
+  const lvl = String(level || 'info').toLowerCase();
+  const n = (lvl in LEVELS) ? LEVELS[lvl] : LEVELS.info;
+  if (n > ACTIVE_LEVEL) return;
+
+  const ts = new Date().toISOString();
+  const base = { ts, level: lvl, instance: INSTANCE_ID, msg: String(msg || '') };
+
+  if (LOG_JSON) {
+    const out = { ...base };
+    if (meta && typeof meta === 'object') out.meta = meta;
+    writeLogLine(JSON.stringify(out));
+  } else {
+    let line = `${ts} [${lvl.toUpperCase()}] [${INSTANCE_ID}] ${base.msg}`;
+    if (meta && typeof meta === 'object') {
+      // keep compact; avoid dumping giant objects
+      const safe = {};
+      for (const [k, v] of Object.entries(meta)) {
+        if (v == null) continue;
+        const s = (typeof v === 'string') ? v : JSON.stringify(v);
+        safe[k] = s.length > 500 ? (s.slice(0, 500) + '…') : s;
+      }
+      const tail = Object.keys(safe).length ? ` ${JSON.stringify(safe)}` : '';
+      line += tail;
+    }
+    writeLogLine(line);
+  }
+}
+
+const log = {
+  error: (m, meta) => logLine('error', m, meta),
+  warn:  (m, meta) => logLine('warn',  m, meta),
+  info:  (m, meta) => logLine('info',  m, meta),
+  debug: (m, meta) => logLine('debug', m, meta),
+  trace: (m, meta) => logLine('trace', m, meta),
+};
+
+// Standardized status line for operators watching logs.
+function status(jobId, phase, meta = {}) {
+  log.info(`STATUS job=${jobId} ${phase}`, meta);
+}
 
 function nowStamp() {
   return new Date().toISOString().replace(/[:.]/g, '-');
@@ -73,7 +159,7 @@ const PRINT_QUEUE_TABLE = process.env.PRINT_QUEUE_TABLE || process.env.AIRTABLE_
 const STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || 'sterilization_runs';
 const LOTS_TABLE = process.env.LOTS_TABLE || 'lots';
 
-const QUEUE_VIEW = process.env.QUEUE_VIEW || 'Queue_All';
+const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
 // Optional: job routing without relying on Airtable views.
 // If PRINT_TARGET_VALUE is set, the daemon will only process jobs where
@@ -197,12 +283,8 @@ async function withPrinterLock(printerName, fn) {
 
   while (Date.now() - start < PRINTER_LOCK_TIMEOUT_MS) {
     try {
-    // Claim the job early (helps avoid collisions and makes debugging easier)
-    await markStatus(id, 'Printing', null);
-
       fd = fs.openSync(lockPath, 'wx'); // exclusive create
-      fs.writeFileSync(fd, `${INSTANCE_ID} ${new Date().toISOString()}
-`, { encoding: 'utf8' });
+      fs.writeFileSync(fd, `${INSTANCE_ID} ${new Date().toISOString()}`, { encoding: 'utf8' });
       break;
     } catch (e) {
       // lock held: retry
@@ -263,26 +345,28 @@ const LINE_GAP = 2;
 async function fetchQueued(viewName) {
 
   if (DB_BACKEND === 'airtable') {
-// Build Airtable filter formula:
-// - always require print_status='Queued'
-// - optionally require print_target match (PRINT_TARGET_VALUE)
-// - optionally AND in AIRTABLE_EXTRA_FILTER_FORMULA
-const parts = [`({print_status} = 'Queued')`];
-
-if (PRINT_TARGET_VALUE) {
-  parts.push(`({${PRINT_TARGET_FIELD}} = '${PRINT_TARGET_VALUE.replace(/'/g, "\\'")}')`);
-}
-if (AIRTABLE_EXTRA_FILTER_FORMULA) {
-  parts.push(`(${AIRTABLE_EXTRA_FILTER_FORMULA})`);
-}
-
-const filterByFormula = parts.length === 1 ? parts[0] : `AND(${parts.join(',')})`;
-
-const params = new URLSearchParams({
-  view: viewName,
-  filterByFormula,
-  maxRecords: '25'
-});
+    // Build Airtable filter formula:
+    // - always require print_status='Queued'
+    // - optionally require print_target match (PRINT_TARGET_VALUE)
+    // - optionally AND in AIRTABLE_EXTRA_FILTER_FORMULA
+    const parts = [`({print_status} = 'Queued')`];
+    
+    if (PRINT_TARGET_VALUE) {
+      parts.push(`({${PRINT_TARGET_FIELD}} = '${PRINT_TARGET_VALUE.replace(/'/g, "\\'")}')`);
+    }
+    if (AIRTABLE_EXTRA_FILTER_FORMULA) {
+      parts.push(`(${AIRTABLE_EXTRA_FILTER_FORMULA})`);
+    }
+    
+    const filterByFormula = parts.length === 1 ? parts[0] : `AND(${parts.join(',')})`;
+    
+    const params = new URLSearchParams({
+//      view: viewName,
+      filterByFormula,
+      maxRecords: '25'
+    });
+    
+    log.debug(`Querying: ${params.toString()}`);
     
     const { data } = await API.get(`${PRINT_QUEUE_TABLE}?${params.toString()}`);
     return data.records || [];
@@ -334,6 +418,8 @@ async function updateQueueRecord(id, fields) {
 
   if (DB_BACKEND === 'airtable') {
     const payload = { records: [{ id, fields }], typecast: true };
+    log.debug(`Patching ${PRINT_QUEUE_TABLE}`, { id, fields });
+    
     await API.patch(PRINT_QUEUE_TABLE, payload);
   } else {
     const url = `/api/v2/tables/${encodeURIComponent(PRINT_QUEUE_TABLE)}/records/${encodeURIComponent(id)}`;
@@ -1065,7 +1151,7 @@ async function printWithSumatraTo(
     p.on('close', (code) => {
       if (code === 0) resolve(true);
       else {
-        console.error('Sumatra print failed:', err || `exit ${code}`);
+        log.error('Sumatra print failed', { printer: printerName, pdfPath, err: err || `exit ${code}` });
         resolve(false);
       }
     });
@@ -1099,7 +1185,7 @@ async function printLabelPdfWithFallback(pdfPath) {
       await print(pdfPath, opts);
       return true;
     } catch (e) {
-      console.error('pdf-to-printer failed:', e.message || e);
+      log.error('pdf-to-printer failed', { printer: PRINTER, pdfPath, err: e?.message || String(e) });
       return false;
     }
   });
@@ -1132,10 +1218,11 @@ async function processRecord(rec) {
   const kind = (toFlat(f.source_kind) || '').toLowerCase();
 
   try {
+    status(id, 'picked', { kind });
+
     const archiveDir = path.resolve(
       __dirname,
-      (process.env.PDF_ARCHIVE_DIR || BASE_LOG_DIR),
-      INSTANCE_ID
+      LOG_DIR
     );
 
     if (!fs.existsSync(archiveDir)) {
@@ -1167,6 +1254,8 @@ async function processRecord(rec) {
       }_${timestamp}.pdf`;
       const outPath = path.join(archiveDir, outName);
 
+      await markStatus(id, 'Printing', null);
+      status(id, 'rendering_sheet', { pdf: outPath });
       await renderSterilizerSheetPDF(outPath, run, lots);
 
       const jobPrinter = (f.target_printer || '')
@@ -1175,6 +1264,8 @@ async function processRecord(rec) {
       const envPrinter = (STERI_SHEET_PRINTER || '')
         .toString()
         .trim();
+
+      status(id, 'printing_sheet', { printer: jobPrinter || envPrinter, pdf: outPath });
 
       const ok = await printSheetPdfNoFallback(
         outPath,
@@ -1188,6 +1279,7 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
         );
       }
 
+      status(id, 'printed');
       await markStatus(id, 'Printed', null);
       return;
     }
@@ -1197,6 +1289,8 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       archiveDir,
       `label_${timestamp}_${id}.pdf`
     );
+    status(id, 'rendering_label', { pdf: out });
+    await markStatus(id, 'Printing', null);
     await renderLabelPDF(out, rec);
 
     // Write PDF path back to the active backend (best-effort)
@@ -1204,10 +1298,11 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       await updateQueueRecord(id, { pdf_path: out });
     } catch {}
     
+    status(id, 'printing_label', { printer: PRINTER, pdf: out });
     const ok = await printLabelPdfWithFallback(out);
     if (!ok) throw new Error('Label print failed');
     
-    console.log(`[OK] Label rendered (${kind}) → ${out}`);
+    log.info('Label rendered', { kind, id, out });
     
     // --- Product-only: print second info label if companyInfo is present ---
     const gathered = gatherFields(rec);
@@ -1228,19 +1323,22 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       await renderProductInfoLabelPDF(out2, rec);
 
       // We intentionally do NOT overwrite pdf_path; primary label remains the canonical path.
+      status(id, 'printing_info_label', { printer: PRINTER, pdf: out2 });
       const ok2 = await printLabelPdfWithFallback(out2);
       if (!ok2) throw new Error('Product info label print failed');
       
-      console.log(`[OK] Info Label rendered (${kind}) → ${out}`);
+      log.info('Info label rendered', { kind, id, out: out2 });
       
     }
 
+    status(id, 'printed');
     await markStatus(id, 'Printed', null);
     
   } catch (err) {
     const msg = err?.message || String(err);
+    status(id, 'error', { msg });
     await markStatus(id, 'Error', msg);
-    console.error('Print error:', msg);
+    log.error('Print error', { id, kind, msg });
   }
 }
 
@@ -1269,10 +1367,7 @@ async function cycle() {
       try {
         await processRecord(rec);
       } catch (ep) {
-        console.error(
-          'Process Record Error:',
-          ep.message || ep
-        );
+        log.error('ProcessRecord threw', { err: ep?.message || String(ep) });
 
         // Delay only between label prints, not for steri_sheet
         if (kind !== 'steri_sheet') {
@@ -1286,31 +1381,44 @@ async function cycle() {
       }
     }
   } catch (e) {
-    console.error('Cycle error:', e.message || e);
+    log.error('Cycle error', { err: e?.message || String(e) });
   } finally {
     setTimeout(cycle, POLL_MS);
   }
 }
 
-console.log(`MushroomProcess print daemon [${INSTANCE_ID}] (backend=${DB_BACKEND}) starting…`);
-console.log(
-  `Queue: ${QUEUE_VIEW} | Poll: ${POLL_MS}ms | Label printer: ${
+  log.info(`MushroomProcess print daemon starting`, { backend: DB_BACKEND, instance: INSTANCE_ID });
+  log.info(
+  `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
     PRINTER || '(default)'
   } | Sheet printer: ${
     STERI_SHEET_PRINTER || '(set per job or env)'
   }`
 );
-console.log(
+  log.info(
+    `Logs: ${LOG_DIR}`
+);
+  log.info(
   `FORCE_PAGE_SIZE=${FORCE_PAGE} | LOT PAGE ${PAGE_W}x${PAGE_H} pt | FORM=${
     FORM_NAME || '(none)'
   } | ORIENT=${ORIENT}${
     FORCE_LAND ? ' (forced landscape)' : ''
   }`
 );
-console.log(
+log.info(
   `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Sumatra=${
     USE_SUMATRA ? 'on' : 'off'
   }`
 );
+
+
+
+// Optional heartbeat so you can tell the daemon is alive even when the queue is empty.
+const HEARTBEAT_MS = safeNum(process.env.HEARTBEAT_MS, 60000);
+if (HEARTBEAT_MS > 0) {
+  setInterval(() => {
+    log.debug('Heartbeat', { backend: DB_BACKEND, poll_ms: POLL_MS });
+  }, HEARTBEAT_MS).unref?.();
+}
 
 cycle();

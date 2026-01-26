@@ -50,11 +50,13 @@ The daemon uses libraries such as:
 - `pdfkit` – render crisp vector PDFs (great for 203 dpi label printers).
 - `qrcode` – generate QR codes from public links.
 - `pdf-to-printer` – send PDFs to your Windows printer.
+- `dotenv` - read .env environment
+- `axios` - Communicate with Airtable API
 
 Install dependencies in the daemon folder:
 
 ```bash
-npm install
+npm install pdfkit qrcode pdf-to-printer dotenv axios sumatra
 ```
 
 (Or install the specific modules if you prefer a slimmer setup.)
