@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.9
+ * Version: 2026-01-25.10
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -300,8 +300,8 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
     if (fn === 'LOWER' && args.length >= 1) return `"lower"(${ensureCast(args[0], 'text')})`;
-    if (fn === 'UPPER' && args.length===1) return `UPPER((${args[0]})::text)`;
-    if (fn === 'LEN' && args.length===1) return `LENGTH((${args[0]})::text)`;
+    if (fn === 'UPPER' && args.length===1) return `"upper"(${ensureCast(args[0],'text')})`;
+    if (fn === 'LEN' && args.length===1) return `"length"(${ensureCast(args[0],'text')})`;
 
     if (fn === 'LEFT' && args.length >= 2) return `"left"(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
     if (fn === 'RIGHT' && args.length >= 2) return `"right"(${ensureCast(args[0], 'text')}, ${ensureCast(args[1], 'int')})`;
@@ -309,7 +309,7 @@ function compileFormulaExpr(raw, ctx) {
 
     if (fn === 'ROUND' && (args.length===1 || args.length===2)) {
       const d = args.length===2 ? args[1] : '0';
-      return `ROUND(${ensureCast(args[0],'numeric')}, ${ensureCast(d,'int')})`;
+      return `"round"(${ensureCast(args[0],'numeric')}, ${ensureCast(d,'int')})`;
     }
 
     if (fn === 'VALUE' && args.length===1) return ensureCast(`NULLIF((${args[0]})::text,'')`, 'numeric');
@@ -461,6 +461,12 @@ function compileFormulaExpr(raw, ctx) {
     }
     // Restore protected function markers
     s = s.replaceAll('?', '(');
+
+    // Defensive fix: if an OR()/AND() compilation bug ever produced boolean "juxtaposition" like `(a) ((b))`,
+    // patch it into `(a) OR ((b))` so Postgres can parse it.
+    // This should be a no-op when the compiler is behaving.
+    s = s.replace(/\)\s+\(\(/g, ') OR ((');
+
     return s;
   }
 
