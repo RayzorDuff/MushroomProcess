@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.4
+ * Version: 2026-01-25.6
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -53,7 +53,8 @@ require('./load_env');
  *     become NULL and are annotated in SQL comments. 
  *
  * Env:
- *   AIRTABLE_SCHEMA_PATH=./_schema.json
+ *   AIRTABLE_SCHEMA_PATH=./export/_schema.json
+ *   TABLES_DUMP_PATH=./export/tables_dump.json
  *   POSTGRES_SCHEMA=public
  *   POSTGRES_OUT_DIR=./pg_out
  *   AIRTABLE_EXPORT_DIR=./export     (optional; directory with per-table JSON exports)
@@ -201,22 +202,25 @@ function mapDatetimeFormat(fmt) {
 }
 
 function compileFormulaExpr(raw, ctx) {
-  // ctx: { qualifier: 'base'|'btbl', fieldIdToCol: Map, formulaByFieldId: Map(fieldId->formula string), compiling:Set }
+  // ctx: { qualifier: 'base'|'btbl'|'comp', fieldIdToCol: Map(fieldId->colSlug), fieldIdToType?:Map(fieldId->'scalar'|'array') }
   let expr = stripWs(raw);
   if (!expr) return { sql: 'NULL', notes: ['empty formula'] };
 
-  // Convert line breaks to spaces
   expr = expr.replace(/\s+/g, ' ').trim();
 
-  // Replace field references {fldXXXX} with qualifier."col"
+  // Replace Airtable field references {fld...} with qualified identifiers.
   expr = expr.replace(/\{(fld[A-Za-z0-9]+)\}/g, (_m, fid) => {
     const col = ctx.fieldIdToCol.get(fid);
     if (!col) return 'NULL';
     return `${ctx.qualifier}.${ident(col)}`;
   });
 
-  // Operators: & -> ||
-  // Only replace & when not inside quotes
+  // Normalize TRUE()/FALSE()/BLANK()
+  expr = expr.replace(/\bTRUE\s*\(\s*\)/gi, 'TRUE');
+  expr = expr.replace(/\bFALSE\s*\(\s*\)/gi, 'FALSE');
+  expr = expr.replace(/\bBLANK\s*\(\s*\)/gi, "''");
+
+  // Replace & (string concat) with ||
   {
     let out = '';
     let inS=false;
@@ -229,72 +233,202 @@ function compileFormulaExpr(raw, ctx) {
     expr = out;
   }
 
-  // String literal conversion
+  // Convert Airtable "double quoted" strings to SQL single quotes (best-effort)
   expr = convertStringLiterals(expr);
 
-  // Function compiler (recursive) for a small set
-  function compileFunc(e) {
-    const m = /^([A-Z_]+)\((.*)\)$/.exec(e.trim());
-    if (!m) return null;
-    const fn = m[1];
-    const inner = m[2];
-    const args = splitTopLevelArgs(inner);
+  const notes = [];
 
-    const c = (x) => compileAny(x);
+  function mapDatetimeFormat(fmt) {
+    const f = fmt.replace(/^'|'$/g,'');
+    const map = { 'YYMMDD':'YYMMDD','YY':'YY','YYYY':'YYYY','MM':'MM','DD':'DD','HH':'HH24','hh':'HH12','mm':'MI' };
+    return map[f] ? `'${map[f]}'` : `'${f}'`;
+  }
+
+  function splitArgs(inner) { return splitTopLevelArgs(inner); }
+
+  // Compile a single function call NAME(args...) where args are already compiled SQL expressions.
+  function compileFunc(name, args) {
+    const fn = name.toUpperCase();
 
     if (fn === 'IF' && (args.length === 2 || args.length === 3)) {
-      const cond = c(args[0]);
-      const tVal = c(args[1]);
-      const fVal = args.length === 3 ? c(args[2]) : 'NULL';
+      const cond=args[0], tVal=args[1], fVal=(args.length===3?args[2]:'NULL');
       return `CASE WHEN (${cond}) THEN (${tVal}) ELSE (${fVal}) END`;
     }
-    if (fn === 'AND') return '(' + args.map(a => `(${c(a)})`).join(' AND ') + ')';
-    if (fn === 'OR') return '(' + args.map(a => `(${c(a)})`).join(' OR ') + ')';
-    if (fn === 'NOT' && args.length === 1) return `(NOT (${c(args[0])}))`;
-    if (fn === 'RIGHT' && args.length === 2) return `RIGHT((${c(args[0])})::text, (${c(args[1])})::int)`;
-    if (fn === 'LEFT' && args.length === 2) return `LEFT((${c(args[0])})::text, (${c(args[1])})::int)`;
-    if (fn === 'MID' && (args.length === 3)) return `SUBSTRING((${c(args[0])})::text FROM (${c(args[1])})::int FOR (${c(args[2])})::int)`;
-    if (fn === 'LEN' && args.length === 1) return `LENGTH((${c(args[0])})::text)`;
-    if (fn === 'LOWER' && args.length === 1) return `LOWER((${c(args[0])})::text)`;
-    if (fn === 'UPPER' && args.length === 1) return `UPPER((${c(args[0])})::text)`;
-    if (fn === 'VALUE' && args.length === 1) return `NULLIF((${c(args[0])})::text,'')::numeric`;
-    if (fn === 'ROUND' && (args.length === 1 || args.length === 2)) {
-      const n = c(args[0]);
-      const d = args.length===2 ? c(args[1]) : '0';
-      return `ROUND((${n})::numeric, (${d})::int)`;
+    if (fn === 'AND') return '(' + args.map(a=>`(${a})`).join(' AND ') + ')';
+    if (fn === 'OR') return '(' + args.map(a=>`(${a})`).join(' OR ') + ')';
+    if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
+
+    if (fn === 'LOWER' && args.length===1) return `LOWER((${args[0]})::text)`;
+    if (fn === 'UPPER' && args.length===1) return `UPPER((${args[0]})::text)`;
+    if (fn === 'LEN' && args.length===1) return `LENGTH((${args[0]})::text)`;
+
+    if (fn === 'LEFT' && args.length===2) return `LEFT((${args[0]})::text, (${args[1]})::int)`;
+    if (fn === 'RIGHT' && args.length===2) return `RIGHT((${args[0]})::text, (${args[1]})::int)`;
+    if (fn === 'MID' && args.length===3) return `SUBSTRING((${args[0]})::text FROM (${args[1]})::int FOR (${args[2]})::int)`;
+
+    if (fn === 'ROUND' && (args.length===1 || args.length===2)) {
+      const d = args.length===2 ? args[1] : '0';
+      return `ROUND((${args[0]})::numeric, (${d})::int)`;
     }
-    if (fn === 'DATETIME_FORMAT' && args.length >= 2) {
-      const dt = c(args[0]);
+
+    if (fn === 'VALUE' && args.length===1) return `NULLIF((${args[0]})::text,'')::numeric`;
+    if (fn === 'SUM') return '(' + args.map(a=>`COALESCE((${a})::numeric,0)`).join(' + ') + ')';
+    if (fn === 'CONCAT' || fn === 'CONCATENATE') {
+      // If single arg looks like array, turn into array_to_string; otherwise concat as text.
+      if (args.length===1) return `array_to_string((${args[0]})::text[], '')`;
+      return '(' + args.map(a=>`(${a})::text`).join('||') + ')';
+    }
+
+    if (fn === 'YEAR' && args.length===1) return `EXTRACT(YEAR FROM (${args[0]})::timestamp)`;
+    if (fn === 'MONTH' && args.length===1) return `EXTRACT(MONTH FROM (${args[0]})::timestamp)`;
+    if (fn === 'DAY' && args.length===1) return `EXTRACT(DAY FROM (${args[0]})::timestamp)`;
+
+    if (fn === 'ISBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NULL))`;
+    if (fn === 'ISNOTBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NOT NULL))`;
+
+    if (fn === 'DATETIME_FORMAT' && args.length>=2) {
       const fmt = mapDatetimeFormat(args[1]);
-      return `to_char((${dt})::timestamp, ${fmt})`;
+      return `to_char((${args[0]})::timestamp, ${fmt})`;
     }
-    if (fn === 'CREATED_TIME' && args.length === 0) return `${ctx.qualifier}.${ident('nc_created_at')}`;
-    if (fn === 'RECORD_ID' && args.length === 0) return `${ctx.qualifier}.${ident('airtable_id')}`;
-    if (fn === 'BLANK' && args.length === 0) return `''::text`;
-
-    return null;
-  }
-
-  function compileAny(e) {
-    const ee = e.trim();
-    // if it's a function call at the top-level, compile it
-    const compiled = compileFunc(ee);
-    if (compiled) return compiled;
-    // parentheses wrapping
-    if (ee.startsWith('(') && ee.endsWith(')')) {
-      // keep
-      return `(${compileAny(ee.slice(1,-1))})`;
+    if (fn === 'CREATED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_created_at')}`;
+    if (fn === 'LAST_MODIFIED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_updated_at')}`;
+    if (fn === 'RECORD_ID' && args.length===0) {
+      // Prefer legacy field (if present) so imported rows keep their original IDs; else fall back to airtable_id; else nocouuid sans dashes.
+      if (ctx && ctx.hasLegacy) {
+        return `COALESCE(NULLIF(${ctx.qualifier}.${ident(ctx.legacySlug)}::text,''), ${ctx.qualifier}.${ident('airtable_id')}::text, replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''))`;
+      }
+      return `${ctx.qualifier}.${ident('airtable_id')}`;
     }
-    return ee;
+
+    if (fn === 'SET_TIMEZONE' && args.length===2) return `(${args[0]})`;
+    if (fn === 'DATEADD' && args.length===3) {
+      // DATEADD(datetime, n, 'days') style (Airtable)
+      const unit = (args[2]||'').replace(/^'|'$/g,'').toLowerCase();
+      const unitMap = { years:'year', year:'year', months:'month', month:'month', days:'day', day:'day', hours:'hour', hour:'hour', minutes:'minute', minute:'minute', seconds:'second', second:'second' };
+      const u = unitMap[unit] || unit;
+      return `((${args[0]})::timestamp + ((${args[1]})::numeric * (INTERVAL '1 ' || ${literalText(''+u)})))`;
+    }
+
+    if (fn === 'REGEX_REPLACE' && (args.length===3 || args.length===4)) {
+      // regexp_replace(str, pattern, replacement, 'g')
+      const flags = args.length===4 ? args[3] : `'g'`;
+      return `regexp_replace((${args[0]})::text, (${args[1]})::text, (${args[2]})::text, (${flags})::text)`;
+    }
+
+    if ((fn === 'ARRAYSLICE' || fn === 'ARRAYSLICE') && args.length>=3) {
+      // Airtable ARRAYSPLICE(arr, start, count) start is 0-based
+      const arr = args[0];
+      const start = args[1];
+      const count = args[2];
+      // Convert to 1-based slice: [start+1 : start+count]
+      return `(${arr})::text[][((${start})::int + 1): ((${start})::int + (${count})::int)]`;
+    }
+
+    if (fn === 'ARRAYJOIN' && (args.length===1 || args.length===2)) {
+      const delim = args.length===2 ? args[1] : `''`;
+      return `array_to_string((${args[0]})::text[], (${delim})::text)`;
+    }
+
+    if ((fn === 'ARRAYSLICE' || fn === 'ARRAYSPLICE') && args.length >= 3) {
+      // Airtable ARRAYSPLICE/ARRAYSLICE(arr, start, count) with 0-based start.
+      const arr = args[0];
+      const start = args[1];
+      const count = args[2];
+      return `(${arr})::text[][((${start})::int + 1) : ((${start})::int + (${count})::int)]`;
+    }
+
+
+    if (fn === 'SWITCH' && args.length>=3) {
+      // SWITCH(expr, val1, res1, val2, res2, ..., default?)
+      const switchExpr = args[0];
+      const pairs = args.slice(1);
+      const hasDefault = (pairs.length % 2) === 1;
+      const defaultExpr = hasDefault ? pairs[pairs.length-1] : "''";
+      const lim = hasDefault ? pairs.length-1 : pairs.length;
+      let out = `CASE`;
+      for (let i=0;i<lim;i+=2) {
+        out += ` WHEN (${switchExpr}) = (${pairs[i]}) THEN (${pairs[i+1]})`;
+      }
+      out += ` ELSE (${defaultExpr}) END`;
+      return out;
+    }
+
+    // Unknown function: keep as-is so caller can decide to null it out
+    notes.push(`unsupported function ${name}`);
+    return `${name}(` + args.join(',') + `)`;
   }
 
-  const sql = compileAny(expr);
-  // If it still contains unknown Airtable functions (uppercase followed by '('), we bail to NULL to keep view valid.
-  if (/[A-Z_]+\(/.test(sql)) {
-    return { sql: 'NULL', notes: ['unsupported function(s) in formula'] };
+  // Replace innermost function calls iteratively.
+  // We scan for NAME(...) patterns and resolve the one with the deepest nesting first.
+    const KNOWN_AIRTABLE_FNS = new Set([
+    'IF','AND','OR','NOT',
+    'LOWER','UPPER','LEN','LEFT','RIGHT','MID','ROUND','VALUE','SUM','CONCAT','CONCATENATE',
+    'YEAR','MONTH','DAY',
+    'ISBLANK','ISNOTBLANK','BLANK',
+    'DATETIME_FORMAT','CREATED_TIME','LAST_MODIFIED_TIME','RECORD_ID',
+    'SET_TIMEZONE','DATEADD',
+    'REGEX_REPLACE','ARRAYSLICE','ARRAYJOIN',
+    'SWITCH'
+  ]);
+
+  function compileAllFunctions(e) {
+    let s = e;
+    // Safety iteration cap
+    for (let iter=0; iter<500; iter++) {
+      // find an innermost function call: NAME( ... ) with no other '(' inside its arg list.
+      // We'll do a manual scan to locate parentheses and match back to function name.
+      let best = null; // {start,end,name,inner}
+      let inS=false;
+      const stack = [];
+      for (let i=0;i<s.length;i++) {
+        const ch = s[i];
+        if (ch==="'" && s[i-1]!=="\\") inS=!inS;
+        if (inS) continue;
+        if (ch==='(') stack.push(i);
+        else if (ch===')' && stack.length) {
+          const l = stack.pop();
+          // Determine token before '('
+          const before = s.slice(0,l).match(/([A-Za-z_][A-Za-z0-9_]*)\s*$/);
+          if (!before) continue;
+          const name = before[1];
+          const nameStart = l - before[0].length;
+          const inner = s.slice(l+1, i);
+          // Ensure inner has no unmatched parens (it is innermost by stack mechanics)
+          best = { start: nameStart, lparen: l, rparen: i, name, inner };
+          break; // this is the first innermost closing we encounter scanning left->right
+        }
+      }
+      if (!best) break;
+
+      const upName = String(best.name || '').toUpperCase();
+      // Only compile Airtable functions; leave SQL functions (to_char, regexp_replace, etc.) untouched.
+      if (!KNOWN_AIRTABLE_FNS.has(upName)) {
+        // Mark this function call as "protected" by skipping it. We break out of this iteration
+        // by replacing the '(' with a sentinel so we don't re-detect it.
+        s = s.slice(0, best.lparen) + '?' + s.slice(best.lparen + 1);
+        continue;
+      }
+
+      const rawArgs = splitArgs(best.inner);
+      const compiledArgs = rawArgs.map(a => compileAllFunctions(a.trim()));
+      const repl = compileFunc(best.name, compiledArgs);
+      s = s.slice(0, best.start) + repl + s.slice(best.rparen+1);
+    }
+    // Restore protected function markers
+    s = s.replaceAll('?', '(');
+    return s;
   }
-  return { sql, notes: [] };
+
+  const compiled = compileAllFunctions(expr);
+
+  // Only null out when we actually encountered an unsupported Airtable function.
+  // The compiled SQL legitimately contains function calls like to_char(), regexp_replace(), left(), right(), etc.
+  if (notes && notes.length) {
+    return { sql: 'NULL', notes };
+  }
+  return { sql: compiled, notes: [] };
 }
+
 
 // ---------- Main generator ----------
 
@@ -476,9 +610,16 @@ function main() {
       if (compiledFormulaMemo.has(key)) return compiledFormulaMemo.get(key);
 
       const map = tableFieldIdToCol.get(slug(tableObj.name)) || new Map();
+      const physicalCols = physicalColsByTableSlug.get(slug(tableObj.name)) || new Set();
+      const outColSlug = slug(fieldObj.name);
+      const legacySlug = slug(`${fieldObj.name}_legacy`);
+      const hasLegacy = physicalCols.has(legacySlug);
       const ctx = {
         qualifier,
         fieldIdToCol: map,
+        outColSlug,
+        legacySlug,
+        hasLegacy,
       };
       const { sql } = compileFormulaExpr(fieldObj.options.formula, ctx);
       compiledFormulaMemo.set(key, sql);
@@ -496,15 +637,16 @@ function main() {
         continue;
       }
 
-      const exprs = [];
+      const lookupExprs = [];
+      const formulaExprs = [];
       for (const f of computed) {
         const outAlias = slug(f.name) || 'computed';
         const outCol = ident(outAlias);
 
         if (f.type === 'formula') {
-          const compiled = compileFormulaFor(td, f, 'base');
+          const compiled = compileFormulaFor(td, f, 'comp');
           if (compiled === 'NULL') csql += `-- TODO(formula): ${td.name}.${f.name} (unsupported)\n`;
-          exprs.push(`(${compiled}) AS ${outCol}`);
+          formulaExprs.push(`(${compiled}) AS ${outCol}`);
           continue;
         }
 
@@ -513,22 +655,22 @@ function main() {
           const linkFieldId = opts.recordLinkFieldId;
           const targetFieldId = opts.fieldIdInLinkedTable;
           if (!linkFieldId || !targetFieldId) {
-            exprs.push(`'{}'::text[] AS ${outCol}`);
+            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
             continue;
           }
 
           const linkField = findFieldById(td, linkFieldId);
           if (!linkField || linkField.type !== 'multipleRecordLinks' || !linkField.options || !linkField.options.linkedTableId) {
-            exprs.push(`'{}'::text[] AS ${outCol}`);
+            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
             continue;
           }
 
           const other = tableById(tablesDump, linkField.options.linkedTableId);
-          if (!other) { exprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+          if (!other) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
           const b = slug(other.name);
 
           const otherField = findFieldById(other, targetFieldId);
-          if (!otherField) { exprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+          if (!otherField) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
 
           // Determine target expression: physical column OR compiled formula
           let targetExpr = null;
@@ -545,7 +687,7 @@ function main() {
           }
 
           if (!targetExpr || targetExpr === 'NULL') {
-            exprs.push(`'{}'::text[] AS ${outCol}`);
+            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
             continue;
           }
 
@@ -553,10 +695,7 @@ function main() {
           const jn = `_m2m_${a}_${b}_${linkFieldSlug}`;
           const aCol = `${a}_id`;
           const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
-
-          if (f.type === 'rollup') {
-            csql += `-- TODO(rollup): ${td.name}.${f.name} (Airtable rollup aggregation formula not present in tables_dump)\n`;
-          }
+          // Rollup is treated like lookup when no aggregation formula is exported.
 
           // For now: both lookup and rollup emit text[] of values in linked records.
           const expr =
@@ -567,17 +706,26 @@ function main() {
             `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(b)} btbl ON btbl.nocopk = j.${ident(bCol)} ` +
             `WHERE j.${ident(aCol)} = base.nocopk) AS ${outCol}`;
 
-          exprs.push(expr);
+          lookupExprs.push(expr);
           continue;
         }
 
         // default
-        exprs.push(`NULL AS ${outCol}`);
+        formulaExprs.push(`NULL AS ${outCol}`);
       }
 
-      csql += `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS\n`;
-      csql += `SELECT base.*,\n  ${exprs.join(',\n  ')}\n`;
-      csql += `FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)} base;\n\n`;
+      csql += `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS
+`;
+      csql += `WITH comp AS (
+  SELECT base.*,
+    ${lookupExprs.join(',\n    ')}
+  FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)} base
+)
+SELECT comp.*,
+  ${formulaExprs.join(',\n  ')}
+FROM comp;
+
+`;
     }
 
     csql += `COMMIT;\n`;
