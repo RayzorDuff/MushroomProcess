@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-25.11
+ * Version: 2026-01-26.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -107,6 +107,12 @@ function pgTypeForField(f) {
   if (t === 'button') return null;
   if (t === 'aiText') return 'text';
   return 'text';
+}
+
+// Junction table naming used in 002_links.sql:
+//   _m2m_<a>_<b>_<linkFieldSlug>
+function m2mJoinName(aSlug, linkFieldSlug, bSlug) {
+  return `_m2m_${aSlug}_${bSlug}_${linkFieldSlug}`;
 }
 
 function isComputedType(type) { return ['lookup','multipleLookupValues','rollup','formula'].includes(type); }
@@ -678,118 +684,131 @@ function main() {
       return sql;
     }
 
+    const computedViewBlocks = new Map();
+
     for (const t of exportTables) {
       const a = slug(t.name);
       const td = tablesDump ? tableById(tablesDump, t.id) : null;
       const fields = td ? (td.fields || []) : [];
       const computed = fields.filter(f => isComputedType(f.type));
 
+      let viewBlock = '';
       if (!computed.length) {
-        csql += `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS SELECT * FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)};\n\n`;
-        continue;
-      }
+        viewBlock = `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS SELECT * FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)};\n\n`;
+      } else {
+        const lookupExprs = [];
+        const formulaExprs = [];
+        for (const f of computed) {
+          const outAlias = slug(f.name) || 'computed';
+          const outCol = ident(outAlias);
 
-      const lookupExprs = [];
-      const formulaExprs = [];
-      for (const f of computed) {
-        const outAlias = slug(f.name) || 'computed';
-        const outCol = ident(outAlias);
+          if (f.type === 'formula') {
+            const compiled = compileFormulaFor(td, f, 'comp');
+            if (compiled === 'NULL') viewBlock += `-- TODO(formula): ${td.name}.${f.name} (unsupported)\n`;
+            formulaExprs.push(`(${compiled}) AS ${outCol}`);
+            continue;
+          }
 
-        if (f.type === 'formula') {
-          const compiled = compileFormulaFor(td, f, 'comp');
-          if (compiled === 'NULL') csql += `-- TODO(formula): ${td.name}.${f.name} (unsupported)\n`;
-          formulaExprs.push(`(${compiled}) AS ${outCol}`);
-          continue;
+          if (f.type === 'lookup' || f.type === 'multipleLookupValues' || f.type === 'rollup') {
+            const opts = f.options || {};
+            const linkFieldId = opts.recordLinkFieldId;
+            const targetFieldId = opts.fieldIdInLinkedTable;
+            if (!linkFieldId || !targetFieldId) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+
+            const linkField = findFieldById(td, linkFieldId);
+            if (!linkField || linkField.type !== 'multipleRecordLinks' || !linkField.options || !linkField.options.linkedTableId) {
+              lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue;
+            }
+
+            const other = tableById(tablesDump, linkField.options.linkedTableId);
+            if (!other) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+
+            const otherSlug = slug(other.name);
+            const otherFields = other.fields || [];
+            const targetField = findFieldById(other, targetFieldId);
+            if (!targetField) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+
+            const linkSlug = slug(linkField.name);
+            const joinTable = m2mJoinName(a, linkSlug, otherSlug);
+            const leftFk = `${a}_id`;
+            const rightFk = (a === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
+
+            const otherPhysical = physicalColsByTableSlug.get(otherSlug) || new Set();
+            const isTargetPhysical = otherPhysical.has(slug(targetField.name));
+            const isTargetComputed = isComputedType(targetField.type) || !isTargetPhysical;
+
+            // IMPORTANT: if the lookup targets a computed field, join the computed view vc_<other>
+            const otherRel = (otherSlug === a)
+              ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)}`
+              : (isTargetComputed ? `${ident(POSTGRES_SCHEMA)}.${ident('vc_' + otherSlug)}` : `${ident(POSTGRES_SCHEMA)}.${ident(otherSlug)}`);
+
+            let targetExpr = '';
+            if (targetField.type === 'formula') {
+              targetExpr = compileFormulaFor(other, targetField, 'btbl');
+            } else {
+              // physical or computed view column
+              targetExpr = `btbl.${ident(slug(targetField.name))}`;
+            }
+
+            // rollup without aggregation => treat as lookup array
+            // rollup with aggregation => TODO (not implemented here)
+            if (targetField.type === 'rollup' && targetField.options && targetField.options.rollupFunction) {
+              // For now, preserve as TODO; most of your rollups are exposed as lookups.
+              lookupExprs.push(`'{}'::text[] AS ${outCol}`);
+              continue;
+            }
+
+            lookupExprs.push(`(SELECT COALESCE(array_agg(${targetExpr} ORDER BY btbl.${ident('nocopk')}), '{}'::text[]) FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} WHERE j.${ident(leftFk)} = comp.${ident('nocopk')}) AS ${outCol}`);
+            continue;
+          }
+
+          // default
+          lookupExprs.push(`NULL AS ${outCol}`);
         }
 
-        if (f.type === 'lookup' || f.type === 'multipleLookupValues' || f.type === 'rollup') {
-          const opts = f.options || {};
-          const linkFieldId = opts.recordLinkFieldId;
-          const targetFieldId = opts.fieldIdInLinkedTable;
-          if (!linkFieldId || !targetFieldId) {
-            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
-            continue;
-          }
-
-          const linkField = findFieldById(td, linkFieldId);
-          if (!linkField || linkField.type !== 'multipleRecordLinks' || !linkField.options || !linkField.options.linkedTableId) {
-            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
-            continue;
-          }
-
-          const other = tableById(tablesDump, linkField.options.linkedTableId);
-          if (!other) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
-          const b = slug(other.name);
-
-          const otherField = findFieldById(other, targetFieldId);
-          if (!otherField) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
-
-          // Determine target expression and join target: prefer physical base table when possible,
-// otherwise join the computed view vc_<table> so we can reference lookup/rollup/formula outputs safely.
-          let targetExpr = null;
-          const physicalCols = physicalColsByTableSlug.get(b) || new Set();
-          const targetSlug = slug(otherField.name);
-
-          // Decide whether we must join to computed view:
-          // - formulas are computed (even if they only reference physical cols)
-          // - lookups/rollups are computed
-          // - any non-physical target column must come from vc_<table>
-          const targetIsComputed = (otherField.type === 'formula' || otherField.type === 'lookup' || otherField.type === 'rollup' || !physicalCols.has(targetSlug));
-          const joinRel = targetIsComputed ? ident('vc_' + b) : ident(b);
-
-          if (otherField.type === 'formula' && otherField.options && otherField.options.formula) {
-            // Compile formula in the context of the joined relation (btbl alias).
-            targetExpr = compileFormulaFor(other, otherField, 'btbl');
-          } else if (targetIsComputed) {
-            // lookup/rollup or computed column available on vc_<table>
-            targetExpr = `btbl.${ident(targetSlug)}::text`;
-          } else if (physicalCols.has(targetSlug)) {
-            targetExpr = `btbl.${ident(targetSlug)}::text`;
-          } else {
-            targetExpr = null;
-          }
-
-          if (!targetExpr || targetExpr === 'NULL') {
-            lookupExprs.push(`'{}'::text[] AS ${outCol}`);
-            continue;
-          }
-
-          const linkFieldSlug = slug(linkField.name) || 'link';
-          const jn = `_m2m_${a}_${b}_${linkFieldSlug}`;
-          const aCol = `${a}_id`;
-          const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
-          // Rollup is treated like lookup when no aggregation formula is exported.
-
-          // For now: both lookup and rollup emit text[] of values in linked records.
-          const expr =
-            `(SELECT COALESCE(` +
-            `array_agg((${targetExpr}) ORDER BY (${targetExpr})) FILTER (WHERE (${targetExpr}) IS NOT NULL), ` +
-            `'{}'::text[]) ` +
-            `FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)} j ` +
-            `JOIN ${ident(POSTGRES_SCHEMA)}.${joinRel} btbl ON btbl.nocopk = j.${ident(bCol)} ` +
-            `WHERE j.${ident(aCol)} = base.nocopk) AS ${outCol}`;
-
-          lookupExprs.push(expr);
-          continue;
-        }
-
-        // default
-        formulaExprs.push(`NULL AS ${outCol}`);
+        viewBlock += `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS\nWITH comp AS (\n  SELECT base.*${lookupExprs.length ? ',\n    ' + lookupExprs.join(',\n    ') : ''}\n  FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)} base\n)\nSELECT comp.*${formulaExprs.length ? ',\n  ' + formulaExprs.join(',\n  ') : ''}\nFROM comp;\n\n`;
       }
 
-      csql += `CREATE VIEW ${ident(POSTGRES_SCHEMA)}.${ident('vc_' + a)} AS
-`;
-      csql += `WITH comp AS (
-  SELECT base.*,
-    ${lookupExprs.join(',\n    ')}
-  FROM ${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)} base
-)
-SELECT comp.*,
-  ${formulaExprs.join(',\n  ')}
-FROM comp;
-
-`;
+      computedViewBlocks.set('vc_' + a, viewBlock);
     }
+
+    // Order computed views by their actual SQL dependencies (references to other vc_* views)
+    function topoOrderComputedViews(blocksMap) {
+      const names = Array.from(blocksMap.keys());
+      const deps = new Map();
+      for (const n of names) deps.set(n, new Set());
+      for (const [n, b] of blocksMap.entries()) {
+        const refs = (b.match(/"public"\."(vc_[^"]+)"/g) || []).map(x => x.replace(/.*"(vc_[^"]+)".*/, '$1'));
+        for (const r of refs) {
+          if (r !== n && blocksMap.has(r)) deps.get(n).add(r);
+        }
+      }
+      const pos = new Map();
+      let i = 0;
+      for (const n of names) pos.set(n, i++);
+      const incoming = new Map();
+      for (const n of names) incoming.set(n, new Set(deps.get(n)));
+      const ready = names.filter(n => incoming.get(n).size === 0);
+      const ordered = [];
+      while (ready.length) {
+        ready.sort((a, b) => pos.get(a) - pos.get(b));
+        const n = ready.shift();
+        ordered.push(n);
+        for (const m of names) {
+          if (incoming.get(m).has(n)) {
+            incoming.get(m).delete(n);
+            if (incoming.get(m).size === 0 && !ordered.includes(m) && !ready.includes(m)) ready.push(m);
+          }
+        }
+      }
+      // If cycle, append remaining in original order
+      for (const n of names) if (!ordered.includes(n)) ordered.push(n);
+      return ordered;
+    }
+
+    const orderedViews = topoOrderComputedViews(computedViewBlocks);
+    for (const n of orderedViews) csql += computedViewBlocks.get(n);
+
 
     csql += `COMMIT;\n`;
     fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '004_computed_views.sql'), csql, 'utf8');

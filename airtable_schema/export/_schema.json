@@ -2453,11 +2453,10 @@
           "id": "fldmx5RDnELMNEUEm",
           "name": "label_inoc_line",
           "options": {
-            "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD') & \" \",\r\n  IF(\r\n    {fldZLdt5XUuUlksGL},\r\n    \"Inoculated: \" & DATETIME_FORMAT({fldZLdt5XUuUlksGL}, 'YYYY-MM-DD') & \" \",\r\n    \"\"\r\n  )) & {fldc6ASAfjsjEts33}",
+            "formula": "IF(\r\n  {fldjcFYOzKgv4U3qD},\r\n  \"Inoculated: \" & DATETIME_FORMAT({fldjcFYOzKgv4U3qD}, 'YYYY-MM-DD') & \" \",\r\n  \"\") & {fldc6ASAfjsjEts33}",
             "isValid": true,
             "referencedFieldIds": [
               "fldjcFYOzKgv4U3qD",
-              "fldZLdt5XUuUlksGL",
               "fldc6ASAfjsjEts33"
             ],
             "result": {
@@ -2677,31 +2676,6 @@
             "timeZone": "client"
           },
           "type": "dateTime"
-        },
-        {
-          "id": "fldZLdt5XUuUlksGL",
-          "name": "last_inoculation_date",
-          "options": {
-            "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
-            "isValid": true,
-            "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
-            "referencedFieldIds": [],
-            "result": {
-              "options": {
-                "dateFormat": {
-                  "format": "l",
-                  "name": "local"
-                },
-                "timeFormat": {
-                  "format": "h:mma",
-                  "name": "12hour"
-                },
-                "timeZone": "client"
-              },
-              "type": "dateTime"
-            }
-          },
-          "type": "rollup"
         },
         {
           "id": "fldHPyNLj2jCblQTo",
@@ -4598,6 +4572,11 @@
                 "color": "blueLight2",
                 "id": "seldtXB4NopbIuql1",
                 "name": "Error"
+              },
+              {
+                "color": "cyanLight2",
+                "id": "sel2wa0rna6EuVcdd",
+                "name": "Printing"
               }
             ]
           },
@@ -4683,7 +4662,7 @@
           "id": "fld9zrOZzgsRuQq9q",
           "name": "print_target",
           "options": {
-            "formula": "IF({fld30QSxuOyp9wOMj} = \"steri_sheet\",\"SHEETS\", \r\n  IF(OR(\r\n    {fldISpmpR8c0JrT9b} = \"fresh_mushrooms\",\r\n    {fldISpmpR8c0JrT9b} = \"freezer_tray\",\r\n    {fldISpmpR8c0JrT9b} = \"fresh_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_mushrooms\",\r\n    {fldzs9byHVVlp2h31} = \"freezer_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_tray\"    \r\n  ), \"TRAYS\", \r\n  \"ZEBRA\"))",
+            "formula": "IF({fld30QSxuOyp9wOMj} = \"steri_sheet\",\"ZEBRA\", \r\n  IF(OR(\r\n    {fldISpmpR8c0JrT9b} = \"fresh_mushrooms\",\r\n    {fldISpmpR8c0JrT9b} = \"freezer_tray\",\r\n    {fldISpmpR8c0JrT9b} = \"fresh_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_mushrooms\",\r\n    {fldzs9byHVVlp2h31} = \"freezer_tray\",\r\n    {fldzs9byHVVlp2h31} = \"fresh_tray\"    \r\n  ), \"TRAYS\", \r\n  \"ZEBRA\"))",
             "isValid": true,
             "referencedFieldIds": [
               "fld30QSxuOyp9wOMj",
