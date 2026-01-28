@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-26.1
+ * Version: 2026-01-28.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -73,7 +73,9 @@ function envBool(name, defVal) {
 
 const AIRTABLE_EXPORT_DIR = process.env.AIRTABLE_EXPORT_DIR || '';
 const AIRTABLE_SCHEMA_PATH = process.env.AIRTABLE_SCHEMA_PATH ||  path.join(AIRTABLE_EXPORT_DIR, '_schema.json');
-const TABLES_DUMP_PATH = process.env.TABLES_DUMP_PATH || path.join(AIRTABLE_EXPORT_DIR, 'tables_dump.json');
+const TABLES_DUMP_PATH = process.env.TABLES_DUMP_PATH || (
+  AIRTABLE_EXPORT_DIR ? path.join(AIRTABLE_EXPORT_DIR, 'tables_dump.json') : path.join(path.dirname(AIRTABLE_SCHEMA_PATH), 'tables_dump.json')
+);
 const POSTGRES_SCHEMA = (process.env.POSTGRES_SCHEMA || 'public').toString();
 const POSTGRES_OUT_DIR = process.env.POSTGRES_OUT_DIR || './pg_out';
 const CREATE_VIEWS = envBool('CREATE_VIEWS', true);
@@ -108,6 +110,34 @@ function pgTypeForField(f) {
   if (t === 'aiText') return 'text';
   return 'text';
 }
+
+// Return an empty array literal with the appropriate Postgres array type.
+// Using ARRAY[] avoids fragile casts like '{}'::timestamp without time zone[].
+function emptyArrayForPgScalar(pgScalar) {
+  const t = (pgScalar || 'text').trim();
+  return `ARRAY[]::${t}[]`;
+}
+
+
+// Resolve a lookup/rollup target column slug on the linked table.
+// Airtable "get tables" payload sometimes returns a target field name that is prefixed
+// (e.g. "strain_species_strain") even though the physical column is "species_strain".
+// Prefer an exact physical match; otherwise pick the longest physical column name that
+// is a suffix of the requested slug.
+function resolveLookupTargetSlug(physicalSet, requestedSlug) {
+  if (!requestedSlug) return requestedSlug;
+  if (physicalSet && physicalSet.has(requestedSlug)) return requestedSlug;
+  if (!physicalSet || physicalSet.size === 0) return requestedSlug;
+  let best = null;
+  for (const col of physicalSet) {
+    if (requestedSlug === col) return col;
+    if (requestedSlug.endsWith('_' + col) || requestedSlug.endsWith(col)) {
+      if (!best || col.length > best.length) best = col;
+    }
+  }
+  return best || requestedSlug;
+}
+
 
 // Junction table naming used in 002_links.sql:
 //   _m2m_<a>_<b>_<linkFieldSlug>
@@ -214,12 +244,64 @@ function compileFormulaExpr(raw, ctx) {
 
   expr = expr.replace(/\s+/g, ' ').trim();
 
+
+function compileSingleLinkDisplay(linkField, ctx) {
+  // When a formula references a single-record link field, Airtable returns the linked record's primary field display.
+  // We emulate that by selecting the linked table's primary field (best-effort) for the first linked row.
+  try {
+    const opts = linkField.options || {};
+    if (!opts.linkedTableId) return "''";
+    const thisSlug = slug(ctx.tableObj.name);
+    const linkSlug = slug(linkField.name);
+    const other = tablesDump ? tableById(tablesDump, opts.linkedTableId) : null;
+    const otherExport = exportTableById.get(opts.linkedTableId) || null;
+    const otherSlug = slug((other && other.name) || (otherExport && otherExport.name) || '');
+    if (!otherSlug) return "''";
+
+    const joinTable = m2mJoinName(thisSlug, linkSlug, otherSlug);
+    const leftFk = `${thisSlug}_id`;
+    const rightFk = (thisSlug === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
+
+    // Determine the linked table's primary field
+    let primaryField = null;
+    if (other && other.primaryFieldId) primaryField = findFieldById(other, other.primaryFieldId);
+    if (!primaryField && otherExport && otherExport.primaryFieldId) {
+      const m = tableFieldById.get(otherExport.id);
+      if (m) primaryField = m.get(otherExport.primaryFieldId);
+    }
+
+    let displayExpr = "btbl." + ident("airtable_id");
+    if (primaryField) {
+      if (primaryField.type === 'formula' && primaryField.options && primaryField.options.formula) {
+        displayExpr = compileFormulaFor(other || otherExport || ctx.tableObj, primaryField, 'btbl');
+      } else {
+        displayExpr = "btbl." + ident(slug(primaryField.name));
+      }
+    }
+
+    const otherRel = (thisSlug === otherSlug)
+      ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + thisSlug)}`
+      : `${ident(POSTGRES_SCHEMA)}.${ident('v_' + otherSlug)}`;
+
+    return `COALESCE((SELECT (${displayExpr})::text FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
+           `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
+           `WHERE j.${ident(leftFk)} = ${ctx.qualifier}.${ident('nocopk')} ` +
+           `ORDER BY btbl.${ident('nocopk')} LIMIT 1), '')`;
+  } catch (e) {
+    return "''";
+  }
+}
+
     // Convert Airtable "double quoted" strings to SQL single quotes (best-effort)
   // Do this BEFORE field replacement so we don't turn SQL identifiers ("col") into string literals ('col').
   expr = convertStringLiterals(expr);
 
   // Replace Airtable field references {fld...} with qualified identifiers.
   expr = expr.replace(/\{(fld[A-Za-z0-9]+)\}/g, (_m, fid) => {
+    const f = ctx.fieldById && ctx.fieldById.get(fid);
+    if (f && f.type === 'multipleRecordLinks' && f.options && f.options.prefersSingleRecordLink) {
+      return compileSingleLinkDisplay(f, ctx);
+    }
     const col = ctx.fieldIdToCol.get(fid);
     if (!col) return 'NULL';
     return `${ctx.qualifier}.${ident(col)}`;
@@ -497,9 +579,24 @@ function main() {
   if (!exportTables.length) die('export/_schema.json has no tables');
 
   let tablesDump = null;
-  if (fs.existsSync(TABLES_DUMP_PATH)) {
-    tablesDump = readJson(TABLES_DUMP_PATH);
+  // Best-effort: load tables_dump.json (Airtable "get tables" export) if present.
+  // This is the authoritative source for lookup/rollup targets (handles manual renames).
+  const candidateDumpPaths = [
+    TABLES_DUMP_PATH,
+    path.join(process.cwd(), 'export', 'tables_dump.json'),
+    path.join(process.cwd(), 'tables_dump.json'),
+  ].filter(Boolean);
+
+  const foundDumpPath = candidateDumpPaths.find(p => {
+    try { return p && fs.existsSync(p); } catch { return false; }
+  });
+
+  if (foundDumpPath) {
+    tablesDump = readJson(foundDumpPath);
     if (!tablesDump.tables || !Array.isArray(tablesDump.tables)) tablesDump = null;
+    console.log('[OK] Read tables from:', TABLES_DUMP_PATH);
+  } else {
+    console.log('[WARN] Could not read tables from:', TABLES_DUMP_PATH);
   }
 
   // Use tablesDump for computed + primary if available; otherwise fall back to export schema
@@ -675,6 +772,8 @@ function main() {
       const ctx = {
         qualifier,
         fieldIdToCol: map,
+        fieldById: tableFieldById.get(tableObj.id) || new Map(),
+        tableObj,
         outColSlug,
         legacySlug,
         hasLegacy,
@@ -713,20 +812,20 @@ function main() {
             const opts = f.options || {};
             const linkFieldId = opts.recordLinkFieldId;
             const targetFieldId = opts.fieldIdInLinkedTable;
-            if (!linkFieldId || !targetFieldId) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+            if (!linkFieldId || !targetFieldId) { lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue; }
 
             const linkField = findFieldById(td, linkFieldId);
             if (!linkField || linkField.type !== 'multipleRecordLinks' || !linkField.options || !linkField.options.linkedTableId) {
-              lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue;
+              lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue;
             }
 
             const other = tableById(tablesDump, linkField.options.linkedTableId);
-            if (!other) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+            if (!other) { lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue; }
 
             const otherSlug = slug(other.name);
             const otherFields = other.fields || [];
             const targetField = findFieldById(other, targetFieldId);
-            if (!targetField) { lookupExprs.push(`'{}'::text[] AS ${outCol}`); continue; }
+            if (!targetField) { lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue; }
 
             const linkSlug = slug(linkField.name);
             const joinTable = m2mJoinName(a, linkSlug, otherSlug);
@@ -741,6 +840,15 @@ function main() {
             const otherRel = (otherSlug === a)
               ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + a)}`
               : (isTargetComputed ? `${ident(POSTGRES_SCHEMA)}.${ident('vc_' + otherSlug)}` : `${ident(POSTGRES_SCHEMA)}.${ident(otherSlug)}`);
+            // Self-link lookups that target computed fields (lookup/rollup/formula) cannot safely join vc_<table>
+            // inside vc_<table> creation (vc doesn't exist yet). Joining v_<table> also won't have the computed column.
+            // Skip these (emit empty array) to avoid recursive/self-reference errors.
+            if (otherSlug === a && isTargetComputed) {
+              viewBlock += `-- TODO(lookup): ${td.name}.${f.name} targets computed field ${other.name}.${targetField.name} via self-link; skipped\n`;
+              lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`);
+              continue;
+            }
+
 
             let targetExpr = '';
             if (targetField.type === 'formula') {
@@ -754,11 +862,24 @@ function main() {
             // rollup with aggregation => TODO (not implemented here)
             if (targetField.type === 'rollup' && targetField.options && targetField.options.rollupFunction) {
               // For now, preserve as TODO; most of your rollups are exposed as lookups.
-              lookupExprs.push(`'{}'::text[] AS ${outCol}`);
+              lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`);
               continue;
             }
 
-            lookupExprs.push(`(SELECT COALESCE(array_agg(${targetExpr} ORDER BY btbl.${ident('nocopk')}), '{}'::text[]) FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} WHERE j.${ident(leftFk)} = comp.${ident('nocopk')}) AS ${outCol}`);
+            // Pick an empty-array type compatible with the scalar type being aggregated.
+            // If we can't infer a reliable scalar type (computed targets), fall back to text.
+            let scalarType = pgTypeForField(targetField);
+            if (!scalarType) scalarType = 'text';
+            // For safety, force computed targets to text (avoids nested arrays / unknown types).
+            if (isTargetComputed) scalarType = 'text';
+            const emptyArr = emptyArrayForPgScalar(scalarType);
+
+            lookupExprs.push(
+              `(SELECT COALESCE(array_agg(${targetExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
+              `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
+              `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
+              `WHERE j.${ident(leftFk)} = base.${ident('nocopk')}) AS ${outCol}`
+            );
             continue;
           }
 
