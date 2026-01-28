@@ -1922,54 +1922,14 @@
           "type": "multipleRecordLinks"
         },
         {
-          "id": "fldR5XtYA2todr35L",
-          "name": "strain_species_strain (from lc_lot_id)",
-          "options": {
-            "fieldIdInLinkedTable": "fldsaZpCoA5zvj5mL",
-            "isValid": true,
-            "recordLinkFieldId": "fldTD39GlgYuKlV8O",
-            "result": {
-              "type": "multilineText"
-            }
-          },
-          "type": "multipleLookupValues"
+          "id": "flds4WfcvaxlHNUle",
+          "name": "strain_species_strain_mat",
+          "type": "singleLineText"
         },
         {
-          "id": "fldLhJGi06oSX9Ddt",
-          "name": "vendor_name (from lc_lot_id)",
-          "options": {
-            "fieldIdInLinkedTable": "fldmvugXRhoPenPoK",
-            "isValid": true,
-            "recordLinkFieldId": "fldTD39GlgYuKlV8O",
-            "result": {
-              "options": {
-                "choices": [
-                  {
-                    "color": "blueLight2",
-                    "id": "sel6hYwmfeyYEOI3j",
-                    "name": "MYYCO"
-                  },
-                  {
-                    "color": "cyanLight2",
-                    "id": "sel2WK7KwBoMIxFWH",
-                    "name": "Fungaia"
-                  },
-                  {
-                    "color": "tealLight2",
-                    "id": "selenwqd20mSpN8tC",
-                    "name": "Innoculate The World"
-                  },
-                  {
-                    "color": "greenLight2",
-                    "id": "sel5td9ktaZmbGA1m",
-                    "name": "Thick Spores"
-                  }
-                ]
-              },
-              "type": "singleSelect"
-            }
-          },
-          "type": "multipleLookupValues"
+          "id": "fldEpaj8Bs2wnorzq",
+          "name": "vendor_name_mat",
+          "type": "singleLineText"
         },
         {
           "id": "fldez1p1NLSxJ7dyK",
@@ -2550,13 +2510,13 @@
           "id": "fldyuV576405KZzeD",
           "name": "label_subtitle_lot",
           "options": {
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldLhJGi06oSX9Ddt} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
             "isValid": true,
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldPTVqPGEOa6aubh",
               "fldsaZpCoA5zvj5mL",
-              "fldLhJGi06oSX9Ddt",
+              "fldEpaj8Bs2wnorzq",
               "fldkVMtxjtdRDo6pp",
               "fldIs56WzEt6UFLfT",
               "fldmvugXRhoPenPoK",
@@ -3572,35 +3532,11 @@
           "id": "fldCeuuootLmbAOGE",
           "name": "vendor_name (from lc_lot_id) (from lot_id)",
           "options": {
-            "fieldIdInLinkedTable": "fldLhJGi06oSX9Ddt",
+            "fieldIdInLinkedTable": "fldEpaj8Bs2wnorzq",
             "isValid": true,
             "recordLinkFieldId": "fld99g2StSeRBo6KW",
             "result": {
-              "options": {
-                "choices": [
-                  {
-                    "color": "blueLight2",
-                    "id": "sel6hYwmfeyYEOI3j",
-                    "name": "MYYCO"
-                  },
-                  {
-                    "color": "cyanLight2",
-                    "id": "sel2WK7KwBoMIxFWH",
-                    "name": "Fungaia"
-                  },
-                  {
-                    "color": "tealLight2",
-                    "id": "selenwqd20mSpN8tC",
-                    "name": "Innoculate The World"
-                  },
-                  {
-                    "color": "greenLight2",
-                    "id": "sel5td9ktaZmbGA1m",
-                    "name": "Thick Spores"
-                  }
-                ]
-              },
-              "type": "singleSelect"
+              "type": "singleLineText"
             }
           },
           "type": "multipleLookupValues"
