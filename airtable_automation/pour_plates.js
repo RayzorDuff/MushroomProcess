@@ -1,6 +1,6 @@
 /**
  * Script: pour_plates.js
- * Version: 2025-12-15.2
+ * Version: 2026-01-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -46,6 +46,16 @@ try {
     return valueStr; // singleLineText, etc.
   }
   const sourceLot = await lotsTbl.selectRecordAsync(sourceLotId);
+
+  // Optional: propagate vendor name materialization from source lot (if present)
+  const sourceVendorNameMat = (sourceLot && hasField(lotsTbl, 'vendor_name_mat'))
+    ? (sourceLot.getCellValueAsString?.('vendor_name_mat') || sourceLot.getCellValue('vendor_name_mat') || '')
+    : '';
+  const sourceSpeciesStrainMat = (sourceLot && (hasField(lotsTbl, 'strain_species_strain') || hasField(lotsTbl, 'strain_species_strain_mat'))
+      ? ( (hasField(lotsTbl, 'strain_species_strain') ? (sourceLot.getCellValueAsString?.('strain_species_strain') || sourceLot.getCellValue('strain_species_strain') || '') : '')
+          || (hasField(lotsTbl, 'strain_species_strain_mat') ? (sourceLot.getCellValueAsString?.('strain_species_strain_mat') || sourceLot.getCellValue('strain_species_strain_mat') || '') : '') )
+      : '');
+
   if (!sourceLot) throw new Error("Source lot not found");
 
   const errors = [];
@@ -125,6 +135,19 @@ try {
       if (v != null) rec.item_category_mat = v;
     }
   
+    
+
+    // Propagate vendor_name_mat (if present on source)
+    if (sourceVendorNameMat && hasField(lotsTbl, 'vendor_name_mat')) {
+      const v = coerceValueForField(lotsTbl, 'vendor_name_mat', sourceVendorNameMat);
+      if (v != null) rec.vendor_name_mat = v;
+    }
+
+    // Propagate strain_species_strain_mat (prefer lookup if present)
+    if (sourceSpeciesStrainMat && hasField(lotsTbl, 'strain_species_strain_mat')) {
+      const v = coerceValueForField(lotsTbl, 'strain_species_strain_mat', sourceSpeciesStrainMat);
+      if (v != null) rec.strain_species_strain_mat = v;
+    }
     platesToCreate.push(rec);
   }
   

@@ -1,6 +1,6 @@
 /**
  * Script: spawn_to_bulk_create_blocks.js
- * Version: 2025-12-18.1
+ * Version: 2026-01-28.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -163,6 +163,17 @@ async function main() {
   const staging = await lotsTbl.selectRecordAsync(stagingId);
   if (!staging) throw new Error('Staging lot not found.');
 
+  // Optional: propagate vendor name materialization from staging/source lot
+  const stagingVendorNameMat = hasField(lotsTbl, 'vendor_name_mat')
+    ? (staging.getCellValueAsString?.('vendor_name_mat') || staging.getCellValue('vendor_name_mat') || '')
+    : '';
+
+  const stagingSpeciesStrainMat = (hasField(lotsTbl, 'strain_species_strain') || hasField(lotsTbl, 'strain_species_strain_mat'))
+    ? ((hasField(lotsTbl, 'strain_species_strain') ? (staging.getCellValueAsString?.('strain_species_strain') || staging.getCellValue('strain_species_strain') || '') : '')
+        || (hasField(lotsTbl, 'strain_species_strain_mat') ? (staging.getCellValueAsString?.('strain_species_strain_mat') || staging.getCellValue('strain_species_strain_mat') || '') : ''))
+    : '';
+
+
   // Optional action gate (legacy): only run if action == SpawnToBulk
   if (hasField(lotsTbl, 'action')) {
     const act = getStr(staging, 'action');
@@ -305,6 +316,19 @@ async function main() {
       const v = coerceValueForField(lotsTbl, 'item_category_mat', meta.category);
       if (v != null) fields.item_category_mat = v;
     }
+
+    // Propagate vendor_name_mat (if present on staging/source)
+    if (stagingVendorNameMat && hasField(lotsTbl, 'vendor_name_mat')) {
+      const v = coerceValueForField(lotsTbl, 'vendor_name_mat', stagingVendorNameMat);
+      if (v != null) fields.vendor_name_mat = v;
+    }
+
+    // Propagate strain_species_strain_mat (prefer lookup if present)
+    if (stagingSpeciesStrainMat && hasField(lotsTbl, 'strain_species_strain_mat')) {
+      const v = coerceValueForField(lotsTbl, 'strain_species_strain_mat', stagingSpeciesStrainMat);
+      if (v != null) fields.strain_species_strain_mat = v;
+    }
+
 
     // Link inputs on new lots
     if (hasField(lotsTbl, 'grain_inputs')) fields.grain_inputs = grainIds.map(id => ({ id }));

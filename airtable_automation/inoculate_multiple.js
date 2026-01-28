@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2025-12-18.1
+ * Version: 2026-01-28.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -16,7 +16,7 @@
  *      - total_volume_ml / remaining_volume_ml updated
  *      - source_lot_id linked back to SOURCE lot
  *      - strain_id copied from SOURCE lot
- *      - vendor_name and vendor_batch copied from SOURCE lot if they are set
+ *      - vendor_name, vendor_name_mat and vendor_batch copied from SOURCE lot if they are set
  *      - materialized fields set if they are not already
  *      - notes set from SOURCE notes when using untracked_source
  *
@@ -117,12 +117,27 @@
     const rawSourceNotes = sourceLot.getCellValue('notes') || '';
 
     // Optional: vendor fields to propagate to targets (if present on source)
+    
     const sourceVendorName  = hasField(lotsTbl, 'vendor_name')
       ? (sourceLot.getCellValueAsString?.('vendor_name') || sourceLot.getCellValue('vendor_name') || '')
       : '';
     const sourceVendorBatch = hasField(lotsTbl, 'vendor_batch')
       ? (sourceLot.getCellValueAsString?.('vendor_batch') || sourceLot.getCellValue('vendor_batch') || '')
       : '';    
+
+    // Optional: vendor and species/strain materialized field to propagate (prefer lookup when present)
+    const sourceVendorNameMat = (hasField(lotsTbl, 'vendor_name')
+      ? (sourceLot.getCellValueAsString?.('vendor_name') || sourceLot.getCellValue('vendor_name') || '')
+      : '')
+      || (hasField(lotsTbl, 'vendor_name_mat')
+        ? (sourceLot.getCellValueAsString?.('vendor_name_mat') || sourceLot.getCellValue('vendor_name_mat') || '')
+        : '');
+    const sourceSpeciesStrainMat = (hasField(lotsTbl, 'strain_species_strain')
+      ? (sourceLot.getCellValueAsString?.('strain_species_strain') || sourceLot.getCellValue('strain_species_strain') || '')
+      : '')
+      || (hasField(lotsTbl, 'strain_species_strain_mat')
+        ? (sourceLot.getCellValueAsString?.('strain_species_strain_mat') || sourceLot.getCellValue('strain_species_strain_mat') || '')
+        : '');
 
     // --- Category-specific validation --------------------------------------
     if (isLiquidSource) {
@@ -227,6 +242,16 @@
       if (sourceVendorBatch && hasField(lotsTbl, 'vendor_batch')) {
         const v = coerceValueForField(lotsTbl, 'vendor_batch', sourceVendorBatch);
         if (v != null) lotUpdates.vendor_batch = v;        
+      }
+
+      // --- Propagate vendor_name_mat and strain_species_strain_mat from source lot (prefer lookup if present) ---
+      if (sourceVendorNameMat && hasField(lotsTbl, 'vendor_name_mat')) {
+        const v = coerceValueForField(lotsTbl, 'vendor_name_mat', sourceVendorNameMat);
+        if (v != null) lotUpdates.vendor_name_mat = v;
+      }
+      if (sourceSpeciesStrainMat && hasField(lotsTbl, 'strain_species_strain_mat')) {
+        const v = coerceValueForField(lotsTbl, 'strain_species_strain_mat', sourceSpeciesStrainMat);
+        if (v != null) lotUpdates.strain_species_strain_mat = v;
       }
 
       // --- Ensure _mat fields are populated on target lots ----------------
