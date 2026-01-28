@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-28.4
+ * Version: 2026-01-28.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -372,7 +372,7 @@ function compileSingleLinkDisplay(linkField, ctx) {
 // Postgres CASE only evaluates the chosen branch, so unnest() is safe here.
 function scalarizeIfArray(expr) {
     const s = String(expr).trim();
-  return `(CASE WHEN pg_typeof(${s})::text LIKE '%[]' THEN (SELECT x FROM unnest(${s}) x WHERE x IS NOT NULL LIMIT 1) ELSE ${s} END)`;
+  return `(CASE WHEN pg_typeof(${s})::text LIKE '%[]' THEN (${s})[1] ELSE ${s} END)`;
 }
 
 

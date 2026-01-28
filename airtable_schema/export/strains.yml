@@ -7,8 +7,8 @@
   airtable_id: rec7lLl0rRBhkwO6H
   ecommerce:
   - recXsvzkxihvq5OEO
-  - rec1l48bgP4oen0dg
   - recgstukGWwQwhOBI
+  - rec1l48bgP4oen0dg
   species_strain: Bronze Reishi
   strain_id: STR-BronzeReishi
 - airtable_createdTime: '2025-12-12T17:44:11.000Z'
@@ -34,8 +34,8 @@
   airtable_id: recHQHphF8J6rBHPE
   ecommerce:
   - recmq8dsmN1EMusGQ
-  - recBfOBojQZlUKsIW
   - recYTzvlqNTXHvawc
+  - recBfOBojQZlUKsIW
   species_strain: Branched Oyster
   strain_id: STR-BranchedOyster
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -48,8 +48,8 @@
   ecommerce:
   - recRYm0k8IbIlR1ny
   - recT6P7uEB8P0nyYw
-  - recJ0Sy8OEkHjYlns
   - recyKXNWcvve4pweO
+  - recJ0Sy8OEkHjYlns
   species_strain: Chestnut
   strain_id: STR-Chestnut
 - airtable_createdTime: '2025-09-16T01:30:40.000Z'
@@ -95,8 +95,8 @@
   airtable_id: recszNf2WlZjSQqyL
   ecommerce:
   - rec5XW9o8RaPGPb5i
-  - reci0PAX15UT6HasR
   - recF3He1PR1Bo9voi
+  - reci0PAX15UT6HasR
   species_strain: Blue Oyster
   strain_id: STR-BlueOyster
 - airtable_createdTime: '2025-09-23T00:51:37.000Z'

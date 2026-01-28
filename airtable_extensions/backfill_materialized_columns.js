@@ -184,7 +184,7 @@ async function backfillLots() {
 
     console.log(`Lots strain_species_strain_mat inherited via source_lot_id: ${totalInherited}`);
   }
-}
+    }
 
 async function backfillProducts() {
   const srcFields = ['name', 'item_category'];

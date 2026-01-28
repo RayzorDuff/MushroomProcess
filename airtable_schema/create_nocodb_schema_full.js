@@ -194,7 +194,7 @@ const DEBUG_OUTPUT_PATH =
   path.join(process.cwd(), 'nocodb_migration_debug.json');
   
 // Optional: export of final NocoDB schema for comparison with Airtable _schema.json
-const NOCO_SCHEMA_EXPORT_PATH =
+const NOCODB_SCHEMA_EXPORT_PATH =
   process.env.NOCODB_SCHEMA_EXPORT_PATH ||
   path.join(process.cwd(), 'export', '_schema_nocodb.json');  
 
@@ -2918,15 +2918,15 @@ function writeNocoSchemaExport(tables) {
       })),
     }));
 
-    const dir = path.dirname(NOCO_SCHEMA_EXPORT_PATH);
+    const dir = path.dirname(NOCODB_SCHEMA_EXPORT_PATH);
     fs.mkdirSync(dir, { recursive: true });
 
     fs.writeFileSync(
-      NOCO_SCHEMA_EXPORT_PATH,
+      NOCODB_SCHEMA_EXPORT_PATH,
       JSON.stringify({ tables: normalized }, null, 2),
       'utf8'
     );
-    logInfo(`NocoDB schema export written to: ${NOCO_SCHEMA_EXPORT_PATH}`);
+    logInfo(`NocoDB schema export written to: ${NOCODB_SCHEMA_EXPORT_PATH}`);
   } catch (err) {
     logError(`Failed to write NocoDB schema export: ${err.message}`);
   }

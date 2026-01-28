@@ -194,6 +194,13 @@
   default_unit_size_oz: 40
   item_id: SUB-CVG-2_5
   name: Coco Verm Gypsum
+- airtable_createdTime: '2025-12-29T20:25:44.000Z'
+  airtable_id: reco9BMkARA7lB08c
+  category: freezedriedmushrooms
+  default_unit_size: 10g
+  default_unit_size_g: 10
+  item_id: MUSH-CAPSULES-10G
+  name: Freeze-Dried Capsules (10g)
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recocMHgTLuGMcxPf
   category: grain
@@ -277,3 +284,10 @@
   - rec5XW9o8RaPGPb5i
   item_id: MUSH-DRIED-1OZ
   name: Freeze-Dried Mushrooms (1 oz)
+- airtable_createdTime: '2025-12-29T20:25:24.000Z'
+  airtable_id: reczcbGKqE8pbnZTq
+  category: freezedriedmushrooms
+  default_unit_size: 5g
+  default_unit_size_g: 5
+  item_id: MUSH-CAPSULES-5G
+  name: Freeze-Dried Capsules (5g)

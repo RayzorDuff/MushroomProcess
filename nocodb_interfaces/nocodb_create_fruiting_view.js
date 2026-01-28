@@ -96,7 +96,7 @@ async function main() {
   "notes",
   "spawned_at",
   "status",
-  "strain_species_strain",
+  "strain_species_strain_mat",
   "ui_error",
   "unit_size"
 ],
@@ -106,7 +106,7 @@ async function main() {
     "order": "asc"
   },
   {
-    "column_name": "strain_species_strain",
+    "column_name": "strain_species_strain_mat",
     "order": "asc"
   }
 ],
