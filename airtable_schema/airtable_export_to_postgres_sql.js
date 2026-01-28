@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-28.3
+ * Version: 2026-01-28.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -368,11 +368,25 @@ function compileSingleLinkDisplay(linkField, ctx) {
 
   function splitArgs(inner) { return splitTopLevelArgs(inner); }
 
-  function ensureCast(expr, castType) {
+// If expr is an array, return its first non-null element; otherwise return expr unchanged.
+// Postgres CASE only evaluates the chosen branch, so unnest() is safe here.
+function scalarizeIfArray(expr) {
     const s = String(expr).trim();
-    const re = new RegExp(`::\\s*${castType}\\s*$`, 'i');
+  return `(CASE WHEN pg_typeof(${s})::text LIKE '%[]' THEN (SELECT x FROM unnest(${s}) x WHERE x IS NOT NULL LIMIT 1) ELSE ${s} END)`;
+}
+
+
+  function ensureCast(expr, castType) {
+  let s = String(expr).trim();
+  const ct = String(castType).trim();
+  // If callers attempt to cast an array value to a scalar type, scalarize first.
+  // (Many Airtable lookups/rollups are arrays, but formulas often treat them as scalars.)
+  if (!/\[\]\s*$/.test(ct)) {
+    s = scalarizeIfArray(s);
+  }
+  const re = new RegExp(`::\\s*${ct}\\s*$`, 'i');
     if (re.test(s)) return s;
-    return `(${s})::${castType}`;
+  return `(${s})::${ct}`;
   }
 
   // Compile a single function call NAME(args...) where args are already compiled SQL expressions.
