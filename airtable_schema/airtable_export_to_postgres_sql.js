@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-28.6
+ * Version: 2026-01-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -434,9 +434,9 @@ function compileFormulaExpr(raw, ctx) {
       return '(' + args.map(a=>`(${a})::text`).join('||') + ')';
     }
 
-    if (fn === 'YEAR' && args.length===1) return `EXTRACT(YEAR FROM (${args[0]})::timestamp)`;
-    if (fn === 'MONTH' && args.length===1) return `EXTRACT(MONTH FROM (${args[0]})::timestamp)`;
-    if (fn === 'DAY' && args.length===1) return `EXTRACT(DAY FROM (${args[0]})::timestamp)`;
+    if (fn === 'YEAR' && args.length===1) return `EXTRACT(YEAR FROM ${ensureCast(args[0], 'timestamp')})`;
+    if (fn === 'MONTH' && args.length===1) return `EXTRACT(MONTH FROM ${ensureCast(args[0], 'timestamp')})`;
+    if (fn === 'DAY' && args.length===1) return `EXTRACT(DAY FROM ${ensureCast(args[0], 'timestamp')})`;
 
     if (fn === 'ISBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NULL))`;
     if (fn === 'ISNOTBLANK' && args.length===1) return `((NULLIF((${args[0]})::text,'') IS NOT NULL))`;
@@ -446,7 +446,7 @@ function compileFormulaExpr(raw, ctx) {
       const fmtArg = (args.length>=2 ? args[1] : `'YYYY-MM-DD'`);
 
       const fmt = mapDatetimeFormat(fmtArg);
-      return `to_char((${dtArg})::timestamp, ${fmt})`;
+      return `to_char(${ensureCast(dtArg, 'timestamp')}, ${fmt})`;
     }
     if (fn === 'CREATED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_created_at')}`;
     if (fn === 'LAST_MODIFIED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_updated_at')}`;
