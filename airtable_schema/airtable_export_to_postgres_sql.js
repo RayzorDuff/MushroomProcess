@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.4
+ * Version: 2026-01-29.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1011,8 +1011,42 @@ function main() {
               lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`);
               continue;
             }
-
-
+                        
+            // Special case: lookup targets a link field (multipleRecordLinks). Airtable returns the
+            // linked record display values (primary field), not the raw link IDs. Since links are
+            // represented physically via junction tables, expand the lookup across the link's m2m.
+            if (targetField.type === 'multipleRecordLinks' && targetField.options && targetField.options.linkedTableId) {
+              const linked = tableById(tablesDump, targetField.options.linkedTableId);
+              if (!linked) { lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue; }
+            
+              const linkedSlug = slug(linked.name);
+              const link2Slug = slug(targetField.name);
+              const joinTable2 = m2mJoinName(otherSlug, link2Slug, linkedSlug);
+            
+              const leftFk2 = `${otherSlug}_id`;
+              const rightFk2 = (otherSlug === linkedSlug) ? `${linkedSlug}1_id` : `${linkedSlug}_id`;
+            
+              const linkedPrimary = findFieldById(linked, linked.primaryFieldId) || (linked.fields || [])[0];
+              let linkedExpr = '';
+              if (linkedPrimary && linkedPrimary.type === 'formula') {
+                linkedExpr = compileFormulaFor(linked, linkedPrimary, 'ltbl');
+              } else {
+                // Fall back to "name" if we can't resolve the primary field for any reason.
+                const primSlug = slug((linkedPrimary && linkedPrimary.name) ? linkedPrimary.name : 'name');
+                linkedExpr = `ltbl.${ident(primSlug)}`;
+              }
+            
+              const emptyArr = emptyArrayForPgScalar('text');
+              lookupExprs.push(
+                `(SELECT COALESCE(array_agg(${linkedExpr} ORDER BY ltbl.${ident('nocopk')}), ${emptyArr}) ` +
+                `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
+                `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(joinTable2)} j2 ON j2.${ident(leftFk2)} = j.${ident(rightFk)} ` +
+                `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(linkedSlug)} ltbl ON ltbl.${ident('nocopk')} = j2.${ident(rightFk2)} ` +
+                `WHERE j.${ident(leftFk)} = base.${ident('nocopk')}) AS ${outCol}`
+              );
+              continue;
+            }
+            
             let targetExpr = '';
             if (targetField.type === 'formula') {
               targetExpr = compileFormulaFor(other, targetField, 'btbl');
