@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.1
+ * Version: 2026-01-29.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -401,6 +401,66 @@ function compileFormulaExpr(raw, ctx) {
     return `(${s})::${ct}`;
   }
 
+  // When Airtable formulas concatenate text using `&` (compiled here as `||`),
+  // Airtable coerces lookup/rollup arrays to a string. Postgres does not.
+  // If we leave an array-typed lookup/rollup reference uncoerced, expressions like
+  // `'' || comp."some_lookup" || ' '` can trigger "malformed array literal" errors
+  // because Postgres tries to interpret adjacent string literals as array literals.
+  //
+  // We fix this by scalarizing known array-typed column refs *only when* they're
+  // used adjacent to the concatenation operator.
+  function coerceArrayRefsInConcat(sqlExpr) {
+    const s = String(sqlExpr);
+    let out = '';
+    let i = 0;
+    let inS = false;
+    while (i < s.length) {
+      const ch = s[i];
+      if (ch === "'" && s[i - 1] !== "\\") {
+        inS = !inS;
+        out += ch;
+        i++;
+        continue;
+      }
+      if (!inS) {
+        const m = s.slice(i).match(/^(base|btbl|comp)\."([^"]+)"/);
+        if (m) {
+          const full = m[0];
+          const qual = m[1];
+          const col = m[2];
+
+          // Detect if this ref is adjacent to `||` on either side (ignoring whitespace)
+          let leftIsConcat = false;
+          {
+            let j = out.length - 1;
+            while (j >= 0 && /\s/.test(out[j])) j--;
+            if (j >= 1 && out[j] === '|' && out[j - 1] === '|') leftIsConcat = true;
+          }
+          let rightIsConcat = false;
+          {
+            let j = i + full.length;
+            while (j < s.length && /\s/.test(s[j])) j++;
+            if (j + 1 < s.length && s[j] === '|' && s[j + 1] === '|') rightIsConcat = true;
+          }
+
+          if ((leftIsConcat || rightIsConcat) && __arrayCols.has(col)) {
+            // Coerce to scalar text; Airtable-ish behavior is "first element".
+            out += `COALESCE(((${qual}."${col}")[1])::text, '')`;
+            i += full.length;
+            continue;
+          }
+
+          out += full;
+          i += full.length;
+          continue;
+        }
+      }
+      out += ch;
+      i++;
+    }
+    return out;
+  }
+
   // Compile a single function call NAME(args...) where args are already compiled SQL expressions.
   function compileFunc(name, args) {
     const fn = name.toUpperCase();
@@ -592,6 +652,10 @@ function compileFormulaExpr(raw, ctx) {
     return { sql: 'NULL', notes };
   }
   compiled = squashRedundantCasts(compiled);
+  // After all Airtable function expansion, coerce known array-typed column refs
+  // in string-concatenation contexts to scalar text to avoid Postgres array
+  // literal parsing errors.
+  compiled = coerceArrayRefsInConcat(compiled);
   return { sql: compiled, notes: [] };
 }
 
