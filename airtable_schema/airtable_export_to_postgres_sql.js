@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-28.5
+ * Version: 2026-01-28.6
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -243,54 +243,65 @@ function compileFormulaExpr(raw, ctx) {
   if (!expr) return { sql: 'NULL', notes: ['empty formula'] };
 
   expr = expr.replace(/\s+/g, ' ').trim();
-
-
-function compileSingleLinkDisplay(linkField, ctx) {
-  // When a formula references a single-record link field, Airtable returns the linked record's primary field display.
-  // We emulate that by selecting the linked table's primary field (best-effort) for the first linked row.
-  try {
-    const opts = linkField.options || {};
-    if (!opts.linkedTableId) return "''";
-    const thisSlug = slug(ctx.tableObj.name);
-    const linkSlug = slug(linkField.name);
-    const other = tablesDump ? tableById(tablesDump, opts.linkedTableId) : null;
-    const otherExport = exportTableById.get(opts.linkedTableId) || null;
-    const otherSlug = slug((other && other.name) || (otherExport && otherExport.name) || '');
-    if (!otherSlug) return "''";
-
-    const joinTable = m2mJoinName(thisSlug, linkSlug, otherSlug);
-    const leftFk = `${thisSlug}_id`;
-    const rightFk = (thisSlug === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
-
-    // Determine the linked table's primary field
-    let primaryField = null;
-    if (other && other.primaryFieldId) primaryField = findFieldById(other, other.primaryFieldId);
-    if (!primaryField && otherExport && otherExport.primaryFieldId) {
-      const m = tableFieldById.get(otherExport.id);
-      if (m) primaryField = m.get(otherExport.primaryFieldId);
+  // Track which column slugs are array-typed for this table. We avoid runtime
+  // pg_typeof/unnest/subscript tricks because Postgres type-checks both CASE
+  // branches and will error if we attempt array operations on scalar columns.
+  // Airtable lookup/rollup fields are arrays; everything else is treated as scalar.
+  const __arrayCols = new Set();
+  if (ctx && ctx.fieldById && ctx.fieldIdToCol) {
+    for (const [fid, f] of ctx.fieldById.entries()) {
+      const col = ctx.fieldIdToCol.get(fid);
+      if (!col || !f) continue;
+      if (f.type === 'multipleLookupValues' || f.type === 'rollup') __arrayCols.add(col);
     }
-
-    let displayExpr = "btbl." + ident("airtable_id");
-    if (primaryField) {
-      if (primaryField.type === 'formula' && primaryField.options && primaryField.options.formula) {
-        displayExpr = compileFormulaFor(other || otherExport || ctx.tableObj, primaryField, 'btbl');
-      } else {
-        displayExpr = "btbl." + ident(slug(primaryField.name));
-      }
-    }
-
-    const otherRel = (thisSlug === otherSlug)
-      ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + thisSlug)}`
-      : `${ident(POSTGRES_SCHEMA)}.${ident('v_' + otherSlug)}`;
-
-    return `COALESCE((SELECT (${displayExpr})::text FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
-           `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
-           `WHERE j.${ident(leftFk)} = ${ctx.qualifier}.${ident('nocopk')} ` +
-           `ORDER BY btbl.${ident('nocopk')} LIMIT 1), '')`;
-  } catch (e) {
-    return "''";
   }
-}
+
+  function compileSingleLinkDisplay(linkField, ctx) {
+    // When a formula references a single-record link field, Airtable returns the linked record's primary field display.
+    // We emulate that by selecting the linked table's primary field (best-effort) for the first linked row.
+    try {
+      const opts = linkField.options || {};
+      if (!opts.linkedTableId) return "''";
+      const thisSlug = slug(ctx.tableObj.name);
+      const linkSlug = slug(linkField.name);
+      const other = tablesDump ? tableById(tablesDump, opts.linkedTableId) : null;
+      const otherExport = exportTableById.get(opts.linkedTableId) || null;
+      const otherSlug = slug((other && other.name) || (otherExport && otherExport.name) || '');
+      if (!otherSlug) return "''";
+  
+      const joinTable = m2mJoinName(thisSlug, linkSlug, otherSlug);
+      const leftFk = `${thisSlug}_id`;
+      const rightFk = (thisSlug === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
+  
+      // Determine the linked table's primary field
+      let primaryField = null;
+      if (other && other.primaryFieldId) primaryField = findFieldById(other, other.primaryFieldId);
+      if (!primaryField && otherExport && otherExport.primaryFieldId) {
+        const m = tableFieldById.get(otherExport.id);
+        if (m) primaryField = m.get(otherExport.primaryFieldId);
+      }
+  
+      let displayExpr = "btbl." + ident("airtable_id");
+      if (primaryField) {
+        if (primaryField.type === 'formula' && primaryField.options && primaryField.options.formula) {
+          displayExpr = compileFormulaFor(other || otherExport || ctx.tableObj, primaryField, 'btbl');
+        } else {
+          displayExpr = "btbl." + ident(slug(primaryField.name));
+        }
+      }
+  
+      const otherRel = (thisSlug === otherSlug)
+        ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + thisSlug)}`
+        : `${ident(POSTGRES_SCHEMA)}.${ident('v_' + otherSlug)}`;
+  
+      return `COALESCE((SELECT (${displayExpr})::text FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
+             `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
+             `WHERE j.${ident(leftFk)} = ${ctx.qualifier}.${ident('nocopk')} ` +
+             `ORDER BY btbl.${ident('nocopk')} LIMIT 1), '')`;
+    } catch (e) {
+      return "''";
+    }
+  }
 
     // Convert Airtable "double quoted" strings to SQL single quotes (best-effort)
   // Do this BEFORE field replacement so we don't turn SQL identifiers ("col") into string literals ('col').
@@ -368,25 +379,26 @@ function compileSingleLinkDisplay(linkField, ctx) {
 
   function splitArgs(inner) { return splitTopLevelArgs(inner); }
 
-// If expr is an array, return its first non-null element; otherwise return expr unchanged.
-// Postgres CASE only evaluates the chosen branch, so unnest() is safe here.
-function scalarizeIfArray(expr) {
-    const s = String(expr).trim();
-  return `(CASE WHEN pg_typeof(${s})::text LIKE '%[]' THEN (${s})[1] ELSE ${s} END)`;
-}
-
-
+  // Cast helper used by the formula compiler. Airtable lookups/rollups are arrays,
+  // but many formulas treat them as scalars (e.g., to_char({spawned_date}, ...)).
+  // We only scalarize *when we know the referenced column is an array* to avoid
+  // generating SQL like `comp."airtable_id"[1]` (which Postgres rejects at parse-time).
   function ensureCast(expr, castType) {
-  let s = String(expr).trim();
-  const ct = String(castType).trim();
-  // If callers attempt to cast an array value to a scalar type, scalarize first.
-  // (Many Airtable lookups/rollups are arrays, but formulas often treat them as scalars.)
-  if (!/\[\]\s*$/.test(ct)) {
-    s = scalarizeIfArray(s);
-  }
-  const re = new RegExp(`::\\s*${ct}\\s*$`, 'i');
+    let s = String(expr).trim();
+    const ct = String(castType).trim();
+
+    // If we are casting to a scalar type and the expression is a simple qualified
+    // column reference to a known array-typed column, take the first element.
+    if (!/\[\]\s*$/.test(ct)) {
+      const m = s.match(/^(base|btbl|comp)\."([^"]+)"$/);
+      if (m && __arrayCols.has(m[2])) {
+        s = `(${s})[1]`;
+      }
+    }
+
+    const re = new RegExp(`::\\s*${ct}\\s*$`, 'i');
     if (re.test(s)) return s;
-  return `(${s})::${ct}`;
+    return `(${s})::${ct}`;
   }
 
   // Compile a single function call NAME(args...) where args are already compiled SQL expressions.
