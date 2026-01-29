@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.6
+ * Version: 2026-01-29.7
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -421,6 +421,17 @@ function compileFormulaExpr(raw, ctx) {
   
     }
 
+    // If we are casting to an array type but the expression is scalar (common when
+    // comparing lookup/rollup arrays to scalar literals), wrap it as a 1-element array.
+    if (/\[\]\s*$/.test(ct)) {
+      if (!isArrayExpr(s)) {
+        const baseType = ct.replace(/\[\]\s*$/, '').trim();
+        // Cast inner value to base type to avoid polymorphic/unknown literal issues.
+        s = `ARRAY[(${s})::${baseType}]`;
+      }
+    }
+
+
     const re = new RegExp(`::\\s*${ct}\\s*$`, 'i');
     if (re.test(s)) return s;
     return `(${s})::${ct}`;
@@ -721,6 +732,37 @@ function compileFormulaExpr(raw, ctx) {
     return s;
   }
 
+
+  // Rewrite comparisons between array-typed lookup/rollup columns (text[]) and scalar literals.
+  // Airtable allows comparisons like {LookupArray} = 'x' and treats it like "array contains x".
+  // In Postgres, (text[] = unknown) can coerce the literal to text[] and fail with malformed array literal.
+  function rewriteArrayScalarComparisons(sql) {
+    if (!sql) return sql;
+    const arrCols = __arrayCols;
+
+    // qual."col" (=|<>|!=) 'literal'
+    sql = sql.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\.\"([^\"]+)\"\s*(=|<>|!=)\s*'([^']*)'/g,
+      (m, qual, col, op, lit) => {
+        if (!arrCols || !arrCols.has(col)) return m;
+        const scalar = `('${lit.replace(/'/g, "''")}')::text`;
+        const arr = `(${qual}.\"${col}\")::text[]`;
+        const any = `${scalar} = ANY(${arr})`;
+        return op === '=' ? `(${any})` : `(NOT (${any}))`;
+      });
+
+    // 'literal' (=|<>|!=) qual."col"
+    sql = sql.replace(/'([^']*)'\s*(=|<>|!=)\s*([a-zA-Z_][a-zA-Z0-9_]*)\.\"([^\"]+)\"/g,
+      (m, lit, op, qual, col) => {
+        if (!arrCols || !arrCols.has(col)) return m;
+        const scalar = `('${lit.replace(/'/g, "''")}')::text`;
+        const arr = `(${qual}.\"${col}\")::text[]`;
+        const any = `${scalar} = ANY(${arr})`;
+        return op === '=' ? `(${any})` : `(NOT (${any}))`;
+      });
+
+    return sql;
+  }
+
   let compiled = compileAllFunctions(expr);
 
   // Only null out when we actually encountered an unsupported Airtable function.
@@ -733,6 +775,7 @@ function compileFormulaExpr(raw, ctx) {
   // in string-concatenation contexts to scalar text to avoid Postgres array
   // literal parsing errors.
   compiled = coerceArrayRefsInConcat(compiled);
+  compiled = rewriteArrayScalarComparisons(compiled);
   return { sql: compiled, notes: [] };
 }
 
