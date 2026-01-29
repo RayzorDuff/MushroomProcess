@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.2
+ * Version: 2026-01-29.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -394,12 +394,37 @@ function compileFormulaExpr(raw, ctx) {
       if (m && __arrayCols.has(m[2])) {
         s = `(${s})[1]`;
       }
+  
     }
 
     const re = new RegExp(`::\\s*${ct}\\s*$`, 'i');
     if (re.test(s)) return s;
     return `(${s})::${ct}`;
   }
+  
+
+  function isSimpleArrayColRef(expr) {
+    const s = String(expr || '').trim();
+    const m = s.match(/^(base|btbl|comp)\."([^"]+)"$/);
+    if (!m) return false;
+    return __arrayCols.has(m[2]);
+  }
+
+  function isArrayExpr(expr) {
+    const s = String(expr || '').trim();
+    if (/::\s*\w+\s*\[\]\s*$/i.test(s)) return true;
+    if (/\bARRAY\s*\[/i.test(s)) return true;
+    if (/\barray_agg\s*\(/i.test(s)) return true;
+    if (isSimpleArrayColRef(s)) return true;
+    return false;
+  }
+
+  function scalarizeArrayExprToText(expr) {
+    // Best-effort: if it's a direct reference to an array-typed column, take first element.
+    const s = String(expr || '').trim();
+    if (isSimpleArrayColRef(s)) return ensureCast(s, 'text');
+    return s;
+  }  
 
   // When Airtable formulas concatenate text using `&` (compiled here as `||`),
   // Airtable coerces lookup/rollup arrays to a string. Postgres does not.
@@ -466,7 +491,21 @@ function compileFormulaExpr(raw, ctx) {
     const fn = name.toUpperCase();
 
     if (fn === 'IF' && (args.length === 2 || args.length === 3)) {
-      const cond=args[0], tVal=args[1], fVal=(args.length===3?args[2]:'NULL');
+      const cond=args[0];
+      let tVal=args[1];
+      let fVal=(args.length===3?args[2]:'NULL');
+
+      // Airtable often mixes computed arrays (lookup/rollup) with scalar text in IF().
+      // Postgres requires CASE branches to resolve to a single type. If we detect a
+      // simple array-typed column ref on one side and a scalar on the other, coerce
+      // the array ref to scalar text (first element) to match Airtable-ish behavior.
+      const tIsArr = isArrayExpr(tVal);
+      const fIsArr = isArrayExpr(fVal);
+      if (tIsArr !== fIsArr) {
+        if (tIsArr) tVal = scalarizeArrayExprToText(tVal);
+        if (fIsArr) fVal = scalarizeArrayExprToText(fVal);
+      }
+
       return `CASE WHEN (${truthy(cond)}) THEN (${tVal}) ELSE (${fVal}) END`;
     }
     if (fn === 'AND') return '(' + args.map(a=>`(${a})`).join(' AND ') + ')';
@@ -561,12 +600,26 @@ function compileFormulaExpr(raw, ctx) {
       const switchExpr = args[0];
       const pairs = args.slice(1);
       const hasDefault = (pairs.length % 2) === 1;
-      const defaultExpr = hasDefault ? pairs[pairs.length-1] : "''";
+      let defaultExpr = hasDefault ? pairs[pairs.length-1] : "''";
       const lim = hasDefault ? pairs.length-1 : pairs.length;
+
+      // Similar to IF(): if any result branch is an array-typed column and others are scalar,
+      // scalarize array column refs to text to keep CASE type resolution valid.
+      const resultExprs = [];
+      for (let i=0;i<lim;i+=2) resultExprs.push(pairs[i+1]);
+      resultExprs.push(defaultExpr);
+
+      const anyArr = resultExprs.some(isArrayExpr);
+      const anyScalar = resultExprs.some(e => !isArrayExpr(e));
+      const mixed = anyArr && anyScalar;
+
       let out = `CASE`;
       for (let i=0;i<lim;i+=2) {
-        out += ` WHEN (${switchExpr}) = (${pairs[i]}) THEN (${pairs[i+1]})`;
+        let res = pairs[i+1];
+        if (mixed && isArrayExpr(res)) res = scalarizeArrayExprToText(res);
+        out += ` WHEN (${switchExpr}) = (${pairs[i]}) THEN (${res})`;
       }
+      if (mixed && isArrayExpr(defaultExpr)) defaultExpr = scalarizeArrayExprToText(defaultExpr);
       out += ` ELSE (${defaultExpr}) END`;
       return out;
     }
