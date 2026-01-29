@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.5
+ * Version: 2026-01-29.6
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -116,6 +116,18 @@ function pgTypeForField(f) {
 function emptyArrayForPgScalar(pgScalar) {
   const t = (pgScalar || 'text').trim();
   return `ARRAY[]::${t}[]`;
+}
+
+// Cast an expression to a concrete scalar type when it will be used inside
+// array_agg(...). This avoids Postgres polymorphic ambiguity errors like:
+//   ERROR: function array_agg(unknown) is not unique
+// when the aggregated expression is a bare string literal (type "unknown").
+function castForArrayAgg(expr, pgScalar) {
+  const t = (pgScalar || 'text').trim();
+  // If it's already an explicit cast, leave it.
+  const e = String(expr || 'NULL').trim();
+  if (/::\s*\w/i.test(e)) return e;
+  return `((${e})::${t})`;
 }
 
 
@@ -1037,8 +1049,9 @@ function main() {
               }
             
               const emptyArr = emptyArrayForPgScalar('text');
+              const aggExpr = castForArrayAgg(linkedExpr, 'text');
               lookupExprs.push(
-                `(SELECT COALESCE(array_agg(${linkedExpr} ORDER BY ltbl.${ident('nocopk')}), ${emptyArr}) ` +
+                `(SELECT COALESCE(array_agg(${aggExpr} ORDER BY ltbl.${ident('nocopk')}), ${emptyArr}) ` +
                 `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
                 `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(joinTable2)} j2 ON j2.${ident(leftFk2)} = j.${ident(rightFk)} ` +
                 `JOIN ${ident(POSTGRES_SCHEMA)}.${ident(linkedSlug)} ltbl ON ltbl.${ident('nocopk')} = j2.${ident(rightFk2)} ` +
@@ -1071,8 +1084,9 @@ function main() {
             if (isTargetComputed) scalarType = 'text';
             const emptyArr = emptyArrayForPgScalar(scalarType);
 
+            const aggExpr = castForArrayAgg(targetExpr, scalarType);
             lookupExprs.push(
-              `(SELECT COALESCE(array_agg(${targetExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
+              `(SELECT COALESCE(array_agg(${aggExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
               `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
               `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
               `WHERE j.${ident(leftFk)} = base.${ident('nocopk')}) AS ${outCol}`
