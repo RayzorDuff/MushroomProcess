@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.3
+ * Version: 2026-01-29.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -310,9 +310,21 @@ function compileFormulaExpr(raw, ctx) {
   // Replace Airtable field references {fld...} with qualified identifiers.
   expr = expr.replace(/\{(fld[A-Za-z0-9]+)\}/g, (_m, fid) => {
     const f = ctx.fieldById && ctx.fieldById.get(fid);
+
+    // Single-record link display behavior
     if (f && f.type === 'multipleRecordLinks' && f.options && f.options.prefersSingleRecordLink) {
       return compileSingleLinkDisplay(f, ctx);
     }
+
+    // If a formula references another formula field in the SAME table, we cannot safely
+    // emit comp."col" because that column does not exist in the comp CTE (it is computed
+    // later in the SELECT list). Instead, inline the referenced formula.
+    if (f && f.type === 'formula' && typeof ctx.compileFormulaFor === 'function') {
+      // Prevent direct self-recursion
+      if (ctx.currentFieldId && f.id === ctx.currentFieldId) return 'NULL';
+      return `(${ctx.compileFormulaFor(ctx.tableObj, f, ctx.qualifier, ctx._formulaStack || [])})`;
+    }
+
     const col = ctx.fieldIdToCol.get(fid);
     if (!col) return 'NULL';
     return `${ctx.qualifier}.${ident(col)}`;
@@ -903,9 +915,13 @@ function main() {
     // Memo for compiled formulas per table/field for base qualifier
     const compiledFormulaMemo = new Map(); // key `${tableSlug}:${fieldId}:${qual}` -> sql
 
-    function compileFormulaFor(tableObj, fieldObj, qualifier) {
+    function compileFormulaFor(tableObj, fieldObj, qualifier, stack = []) {
       const key = `${slug(tableObj.name)}:${fieldObj.id}:${qualifier}`;
       if (compiledFormulaMemo.has(key)) return compiledFormulaMemo.get(key);
+
+      // Recursion guard (cyclic formulas)
+      if (stack.includes(fieldObj.id)) return 'NULL';
+      const nextStack = stack.concat([fieldObj.id]);
 
       const map = tableFieldIdToCol.get(slug(tableObj.name)) || new Map();
       const physicalCols = physicalColsByTableSlug.get(slug(tableObj.name)) || new Set();
@@ -920,6 +936,10 @@ function main() {
         outColSlug,
         legacySlug,
         hasLegacy,
+        // Allow formula compiler to inline same-table formula references
+        compileFormulaFor,
+        currentFieldId: fieldObj.id,
+        _formulaStack: nextStack,
       };
       const { sql } = compileFormulaExpr(fieldObj.options.formula, ctx);
       compiledFormulaMemo.set(key, sql);
