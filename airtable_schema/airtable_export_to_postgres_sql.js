@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.8
+ * Version: 2026-01-29.9
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1197,7 +1197,6 @@ function main() {
     const loadSql = [];
     loadSql.push(sqlHeader());
     loadSql.push('\\set ON_ERROR_STOP on\n');
-    loadSql.push("\\set basedir '.'\n");
     loadSql.push('BEGIN;\n');
     loadSql.push(`SET search_path TO ${ident(POSTGRES_SCHEMA)};\n`);
 
@@ -1241,7 +1240,7 @@ function main() {
 
       const csvPath = writeCsv(csvDir, tableSlug, cols, rows);
       const rel = path.relative(POSTGRES_OUT_DIR, csvPath).replace(/\\/g,'/');
-      loadSql.push(`\\copy ${ident(tableSlug)}(${cols.map(ident).join(',')}) FROM :'basedir'/${rel} WITH (FORMAT csv, HEADER true);\n`);
+      loadSql.push(`\\copy ${ident(tableSlug)}(${cols.map(ident).join(',')}) FROM ${rel} WITH (FORMAT csv, HEADER true);\n`);
     }
 
     // Junction CSVs are still derived from export record JSON
@@ -1287,7 +1286,7 @@ function main() {
         const relJ = path.relative(POSTGRES_OUT_DIR, csvPath).replace(/\\/g,'/');
         loadSql.push(`\n-- Link field: ${aName}.${f.name} -> ${other.name}\n`);
         loadSql.push(`CREATE TEMP TABLE ${ident(rawName)}(${ident('a_airtable_id')} text, ${ident('b_airtable_id')} text);\n`);
-        loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM :'basedir'/${relJ} WITH (FORMAT csv, HEADER true);\n`);
+        loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM ${relJ} WITH (FORMAT csv, HEADER true);\n`);
         loadSql.push(`INSERT INTO ${ident(jn)}(${ident(aCol)}, ${ident(bCol)})\n`);
         loadSql.push(`SELECT a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id;\n`);
         loadSql.push(`DROP TABLE ${ident(rawName)};\n`);
