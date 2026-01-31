@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-29.9
+ * Version: 2026-01-30.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -585,11 +585,13 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'CREATED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_created_at')}`;
     if (fn === 'LAST_MODIFIED_TIME' && args.length===0) return `${ctx.qualifier}.${ident('nc_updated_at')}`;
     if (fn === 'RECORD_ID' && args.length===0) {
-      // Prefer legacy field (if present) so imported rows keep their original IDs; else fall back to airtable_id; else nocouuid sans dashes.
+      // Airtable RECORD_ID() is always available in Airtable but not in Postgres.
+      // For imported rows, we want to preserve the Airtable record id (airtable_id or legacy id if you have one).
+      // For newly-created rows in NocoDB, airtable_id will be NULL, so we fall back to nocouuid (stable) and then nocopk.
       if (ctx && ctx.hasLegacy) {
-        return `COALESCE(NULLIF(${ctx.qualifier}.${ident(ctx.legacySlug)}::text,''), ${ctx.qualifier}.${ident('airtable_id')}::text, replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''))`;
+        return `COALESCE(NULLIF(${ctx.qualifier}.${ident(ctx.legacySlug)}::text,''), NULLIF(${ctx.qualifier}.${ident('airtable_id')}::text,''), replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''), (${ctx.qualifier}.${ident('nocopk')})::text)`;
       }
-      return `${ctx.qualifier}.${ident('airtable_id')}`;
+      return `COALESCE(NULLIF(${ctx.qualifier}.${ident('airtable_id')}::text,''), replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''), (${ctx.qualifier}.${ident('nocopk')})::text)`;
     }
 
     if (fn === 'SET_TIMEZONE' && args.length===2) return `(${args[0]})`;
