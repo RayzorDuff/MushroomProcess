@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-01-30.1
+ * Version: 2026-01-31.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -339,6 +339,17 @@ function compileFormulaExpr(raw, ctx) {
 
     const col = ctx.fieldIdToCol.get(fid);
     if (!col) return 'NULL';
+
+    // If formulas reference the imported Airtable record id column directly (airtable_id),
+    // new rows created in NocoDB will have it NULL. In Airtable, this pattern is usually
+    // intended to behave like RECORD_ID(). So we fall back to nocouuid/nocopk (and legacy id if present).
+    if (col === 'airtable_id') {
+      if (ctx && ctx.hasLegacy && ctx.legacySlug) {
+        return `COALESCE(NULLIF(${ctx.qualifier}.${ident(ctx.legacySlug)}::text,''), NULLIF(${ctx.qualifier}.${ident('airtable_id')}::text,''), replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''), (${ctx.qualifier}.${ident('nocopk')})::text)`;
+      }
+      return `COALESCE(NULLIF(${ctx.qualifier}.${ident('airtable_id')}::text,''), replace(${ctx.qualifier}.${ident('nocouuid')}::text,'-',''), (${ctx.qualifier}.${ident('nocopk')})::text)`;
+    }
+
     return `${ctx.qualifier}.${ident(col)}`;
   });
 
@@ -391,7 +402,13 @@ function compileFormulaExpr(raw, ctx) {
     const s = x.trim();
     // Airtable treats blank/empty as false for IF conditions.
     // If condition is a bare field reference, compile to ISNOTBLANK style.
-    if (/^(base|btbl|comp)\."[^"]+"$/.test(s)) return `NULLIF(${s}::text,'') IS NOT NULL`;
+    // For lookup/rollup arrays, treat empty array as blank (cardinality = 0).
+    const m = /^(base|btbl|comp)\."([^"]+)"$/.exec(s);
+    if (m) {
+      const col = m[2];
+      if (__arrayCols && __arrayCols.has(col)) return `COALESCE(cardinality(${s}),0) > 0`;
+      return `NULLIF(${s}::text,'') IS NOT NULL`;
+    }
     return s;
   }
 
