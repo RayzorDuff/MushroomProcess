@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-01.2
+ * Version: 2026-02-01.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -892,33 +892,47 @@ function main() {
     const tn = slug(t.name);
     const cols = [];
     const physical = new Set();
+    const colTypeByName = new Map(); // for constraints/indexing decisions
+    
+    // Always keep internal PK first
+    if (BIGINT_PKS) { cols.push(`${ident('nocopk')} BIGSERIAL PRIMARY KEY`); physical.add('nocopk'); colTypeByName.set('nocopk','bigint'); }
+    else { cols.push(`${ident('airtable_id')} text PRIMARY KEY`); physical.add('airtable_id'); colTypeByName.set('airtable_id','text'); }
+    
 
-    if (BIGINT_PKS) { cols.push(`${ident('nocopk')} BIGSERIAL PRIMARY KEY`); physical.add('nocopk'); }
-    else { cols.push(`${ident('airtable_id')} text PRIMARY KEY`); physical.add('airtable_id'); }
 
-    cols.push(`${ident('nocouuid')} uuid DEFAULT gen_random_uuid()`); physical.add('nocouuid');
-    cols.push(`${ident('airtable_id')} text UNIQUE`); physical.add('airtable_id');
-    cols.push(`${ident('nc_created_at')} timestamp without time zone DEFAULT now()`); physical.add('nc_created_at');
-    cols.push(`${ident('nc_updated_at')} timestamp without time zone DEFAULT now()`); physical.add('nc_updated_at');
-
-    const reserved = new Set(['nocopk','nocouuid','airtable_id','nc_created_at','nc_updated_at']);
-
+    // Materialize Airtable-style autogen ID formula fields (e.g., lot_id, product_id) as real columns.
+    // These are computed by triggers later in this file.
+    const autogenSpecs = [];
     for (const f of (t.fields || [])) {
-      if (isComputedType(f.type)) {
-        // Exception: materialize Airtable-style autogen *_id formula fields onto base tables.
-        // These are writable, and are computed via triggers emitted later in 001_tables.sql.
-        if (f.type === 'formula') {
-          const spec = autogenIdSpec(f, tn);
-          if (spec) {
-            const idCol = slug(spec.fieldName);
-            if (idCol && !reserved.has(idCol)) {
-              cols.push(`${ident(idCol)} text`);
-              physical.add(idCol);
-            }
-          }
-        }
-        continue;
-      }
+      const spec = autogenIdSpec(f, t.name);
+      if (spec) autogenSpecs.push(spec);
+    }
+    for (const s of autogenSpecs) {
+      const colName = slug(s.fieldName);
+      // Avoid internal/reserved duplicates
+      if (colName === 'nocopk' || colName === 'nocouuid' || colName === 'airtable_id' || colName === 'nc_created_at' || colName === 'nc_updated_at') continue;
+      if (physical.has(colName)) continue;
+      cols.push(`${ident(colName)} text NOT NULL`);
+      physical.add(colName);
+      colTypeByName.set(colName, 'text');
+    }
+    // We'll append internal bookkeeping columns at the END so NocoDB is less likely to choose them as "display"/PV.
+    const internalCols = [
+      { name: 'nocouuid', def: `${ident('nocouuid')} uuid DEFAULT gen_random_uuid()`, typ: 'uuid' },
+      { name: 'airtable_id', def: `${ident('airtable_id')} text UNIQUE`, typ: 'text' },
+      { name: 'nc_created_at', def: `${ident('nc_created_at')} timestamp without time zone DEFAULT now()`, typ: 'timestamp' },
+      { name: 'nc_updated_at', def: `${ident('nc_updated_at')} timestamp without time zone DEFAULT now()`, typ: 'timestamp' },
+    ];
+        const reserved = new Set(['nocopk','nocouuid','airtable_id','nc_created_at','nc_updated_at']);
+
+    // Determine the first "Airtable" physical field (stored, non-link-array, non-button)
+    let firstAirtableCol = null;
+    
+    // Build a list of Airtable physical columns (excluding reserved/internal),
+    // and we'll order them so the first Airtable field follows nocopk.
+    const airtableColDefs = [];
+    for (const f of (t.fields || [])) {
+      if (isComputedType(f.type)) continue;
       if (f.type === 'multipleRecordLinks') continue;
       if (f.type === 'button') continue;
 
@@ -926,20 +940,88 @@ function main() {
       if (!baseName || reserved.has(baseName)) continue;
 
       if (f.type === 'singleRecordLink') {
-        cols.push(`${ident(baseName + '_id')} bigint`);
-        physical.add(baseName + '_id');
-        continue;
+      const colName = baseName + '_id';
+      const def = `${ident(colName)} bigint`;
+      airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
+      if (!firstAirtableCol) firstAirtableCol = colName;
+          continue;
       }
 
       const typ = pgTypeForField(f) || 'text';
-      cols.push(`${ident(baseName)} ${typ}`);
-      physical.add(baseName);
+      const def = `${ident(baseName)} ${typ}`;
+      airtableColDefs.push({ name: baseName, def, typ, kind: 'field' });
+      if (!firstAirtableCol) firstAirtableCol = baseName;
+    }
+    
+    // Emit Airtable columns in order:
+    //  - first Airtable field immediately after nocopk (for NocoDB display heuristics)
+    //  - then remaining Airtable fields
+    if (firstAirtableCol) {
+      const first = airtableColDefs.find(x => x.name === firstAirtableCol);
+      if (first) {
+        cols.push(first.def); physical.add(first.name); colTypeByName.set(first.name, first.typ);
+      }
+      for (const c of airtableColDefs) {
+        if (c.name === firstAirtableCol) continue;
+        cols.push(c.def); physical.add(c.name); colTypeByName.set(c.name, c.typ);
+      }
+    } else {
+      for (const c of airtableColDefs) {
+        cols.push(c.def); physical.add(c.name); colTypeByName.set(c.name, c.typ);
+      }
+    }
+
+    // Append internal columns LAST
+    for (const ic of internalCols) {
+      // note: airtable_id is already created as PK when BIGINT_PKS is false; avoid duplicates
+      if (physical.has(ic.name)) continue;
+      cols.push(ic.def); physical.add(ic.name); colTypeByName.set(ic.name, ic.typ);
     }
 
     physicalColsByTableSlug.set(tn, physical);
 
-    ddl += `\nCREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (\n  ${cols.join(',\n  ')}\n);\n`;
+    ddl += `
+CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
+  ${cols.join(',\n  ')}
+);
+`;
+
+    // Constraints / indexes to support display and lookups in NocoDB.
+    // - Any TEXT column ending with _id gets UNIQUE + implicit index (Airtable-style identifiers).
+    // - The first Airtable physical field gets special handling:
+    //     * if it's *_id (text), ensure unique
+    //     * if it's name (text), create a non-unique index
+  {
+    const addUnique = (colName) => {
+    const cname = `uq_${tn}_${colName}`;
+    ddl += `DO $$ BEGIN
+      ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(tn)} ADD CONSTRAINT ${ident(cname)} UNIQUE (${ident(colName)});
+    EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+`;
+  };
+    const addIndex = (colName) => {
+    const iname = `ix_${tn}_${colName}`;
+    ddl += `CREATE INDEX IF NOT EXISTS ${ident(iname)} ON ${ident(POSTGRES_SCHEMA)}.${ident(tn)}(${ident(colName)});
+`;
+  };
+
+    // First airtable column preference
+    if (firstAirtableCol) {
+      const t0 = colTypeByName.get(firstAirtableCol);
+      if (t0 === 'text' && /_id$/.test(firstAirtableCol)) addUnique(firstAirtableCol);
+      else if (t0 === 'text' && firstAirtableCol === 'name') addIndex(firstAirtableCol);
+    }
+
+    for (const [colName, colTyp] of colTypeByName.entries()) {
+      if (colName === 'nocopk' || colName === 'airtable_id') continue;
+      if (colTyp !== 'text') continue;
+      if (!/_id$/.test(colName)) continue;
+      // skip the internal airtable_id column (already unique)
+      if (colName === 'airtable_id') continue;
+      addUnique(colName);
+    }
   }
+}
 
 // Create triggers to compute autogen *_id fields (Airtable formula IDs) on insert/update.
 // This makes IDs available on base tables (writable) and keeps vc_ views simpler.
