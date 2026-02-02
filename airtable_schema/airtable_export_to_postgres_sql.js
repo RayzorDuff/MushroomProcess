@@ -994,21 +994,28 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
   {
     const emittedUniques = new Set();
     const addUnique = (colName) => {
-    const cname = `uq_${tn}_${colName}`;
+      const cname = `uq_${tn}_${colName}`;
       if (emittedUniques.has(cname)) return;
       emittedUniques.add(cname);
-    ddl += `DO $$ BEGIN
+
+      // Use regclass *literal* (not "schema"."table"::regclass) and interpolate cname safely.
+      const rel = `${POSTGRES_SCHEMA}.${tn}`;
+      const cnameSql = cname.replace(/'/g, "''");
+
+      ddl += `DO $$ BEGIN
         IF NOT EXISTS (
           SELECT 1
           FROM pg_constraint c
-          WHERE c.conname = '${'${'}cname${'}'}'
-            AND c.conrelid = ${ident(POSTGRES_SCHEMA)}.${ident(tn)}::regclass
+          WHERE c.conname = '${cnameSql}'
+            AND c.conrelid = '${rel}'::regclass
         ) THEN
-      ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(tn)} ADD CONSTRAINT ${ident(cname)} UNIQUE (${ident(colName)});
+          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(tn)}
+            ADD CONSTRAINT ${ident(cname)} UNIQUE (${ident(colName)});
         END IF;
       END $$;
 `;
-  };
+    };
+
     const addIndex = (colName) => {
     const iname = `ix_${tn}_${colName}`;
     ddl += `CREATE INDEX IF NOT EXISTS ${ident(iname)} ON ${ident(POSTGRES_SCHEMA)}.${ident(tn)}(${ident(colName)});
