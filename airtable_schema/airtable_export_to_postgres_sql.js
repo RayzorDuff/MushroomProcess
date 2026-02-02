@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-01.4
+ * Version: 2026-02-01.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -912,7 +912,7 @@ function main() {
       // Avoid internal/reserved duplicates
       if (colName === 'nocopk' || colName === 'nocouuid' || colName === 'airtable_id' || colName === 'nc_created_at' || colName === 'nc_updated_at') continue;
       if (physical.has(colName)) continue;
-      cols.push(`${ident(colName)} text NOT NULL`);
+      cols.push(`${ident(colName)} text`);
       physical.add(colName);
       colTypeByName.set(colName, 'text');
     }
@@ -992,11 +992,21 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
     //     * if it's *_id (text), ensure unique
     //     * if it's name (text), create a non-unique index
   {
+    const emittedUniques = new Set();
     const addUnique = (colName) => {
     const cname = `uq_${tn}_${colName}`;
+      if (emittedUniques.has(cname)) return;
+      emittedUniques.add(cname);
     ddl += `DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = '${'${'}cname${'}'}'
+            AND c.conrelid = ${ident(POSTGRES_SCHEMA)}.${ident(tn)}::regclass
+        ) THEN
       ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(tn)} ADD CONSTRAINT ${ident(cname)} UNIQUE (${ident(colName)});
-    EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+        END IF;
+      END $$;
 `;
   };
     const addIndex = (colName) => {
