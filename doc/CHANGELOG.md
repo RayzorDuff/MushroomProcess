@@ -1,4 +1,91 @@
-## v1.0.5-beta
+## [v1.0.6-beta] - 2026-02-01
+
+_This release includes production-branch updates since `v1.0.5-beta`. The focus is on making the NocoDB/Postgres migration path reliable (schema + data import), improving computed-field translation (lookups/rollups/formulas), and updating automations/interfaces to match the latest workflow expectations._
+
+---
+
+## NocoDB / Postgres migration (schema + data)
+
+- Added a full **Airtable-export → Postgres SQL** pipeline, including a large new exporter (`airtable_export_to_postgres_sql.js`) and supporting tooling to generate/import SQL and CSV cleanly.
+- Reorganized and expanded the NocoDB migration outputs into a dedicated `nocodb_schema/` structure (including `pgsql/` scripts, generated schema artifacts, and CSV exports).
+- Added support for importing into **external DB sources in NocoDB** (source-scoped meta endpoints), improving compatibility with setups where NocoDB is attached to a Postgres database.
+- Improved CSV load behavior:
+  - fixed `psql \copy` filename handling (requires literal filename tokens),
+  - removed incorrect path handling (load CSVs relative to CWD; removed basedir assumptions),
+  - fixed link export so relational CSVs import correctly.
+
+---
+
+## Computed field translation: lookups, rollups, and formulas
+
+A major set of fixes to ensure computed views import successfully and behave correctly in Postgres/NocoDB:
+
+- Formalized the lookup/rollup compiler and prevented cycles:
+  - removed lots→products lookups that created cycles; kept the direction products→lots.
+- Fixed missing/invalid SQL generation cases:
+  - fixed missing FROM-clause issues,
+  - fixed runaway SQL generation paths,
+  - ensured `OR()` / `AND()` compilation preserves operators correctly.
+- Improved type correctness and array/scalar behavior:
+  - cast `array_agg(...)` expressions to concrete scalar types where needed,
+  - fixed comparisons of arrays vs scalars,
+  - detected mixed scalar/array results in `IF()` / `SWITCH()` and handled them safely,
+  - only scalarize when the referenced column is known to be an array,
+  - auto-coerce known lookup/rollup array refs when adjacent to `||`,
+  - fixed scalar datetime functions emitted with incorrect raw casts.
+- Fixed Postgres null-concat behavior that caused IDs to disappear:
+  - addressed `||` + `NULL` ⇒ `NULL` situations (e.g., `lot_id` becoming null if `airtable_id` is null), which led to empty-looking fields in NocoDB.
+- Added “two-pass” behavior by inlining dependent formulas:
+  - when a formula references another formula field in the same table, the generator now inlines referenced SQL (or generates a two-pass select strategy).
+- Improved self-link handling:
+  - repaired links to the same table,
+  - fixed same-table junction naming and alias uniqueness in generated views,
+  - for self-link lookups targeting non-physical computed fields, the generator now emits safe empty arrays with TODO markers rather than invalid SQL.
+- Added/adjusted schema to reduce reliance on self-link lookups:
+  - introduced `vendor_name_mat` and `strain_species_strain_mat` to replace lookups against `lots.target_lot_ids` self-links and retire brittle lookup paths.
+
+---
+
+## Schema / import reliability fixes
+
+- Updated schema to the latest production state and iterated on computed-view generation until **all `.sql` files import successfully**.
+- Added and processed `tables_dump.json` from Airtable-export for richer import context; improved how the generator locates and uses it.
+- Introduced import-time column ordering changes to match NocoDB expectations:
+  - place migration-specific columns at the end,
+  - ensure Airtable “primary” columns immediately follow `nocopk` so NocoDB chooses the intended display value.
+- Fixed “regclass” import errors and addressed internal “leakage” issues discovered during Postgres import testing.
+
+---
+
+## Automations & workflow behavior
+
+- Removed dependence on Airtable “views” for automation selection and added support for **multiple instances** (better suited to multi-site / multi-printer deployments).
+- Updated multiple Airtable automations and interface specs to reflect current workflows (Dark Room, Fruit, Inoculate, Pour Plates, Spawn-to-Bulk, etc.).
+- Dark Room workflow fix:
+  - **Fixes #11**: allow transitions to `invalid` states in Dark Room when needed.
+
+---
+
+## Interfaces: Appsmith + Retool updates
+
+- Added **Appsmith** interface definitions and updated NocoDB interface documentation/strategy (including an N8N automation strategy doc).
+- Updated Airtable and NocoDB interface definitions and refreshed interface/automation screenshots to reflect current project state.
+
+---
+
+## Print daemon: multi-instance readiness
+
+- Updated schema and related logic for an **instance-aware print daemon**, supporting multiple daemon instances/printers without relying on Airtable views.
+
+---
+
+## Ecwid integration quality-of-life
+
+- Added a PowerShell sync loop to run periodic sync (e.g., every 15 minutes), and minor supporting documentation updates.
+
+---
+
+## [v1.0.5-beta]
 
 _This release includes production-branch fixes and refinements since `v1.0.4-beta`, with a focus on stability, data integrity, and correctness across automations and inventory workflows. Issues #6, #7, and #8 are resolved in this release._
 
@@ -62,7 +149,7 @@ _This release includes production-branch fixes and refinements since `v1.0.4-bet
 
 This release is recommended for all production deployments prior to further feature expansion.
 
-## v1.0.4-beta
+## [v1.0.4-beta]
 
 _This release includes updates from both the `nocodb_migration` branch and recent fixes on the `production` branch. It continues the migration work toward full NocoDB compatibility while refining Airtable automations, Ecwid sync logic, and schema tooling._
 
