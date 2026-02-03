@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-01.5
+ * Version: 2026-02-03.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -933,18 +933,30 @@ function main() {
     const airtableColDefs = [];
     for (const f of (t.fields || [])) {
       if (isComputedType(f.type)) continue;
-      if (f.type === 'multipleRecordLinks') continue;
       if (f.type === 'button') continue;
 
       const baseName = slug(f.name);
       if (!baseName || reserved.has(baseName)) continue;
 
       if (f.type === 'singleRecordLink') {
-      const colName = baseName + '_id';
+      const colName = (baseName.endsWith('_id') ? baseName : (baseName + '_id'));
       const def = `${ident(colName)} bigint`;
       airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
       if (!firstAirtableCol) firstAirtableCol = colName;
           continue;
+      }
+
+      if (f.type === 'multipleRecordLinks') {
+        // Many Airtable link fields are configured as "multipleRecordLinks" even when used as 1:1.
+        // If the schema marks the field as preferring single links, materialize a FK column (<field>_id)
+        // while still keeping the _m2m_* junction for compatibility.
+        if (f.options && f.options.prefersSingleRecordLink) {
+          const colName = (baseName.endsWith('_id') ? baseName : (baseName + '_id'));
+          const def = `${ident(colName)} bigint`;
+          airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
+          if (!firstAirtableCol) firstAirtableCol = colName;
+        }
+        continue;
       }
 
       const typ = pgTypeForField(f) || 'text';
@@ -1093,13 +1105,96 @@ for (const t of exportTables) {
       const aCol = `${a}_id`;
       const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
 
-      junctions.push({ jn, a, b, aCol, bCol, linkFieldSlug, linkFieldId: f.id });
+      const prefersSingle = !!(f.options && f.options.prefersSingleRecordLink);
+      const _fkBase = (slug(f.name) || 'link');
+      const fkColName = (prefersSingle ? (_fkBase.endsWith('_id') ? _fkBase : (_fkBase + '_id')) : null);
+
+      junctions.push({ jn, a, b, aCol, bCol, linkFieldSlug, linkFieldId: f.id, prefersSingle, fkColName });
 
       linksSql += `\nCREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(jn)} (\n  ${ident(aCol)} bigint NOT NULL,\n  ${ident(bCol)} bigint NOT NULL\n);\n`;
       linksSql += `CREATE INDEX IF NOT EXISTS ${ident(jn + '_' + aCol + '_idx')} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(aCol)});\n`;
       linksSql += `CREATE INDEX IF NOT EXISTS ${ident(jn + '_' + bCol + '_idx')} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(bCol)});\n`;
       linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}\n  ADD CONSTRAINT ${ident(jn + '_' + aCol + '_fk')} FOREIGN KEY (${ident(aCol)}) REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(a)}(${ident('nocopk')}) DEFERRABLE INITIALLY DEFERRED;\n`;
       linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}\n  ADD CONSTRAINT ${ident(jn + '_' + bCol + '_fk')} FOREIGN KEY (${ident(bCol)}) REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(b)}(${ident('nocopk')}) DEFERRABLE INITIALLY DEFERRED;\n`;
+
+      // For "preferred single" links, maintain the junction table from the FK column and vice versa.
+      if (prefersSingle && fkColName) {
+        // Ensure only one row per source record in the junction (1:0/1 semantics).
+        linksSql += `CREATE UNIQUE INDEX IF NOT EXISTS ${ident(jn + '_' + aCol + '_uniq')} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(aCol)});\n`;
+
+        const fnA = `sync_${a}_${fkColName}_to_${jn}`;
+        const trgA = `trg_${a}_${fkColName}_to_${jn}`;
+        linksSql += `
+CREATE OR REPLACE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  -- prevent recursion when the junction trigger updates the base table
+  IF pg_trigger_depth() > 1 THEN
+    RETURN NEW;
+  END IF;
+
+  -- Keep junction in sync with the FK column
+  DELETE FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+   WHERE ${ident(aCol)} = NEW.${ident('nocopk')};
+
+  IF NEW.${ident(fkColName)} IS NOT NULL THEN
+    INSERT INTO ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(aCol)}, ${ident(bCol)})
+    VALUES (NEW.${ident('nocopk')}, NEW.${ident(fkColName)});
+  END IF;
+
+  RETURN NEW;
+END $$;
+
+DROP TRIGGER IF EXISTS ${ident(trgA)} ON ${ident(POSTGRES_SCHEMA)}.${ident(a)};
+CREATE TRIGGER ${ident(trgA)}
+AFTER INSERT OR UPDATE OF ${ident(fkColName)} ON ${ident(POSTGRES_SCHEMA)}.${ident(a)}
+FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
+`;
+
+        const fnJ = `sync_${jn}_to_${a}_${fkColName}`;
+        const trgJ = `trg_${jn}_to_${a}_${fkColName}`;
+        linksSql += `
+CREATE OR REPLACE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}()
+RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+  v_a bigint;
+  v_b bigint;
+BEGIN
+  IF pg_trigger_depth() > 1 THEN
+    RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    v_a := OLD.${ident(aCol)};
+    v_b := OLD.${ident(bCol)};
+    UPDATE ${ident(POSTGRES_SCHEMA)}.${ident(a)}
+       SET ${ident(fkColName)} = NULL
+     WHERE ${ident('nocopk')} = v_a
+       AND ${ident(fkColName)} = v_b;
+    RETURN OLD;
+  ELSE
+    v_a := NEW.${ident(aCol)};
+    v_b := NEW.${ident(bCol)};
+
+    -- Enforce single link: drop any other rows for this source id
+    DELETE FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+     WHERE ${ident(aCol)} = v_a
+       AND ${ident(bCol)} <> v_b;
+
+    UPDATE ${ident(POSTGRES_SCHEMA)}.${ident(a)}
+       SET ${ident(fkColName)} = v_b
+     WHERE ${ident('nocopk')} = v_a;
+
+    RETURN NEW;
+  END IF;
+END $$;
+
+DROP TRIGGER IF EXISTS ${ident(trgJ)} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)};
+CREATE TRIGGER ${ident(trgJ)}
+AFTER INSERT OR UPDATE OR DELETE ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
+`;
+      }
     }
   }
   linksSql += `\nCOMMIT;\n`;
