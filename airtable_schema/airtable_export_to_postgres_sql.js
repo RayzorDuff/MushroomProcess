@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-03.2
+ * Version: 2026-02-06.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -883,6 +883,12 @@ function main() {
   // Junctions: {jn, a, b, aCol, bCol, linkFieldSlug, linkFieldId}
   const junctions = [];
 
+  
+  // For prefers-single link fields we also create scalar FK columns on the base table.
+  // Track those FK column names per table so computed views don't re-emit a computed column
+  // with the same name (which would cause: column "<name>" specified more than once).
+  const fkColsByTableSlug = new Map(); // tableSlug -> Set(fkColName)
+
   // 001_tables.sql uses export schema (stored fields are same)
   let ddl = sqlHeader();
   ddl = `-- Requires extension pgcrypto for gen_random_uuid()\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\n\n` + ddl;
@@ -890,6 +896,9 @@ function main() {
 
   for (const t of exportTables) {
     const tn = slug(t.name);
+    // Use authoritative schema (raw Airtable schema query) for link metadata such as prefersSingleRecordLink.
+    const schemaT = schema ? tableById(schema, t.id) : null;
+    const schemaFieldById = schemaT && schemaT.fields ? new Map(schemaT.fields.map(sf => [sf.id, sf])) : null;
     const cols = [];
     const physical = new Set();
     const colTypeByName = new Map(); // for constraints/indexing decisions
@@ -950,7 +959,8 @@ function main() {
         // Many Airtable link fields are configured as "multipleRecordLinks" even when used as 1:1.
         // If the schema marks the field as preferring single links, materialize a FK column (<field>_id)
         // while still keeping the _m2m_* junction for compatibility.
-        if (f.options && f.options.prefersSingleRecordLink) {
+        const sf = (schemaFieldById && schemaFieldById.get(f.id)) ? schemaFieldById.get(f.id) : f;
+        if (sf.options && sf.options.prefersSingleRecordLink) {
           const colName = (baseName.endsWith('_id') ? baseName : (baseName + '_id'));
           const def = `${ident(colName)} bigint`;
           airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
@@ -1199,6 +1209,16 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
   }
   linksSql += `\nCOMMIT;\n`;
   fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '002_links.sql'), linksSql, 'utf8');
+  // Populate FK column collision set now that junctions have been collected.
+  // (junctions are filled while generating 002_links.sql). This prevents vc_* from
+  // re-emitting computed columns that duplicate scalar FK columns ("column specified more than once").
+  for (const j of junctions) {
+    if (!j.prefersSingle || !j.fkColName) continue;
+    const ts = slug(j.a);
+    if (!fkColsByTableSlug.has(ts)) fkColsByTableSlug.set(ts, new Set());
+    fkColsByTableSlug.get(ts).add(j.fkColName);
+  }
+
 
   // 003_views.sql
   if (CREATE_VIEWS) {
@@ -1209,6 +1229,8 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
 
     for (const t of exportTables) {
       const a = slug(t.name);
+      const fkCols = fkColsByTableSlug.get(a) || null;
+
 
       // primary field from tablesDump if present, else export schema
       const td = tablesDump ? tableById(tablesDump, t.id) : null;
@@ -1295,6 +1317,8 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
 
     for (const t of exportTables) {
       const a = slug(t.name);
+      const fkCols = fkColsByTableSlug.get(a) || null;
+
       const td = tablesDump ? tableById(tablesDump, t.id) : null;
       const fields = td ? (td.fields || []) : [];
       const computed = fields.filter(f => isComputedType(f.type));
@@ -1307,6 +1331,11 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
         const formulaExprs = [];
         for (const f of computed) {
           const outAlias = slug(f.name) || 'computed';
+          if (fkCols && fkCols.has(outAlias)) {
+            // This computed field name collides with a materialized scalar FK column (prefers-single link).
+            // Keep the base-table value and do not re-emit a computed column of the same name.
+            continue;
+          }
           const outCol = ident(outAlias);
 
           if (f.type === 'formula') {
