@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-06.2
+ * Version: 2026-02-07.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -901,6 +901,8 @@ function main() {
     const schemaFieldById = schemaT && schemaT.fields ? new Map(schemaT.fields.map(sf => [sf.id, sf])) : null;
     const cols = [];
     const physical = new Set();
+    const fkInfos = []; // {colName, linkedTableId}
+
     const colTypeByName = new Map(); // for constraints/indexing decisions
     
     // Always keep internal PK first
@@ -951,6 +953,10 @@ function main() {
       const colName = (baseName.endsWith('_id') ? baseName : (baseName + '_id'));
       const def = `${ident(colName)} bigint`;
       airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
+      {
+        const sf = (schemaFieldById && schemaFieldById.get(f.id)) ? schemaFieldById.get(f.id) : f;
+        if (sf && sf.options && sf.options.linkedTableId) fkInfos.push({ colName, linkedTableId: sf.options.linkedTableId });
+      }
       if (!firstAirtableCol) firstAirtableCol = colName;
           continue;
       }
@@ -964,6 +970,7 @@ function main() {
           const colName = (baseName.endsWith('_id') ? baseName : (baseName + '_id'));
           const def = `${ident(colName)} bigint`;
           airtableColDefs.push({ name: colName, def, typ: 'bigint', kind: 'fk' });
+          if (sf && sf.options && sf.options.linkedTableId) fkInfos.push({ colName, linkedTableId: sf.options.linkedTableId });
           if (!firstAirtableCol) firstAirtableCol = colName;
         }
         continue;
@@ -1007,6 +1014,47 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
   ${cols.join(',\n  ')}
 );
 `;
+    // Foreign keys + indexes for materialized single-link FK columns (bigint nocopk references).
+    // These are nullable; triggers/views handle semantics, and NocoDB inserts must not fail pre-trigger.
+    for (const fk of fkInfos) {
+      // resolve linked table slug/name from authoritative schema/tables
+      const tgtT =
+        (schema && tableById(schema, fk.linkedTableId)) ||
+        (tablesDump && tableById(tablesDump, fk.linkedTableId)) ||
+        (exportTableById && exportTableById.get(fk.linkedTableId)) ||
+        null;
+      const tgtName = tgtT ? (tgtT.name || '') : '';
+      const tgtSlug = slug(tgtName);
+      if (!tgtSlug) continue;
+
+      const fkCName = `fk_${tn}_${fk.colName}`;
+      const rel = `${POSTGRES_SCHEMA}.${tn}`;
+      const fkCNameSql = fkCName.replace(/'/g, "''");
+      const idxName = `ix_${tn}_${fk.colName}`;
+
+      // FK constraint (idempotent)
+      ddl += `DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = '${fkCNameSql}'
+            AND c.conrelid = '${rel}'::regclass
+        ) THEN
+          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(tn)}
+            ADD CONSTRAINT ${ident(fkCName)}
+            FOREIGN KEY (${ident(fk.colName)})
+            REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(tgtSlug)}(${ident('nocopk')})
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+      END $$;
+`;
+
+      // Index on FK column (idempotent)
+      ddl += `CREATE INDEX IF NOT EXISTS ${ident(idxName)} ON ${ident(POSTGRES_SCHEMA)}.${ident(tn)}(${ident(fk.colName)});
+`;
+    }
+
+
 
     // Constraints / indexes to support display and lookups in NocoDB.
     // - Any TEXT column ending with _id gets UNIQUE + implicit index (Airtable-style identifiers).
@@ -1138,9 +1186,11 @@ for (const t of exportTables) {
 CREATE OR REPLACE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}()
 RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  -- prevent recursion when the junction trigger updates the base table
-  IF pg_trigger_depth() > 1 THEN
-    RETURN NEW;
+  -- One-way sync: base FK column is canonical; junction is derived.
+  IF TG_OP = 'DELETE' THEN
+    DELETE FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+     WHERE ${ident(aCol)} = OLD.${ident('nocopk')};
+    RETURN OLD;
   END IF;
 
   -- Keep junction in sync with the FK column
@@ -1149,7 +1199,8 @@ BEGIN
 
   IF NEW.${ident(fkColName)} IS NOT NULL THEN
     INSERT INTO ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(aCol)}, ${ident(bCol)})
-    VALUES (NEW.${ident('nocopk')}, NEW.${ident(fkColName)});
+    VALUES (NEW.${ident('nocopk')}, NEW.${ident(fkColName)})
+    ON CONFLICT (${ident(aCol)}) DO UPDATE SET ${ident(bCol)} = EXCLUDED.${ident(bCol)};
   END IF;
 
   RETURN NEW;
@@ -1157,53 +1208,10 @@ END $$;
 
 DROP TRIGGER IF EXISTS ${ident(trgA)} ON ${ident(POSTGRES_SCHEMA)}.${ident(a)};
 CREATE TRIGGER ${ident(trgA)}
-AFTER INSERT OR UPDATE OF ${ident(fkColName)} ON ${ident(POSTGRES_SCHEMA)}.${ident(a)}
+AFTER INSERT OR UPDATE OF ${ident(fkColName)} OR DELETE ON ${ident(POSTGRES_SCHEMA)}.${ident(a)}
 FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
 `;
-
-        const fnJ = `sync_${jn}_to_${a}_${fkColName}`;
-        const trgJ = `trg_${jn}_to_${a}_${fkColName}`;
-        linksSql += `
-CREATE OR REPLACE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}()
-RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE
-  v_a bigint;
-  v_b bigint;
-BEGIN
-  IF pg_trigger_depth() > 1 THEN
-    RETURN COALESCE(NEW, OLD);
-  END IF;
-
-  IF TG_OP = 'DELETE' THEN
-    v_a := OLD.${ident(aCol)};
-    v_b := OLD.${ident(bCol)};
-    UPDATE ${ident(POSTGRES_SCHEMA)}.${ident(a)}
-       SET ${ident(fkColName)} = NULL
-     WHERE ${ident('nocopk')} = v_a
-       AND ${ident(fkColName)} = v_b;
-    RETURN OLD;
-  ELSE
-    v_a := NEW.${ident(aCol)};
-    v_b := NEW.${ident(bCol)};
-
-    -- Enforce single link: drop any other rows for this source id
-    DELETE FROM ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
-     WHERE ${ident(aCol)} = v_a
-       AND ${ident(bCol)} <> v_b;
-
-    UPDATE ${ident(POSTGRES_SCHEMA)}.${ident(a)}
-       SET ${ident(fkColName)} = v_b
-     WHERE ${ident('nocopk')} = v_a;
-
-    RETURN NEW;
-  END IF;
-END $$;
-
-DROP TRIGGER IF EXISTS ${ident(trgJ)} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)};
-CREATE TRIGGER ${ident(trgJ)}
-AFTER INSERT OR UPDATE OR DELETE ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
-FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
-`;
+        // NOTE: one-way sync only (FK -> junction). Junction changes do not update base FK.
       }
     }
   }
@@ -1373,6 +1381,9 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
             if (!targetField) { lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`); continue; }
 
             const linkSlug = slug(linkField.name);
+            const fkColName = (linkSlug.endsWith('_id') ? linkSlug : (linkSlug + '_id'));
+            const useFkJoin = !!(fkCols && fkCols.has(fkColName));
+
             const joinTable = m2mJoinName(a, linkSlug, otherSlug);
             const leftFk = `${a}_id`;
             const rightFk = (a === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
@@ -1456,10 +1467,15 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnJ)}();
 
             const aggExpr = castForArrayAgg(targetExpr, scalarType);
             lookupExprs.push(
-              `(SELECT COALESCE(array_agg(${aggExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
+              (useFkJoin
+                ? `(SELECT COALESCE(array_agg(${aggExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
+                   `FROM ${otherRel} btbl ` +
+                   `WHERE btbl.${ident('nocopk')} = base.${ident(fkColName)}) AS ${outCol}`
+                : `(SELECT COALESCE(array_agg(${aggExpr} ORDER BY btbl.${ident('nocopk')}), ${emptyArr}) ` +
               `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
               `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
               `WHERE j.${ident(leftFk)} = base.${ident('nocopk')}) AS ${outCol}`
+              )
             );
             continue;
           }
