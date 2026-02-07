@@ -894,6 +894,9 @@ function main() {
   ddl = `-- Requires extension pgcrypto for gen_random_uuid()\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\n\n` + ddl;
   ddl += `BEGIN;\nCREATE SCHEMA IF NOT EXISTS ${ident(POSTGRES_SCHEMA)};\n`;
 
+  // Defer base-table FK constraints until AFTER all tables exist.
+  let deferredBaseFkDdl = '';
+
   for (const t of exportTables) {
     const tn = slug(t.name);
     // Use authoritative schema (raw Airtable schema query) for link metadata such as prefersSingleRecordLink.
@@ -1033,7 +1036,7 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
       const idxName = `ix_${tn}_${fk.colName}`;
 
       // FK constraint (idempotent)
-      ddl += `DO $$ BEGIN
+      deferredBaseFkDdl += `DO $$ BEGIN
         IF NOT EXISTS (
           SELECT 1
           FROM pg_constraint c
@@ -1050,7 +1053,7 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
 `;
 
       // Index on FK column (idempotent)
-      ddl += `CREATE INDEX IF NOT EXISTS ${ident(idxName)} ON ${ident(POSTGRES_SCHEMA)}.${ident(tn)}(${ident(fk.colName)});
+      deferredBaseFkDdl += `CREATE INDEX IF NOT EXISTS ${ident(idxName)} ON ${ident(POSTGRES_SCHEMA)}.${ident(tn)}(${ident(fk.colName)});
 `;
     }
 
@@ -1109,6 +1112,10 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
     }
   }
 }
+
+
+ddl += `\n-- Deferred FK constraints for canonical single-link columns\n`;
+ddl += deferredBaseFkDdl;
 
 // Create triggers to compute autogen *_id fields (Airtable formula IDs) on insert/update.
 // This makes IDs available on base tables (writable) and keeps vc_ views simpler.
