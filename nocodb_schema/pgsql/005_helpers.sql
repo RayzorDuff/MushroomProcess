@@ -1,5 +1,7 @@
 -- 005_helpers.sql
 
+-- 1) Insert an event row and return its PK.
+--    If you want stricter typing later, change fields_json to jsonb.
 CREATE OR REPLACE FUNCTION public.mp_events_insert(
   p_type text,
   p_timestamp timestamp without time zone,
@@ -21,6 +23,7 @@ BEGIN
 END;
 $$;
 
+-- 2) Link an event to a lot (Airtable "linked record" equivalent).
 CREATE OR REPLACE FUNCTION public.mp_events_link_lot(
   p_event_id bigint,
   p_lot_id bigint
@@ -35,14 +38,14 @@ BEGIN
 END;
 $$;
 
+-- Enqueue a print job and (optionally) link it to lot/product/run
 CREATE OR REPLACE FUNCTION public.mp_print_queue_enqueue(
   p_source_kind text,
+  p_label_type text,
   p_lot_id bigint DEFAULT NULL,
   p_product_id bigint DEFAULT NULL,
   p_run_id bigint DEFAULT NULL,
-  p_printer text DEFAULT NULL,
-  p_label text DEFAULT NULL,
-  p_printed_at timestamp without time zone DEFAULT NULL
+  p_print_status text DEFAULT 'Queued'
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -50,33 +53,48 @@ AS $$
 DECLARE
   v_pq_id bigint;
 BEGIN
-  INSERT INTO "public"."print_queue" ("source_kind","printer","label","printed_at","lot_id","product_id")
-  VALUES (p_source_kind, p_printer, p_label, p_printed_at, p_lot_id, p_product_id)
+  -- Create the queue record. The print-daemon will later set claimed_* and printed_* fields.
+  INSERT INTO "public"."print_queue"
+    ("source_kind","label_type","print_status","lot_id","product_id","created_at")
+  VALUES
+    (p_source_kind, p_label_type, p_print_status, p_lot_id, p_product_id, now())
   RETURNING "nocopk" INTO v_pq_id;
 
-  -- mirror Airtable linking fields via the m2m tables (even if lot_id/product_id are also set)
+  -- Maintain Airtable-style multi-link fields (lots.print_queue / products.print_queue / sterilization_runs.print_queue)
   IF p_lot_id IS NOT NULL THEN
-    INSERT INTO "public"."_m2m_print_queue_lots_lot_id" ("print_queue_id","lots_id")
-    VALUES (v_pq_id, p_lot_id)
-    ON CONFLICT DO NOTHING;
+    BEGIN
+      INSERT INTO "public"."_m2m_lots_print_queue_print_queue" ("lots_id","print_queue_id")
+      VALUES (p_lot_id, v_pq_id)
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
   END IF;
 
   IF p_product_id IS NOT NULL THEN
-    INSERT INTO "public"."_m2m_print_queue_products_product_id" ("print_queue_id","products_id")
-    VALUES (v_pq_id, p_product_id)
-    ON CONFLICT DO NOTHING;
+    BEGIN
+      INSERT INTO "public"."_m2m_products_print_queue_print_queue" ("products_id","print_queue_id")
+      VALUES (p_product_id, v_pq_id)
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
   END IF;
 
   IF p_run_id IS NOT NULL THEN
-    INSERT INTO "public"."_m2m_print_queue_sterilization_runs_run_id" ("print_queue_id","sterilization_runs_id")
-    VALUES (v_pq_id, p_run_id)
-    ON CONFLICT DO NOTHING;
+    BEGIN
+      INSERT INTO "public"."_m2m_sterilization_runs_print_queue_print_queue" ("sterilization_runs_id","print_queue_id")
+      VALUES (p_run_id, v_pq_id)
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
   END IF;
 
+  -- Derived canonical FK link tables (e.g., _m2m_print_queue_lots_lot_id) are maintained by existing sync triggers on print_queue.lot_id/product_id
   RETURN v_pq_id;
 END;
 $$;
 
+-- Link a sterilization run to a lot (maintains both NocoDB-style link tables, if present).
+-- Safe to call even if one of the link tables is not used by your UI.
 CREATE OR REPLACE FUNCTION public.mp_link_sterilization_run_lot(
   p_run_id bigint,
   p_lot_id bigint
@@ -106,6 +124,7 @@ BEGIN
 END;
 $$;
 
+-- Link a lot to an item (maintains both NocoDB-style link tables, if present).
 CREATE OR REPLACE FUNCTION public.mp_link_lot_item(
   p_lot_id bigint,
   p_item_id bigint
@@ -142,6 +161,7 @@ BEGIN
 END;
 $$;
 
+-- Link a lot to a recipe (maintains both NocoDB-style link tables, if present).
 CREATE OR REPLACE FUNCTION public.mp_link_lot_recipe(
   p_lot_id bigint,
   p_recipe_id bigint

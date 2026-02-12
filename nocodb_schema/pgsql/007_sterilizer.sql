@@ -1,5 +1,6 @@
 -- 007_sterilizer.sql
 
+-- Start a sterilization run (Sterilizer IN) with Airtable-parity validation.
 CREATE OR REPLACE FUNCTION public.mp_sterilizer_start_run(
   p_planned_item_id bigint,
   p_planned_recipe_id bigint,
@@ -49,6 +50,8 @@ BEGIN
 END;
 $$;
 
+-- Complete a run (Sterilizer OUT): update run, validate counts, create lots,
+--    write events for each created lot, write destroyed events, and enqueue steri_sheet print job.
 CREATE OR REPLACE FUNCTION public.mp_sterilizer_complete_run(
   p_run_id bigint,
   p_good_count numeric,
@@ -191,12 +194,12 @@ BEGIN
   IF v_pq_id IS NULL THEN
     v_pq_id := public.mp_print_queue_enqueue(
       'steri_sheet',
+      'Sterilizer_Sheet',
       NULL,
       NULL,
       v_run."nocopk",
-      NULL,
-      NULL,
-      NULL
+      'Queued'
+
     );
   END IF;
 
