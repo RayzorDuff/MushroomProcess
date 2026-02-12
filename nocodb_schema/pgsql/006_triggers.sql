@@ -1,0 +1,11 @@
+-- 006_triggers.sql
+-- Optional: DB-native triggers to mirror Airtable's print_queue_populator*.js behavior.
+-- Recommendation: keep trigger set minimal and only for "always true" invariants
+-- (e.g., enqueue print jobs when a lot/product becomes labelable), and keep
+-- station workflows in explicit functions (e.g., mp_sterilizer_complete_run).
+--
+-- This file is intentionally a placeholder until we map every Airtable automation
+-- to a DB event. When ready, we can add:
+--   * AFTER INSERT ON lots -> enqueue label prints when label_template is set
+--   * AFTER UPDATE ON lots/products -> enqueue prints on status transitions
+--   * AFTER INSERT ON lots/products -> insert canonical events for creation
