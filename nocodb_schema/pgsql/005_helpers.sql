@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION public.mp_events_insert(
   p_timestamp timestamp without time zone,
   p_operator text,
   p_station text,
-  p_fields_json text DEFAULT NULL
+      p_fields_json  jsonb DEFAULT '{}'::jsonb
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -16,7 +16,7 @@ DECLARE
   v_id bigint;
 BEGIN
   INSERT INTO "public"."events" ("type","timestamp","operator","station","fields_json")
-  VALUES (p_type, p_timestamp, p_operator, p_station, p_fields_json)
+  VALUES (p_type, COALESCE(p_timestamp, now()), p_operator, p_station, COALESCE(p_fields_json, '{}'::jsonb))
   RETURNING "nocopk" INTO v_id;
 
   RETURN v_id;
@@ -35,6 +35,33 @@ BEGIN
   INSERT INTO "public"."_m2m_lots_events_events" ("lots_id","events_id")
   VALUES (p_lot_id, p_event_id)
   ON CONFLICT DO NOTHING;
+END;
+$$;
+
+-- Convenience helper: insert + link to lot (optional)
+CREATE OR REPLACE FUNCTION public.mp_events_insert_and_link_lot(
+  p_lot_id       bigint,
+  p_type         text,
+  p_timestamp    timestamp without time zone,
+  p_operator     text,
+  p_station      text,
+  p_fields_json  jsonb DEFAULT '{}'::jsonb
+)
+RETURNS bigint
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_event_id bigint;
+BEGIN
+  v_event_id := public.mp_events_insert(p_type, p_timestamp, p_operator, p_station, p_fields_json);
+  -- link if helper exists
+  BEGIN
+    PERFORM public.mp_events_link_lot(v_event_id, p_lot_id);
+  EXCEPTION WHEN undefined_function THEN
+    -- If mp_events_link_lot isn't present yet, don't fail the whole action.
+    NULL;
+  END;
+  RETURN v_event_id;
 END;
 $$;
 
