@@ -178,7 +178,7 @@
             "inverseLinkFieldId": "fldJcyNzp7VjLwWx7",
             "isReversed": false,
             "linkedTableId": "tblMB3eUSqLq5Tujy",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -1252,7 +1252,7 @@
             "inverseLinkFieldId": "fldE5FVlxBIbaTbC9",
             "isReversed": false,
             "linkedTableId": "tblMB3eUSqLq5Tujy",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -1415,7 +1415,7 @@
             "inverseLinkFieldId": "fldGSakabOhomDcg9",
             "isReversed": false,
             "linkedTableId": "tblm263EWB0vsucXc",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -1623,7 +1623,7 @@
             "inverseLinkFieldId": "fldFTzw0BIq2l6fjX",
             "isReversed": false,
             "linkedTableId": "tbl2QYDX1lLDyrpcm",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -2581,7 +2581,7 @@
           "id": "fldLKeIjT9w9wvHKQ",
           "name": "label_substrateinputblocks_line",
           "options": {
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldomaryNlKSgW3pI} & \"d \" & {fldjBLOy9UQLYTmZv},\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldomaryNlKSgW3pI} = \"Pasteurize\",\r\n    \"Pasteurized \" & {fldjBLOy9UQLYTmZv},\r\n    \"Sterilized \" & {fldjBLOy9UQLYTmZv}\r\n  ),\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
@@ -3375,7 +3375,7 @@
             "inverseLinkFieldId": "fldjZLkZ8RpHTF1V1",
             "isReversed": false,
             "linkedTableId": "tblL2oACeE9P92BRA",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -3473,7 +3473,7 @@
             "inverseLinkFieldId": "fldazcqL0L0HfNdYf",
             "isReversed": false,
             "linkedTableId": "tbl51zhGGDuaL2Sm4",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },
@@ -4590,7 +4590,7 @@
             "inverseLinkFieldId": "fldYfZN0vDlT7rzLW",
             "isReversed": false,
             "linkedTableId": "tblexT4KCfiMdc3bn",
-            "prefersSingleRecordLink": false
+            "prefersSingleRecordLink": true
           },
           "type": "multipleRecordLinks"
         },

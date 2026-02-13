@@ -179,7 +179,7 @@
           "options": {
             "linkedTableId": "tblMB3eUSqLq5Tujy",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldJcyNzp7VjLwWx7"
           },
           "id": "fldIWQMVz3yNuoWyd",
@@ -1253,7 +1253,7 @@
           "options": {
             "linkedTableId": "tblMB3eUSqLq5Tujy",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldE5FVlxBIbaTbC9"
           },
           "id": "fldxNWzIvDNGH8VMT",
@@ -1416,7 +1416,7 @@
           "options": {
             "linkedTableId": "tblm263EWB0vsucXc",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldGSakabOhomDcg9"
           },
           "id": "fldwy2yLO6KxK2TZk",
@@ -1624,7 +1624,7 @@
           "options": {
             "linkedTableId": "tbl2QYDX1lLDyrpcm",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldFTzw0BIq2l6fjX"
           },
           "id": "fldh0oOpMwoRWeK7B",
@@ -2584,7 +2584,7 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  {fldomaryNlKSgW3pI} & \"d \" & {fldjBLOy9UQLYTmZv},\r\n  \"\"\r\n)",
+            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldomaryNlKSgW3pI} = \"Pasteurize\",\r\n    \"Pasteurized \" & {fldjBLOy9UQLYTmZv},\r\n    \"Sterilized \" & {fldjBLOy9UQLYTmZv}\r\n  ),\r\n  \"\"\r\n)",
             "referencedFieldIds": [
               "fld0iehgMuka4Xpqm",
               "fldomaryNlKSgW3pI",
@@ -3376,7 +3376,7 @@
           "options": {
             "linkedTableId": "tblL2oACeE9P92BRA",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldjZLkZ8RpHTF1V1"
           },
           "id": "fld99g2StSeRBo6KW",
@@ -3474,7 +3474,7 @@
           "options": {
             "linkedTableId": "tbl51zhGGDuaL2Sm4",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldazcqL0L0HfNdYf"
           },
           "id": "fldrPNBJbRahOoryi",
@@ -4591,7 +4591,7 @@
           "options": {
             "linkedTableId": "tblexT4KCfiMdc3bn",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
+            "prefersSingleRecordLink": true,
             "inverseLinkFieldId": "fldYfZN0vDlT7rzLW"
           },
           "id": "fldZ8oLCXsNgqnbZy",

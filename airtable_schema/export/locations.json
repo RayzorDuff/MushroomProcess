@@ -1,5 +1,10 @@
 [
     {
+        "airtable_createdTime": "2025-09-17T18:58:44.000Z",
+        "airtable_id": "rec151HwtkDZhzPUb",
+        "name": "Freezer (Garage)"
+    },
+    {
         "airtable_createdTime": "2025-12-10T16:00:57.000Z",
         "airtable_id": "rec2vUujZ5CYkEAzq",
         "name": "Consumed"
@@ -33,6 +38,11 @@
         "airtable_createdTime": "2025-09-21T00:53:11.000Z",
         "airtable_id": "recbLNqFsbdV59RXV",
         "name": "Artisan Shop"
+    },
+    {
+        "airtable_createdTime": "2026-02-13T20:54:45.000Z",
+        "airtable_id": "recmsz1EhK9NRKLYr",
+        "name": "Compost"
     },
     {
         "airtable_createdTime": "2025-09-17T18:58:21.000Z",
