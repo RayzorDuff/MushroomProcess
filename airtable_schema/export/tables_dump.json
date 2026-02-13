@@ -2913,6 +2913,22 @@
           },
           "id": "fldDWHUcKYT5WFEOi",
           "name": "ecommerce"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldP0Y65q1QBpo6z9",
+          "name": "retired_at"
         }
       ],
       "views": [

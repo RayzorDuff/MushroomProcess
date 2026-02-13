@@ -2910,6 +2910,22 @@
             "prefersSingleRecordLink": false
           },
           "type": "multipleRecordLinks"
+        },
+        {
+          "id": "fldP0Y65q1QBpo6z9",
+          "name": "retired_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
         }
       ],
       "id": "tblL2oACeE9P92BRA",
