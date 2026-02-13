@@ -82,9 +82,9 @@ DECLARE
 BEGIN
   -- Create the queue record. The print-daemon will later set claimed_* and printed_* fields.
   INSERT INTO "public"."print_queue"
-    ("source_kind","label_type","print_status","lot_id","product_id","created_at")
+    ("source_kind","label_type","print_status","lot_id","product_id","run_id","created_at")
   VALUES
-    (p_source_kind, p_label_type, p_print_status, p_lot_id, p_product_id, now())
+    (p_source_kind, p_label_type, p_print_status, p_lot_id, p_product_id, p_run_id, now())
   RETURNING "nocopk" INTO v_pq_id;
 
   -- Maintain Airtable-style multi-link fields (lots.print_queue / products.print_queue / sterilization_runs.print_queue)
