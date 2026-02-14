@@ -57,16 +57,17 @@ CREATE OR REPLACE FUNCTION public.mp_lots_shake(
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
-RETURNS void
+RETURNS int
 LANGUAGE plpgsql
 AS $$
 DECLARE
   v_lot_id bigint;
   v_event_id bigint;
   v_fields jsonb;
+  v_counter integer := 0;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
-    RETURN;
+    RETURN 0;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
@@ -107,8 +108,10 @@ BEGIN
       END
       WHERE nocopk = v_lot_id;
     END IF;
+    v_counter := v_counter + 1;
 
   END LOOP;
+  RETURN v_counter;
 END;
 $$;
 
@@ -126,7 +129,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_retire(
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
-RETURNS void
+RETURNS int
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -137,9 +140,10 @@ DECLARE
   v_reasons_lower text[];
   v_terminal_status text;
   v_terminal_location text;
+  v_counter integer := 0;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
-    RETURN;
+    RETURN 0;
   END IF;
 
   v_reasons_lower := ARRAY(
@@ -217,7 +221,9 @@ BEGIN
     EXCEPTION WHEN undefined_column THEN
       NULL;
     END;
+    v_counter := v_counter + 1;
 
   END LOOP;
+  RETURN v_counter;
 END;
 $$;
