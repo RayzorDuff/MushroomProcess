@@ -1,6 +1,6 @@
 /**
  * Script: fruiting_actions.js
- * Version: 2025-10-16.1
+ * Version: 2026-02-14.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -72,8 +72,9 @@ if (action === 'startfruiting') {
 
 
 if (action === 'composted') {
+  const retiredat = nowIso;
   // Set lot status to Retired and clear action
-  await lotsTbl.updateRecordAsync(lot.id, { status: { id: retiredStatus.id }, action: null });
+  await lotsTbl.updateRecordAsync(lot.id, { status: { id: retiredStatus.id }, action: null, retired_at: retiredat });
 
   // Log Composted event
   const e = { lot_id: [{ id: lot.id }], type: { id: compostedEvt.id }, station: 'Fruiting' };
