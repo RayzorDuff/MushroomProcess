@@ -161,19 +161,21 @@ BEGIN
     lots_created := lots_created + 1;
 
     -- Event: Sterilized/Pasteurized linked to each created lot (Airtable parity)
-    v_evt_id := public.mp_events_insert(
+    v_evt_id := public.mp_events_insert_and_link_lot(
+      v_lot_id::bigint,	
       CASE WHEN v_run."process_type" = 'pasteurize' THEN 'Pasteurized' ELSE 'Sterilized' END,
-      v_end,
-      p_operator,
-      'Sterilizer OUT',
-      json_build_object('run_id', v_run."nocopk")::text
+      v_end::timestamp,
+      p_operator::text,
+      'Sterilizer OUT'::text,
+      json_build_object('run_id', v_run."nocopk")::jsonb
     );
-    PERFORM public.mp_events_link_lot(v_evt_id, v_lot_id);
   END LOOP;
 
-  -- Destroyed events (not linked to any lot in Airtable)
+  -- Destroyed events (not linked to any lot or product)
   FOR v_n IN 1..COALESCE(p_destroyed_count,0)::int LOOP
     PERFORM public.mp_events_insert(
+      NULL,
+      NULL,
       'Destroyed',
       v_end,
       p_operator,

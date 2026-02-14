@@ -3,11 +3,13 @@
 -- 1) Insert an event row and return its PK.
 --    If you want stricter typing later, change fields_json to jsonb.
 CREATE OR REPLACE FUNCTION public.mp_events_insert(
-  p_type text,
-  p_timestamp timestamp without time zone,
-  p_operator text,
-  p_station text,
-      p_fields_json  jsonb DEFAULT '{}'::jsonb
+  p_lot_id bigint DEFAULT NULL,
+  p_product_id bigint DEFAULT NULL,
+  p_type text DEFAULT 'system',
+  p_timestamp timestamp without time zone DEFAULT now(),
+  p_operator text DEFAULT 'system',
+  p_station text DEFAULT 'system',
+  p_fields_json jsonb DEFAULT '{}'::jsonb
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -15,8 +17,8 @@ AS $$
 DECLARE
   v_id bigint;
 BEGIN
-  INSERT INTO "public"."events" ("type","timestamp","operator","station","fields_json")
-  VALUES (p_type, COALESCE(p_timestamp, now()), p_operator, p_station, COALESCE(p_fields_json, '{}'::jsonb))
+  INSERT INTO "public"."events" ("lot_id", "product_id", "type","timestamp","operator","station","fields_json")
+  VALUES (p_lot_id, p_product_id, p_type, COALESCE(p_timestamp, now()), p_operator, p_station, COALESCE(p_fields_json, '{}'::jsonb))
   RETURNING "nocopk" INTO v_id;
 
   RETURN v_id;
@@ -53,7 +55,7 @@ AS $$
 DECLARE
   v_event_id bigint;
 BEGIN
-  v_event_id := public.mp_events_insert(p_type, p_timestamp, p_operator, p_station, p_fields_json);
+  v_event_id := public.mp_events_insert(p_lot_id, NULL, p_type, p_timestamp, p_operator, p_station, p_fields_json);
   -- link if helper exists
   BEGIN
     PERFORM public.mp_events_link_lot(v_event_id, p_lot_id);

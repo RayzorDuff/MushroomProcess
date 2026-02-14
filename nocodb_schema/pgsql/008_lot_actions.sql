@@ -1,8 +1,8 @@
 /*
-  008_lot_actions_v4.sql
+  008_lot_actions.sql
 
   Restores mp_lots_shake, and updates shake/retire to:
-    - use the canonical events insert function (mp_events_insert)
+    - use the canonical events insert function (mp_events_insert or mp_events_insert_and_link_lot)
     - link created events to lots via mp_events_link_lot (defined elsewhere; if missing, it won't fail)
 
   Schema assumptions:
@@ -77,15 +77,16 @@ BEGIN
 
     -- Insert + link
     BEGIN
-      v_event_id := public.mp_events_insert('Shake', COALESCE(p_timestamp, now()), p_operator, p_station, v_fields);
+      v_event_id := public.mp_events_insert_and_link_lot(
+	v_lot_id::bigint,
+	'Shake'::text, 
+	COALESCE(p_timestamp, now())::timestamp, 
+	p_operator::text, 
+	p_station::text, 
+	v_fields::jsonb
+    );
     EXCEPTION WHEN undefined_function THEN
-      NULL;
-    END;
-
-    BEGIN
-      PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
-    EXCEPTION WHEN undefined_function THEN
-      NULL;
+	NULL;
     END;
 
     -- Clear ui error fields if they exist
@@ -176,16 +177,18 @@ BEGIN
       );
 
       BEGIN
-        v_event_id := public.mp_events_insert(v_reason, COALESCE(p_timestamp, now()), p_operator, p_station, v_fields);
+        v_event_id := public.mp_events_insert_and_link_lot(
+		v_lot_id::bigint,
+		v_reason::text, 
+		COALESCE(p_timestamp, now())::timestamp, 
+		p_operator::text, 
+		p_station::text, 
+		v_fields::jsonb
+	);
       EXCEPTION WHEN undefined_function THEN
-        NULL;
+	NULL;
       END;
 
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
-      EXCEPTION WHEN undefined_function THEN
-        NULL;
-      END;
     END LOOP;
 
     -- terminal updates
