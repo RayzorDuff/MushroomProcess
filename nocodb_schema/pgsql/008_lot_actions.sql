@@ -1,8 +1,8 @@
 /*
-  008_lot_actions_v4.sql
+  008_lot_actions.sql
 
   Restores mp_lots_shake, and updates shake/retire to:
-    - use the canonical events insert function (mp_events_insert)
+    - use the canonical events insert function (mp_events_insert or mp_events_insert_and_link_lot)
     - link created events to lots via mp_events_link_lot (defined elsewhere; if missing, it won't fail)
 
   Schema assumptions:
@@ -57,16 +57,17 @@ CREATE OR REPLACE FUNCTION public.mp_lots_shake(
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
-RETURNS void
+RETURNS int
 LANGUAGE plpgsql
 AS $$
 DECLARE
   v_lot_id bigint;
   v_event_id bigint;
   v_fields jsonb;
+  v_counter integer := 0;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
-    RETURN;
+    RETURN 0;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
@@ -77,15 +78,16 @@ BEGIN
 
     -- Insert + link
     BEGIN
-      v_event_id := public.mp_events_insert('Shake', COALESCE(p_timestamp, now()), p_operator, p_station, v_fields);
+      v_event_id := public.mp_events_insert_and_link_lot(
+	v_lot_id::bigint,
+	'Shake'::text, 
+	COALESCE(p_timestamp, now())::timestamp, 
+	p_operator::text, 
+	p_station::text, 
+	v_fields::jsonb
+    );
     EXCEPTION WHEN undefined_function THEN
-      NULL;
-    END;
-
-    BEGIN
-      PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
-    EXCEPTION WHEN undefined_function THEN
-      NULL;
+	NULL;
     END;
 
     -- Clear ui error fields if they exist
@@ -106,8 +108,10 @@ BEGIN
       END
       WHERE nocopk = v_lot_id;
     END IF;
+    v_counter := v_counter + 1;
 
   END LOOP;
+  RETURN v_counter;
 END;
 $$;
 
@@ -125,7 +129,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_retire(
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
-RETURNS void
+RETURNS int
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -136,9 +140,10 @@ DECLARE
   v_reasons_lower text[];
   v_terminal_status text;
   v_terminal_location text;
+  v_counter integer := 0;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
-    RETURN;
+    RETURN 0;
   END IF;
 
   v_reasons_lower := ARRAY(
@@ -176,16 +181,18 @@ BEGIN
       );
 
       BEGIN
-        v_event_id := public.mp_events_insert(v_reason, COALESCE(p_timestamp, now()), p_operator, p_station, v_fields);
+        v_event_id := public.mp_events_insert_and_link_lot(
+		v_lot_id::bigint,
+		v_reason::text, 
+		COALESCE(p_timestamp, now())::timestamp, 
+		p_operator::text, 
+		p_station::text, 
+		v_fields::jsonb
+	);
       EXCEPTION WHEN undefined_function THEN
-        NULL;
+	NULL;
       END;
 
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
-      EXCEPTION WHEN undefined_function THEN
-        NULL;
-      END;
     END LOOP;
 
     -- terminal updates
@@ -214,7 +221,9 @@ BEGIN
     EXCEPTION WHEN undefined_column THEN
       NULL;
     END;
+    v_counter := v_counter + 1;
 
   END LOOP;
+  RETURN v_counter;
 END;
 $$;
