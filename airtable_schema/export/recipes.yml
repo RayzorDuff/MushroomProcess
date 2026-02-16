@@ -4,13 +4,15 @@
   ingredients: Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite
   name: CVG (Coir+CaCO3+Peat+Castings+Vermiculite)
   recipe_id: REC-SUB-CVG-V1
-- airtable_createdTime: '2025-09-22T19:04:28.000Z'
+- active: true
+  airtable_createdTime: '2025-09-22T19:04:28.000Z'
   airtable_id: rec3KC4fKWLKAvUSc
   category: substrate
   ingredients: Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite
   name: CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
   recipe_id: REC-SUB-CVG-V2
-- airtable_createdTime: '2025-09-16T01:31:22.000Z'
+- active: true
+  airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: rec9ayZPHs9K5WS4K
   category: grain
   ingredients: Wild Bird Seed
@@ -22,7 +24,8 @@
   ingredients: Oats
   name: Oats
   recipe_id: REC-GRAIN-OATS
-- airtable_createdTime: '2025-09-16T01:31:22.000Z'
+- active: true
+  airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recN0dZqueLdUrR4N
   category: grain
   ingredients: Organic Wheat; Millet
@@ -34,20 +37,23 @@
   ingredients: Hardwood; Soy hulls
   name: Masters Mix 50/50
   recipe_id: REC-SUB-MM50
-- airtable_createdTime: '2025-09-16T01:31:22.000Z'
+- active: true
+  airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recdzi4MMq717DjmU
   category: substrate
   ingredients: Hardwood; Soy hulls
   name: Masters Mix 75/25
   recipe_id: REC-SUB-MM75
-- airtable_createdTime: '2025-09-16T01:31:22.000Z'
+- active: true
+  airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recfgGM2NY57OwLnN
   category: lc
   ingredients: |
     Malt Extract, Dextrose, Soy Peptone, Gypsum, Nutritional Yeast
   name: Liquid Culture Base
   recipe_id: REC-LC-STD
-- airtable_createdTime: '2025-09-22T19:08:33.000Z'
+- active: true
+  airtable_createdTime: '2025-09-22T19:08:33.000Z'
   airtable_id: recht7gvlBn3YPjan
   category: casing
   ingredients: Peat moss; Vermiculite; CaCO3; Perilite; Gypsum
@@ -59,7 +65,8 @@
   ingredients: Peat moss; Vermiculite; CaCO3; Perilite
   name: Peat Moss Casing Layer
   recipe_id: REC-CASING-PEAT-V1
-- airtable_createdTime: '2025-10-27T01:07:51.000Z'
+- active: true
+  airtable_createdTime: '2025-10-27T01:07:51.000Z'
   airtable_id: recwWg5UpF6UG5t3V
   category: agar
   ingredients: Agar, Malt Extract, Nutritional Yeast

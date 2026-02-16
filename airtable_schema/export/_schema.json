@@ -74,6 +74,15 @@
           "type": "multilineText"
         },
         {
+          "id": "fldm26byIT2yuXB1E",
+          "name": "active",
+          "options": {
+            "color": "greenBright",
+            "icon": "check"
+          },
+          "type": "checkbox"
+        },
+        {
           "id": "fldWEKB2VJ3H8fkxU",
           "name": "name",
           "type": "multilineText"
@@ -2386,30 +2395,6 @@
           "type": "formula"
         },
         {
-          "id": "fld0iehgMuka4Xpqm",
-          "name": "spawned_date",
-          "options": {
-            "fieldIdInLinkedTable": "fld54ZOSg5QbCitCe",
-            "isValid": true,
-            "recordLinkFieldId": "fldjZLkZ8RpHTF1V1",
-            "result": {
-              "options": {
-                "dateFormat": {
-                  "format": "l",
-                  "name": "local"
-                },
-                "timeFormat": {
-                  "format": "h:mma",
-                  "name": "12hour"
-                },
-                "timeZone": "client"
-              },
-              "type": "dateTime"
-            }
-          },
-          "type": "multipleLookupValues"
-        },
-        {
           "id": "fldmx5RDnELMNEUEm",
           "name": "label_inoc_line",
           "options": {
@@ -2429,11 +2414,10 @@
           "id": "fldf3uvlIcTsLLtxf",
           "name": "label_spawned_line",
           "options": {
-            "formula": "IF(\r\n  {fldsdkJ6tJlpOQ5xN},\r\n  \"Spawned: \" & DATETIME_FORMAT({fldsdkJ6tJlpOQ5xN}, 'YYYY-MM-DD'),\r\n  IF(\r\n    {fld0iehgMuka4Xpqm}, \r\n    \"Spawned: \" & DATETIME_FORMAT({fld0iehgMuka4Xpqm}, 'YYYY-MM-DD'),\r\n    \"\"\r\n  ))",
+            "formula": "IF(\r\n  {fldsdkJ6tJlpOQ5xN},\r\n  \"Spawned: \" & DATETIME_FORMAT({fldsdkJ6tJlpOQ5xN}, 'YYYY-MM-DD'),\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
-              "fldsdkJ6tJlpOQ5xN",
-              "fld0iehgMuka4Xpqm"
+              "fldsdkJ6tJlpOQ5xN"
             ],
             "result": {
               "type": "singleLineText"
@@ -2564,10 +2548,10 @@
           "id": "fldalWvxa178ySlRh",
           "name": "label_graininputblocks_line",
           "options": {
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldPZ4IqstB0rDnav} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
+            "formula": "IF({fldsdkJ6tJlpOQ5xN},\r\n  IF({fldrv1VXZ9LnSMzl8},\r\n    {fldPZ4IqstB0rDnav} & \" \" & DATETIME_FORMAT({fldrv1VXZ9LnSMzl8}, \"YYYY-MM-DD\"),\r\n    \"\"),\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
-              "fld0iehgMuka4Xpqm",
+              "fldsdkJ6tJlpOQ5xN",
               "fldrv1VXZ9LnSMzl8",
               "fldPZ4IqstB0rDnav"
             ],
@@ -2581,10 +2565,10 @@
           "id": "fldLKeIjT9w9wvHKQ",
           "name": "label_substrateinputblocks_line",
           "options": {
-            "formula": "IF({fld0iehgMuka4Xpqm},\r\n  IF({fldomaryNlKSgW3pI} = \"Pasteurize\",\r\n    \"Pasteurized \" & {fldjBLOy9UQLYTmZv},\r\n    \"Sterilized \" & {fldjBLOy9UQLYTmZv}\r\n  ),\r\n  \"\"\r\n)",
+            "formula": "IF({fldsdkJ6tJlpOQ5xN},\r\n  IF({fldomaryNlKSgW3pI} = \"Pasteurize\",\r\n    \"Pasteurized \" & {fldjBLOy9UQLYTmZv},\r\n    \"Sterilized \" & {fldjBLOy9UQLYTmZv}\r\n  ),\r\n  \"\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
-              "fld0iehgMuka4Xpqm",
+              "fldsdkJ6tJlpOQ5xN",
               "fldomaryNlKSgW3pI",
               "fldjBLOy9UQLYTmZv"
             ],
@@ -2912,7 +2896,7 @@
           "type": "multipleRecordLinks"
         },
         {
-          "id": "fldP0Y65q1QBpo6z9",
+          "id": "fldiJIYJbwFx0cQrR",
           "name": "retired_at",
           "options": {
             "dateFormat": {

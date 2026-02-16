@@ -1,13 +1,13 @@
-airtable_id,recipe_id,name,category,ingredients,notes
-rec0fOtk7c3IXZFqI,REC-SUB-CVG-V1,CVG (Coir+CaCO3+Peat+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite,
-rec3KC4fKWLKAvUSc,REC-SUB-CVG-V2,CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite,
-rec9ayZPHs9K5WS4K,REC-GRAIN-WBS,Wild Bird Seed Blend,grain,Wild Bird Seed,
-recB4eowfedv0edip,REC-GRAIN-OATS,Oats,grain,Oats,
-recN0dZqueLdUrR4N,REC-GRAIN-OWM,Organic Wheat/Millet Mix,grain,Organic Wheat; Millet,
-recZrabRvulEAIHGB,REC-SUB-MM50,Masters Mix 50/50,substrate,Hardwood; Soy hulls,
-recdzi4MMq717DjmU,REC-SUB-MM75,Masters Mix 75/25,substrate,Hardwood; Soy hulls,
-recfgGM2NY57OwLnN,REC-LC-STD,Liquid Culture Base,lc,"Malt Extract, Dextrose, Soy Peptone, Gypsum, Nutritional Yeast
+airtable_id,recipe_id,active,name,category,ingredients,notes
+rec0fOtk7c3IXZFqI,REC-SUB-CVG-V1,,CVG (Coir+CaCO3+Peat+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite,
+rec3KC4fKWLKAvUSc,REC-SUB-CVG-V2,true,CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite,
+rec9ayZPHs9K5WS4K,REC-GRAIN-WBS,true,Wild Bird Seed Blend,grain,Wild Bird Seed,
+recB4eowfedv0edip,REC-GRAIN-OATS,,Oats,grain,Oats,
+recN0dZqueLdUrR4N,REC-GRAIN-OWM,true,Organic Wheat/Millet Mix,grain,Organic Wheat; Millet,
+recZrabRvulEAIHGB,REC-SUB-MM50,,Masters Mix 50/50,substrate,Hardwood; Soy hulls,
+recdzi4MMq717DjmU,REC-SUB-MM75,true,Masters Mix 75/25,substrate,Hardwood; Soy hulls,
+recfgGM2NY57OwLnN,REC-LC-STD,true,Liquid Culture Base,lc,"Malt Extract, Dextrose, Soy Peptone, Gypsum, Nutritional Yeast
 ",
-recht7gvlBn3YPjan,REC-CASING-PEAT-V2,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite; Gypsum,
-recqU2qs9FZmmQewf,REC-CASING-PEAT-V1,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite,
-recwWg5UpF6UG5t3V,REC-AGAR-STD,Agar Base,agar,"Agar, Malt Extract, Nutritional Yeast",
+recht7gvlBn3YPjan,REC-CASING-PEAT-V2,true,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite; Gypsum,
+recqU2qs9FZmmQewf,REC-CASING-PEAT-V1,,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite,
+recwWg5UpF6UG5t3V,REC-AGAR-STD,true,Agar Base,agar,"Agar, Malt Extract, Nutritional Yeast",
