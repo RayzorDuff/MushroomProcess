@@ -1,31 +1,42 @@
-------------------------------------------------------------
-Appsmith UI Spec: Lots by Status
-Generated: 2026-01-23
-Primary Table: lots
+Appsmith UI Spec: Lots (Lot-centric)
+Updated: 2026-02-16
+Primary Table/View: public.vc_lots
 ------------------------------------------------------------
 
-This spec mirrors the Airtable interface behavior using:
-- Appsmith for UI (tables/forms/buttons)
-- NocoDB as the backend (REST API)
-- n8n for automation workflows (server-side equivalents of `airtable_automation/*`)
+### Postgres-first Datasource (current)
 
-1) Datasource: NocoDB (REST API)
-   - In Appsmith, create a **REST API datasource** named `NocoDB`
-   - Base URL: `{{appsmith.store.NOCO_BASE_URL}}/api/v2`
-   - Default Headers:
-       - `xc-token`: `{{appsmith.store.NOCO_TOKEN}}`
-       - `accept`: `application/json`
+This project is transitioning to **direct Postgres queries** wherever possible.
+
+- Use Postgres datasource for:
+  - tables / forms / actions
+  - validation queries
+  - workflow functions (e.g., `mp_sterilizer_complete_run`, `mp_lots_shake`, `mp_lots_retire`)
+- Use NocoDB API only where it adds value (notably **file uploads/attachments**), or where NocoDB metadata is required.
+
+n8n remains integral for:
+- external integrations (Ecwid)
+- file storage pipelines (e.g., Google Drive)
+- cross-system sync workflows
+
+This spec targets the **Postgres-first** migration:
+
+- Appsmith talks **directly to Postgres** for almost all reads/writes.
+- Use `public.vc_*` views for querying (read-friendly, includes computed/materialized fields).
+- Write to base tables (e.g. `public.lots`, `public.sterilization_runs`).
+- Use NocoDB API only where it is required (notably: file uploads / attachments).
+
+1) Datasource: Postgres
+   - In Appsmith, create a **PostgreSQL datasource** (e.g. `MushroomProcessPG`)
+   - Point it at the Postgres DB behind NocoDB (same database).
+   - Default schema: `public`
+
+2) Page JS convention
+   - Keep non-trivial logic in a page JS object (e.g. `SterilizerIn`, `SterilizerOut`, `LotsPage`)
+   - Widgets should call JS functions; JS calls SQL queries/functions.
 
    Suggested Appsmith “store” values (set once on app load):
    - `NOCO_BASE_URL` (e.g. `https://your-nocodb.example.com`)
    - `NOCO_TOKEN`
-
-2) Query: getData
-   - Create a query named `getData` (Datasource: `NocoDB`)
-   - Method: `GET`
-   - URL: `/tables/lots/rows`
-   - Response transform (Appsmith):
-       - Use `{{ getData.data.list }}` as the table data source
 
 3) Widget: Table
    - Add a **Table** widget, e.g. `tblMain`
@@ -66,3 +77,27 @@ This spec mirrors the Airtable interface behavior using:
        B) NocoDB webhook (or n8n polling) watches for `action != null` and processes it.
 
    See: `nocodb_interfaces/Appsmith_N8N_Automation_Strategy.md`.
+
+
+## Lots filtering (implemented)
+
+The Lots page is driven by a single query (typically `qLots`) against `public.vc_lots` and a small set of filter widgets:
+
+- **Lot Type** → filters `item_category_mat`
+- **Status** → maps UI groups to concrete `lots.status` values (e.g. "All Active", "Colonizing")
+- **Sterilized / Pasteurized** → filters `process_type_mat` OR `process_type_mat_from_substrate_inputs`
+- **Species** → `vc_strains.species_strain` dropdown; filters `strain_species_strain_mat`
+- **Regulated / Unregulated** → uses `regulated_from_strain_id` (may be boolean or boolean[] depending on view)
+
+Implementation tips:
+- Prefer `= ANY(ARRAY[...]::text[])` patterns to avoid malformed array literal errors.
+- When `regulated_from_strain_id` is boolean[], use: `TRUE = ANY(COALESCE(regulated_from_strain_id, ARRAY[FALSE]::boolean[]))`.
+
+## Lot actions via modals
+
+Two common modal-driven actions:
+
+- **Shake**: confirms selected lots, logs a `Shake` event per lot, and clears any UI error flags.
+- **Retire**: supports multi-select reasons; logs one event per reason per lot; updates `lots.status` and `lots.location_id` (FK) for terminal outcomes (e.g. Compost/Expired).
+
+These are implemented as Postgres functions under `nocodb_schema/pgsql/008_lot_actions.sql` and called via Appsmith queries (`qShakeLots`, `qRetireLots`).

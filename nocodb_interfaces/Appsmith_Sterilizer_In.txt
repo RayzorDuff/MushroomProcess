@@ -1,8 +1,40 @@
 ------------------------------------------------------------
+
+### Postgres-first Datasource (current)
+
+This project is transitioning to **direct Postgres queries** wherever possible.
+
+- Use Postgres datasource for:
+  - tables / forms / actions
+  - validation queries
+  - workflow functions (e.g., `mp_sterilizer_complete_run`, `mp_lots_shake`, `mp_lots_retire`)
+- Use NocoDB API only where it adds value (notably **file uploads/attachments**), or where NocoDB metadata is required.
+
+n8n remains integral for:
+- external integrations (Ecwid)
+- file storage pipelines (e.g., Google Drive)
+- cross-system sync workflows
+
 Appsmith UI Spec: Sterilizer In
 Generated: 2026-01-23
 Primary Table: sterilization_runs
 ------------------------------------------------------------
+
+### Postgres-first Datasource (current)
+
+This project is transitioning to **direct Postgres queries** wherever possible.
+
+- Use Postgres datasource for:
+  - tables / forms / actions
+  - validation queries
+  - workflow functions (e.g., `mp_sterilizer_complete_run`, `mp_lots_shake`, `mp_lots_retire`)
+- Use NocoDB API only where it adds value (notably **file uploads/attachments**), or where NocoDB metadata is required.
+
+n8n remains integral for:
+- external integrations (Ecwid)
+- file storage pipelines (e.g., Google Drive)
+- cross-system sync workflows
+
 
 This spec mirrors the Airtable interface behavior using:
 - Appsmith for UI (tables/forms/buttons)

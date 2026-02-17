@@ -8,6 +8,30 @@ It is intended to explain *why the system looks the way it does*, not just *what
 
 ## High‑level Architecture
 
+## pgsql Import Order Convention
+
+The generated SQL under `nocodb_schema/pgsql/` is intended to be applied in numbered order.
+
+Typical hierarchy:
+
+- **001_tables.sql** — base tables (writable)
+- **002_links.sql** — link tables / FK support tables (as generated)
+- **003_views.sql** — `vc_*` views used for read/query (preferred for UI tables)
+- **004_computed_views.sql** — higher-level computed views / denormalized helpers
+- **005_*.sql** — shared helper functions (events, print queue enqueue, JSON helpers, etc.)
+- **006_*.sql** — generic triggers (cross-table automation patterns)
+- **007_*.sql** — station/workflow functions (e.g., sterilizer completion)
+- **008_*.sql** — lot action functions (shake, retire, etc.)
+- **010_load.sql** — optional seed/load data when included
+
+### Read vs Write Rule
+
+- **Reads:** UI queries should prefer `public.vc_*` views (stable column names, materialized lookups).
+- **Writes:** Inserts/updates should target **base tables** and call **workflow functions** for side-effects (events, print queue, derived fields).
+
+This mirrors Airtable’s pattern where interface actions trigger automations; in Postgres those automations are centralized in functions/triggers instead of per-interface scripts.
+
+
 ```
 Airtable Schema JSON
         ↓

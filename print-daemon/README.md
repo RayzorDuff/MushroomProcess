@@ -1,4 +1,10 @@
-# Print Daemon  
+# Print Daemon
+
+## `printed_at` ownership
+
+`printed_at` is **daemon-owned**: it should only be set when the print job is actually processed.
+Enqueue logic should not pre-populate `printed_at`; it may set fields such as `requested_at`, `print_status`, or payload fields used to render the label.
+  
 
 _Label printing for Airtable / NocoDB `print_queue`_
 
