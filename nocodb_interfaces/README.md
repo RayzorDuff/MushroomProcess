@@ -70,12 +70,20 @@ Each document typically covers:
 
 Use these notes to rebuild the equivalent of the Airtable Interfaces in Appsmith, backed by the NocoDB schema.
 
+## 4. Appsmith import file
+
+The json file, MushroomProcess.json, may be imported directly into Appsmith.  Please recreate with:
+
+```bash
+node .\pretty-json.mjs --in .\MushroomProcess_exported --out .\MushroomProcess.json --sort-keys
+```bash
+
 ### Legacy Retool specs
 Retool specs are still present as `Retool_*.txt` for reference, but are not the recommended path if you’re using Appsmith + n8n.
 
 ---
 
-## 4. Notes
+## 5. Notes
 
 - Scripts assume NocoDB v2/v3-style endpoints (e.g. `/api/v2` or `/api/v3`).
 - Field names and filters mirror the Airtable schema as exported to `_schema.json`.
@@ -84,7 +92,7 @@ Retool specs are still present as `Retool_*.txt` for reference, but are not the 
 
 ---
 
-## 4. n8n Automation Strategy
+## 6. n8n Automation Strategy
 
 Airtable’s scripts in `airtable_automation/` are the current “source of truth” for workflow logic.
 When migrating, move this logic to **n8n** (webhooks or polling), and keep Appsmith focused on UI.
