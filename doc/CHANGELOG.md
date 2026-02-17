@@ -1,3 +1,60 @@
+## [v1.0.7-beta] - 2026-02-17
+
+_This release advances the NocoDB/Postgres migration by introducing the first **Appsmith interface** operating against a **Postgres database** (exposed through NocoDB). It also tightens schema parity, adds helper SQL for core workflows, and improves lot lifecycle/event logging._
+
+---
+
+## Appsmith + Postgres (via NocoDB)
+
+- **Initial Appsmith “Lot-centric UI” running against the imported Postgres database**, accessible through NocoDB.
+  - Includes working Sterilizer interfaces (**Sterilizer – In**, **Sterilizer – Out**) and a **Lots** page for viewing/filtering by major identifiers.
+  - Added Appsmith app export (`nocodb_interfaces/MushroomProcess.json`) plus formatting tooling (`pretty-json.mjs`).
+- Documentation added/updated for the Appsmith approach and current coverage (`doc/Appsmith-Lot-Centric-UI.md`, `nocodb_interfaces/README.md`, and related interface notes).
+
+---
+
+## Postgres helper SQL for migrated workflows
+
+- Added helper SQL modules/scripts to support the Postgres-backed workflow:
+  - print queue helpers,
+  - event insertion + linking helpers,
+  - sterilizer helpers,
+  - lot-action helpers (shake/retire).
+- Updated Appsmith SQL queries to call the new Postgres functions for Sterilizer Out and lot filtering.
+
+---
+
+## Lot lifecycle: shake/retire event integrity
+
+- Added/updated helper functions for lot lifecycle actions:
+  - shake + retire now log events consistently,
+  - retirement now sets/updates `retired_at`,
+  - shake/retire functions return the number of lots affected (useful for UI feedback).
+- Improved event creation so lot event links are created reliably by using a wrapper (`mp_events_insert_and_link_lot`) when inserting events.
+
+---
+
+## Schema updates & parity improvements
+
+- Added `retired_at` timestamp to both Airtable and NocoDB schema exports.
+- Added additional “prefers-single” FK columns for 1:1 links while **retaining `_m2m_` tables** for compatibility/auditing.
+  - Added deterministic naming and deferred constraints/index creation to eliminate identifier truncation notices during import.
+  - Added clear banner comments in `002_links.sql` indicating whether an `_m2m_` table is DERIVED (canonical FK exists) vs a true many-to-many.
+- Removed redundant `lots.spawned_date`.
+- Added `recipes.active` and updated interface queries to include only active recipes.
+
+---
+
+## Print queue correctness
+
+- Ensured the `run_id` FK is populated correctly during print queue creation and aligned print-queue fields between Airtable and Postgres.
+
+---
+
+## Misc / Documentation
+
+- Updated import documentation (`doc/Airtable-Postgres-NocoDB-Import.md`) and refreshed schema exports (`_schema.json`, `tables_dump.json`, recipes/locations exports).
+
 ## [v1.0.6-beta] - 2026-02-01
 
 _This release includes production-branch updates since `v1.0.5-beta`. The focus is on making the NocoDB/Postgres migration path reliable (schema + data import), improving computed-field translation (lookups/rollups/formulas), and updating automations/interfaces to match the latest workflow expectations._
