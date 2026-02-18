@@ -55,10 +55,21 @@ AS $$
 DECLARE
   v_event_id bigint;
 BEGIN
-  v_event_id := public.mp_events_insert(p_lot_id, NULL, p_type, p_timestamp, p_operator, p_station, p_fields_json);
+  v_event_id := public.mp_events_insert(
+    p_lot_id::bigint, 
+    NULL::bigint, 
+    p_type::text, 
+    p_timestamp::timestamp without time zone, 
+    p_operator::text, 
+    p_station::text, 
+    p_fields_json::jsonb
+  );
   -- link if helper exists
   BEGIN
-    PERFORM public.mp_events_link_lot(v_event_id, p_lot_id);
+    PERFORM public.mp_events_link_lot(
+      v_event_id::bigint, 
+	  p_lot_id::bigint
+	);
   EXCEPTION WHEN undefined_function THEN
     -- If mp_events_link_lot isn't present yet, don't fail the whole action.
     NULL;
