@@ -23,7 +23,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  async init() {\n    await storeValue('ster_in_error', '');\n    await Promise.allSettled([qItems.run(), qRecipes.run()]);\n  },\n\n  validate() {\n    const errs = [];\n    if (!selProcessType.selectedOptionValue) {\n\t\t\tshowAlert('Select a process type.', 'error');\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n    if (!selPlannedItem.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned item.', 'error');\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n    if (!selPlannedRecipe.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned recipe.', 'error');\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n    const unit = Number(inpPlannedUnitSize.text);\n    const cnt  = Number(inpPlannedCount.text);\n    if (!Number.isFinite(unit) || unit <= 0) {\n\t\t\tshowAlert('Planned unit size must be > 0.', 'error');\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n    if (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\tshowAlert('Planned count must be > 0.', 'error');\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n    return errs;\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tasync createRun() {\n    await storeValue('ster_in_error', '');\n    const errs = this.validate();\n    if (errs.length) {\n      await storeValue('ster_in_error', errs.join(' '));\n      return;\n    }\n\n\t\tlet createdRun;\n    try {\n      createdRun = await qCreateRun.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error creating run: \" + (e && e.message) ? e.message : String(e), 'error');\n      await storeValue('ster_in_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\n\t\tshowAlert('Successfully created ' + createdRun[0].steri_run_id, 'success');\n\t\tawait storeValue('ster_in_error','Successfully created ' + createdRun[0].steri_run_id);\n  },\n\n  async refresh() {\n    await this.init();\n  },\n};",
+        "body": "export default {\n  async init() {\n    await storeValue('ster_in_error', '');\n    await Promise.allSettled([qItems.run(), qRecipes.run()]);\n  },\n\n  validate() {\n    const errs = [];\n    if (!selProcessType.selectedOptionValue) {\n\t\t\tshowAlert('Select a process type.', 'error');\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n    if (!selPlannedItem.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned item.', 'error');\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n    if (!selPlannedRecipe.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned recipe.', 'error');\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n    const unit = Number(inpPlannedUnitSize.text);\n    const cnt  = Number(inpPlannedCount.text);\n    if (!Number.isFinite(unit) || unit <= 0) {\n\t\t\tshowAlert('Planned unit size must be > 0.', 'error');\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n    if (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\tshowAlert('Planned count must be > 0.', 'error');\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n    return errs;\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      //return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t\treturn \"'\" + String(v) + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tasync createRun() {\n    await storeValue('ster_in_error', '');\n    const errs = this.validate();\n    if (errs.length) {\n      await storeValue('ster_in_error', errs.join(' '));\n      return;\n    }\n\n\t\tlet createdRun;\n    try {\n      createdRun = await qCreateRun.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error creating run: \" + (e && e.message) ? e.message : String(e), 'error');\n      await storeValue('ster_in_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\n\t\tshowAlert('Successfully created ' + createdRun[0].steri_run_id, 'success');\n\t\tawait storeValue('ster_in_error','Successfully created ' + createdRun[0].steri_run_id);\n  },\n\n  async refresh() {\n    await this.init();\n  },\n};",
         "name": "SterilizerIn",
         "pageId": "Sterilizer – In",
         "pluginId": "js-plugin",
@@ -32,7 +32,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
+            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v) + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
           }
         ]
       }
@@ -60,7 +60,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\t\n  async init() {\n    await storeValue('ster_out_error', '');\n    await qOpenRuns.run();\n  },\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n      if (!inpOperatorOut.text) inpOperatorOut.setValue(appsmith.user.email);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\t\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\t\tconst completedRun = await qCompleteRunMP.run();\n\t\tshowAlert('Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, 'success');\n\t\tawait storeValue('ster_out_error','Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n\t\tawait this.refresh();\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\t// Operator required\n\t\tif (!inpOperatorOut.text || String(inpOperatorOut.text).trim() === \"\") {\n\t\t\tshowAlert('Operator is required.', 'error');\n\t\t\terrs.push(\"Operator is required.\");\n\t\t}\n\n\t\treturn errs;\n\t},\n\n\n};",
+        "body": "export default {\n\t\n  async init() {\n    await storeValue('ster_out_error', '');\n    await qOpenRuns.run();\n  },\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      //return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t\treturn \"'\" + String(v) + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\t\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\t\tconst completedRun = await qCompleteRunMP.run();\n\t\tshowAlert('Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, 'success');\n\t\tawait storeValue('ster_out_error','Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n\t\tawait this.refresh();\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\treturn errs;\n\t},\n\n\n};",
         "name": "SterilizerOut",
         "pageId": "Sterilizer – Out",
         "pluginId": "js-plugin",
@@ -69,7 +69,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
+            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v) + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
           }
         ]
       }
@@ -97,7 +97,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrStr(arr) {\n      // Safe Postgres text[] expression for use with = ANY(...)\n      if (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n      const vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n      return \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n    },\n    arrBigint(arr) {\n      // Safe Postgres bigint[] expression for function args\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  selectedLotIds() {\n    return (tblLots.selectedRows || []).map(r => r.nocopk).filter(Boolean);\n  },\n\n  formatSelectedLots() {\n    const rows = (tblLots.selectedRows || []);\n    if (!rows.length) return \"(No lots selected)\";\n    return rows.map(r => {\n      const lotId = r.lot_id ?? r.nocopk;\n      const inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n      const item = r.item_name_mat || \"\";\n      const strain = r.strain_species_strain_mat || \"\";\n      return `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n    }).join(\"\\n\");\n  },\n\n  retireReason() {\n    // CheckboxGroup1.selectedValues is usually an array\n    const vals = chkgrpReasons.selectedValues || [];\n    if (!vals.length) return \"Retired\";\n    // prefer Contaminated over Compost over Expired if multiple\n    const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n    for (const v of order) if (vals.includes(v)) return v;\n    return vals[0];\n  },\n\n  lotTypeCategories() {\n    const t = inpLotType.selectedOptionValue || \"All\";\n    switch (t) {\n      case \"Grain\": return [\"grain\"];\n      case \"Substrate\": return [\"substrate\", \"casing\"];\n      case \"Liquid Culture\": return [\"lc_flask\", \"lc_syringe\"];\n      case \"Fruiting Block\": return [\"fruiting_block\"];\n      case \"Freeze Dried Mushrooms\": return [\"freezedriedmushrooms\"];\n      case \"Tray\": return [\"freezer_tray\", \"fresh_tray\", \"empty_tray\"];\n      case \"Agar\": return [\"agar_flask\", \"plate\"];\n      case \"Untracked\": return [\"untracked_source\"];\n      case \"All\":\n      default: return [];\n    }\n  },\n\n  statusSet() {\n    const s = inpLotStatus.selectedOptionValue || \"All\";\n    switch (s) {\n      case \"New\": return [\"Planned\", \"Sterilized\", \"Pasteurized\", \"Sealed\"];\n      case \"Colonizing\": return [\"Inoculated\", \"Spawned\", \"Colonizing\"];\n      case \"Colonized/Fridge\": return [\"FullyColonized\", \"Fridge\", \"ColdShock\"];\n      case \"Fruiting\": return [\"Fruiting\"];\n      case \"Frozen\": return [\"Frozen\"];\n      case \"Retired\": return [\"Consumed\", \"Retired\"];\n      case \"All Active\":\n        return [\"Planned\",\"Sterilized\",\"Pasteurized\",\"Sealed\",\"Inoculated\",\"Spawned\",\"Colonizing\",\"FullyColonized\",\"Fridge\",\"ColdShock\",\"Fruiting\",\"Frozen\"];\n      case \"All\":\n      default: return [];\n    }\n  },\n\n  processTypeSet() {\n    const out = [];\n    if (chkSterilized.isChecked) out.push(\"sterilize\",\"sterilized\");\n    if (chkPasteurized.isChecked) out.push(\"pasteurize\",\"pasteurized\");\n    return out;\n  },\n\n  regulatedMode() {\n    const r = chkRegulated.isChecked;\n    const u = chkUnRegulated.isChecked;\n    if ((r && u) || (!r && !u)) return \"all\";\n    if (r) return \"regulated\";\n    return \"unregulated\";\n  },\n\n  async refresh() {\n    txtErrLots.setText(\"\");\n    try {\n      await qLots.run();\n    } catch (e) {\n      txtErrLots.setText(e?.message || String(e));\n    }\n  },\n\n  async init() {\n    txtErrLots.setText(\"\");\n    try { await qSpecies.run(); } catch (e) {}\n    await this.refresh();\n  },\n\n  async openShakeModal() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    txtShakeContent.setText(this.formatSelectedLots());\n    await showModal(modalShakeLots.name);\n  },\n\n  async confirmShake() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    await qShakeLots.run();\n    await closeModal(modalShakeLots.name);\n    await this.refresh();\n    showAlert(\"Shake event logged for selected lots.\", \"success\");\n  },\n\n  async openRetireModal() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    txtRetireContent.setText(this.formatSelectedLots());\n    await showModal(\"modalRetireLots\");\n  },\n\n  async confirmRetire() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    await qRetireLots.run();\n    await closeModal(\"modalRetireLots\");\n    await this.refresh();\n    showAlert(\"Selected lots retired.\", \"success\");\n  },\n\n  selectedLotsSummary() {\n    const rows = (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n    if (!rows.length) return \"No lots selected.\";\n    return rows.map(r => {\n      const lot = r.lot_id || r.lotId || r.lot_id_mat || r.nocopk;\n      const inoc = r.inoculated_at || r.inoculatedAt || r.created_at || r.createdAt || \"\";\n      const item = r.item_name_mat || r.item_name || r.itemName || \"\";\n      const strain = r.strain_species_strain_mat || r.strain_species_strain || r.species_strain || \"\";\n      return `${lot} | inoculated: ${inoc || \"—\"} | ${item} | ${strain}`;\n    }).join(\"\\n\");\n  },\n\n  async shakeSelectedLots() {\n\t\t\n\t\tlet lotsshaken;\n    try {\n      lotsshaken = await qShakeLots.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n      await storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\t\t\n    \n\t\tshowAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'notice');\n\t\t\n    closeModal(modalShakeLots.name);\n    await qLots.run();\n  },\n\n  async retireSelectedLots() {\n    await qRetireLots.run();\n    closeModal(modalRetireLots.name);\n    await qLots.run();\n  },\n\n};\n",
+        "body": "export default {\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      //return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t\treturn \"'\" + String(v) + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrStr(arr) {\n      // Safe Postgres text[] expression for use with = ANY(...)\n      if (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n      const vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n      return \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n    },\n    arrBigint(arr) {\n      // Safe Postgres bigint[] expression for function args\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  selectedLotIds() {\n    return (tblLots.selectedRows || []).map(r => r.nocopk).filter(Boolean);\n  },\n\n  formatSelectedLots() {\n    const rows = (tblLots.selectedRows || []);\n    if (!rows.length) return \"(No lots selected)\";\n    return rows.map(r => {\n      const lotId = r.lot_id ?? r.nocopk;\n      const inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n      const item = r.item_name_mat || \"\";\n      const strain = r.strain_species_strain_mat || \"\";\n      return `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n    }).join(\"\\n\");\n  },\n\n  retireReason() {\n    // CheckboxGroup1.selectedValues is usually an array\n    const vals = [ radioReason.selectedOptionValue ]; \n    if (!vals.length) return \"Retired\";\n    // prefer Contaminated over Compost over Expired if multiple\n    const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n    for (const v of order) if (vals.includes(v)) return v;\n    return vals[0];\n  },\n\n  lotTypeCategories() {\n    const t = inpLotType.selectedOptionValue || \"All\";\n    switch (t) {\n      case \"Grain\": return [\"grain\"];\n      case \"Substrate\": return [\"substrate\", \"casing\"];\n      case \"Liquid Culture\": return [\"lc_flask\", \"lc_syringe\"];\n      case \"Fruiting Block\": return [\"fruiting_block\"];\n      case \"Freeze Dried Mushrooms\": return [\"freezedriedmushrooms\"];\n      case \"Tray\": return [\"freezer_tray\", \"fresh_tray\", \"empty_tray\"];\n      case \"Agar\": return [\"agar_flask\", \"plate\"];\n      case \"Untracked\": return [\"untracked_source\"];\n      case \"All\":\n      default: return [];\n    }\n  },\n\n  statusSet() {\n    const s = inpLotStatus.selectedOptionValue || \"All\";\n    switch (s) {\n      case \"New\": return [\"Planned\", \"Sterilized\", \"Pasteurized\", \"Sealed\"];\n      case \"Colonizing\": return [\"Inoculated\", \"Spawned\", \"Colonizing\"];\n      case \"Colonized/Fridge\": return [\"FullyColonized\", \"Fridge\", \"ColdShock\"];\n      case \"Fruiting\": return [\"Fruiting\"];\n      case \"Frozen\": return [\"Frozen\"];\n      case \"Retired\": return [\"Consumed\", \"Retired\"];\n      case \"All Active\":\n        return [\"Planned\",\"Sterilized\",\"Pasteurized\",\"Sealed\",\"Inoculated\",\"Spawned\",\"Colonizing\",\"FullyColonized\",\"Fridge\",\"ColdShock\",\"Fruiting\",\"Frozen\"];\n      case \"All\":\n      default: return [];\n    }\n  },\n\n  processTypeSet() {\n    const out = [];\n    if (chkSterilized.isChecked) out.push(\"sterilize\",\"sterilized\");\n    if (chkPasteurized.isChecked) out.push(\"pasteurize\",\"pasteurized\");\n    return out;\n  },\n\n  regulatedMode() {\n    const r = chkRegulated.isChecked;\n    const u = chkUnRegulated.isChecked;\n    if ((r && u) || (!r && !u)) return \"all\";\n    if (r) return \"regulated\";\n    return \"unregulated\";\n  },\n\n  async refresh() {\n    txtErrLots.setText(\"\");\n\t\ttxtShakeContent.setText(\"\");\n\t\tinpShakeNotes.setValue(\"\");\t\t\n\t\ttxtRetireContent.setText(\"\");\n\t\tinpRetireNotes.setValue(\"\");\n    try {\n      await qLots.run();\n    } catch (e) {\n      txtErrLots.setText(e?.message || String(e));\n    }\n  },\n\n  async init() {\n    txtErrLots.setText(\"\");\n    try { await qSpecies.run(); } catch (e) {}\n    await this.refresh();\n  },\n\n  async openShakeModal() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    txtShakeContent.setText(this.formatSelectedLots());\n    await showModal(modalShakeLots.name);\n  },\n\n  async openRetireModal() {\n    if (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n    txtRetireContent.setText(this.formatSelectedLots());\n    await showModal(modalRetireLots.name);\n  },\n\n  selectedLotsSummary() {\n    const rows = (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n    if (!rows.length) return \"No lots selected.\";\n    return rows.map(r => {\n      const lot = r.lot_id || r.lotId || r.lot_id_mat || r.nocopk;\n      const inoc = r.inoculated_at || r.inoculatedAt || r.created_at || r.createdAt || \"\";\n      const item = r.item_name_mat || r.item_name || r.itemName || \"\";\n      const strain = r.strain_species_strain_mat || r.strain_species_strain || r.species_strain || \"\";\n      return `${lot} | inoculated: ${inoc || \"—\"} | ${item} | ${strain}`;\n    }).join(\"\\n\");\n  },\n\n  async shakeSelectedLots() {\n\t\t\n\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\n\t\tlet lotsshaken;\n    try {\n      lotsshaken = await qShakeLots.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n      await storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\t\t\n    \n\t\tshowAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'success');\n\n\t\ttxtShakeContent.setText(\"\");\n\t\tinpShakeNotes.setValue(\"\");\t\t\n    closeModal(modalShakeLots.name);\n    await qLots.run();\n  },\n\n  async retireSelectedLots() {\n\t\t\n\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\n\t\tlet lotsretired;\n    try {\n      lotsretired = await qRetireLots.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error retiring lots: \" + (e && e.message) ? e.message : String(e), 'error');\n      await storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\t\n\n\t\tshowAlert(\"Retired \" + lotsretired[0].retired_count + \" lot(s).\", 'success');\n\n\t\ttxtRetireContent.setText(\"\");\n\t\tinpRetireNotes.setValue(\"\");\t\t\n    closeModal(modalRetireLots.name);\n    await qLots.run();\n  },\n\n};\n",
         "name": "LotsPage",
         "pageId": "Lots",
         "pluginId": "js-plugin",
@@ -106,7 +106,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(v) {\n    if (v === undefined || v === null || v === \"\") return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  },\n  arrStr(arr) {\n    if (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n    const vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n    return \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n  },\n  arrBigint(arr) {\n    if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n    const vals = arr.map(x => {\n      const n = Number(x);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    }).filter(x => x !== \"NULL\");\n    if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n    return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n  }\n}"
+            "value": "{\n  str(v) {\n    if (v === undefined || v === null || v === \"\") return \"NULL\";\n    return \"'\" + String(v) + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  },\n  arrStr(arr) {\n    if (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n    const vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n    return \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n  },\n  arrBigint(arr) {\n    if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n    const vals = arr.map(x => {\n      const n = Number(x);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    }).filter(x => x !== \"NULL\");\n    if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n    return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n  }\n}"
           }
         ]
       }
@@ -700,7 +700,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "INSERT INTO public.sterilization_runs\n(planned_item_id, planned_recipe_id, planned_unit_size, planned_count, operator, start_time, process_type, target_temp_c, pressure_mode)\nVALUES (\n  {{ SterilizerIn.sql.num(selPlannedItem.selectedOptionValue) }},\n  {{ SterilizerIn.sql.num(selPlannedRecipe.selectedOptionValue) }},\n  {{ SterilizerIn.sql.num(inpPlannedUnitSize.text) }},\n  {{ SterilizerIn.sql.num(inpPlannedCount.text) }},\n  {{ SterilizerIn.sql.str(inpOperatorIn.text) }},\n  {{ SterilizerIn.sql.ts(dpStartTime.selectedDate) }}::timestamp,\n  {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }},\n  {{ SterilizerIn.sql.str(txtTargetTemp.text) }},\n  {{ SterilizerIn.sql.str(txtPressureMode.text) }}\t\n)\nRETURNING nocopk, steri_run_id;",
+          "body": "INSERT INTO public.sterilization_runs\n(planned_item_id, planned_recipe_id, planned_unit_size, planned_count, operator, start_time, process_type, target_temp_c, pressure_mode)\nVALUES (\n  {{ SterilizerIn.sql.num(selPlannedItem.selectedOptionValue) }},\n  {{ SterilizerIn.sql.num(selPlannedRecipe.selectedOptionValue) }},\n  {{ SterilizerIn.sql.num(inpPlannedUnitSize.text) }},\n  {{ SterilizerIn.sql.num(inpPlannedCount.text) }},\n  {{ SterilizerIn.sql.str(appsmith.user.email || appsmith.user.name || '' ) }}::text,\n  {{ SterilizerIn.sql.ts(dpStartTime.selectedDate) }}::timestamp,\n  {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }},\n  {{ SterilizerIn.sql.str(txtTargetTemp.text) }},\n  {{ SterilizerIn.sql.str(txtPressureMode.text) }}\t\n)\nRETURNING nocopk, steri_run_id;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -734,14 +734,14 @@
         "isValid": true,
         "jsonPathKeys": [
           " SterilizerIn.sql.num(selPlannedRecipe.selectedOptionValue) ",
+          " SterilizerIn.sql.str(appsmith.user.email || appsmith.user.name || '' ) ",
           " SterilizerIn.sql.num(inpPlannedCount.text) ",
           " SterilizerIn.sql.str(selProcessType.selectedOptionValue) ",
-          " SterilizerIn.sql.str(inpOperatorIn.text) ",
           " SterilizerIn.sql.str(txtPressureMode.text) ",
           " SterilizerIn.sql.num(inpPlannedUnitSize.text) ",
           " SterilizerIn.sql.ts(dpStartTime.selectedDate) ",
-          " SterilizerIn.sql.num(selPlannedItem.selectedOptionValue) ",
-          " SterilizerIn.sql.str(txtTargetTemp.text) "
+          " SterilizerIn.sql.str(txtTargetTemp.text) ",
+          " SterilizerIn.sql.num(selPlannedItem.selectedOptionValue) "
         ],
         "messages": [],
         "name": "qCreateRun",
@@ -979,7 +979,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const errs = [];\n  const run = SterilizerOut.selectedRun();\n  if (!run) {\n    showAlert('Select an open run.', 'error');\n    errs.push(\"Select an open run.\");\n    return errs;\n  }\n  if (dpEndTime.selectedDate) {\n    const startDate = tblOpenRuns.selectedRow.start_time;\n    const endDate = dpEndTime.selectedDate;\n    if (startDate > endDate) {\n      showAlert('End time cannot be before start time.', 'error');\n      errs.push(\"End time cannot be before start time.\");\n    }\n  }\n  const planned = Number(run.planned_count);\n  const good = inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined ? 0 : Number(inpGoodCount.text);\n  const bad = inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined ? 0 : Number(inpDestroyedCount.text);\n  if (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n  if (!Number.isFinite(bad) || bad < 0) errs.push(\"Destroyed count must be >= 0.\");\n  if (Number.isFinite(good) && Number.isFinite(bad) && good + bad <= 0) {\n    showAlert('Good + Destroyed must be > 0.', 'error');\n    errs.push(\"Good + Destroyed must be > 0.\");\n  }\n  if (Number.isFinite(planned)) {\n    if (!Number.isFinite(good) || !Number.isFinite(bad)) {} else if (good + bad !== planned) {\n      showAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n      errs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n    }\n  }\n  if (!inpOperatorOut.text || String(inpOperatorOut.text).trim() === \"\") {\n    showAlert('Operator is required.', 'error');\n    errs.push(\"Operator is required.\");\n  }\n  return errs;\n}",
+          "body": "function () {\n  const errs = [];\n  const run = SterilizerOut.selectedRun();\n  if (!run) {\n    showAlert('Select an open run.', 'error');\n    errs.push(\"Select an open run.\");\n    return errs;\n  }\n  if (dpEndTime.selectedDate) {\n    const startDate = tblOpenRuns.selectedRow.start_time;\n    const endDate = dpEndTime.selectedDate;\n    if (startDate > endDate) {\n      showAlert('End time cannot be before start time.', 'error');\n      errs.push(\"End time cannot be before start time.\");\n    }\n  }\n  const planned = Number(run.planned_count);\n  const good = inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined ? 0 : Number(inpGoodCount.text);\n  const bad = inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined ? 0 : Number(inpDestroyedCount.text);\n  if (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n  if (!Number.isFinite(bad) || bad < 0) errs.push(\"Destroyed count must be >= 0.\");\n  if (Number.isFinite(good) && Number.isFinite(bad) && good + bad <= 0) {\n    showAlert('Good + Destroyed must be > 0.', 'error');\n    errs.push(\"Good + Destroyed must be > 0.\");\n  }\n  if (Number.isFinite(planned)) {\n    if (!Number.isFinite(good) || !Number.isFinite(bad)) {} else if (good + bad !== planned) {\n      showAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n      errs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n    }\n  }\n  return errs;\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1008,7 +1008,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const errs = [];\n  const run = SterilizerOut.selectedRun();\n  if (!run) {\n    showAlert('Select an open run.', 'error');\n    errs.push(\"Select an open run.\");\n    return errs;\n  }\n  if (dpEndTime.selectedDate) {\n    const startDate = tblOpenRuns.selectedRow.start_time;\n    const endDate = dpEndTime.selectedDate;\n    if (startDate > endDate) {\n      showAlert('End time cannot be before start time.', 'error');\n      errs.push(\"End time cannot be before start time.\");\n    }\n  }\n  const planned = Number(run.planned_count);\n  const good = inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined ? 0 : Number(inpGoodCount.text);\n  const bad = inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined ? 0 : Number(inpDestroyedCount.text);\n  if (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n  if (!Number.isFinite(bad) || bad < 0) errs.push(\"Destroyed count must be >= 0.\");\n  if (Number.isFinite(good) && Number.isFinite(bad) && good + bad <= 0) {\n    showAlert('Good + Destroyed must be > 0.', 'error');\n    errs.push(\"Good + Destroyed must be > 0.\");\n  }\n  if (Number.isFinite(planned)) {\n    if (!Number.isFinite(good) || !Number.isFinite(bad)) {} else if (good + bad !== planned) {\n      showAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n      errs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n    }\n  }\n  if (!inpOperatorOut.text || String(inpOperatorOut.text).trim() === \"\") {\n    showAlert('Operator is required.', 'error');\n    errs.push(\"Operator is required.\");\n  }\n  return errs;\n}"
+          "function () {\n  const errs = [];\n  const run = SterilizerOut.selectedRun();\n  if (!run) {\n    showAlert('Select an open run.', 'error');\n    errs.push(\"Select an open run.\");\n    return errs;\n  }\n  if (dpEndTime.selectedDate) {\n    const startDate = tblOpenRuns.selectedRow.start_time;\n    const endDate = dpEndTime.selectedDate;\n    if (startDate > endDate) {\n      showAlert('End time cannot be before start time.', 'error');\n      errs.push(\"End time cannot be before start time.\");\n    }\n  }\n  const planned = Number(run.planned_count);\n  const good = inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined ? 0 : Number(inpGoodCount.text);\n  const bad = inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined ? 0 : Number(inpDestroyedCount.text);\n  if (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n  if (!Number.isFinite(bad) || bad < 0) errs.push(\"Destroyed count must be >= 0.\");\n  if (Number.isFinite(good) && Number.isFinite(bad) && good + bad <= 0) {\n    showAlert('Good + Destroyed must be > 0.', 'error');\n    errs.push(\"Good + Destroyed must be > 0.\");\n  }\n  if (Number.isFinite(planned)) {\n    if (!Number.isFinite(good) || !Number.isFinite(bad)) {} else if (good + bad !== planned) {\n      showAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n      errs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n    }\n  }\n  return errs;\n}"
         ],
         "messages": [],
         "name": "validate",
@@ -1157,7 +1157,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const r = SterilizerOut.selectedRun();\n  if (r) {\n    storeValue(\"selected_ster_run\", r);\n    if (!inpOperatorOut.text) inpOperatorOut.setValue(appsmith.user.email);\n  }\n}",
+          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const r = SterilizerOut.selectedRun();\n  if (r) {\n    storeValue(\"selected_ster_run\", r);\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1186,7 +1186,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  txtErrOut.setText(\"\");\n  const r = SterilizerOut.selectedRun();\n  if (r) {\n    storeValue(\"selected_ster_run\", r);\n    if (!inpOperatorOut.text) inpOperatorOut.setValue(appsmith.user.email);\n  }\n}"
+          "async function () {\n  txtErrOut.setText(\"\");\n  const r = SterilizerOut.selectedRun();\n  if (r) {\n    storeValue(\"selected_ster_run\", r);\n  }\n}"
         ],
         "messages": [],
         "name": "onRunSelected",
@@ -1427,7 +1427,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT * FROM public.mp_sterilizer_complete_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ Number(inpGoodCount.text) }}::numeric,\n  {{ Number(inpDestroyedCount.text) }}::numeric,\n  {{ inpOperatorOut.text }}::text,\n  {{ dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null }}::timestamp\n);\n",
+          "body": "SELECT * FROM public.mp_sterilizer_complete_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ Number(inpGoodCount.text) }}::numeric,\n  {{ Number(inpDestroyedCount.text) }}::numeric,\n  {{ SterilizerOut.sql.str( appsmith.user.email || appsmith.user.name || '' ) }}::text,\n  {{ dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null }}::timestamp\n);\n",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -1462,7 +1462,7 @@
           " tblOpenRuns.selectedRow.nocopk ",
           " Number(inpDestroyedCount.text) ",
           " dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null ",
-          " inpOperatorOut.text ",
+          " SterilizerOut.sql.str( appsmith.user.email || appsmith.user.name || '' ) ",
           " Number(inpGoodCount.text) "
         ],
         "messages": [],
@@ -1612,7 +1612,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  txtErrLots.setText(\"\");\n  try {\n    await qLots.run();\n  } catch (e) {\n    txtErrLots.setText(e?.message || String(e));\n  }\n}",
+          "body": "async function () {\n  txtErrLots.setText(\"\");\n  txtShakeContent.setText(\"\");\n  inpShakeNotes.setValue(\"\");\n  txtRetireContent.setText(\"\");\n  inpRetireNotes.setValue(\"\");\n  try {\n    await qLots.run();\n  } catch (e) {\n    txtErrLots.setText(e?.message || String(e));\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1641,7 +1641,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  txtErrLots.setText(\"\");\n  try {\n    await qLots.run();\n  } catch (e) {\n    txtErrLots.setText(e?.message || String(e));\n  }\n}"
+          "async function () {\n  txtErrLots.setText(\"\");\n  txtShakeContent.setText(\"\");\n  inpShakeNotes.setValue(\"\");\n  txtRetireContent.setText(\"\");\n  inpRetireNotes.setValue(\"\");\n  try {\n    await qLots.run();\n  } catch (e) {\n    txtErrLots.setText(e?.message || String(e));\n  }\n}"
         ],
         "messages": [],
         "name": "refresh",
@@ -2359,7 +2359,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_retire(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_reasons => {{ LotsPage.sql.arrStr(chkgrpReasons.selectedValues || []) }}::text[],\n  p_operator => {{ LotsPage.sql.str(appsmith.user.name || appsmith.user.email || '') }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpRetireNotes.text || '') }}\n);",
+          "body": "SELECT public.mp_lots_retire(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_reasons => {{ LotsPage.sql.arrStr([ radioReason.selectedOptionValue ] || []) }}::text[],\n  p_operator => {{ LotsPage.sql.str( appsmith.user.email || appsmith.user.name || '' ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpRetireNotes.text || '') }}\n) as retired_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -2393,9 +2393,9 @@
         "isValid": true,
         "jsonPathKeys": [
           " LotsPage.sql.str(inpRetireNotes.text || '') ",
-          " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) ",
-          " LotsPage.sql.arrStr(chkgrpReasons.selectedValues || []) ",
-          " LotsPage.sql.str(appsmith.user.name || appsmith.user.email || '') "
+          " LotsPage.sql.str( appsmith.user.email || appsmith.user.name || '' ) ",
+          " LotsPage.sql.arrStr([ radioReason.selectedOptionValue ] || []) ",
+          " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) "
         ],
         "messages": [],
         "name": "qRetireLots",
@@ -2455,7 +2455,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const vals = chkgrpReasons.selectedValues || [];\n  if (!vals.length) return \"Retired\";\n  const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n  for (const v of order) if (vals.includes(v)) return v;\n  return vals[0];\n}",
+          "body": "function () {\n  const vals = [radioReason.selectedOptionValue];\n  if (!vals.length) return \"Retired\";\n  const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n  for (const v of order) if (vals.includes(v)) return v;\n  return vals[0];\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -2484,7 +2484,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const vals = chkgrpReasons.selectedValues || [];\n  if (!vals.length) return \"Retired\";\n  const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n  for (const v of order) if (vals.includes(v)) return v;\n  return vals[0];\n}"
+          "function () {\n  const vals = [radioReason.selectedOptionValue];\n  if (!vals.length) return \"Retired\";\n  const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n  for (const v of order) if (vals.includes(v)) return v;\n  return vals[0];\n}"
         ],
         "messages": [],
         "name": "retireReason",
@@ -2551,7 +2551,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_shake(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_operator => {{ LotsPage.sql.str(LotsPage.sql.str(appsmith.user.name || appsmith.user.email || '')) }}::text,\n  p_station => {{ LotsPage.sql.str('Lots') }}::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str('') }}::text\n) AS shaken_count;",
+          "body": "SELECT public.mp_lots_shake(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_operator => {{ LotsPage.sql.str( appsmith.user.email || appsmith.user.name || '' ) }}::text,\n  p_station => {{ LotsPage.sql.str('Lots') }}::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpShakeNotes.text || '') }}::text\n) AS shaken_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -2584,9 +2584,9 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          " LotsPage.sql.str(LotsPage.sql.str(appsmith.user.name || appsmith.user.email || '')) ",
+          " LotsPage.sql.str( appsmith.user.email || appsmith.user.name || '' ) ",
+          " LotsPage.sql.str(inpShakeNotes.text || '') ",
           " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) ",
-          " LotsPage.sql.str('') ",
           " LotsPage.sql.str('Lots') "
         ],
         "messages": [],
@@ -2825,7 +2825,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  let lotsshaken;\n  try {\n    lotsshaken = await qShakeLots.run();\n  } catch (e) {\n    showAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'notice');\n  closeModal(modalShakeLots.name);\n  await qLots.run();\n}",
+          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  let lotsshaken;\n  try {\n    lotsshaken = await qShakeLots.run();\n  } catch (e) {\n    showAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'success');\n  txtShakeContent.setText(\"\");\n  inpShakeNotes.setValue(\"\");\n  closeModal(modalShakeLots.name);\n  await qLots.run();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -2854,7 +2854,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  let lotsshaken;\n  try {\n    lotsshaken = await qShakeLots.run();\n  } catch (e) {\n    showAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'notice');\n  closeModal(modalShakeLots.name);\n  await qLots.run();\n}"
+          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  let lotsshaken;\n  try {\n    lotsshaken = await qShakeLots.run();\n  } catch (e) {\n    showAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'success');\n  txtShakeContent.setText(\"\");\n  inpShakeNotes.setValue(\"\");\n  closeModal(modalShakeLots.name);\n  await qLots.run();\n}"
         ],
         "messages": [],
         "name": "shakeSelectedLots",
@@ -2914,7 +2914,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await qRetireLots.run();\n  closeModal(modalRetireLots.name);\n  await qLots.run();\n}",
+          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  let lotsretired;\n  try {\n    lotsretired = await qRetireLots.run();\n  } catch (e) {\n    showAlert(\"Error retiring lots: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Retired \" + lotsretired[0].retired_count + \" lot(s).\", 'success');\n  txtRetireContent.setText(\"\");\n  inpRetireNotes.setValue(\"\");\n  closeModal(modalRetireLots.name);\n  await qLots.run();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -2943,7 +2943,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await qRetireLots.run();\n  closeModal(modalRetireLots.name);\n  await qLots.run();\n}"
+          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  let lotsretired;\n  try {\n    lotsretired = await qRetireLots.run();\n  } catch (e) {\n    showAlert(\"Error retiring lots: \" + (e && e.message) ? e.message : String(e), 'error');\n    await storeValue('lots_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert(\"Retired \" + lotsretired[0].retired_count + \" lot(s).\", 'success');\n  txtRetireContent.setText(\"\");\n  inpRetireNotes.setValue(\"\");\n  closeModal(modalRetireLots.name);\n  await qLots.run();\n}"
         ],
         "messages": [],
         "name": "retireSelectedLots",
@@ -3181,7 +3181,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  await qRetireLots.run();\n  await closeModal(\"modalRetireLots\");\n  await LotsPage.refresh();\n  showAlert(\"Selected lots retired.\", \"success\");\n}",
+          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  await qRetireLots.run();\n  await closeModal(modalRetireLots.name);\n  await LotsPage.refresh();\n  showAlert(\"Selected lots retired.\", \"success\");\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -3201,6 +3201,7 @@
           "policyMap": {},
           "userPermissions": []
         },
+        "deletedAt": "2026-02-18T18:17:15Z",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -3210,7 +3211,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  await qRetireLots.run();\n  await closeModal(\"modalRetireLots\");\n  await LotsPage.refresh();\n  showAlert(\"Selected lots retired.\", \"success\");\n}"
+          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  await qRetireLots.run();\n  await closeModal(modalRetireLots.name);\n  await LotsPage.refresh();\n  showAlert(\"Selected lots retired.\", \"success\");\n}"
         ],
         "messages": [],
         "name": "confirmRetire",
@@ -3290,6 +3291,7 @@
           "policyMap": {},
           "userPermissions": []
         },
+        "deletedAt": "2026-02-18T18:17:15Z",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -3359,7 +3361,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  txtRetireContent.setText(LotsPage.formatSelectedLots());\n  await showModal(\"modalRetireLots\");\n}",
+          "body": "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  txtRetireContent.setText(LotsPage.formatSelectedLots());\n  await showModal(modalRetireLots.name);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -3388,7 +3390,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  txtRetireContent.setText(LotsPage.formatSelectedLots());\n  await showModal(\"modalRetireLots\");\n}"
+          "async function () {\n  if (!LotsPage.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n  txtRetireContent.setText(LotsPage.formatSelectedLots());\n  await showModal(modalRetireLots.name);\n}"
         ],
         "messages": [],
         "name": "openRetireModal",
@@ -5006,63 +5008,6 @@
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
-                          "autoFocus": false,
-                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 4,
-                          "boxShadow": "none",
-                          "defaultText": "{{appsmith.user.email}}",
-                          "dynamicBindingPathList": [
-                            {
-                              "key": "defaultText"
-                            },
-                            {
-                              "key": "accentColor"
-                            },
-                            {
-                              "key": "borderRadius"
-                            }
-                          ],
-                          "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
-                          "iconAlign": "left",
-                          "inputType": "TEXT",
-                          "isDisabled": true,
-                          "isLoading": false,
-                          "isRequired": false,
-                          "isVisible": true,
-                          "key": "c3epphp9cl",
-                          "label": "Operator",
-                          "labelAlignment": "left",
-                          "labelPosition": "Top",
-                          "labelStyle": "",
-                          "labelTextSize": "0.875rem",
-                          "labelWidth": 5,
-                          "leftColumn": 46,
-                          "maxDynamicHeight": 9000,
-                          "minDynamicHeight": 4,
-                          "minWidth": 450,
-                          "mobileBottomRow": 13,
-                          "mobileLeftColumn": 4,
-                          "mobileRightColumn": 24,
-                          "mobileTopRow": 6,
-                          "needsErrorInfo": false,
-                          "parentColumnSpace": 10.296875,
-                          "parentId": "qe263dcab1",
-                          "parentRowSpace": 10,
-                          "renderMode": "CANVAS",
-                          "resetOnSubmit": true,
-                          "responsiveBehavior": "fill",
-                          "rightColumn": 64,
-                          "showStepArrows": false,
-                          "topRow": 0,
-                          "type": "INPUT_WIDGET_V2",
-                          "version": 2,
-                          "widgetId": "r8ujk1hlh4",
-                          "widgetName": "inpOperatorIn"
-                        },
-                        {
-                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
-                          "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 20,
                           "boxShadow": "none",
@@ -5455,7 +5400,7 @@
                   "topRow": 0,
                   "type": "FORM_WIDGET",
                   "widgetId": "f2gwd833bj",
-                  "widgetName": "Form1"
+                  "widgetName": "SterilizeForm"
                 }
               ],
               "containerStyle": "none",
@@ -6650,7 +6595,7 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 590,
+              "bottomRow": 560,
               "canExtend": true,
               "children": [
                 {
@@ -6659,12 +6604,12 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": "1",
-                  "bottomRow": 59,
+                  "bottomRow": 56,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "children": [
                     {
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "bottomRow": 550,
+                      "bottomRow": 520,
                       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                       "canExtend": false,
                       "children": [
@@ -7286,69 +7231,6 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 4,
-                          "boxShadow": "none",
-                          "defaultText": "{{appsmith.user.email}}",
-                          "dynamicBindingPathList": [
-                            {
-                              "key": "defaultText"
-                            },
-                            {
-                              "key": "isVisible"
-                            },
-                            {
-                              "key": "accentColor"
-                            },
-                            {
-                              "key": "borderRadius"
-                            }
-                          ],
-                          "dynamicHeight": "FIXED",
-                          "dynamicPropertyPathList": [],
-                          "dynamicTriggerPathList": [],
-                          "iconAlign": "left",
-                          "inputType": "TEXT",
-                          "isDisabled": true,
-                          "isLoading": false,
-                          "isRequired": false,
-                          "isVisible": true,
-                          "key": "c3epphp9cl",
-                          "label": "Operator",
-                          "labelAlignment": "left",
-                          "labelPosition": "Top",
-                          "labelStyle": "",
-                          "labelTextSize": "0.875rem",
-                          "labelWidth": 5,
-                          "leftColumn": 48,
-                          "maxDynamicHeight": 9000,
-                          "minDynamicHeight": 4,
-                          "minWidth": 450,
-                          "mobileBottomRow": 38,
-                          "mobileLeftColumn": 32,
-                          "mobileRightColumn": 48,
-                          "mobileTopRow": 31,
-                          "needsErrorInfo": false,
-                          "originalBottomRow": 39,
-                          "originalTopRow": 32,
-                          "parentColumnSpace": 10.296875,
-                          "parentId": "qo6thtfqsv",
-                          "parentRowSpace": 10,
-                          "renderMode": "CANVAS",
-                          "resetOnSubmit": true,
-                          "responsiveBehavior": "fill",
-                          "rightColumn": 64,
-                          "showStepArrows": false,
-                          "topRow": 0,
-                          "type": "INPUT_WIDGET_V2",
-                          "version": 2,
-                          "widgetId": "r580vgb3hf",
-                          "widgetName": "inpOperatorOut"
-                        },
-                        {
-                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
-                          "animateLoading": true,
-                          "autoFocus": false,
-                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 42,
                           "boxShadow": "none",
                           "defaultText": "",
@@ -7480,7 +7362,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 47,
+                          "bottomRow": 46,
                           "dynamicBindingPathList": [
                             {
                               "key": "text"
@@ -7506,7 +7388,7 @@
                           "mobileRightColumn": 64,
                           "mobileTopRow": 39,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 46,
+                          "originalBottomRow": 47,
                           "originalTopRow": 42,
                           "overflow": "NONE",
                           "parentColumnSpace": 10.296875,
@@ -7529,7 +7411,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 53,
+                          "bottomRow": 50,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonVariant": "PRIMARY",
@@ -7556,8 +7438,8 @@
                           "mobileTopRow": 44,
                           "needsErrorInfo": false,
                           "onClick": "{{SterilizerOut.refresh()}}",
-                          "originalBottomRow": 52,
-                          "originalTopRow": 46,
+                          "originalBottomRow": 53,
+                          "originalTopRow": 47,
                           "parentColumnSpace": 10.296875,
                           "parentId": "qo6thtfqsv",
                           "parentRowSpace": 10,
@@ -7568,7 +7450,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 42,
                           "text": "Refresh Runs",
-                          "topRow": 47,
+                          "topRow": 46,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "rehc8vjs4r",
@@ -7577,7 +7459,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 53,
+                          "bottomRow": 50,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonVariant": "PRIMARY",
@@ -7615,8 +7497,8 @@
                           "mobileTopRow": 44,
                           "needsErrorInfo": false,
                           "onClick": "{{SterilizerOut.completeRun()}}",
-                          "originalBottomRow": 52,
-                          "originalTopRow": 46,
+                          "originalBottomRow": 53,
+                          "originalTopRow": 47,
                           "parentColumnSpace": 10.296875,
                           "parentId": "qo6thtfqsv",
                           "parentRowSpace": 10,
@@ -7627,7 +7509,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 64,
                           "text": "Complete Run + Create Lots",
-                          "topRow": 47,
+                          "topRow": 46,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "1dm7ihtr0z",
@@ -7695,7 +7577,7 @@
                   "mobileRightColumn": 24,
                   "mobileTopRow": 4,
                   "needsErrorInfo": false,
-                  "originalBottomRow": 59,
+                  "originalBottomRow": 58,
                   "originalTopRow": 4,
                   "parentColumnSpace": 10.296875,
                   "parentId": "0",
@@ -7708,7 +7590,7 @@
                   "topRow": 4,
                   "type": "FORM_WIDGET",
                   "widgetId": "29iydq51k4",
-                  "widgetName": "Form1"
+                  "widgetName": "SterilizedForm"
                 }
               ],
               "containerStyle": "none",
@@ -21782,7 +21664,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": "1",
-                  "bottomRow": 54,
+                  "bottomRow": 55,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "cachedTableData": {},
                   "canFreezeColumn": true,
@@ -25714,7 +25596,7 @@
                   "searchKey": "",
                   "tableData": "{{ qLots.data || [] }}",
                   "textSize": "0.875rem",
-                  "topRow": 24,
+                  "topRow": 25,
                   "totalRecordsCount": 0,
                   "type": "TABLE_WIDGET_V2",
                   "version": 2,
@@ -26184,7 +26066,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 24,
+                  "bottomRow": 25,
                   "dynamicBindingPathList": [
                     {
                       "key": "text"
@@ -26233,7 +26115,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 24,
+                  "bottomRow": 295,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
@@ -26291,7 +26173,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 5,
+                          "bottomRow": 4,
                           "dynamicBindingPathList": [
                             {
                               "key": "truncateButtonColor"
@@ -26311,7 +26193,7 @@
                           "isLoading": false,
                           "isVisible": true,
                           "key": "54d7bs45iw",
-                          "leftColumn": 1,
+                          "leftColumn": 0,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
@@ -26320,16 +26202,18 @@
                           "mobileRightColumn": 41,
                           "mobileTopRow": 1,
                           "needsErrorInfo": false,
+                          "originalBottomRow": 6,
+                          "originalTopRow": 0,
                           "overflow": "NONE",
                           "parentId": "d29hxuzpi2",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 13,
+                          "rightColumn": 20,
                           "shouldTruncate": false,
-                          "text": "Shake",
+                          "text": "Shake Lots",
                           "textAlign": "LEFT",
                           "textColor": "#231F20",
-                          "topRow": 1,
+                          "topRow": 0,
                           "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "type": "TEXT_WIDGET",
                           "version": 1,
@@ -26339,7 +26223,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 22,
+                          "bottomRow": 13,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY",
@@ -26363,7 +26247,7 @@
                           "isLoading": false,
                           "isVisible": true,
                           "key": "bl16qofho7",
-                          "leftColumn": 31,
+                          "leftColumn": 0,
                           "minWidth": 120,
                           "mobileBottomRow": 22,
                           "mobileLeftColumn": 31,
@@ -26371,15 +26255,17 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{closeModal(modalShakeLots.name);}}",
+                          "originalBottomRow": 17,
+                          "originalTopRow": 13,
                           "parentId": "d29hxuzpi2",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 47,
+                          "rightColumn": 15,
                           "text": "Close",
-                          "topRow": 18,
+                          "topRow": 9,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "iykgz5agkl",
@@ -26388,7 +26274,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 22,
+                          "bottomRow": 17,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY_BUTTON",
@@ -26418,7 +26304,7 @@
                             "LotsPage.confirmShake()"
                           ],
                           "key": "bl16qofho7",
-                          "leftColumn": 47,
+                          "leftColumn": 0,
                           "minWidth": 120,
                           "mobileBottomRow": 22,
                           "mobileLeftColumn": 47,
@@ -26426,15 +26312,17 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{ LotsPage.shakeSelectedLots() }}",
+                          "originalBottomRow": 21,
+                          "originalTopRow": 17,
                           "parentId": "d29hxuzpi2",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 63,
+                          "rightColumn": 15,
                           "text": "Confirm",
-                          "topRow": 18,
+                          "topRow": 13,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "0kizehskt8",
@@ -26443,7 +26331,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 21,
+                          "bottomRow": 9,
                           "dynamicBindingPathList": [
                             {
                               "key": "truncateButtonColor"
@@ -26469,7 +26357,7 @@
                             "LotsPage.formatSelectedLots()"
                           ],
                           "key": "54d7bs45iw",
-                          "leftColumn": 1,
+                          "leftColumn": 0,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
@@ -26478,25 +26366,81 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 15,
-                          "originalTopRow": 6,
+                          "originalBottomRow": 13,
+                          "originalTopRow": 4,
                           "overflow": "NONE",
                           "parentColumnSpace": 6.9375,
                           "parentId": "d29hxuzpi2",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 17,
+                          "rightColumn": 64,
                           "shouldTruncate": false,
                           "text": "{{ LotsPage.selectedLotsSummary() }}",
                           "textAlign": "LEFT",
                           "textColor": "#231F20",
-                          "topRow": 6,
+                          "topRow": 4,
                           "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "type": "TEXT_WIDGET",
                           "version": 1,
                           "widgetId": "n4ax2qgfv9",
                           "widgetName": "txtShakeContent"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 17,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "FIXED",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "7ago10f6o0",
+                          "label": "Notes",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 15,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 21,
+                          "mobileLeftColumn": 16,
+                          "mobileRightColumn": 36,
+                          "mobileTopRow": 14,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 21,
+                          "originalTopRow": 13,
+                          "parentColumnSpace": 8.415625,
+                          "parentId": "d29hxuzpi2",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 62,
+                          "showStepArrows": false,
+                          "topRow": 9,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "1p5kjmz6qu",
+                          "widgetName": "inpShakeNotes"
                         }
                       ],
                       "detachFromLayout": true,
@@ -26569,19 +26513,19 @@
                   "version": 2,
                   "widgetId": "gy59f89n8o",
                   "widgetName": "modalShakeLots",
-                  "width": 456
+                  "width": 550.6
                 },
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 460,
+                  "bottomRow": 320,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
                   "children": [
                     {
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "bottomRow": 400,
+                      "bottomRow": 260,
                       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                       "canExtend": true,
                       "children": [
@@ -26680,7 +26624,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 26,
+                          "bottomRow": 19,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY",
@@ -26704,7 +26648,7 @@
                           "isLoading": false,
                           "isVisible": true,
                           "key": "bl16qofho7",
-                          "leftColumn": 31,
+                          "leftColumn": 0,
                           "minWidth": 120,
                           "mobileBottomRow": 22,
                           "mobileLeftColumn": 31,
@@ -26712,17 +26656,17 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{closeModal(modalRetireLots.name);}}",
-                          "originalBottomRow": 26,
-                          "originalTopRow": 22,
+                          "originalBottomRow": 20,
+                          "originalTopRow": 16,
                           "parentId": "pv2224sos0",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 47,
+                          "rightColumn": 16,
                           "text": "Close",
-                          "topRow": 22,
+                          "topRow": 15,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "1ue28yrvz9",
@@ -26731,7 +26675,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 26,
+                          "bottomRow": 23,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY_BUTTON",
@@ -26748,6 +26692,11 @@
                               "key": "onClick"
                             }
                           ],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
                           "isDisabled": false,
                           "isLoading": false,
@@ -26756,7 +26705,7 @@
                             "LotsPage.confirmRetire()"
                           ],
                           "key": "bl16qofho7",
-                          "leftColumn": 47,
+                          "leftColumn": 0,
                           "minWidth": 120,
                           "mobileBottomRow": 22,
                           "mobileLeftColumn": 47,
@@ -26764,17 +26713,17 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{ LotsPage.retireSelectedLots() }}",
-                          "originalBottomRow": 26,
-                          "originalTopRow": 22,
+                          "originalBottomRow": 24,
+                          "originalTopRow": 20,
                           "parentId": "pv2224sos0",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 63,
+                          "rightColumn": 16,
                           "text": "Confirm",
-                          "topRow": 22,
+                          "topRow": 19,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "mz673hzcvu",
@@ -26783,7 +26732,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 30,
+                          "bottomRow": 10,
                           "dynamicBindingPathList": [
                             {
                               "key": "truncateButtonColor"
@@ -26818,7 +26767,7 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 21,
+                          "originalBottomRow": 11,
                           "originalTopRow": 6,
                           "overflow": "NONE",
                           "parentColumnSpace": 6.9375,
@@ -26826,7 +26775,7 @@
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 17,
+                          "rightColumn": 63,
                           "shouldTruncate": false,
                           "text": "{{ LotsPage.selectedLotsSummary() }}",
                           "textAlign": "LEFT",
@@ -26841,76 +26790,9 @@
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
-                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 22,
-                          "defaultSelectedValues": "[\n  \"Compost\"\n]",
-                          "dynamicBindingPathList": [
-                            {
-                              "key": "accentColor"
-                            },
-                            {
-                              "key": "borderRadius"
-                            }
-                          ],
-                          "dynamicHeight": "AUTO_HEIGHT",
-                          "dynamicTriggerPathList": [],
-                          "flexVerticalAlignment": "start",
-                          "isDisabled": false,
-                          "isInline": true,
-                          "isLoading": false,
-                          "isRequired": false,
-                          "isVisible": true,
-                          "key": "mrnis5q3jc",
-                          "labelAlignment": "left",
-                          "labelPosition": "Top",
-                          "labelText": "Reasons",
-                          "labelTextSize": "0.875rem",
-                          "labelWidth": 5,
-                          "leftColumn": 41,
-                          "maxDynamicHeight": 9000,
-                          "minDynamicHeight": 4,
-                          "mobileBottomRow": 14,
-                          "mobileLeftColumn": 6,
-                          "mobileRightColumn": 29,
-                          "mobileTopRow": 8,
-                          "needsErrorInfo": false,
-                          "options": [
-                            {
-                              "label": "Compost",
-                              "value": "Compost"
-                            },
-                            {
-                              "label": "Contaminated",
-                              "value": "Contaminated"
-                            },
-                            {
-                              "label": "Expired",
-                              "value": "Expired"
-                            },
-                            {
-                              "label": "Inviable",
-                              "value": "Inviable"
-                            }
-                          ],
-                          "originalBottomRow": 22,
-                          "originalTopRow": 6,
-                          "parentColumnSpace": 6.9375,
-                          "parentId": "pv2224sos0",
-                          "parentRowSpace": 10,
-                          "renderMode": "CANVAS",
-                          "rightColumn": 64,
-                          "topRow": 6,
-                          "type": "CHECKBOX_GROUP_WIDGET",
-                          "version": 2,
-                          "widgetId": "zrf5aiy11b",
-                          "widgetName": "chkgrpReasons"
-                        },
-                        {
-                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
-                          "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 38,
+                          "bottomRow": 23,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -26936,7 +26818,7 @@
                           "labelStyle": "",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 1,
+                          "leftColumn": 20,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
@@ -26945,21 +26827,86 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 29,
-                          "originalTopRow": 22,
+                          "originalBottomRow": 24,
+                          "originalTopRow": 11,
                           "parentColumnSpace": 6.9375,
                           "parentId": "pv2224sos0",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "resetOnSubmit": true,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 30,
+                          "rightColumn": 49,
                           "showStepArrows": false,
-                          "topRow": 31,
+                          "topRow": 10,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "hfgaj4thsn",
                           "widgetName": "inpRetireNotes"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "alignment": "left",
+                          "animateLoading": true,
+                          "bottomRow": 24,
+                          "boxShadow": "none",
+                          "defaultOptionValue": "Contaminated",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "flexVerticalAlignment": "start",
+                          "isDisabled": false,
+                          "isInline": true,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "dj1hqmjwox",
+                          "label": "Reason",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 49,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "mobileBottomRow": 15,
+                          "mobileLeftColumn": 36,
+                          "mobileRightColumn": 56,
+                          "mobileTopRow": 9,
+                          "needsErrorInfo": false,
+                          "options": [
+                            {
+                              "label": "Contaminated",
+                              "value": "Contaminated"
+                            },
+                            {
+                              "label": "Inviable",
+                              "value": "Inviable"
+                            },
+                            {
+                              "label": "Compost",
+                              "value": "Compost"
+                            },
+                            {
+                              "label": "Expired",
+                              "value": "Expired"
+                            }
+                          ],
+                          "originalBottomRow": 24,
+                          "originalTopRow": 10,
+                          "parentColumnSpace": 9.728125,
+                          "parentId": "pv2224sos0",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "rightColumn": 63,
+                          "topRow": 10,
+                          "type": "RADIO_GROUP_WIDGET",
+                          "version": 1,
+                          "widgetId": "3u2inkaz2g",
+                          "widgetName": "radioReason"
                         }
                       ],
                       "detachFromLayout": true,
@@ -26980,7 +26927,7 @@
                       "leftColumn": 0,
                       "maxDynamicHeight": 9000,
                       "minDynamicHeight": 4,
-                      "minHeight": 240,
+                      "minHeight": 400,
                       "minWidth": 450,
                       "mobileBottomRow": 240,
                       "mobileLeftColumn": 0,
@@ -27008,14 +26955,14 @@
                     }
                   ],
                   "dynamicHeight": "AUTO_HEIGHT",
-                  "height": 400,
+                  "height": 260,
                   "isCanvas": true,
                   "isLoading": false,
                   "key": "q45s7dqz7h",
                   "leftColumn": 0,
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 24,
-                  "minHeight": 400,
+                  "minHeight": 260,
                   "mobileBottomRow": 79,
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 13,
@@ -27032,12 +26979,12 @@
                   "version": 2,
                   "widgetId": "fk8924llkj",
                   "widgetName": "modalRetireLots",
-                  "width": 456
+                  "width": 634.6
                 },
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 59,
+                  "bottomRow": 60,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -27086,7 +27033,7 @@
                   "responsiveBehavior": "hug",
                   "rightColumn": 12,
                   "text": "Shake Lots",
-                  "topRow": 55,
+                  "topRow": 56,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "zgt6scdz91",
@@ -27095,7 +27042,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 59,
+                  "bottomRow": 60,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -27124,7 +27071,7 @@
                     "LotsPage.openRetireModal()"
                   ],
                   "key": "bl16qofho7",
-                  "leftColumn": 13,
+                  "leftColumn": 12,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 0,
@@ -27142,60 +27089,13 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 25,
+                  "rightColumn": 24,
                   "text": "Retire Lots",
-                  "topRow": 55,
+                  "topRow": 56,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "fihq06ojyz",
                   "widgetName": "btnRetireLots"
-                },
-                {
-                  "animateLoading": true,
-                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 64,
-                  "boxShadow": "none",
-                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                  "buttonVariant": "PRIMARY",
-                  "disabledWhenInvalid": false,
-                  "dynamicBindingPathList": [
-                    {
-                      "key": "buttonColor"
-                    },
-                    {
-                      "key": "borderRadius"
-                    }
-                  ],
-                  "dynamicTriggerPathList": [],
-                  "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
-                  "isVisible": true,
-                  "key": "xto8zvlnqv",
-                  "leftColumn": 12,
-                  "minWidth": 120,
-                  "mobileBottomRow": 64,
-                  "mobileLeftColumn": 0,
-                  "mobileRightColumn": 12,
-                  "mobileTopRow": 60,
-                  "needsErrorInfo": false,
-                  "originalBottomRow": 64,
-                  "originalTopRow": 60,
-                  "parentColumnSpace": 10.296875,
-                  "parentId": "0",
-                  "parentRowSpace": 10,
-                  "placement": "CENTER",
-                  "recaptchaType": "V3",
-                  "renderMode": "CANVAS",
-                  "resetFormOnClick": false,
-                  "responsiveBehavior": "hug",
-                  "rightColumn": 24,
-                  "text": "Modify Lots\n",
-                  "topRow": 60,
-                  "type": "BUTTON_WIDGET",
-                  "version": 1,
-                  "widgetId": "hpkqd4hvjs",
-                  "widgetName": "btnModifyLots"
                 },
                 {
                   "animateLoading": true,
@@ -27237,17 +27137,17 @@
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
                   "rightColumn": 12,
-                  "text": "Inoculate Lots",
+                  "text": "Modify Lots\n",
                   "topRow": 60,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
-                  "widgetId": "cpfsdfc8bk",
-                  "widgetName": "btnInoculateLots"
+                  "widgetId": "hpkqd4hvjs",
+                  "widgetName": "btnModifyLots"
                 },
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 59,
+                  "bottomRow": 64,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -27266,7 +27166,54 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 26,
+                  "leftColumn": 51,
+                  "minWidth": 120,
+                  "mobileBottomRow": 64,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 12,
+                  "mobileTopRow": 60,
+                  "needsErrorInfo": false,
+                  "originalBottomRow": 64,
+                  "originalTopRow": 60,
+                  "parentColumnSpace": 10.296875,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "placement": "CENTER",
+                  "recaptchaType": "V3",
+                  "renderMode": "CANVAS",
+                  "resetFormOnClick": false,
+                  "responsiveBehavior": "hug",
+                  "rightColumn": 63,
+                  "text": "Inoculate Lots",
+                  "topRow": 60,
+                  "type": "BUTTON_WIDGET",
+                  "version": 1,
+                  "widgetId": "cpfsdfc8bk",
+                  "widgetName": "btnInoculateLots"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 60,
+                  "boxShadow": "none",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "buttonVariant": "PRIMARY",
+                  "disabledWhenInvalid": false,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "buttonColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [],
+                  "isDefaultClickDisabled": true,
+                  "isDisabled": false,
+                  "isLoading": false,
+                  "isVisible": true,
+                  "key": "xto8zvlnqv",
+                  "leftColumn": 24,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 26,
@@ -27283,9 +27230,9 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 42,
+                  "rightColumn": 36,
                   "text": "Package Lots\n",
-                  "topRow": 55,
+                  "topRow": 56,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "6ihkr4rh08",
@@ -27313,7 +27260,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 26,
+                  "leftColumn": 12,
                   "minWidth": 120,
                   "mobileBottomRow": 64,
                   "mobileLeftColumn": 26,
@@ -27330,7 +27277,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 42,
+                  "rightColumn": 24,
                   "text": "Move Lots",
                   "topRow": 60,
                   "type": "BUTTON_WIDGET",
@@ -27341,7 +27288,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 59,
+                  "bottomRow": 60,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -27360,7 +27307,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 43,
+                  "leftColumn": 47,
                   "minWidth": 120,
                   "mobileBottomRow": 62,
                   "mobileLeftColumn": 44,
@@ -27377,13 +27324,822 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 59,
+                  "rightColumn": 63,
                   "text": "Harvest Lot",
-                  "topRow": 55,
+                  "topRow": 56,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "l36rcoiv9u",
                   "widgetName": "btnHarvestLots"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 308,
+                  "boxShadow": "none",
+                  "canEscapeKeyClose": true,
+                  "canOutsideClickClose": true,
+                  "children": [
+                    {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "bottomRow": 240,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "canExtend": true,
+                      "children": [
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 4,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonVariant": "TERTIARY",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "2w1u7eanab",
+                          "leftColumn": 58,
+                          "minWidth": 50,
+                          "mobileBottomRow": 4,
+                          "mobileLeftColumn": 58,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalMoveLots.name);}}",
+                          "parentId": "a062wdluf9",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "6u68fj2kpl",
+                          "widgetName": "iconCloseMove"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 5,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "truncateButtonColor"
+                            },
+                            {
+                              "key": "fontFamily"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1.25rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "d1yd4sabwe",
+                          "leftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 5,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 41,
+                          "mobileTopRow": 1,
+                          "needsErrorInfo": false,
+                          "overflow": "NONE",
+                          "parentId": "a062wdluf9",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 41,
+                          "shouldTruncate": false,
+                          "text": "Modal Title",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 1,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "5bwf2221fw",
+                          "widgetName": "txtTitleMove"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 31,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 31,
+                          "mobileRightColumn": 47,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalMoveLots.name);}}",
+                          "parentId": "a062wdluf9",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 47,
+                          "text": "Close",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "eakfkfktfb",
+                          "widgetName": "btnCloseMove"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "buttonVariant": "PRIMARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 47,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 47,
+                          "mobileRightColumn": 63,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "parentId": "a062wdluf9",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 63,
+                          "text": "Confirm",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "g3fa6a5n32",
+                          "widgetName": "btnConfirmMove"
+                        }
+                      ],
+                      "detachFromLayout": true,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "flexLayers": [],
+                      "isDisabled": false,
+                      "isLoading": false,
+                      "isVisible": true,
+                      "key": "orm0fq5xwt",
+                      "leftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "minHeight": 240,
+                      "minWidth": 450,
+                      "mobileBottomRow": 240,
+                      "mobileLeftColumn": 0,
+                      "mobileRightColumn": 153.75,
+                      "mobileTopRow": 0,
+                      "needsErrorInfo": false,
+                      "parentColumnSpace": 1,
+                      "parentId": "14x2l0ymhe",
+                      "parentRowSpace": 1,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "rightColumn": 153.75,
+                      "shouldScrollContents": false,
+                      "topRow": 0,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "widgetId": "a062wdluf9",
+                      "widgetName": "Canvas2"
+                    }
+                  ],
+                  "detachFromLayout": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "height": 240,
+                  "isCanvas": true,
+                  "isLoading": false,
+                  "key": "3byj4q63sn",
+                  "leftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 24,
+                  "mobileBottomRow": 92,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 15,
+                  "mobileTopRow": 68,
+                  "needsErrorInfo": false,
+                  "parentColumnSpace": 10.25,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "renderMode": "CANVAS",
+                  "rightColumn": 15,
+                  "shouldScrollContents": true,
+                  "topRow": 68,
+                  "type": "MODAL_WIDGET",
+                  "version": 2,
+                  "widgetId": "14x2l0ymhe",
+                  "widgetName": "modalMoveLots",
+                  "width": 634.6
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 306,
+                  "boxShadow": "none",
+                  "canEscapeKeyClose": true,
+                  "canOutsideClickClose": true,
+                  "children": [
+                    {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "bottomRow": 240,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "canExtend": true,
+                      "children": [
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 4,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonVariant": "TERTIARY",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "2w1u7eanab",
+                          "leftColumn": 58,
+                          "minWidth": 50,
+                          "mobileBottomRow": 4,
+                          "mobileLeftColumn": 58,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalModifyLots.name);}}",
+                          "parentId": "yn7zzio97e",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "z139asv2vj",
+                          "widgetName": "iconCloseModify"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 5,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "truncateButtonColor"
+                            },
+                            {
+                              "key": "fontFamily"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1.25rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "d1yd4sabwe",
+                          "leftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 5,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 41,
+                          "mobileTopRow": 1,
+                          "needsErrorInfo": false,
+                          "overflow": "NONE",
+                          "parentId": "yn7zzio97e",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 41,
+                          "shouldTruncate": false,
+                          "text": "Modify Lots",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 1,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "8lbhwttiwq",
+                          "widgetName": "txtTitleModify"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 31,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 31,
+                          "mobileRightColumn": 47,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalModifyLots.name);}}",
+                          "parentId": "yn7zzio97e",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 47,
+                          "text": "Close",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "yqz77otd58",
+                          "widgetName": "btnCloseModify"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "buttonVariant": "PRIMARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 47,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 47,
+                          "mobileRightColumn": 63,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "parentId": "yn7zzio97e",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 63,
+                          "text": "Confirm",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "h1zn1f22o2",
+                          "widgetName": "btnConfirmModify"
+                        }
+                      ],
+                      "detachFromLayout": true,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "flexLayers": [],
+                      "isDisabled": false,
+                      "isLoading": false,
+                      "isVisible": true,
+                      "key": "orm0fq5xwt",
+                      "leftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "minHeight": 240,
+                      "minWidth": 450,
+                      "mobileBottomRow": 240,
+                      "mobileLeftColumn": 0,
+                      "mobileRightColumn": 123,
+                      "mobileTopRow": 0,
+                      "needsErrorInfo": false,
+                      "parentColumnSpace": 1,
+                      "parentId": "bnzqzm1vmy",
+                      "parentRowSpace": 1,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "rightColumn": 123,
+                      "shouldScrollContents": false,
+                      "topRow": 0,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "widgetId": "yn7zzio97e",
+                      "widgetName": "Canvas3"
+                    }
+                  ],
+                  "detachFromLayout": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "height": 240,
+                  "isCanvas": true,
+                  "isLoading": false,
+                  "key": "3byj4q63sn",
+                  "leftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 24,
+                  "mobileBottomRow": 90,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 12,
+                  "mobileTopRow": 66,
+                  "needsErrorInfo": false,
+                  "parentColumnSpace": 10.25,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "renderMode": "CANVAS",
+                  "rightColumn": 12,
+                  "shouldScrollContents": true,
+                  "topRow": 66,
+                  "type": "MODAL_WIDGET",
+                  "version": 2,
+                  "widgetId": "bnzqzm1vmy",
+                  "widgetName": "modalModifyLots",
+                  "width": 634.6
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 306,
+                  "boxShadow": "none",
+                  "canEscapeKeyClose": true,
+                  "canOutsideClickClose": true,
+                  "children": [
+                    {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "bottomRow": 240,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "canExtend": true,
+                      "children": [
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 4,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonVariant": "TERTIARY",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "2w1u7eanab",
+                          "leftColumn": 58,
+                          "minWidth": 50,
+                          "mobileBottomRow": 4,
+                          "mobileLeftColumn": 58,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalPackageLots.name);}}",
+                          "parentId": "kk329mymx7",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "6rbja7k67c",
+                          "widgetName": "iconClosePackage"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 5,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "truncateButtonColor"
+                            },
+                            {
+                              "key": "fontFamily"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1.25rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "d1yd4sabwe",
+                          "leftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 5,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 41,
+                          "mobileTopRow": 1,
+                          "needsErrorInfo": false,
+                          "overflow": "NONE",
+                          "parentId": "kk329mymx7",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 41,
+                          "shouldTruncate": false,
+                          "text": "Package Lots",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 1,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "mn31hdt5an",
+                          "widgetName": "txtTitlePackage"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 31,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 31,
+                          "mobileRightColumn": 47,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{closeModal(modalPackageLots.name);}}",
+                          "parentId": "kk329mymx7",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 47,
+                          "text": "Close",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "rhgkr077e1",
+                          "widgetName": "btnClosePackage"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 22,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "buttonVariant": "PRIMARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "y2p0u5qg38",
+                          "leftColumn": 47,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 47,
+                          "mobileRightColumn": 63,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "parentId": "kk329mymx7",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 63,
+                          "text": "Confirm",
+                          "topRow": 18,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "sno91822ek",
+                          "widgetName": "btnConfirmPackage"
+                        }
+                      ],
+                      "detachFromLayout": true,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "flexLayers": [],
+                      "isDisabled": false,
+                      "isLoading": false,
+                      "isVisible": true,
+                      "key": "orm0fq5xwt",
+                      "leftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "minHeight": 240,
+                      "minWidth": 450,
+                      "mobileBottomRow": 240,
+                      "mobileLeftColumn": 0,
+                      "mobileRightColumn": 143.5,
+                      "mobileTopRow": 0,
+                      "needsErrorInfo": false,
+                      "parentColumnSpace": 1,
+                      "parentId": "tt2mb985z0",
+                      "parentRowSpace": 1,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "rightColumn": 143.5,
+                      "shouldScrollContents": false,
+                      "topRow": 0,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "widgetId": "kk329mymx7",
+                      "widgetName": "Canvas4"
+                    }
+                  ],
+                  "detachFromLayout": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "height": 240,
+                  "isCanvas": true,
+                  "isLoading": false,
+                  "key": "3byj4q63sn",
+                  "leftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 24,
+                  "mobileBottomRow": 90,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 14,
+                  "mobileTopRow": 66,
+                  "needsErrorInfo": false,
+                  "parentColumnSpace": 10.25,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "renderMode": "CANVAS",
+                  "rightColumn": 14,
+                  "shouldScrollContents": true,
+                  "topRow": 66,
+                  "type": "MODAL_WIDGET",
+                  "version": 2,
+                  "widgetId": "tt2mb985z0",
+                  "widgetName": "modalPackageLots",
+                  "width": 634.6
                 }
               ],
               "containerStyle": "none",
