@@ -4,7 +4,6 @@ This folder contains:
 
 - **NocoDB creator scripts (Node.js)** – create views that mirror the Airtable Interfaces.
 - **Appsmith how-to text files** – instructions for building matching dashboards in Appsmith.
-- **Retool how-to text files** – legacy instructions (kept for reference).
 
 The goal is to approximate the Airtable operator experience (per station) using:
 
@@ -57,8 +56,6 @@ After running a script, check NocoDB’s UI to confirm the view appears as expec
 For each interface, you’ll see corresponding Appsmith instructions such as:
 
 - `Appsmith_Dark_Room.txt`
-- `Retool_Fruiting.txt`
-- `Retool_Spawn_to_Bulk.txt`
 - etc.
 
 Each document typically covers:
@@ -76,10 +73,7 @@ The json file, MushroomProcess.json, may be imported directly into Appsmith.  Pl
 
 ```bash
 node .\pretty-json.mjs --in .\MushroomProcess_exported --out .\MushroomProcess.json --sort-keys
-```bash
-
-### Legacy Retool specs
-Retool specs are still present as `Retool_*.txt` for reference, but are not the recommended path if you’re using Appsmith + n8n.
+```
 
 ---
 

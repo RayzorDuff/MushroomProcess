@@ -140,12 +140,11 @@ n8n then:
 
 ## Where Appsmith specs live
 
-For each prior Retool spec file, there is now a matching Appsmith spec:
+Appsmith specs live here:
 
 - `nocodb_interfaces/Appsmith_*.txt`
 
 These documents are *implementation checklists* for recreating each station UI in Appsmith using the NocoDB REST API datasource and n8n webhooks.
-
 
 ### Postgres-first Datasource (current)
 
