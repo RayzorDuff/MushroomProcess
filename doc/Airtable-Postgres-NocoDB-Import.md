@@ -85,19 +85,6 @@ The **canonical SQL‑only import** produced by `airtable_export_to_postgres_sql
 
 This is now the *preferred* path for rebuilding the DB.
 
-#### `signaturegate/`
-
-Represents the **pre‑migration baseline** database created by the SignatureGate project. Useful only as historical reference.
-
-#### `manual_server_side_diff/`
-
-Diff artifacts created by comparing NocoDB’s internal metadata DB *before vs after* schema import.
-
-This helped identify:
-
-* how NocoDB infers PV / display fields
-* what metadata NocoDB auto‑creates vs what must be set manually
-
 ---
 
 ## Base Tables vs Views (Critical Concept)
