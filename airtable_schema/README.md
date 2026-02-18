@@ -40,20 +40,121 @@ The goal is: **one canonical `_schema.json`** that can drive both Airtable and N
 - `compare_schemas.js`  
   Helper script to compare two `_schema.json` files (e.g., between versions) and show structural differences.
 
-- `create_nocodb_from_schema.js`  
-  Reads `_schema.json` and creates **basic tables and columns** in NocoDB (primitive field types).
-
 - `create_nocodb_schema_full.js`  
   Extended NocoDB provisioning script (tables + more advanced metadata).
 
-- `create_nocodb_relations_and_rollups.js`  
-  Second-pass script that:
-  - Reads linked-record metadata from `_schema.json`.
-  - Creates relations and formula columns in NocoDB.
-  - Prepares scaffolding for lookups and rollups.
+- `airtable_export_to_postgres_sql.js`  
+  **Primary “Airtable-export → Postgres” generator.** Reads `export/_schema.json` (and optionally `export/tables_dump.json` + per-table exports)
+  and emits Postgres DDL + views + (optionally) CSV + a `\copy` loader script.
+
+- `list_nocodb_bases.js`  
+  Utility to list the **data sources** configured inside a NocoDB “base/project” (prints IDs, aliases, type).
+
+- `patch_nocouuid_default.js`  
+  One-off migration helper: patches every `nocouuid` column in a NocoDB base to default to `gen_random_uuid()` (Postgres),
+  and enforces `NOT NULL` + `UNIQUE`.
 
 - `generate_sql_from_schema.py`  
-  Experimental script to emit SQL DDL from `_schema.json`.
+  Lightweight / experimental SQL emitter from `_schema.json` (multi-dialect). Useful for quick prototypes.
+
+---
+
+## Script details
+
+### `airtable_export_to_postgres_sql.js` (recommended Postgres path)
+
+This script turns an `airtable-export` bundle into **PostgreSQL artifacts** without using NocoDB’s meta APIs.
+
+**When to use it**
+
+- You want a **repeatable, deterministic** Postgres schema derived from Airtable’s `_schema.json`.
+- You want **junction tables** for Airtable `multipleRecordLinks` and view-layer conveniences.
+- You want to move away from “import into NocoDB then export SQL” workflows.
+
+**Inputs**
+
+Minimum:
+
+- `export/_schema.json`
+
+Recommended:
+
+- `export/tables_dump.json`
+
+Optional:
+
+- `export/<table>.json` or `export/<table>.ndjson`
+
+**Outputs**
+
+- `001_tables.sql`
+- `002_links.sql`
+- `003_views.sql`
+- `004_computed_views.sql`
+- `010_load.sql` (optional)
+- `csv/*.csv` (optional)
+
+**Environment variables**
+
+- `AIRTABLE_SCHEMA_PATH`
+- `TABLES_DUMP_PATH`
+- `POSTGRES_SCHEMA`
+- `POSTGRES_OUT_DIR`
+- `AIRTABLE_EXPORT_DIR`
+- `CREATE_VIEWS`
+- `BIGINT_PKS`
+
+**Run**
+
+```bash
+node airtable_export_to_postgres_sql.js
+```
+
+---
+
+### `generate_sql_from_schema.py`
+
+A smaller Python script that emits `CREATE TABLE` statements from `_schema.json` for multiple dialects.
+
+**Run**
+
+```bash
+python generate_sql_from_schema.py --dialect postgres --output schema.sql
+```
+
+---
+
+### `list_nocodb_bases.js`
+
+Lists the **data sources** attached to a NocoDB base/project.
+
+**Requires**
+
+- `NOCODB_BASE_ID`
+
+**Run**
+
+```bash
+node list_nocodb_bases.js
+```
+
+---
+
+### `patch_nocouuid_default.js`
+
+Patches every `nocouuid` column in a NocoDB base so that Postgres will auto-generate UUIDs.
+
+**Prereqs**
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+```
+
+**Run**
+
+```bash
+node patch_nocouuid_default.js
+```
 
 ---
 
@@ -106,7 +207,7 @@ These steps assume you start from an Airtable base that already matches the Mush
    airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
    ```
 
-   We also need a complete dump of the table schema direct from airtable.
+   Also dump Airtable table metadata:
 
    ```bash
    curl.exe "https://api.airtable.com/v0/meta/bases/$Env:AIRTABLE_BASE/tables" -H "Authorization: Bearer $Env:AIRTABLE_KEY" --ssl-no-revoke  -o export/tables_dump.json
