@@ -156,7 +156,7 @@ BEGIN
   IF 'expired' = ANY(v_reasons_lower) THEN
     v_terminal_status := 'Expired';
     v_terminal_location := 'Expired';
-  ELSIF ('compost' = ANY(v_reasons_lower)) OR ('composted' = ANY(v_reasons_lower)) OR ('contaminated' = ANY(v_reasons_lower)) THEN
+  ELSIF ('compost' = ANY(v_reasons_lower)) OR ('composted' = ANY(v_reasons_lower)) OR ('contaminated' = ANY(v_reasons_lower)) OR ('inviable' = ANY(v_reasons_lower)) THEN
     v_terminal_status := 'Composted';
     v_terminal_location := 'Compost';
   ELSE
