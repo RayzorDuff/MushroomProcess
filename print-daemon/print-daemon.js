@@ -659,7 +659,7 @@ async function renderLabelPDF(outPath, rec) {
   // Title
   if (title)
     y = drawBlock(doc, title, M, y, contentWidth, 'Helvetica-Bold', {
-      maxFont: 14,
+      maxFont: 12,
       minFont: 4,
       lineGap: 1,
       paragraphGap: 0,
@@ -668,7 +668,7 @@ async function renderLabelPDF(outPath, rec) {
   // Subtitle
   if (subtitle)
     y = drawBlock(doc, subtitle, M, y, contentWidth, 'Helvetica-Bold', {
-      maxFont: 11,
+      maxFont: 10,
       minFont: 4,
       lineGap: 1,
       paragraphGap: 4,
@@ -678,7 +678,7 @@ async function renderLabelPDF(outPath, rec) {
   if (Array.isArray(L.extras)) {
     for (const line of L.extras) {
       y = drawBlock(doc, line, M, y, contentWidth, 'Helvetica-Bold', {
-        maxFont: 8,
+        maxFont: 7,
         minFont: 4,
         lineGap: 1,
         paragraphGap: 0,
