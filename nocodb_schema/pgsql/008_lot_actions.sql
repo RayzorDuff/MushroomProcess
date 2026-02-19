@@ -15,7 +15,7 @@
 CREATE OR REPLACE FUNCTION public.mp_lots_shake(
   p_lot_ids   bigint[],
   p_operator  text,
-  p_station   text DEFAULT 'Dark Room',
+  p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
@@ -87,7 +87,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_retire(
   p_lot_ids   bigint[],
   p_reasons   text[],
   p_operator  text,
-  p_station   text DEFAULT 'Dark Room',
+  p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
@@ -203,7 +203,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_move(
   p_lot_ids   bigint[],
   p_location_name text,
   p_fridge_mode text DEFAULT 'Fridge',
-  p_operator  text,
+  p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
@@ -260,7 +260,7 @@ BEGIN
           COALESCE(p_timestamp, now())::timestamp, 
           p_operator::text, 
           p_station::text, 
-          v_fields:jsonb
+          v_fields::jsonb
         );
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
@@ -402,7 +402,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_package_basic(
   p_package_size_g numeric DEFAULT NULL,
   p_storage_location_name text DEFAULT NULL,
   p_label_type text DEFAULT 'Product',
-  p_operator  text,
+  p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL

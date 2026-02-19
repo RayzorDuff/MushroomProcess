@@ -58,7 +58,7 @@ CREATE OR REPLACE FUNCTION public.mp_sterilizer_complete_run(
   p_destroyed_count numeric,
   p_operator text,
   p_end_time timestamp without time zone DEFAULT NULL,
-  p_sterilized_location text DEFAULT "New Lots"
+  p_sterilized_location text DEFAULT 'New Lots'
 )
 RETURNS TABLE(end_time timestamp without time zone, lots_created integer, print_queue_id bigint)
 LANGUAGE plpgsql
