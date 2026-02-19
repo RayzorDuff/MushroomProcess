@@ -328,6 +328,7 @@ AS $$
 DECLARE
   v_lot_id bigint;
   v_event_id bigint;
+  v_action text;
   v_fields jsonb;
   v_counter integer := 0;
 BEGIN
@@ -343,7 +344,7 @@ BEGIN
         CONTINUE;
       END IF;
 
-      v_fields := jsonb_build_object('action', p_action, 'note', p_note);
+      v_fields := jsonb_build_object('action', v_action, 'note', p_note);
 
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
@@ -356,6 +357,17 @@ BEGIN
         );
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
+
+      IF v_action = 'ApplyCasing' THEN
+        UPDATE public.lots
+        SET 
+          casing_applied_at = now()::date,
+	  casing_notes = CASE
+	    WHEN casing_notes IS NULL OR notes = '' THEN p_note
+            ELSE casing_notes || E'\n' || p_note
+          END
+        WHERE nocopk = v_lot_id;
+      END IF;
 
     END LOOP;
     
