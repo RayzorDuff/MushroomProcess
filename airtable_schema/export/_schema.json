@@ -8,6 +8,15 @@
           "type": "multilineText"
         },
         {
+          "id": "fldnhUbTtaInm4XX0",
+          "name": "active",
+          "options": {
+            "color": "greenBright",
+            "icon": "check"
+          },
+          "type": "checkbox"
+        },
+        {
           "id": "fldD0EgJs9l6OVC78",
           "name": "species_strain",
           "type": "multilineText"
@@ -2941,6 +2950,15 @@
           "type": "multilineText"
         },
         {
+          "id": "fld6t026xzqgmnpMm",
+          "name": "active",
+          "options": {
+            "color": "greenBright",
+            "icon": "check"
+          },
+          "type": "checkbox"
+        },
+        {
           "id": "fldSX1TaYMtvWWQf6",
           "name": "name",
           "options": {
@@ -3808,6 +3826,15 @@
           "id": "fldChlYtgIcySosgb",
           "name": "name",
           "type": "singleLineText"
+        },
+        {
+          "id": "fldFVRqxUHWsKRrxt",
+          "name": "active",
+          "options": {
+            "color": "greenBright",
+            "icon": "check"
+          },
+          "type": "checkbox"
         },
         {
           "id": "fldT7EuiwzQTFBQUx",

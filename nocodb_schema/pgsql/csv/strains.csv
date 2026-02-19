@@ -1,25 +1,25 @@
-airtable_id,strain_id,species_strain,regulated
-rec4u3shq1dBitsnG,STR-Melmak,Melmak,true
-rec7lLl0rRBhkwO6H,STR-BronzeReishi,Bronze Reishi,
-rec91mqZG1AZdhopu,STR-Hillbilly,Hillbilly,true
-rec93CSLs6HCiEGlJ,STR-Mazatapec,Mazatapec,true
-recAJwZGQuVlEUFpb,STR-PearlOyster,Pearl Oyster,
-recFnCOoLSfmoATeP,STR-GoldenTeacher,Golden Teacher,true
-recHQHphF8J6rBHPE,STR-BranchedOyster,Branched Oyster,
-recJOsHuiUV8NUynU,STR-PsilocybeNatalensis,Psilocybe Natalensis,true
-recV9ephQ5NJProZu,STR-Chestnut,Chestnut,
-recWQlBg26y23ZRWT,STR-TurkeyTail,Turkey Tail,
-reccTSC4iIARZKDwn,STR-CambodianGold,Cambodian Gold,true
-rechTbpjL4Nt9Tks0,STR-PinkOyster,Pink Oyster,
-recjFKL1WgHB81QQZ,STR-AlbinoMelmak,Albino Melmak,true
-reckNIjMtUO20q0f9,STR-LionsMane,Lion’s Mane,
-recmu5LgteQ6xVWwG,STR-PE,Penis Envy,true
-recrI6ixjt46LJgoI,STR-APE,Albino Penis Envy,true
-recszNf2WlZjSQqyL,STR-BlueOyster,Blue Oyster,
-recuFO98qhzhIFUmx,STR-Cambodian,Cambodian,true
-recw292ouRGk021S6,STR-BPlus,B Plus (B Positive),true
-recwa4hnchhLcvKQX,STR-BlueyVuitton,Bluey Vuitton,true
-recx8dOsjCeAnkoBU,STR-KingOyster,King Oyster,
-recxZKdhM1v5Wh51M,STR-RedReishi,Red Reishi,
-recyRw3GyG1C63PQi,STR-Trinity,Trinity,true
-recypkK5H1hqtX4g9,STR-Amazonian,Amazonian,true
+airtable_id,strain_id,active,species_strain,regulated
+rec4u3shq1dBitsnG,STR-Melmak,true,Melmak,true
+rec7lLl0rRBhkwO6H,STR-BronzeReishi,true,Bronze Reishi,
+rec91mqZG1AZdhopu,STR-Hillbilly,true,Hillbilly,true
+rec93CSLs6HCiEGlJ,STR-Mazatapec,true,Mazatapec,true
+recAJwZGQuVlEUFpb,STR-PearlOyster,true,Pearl Oyster,
+recFnCOoLSfmoATeP,STR-GoldenTeacher,true,Golden Teacher,true
+recHQHphF8J6rBHPE,STR-BranchedOyster,true,Branched Oyster,
+recJOsHuiUV8NUynU,STR-PsilocybeNatalensis,true,Psilocybe Natalensis,true
+recV9ephQ5NJProZu,STR-Chestnut,true,Chestnut,
+recWQlBg26y23ZRWT,STR-TurkeyTail,true,Turkey Tail,
+reccTSC4iIARZKDwn,STR-CambodianGold,true,Cambodian Gold,true
+rechTbpjL4Nt9Tks0,STR-PinkOyster,true,Pink Oyster,
+recjFKL1WgHB81QQZ,STR-AlbinoMelmak,true,Albino Melmak,true
+reckNIjMtUO20q0f9,STR-LionsMane,true,Lion’s Mane,
+recmu5LgteQ6xVWwG,STR-PE,true,Penis Envy,true
+recrI6ixjt46LJgoI,STR-APE,true,Albino Penis Envy,true
+recszNf2WlZjSQqyL,STR-BlueOyster,true,Blue Oyster,
+recuFO98qhzhIFUmx,STR-Cambodian,true,Cambodian,true
+recw292ouRGk021S6,STR-BPlus,true,B Plus (B Positive),true
+recwa4hnchhLcvKQX,STR-BlueyVuitton,true,Bluey Vuitton,true
+recx8dOsjCeAnkoBU,STR-KingOyster,true,King Oyster,
+recxZKdhM1v5Wh51M,STR-RedReishi,true,Red Reishi,
+recyRw3GyG1C63PQi,STR-Trinity,true,Trinity,true
+recypkK5H1hqtX4g9,STR-Amazonian,true,Amazonian,true

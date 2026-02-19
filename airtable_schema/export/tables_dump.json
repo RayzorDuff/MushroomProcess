@@ -11,6 +11,15 @@
           "name": "strain_id"
         },
         {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldnhUbTtaInm4XX0",
+          "name": "active"
+        },
+        {
           "type": "multilineText",
           "id": "fldD0EgJs9l6OVC78",
           "name": "species_strain"
@@ -2944,6 +2953,15 @@
           "name": "item_id"
         },
         {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fld6t026xzqgmnpMm",
+          "name": "active"
+        },
+        {
           "type": "singleSelect",
           "options": {
             "choices": [
@@ -3811,6 +3829,15 @@
           "type": "singleLineText",
           "id": "fldChlYtgIcySosgb",
           "name": "name"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldFVRqxUHWsKRrxt",
+          "name": "active"
         },
         {
           "type": "singleLineText",

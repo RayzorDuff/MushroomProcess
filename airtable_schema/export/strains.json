@@ -1,5 +1,6 @@
 [
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "rec4u3shq1dBitsnG",
         "regulated": true,
@@ -7,6 +8,7 @@
         "strain_id": "STR-Melmak"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "rec7lLl0rRBhkwO6H",
         "ecommerce": [
@@ -18,6 +20,7 @@
         "strain_id": "STR-BronzeReishi"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-12-12T17:44:11.000Z",
         "airtable_id": "rec91mqZG1AZdhopu",
         "regulated": true,
@@ -25,6 +28,7 @@
         "strain_id": "STR-Hillbilly"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "rec93CSLs6HCiEGlJ",
         "regulated": true,
@@ -32,12 +36,14 @@
         "strain_id": "STR-Mazatapec"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recAJwZGQuVlEUFpb",
         "species_strain": "Pearl Oyster",
         "strain_id": "STR-PearlOyster"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recFnCOoLSfmoATeP",
         "regulated": true,
@@ -45,6 +51,7 @@
         "strain_id": "STR-GoldenTeacher"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recHQHphF8J6rBHPE",
         "ecommerce": [
@@ -56,6 +63,7 @@
         "strain_id": "STR-BranchedOyster"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recJOsHuiUV8NUynU",
         "regulated": true,
@@ -63,6 +71,7 @@
         "strain_id": "STR-PsilocybeNatalensis"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recV9ephQ5NJProZu",
         "ecommerce": [
@@ -75,6 +84,7 @@
         "strain_id": "STR-Chestnut"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recWQlBg26y23ZRWT",
         "ecommerce": [
@@ -86,6 +96,7 @@
         "strain_id": "STR-TurkeyTail"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "reccTSC4iIARZKDwn",
         "regulated": true,
@@ -93,12 +104,14 @@
         "strain_id": "STR-CambodianGold"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "rechTbpjL4Nt9Tks0",
         "species_strain": "Pink Oyster",
         "strain_id": "STR-PinkOyster"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recjFKL1WgHB81QQZ",
         "regulated": true,
@@ -106,6 +119,7 @@
         "strain_id": "STR-AlbinoMelmak"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "reckNIjMtUO20q0f9",
         "ecommerce": [
@@ -116,6 +130,7 @@
         "strain_id": "STR-LionsMane"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recmu5LgteQ6xVWwG",
         "regulated": true,
@@ -123,6 +138,7 @@
         "strain_id": "STR-PE"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recrI6ixjt46LJgoI",
         "regulated": true,
@@ -130,6 +146,7 @@
         "strain_id": "STR-APE"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recszNf2WlZjSQqyL",
         "ecommerce": [
@@ -141,6 +158,7 @@
         "strain_id": "STR-BlueOyster"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-23T00:51:37.000Z",
         "airtable_id": "recuFO98qhzhIFUmx",
         "regulated": true,
@@ -148,6 +166,7 @@
         "strain_id": "STR-Cambodian"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-23T00:49:47.000Z",
         "airtable_id": "recw292ouRGk021S6",
         "regulated": true,
@@ -155,6 +174,7 @@
         "strain_id": "STR-BPlus"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-12-12T17:43:05.000Z",
         "airtable_id": "recwa4hnchhLcvKQX",
         "regulated": true,
@@ -162,12 +182,14 @@
         "strain_id": "STR-BlueyVuitton"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recx8dOsjCeAnkoBU",
         "species_strain": "King Oyster",
         "strain_id": "STR-KingOyster"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recxZKdhM1v5Wh51M",
         "ecommerce": [
@@ -179,6 +201,7 @@
         "strain_id": "STR-RedReishi"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-23T00:54:57.000Z",
         "airtable_id": "recyRw3GyG1C63PQi",
         "regulated": true,
@@ -186,6 +209,7 @@
         "strain_id": "STR-Trinity"
     },
     {
+        "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recypkK5H1hqtX4g9",
         "regulated": true,

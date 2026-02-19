@@ -1,37 +1,37 @@
-airtable_id,item_id,name,category,default_unit_size_lb,default_unit_size_ml,default_unit_size_oz,default_unit_size_g,default_unit_size
-rec6FP6bEHB1jQbt5,CASING-PEAT-1,Peat Moss,casing,1,,,,1lb
-recAzMuAKDIeWmfq5,FB-GENERIC,Fruiting Block,fruiting_block,5,,,,
-recBobuevQac9j1wL,LC-SYRINGE-10,Liquid Culture Syringe,lc_syringe,,10,,,10ml
-recCyFfJJ5MzZOiEM,MUSH-DRIED-5G,Freeze-Dried Mushrooms (5 g),freezedriedmushrooms,,,,5,5g
-recDCpU62u25fRPHJ,CASING-PEAT-2_5,Peat Moss,casing,2.5,,,,2.5lb
-recDE6YsuLDtIJfb4,CASING-PEAT-5,Peat Moss,casing,5,,,,5lb
-recDO7zTvQ1KaQksg,FB-MM75-LG,Large Masters Mix 75/25,fruiting_block,7.5,,,,7.5lb
-recDTTJaGgqSo7DiB,FB-COCO-SM,Small CVG,fruiting_block,2.5,,,,2.5lb
-recDiXlgHpqQb5f3C,SUB-MM50-5,Masters Mix 50/50,substrate,5,,80,,5lb
-recElBASw3SYIGDqy,GRAIN-WBS-5,Wild Bird Seed,grain,5,,80,,5lb
-recIacitcbK72MxNM,SUB-MM75-5,Masters Mix 75/25,substrate,5,,80,,5lb
-recJgSj2nMQhhMQm3,SUB-CVG-5,Coco Verm Gypsum,substrate,5,,80,,5lb
-recM75qospUCh1DQ3,GRAIN-OWM-2,Organic Wheat/Millet,grain,2,,32,,2lb
-recQdTiiT2VLuJOMJ,AGAR-PLATE,Agar Plate 90x15mm,plate,,20,,,20ml
-recSWCNLKZ2oUGdwc,FB-MM50-SM,Small Masters Mix 50/50,fruiting_block,2.5,,,,2.5lb
-recSjLjtQ57lT91YI,TRAY-FRESH,Fresh Tray,fresh_tray,,,,,
-recU9tdgUerFEM9oJ,FB-MM75-SM,Small Masters Mix 75/25,fruiting_block,2.5,,,,2.5lb
-recXSlo6zHhTvnhZe,SUB-MM75-7_5,Masters Mix 75/25,substrate,7.5,,120,,7.5lb
-recaOtqLL80xSaYLT,SUB-MM75-2_5,Masters Mix 75/25,substrate,2.5,,40,,2.5lb
-reccntFuiyUAopZsM,AGAR-FLASK-500,Agar Flask,agar_flask,,500,,,500ml
-recdgi69xDmdtrOcT,FB-COCO-LG,Large CVG,fruiting_block,5,,,,5lb
-receXRijyzqS7AQW6,SUB-MM50-2_5,Masters Mix 50/50,substrate,2.5,,40,,2.5lb
-recfe2XhEw2mDbQIw,TRAY-FREEZE,Freezer Tray,freezer_tray,,,,,
-recgoe5aWJ1C3uuUN,SUB-CVG-2_5,Coco Verm Gypsum,substrate,2.5,,40,,2.5lb
-reco9BMkARA7lB08c,MUSH-CAPSULES-10G,Freeze-Dried Capsules (10g),freezedriedmushrooms,,,,10,10g
-recocMHgTLuGMcxPf,GRAIN-OATS-2,Oats,grain,2,,32,,2lb
-recpYVnapHjPrNXA8,GRAIN-OATS-5,Oats,grain,5,,80,,5lb
-recrNPmqwDp55AF9c,FB-MM50-LG,Large Masters Mix 50/50,fruiting_block,7.5,,,,7.5lb
-recsvdSl40elBx6oe,SUB-MM50-7_5,Masters Mix 50/50,substrate,7.5,,120,,7.5lb
-rect5ScMzcq9NLMEL,GRAIN-OWM-5,Organic Wheat/Millet,grain,5,,80,,5lb
-recuX0iZcaztbUtcm,LC-FLASK-300,Liquid Culture Flask,lc_flask,,300,,,300ml
-recwdBny04rzSGGrO,GRAIN-WBS-2,Wild Bird Seed,grain,2,,32,,2lb
-recx4XkwkPdCuukDc,FD-BATCH,Freeze-Dry Batch,fd_batch,,,,,
-recyRbrcLoSgSLG5W,UNTRACKED-SOURCE,Untracked Source,untracked_source,,,,,
-reczPINTjlieWiqX3,MUSH-DRIED-1OZ,Freeze-Dried Mushrooms (1 oz),freezedriedmushrooms,,,1,,1oz
-reczcbGKqE8pbnZTq,MUSH-CAPSULES-5G,Freeze-Dried Capsules (5g),freezedriedmushrooms,,,,5,5g
+airtable_id,item_id,active,name,category,default_unit_size_lb,default_unit_size_ml,default_unit_size_oz,default_unit_size_g,default_unit_size
+rec6FP6bEHB1jQbt5,CASING-PEAT-1,,Peat Moss,casing,1,,,,1lb
+recAzMuAKDIeWmfq5,FB-GENERIC,true,Fruiting Block,fruiting_block,5,,,,
+recBobuevQac9j1wL,LC-SYRINGE-10,true,Liquid Culture Syringe,lc_syringe,,10,,,10ml
+recCyFfJJ5MzZOiEM,MUSH-DRIED-5G,true,Freeze-Dried Mushrooms (5 g),freezedriedmushrooms,,,,5,5g
+recDCpU62u25fRPHJ,CASING-PEAT-2_5,true,Peat Moss,casing,2.5,,,,2.5lb
+recDE6YsuLDtIJfb4,CASING-PEAT-5,,Peat Moss,casing,5,,,,5lb
+recDO7zTvQ1KaQksg,FB-MM75-LG,true,Large Masters Mix 75/25,fruiting_block,7.5,,,,7.5lb
+recDTTJaGgqSo7DiB,FB-COCO-SM,true,Small CVG,fruiting_block,2.5,,,,2.5lb
+recDiXlgHpqQb5f3C,SUB-MM50-5,,Masters Mix 50/50,substrate,5,,80,,5lb
+recElBASw3SYIGDqy,GRAIN-WBS-5,true,Wild Bird Seed,grain,5,,80,,5lb
+recIacitcbK72MxNM,SUB-MM75-5,,Masters Mix 75/25,substrate,5,,80,,5lb
+recJgSj2nMQhhMQm3,SUB-CVG-5,true,Coco Verm Gypsum,substrate,5,,80,,5lb
+recM75qospUCh1DQ3,GRAIN-OWM-2,true,Organic Wheat/Millet,grain,2,,32,,2lb
+recQdTiiT2VLuJOMJ,AGAR-PLATE,true,Agar Plate 90x15mm,plate,,20,,,20ml
+recSWCNLKZ2oUGdwc,FB-MM50-SM,,Small Masters Mix 50/50,fruiting_block,2.5,,,,2.5lb
+recSjLjtQ57lT91YI,TRAY-FRESH,true,Fresh Tray,fresh_tray,,,,,
+recU9tdgUerFEM9oJ,FB-MM75-SM,true,Small Masters Mix 75/25,fruiting_block,2.5,,,,2.5lb
+recXSlo6zHhTvnhZe,SUB-MM75-7_5,true,Masters Mix 75/25,substrate,7.5,,120,,7.5lb
+recaOtqLL80xSaYLT,SUB-MM75-2_5,true,Masters Mix 75/25,substrate,2.5,,40,,2.5lb
+reccntFuiyUAopZsM,AGAR-FLASK-500,true,Agar Flask,agar_flask,,500,,,500ml
+recdgi69xDmdtrOcT,FB-COCO-LG,true,Large CVG,fruiting_block,5,,,,5lb
+receXRijyzqS7AQW6,SUB-MM50-2_5,,Masters Mix 50/50,substrate,2.5,,40,,2.5lb
+recfe2XhEw2mDbQIw,TRAY-FREEZE,true,Freezer Tray,freezer_tray,,,,,
+recgoe5aWJ1C3uuUN,SUB-CVG-2_5,true,Coco Verm Gypsum,substrate,2.5,,40,,2.5lb
+reco9BMkARA7lB08c,MUSH-CAPSULES-10G,,Freeze-Dried Capsules (10g),freezedriedmushrooms,,,,10,10g
+recocMHgTLuGMcxPf,GRAIN-OATS-2,,Oats,grain,2,,32,,2lb
+recpYVnapHjPrNXA8,GRAIN-OATS-5,,Oats,grain,5,,80,,5lb
+recrNPmqwDp55AF9c,FB-MM50-LG,,Large Masters Mix 50/50,fruiting_block,7.5,,,,7.5lb
+recsvdSl40elBx6oe,SUB-MM50-7_5,,Masters Mix 50/50,substrate,7.5,,120,,7.5lb
+rect5ScMzcq9NLMEL,GRAIN-OWM-5,true,Organic Wheat/Millet,grain,5,,80,,5lb
+recuX0iZcaztbUtcm,LC-FLASK-300,true,Liquid Culture Flask,lc_flask,,300,,,300ml
+recwdBny04rzSGGrO,GRAIN-WBS-2,true,Wild Bird Seed,grain,2,,32,,2lb
+recx4XkwkPdCuukDc,FD-BATCH,true,Freeze-Dry Batch,fd_batch,,,,,
+recyRbrcLoSgSLG5W,UNTRACKED-SOURCE,true,Untracked Source,untracked_source,,,,,
+reczPINTjlieWiqX3,MUSH-DRIED-1OZ,true,Freeze-Dried Mushrooms (1 oz),freezedriedmushrooms,,,1,,1oz
+reczcbGKqE8pbnZTq,MUSH-CAPSULES-5G,true,Freeze-Dried Capsules (5g),freezedriedmushrooms,,,,5,5g
