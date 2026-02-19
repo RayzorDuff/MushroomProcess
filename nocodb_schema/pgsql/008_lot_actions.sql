@@ -316,7 +316,7 @@ $$;
 -- 4) MODIFY: creates a modification event for each lot (does not change status by default)
 CREATE OR REPLACE FUNCTION public.mp_lots_modify(
   p_lot_ids   bigint[],
-  p_action    text,
+  p_actions   text[],
   p_operator  text,
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -336,20 +336,29 @@ BEGIN
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
-    v_fields := jsonb_build_object('action', p_action, 'note', p_note);
+    
+    -- log one event per reason
+    FOREACH v_action IN ARRAY COALESCE(p_actions, ARRAY[]::text[]) LOOP
+      IF v_action IS NULL OR btrim(v_action) = '' THEN
+        CONTINUE;
+      END IF;
 
-    BEGIN
-      v_event_id := public.mp_events_insert_and_link_lot(
-        v_lot_id::bigint, 
-        COALESCE(NULLIF(btrim(p_action),''), 'Modify')::text, 
-        COALESCE(p_timestamp, now())::timestamp, 
-        p_operator::text, 
-        p_station::text, 
-        v_fields::jsonb
-      );
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+      v_fields := jsonb_build_object('action', p_action, 'note', p_note);
 
+      BEGIN
+        v_event_id := public.mp_events_insert_and_link_lot(
+          v_lot_id::bigint, 
+          COALESCE(NULLIF(btrim(v_action),''), 'Modify')::text, 
+          COALESCE(p_timestamp, now())::timestamp, 
+          p_operator::text, 
+          p_station::text, 
+          v_fields::jsonb
+        );
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
+
+    END LOOP;
+    
     IF p_note IS NOT NULL AND btrim(p_note) <> '' THEN
       UPDATE public.lots
       SET notes = CASE
