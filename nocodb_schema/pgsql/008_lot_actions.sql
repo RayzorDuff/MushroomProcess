@@ -11,44 +11,6 @@
     - public.events table exists
 */
 
--- Helper: get location name for a lot
-CREATE OR REPLACE FUNCTION public.mp_lot_get_location_name(p_lot_id bigint)
-RETURNS text
-LANGUAGE sql
-AS $$
-  SELECT l2.name
-  FROM public.lots l
-  LEFT JOIN public.locations l2 ON l2.nocopk = l.location_id
-  WHERE l.nocopk = p_lot_id
-$$;
-
--- Helper: set location for a lot by location name (uses lots.location_id FK)
-CREATE OR REPLACE FUNCTION public.mp_lot_set_location_by_name(p_lot_id bigint, p_location_name text)
-RETURNS void
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  v_loc_id bigint;
-BEGIN
-  IF p_location_name IS NULL OR btrim(p_location_name) = '' THEN
-    RETURN;
-  END IF;
-
-  SELECT nocopk INTO v_loc_id
-  FROM public.locations
-  WHERE name = p_location_name
-  LIMIT 1;
-
-  IF v_loc_id IS NULL THEN
-    RAISE EXCEPTION 'Location not found: %', p_location_name;
-  END IF;
-
-  UPDATE public.lots
-  SET location_id = v_loc_id
-  WHERE nocopk = p_lot_id;
-END;
-$$;
-
 -- 1) SHAKE: logs a Shake event for each lot, clears ui_error fields (if present), optional note append
 CREATE OR REPLACE FUNCTION public.mp_lots_shake(
   p_lot_ids   bigint[],

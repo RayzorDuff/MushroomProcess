@@ -57,7 +57,8 @@ CREATE OR REPLACE FUNCTION public.mp_sterilizer_complete_run(
   p_good_count numeric,
   p_destroyed_count numeric,
   p_operator text,
-  p_end_time timestamp without time zone DEFAULT NULL
+  p_end_time timestamp without time zone DEFAULT NULL,
+  p_sterilized_location text DEFAULT "New Lots"
 )
 RETURNS TABLE(end_time timestamp without time zone, lots_created integer, print_queue_id bigint)
 LANGUAGE plpgsql
@@ -140,7 +141,8 @@ BEGIN
     INSERT INTO "public"."lots"
       ("item_name_mat","item_category_mat","process_type_mat",
        "qty","unit_size","status",
-       "steri_run_id","operator","created_at","sterilized_at","use_by")
+       "steri_run_id","operator","created_at","sterilized_at","use_by",
+       "item_id", "recipe_id")
     VALUES
       (v_item_name, v_item_category, v_run."process_type",
        1, v_run."planned_unit_size", v_status,
@@ -149,7 +151,10 @@ BEGIN
          WHEN v_item_category IN ('grain','substrate','casing')
          THEN (v_end::date + 90)
          ELSE NULL
-       END)
+       END,
+       v_run."planned_item_id",
+       v_run."planned_recipe_id"
+       )
     RETURNING "nocopk" INTO v_lot_id;
 
     -- Maintain explicit run↔lot link tables (Airtable/NocoDB parity)
@@ -157,6 +162,10 @@ BEGIN
     -- Propagate planned item/recipe links from the run to the created lot (Airtable/NocoDB parity)
     PERFORM public.mp_link_lot_item(v_lot_id, v_run."planned_item_id");
     PERFORM public.mp_link_lot_recipe(v_lot_id, v_run."planned_recipe_id");
+    
+    IF p_sterilized_location IS NOT NULL THEN
+      PERFORM public.mp_lot_set_location_by_name(v_lot_id, p_sterilized_location);
+    END IF;    
 
     lots_created := lots_created + 1;
 
