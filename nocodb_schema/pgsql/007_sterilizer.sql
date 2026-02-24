@@ -176,7 +176,10 @@ BEGIN
       v_end::timestamp,
       p_operator::text,
       'Sterilizer OUT'::text,
-      json_build_object('run_id', v_run."nocopk")::jsonb
+      json_build_object('run_id', v_run."nocopk",
+        'run_no', v_run."steri_run_id",
+        'process_type', v_run."process_type",
+        'unit_size', v_run."planned_unit_size")::jsonb
     );
   END LOOP;
 
