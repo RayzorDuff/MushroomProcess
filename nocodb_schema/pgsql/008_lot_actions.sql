@@ -421,7 +421,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_package_basic(
   p_package_count numeric DEFAULT 1,
   p_package_size_g numeric DEFAULT NULL,
   p_storage_location_name text DEFAULT 'Products Storage',
-  p_label_type text DEFAULT 'Product',
+  p_label_type text DEFAULT 'Product_Package',
   p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -650,8 +650,8 @@ BEGIN
     -- Print job
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
-        'Product'::text,
-        COALESCE(NULLIF(btrim(p_label_type),''), 'Product')::text,
+        'product'::text,
+        COALESCE(NULLIF(btrim(p_label_type),''), 'Product_Package')::text,
         v_lot_id,
         v_product_id,
         NULL::bigint,
