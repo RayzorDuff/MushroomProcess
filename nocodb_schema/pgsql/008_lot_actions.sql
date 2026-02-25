@@ -388,6 +388,334 @@ END;
 $$;
 
 -- Helper: set product storage location by name
+
+
+-- Batch inoculation (from Airtable inoculate_multiple.js)
+
+CREATE OR REPLACE FUNCTION public.mp_lots_inoculate_multiple(
+  p_source_lot_id bigint,
+  p_target_lot_ids bigint[],
+  p_storage_location_name text DEFAULT 'Dark Room',
+  p_lc_volume_ml numeric DEFAULT NULL,
+  p_override_inoc_time timestamp without time zone DEFAULT NULL,
+  p_operator text DEFAULT 'system',
+  p_station text DEFAULT 'Inoculation',
+  p_timestamp timestamp without time zone DEFAULT NULL,
+  p_note text DEFAULT NULL,
+  p_label_type text DEFAULT 'Lot'
+)
+RETURNS int
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_source_item_id bigint;
+  v_source_item_category text;
+  v_source_item_name text;
+  v_source_strain_id bigint;
+  v_source_vendor_name text;
+  v_source_vendor_batch text;
+  v_source_vendor_name_mat text;
+  v_source_species_strain_mat text;
+  v_source_remaining_ml numeric;
+  v_source_notes text;
+
+  v_inoc_time timestamp without time zone;
+
+  v_is_liquid_source boolean;
+  v_is_solid_source boolean;
+  v_is_untracked_source boolean;
+
+  v_target_id bigint;
+  v_target_item_id bigint;
+  v_target_item_category text;
+  v_target_item_name text;
+  v_target_unit_size numeric;
+  v_target_total_ml numeric;
+  v_target_remaining_ml numeric;
+
+  v_new_total_ml numeric;
+  v_new_remaining_ml numeric;
+
+  v_total_used_ml numeric := 0;
+  v_success integer := 0;
+
+  v_event_id bigint;
+  v_fields jsonb;
+
+  v_loc_id bigint;
+BEGIN
+  IF p_source_lot_id IS NULL THEN
+    RAISE EXCEPTION 'p_source_lot_id is required';
+  END IF;
+
+  IF p_target_lot_ids IS NULL OR array_length(p_target_lot_ids, 1) IS NULL THEN
+    RAISE EXCEPTION 'p_target_lot_ids must contain at least one lot id';
+  END IF;
+
+  v_inoc_time := COALESCE(p_override_inoc_time, COALESCE(p_timestamp, now()));
+
+  -- Load source lot + item
+  SELECT
+    l.item_id,
+    l.strain_id,
+    l.vendor_name,
+    l.vendor_batch,
+    l.vendor_name_mat,
+    l.strain_species_strain_mat,
+    l.remaining_volume_ml,
+    l.notes,
+    i.category,
+    i.name
+  INTO
+    v_source_item_id,
+    v_source_strain_id,
+    v_source_vendor_name,
+    v_source_vendor_batch,
+    v_source_vendor_name_mat,
+    v_source_species_strain_mat,
+    v_source_remaining_ml,
+    v_source_notes,
+    v_source_item_category,
+    v_source_item_name
+  FROM public.lots l
+  LEFT JOIN public.items i ON i.nocopk = l.item_id
+  WHERE l.nocopk = p_source_lot_id;
+
+  IF v_source_item_id IS NULL THEN
+    UPDATE public.lots
+      SET ui_error = 'Inoculate validation: Source lot must be linked to an item.',
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  v_source_item_category := lower(COALESCE(v_source_item_category, ''));
+  v_is_liquid_source := v_source_item_category IN ('lc_syringe','lc_flask');
+  v_is_solid_source := v_source_item_category IN ('plate','grain');
+  v_is_untracked_source := v_source_item_category = 'untracked_source';
+
+  IF NOT (v_is_liquid_source OR v_is_solid_source OR v_is_untracked_source) THEN
+    UPDATE public.lots
+      SET ui_error = format('Inoculate validation: Source must be lc_syringe, lc_flask, plate, grain, or untracked_source (got "%s").', v_source_item_category),
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  -- Category-specific validation
+  IF v_is_liquid_source THEN
+    IF p_lc_volume_ml IS NULL OR p_lc_volume_ml <= 0 THEN
+      UPDATE public.lots
+        SET ui_error = 'Inoculate validation: Must enter a positive LC volume (ml) for lc_syringe/lc_flask sources.',
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+
+    IF v_source_remaining_ml IS NOT NULL THEN
+      IF (p_lc_volume_ml * array_length(p_target_lot_ids, 1)) > v_source_remaining_ml THEN
+        UPDATE public.lots
+          SET ui_error = format('Inoculate validation: Source only has %s ml remaining; needs %s ml for %s targets.',
+                                v_source_remaining_ml,
+                                (p_lc_volume_ml * array_length(p_target_lot_ids, 1)),
+                                array_length(p_target_lot_ids, 1)),
+              ui_error_at = now()
+        WHERE nocopk = p_source_lot_id;
+        RETURN 0;
+      END IF;
+    END IF;
+
+  ELSIF v_is_solid_source THEN
+    IF p_lc_volume_ml IS NOT NULL AND p_lc_volume_ml > 0 THEN
+      UPDATE public.lots
+        SET ui_error = 'Inoculate validation: Do not enter LC volume for plate or grain as source.',
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+
+  ELSIF v_is_untracked_source THEN
+    IF v_source_notes IS NULL OR btrim(v_source_notes) = '' THEN
+      UPDATE public.lots
+        SET ui_error = 'Inoculate validation: For untracked_source, you must enter a description in notes on the source lot.',
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+  END IF;
+
+  -- Clear any prior errors
+  UPDATE public.lots SET ui_error = NULL, ui_error_at = NULL WHERE nocopk = p_source_lot_id;
+
+  -- Apply inoculation to each target
+  FOREACH v_target_id IN ARRAY p_target_lot_ids LOOP
+    -- load target + item
+    SELECT
+      l.item_id,
+      l.unit_size,
+      l.total_volume_ml,
+      l.remaining_volume_ml,
+      i.category,
+      i.name
+    INTO
+      v_target_item_id,
+      v_target_unit_size,
+      v_target_total_ml,
+      v_target_remaining_ml,
+      v_target_item_category,
+      v_target_item_name
+    FROM public.lots l
+    LEFT JOIN public.items i ON i.nocopk = l.item_id
+    WHERE l.nocopk = v_target_id;
+
+    IF v_target_item_id IS NULL THEN
+      UPDATE public.lots
+        SET ui_error = format('Inoculate validation: Target lot %s is missing item.', v_target_id),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      CONTINUE;
+    END IF;
+
+    v_target_item_category := lower(COALESCE(v_target_item_category,''));
+
+    IF v_target_item_category NOT IN ('grain','lc_flask','plate') THEN
+      UPDATE public.lots
+        SET ui_error = format('Inoculate validation: Target lot %s must be grain, lc_flask, or plate (got "%s").', v_target_id, v_target_item_category),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      CONTINUE;
+    END IF;
+
+    -- Compute target volume updates
+    v_new_total_ml := COALESCE(v_target_total_ml, COALESCE(v_target_unit_size, 0));
+    v_new_remaining_ml := COALESCE(v_target_remaining_ml, COALESCE(v_target_unit_size, 0));
+
+    IF (NOT v_is_untracked_source) AND v_is_liquid_source AND p_lc_volume_ml IS NOT NULL AND p_lc_volume_ml > 0 THEN
+      v_new_total_ml := v_new_total_ml + p_lc_volume_ml;
+      v_new_remaining_ml := v_new_remaining_ml + p_lc_volume_ml;
+      v_total_used_ml := v_total_used_ml + p_lc_volume_ml;
+    END IF;
+
+    -- Update target lot fields
+    UPDATE public.lots
+    SET
+      status = 'Colonizing',
+      action = NULL,
+      inoculated_at = v_inoc_time,
+      total_volume_ml = v_new_total_ml,
+      remaining_volume_ml = v_new_remaining_ml,
+      source_lot_id = p_source_lot_id,
+      strain_id = COALESCE(v_source_strain_id, strain_id),
+      vendor_name = CASE WHEN COALESCE(v_source_vendor_name,'') <> '' THEN v_source_vendor_name ELSE vendor_name END,
+      vendor_batch = CASE WHEN COALESCE(v_source_vendor_batch,'') <> '' THEN v_source_vendor_batch ELSE vendor_batch END,
+      vendor_name_mat = CASE WHEN COALESCE(v_source_vendor_name_mat,'') <> '' THEN v_source_vendor_name_mat ELSE vendor_name_mat END,
+      strain_species_strain_mat = CASE WHEN COALESCE(v_source_species_strain_mat,'') <> '' THEN v_source_species_strain_mat ELSE strain_species_strain_mat END,
+      item_name_mat = COALESCE(item_name_mat, v_target_item_name),
+      item_category_mat = COALESCE(item_category_mat, v_target_item_category),
+      notes = CASE WHEN v_is_untracked_source THEN v_source_notes ELSE notes END,
+      use_by = CASE
+        WHEN v_target_item_category = 'lc_flask' THEN (v_inoc_time + interval '6 months')::date
+        WHEN v_target_item_category = 'grain' THEN (v_inoc_time + interval '3 months')::date
+        ELSE use_by
+      END,
+      ui_error = NULL,
+      ui_error_at = NULL
+    WHERE nocopk = v_target_id;
+
+    -- Set target storage location
+    BEGIN
+      PERFORM public.mp_lot_set_location_by_name(v_target_id, p_storage_location_name);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    -- Events
+    v_fields := jsonb_build_object(
+      'source_lot_id', p_source_lot_id,
+      'source_category', v_source_item_category,
+      'volume_ml', CASE WHEN (NOT v_is_untracked_source) AND v_is_liquid_source THEN p_lc_volume_ml ELSE NULL END,
+      'note', CASE WHEN v_is_untracked_source THEN v_source_notes ELSE p_note END
+    );
+
+    BEGIN
+      v_event_id := public.mp_events_insert(
+        v_target_id,
+        NULL::bigint,
+        'Inoculated',
+        v_inoc_time,
+        p_operator,
+        p_station,
+        v_fields
+      );
+      BEGIN
+        PERFORM public.mp_events_link_lot(v_event_id, v_target_id);
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    -- Print job for new inoculated lots (lot labels)
+    BEGIN
+      PERFORM public.mp_print_queue_enqueue(
+        'lot'::text,
+        COALESCE(NULLIF(btrim(p_label_type),''), 'Lot')::text,
+        v_target_id,
+        NULL::bigint,
+        NULL::bigint,
+        'Queued'::text
+      );
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    v_success := v_success + 1;
+  END LOOP;
+
+  IF v_success = 0 THEN
+    UPDATE public.lots
+      SET ui_error = 'No target lots were successfully inoculated. Check target configuration and try again.',
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  -- Update source lot: clear staging fields and decrement tracked liquid remaining_volume_ml
+  UPDATE public.lots
+  SET
+    action = NULL,
+    override_inoc_time = NULL,
+    lc_volume_ml = NULL
+  WHERE nocopk = p_source_lot_id;
+
+  -- Clear multi-link "target_lot_ids" if present (matches Airtable)
+  BEGIN
+    DELETE FROM public._m2m_lots_lots_target_lot_ids WHERE lots_id = p_source_lot_id;
+  EXCEPTION WHEN undefined_table THEN NULL;
+  END;
+
+  IF (NOT v_is_untracked_source) AND v_is_liquid_source AND v_total_used_ml > 0 THEN
+    IF v_source_remaining_ml IS NOT NULL THEN
+      UPDATE public.lots
+      SET remaining_volume_ml = (v_source_remaining_ml - v_total_used_ml),
+          status = CASE WHEN (v_source_remaining_ml - v_total_used_ml) <= 0 THEN 'Consumed' ELSE status END
+      WHERE nocopk = p_source_lot_id;
+
+      IF (v_source_remaining_ml - v_total_used_ml) <= 0 THEN
+        BEGIN
+          PERFORM public.mp_lot_set_location_by_name(p_source_lot_id, 'Consumed');
+        EXCEPTION WHEN undefined_function THEN NULL;
+        END;
+      END IF;
+    END IF;
+  END IF;
+
+  IF v_is_untracked_source THEN
+    UPDATE public.lots SET notes = NULL WHERE nocopk = p_source_lot_id;
+  END IF;
+
+  RETURN v_success;
+END;
+$$;
+
+
 CREATE OR REPLACE FUNCTION public.mp_product_set_storage_location_by_name(p_product_id bigint, p_location_name text)
 RETURNS void
 LANGUAGE plpgsql
