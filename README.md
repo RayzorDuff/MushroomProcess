@@ -1,3 +1,68 @@
+# MushroomProcess (NocoDB + Appsmith)
+
+This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
+
+This repository contains:
+- **Postgres schema + functions** in `nocodb_schema/pgsql` (exported for NocoDB / Postgres).
+- **Appsmith UI** in `nocodb_interfaces/MushroomProcess.json`.
+- Legacy reference implementation:
+  - Airtable interfaces screenshots in `screenshots/interfaces`
+  - Airtable automations in `airtable_automation`
+
+The core database model is:
+
+- Items, recipes, strains
+- Locations & stations (sterilizer, inoculation, dark room, fruiting, harvest, packaging)
+- Sterilization runs and lots
+- Events / audit log
+- Ecommerce products and print queue for labels
+
+## Design principle
+
+Appsmith is **lot-centric** (centered on `lots`) while Airtable was more **station-centric**. We keep station workflows by implementing each station as:
+- A page (or modal) that gathers inputs
+- A **single Postgres function** that performs the complete operation:
+  - creates/updates lots/products
+  - sets locations/status
+  - inserts events
+  - inserts print jobs
+  - maintains lineage / M2M links
+
+## Recently implemented / wired (2026-02-24)
+
+### New Appsmith pages (stub UI now wired)
+- **Products**
+- **Lab - Receive**
+- **Lab - Agar**
+- **Spawn to Bulk**
+
+Each page now has named widgets and working SQL/JS wiring:
+- Data tables pull from Postgres (queries on-load)
+- Action buttons call Postgres functions (below)
+
+### Lots page
+- Added **Draw Syringes** modal (Draw Syringes button):
+  - Button is disabled unless **exactly one lot is selected** and it is **`item_category_mat = 'lc_flask'`**.
+
+## Postgres functions added (see `008_lot_actions.sql`)
+- `mp_lots_draw_syringes(...)`
+- `mp_lots_receive_purchased_syringes(...)`
+- `mp_lots_pour_plates(...)`
+- `mp_lots_spawn_to_bulk(...)`
+- `mp_products_package_freeze_dried_basic(...)` (basic implementation; may evolve)
+
+## Next steps / trajectory
+- Tighten each function to match Airtable behaviour exactly (weight/expiry calculations, edge-case validations, per-item recipes).
+- Expand packaging:
+  - Package Syringes
+  - Package Freeze Dried (full merge-tray logic)
+- Expand lab workflows:
+  - Pour plates advanced: plate groups, incubation scheduling, contamination outcomes
+- Add reporting parity with Airtable dashboards
+- Ensure print-daemon functionality with Postgres
+- Migrate ecwid integration to postgres/n8n
+- Branch and begin retiring station-centric Airtable interface (described below) following testing of lot-centric appsmith approach
+
 # MushroomProcess  
 
 _Airtable / NocoDB Inventory, Traceability & Labeling System_

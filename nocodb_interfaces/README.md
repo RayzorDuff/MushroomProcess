@@ -67,6 +67,47 @@ Each document typically covers:
 
 Use these notes to rebuild the equivalent of the Airtable Interfaces in Appsmith, backed by the NocoDB schema.
 
+### 3.1 Appsmith + Postgres workflow spec
+
+#### Pattern
+1. **UI** collects operator inputs (modal/page)
+2. A **single SQL query** calls a **single Postgres function**
+3. The Postgres function:
+   - validates inputs
+   - inserts/updates records
+   - writes an event row (canonical `mp_events_insert*`)
+   - writes print_queue rows (`mp_print_queue_enqueue`)
+   - maintains links (M2M tables)
+
+#### Pages
+
+##### Products
+- `tblProducts` lists products (latest 500)
+- Freeze dried packaging modal (basic):
+  - uses `mp_products_package_freeze_dried_basic`
+
+##### Lab - Receive
+- Receive purchased syringes:
+  - creates `lc_syringe` lots
+  - queues lot labels
+
+##### Lab - Agar
+- Lists `agar_flask` lots
+- Pour plates:
+  - creates `plate` lots
+  - assigns `plate_group_id`
+
+##### Spawn to Bulk
+- Lists candidate spawn lots (grain/spawn categories)
+- Spawn:
+  - creates bulk lots
+  - links source->target via `_m2m_lots_lots_target_lot_ids`
+  - consumes sources
+
+##### Lots – Draw Syringes
+- Operates on selected lc_flask lot
+- Creates syringe lots and decrements source `remaining_volume_ml`
+
 ## 4. Appsmith import file
 
 The json file, MushroomProcess.json, may be imported directly into Appsmith.  Please recreate with:
@@ -76,6 +117,51 @@ node .\pretty-json.mjs --in .\MushroomProcess_exported --out .\MushroomProcess.j
 ```
 
 ---
+
+### 4.1 Appsmith Page map 
+
+#### Non-optional pages (core)
+- Sterilizer – In / Out
+- Lots
+- Products
+- Lab - Receive
+- Lab - Agar
+- Spawn to Bulk
+- Reporting
+
+#### Where specific workflows fit
+
+##### Receive purchased syringes
+**Lab - Receive**
+- Creates `lc_syringe` lots with vendor + batch metadata
+- Queues labels
+
+##### Pour plates
+**Lab - Agar**
+- Source is `agar_flask` lot
+- Output is `plate` lots (grouped by `plate_group_id`)
+
+##### Draw syringes (from LC flask)
+**Lots** (modal action)
+- Source is a single `lc_flask` lot
+- Output is `lc_syringe` lots
+
+##### Spawn to Bulk
+**Spawn to Bulk**
+- Source: one or more spawn/grain lots
+- Output: bulk/substrate/block lots
+- Links + consumes sources
+
+##### Package freeze dried
+**Products**
+- Source: freeze tray products
+- Output: packaged products + print jobs
+
+#### Optional / later pages
+- Lab - Genetics (clone/spore workflows)
+- Fruiting / Harvest station pages (flush management, harvest weights, tray state transitions)
+- QA / Contam tracking pages
+
 
 ## 5. Notes
 
