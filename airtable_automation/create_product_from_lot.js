@@ -293,6 +293,16 @@ if (hasField(prodsTbl, 'item_category_mat')) {
   if (v != null) createPayload.item_category_mat = v;
 }
 
+if (hasField(prodsTbl, 'process_type_mat')) {
+  // products.process_type is a lookup; materialize from the source lot when creating the record.
+  let pt = '';
+  if (hasField(lotsTbl, 'process_type_mat')) pt = getStr(lot, 'process_type_mat');
+  if (!pt && hasField(lotsTbl, 'process_type (from steri_run_id)')) pt = getStr(lot, 'process_type (from steri_run_id)');
+  if (!pt && hasField(lotsTbl, 'process_type')) pt = getStr(lot, 'process_type');
+  const v = coerceValueForField(prodsTbl, 'process_type_mat', pt);
+  if (v != null) createPayload.process_type_mat = v;
+}
+
 let prodId = null;
 try {
   prodId = await prodsTbl.createRecordAsync(createPayload);

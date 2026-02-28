@@ -916,6 +916,23 @@ BEGIN
     WHERE l.nocopk = v_lot_id
     RETURNING nocopk INTO v_product_id;
 
+    -- Materialize products.process_type_mat if the column exists
+    IF EXISTS (
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = 'products'
+        AND column_name  = 'process_type_mat'
+    ) THEN
+      UPDATE public.products p
+      SET process_type_mat = COALESCE(
+        (SELECT l.process_type_mat FROM public.lots l WHERE l.nocopk = v_lot_id),
+        (SELECT l.process_type     FROM public.lots l WHERE l.nocopk = v_lot_id)
+      )
+      WHERE p.nocopk = v_product_id;
+    END IF;
+
+
     -- Set product storage location (user-selected)
     BEGIN
       PERFORM public.mp_product_set_storage_location_by_name(v_product_id, p_storage_location_name);

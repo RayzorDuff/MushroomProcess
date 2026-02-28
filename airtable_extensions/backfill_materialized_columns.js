@@ -187,8 +187,8 @@ async function backfillLots() {
     }
 
 async function backfillProducts() {
-  const srcFields = ['name', 'item_category'];
-  const dstFields = ['name_mat', 'item_category_mat'];
+  const srcFields = ['name', 'item_category', 'process_type'];
+  const dstFields = ['name_mat', 'item_category_mat', 'process_type_mat'];
 
   const fields = [...srcFields, ...dstFields].filter(f => hasField(prodsTbl, f));
   const q = await prodsTbl.selectRecordsAsync({ fields });
@@ -207,6 +207,12 @@ async function backfillProducts() {
       const v = asFirstText(r.getCellValue('item_category'));
       const coerced = coerceForField(prodsTbl, 'item_category_mat', v);
       if (coerced != null) patch['item_category_mat'] = coerced;
+    }
+
+    if (hasField(prodsTbl, 'process_type_mat') && !asFirstText(r.getCellValue('process_type_mat'))) {
+      const v = asFirstText(r.getCellValue('process_type'));
+      const coerced = coerceForField(prodsTbl, 'process_type_mat', v);
+      if (coerced != null) patch['process_type_mat'] = coerced;
     }
 
     if (Object.keys(patch).length) updates.push({ id: r.id, fields: patch });
