@@ -231,7 +231,7 @@ BEGIN
 
     v_new_status := NULL;
 
-    IF p.location_name ILIKE '%Fridge%' OR p.location_name ILIKE '%Refrigerator%' THEN
+    IF p_location_name ILIKE '%Fridge%' OR p_location_name ILIKE '%Refrigerator%' THEN
       -- Ensure FullyColonized first
       IF COALESCE(v_old_status,'') NOT IN ('FullyColonized','Fridge','ColdShock') THEN
         UPDATE public.lots SET status = 'FullyColonized' WHERE nocopk = v_lot_id;
@@ -1186,31 +1186,39 @@ DECLARE
   v_i integer;
   v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Fridge');
   v_rcv date := COALESCE(p_received_date, now()::date);
+  v_strain record;
+  v_item record;
 BEGIN
   IF p_item_id IS NULL THEN RAISE EXCEPTION 'Item is required'; END IF;
   IF p_strain_id IS NULL THEN RAISE EXCEPTION 'Strain is required'; END IF;
   IF p_count IS NULL OR p_count <= 0 THEN RAISE EXCEPTION 'Count must be > 0'; END IF;
   IF p_ml_each IS NULL OR p_ml_each <= 0 THEN RAISE EXCEPTION 'ml_each must be > 0'; END IF;
 
+  SELECT * INTO v_strain FROM public.strains WHERE nocopk = p_strain_id;
+  SELECT * INTO v_item FROM public.items WHERE nocopk = p_item_id;
+  
   FOR v_i IN 1..p_count LOOP
     INSERT INTO public.lots(
-      item_id, recipe_id, strain_id,
-      item_category_mat, status,
+      item_id, recipe_id, strain_id, strain_species_strain_mat,
+      item_name_mat, item_category_mat, status,
       vendor_name, vendor_name_mat, vendor_batch, source_type, received_date,
-      total_volume_ml, remaining_volume_ml,
+      unit_size, total_volume_ml, remaining_volume_ml,
       operator, created_at, notes
     )
     VALUES(
       p_item_id,
       NULL,
       p_strain_id,
-      'lc_syringe',
+      v_strain.species_strain,
+      vc_item.name
+      vc_item.category,
       'Fridge',
       p_vendor_name,
       p_vendor_name,      
       p_vendor_batch,
       'Purchased',
       v_rcv,
+      p_ml_each,
       p_ml_each,
       p_ml_each,
       p_operator,
