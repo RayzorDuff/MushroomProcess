@@ -401,8 +401,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_inoculate_multiple(
   p_operator text DEFAULT 'system',
   p_station text DEFAULT 'Inoculation',
   p_timestamp timestamp without time zone DEFAULT NULL,
-  p_note text DEFAULT NULL,
-  p_label_type text DEFAULT 'Lot'
+  p_note text DEFAULT NULL
 )
 RETURNS int
 LANGUAGE plpgsql
@@ -433,6 +432,8 @@ DECLARE
   v_target_total_ml numeric;
   v_target_remaining_ml numeric;
 
+  v_label_type text;
+  
   v_new_total_ml numeric;
   v_new_remaining_ml numeric;
 
@@ -585,7 +586,13 @@ BEGIN
       WHERE nocopk = p_source_lot_id;
       CONTINUE;
     END IF;
-
+    
+    v_label_type := CASE 
+        WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'grain' THEN 'Grain_Inoculated'
+        WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'plate' THEN 'Plate_Inoculated'
+        ELSE 'LC_Flask_Inoculated'
+    END;
+    
     -- Compute target volume updates
     v_new_total_ml := COALESCE(v_target_total_ml, COALESCE(v_target_unit_size, 0));
     v_new_remaining_ml := COALESCE(v_target_remaining_ml, COALESCE(v_target_unit_size, 0));
@@ -657,7 +664,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
-        COALESCE(NULLIF(btrim(p_label_type),''), 'Lot')::text,
+        btrim(v_label_type)::text,
         v_target_id,
         NULL::bigint,
         NULL::bigint,
@@ -749,7 +756,6 @@ CREATE OR REPLACE FUNCTION public.mp_lots_package_basic(
   p_package_count numeric DEFAULT 1,
   p_package_size_g numeric DEFAULT NULL,
   p_storage_location_name text DEFAULT 'Products Storage',
-  p_label_type text DEFAULT 'Product_Package',
   p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -996,7 +1002,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'product'::text,
-        COALESCE(NULLIF(btrim(p_label_type),''), 'Product_Package')::text,
+        'Product_Package'::text,
         v_lot_id,
         v_product_id,
         NULL::bigint,
@@ -1062,7 +1068,7 @@ BEGIN
     INSERT INTO public.lots(
       item_id, recipe_id, strain_id,
       item_name_mat, item_category_mat,
-      strain_species_strain_mat, vendor_name_mat,
+      strain_species_strain_mat, vendor_name_mat, source_type,
       status, operator, created_at,
       source_lot_id, parent_lot_id,
       total_volume_ml, remaining_volume_ml, received_date,
@@ -1076,7 +1082,8 @@ BEGIN
       'lc_syringe',
       v_src.strain_species_strain_mat,
       v_src.vendor_name_mat,
-      'Ready',
+      'Produced'
+      'Fridge',
       p_operator,
       v_ts,
       p_source_lc_flask_lot_id,
@@ -1118,7 +1125,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
-        COALESCE(NULLIF(btrim(v_src.label_template),''), 'Lot_LC_Syringe')::text,
+        'LC_Syringe_Received'::text,
         v_new_lot_id,
         NULL::bigint,
         NULL::bigint,
@@ -1189,7 +1196,7 @@ BEGIN
     INSERT INTO public.lots(
       item_id, recipe_id, strain_id,
       item_category_mat, status,
-      vendor_name, vendor_batch, received_date,
+      vendor_name, vendor_name_mat, vendor_batch, source_type, received_date,
       total_volume_ml, remaining_volume_ml,
       operator, created_at, notes
     )
@@ -1198,9 +1205,11 @@ BEGIN
       NULL,
       p_strain_id,
       'lc_syringe',
-      'Ready',
+      'Fridge',
       p_vendor_name,
+      p_vendor_name,      
       p_vendor_batch,
+      'Purchased',
       v_rcv,
       p_ml_each,
       p_ml_each,
@@ -1224,6 +1233,7 @@ BEGIN
         jsonb_build_object(
           'vendor_name', p_vendor_name,
           'vendor_batch', p_vendor_batch,
+          'source_type', 'Purchased',
           'received_date', v_rcv,
           'ml_each', p_ml_each,
           'notes', p_notes
@@ -1239,7 +1249,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
-        'Lot_LC_Syringe'::text,
+        'LC_Syringe_Received'::text,
         v_new_lot_id,
         NULL::bigint,
         NULL::bigint,
@@ -1301,7 +1311,7 @@ BEGIN
       NULL,
       v_src.strain_id,
       'plate',
-      'Ready',
+      v_src.status,
       p_operator,
       v_ts,
       p_source_agar_flask_lot_id,
@@ -1336,17 +1346,18 @@ BEGIN
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
-    BEGIN
-      PERFORM public.mp_print_queue_enqueue(
-        'lot'::text,
-        'Lot_Agar_Plate'::text,
-        v_new_lot_id,
-        NULL::bigint,
-        NULL::bigint,
-        'Queued'::text
-      );
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    -- We don't create labels until plates are inoculated
+    -- BEGIN
+    --   PERFORM public.mp_print_queue_enqueue(
+    --     'lot'::text,
+    --     'Plate_Poured'::text,
+    --     v_new_lot_id,
+    --     NULL::bigint,
+    --     NULL::bigint,
+    --     'Queued'::text
+    --   );
+    -- EXCEPTION WHEN undefined_function THEN NULL;
+    -- END;
   END LOOP;
 
   -- Optionally mark source as consumed if remaining_volume_ml is tracked and now <= 0 (do not decrement without a known rate)
@@ -1446,7 +1457,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
-        'Lot_Bulk'::text,
+        'Bulk_Created'::text,
         v_new_lot_id,
         NULL::bigint,
         NULL::bigint,
@@ -1599,7 +1610,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'product'::text,
-        'Product_FreezeDried_Package'::text,
+        'Product_Package'::text,
         NULL::bigint,
         v_new_product_id,
         NULL::bigint,
