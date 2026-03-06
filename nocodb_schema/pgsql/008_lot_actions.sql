@@ -1210,8 +1210,8 @@ BEGIN
       NULL,
       p_strain_id,
       v_strain.species_strain,
-      vc_item.name
-      vc_item.category,
+      v_item.name,
+      v_item.category,
       'Fridge',
       p_vendor_name,
       p_vendor_name,      
