@@ -593,16 +593,24 @@ BEGIN
         ELSE 'LC_Flask_Inoculated'
     END;
     
-    -- Compute target volume updates
-    v_new_total_ml := COALESCE(v_target_total_ml, COALESCE(v_target_unit_size, 0));
-    v_new_remaining_ml := COALESCE(v_target_remaining_ml, COALESCE(v_target_unit_size, 0));
-
-    IF (NOT v_is_untracked_source) AND v_is_liquid_source AND p_lc_volume_ml IS NOT NULL AND p_lc_volume_ml > 0 THEN
-      v_new_total_ml := v_new_total_ml + p_lc_volume_ml;
-      v_new_remaining_ml := v_new_remaining_ml + p_lc_volume_ml;
-      v_total_used_ml := v_total_used_ml + p_lc_volume_ml;
+    -- 1. Determine base volume based on target type
+    IF v_target_item_category = 'lc_flask' THEN
+      v_new_total_ml := COALESCE(v_target_total_ml, COALESCE(v_target_unit_size, 0));
+      v_new_remaining_ml := COALESCE(v_target_remaining_ml, COALESCE(v_target_unit_size, 0));
+    ELSE
+      -- For Grain/Plates, start at 0 so we only record the liquid added
+      v_new_total_ml := COALESCE(v_target_total_ml, 0);
+      v_new_remaining_ml := COALESCE(v_target_remaining_ml, 0);
     END IF;
 
+    -- 2. Add inoculation volume if source is liquid
+    IF v_is_liquid_source AND p_lc_volume_ml > 0 THEN
+      v_new_total_ml := v_new_total_ml + p_lc_volume_ml;
+      v_new_remaining_ml := v_new_remaining_ml + p_lc_volume_ml;
+      -- This tracks how much to pull from the source container later
+      v_total_used_ml := v_total_used_ml + p_lc_volume_ml;
+    END IF;
+    
     -- Update target lot fields
     UPDATE public.lots
     SET
