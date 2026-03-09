@@ -1,4 +1,4 @@
--- 024_operator_identity_backfill_and_review_integration.sql
+-- 124_operator_identity_backfill_and_review_integration.sql
 --
 -- Backfills personnel_review_subjects from existing operator data and
 -- updates personnel review insert logic to use the shared operator helper.
@@ -7,49 +7,72 @@ SET client_min_messages TO WARNING;
 
 BEGIN;
 
-DO $$
-DECLARE
-  v_operator text;
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'events'
-  ) THEN
-    FOR v_operator IN
-      SELECT DISTINCT operator
-      FROM public.events
-      WHERE operator IS NOT NULL AND btrim(operator) <> ''
-    LOOP
-      PERFORM public.mp_personnel_review_subject_ensure(v_operator, true, 'Operator', NULL);
-    END LOOP;
-  END IF;
+-- Normalize and backfill authenticated operator identities from existing operational tables.
+INSERT INTO public.personnel_review_subjects (
+  full_name,
+  active,
+  role_title,
+  notes,
+  appsmith_email,
+  appsmith_name,
+  can_login
+)
+SELECT DISTINCT
+  COALESCE(
+    public.mp_operator_identity_name(src.operator_value),
+    split_part(public.mp_operator_identity_email(src.operator_value), '@', 1)
+  ) AS full_name,
+  true,
+  'Operator',
+  'Auto-created from existing operator data during backfill.',
+  public.mp_operator_identity_email(src.operator_value) AS appsmith_email,
+  COALESCE(
+    public.mp_operator_identity_name(src.operator_value),
+    split_part(public.mp_operator_identity_email(src.operator_value), '@', 1)
+  ) AS appsmith_name,
+  true
+FROM (
+  SELECT operator AS operator_value FROM public.events WHERE operator IS NOT NULL
+  UNION
+  SELECT operator AS operator_value FROM public.lots WHERE operator IS NOT NULL
+  UNION
+  SELECT operator AS operator_value FROM public.sterilization_runs WHERE operator IS NOT NULL
+) src
+WHERE public.mp_normalize_operator_identity(src.operator_value) IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.personnel_review_subjects s
+    WHERE (
+      public.mp_operator_identity_email(src.operator_value) IS NOT NULL
+      AND lower(s.appsmith_email) = public.mp_operator_identity_email(src.operator_value)
+    )
+    OR (
+      public.mp_operator_identity_email(src.operator_value) IS NULL
+      AND (
+        lower(COALESCE(s.appsmith_name, '')) = lower(COALESCE(public.mp_operator_identity_name(src.operator_value), ''))
+        OR lower(COALESCE(s.full_name, '')) = lower(COALESCE(public.mp_operator_identity_name(src.operator_value), ''))
+      )
+    )
+  );
 
-  IF EXISTS (
-    SELECT 1 FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'lots'
-  ) THEN
-    FOR v_operator IN
-      SELECT DISTINCT operator
-      FROM public.lots
-      WHERE operator IS NOT NULL AND btrim(operator) <> ''
-    LOOP
-      PERFORM public.mp_personnel_review_subject_ensure(v_operator, true, 'Operator', NULL);
-    END LOOP;
-  END IF;
+-- Normalize stored operator values in-place to avoid quoted / split identities.
+UPDATE public.events
+SET operator = public.mp_normalize_operator_identity(operator)
+WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
 
-  IF EXISTS (
-    SELECT 1 FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'sterilization_runs'
-  ) THEN
-    FOR v_operator IN
-      SELECT DISTINCT operator
-      FROM public.sterilization_runs
-      WHERE operator IS NOT NULL AND btrim(operator) <> ''
-    LOOP
-      PERFORM public.mp_personnel_review_subject_ensure(v_operator, true, 'Operator', NULL);
-    END LOOP;
-  END IF;
-END $$;
+UPDATE public.lots
+SET operator = public.mp_normalize_operator_identity(operator)
+WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
+
+UPDATE public.sterilization_runs
+SET operator = public.mp_normalize_operator_identity(operator)
+WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
+
+UPDATE public.personnel_review_entries e
+SET
+  entered_by = public.mp_normalize_operator_identity(e.entered_by),
+  entered_by_subject_id = public.mp_current_operator_subject(public.mp_normalize_operator_identity(e.entered_by))
+WHERE e.entered_by IS NOT NULL;
 
 CREATE OR REPLACE FUNCTION public.mp_personnel_review_entry_insert(
   p_subject_id bigint,
@@ -80,9 +103,9 @@ BEGIN
     RAISE EXCEPTION 'subject_id is required';
   END IF;
 
-  v_entered_by := public.mp_operator_normalize(p_entered_by);
+  v_entered_by := public.mp_normalize_operator_identity(p_entered_by);
 
-  IF v_entered_by IS NULL OR btrim(v_entered_by) = '' OR v_entered_by = 'system' THEN
+  IF v_entered_by IS NULL THEN
     RAISE EXCEPTION 'entered_by is required';
   END IF;
 
@@ -90,12 +113,7 @@ BEGIN
     RAISE EXCEPTION 'summary is required';
   END IF;
 
-  v_entered_by_subject_id := public.mp_personnel_review_subject_ensure(
-    v_entered_by,
-    true,
-    CASE WHEN p_entry_source = 'self' THEN 'Employee' ELSE 'Operator' END,
-    NULL
-  );
+  v_entered_by_subject_id := public.mp_current_operator_subject(v_entered_by);
 
   INSERT INTO public.personnel_review_entries (
     subject_id,
