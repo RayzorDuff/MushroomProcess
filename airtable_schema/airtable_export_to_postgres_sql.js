@@ -36,7 +36,7 @@ const crypto = require('crypto');
  *   002_links.sql             Junction tables + FK constraints for multipleRecordLinks
  *   003_views.sql             v_<table> views with __table, __primary (best-effort) and link id arrays
  *   004_computed_views.sql    <-- now compiled from TABLES_DUMP_PATH when present
- *   010_load.sql + csv/*.csv  Relational CSV + loader (base tables + junction resolution via airtable_id)
+ *   100_load.sql + csv/*.csv  Relational CSV + loader (base tables + junction resolution via airtable_id)
  *
  * Notes:
  *  - We avoid relying on NocoDB meta APIs entirely.
@@ -1584,7 +1584,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
     fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '004_computed_views.sql'), csql, 'utf8');
   }
 
-  // 010_load.sql + csv/*.csv (host-run \copy)
+  // 100_load.sql + csv/*.csv (host-run \copy)
   if (AIRTABLE_EXPORT_DIR && fs.existsSync(AIRTABLE_EXPORT_DIR)) {
     const csvDir = path.join(POSTGRES_OUT_DIR, 'csv');
     ensureDir(csvDir);
@@ -1689,7 +1689,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
     }
 
     loadSql.push('COMMIT;\n');
-    fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '010_load.sql'), loadSql.join(''), 'utf8');
+    fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '100_load.sql'), loadSql.join(''), 'utf8');
   }
 
   console.log('[OK] Wrote Postgres artifacts to:', POSTGRES_OUT_DIR);
@@ -1697,7 +1697,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
   console.log(' - 002_links.sql');
   console.log(' - 003_views.sql');
   console.log(' - 004_computed_views.sql (from tables_dump.json when present)');
-  console.log(' - 010_load.sql + csv/*.csv');
+  console.log(' - 100_load.sql + csv/*.csv');
 }
 
 main();

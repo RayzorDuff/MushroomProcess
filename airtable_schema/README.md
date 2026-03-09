@@ -91,8 +91,14 @@ Optional:
 - `002_links.sql`
 - `003_views.sql`
 - `004_computed_views.sql`
-- `010_load.sql` (optional)
+- `100_load.sql` (optional)
 - `csv/*.csv` (optional)
+
+001–009   Airtable base schema (do not modify)
+010–049   core system extensions
+050–099   schema improvements / refactors
+100–149   data loads / backfills
+150–199   maintenance / repair / migrations
 
 **Environment variables**
 
