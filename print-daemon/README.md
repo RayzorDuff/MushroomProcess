@@ -168,6 +168,8 @@ The script:
   - `label_companyinfo_prod (from product_id)`
   - `label_disclaimer_prod (from product_id)`
   - `label_cottage_prod (from product_id)`
+  
+- Syringe labels for `lc_syringe` and `lc_syringe_purchased` items now print as two cuttable mini-label panels on a single 4×2 label for both lot and product jobs.
 
 Leave this process running in a console, or convert it to a Windows service (see below).
 

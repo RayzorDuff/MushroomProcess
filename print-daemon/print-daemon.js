@@ -454,13 +454,30 @@ async function markStatus(id, status, errorMsg = null) {
 
 
 /* ---------- Gather label fields ---------- */
+function detectItemCategory(rec) {
+  const f = rec.fields || {};
+  return (
+    pick(f, ['item_category_mat (from product_id)']) ||
+    pick(f, ['item_category_mat (from lot_id)']) ||
+    pick(f, ['item_category_mat']) ||
+    ''
+  ).toLowerCase();
+}
+
+function isSyringeCategory(category) {
+  return ['lc_syringe', 'lc_syringe_purchased'].includes(String(category || '').toLowerCase());
+}
+
 function gatherFields(rec) {
   const f = rec.fields || {};
   const sourceKind = (toFlat(f.source_kind) || '').toLowerCase();
+  const itemCategory = detectItemCategory(rec);
 
   if (sourceKind === 'product') {
     return {
       kind: 'product',
+      itemCategory,
+      isSyringeLabel: isSyringeCategory(itemCategory),
       company: pick(f, ['label_company_prod (from product_id)']) || '',
       title: pick(f, ['label_title_prod (from product_id)']),
       subtitle: pick(f, ['label_subtitle_prod (from product_id)']),
@@ -488,6 +505,8 @@ function gatherFields(rec) {
   // default: lot
   return {
     kind: 'lot',
+    itemCategory,
+    isSyringeLabel: isSyringeCategory(itemCategory),
     company: pick(f, ['label_company_lot (from lot_id)']) || '',
     title: pick(f, ['label_title_lot (from lot_id)']),
     subtitle: pick(f, ['label_subtitle_lot (from lot_id)']),
@@ -606,6 +625,160 @@ function drawTextLine(doc, text, x, y, width, fontName, fontSize, opts = {}) {
 }
 
 /* ---------- Render lot label PDF (logo + fields + QR) ---------- */
+async function renderSplitSyringeLabelPDF(outPath, rec) {
+  const L = gatherFields(rec);
+  const company = L.company || '';
+  const title = L.title || '';
+  const subtitle = L.subtitle || '';
+  const footer = L.footer || '';
+  const qrUrl = L.qr || 'https://example.com';
+  const extras = Array.isArray(L.extras) ? L.extras.filter(Boolean) : [];
+
+  const doc = new PDFDocument({
+    size: [PAGE_W, PAGE_H],
+    margins: { top: M, left: M, right: M, bottom: M },
+  });
+
+  const stream = fs.createWriteStream(outPath);
+  doc.pipe(stream);
+
+  const cutX = PAGE_W / 2;
+  const panelPad = Math.max(4, Math.min(8, M));
+  const gap = 8;
+  const leftX = M;
+  const leftW = cutX - M - panelPad;
+  const rightX = cutX + panelPad;
+  const rightW = PAGE_W - rightX - M;
+
+  if (DRAW_BORDER) {
+    doc.save();
+    doc.lineWidth(0.7).rect(0.5, 0.5, PAGE_W - 1, PAGE_H - 1).stroke();
+    doc.restore();
+  }
+
+  doc.save();
+  doc.lineWidth(0.7);
+  doc.dash(3, { space: 2 });
+  doc.moveTo(cutX, M / 2).lineTo(cutX, PAGE_H - M / 2).stroke();
+  doc.undash();
+  doc.restore();
+
+  let leftY = M;
+  let rightY = M;
+
+  const { path: logoPath } = selectLogoPath(company);
+  if (logoPath) {
+    try {
+      const logoW = Math.min(LOGO_W_PT * 0.48, leftW);
+      doc.image(logoPath, leftX, leftY, { width: logoW });
+      leftY += Math.min(logoW * 0.35, 24);
+    } catch {}
+  }
+
+  if (title) {
+    leftY = drawBlock(doc, title, leftX, leftY, leftW, 'Helvetica-Bold', {
+      maxFont: 11,
+      minFont: 4.5,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  if (subtitle) {
+    leftY = drawBlock(doc, subtitle, leftX, leftY, leftW, 'Helvetica-Bold', {
+      maxFont: 8.5,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 1,
+    });
+  }
+
+  const leftExtras = extras.slice(0, 2);
+  for (const line of leftExtras) {
+    leftY = drawBlock(doc, line, leftX, leftY, leftW, 'Helvetica-Bold', {
+      maxFont: 6.5,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  if (footer) {
+    leftY = drawBlock(doc, footer, leftX, leftY, leftW, 'Helvetica-Bold', {
+      maxFont: 6.5,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  if (company) {
+    rightY = drawBlock(doc, company, rightX, rightY, rightW, 'Helvetica-Bold', {
+      maxFont: 10,
+      minFont: 4.5,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  if (title) {
+    rightY = drawBlock(doc, title, rightX, rightY, rightW, 'Helvetica-Bold', {
+      maxFont: 8.5,
+      minFont: 4.5,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  if (subtitle) {
+    rightY = drawBlock(doc, subtitle, rightX, rightY, rightW, 'Helvetica-Bold', {
+      maxFont: 7,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 1,
+    });
+  }
+
+  for (const line of extras) {
+    rightY = drawBlock(doc, line, rightX, rightY, rightW, 'Helvetica-Bold', {
+      maxFont: 6.5,
+      minFont: 4,
+      lineGap: 1,
+      paragraphGap: 0,
+    });
+  }
+
+  const qrSize = Math.min(54, rightW);
+  const footerSpace = 2;
+  const qrY = PAGE_H - M - qrSize - footerSpace;
+  const qrX = PAGE_W - M - qrSize - footerSpace;
+
+  if (qrUrl) {
+    const qrPng = await QRCode.toDataURL(qrUrl, {
+      errorCorrectionLevel: 'M',
+      margin: 0,
+      scale: 6,
+    });
+    const qrBuf = Buffer.from(qrPng.split(',')[1], 'base64');
+    doc.image(qrBuf, qrX, qrY, { width: qrSize, height: qrSize });
+  }
+
+  if (footer) {
+    drawBlock(doc, footer, rightX, PAGE_H - M - 12, rightW, 'Helvetica-Bold', {
+      maxFont: 6,
+      minFont: 4,
+      lineGap: 1,
+    });
+  }
+
+  doc.end();
+
+  await new Promise((res, rej) => {
+    stream.on('finish', res);
+    stream.on('error', rej);
+  });
+}
+
 async function renderLabelPDF(outPath, rec) {
   const L = gatherFields(rec);
   const company = L.company || '';
@@ -1291,7 +1464,12 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     );
     status(id, 'rendering_label', { pdf: out });
     await markStatus(id, 'Printing', null);
-    await renderLabelPDF(out, rec);
+    const gathered = gatherFields(rec);
+    if (gathered.isSyringeLabel) {
+      await renderSplitSyringeLabelPDF(out, rec);
+    } else {
+      await renderLabelPDF(out, rec);
+    }
 
     // Write PDF path back to the active backend (best-effort)
     try {
@@ -1305,9 +1483,9 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     log.info('Label rendered', { kind, id, out });
     
     // --- Product-only: print second info label if companyInfo is present ---
-    const gathered = gatherFields(rec);
     if (
       gathered.kind === 'product' &&
+      !gathered.isSyringeLabel &&
       String(gathered.companyInfo || '').trim()
     ) {
       // small driver delay between two prints, just like between jobs
