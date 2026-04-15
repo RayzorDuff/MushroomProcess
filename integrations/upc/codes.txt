@@ -1,0 +1,6 @@
+686578750219    /2.5lb_coco_coir_bag/
+686578750220    /5lb_coco_coir_bag/
+686578750221    /turkey-tail-liquid-culture-syringe/
+686578750222    /piopinno-liquid-culture-syringe/
+686578750223    /chestnut-liquid-culture-syringe/
+
