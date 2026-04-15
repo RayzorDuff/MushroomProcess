@@ -170,23 +170,35 @@ These steps assume you start from an Airtable base that already matches the Mush
 
 1. **Install `airtable-export` from Git** (preferred over `pip`):
 
-+
-+git clone https://github.com/simonw/airtable-export
 
+Install dependencies:
 
    ```bash
+   # Clone the repository
    git clone https://github.com/simonw/airtable-export.git
+   cd airtable-export
 
-   python -m pip install --user pipx
-   python -m pipx ensurepath
+   # Ensure pip and pipx are installed and in your PATH
+   python3 -m pip install --user pipx
+   python3 -m pipx ensurepath
 
-   # ensure the older PyPI package doesn't shadow your local clone
-   pip uninstall -y airtable-export
-   pip install -e airtable-export
+   # Important: Restart your terminal here if this is your first time installing pipx
 
-   cd .\airtable-export\
+   # Ensure the older PyPI package doesn't shadow your local clone
+   python3 -m pip uninstall -y airtable-export
+```
+For Windows:
+
+   ```bash
    pip install setuptools
    .\setup.py install
+   ```
+
+For Mac:
+
+   ```bash
+   # Install the local directory in 'editable' mode
+   python3 -m pip install -e .
    ```
 
 2. **Get your Python location (Windows example):**
@@ -199,18 +211,33 @@ These steps assume you start from an Airtable base that already matches the Mush
 3. **Run `airtable-export` against your base:**
 
    - Create an Airtable Personal Access Token with schema + data read permissions for the base.
+   
+   Windows:
    ```bash
    $env:AIRTABLE_KEY = "YOUR_API_KEY_HERE"
    $env:AIRTABLE_BASE = "YOUR_BASE_ID_HERE"
    ```
+
+   Mac:
+   ```bash
+   export AIRTABLE_KEY=YOUR_API_KEY_HERE
+   export AIRTABLE_BASE=YOUR_BASE_ID_HERE
+   ```
+
    - Use `airtable-export` to dump:
      - `_schema.json` (schema only)
      - Per-table `*.json` or `*.ndjson` files (optional data).
 
    Point the output to this folder’s `export/` directory, or move the files there afterward.
 
+   Windows:
    ```bash
    airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
+   ```
+
+   Mac:
+   ```bash
+   airtable-export --schema --ndjson --yaml --json export $AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
    ```
 
    Also dump Airtable table metadata:
