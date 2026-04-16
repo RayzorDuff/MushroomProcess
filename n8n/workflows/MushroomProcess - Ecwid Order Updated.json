@@ -1,0 +1,367 @@
+{
+  "name": "MushroomProcess - Ecwid Order Updated",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "\nconst crypto = require('crypto');\n\nconst body = $json.body || $json;\nconst headers = $json.headers || {};\nconst lowerHeaders = {};\nfor (const [k, v] of Object.entries(headers)) lowerHeaders[String(k).toLowerCase()] = v;\n\nconst eventId = body.eventId || null;\nconst eventCreated = body.eventCreated || null;\nconst storeId = body.storeId || null;\nconst eventType = body.eventType || null;\nconst data = body.data || {};\nconst orderId = data.orderId || body.entityId || null;\nconst newPaymentStatus = data.newPaymentStatus || null;\nconst signature = lowerHeaders['x-ecwid-webhook-signature'] || '';\nconst clientSecret = $env.ECWID_CLIENT_SECRET || '';\n\nlet signatureValid = false;\nif (eventId && eventCreated && signature && clientSecret) {\n  const generated = crypto\n    .createHmac('sha256', clientSecret)\n    .update(`${eventCreated}.${eventId}`)\n    .digest('base64');\n  signatureValid = generated === signature;\n}\n\nconst customHeaderName = ($env.ECWID_WEBHOOK_HEADER_NAME || '').toLowerCase();\nconst customHeaderValue = $env.ECWID_WEBHOOK_HEADER_VALUE || '';\nlet customHeaderValid = true;\nif (customHeaderName && customHeaderValue) {\n  customHeaderValid = String(lowerHeaders[customHeaderName] || '') === customHeaderValue;\n}\n\nconst shouldProcess =\n  signatureValid &&\n  customHeaderValid &&\n  ['order.created', 'order.updated'].includes(eventType) &&\n  !!orderId &&\n  newPaymentStatus === 'AWAITING_PAYMENT';\n\nreturn [{\n  json: {\n    eventId,\n    eventCreated,\n    storeId,\n    eventType,\n    orderId: String(orderId || ''),\n    newPaymentStatus,\n    signatureValid,\n    customHeaderValid,\n    shouldProcess\n  }\n}];\n"
+      },
+      "id": "8a5baebe-be5a-4223-bdce-b9104769ddc0",
+      "name": "Code - Validate / Filter Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.shouldProcess }}",
+              "operation": "isTrue"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ea26b979-0a54-4403-b55b-06a9ae578fd3",
+      "name": "IF - Should Process?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1456,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.orderId}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1669ae54-c38e-48cf-9dc9-528ac4a0bd2f",
+      "name": "HTTP - Get Ecwid Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1216,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\nconst orderNumber = order.orderNumber || order.id || webhook.orderId;\nconst name = `#${orderNumber}${customerName ? ' – ' + customerName : ''}`;\n\nreturn [{\n  json: {\n    ecwid_order_id: String(order.id || webhook.orderId),\n    order_number: Number(order.orderNumber || 0) || null,\n    name,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || null,\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];\n"
+      },
+      "id": "19d5c9fc-4fdb-4b92-a308-8cea55d7a37f",
+      "name": "Code - Map Ecwid Order to Airtable Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -976,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "1"
+            },
+            {
+              "name": "filterByFormula",
+              "value": "={{ `{ecwid_order_id}='${$json.ecwid_order_id.replace(/'/g, \"\\\\'\")}'` }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1979555b-8f91-4002-84d0-50adfe9212e0",
+      "name": "HTTP - Find Airtable ecommerce_orders Row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -736,
+        112
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "gSlk2xHftMApxRZA",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst mapped = $('Code - Map Ecwid Order to Airtable Fields').first().json;\nconst result = $json;\nconst existing = (result.records || [])[0] || null;\n\nreturn [{\n  json: {\n    airtable_record_id: existing ? existing.id : null,\n    fields: mapped\n  }\n}];\n"
+      },
+      "id": "4197e439-41ea-424c-931a-9e377dc7b3c4",
+      "name": "Code - Prepare Upsert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -496,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.airtable_record_id || '' }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2573e39e-938c-41d2-84a4-54416ff8c419",
+      "name": "IF - Existing Airtable Row?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.airtable_record_id}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.fields } }}",
+        "options": {}
+      },
+      "id": "e5b744ea-44ba-4805-ac12-fb524515d71b",
+      "name": "HTTP - Update Airtable Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "gSlk2xHftMApxRZA",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.fields } }}",
+        "options": {}
+      },
+      "id": "d69d4761-790b-4dcb-9575-78ab5b30314c",
+      "name": "HTTP - Create Airtable Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        0,
+        208
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "gSlk2xHftMApxRZA",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/ecwid/order_updated",
+        "options": {}
+      },
+      "id": "73bd76ae-4d7c-4b54-9a65-7594faae7cd6",
+      "name": "Webhook - Ecwid Order Updated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1936,
+        112
+      ],
+      "webhookId": "replace-after-import"
+    },
+    {
+      "parameters": {
+        "path": "mushroomprocess/ecwid/product_updated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1584,
+        256
+      ],
+      "id": "dcb1c634-7706-4621-aee2-03375771f98a",
+      "name": "Webhook - Ecwid Product Updated",
+      "webhookId": "a4375fbc-9dfa-485a-a653-976a4659ddf7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code - Validate / Filter Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF - Should Process?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Should Process?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Ecwid Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Ecwid Order": {
+      "main": [
+        [
+          {
+            "node": "Code - Map Ecwid Order to Airtable Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Map Ecwid Order to Airtable Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Find Airtable ecommerce_orders Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Find Airtable ecommerce_orders Row": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare Upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare Upsert": {
+      "main": [
+        [
+          {
+            "node": "IF - Existing Airtable Row?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Existing Airtable Row?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Airtable Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Create Airtable Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Ecwid Order Updated": {
+      "main": [
+        [
+          {
+            "node": "Code - Validate / Filter Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f21ad673-ffd4-4538-8efd-6b1b677de694",
+  "meta": {
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "id": "7uz4El0GrRvqSPGS",
+  "tags": []
+}
