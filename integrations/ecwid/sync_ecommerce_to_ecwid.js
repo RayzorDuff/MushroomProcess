@@ -28,9 +28,12 @@
 const {
   assertCommonEnv,
   airtableFetchAllRecords,
+  airtableUpdateRecord,
   findEcwidProductBySku,
   updateEcwidBaseProductQuantity,
   updateEcwidVariationQuantity,
+  updateEcwidProduct,
+  updateEcwidVariation,
 } = require('./lib/ecwid_airtable');
 
 const {
@@ -132,7 +135,10 @@ async function syncRecord(record, usedUpcs) {
   const ecwidPrice = target.price;
   const ecwidStock = target.quantity;
   const ecwidUrl = product.url || null;
-  const ecwidCategory = product.categoryIds?.[0] || null;
+  const ecwidCategory =
+  Array.isArray(product.categoryIds) && product.categoryIds.length
+    ? String(product.categoryIds[0])
+    : null;
   const ecwidUpc = target.attributes?.find(a => a.name === 'UPC')?.value || null;
 
   let upcToUse = fields.ecwid_upc || ecwidUpc;
@@ -160,13 +166,24 @@ async function syncRecord(record, usedUpcs) {
   }
 
   // --- Write back to Airtable ---
-  await airtableUpdateRecord(AIRTABLE_ECOMMERCE_TABLE, record.id, {
-    ecwid_price: ecwidPrice,
-    ecwid_stock: ecwidStock,
-    ecwid_url: ecwidUrl,
-    ecwid_category: ecwidCategory,
-    ecwid_upc: upcToUse,
-  });
+  const updateFields = {
+    ecwid_price: Number.isFinite(Number(ecwidPrice)) ? Number(ecwidPrice) : null,
+    ecwid_stock: Number.isFinite(Number(ecwidStock)) ? Number(ecwidStock) : null,
+    ecwid_url: ecwidUrl ? String(ecwidUrl) : null,
+    ecwid_upc: upcToUse ? String(upcToUse) : null,
+  };
+
+  if (
+    Array.isArray(product.categoryIds) &&
+    product.categoryIds.length > 0 &&
+    product.categoryIds[0] != null
+  ) {
+    updateFields.ecwid_category = String(product.categoryIds[0]);
+  } else {
+    updateFields.ecwid_category = null;
+  }
+
+  await airtableUpdateRecord(AIRTABLE_ECOMMERCE_TABLE, record.id, updateFields);
 
   console.log(`Synced SKU ${sku}`);
 }
