@@ -192,6 +192,22 @@ async function updateEcwidVariationQuantity(productId, combinationId, quantity) 
   );
 }
 
+// ---------- New Helpers: Product Metadata ----------
+
+async function updateEcwidProduct(productId, body) {
+  return ecwidRequest(`/products/${productId}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+async function updateEcwidVariation(productId, variationId, body) {
+  return ecwidRequest(`/products/${productId}/combinations/${variationId}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
 module.exports = {
   assertCommonEnv,
   airtableRequest,
@@ -202,4 +218,6 @@ module.exports = {
   findEcwidProductBySku,
   updateEcwidBaseProductQuantity,
   updateEcwidVariationQuantity,
+  updateEcwidProduct,
+  updateEcwidVariation,
 };

@@ -43,7 +43,36 @@ A shared library, **lib/ecwid_airtable.js**, handles common API interactions for
 
 ---
 
-# Script 1: `sync_ecommerce_to_ecwid.js`
+### `sync_ecommerce_to_ecwid.js`
+This script reads the Airtable `ecommerce` table and synchronizes each mapped SKU with Ecwid.
+
+It now performs two related jobs for each ecommerce row:
+
+1. **Push inventory quantities to Ecwid**
+   - Reads the two quantity component fields from Airtable.
+   - Sums them to determine the desired Ecwid stock quantity.
+   - Updates the matching Ecwid base product or variation by SKU.
+
+2. **Pull Ecwid product metadata back into Airtable**
+   - Ecwid is treated as the source of truth for:
+     - `ecwid_category`
+     - `ecwid_price`
+     - `ecwid_stock`
+     - `ecwid_url`
+     - `ecwid_upc`
+   - After resolving the SKU in Ecwid, the script updates those fields in Airtable.
+   - If the Ecwid product / variation does not yet have a UPC, the script allocates the next available code from the configured UPC pool and writes it back to both Ecwid and Airtable.
+
+Recommended Airtable fields on `ecommerce`:
+- `ecwid_sku`
+- `available_from_products`
+- `available_from_lots`
+- `sync_to_ecwid`
+- `ecwid_category`
+- `ecwid_price`
+- `ecwid_stock`
+- `ecwid_url`
+- `ecwid_upc`
 
 This script **pushes inventory quantities from Airtable to Ecwid**.
 
@@ -64,13 +93,19 @@ This prevents overselling and keeps your storefront listings constantly in sync.
 
 ---
 
-# Script 2: `sync_ecwid_to_ecommerce_orders.js`
+### `sync_ecwid_to_ecommerce_orders.js`
+This script fetches recent Ecwid orders and upserts them into the Airtable `ecommerce_orders` table using `ecwid_order_id` as the external key.
 
-This script **pulls orders from Ecwid into Airtable** on a schedule.
 
 Orders are upserted into a dedicated Airtable table named **`ecommerce_orders`** using `ecwid_order_id` as the external key.
 
-For each Ecwid order, Airtable receives:
+It also:
+- extracts SKUs from `items_json`
+- stores them in `ecwid_skus`
+- links `ecommerce_orders.ecommerce` to matching rows in the `ecommerce` table by `ecwid_sku`
+
+Ecwid is treated as the source of truth for these order-facing fields:
+
 
 - `name`
 - `ecwid_order_id`
@@ -80,6 +115,23 @@ For each Ecwid order, Airtable receives:
 - `customer_name`
 - `customer_email`
 - `items_json` (raw items)
+- `ecwid_skus`
+- `payment_status`
+- `payment_method`
+- `subtotal`
+- `tax_total`
+- `order_total`
+- `currency`
+
+These Airtable-managed fields are intentionally not overwritten by the polling sync:
+- `products`
+- `clover_reconciliation_status`
+- `clover_payment_id`
+- `clover_payment_time`
+- `clover_match_confidence`
+- `reconciled_at`
+- `reconciliation_notes`
+- webhook metadata fields such as `ecwid_event_type`, `ecwid_event_id`, `last_webhook_at`
 - A link field (`products`) which staff can use to attach internal product records that were shipped in this order.
 
 This enables:
@@ -93,22 +145,15 @@ When a user marks a product’s `storage_location` as `"Shipped"` in an Interface,
 
 ---
 
-# Shared Library: `lib/ecwid_airtable.js`
+## Shared library
 
-A single shared module used by both scripts.
-
-It provides:
-
-### Airtable Helpers
-- `airtableFetchAllRecords`
-- `airtableCreateRecord`
-- `airtableUpdateRecord`
-
-### Ecwid Helpers
-- `ecwidRequest`
-- `findEcwidProductBySku`
-- `updateEcwidBaseProductQuantity`
-- `updateEcwidVariationQuantity`
+### `lib/ecwid_airtable.js`
+Shared helpers for:
+- Airtable API requests
+- Ecwid API requests
+- SKU lookups
+- product / variation updates
+- UPC normalization and allocation helpers
 
 This design:
 - Centralizes API logic
@@ -154,16 +199,41 @@ When `ecommerce_orders.products` was created, Airtable created:
 This serves as your **“product ? Ecwid order”** field.  
 No separate field is required.
 
+## UPC pool storage
+
+The simplest and recommended design is to keep the UPC pool in flat files in the repository or integration directory:
+
+- `eancodes.txt` â†’ allocatable UPC / EAN pool
+- `codes.txt` â†’ optional reserved / legacy codes reference
+
+The sync script loads those files on each run. Airtable then becomes the durable assignment record through `ecommerce.ecwid_upc`.
+
+
 ---
 
 # Environment Variables
 
 See .env.example and rename to .env
 
-# Usage
+## Installation
 
 ```bash
 npm install node-fetch@2 dotenv
+```
+
+## Usage
+
+```bash
 node sync_ecommerce_to_ecwid.js
 node sync_ecwid_to_ecommerce_orders.js
 ```
+
+## Suggested run cadence
+
+- `sync_ecommerce_to_ecwid.js`:
+  - every 10â€“15 minutes
+  - or immediately after major inventory-affecting workflows
+
+- `sync_ecwid_to_ecommerce_orders.js`:
+  - every 5â€“15 minutes
+  - or more frequently if staff needs orders available quickly in Airtable

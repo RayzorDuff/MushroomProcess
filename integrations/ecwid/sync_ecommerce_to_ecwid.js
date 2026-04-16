@@ -41,6 +41,11 @@ const {
   AIRTABLE_ECOMMERCE_ACTIVE_FIELD,
 } = process.env;
 
+const fs = require('fs');
+const path = require('path');
+
+const UPC_POOL_FILE = path.join(__dirname, '../upc/eancodes.txt');
+
 function assertEnv() {
   const required = [
     'AIRTABLE_ECOMMERCE_TABLE',
@@ -91,43 +96,79 @@ function shouldSkipRecord(record) {
   return false;
 }
 
-async function syncRecord(record) {
+function getNextUPC(usedSet) {
+  const lines = fs.readFileSync(UPC_POOL_FILE, 'utf-8').split('\n');
+
+  for (const line of lines) {
+    const code = line.trim();
+    if (!code) continue;
+    if (!usedSet.has(code)) return code;
+  }
+
+  throw new Error('No UPC codes left in pool');
+}
+
+async function syncRecord(record, usedUpcs) {
   const fields = record.fields || {};
   const sku = String(fields[AIRTABLE_ECOMMERCE_SKU_FIELD]).trim();
+
   const qtyFromProducts = Number(fields[AIRTABLE_ECOMMERCE_QTY_FROM_PRODUCTS_FIELD]);
   const qtyFromLots = Number(fields[AIRTABLE_ECOMMERCE_QTY_FROM_LOTS_FIELD]);
 
-  const hasProductsQty = Number.isFinite(qtyFromProducts);
-  const hasLotsQty = Number.isFinite(qtyFromLots);
-
   const quantity =
-    (hasProductsQty ? qtyFromProducts : 0) +
-    (hasLotsQty ? qtyFromLots : 0);
-
-  console.log(
-    `\nSyncing record ${record.id}: SKU=${sku} ` +
-    `=> quantity=${quantity} (products=${hasProductsQty ? qtyFromProducts : 'n/a'}, ` +
-    `lots=${hasLotsQty ? qtyFromLots : 'n/a'})`
-  );
+    (Number.isFinite(qtyFromProducts) ? qtyFromProducts : 0) +
+    (Number.isFinite(qtyFromLots) ? qtyFromLots : 0);
 
   const { product, variation } = await findEcwidProductBySku(sku);
 
   if (!product) {
-    console.warn(`  No Ecwid product found for SKU ${sku}. Skipping.`);
+    console.warn(`No Ecwid product found for SKU ${sku}`);
     return;
   }
 
-  if (!variation) {
-    console.log(`  Updating base product ID ${product.id}`);
-    await updateEcwidBaseProductQuantity(product.id, quantity);
-  } else {
-    console.log(
-      `  Updating variation combinationId=${variation.id} of product ID ${product.id}`
-    );
-    await updateEcwidVariationQuantity(product.id, variation.id, quantity);
+  const target = variation || product;
+
+  // --- Pull Ecwid values ---
+  const ecwidPrice = target.price;
+  const ecwidStock = target.quantity;
+  const ecwidUrl = product.url || null;
+  const ecwidCategory = product.categoryIds?.[0] || null;
+  const ecwidUpc = target.attributes?.find(a => a.name === 'UPC')?.value || null;
+
+  let upcToUse = fields.ecwid_upc || ecwidUpc;
+
+  if (!upcToUse) {
+    upcToUse = getNextUPC(usedUpcs);
+    usedUpcs.add(upcToUse);
+
+    console.log(`Assigned UPC ${upcToUse} to SKU ${sku}`);
+
+    const attr = [{ name: 'UPC', value: upcToUse }];
+
+    if (variation) {
+      await updateEcwidVariation(product.id, variation.id, { attributes: attr });
+    } else {
+      await updateEcwidProduct(product.id, { attributes: attr });
+    }
   }
 
-  console.log('  ✅ Updated successfully');
+  // --- Push quantity ---
+  if (variation) {
+    await updateEcwidVariationQuantity(product.id, variation.id, quantity);
+  } else {
+    await updateEcwidBaseProductQuantity(product.id, quantity);
+  }
+
+  // --- Write back to Airtable ---
+  await airtableUpdateRecord(AIRTABLE_ECOMMERCE_TABLE, record.id, {
+    ecwid_price: ecwidPrice,
+    ecwid_stock: ecwidStock,
+    ecwid_url: ecwidUrl,
+    ecwid_category: ecwidCategory,
+    ecwid_upc: upcToUse,
+  });
+
+  console.log(`Synced SKU ${sku}`);
 }
 
 async function main() {
@@ -141,9 +182,13 @@ async function main() {
     const usable = records.filter((r) => !shouldSkipRecord(r));
     console.log(`Found ${usable.length} record(s) to sync.`);
 
+    const usedUpcs = new Set(
+      records.map(r => r.fields?.ecwid_upc).filter(Boolean)
+    );
+
     for (const record of usable) {
       try {
-        await syncRecord(record);
+        await syncRecord(record, usedUpcs);
       } catch (err) {
         console.error(
           `Error syncing record ${record.id} (SKU=${record.fields?.[AIRTABLE_ECOMMERCE_SKU_FIELD]}):`,

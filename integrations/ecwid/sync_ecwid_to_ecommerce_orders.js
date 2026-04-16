@@ -220,6 +220,15 @@ function mapEcwidOrderToFields(order, skuSet, ecommerceLinkIds) {
       ? ecommerceLinkIds
       : [];
 
+  const subtotal = order.subtotal || null;
+  const taxTotal = order.tax || null;
+  const orderTotal = order.total || null;
+
+  const paymentStatus = order.paymentStatus || null;
+  const paymentMethod = order.paymentMethod || null;
+
+  const currency = order.currency || null;
+
   return {
     name: name || null,
     ecwid_order_id: rawId != null ? String(rawId) : null,
@@ -232,6 +241,14 @@ function mapEcwidOrderToFields(order, skuSet, ecommerceLinkIds) {
     [ECOM_ORDERS_SKUS_FIELD]: ecwidSkusText || null,
     [ECOM_ORDERS_ECOMMERCE_LINK_FIELD]: ecommerceLinks,
     // products: left for user to link manually in Airtable UI
+
+    payment_status: paymentStatus,
+    payment_method: paymentMethod,
+    subtotal: subtotal,
+    tax_total: taxTotal,
+    order_total: orderTotal,
+    currency: currency,
+
   };
 }
 
