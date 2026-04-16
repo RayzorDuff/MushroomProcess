@@ -247,41 +247,6 @@
     },
     {
       "parameters": {
-        "method": "PUT",
-        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.fields.ecwid_order_id}` }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Accept",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{\n  {\n    paymentStatus: 'PAID',\n    externalTransactionId: $json.clover_selected_payment_id || '',\n    privateAdminNotes: [\n      'Paid via Clover reconciliation',\n      $json.clover_selected_payment_id ? `Clover payment: ${$json.clover_selected_payment_id}` : null,\n      $json.clover_selected_order_id ? `Clover order: ${$json.clover_selected_order_id}` : null\n    ].filter(Boolean).join(' | ')\n  }\n}}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        0,
-        0
-      ],
-      "id": "2403e39c-89a1-4801-b3da-e9f67241485e",
-      "name": "HTTP - Mark Ecwid Order Paid"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -313,6 +278,41 @@
       ],
       "id": "b033c634-bbb2-4ef5-b6ed-5d16da7179d4",
       "name": "IF - Reconciled?"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.fields.ecwid_order_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    externalTransactionId: $json.clover_selected_payment_id || '',\n    privateAdminNotes: [\n      'Clover reconciled in MushroomProcess',\n      $json.clover_selected_payment_id ? `Clover payment: ${$json.clover_selected_payment_id}` : null,\n      $json.clover_selected_order_id ? `Clover order: ${$json.clover_selected_order_id}` : null\n    ].filter(Boolean).join(' | ')\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2403e39c-89a1-4801-b3da-e9f67241485e",
+      "name": "HTTP - Mark Ecwid Order Reconciled"
     }
   ],
   "pinData": {},
@@ -449,7 +449,7 @@
       "main": [
         [
           {
-            "node": "HTTP - Mark Ecwid Order Paid",
+            "node": "HTTP - Mark Ecwid Order Reconciled",
             "type": "main",
             "index": 0
           }
@@ -457,12 +457,12 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "4c0c84c3-3b0d-4bcb-a1e4-04b736f46d06",
+  "versionId": "8e91d6b7-7072-4fcc-9671-78572b6dce33",
   "meta": {
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
