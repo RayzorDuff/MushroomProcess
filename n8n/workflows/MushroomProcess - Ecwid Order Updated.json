@@ -3,41 +3,56 @@
   "nodes": [
     {
       "parameters": {
-        "jsCode": "\nconst crypto = require('crypto');\n\nconst body = $json.body || $json;\nconst headers = $json.headers || {};\nconst lowerHeaders = {};\nfor (const [k, v] of Object.entries(headers)) lowerHeaders[String(k).toLowerCase()] = v;\n\nconst eventId = body.eventId || null;\nconst eventCreated = body.eventCreated || null;\nconst storeId = body.storeId || null;\nconst eventType = body.eventType || null;\nconst data = body.data || {};\nconst orderId = data.orderId || body.entityId || null;\nconst newPaymentStatus = data.newPaymentStatus || null;\nconst signature = lowerHeaders['x-ecwid-webhook-signature'] || '';\nconst clientSecret = $env.ECWID_CLIENT_SECRET || '';\n\nlet signatureValid = false;\nif (eventId && eventCreated && signature && clientSecret) {\n  const generated = crypto\n    .createHmac('sha256', clientSecret)\n    .update(`${eventCreated}.${eventId}`)\n    .digest('base64');\n  signatureValid = generated === signature;\n}\n\nconst customHeaderName = ($env.ECWID_WEBHOOK_HEADER_NAME || '').toLowerCase();\nconst customHeaderValue = $env.ECWID_WEBHOOK_HEADER_VALUE || '';\nlet customHeaderValid = true;\nif (customHeaderName && customHeaderValue) {\n  customHeaderValid = String(lowerHeaders[customHeaderName] || '') === customHeaderValue;\n}\n\nconst shouldProcess =\n  signatureValid &&\n  customHeaderValid &&\n  ['order.created', 'order.updated'].includes(eventType) &&\n  !!orderId &&\n  newPaymentStatus === 'AWAITING_PAYMENT';\n\nreturn [{\n  json: {\n    eventId,\n    eventCreated,\n    storeId,\n    eventType,\n    orderId: String(orderId || ''),\n    newPaymentStatus,\n    signatureValid,\n    customHeaderValid,\n    shouldProcess\n  }\n}];\n"
+        "jsCode": "const body = $json.body || $json;\n\nconst eventId = body.eventId || null;\nconst eventCreated = body.eventCreated || null;\nconst storeId = body.storeId || null;\nconst eventType = body.eventType || null;\nconst data = body.data || {};\n\nconst ecwidEntityId = body.entityId || null;      // numeric API order id\nconst orderCode = data.orderId || null;           // short human-facing order code\nconst oldPaymentStatus = data.oldPaymentStatus || null;\nconst newPaymentStatus = data.newPaymentStatus || null;\nconst oldFulfillmentStatus = data.oldFulfillmentStatus || null;\nconst newFulfillmentStatus = data.newFulfillmentStatus || null;\n\n/*\n  Process when:\n  - event is order.created or order.updated\n  - numeric entity id exists\n  - payment is awaiting payment\n\n  This keeps the workflow aligned to your current unpaid-order intake flow.\n*/\n/* Only trigger on new awaiting payment */\nconst shouldProcess =\n  (\n    eventType === 'order.created' &&\n    !!ecwidEntityId &&\n    newPaymentStatus === 'AWAITING_PAYMENT'\n  ) ||\n  (\n    eventType === 'order.updated' &&\n    !!ecwidEntityId &&\n    newPaymentStatus === 'AWAITING_PAYMENT' &&\n    oldPaymentStatus !== newPaymentStatus\n  );\n\n/*\nconst shouldProcess =\n  ['order.created', 'order.updated'].includes(eventType) &&\n  !!ecwidEntityId &&\n  newPaymentStatus === 'AWAITING_PAYMENT';\n*/\n\nreturn [{\n  json: {\n    eventId,\n    eventCreated,\n    storeId,\n    eventType,\n    ecwid_entity_id: String(ecwidEntityId || ''),\n    order_code: String(orderCode || ''),\n    oldPaymentStatus,\n    newPaymentStatus,\n    oldFulfillmentStatus,\n    newFulfillmentStatus,\n    shouldProcess,\n    raw_body: body\n  }\n}];"
       },
-      "id": "8a5baebe-be5a-4223-bdce-b9104769ddc0",
+      "id": "b1a21d20-0a23-4950-b102-0f29741d8f7c",
       "name": "Code - Validate / Filter Webhook",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1696,
-        112
+        -3728,
+        320
       ]
     },
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
             {
-              "value1": "={{ $json.shouldProcess }}",
-              "operation": "isTrue"
+              "id": "31f07122-863b-4ac3-996d-9d80d1f338e4",
+              "leftValue": "={{ $json.shouldProcess }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
-        "options": {}
+        "options": {
+          "looseTypeValidation": false
+        }
       },
-      "id": "ea26b979-0a54-4403-b55b-06a9ae578fd3",
+      "id": "0b14c0b1-5e57-4b88-be15-f42b0acce12e",
       "name": "IF - Should Process?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -1456,
-        112
+        -3488,
+        320
       ]
     },
     {
       "parameters": {
-        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.orderId}` }}",
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.ecwid_entity_id}` }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -53,26 +68,26 @@
         },
         "options": {}
       },
-      "id": "1669ae54-c38e-48cf-9dc9-528ac4a0bd2f",
+      "id": "8ee0a473-e54e-47e4-b403-9538dfef3a5d",
       "name": "HTTP - Get Ecwid Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1216,
-        112
+        -3248,
+        320
       ]
     },
     {
       "parameters": {
-        "jsCode": "\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\nconst orderNumber = order.orderNumber || order.id || webhook.orderId;\nconst name = `#${orderNumber}${customerName ? ' \u2013 ' + customerName : ''}`;\n\nreturn [{\n  json: {\n    ecwid_order_id: String(order.id || webhook.orderId),\n    order_number: Number(order.orderNumber || 0) || null,\n    name,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || null,\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];\n"
+        "jsCode": "\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\nconst orderNumber = order.orderNumber || order.id || webhook.orderId;\nconst name = `#${orderNumber}${customerName ? ' – ' + customerName : ''}`;\n\nreturn [{\n  json: {\n    ecwid_order_id: String(order.id || webhook.orderId),\n    order_number: Number(order.orderNumber || 0) || null,\n    name,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || null,\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];\n"
       },
-      "id": "19d5c9fc-4fdb-4b92-a308-8cea55d7a37f",
+      "id": "ff677dae-fbe5-443c-a9c4-64cc28df9646",
       "name": "Code - Map Ecwid Order to Airtable Fields",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -976,
-        112
+        -3008,
+        320
       ]
     },
     {
@@ -104,17 +119,17 @@
         },
         "options": {}
       },
-      "id": "1979555b-8f91-4002-84d0-50adfe9212e0",
+      "id": "7a7b10fa-16ee-4e3c-9143-12e68bc48667",
       "name": "HTTP - Find Airtable ecommerce_orders Row",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -736,
-        112
+        -2768,
+        320
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "replace-after-import",
+          "id": "vgt8hbjfh9CbsaQA",
           "name": "Airtable Personal Access Token account"
         }
       }
@@ -123,34 +138,49 @@
       "parameters": {
         "jsCode": "\nconst mapped = $('Code - Map Ecwid Order to Airtable Fields').first().json;\nconst result = $json;\nconst existing = (result.records || [])[0] || null;\n\nreturn [{\n  json: {\n    airtable_record_id: existing ? existing.id : null,\n    fields: mapped\n  }\n}];\n"
       },
-      "id": "4197e439-41ea-424c-931a-9e377dc7b3c4",
+      "id": "1b9d0781-bac8-4ba4-9b38-c544eb20ec9e",
       "name": "Code - Prepare Upsert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -496,
-        112
+        -2528,
+        320
       ]
     },
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
             {
-              "value1": "={{ $json.airtable_record_id || '' }}",
-              "operation": "isNotEmpty"
+              "id": "81465f53-c315-4aa0-a504-bf4cc79ad1a8",
+              "leftValue": "={{ $json.airtable_record_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
-        "options": {}
+        "options": {
+          "looseTypeValidation": false
+        }
       },
-      "id": "2573e39e-938c-41d2-84a4-54416ff8c419",
+      "id": "34fc050b-efdd-40ba-8df9-dcebe1cf4dbd",
       "name": "IF - Existing Airtable Row?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -256,
-        112
+        -2288,
+        320
       ]
     },
     {
@@ -173,17 +203,17 @@
         "jsonBody": "={{ { fields: $json.fields } }}",
         "options": {}
       },
-      "id": "e5b744ea-44ba-4805-ac12-fb524515d71b",
+      "id": "c99dd968-effb-4d89-9327-4edd4ba6289e",
       "name": "HTTP - Update Airtable Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        0,
-        0
+        -2032,
+        208
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "replace-after-import",
+          "id": "vgt8hbjfh9CbsaQA",
           "name": "Airtable Personal Access Token account"
         }
       }
@@ -208,17 +238,17 @@
         "jsonBody": "={{ { fields: $json.fields } }}",
         "options": {}
       },
-      "id": "d69d4761-790b-4dcb-9575-78ab5b30314c",
+      "id": "fdd4df0a-5c5b-4daf-b3dd-7a6412711973",
       "name": "HTTP - Create Airtable Order",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        0,
-        208
+        -2032,
+        416
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "replace-after-import",
+          "id": "vgt8hbjfh9CbsaQA",
           "name": "Airtable Personal Access Token account"
         }
       }
@@ -227,16 +257,16 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/ecwid/order_updated",
-        "options": {},
-        "responseMode": "responseNode"
+        "responseMode": "responseNode",
+        "options": {}
       },
-      "id": "73bd76ae-4d7c-4b54-9a65-7594faae7cd6",
+      "id": "2764f131-dbea-45f5-b95e-94f289c18919",
       "name": "Webhook - Ecwid Order Updated",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -1936,
-        112
+        -3968,
+        320
       ],
       "webhookId": "replace-after-import"
     },
@@ -246,13 +276,13 @@
         "responseBody": "={{ { ok: true, processed: true, action: 'upserted_order', ecwid_order_id: $('Code - Prepare Upsert').first().json.fields.ecwid_order_id, airtable_record_id: ($json.id || $json.records?.[0]?.id || null) } }}",
         "options": {}
       },
-      "id": "0bbeeb73-579c-4818-ad25-5733b24689e4",
+      "id": "15b8dc96-9704-44fb-936c-f290de2209a3",
       "name": "Respond - Processed",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        256,
-        96
+        -1776,
+        304
       ]
     },
     {
@@ -261,14 +291,35 @@
         "responseBody": "={{ { ok: true, processed: false, reason: 'ignored', signatureValid: $json.signatureValid, customHeaderValid: $json.customHeaderValid, eventType: $json.eventType, newPaymentStatus: $json.newPaymentStatus, orderId: $json.orderId || null } }}",
         "options": {}
       },
-      "id": "0ad34ffc-1a75-4644-928f-af42f20a4fdc",
+      "id": "e8714977-b0b7-49ed-a13d-f1a900372c9c",
       "name": "Respond - Ignored",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        -1216,
-        288
+        -3248,
+        496
       ]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "value": "=={{ $json.eventCreated + \".\" + $json.eventId }}",
+        "encoding": "base64"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        -3584,
+        560
+      ],
+      "id": "76238968-43fa-4c75-9e2c-cf6194ebba46",
+      "name": "Crypto",
+      "credentials": {
+        "crypto": {
+          "id": "ozkeTDOls9XKoGuA",
+          "name": "Crypto account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -403,8 +454,9 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "f21ad673-ffd4-4538-8efd-6b1b677de694",
+  "versionId": "4be1e8d7-392c-410a-b15f-357e01833db7",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
   "id": "7uz4El0GrRvqSPGS",
