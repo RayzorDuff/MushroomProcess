@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\nconst orderNumber = order.orderNumber || order.id || webhook.orderId;\nconst name = `#${orderNumber}${customerName ? ' – ' + customerName : ''}`;\n\nreturn [{\n  json: {\n    ecwid_order_id: String(order.id || webhook.orderId),\n    order_number: Number(order.orderNumber || 0) || null,\n    name,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || null,\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];\n"
+        "jsCode": "\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\nconst orderNumber = order.orderNumber || order.id || webhook.orderId;\nconst name = `#${orderNumber}${customerName ? ' \u2013 ' + customerName : ''}`;\n\nreturn [{\n  json: {\n    ecwid_order_id: String(order.id || webhook.orderId),\n    order_number: Number(order.orderNumber || 0) || null,\n    name,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || null,\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];\n"
       },
       "id": "19d5c9fc-4fdb-4b92-a308-8cea55d7a37f",
       "name": "Code - Map Ecwid Order to Airtable Fields",
@@ -79,7 +79,7 @@
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
         "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableApi",
+        "nodeCredentialType": "airtableTokenApi",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -113,9 +113,9 @@
         112
       ],
       "credentials": {
-        "airtableApi": {
-          "id": "gSlk2xHftMApxRZA",
-          "name": "Airtable account"
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
@@ -158,7 +158,7 @@
         "method": "PATCH",
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.airtable_record_id}` }}",
         "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableApi",
+        "nodeCredentialType": "airtableTokenApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -182,9 +182,9 @@
         0
       ],
       "credentials": {
-        "airtableApi": {
-          "id": "gSlk2xHftMApxRZA",
-          "name": "Airtable account"
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
@@ -193,7 +193,7 @@
         "method": "POST",
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
         "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableApi",
+        "nodeCredentialType": "airtableTokenApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -217,9 +217,9 @@
         208
       ],
       "credentials": {
-        "airtableApi": {
-          "id": "gSlk2xHftMApxRZA",
-          "name": "Airtable account"
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
@@ -227,7 +227,8 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/ecwid/order_updated",
-        "options": {}
+        "options": {},
+        "responseMode": "responseNode"
       },
       "id": "73bd76ae-4d7c-4b54-9a65-7594faae7cd6",
       "name": "Webhook - Ecwid Order Updated",
@@ -241,18 +242,33 @@
     },
     {
       "parameters": {
-        "path": "mushroomprocess/ecwid/product_updated",
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, processed: true, action: 'upserted_order', ecwid_order_id: $('Code - Prepare Upsert').first().json.fields.ecwid_order_id, airtable_record_id: ($json.id || $json.records?.[0]?.id || null) } }}",
         "options": {}
       },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
+      "id": "0bbeeb73-579c-4818-ad25-5733b24689e4",
+      "name": "Respond - Processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
       "position": [
-        -1584,
-        256
-      ],
-      "id": "dcb1c634-7706-4621-aee2-03375771f98a",
-      "name": "Webhook - Ecwid Product Updated",
-      "webhookId": "a4375fbc-9dfa-485a-a653-976a4659ddf7"
+        256,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, processed: false, reason: 'ignored', signatureValid: $json.signatureValid, customHeaderValid: $json.customHeaderValid, eventType: $json.eventType, newPaymentStatus: $json.newPaymentStatus, orderId: $json.orderId || null } }}",
+        "options": {}
+      },
+      "id": "0ad34ffc-1a75-4644-928f-af42f20a4fdc",
+      "name": "Respond - Ignored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        288
+      ]
     }
   ],
   "pinData": {},
@@ -273,6 +289,13 @@
         [
           {
             "node": "HTTP - Get Ecwid Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Ignored",
             "type": "main",
             "index": 0
           }
@@ -346,6 +369,28 @@
         [
           {
             "node": "Code - Validate / Filter Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Airtable Order": {
+      "main": [
+        [
+          {
+            "node": "Respond - Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Create Airtable Order": {
+      "main": [
+        [
+          {
+            "node": "Respond - Processed",
             "type": "main",
             "index": 0
           }

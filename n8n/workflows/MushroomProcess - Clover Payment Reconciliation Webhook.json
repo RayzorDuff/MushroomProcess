@@ -1,0 +1,594 @@
+{
+  "name": "MushroomProcess - Clover Payment Reconciliation Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/clover/payment_updated",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "5f66fc92-ff91-4b5d-a138-e0493b0d7b08",
+      "name": "Webhook - Clover Payment Updated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2000,
+        80
+      ],
+      "webhookId": "replace-after-import"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst headers = $json.headers || {};\nconst lowerHeaders = {};\nfor (const [k, v] of Object.entries(headers)) {\n  lowerHeaders[String(k).toLowerCase()] = v;\n}\n\nconst verificationCode = body.verificationCode || null;\nconst eventType = body.type || body.eventType || body.objectType || null;\n\nconst paymentId =\n  body.paymentId ||\n  body.id ||\n  body.objectId ||\n  body.data?.paymentId ||\n  body.data?.id ||\n  body.payment?.id ||\n  null;\n\nconst merchantId =\n  body.merchantId ||\n  body.mId ||\n  body.merchant_id ||\n  body.data?.merchantId ||\n  body.payment?.merchantId ||\n  null;\n\nreturn [{\n  json: {\n    verificationCode,\n    eventType,\n    paymentId: paymentId ? String(paymentId) : null,\n    merchantId: merchantId ? String(merchantId) : null,\n    raw_body: body,\n    raw_headers: lowerHeaders,\n    mode: verificationCode ? 'verify' : (paymentId ? 'payment' : 'ignore')\n  }\n}];"
+      },
+      "id": "19cf723c-f3e4-4755-aa22-0cfcba5d5020",
+      "name": "Code - Parse Clover Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.mode }}",
+              "operation": "equal",
+              "value2": "verify"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "42b73089-cd5e-4510-abd1-8b66edb701ab",
+      "name": "IF - Verification Request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, verificationCode: $json.verificationCode, note: 'Copy this verificationCode from the n8n execution and paste it into the Clover Developer Dashboard.' } }}",
+        "options": {}
+      },
+      "id": "f10ee451-6499-43a6-afc0-97ba62e2a24a",
+      "name": "Respond - Verification",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.mode }}",
+              "operation": "equal",
+              "value2": "payment"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8c5cb6f-adf5-4df3-bf6f-0820346ad39f",
+      "name": "IF - Payment Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1280,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `${$env.CLOVER_API_BASE_URL || 'https://api.clover.com'}/v3/merchants/${$env.CLOVER_MERCHANT_ID}/payments/${$json.paymentId}` }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "18006f1f-d914-40eb-ac42-84b1a9fde976",
+      "name": "HTTP - Get Clover Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1040,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function toIso(value) {\n  if (!value) return null;\n  const n = Number(value);\n  if (Number.isFinite(n) && n > 1000000000) return new Date(n).toISOString();\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst webhook = $('Code - Parse Clover Webhook').first().json;\nconst payment = $json;\n\nconst merchantIdExpected = String($env.CLOVER_MERCHANT_ID || '');\nconst merchantIdActual =\n  String(payment.merchant?.id || payment.merchantId || webhook.merchantId || '');\n\nconst amountCents = Number(payment.amount ?? 0);\nconst tipCents = Number(payment.tipAmount ?? 0);\nconst taxCents = Number(payment.taxAmount ?? 0);\n\nconst amount = Number.isFinite(amountCents) ? amountCents / 100 : null;\nconst tipAmount = Number.isFinite(tipCents) ? tipCents / 100 : 0;\nconst taxAmount = Number.isFinite(taxCents) ? taxCents / 100 : 0;\n\nconst paymentTime =\n  toIso(payment.createdTime) ||\n  toIso(payment.clientCreatedTime) ||\n  toIso(payment.modifiedTime) ||\n  new Date().toISOString();\n\nconst orderId = String(payment.order?.id || payment.orderId || '');\nconst result = String(payment.result || payment.status || '').toUpperCase();\nconst tenderLabel = payment.tender?.label || payment.tender?.labelKey || payment.tender?.name || null;\nconst externalReferenceId = payment.externalReferenceId || payment.external_reference_id || null;\n\nconst merchantOk = !!merchantIdExpected && merchantIdActual === merchantIdExpected;\nconst amountOk = Number.isFinite(amount) && amount > 0;\n\nreturn [{\n  json: {\n    merchant_ok: merchantOk,\n    payment_id: String(payment.id || webhook.paymentId || ''),\n    order_id: orderId || null,\n    amount,\n    amount_cents: amountCents,\n    tip_amount: tipAmount,\n    tax_amount: taxAmount,\n    payment_time: paymentTime,\n    result,\n    tender_label: tenderLabel,\n    external_reference_id: externalReferenceId,\n    note: payment.note || null,\n    raw_payment: payment,\n    should_continue: merchantOk && amountOk\n  }\n}];"
+      },
+      "id": "7176961d-bcac-4ea1-96d9-ac1b28e618a0",
+      "name": "Code - Normalize Clover Payment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.should_continue }}",
+              "operation": "isTrue"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d3ad05a9-c693-4931-b6e6-894c529548f2",
+      "name": "IF - Payment Usable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "10"
+            },
+            {
+              "name": "filterByFormula",
+              "value": "={{ `AND({clover_reconciliation_status}='pending', {order_total}=${$json.amount})` }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c27ea25-c299-4d5a-972b-2194c3212d35",
+      "name": "HTTP - Find Pending Airtable Orders by Amount",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -320,
+        160
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const payment = $('Code - Normalize Clover Payment').first().json;\nconst airtable = $json;\nconst records = airtable.records || [];\nconst windowMinutes = Number($env.CLOVER_MATCH_WINDOW_MINUTES || 15);\nconst paymentTs = new Date(payment.payment_time).getTime();\n\nfunction toMs(value) {\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.getTime();\n}\n\nconst candidates = [];\nfor (const rec of records) {\n  const f = rec.fields || {};\n  const orderTs = toMs(f.order_date);\n  const deltaMinutes = orderTs === null ? null : Math.abs(paymentTs - orderTs) / 60000;\n\n  if (deltaMinutes !== null && deltaMinutes <= windowMinutes) {\n    candidates.push({\n      id: rec.id,\n      fields: f,\n      deltaMinutes\n    });\n  }\n}\n\ncandidates.sort((a, b) => (a.deltaMinutes ?? 999999) - (b.deltaMinutes ?? 999999));\n\nlet matchStatus = 'not_found';\nlet confidence = null;\nlet chosen = null;\nlet note = '';\n\nif (candidates.length === 1) {\n  chosen = candidates[0];\n  matchStatus = 'reconciled';\n  confidence = 95;\n  note = `Matched by amount and order_date within ${windowMinutes} minutes.`;\n} else if (candidates.length > 1) {\n  chosen = candidates[0];\n  matchStatus = 'needs_review';\n  confidence = 40;\n  note = `Multiple pending Ecwid orders matched amount within ${windowMinutes} minutes. Closest candidate selected for review only; no payment_status update applied.`;\n} else {\n  note = `No pending Ecwid orders matched amount within ${windowMinutes} minutes.`;\n}\n\nreturn [{\n  json: {\n    match_status: matchStatus,\n    confidence,\n    note,\n    candidate_count: candidates.length,\n    chosen_record_id: chosen?.id || null,\n    chosen_fields: chosen?.fields || null,\n    candidates\n  }\n}];"
+      },
+      "id": "d6436861-b930-46df-98fb-8d33de3921d4",
+      "name": "Code - Choose Matching Airtable Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.match_status }}",
+              "operation": "equal",
+              "value2": "reconciled"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d79053c1-fecf-442f-8392-f571ada8a31c",
+      "name": "IF - Exact Match?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.chosen_record_id}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: { clover_reconciliation_status: 'reconciled', clover_payment_id: $('Code - Normalize Clover Payment').first().json.payment_id, clover_payment_amount: $('Code - Normalize Clover Payment').first().json.amount, clover_payment_time: $('Code - Normalize Clover Payment').first().json.payment_time, clover_match_confidence: $json.confidence, reconciled_at: new Date().toISOString(), reconciliation_notes: `${$json.note} Clover result=${$('Code - Normalize Clover Payment').first().json.result || 'UNKNOWN'}${$('Code - Normalize Clover Payment').first().json.external_reference_id ? '; externalReferenceId=' + $('Code - Normalize Clover Payment').first().json.external_reference_id : ''}`, payment_status: 'PAID', status: 'PAID', last_webhook_at: new Date().toISOString() } } }}",
+        "options": {}
+      },
+      "id": "49079d3d-b6a6-45f7-86d5-a500e4da5ce6",
+      "name": "HTTP - Update Airtable Order Reconciled",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, mode: 'payment', action: 'reconciled', airtable_record_id: $('Code - Choose Matching Airtable Order').first().json.chosen_record_id, clover_payment_id: $('Code - Normalize Clover Payment').first().json.payment_id } }}",
+        "options": {}
+      },
+      "id": "17df646b-4d29-4219-a3e2-91766eac14da",
+      "name": "Respond - Reconciled",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.match_status }}",
+              "operation": "equal",
+              "value2": "needs_review"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9b7c190-5e85-46a7-9afc-bd8ca0e30f87",
+      "name": "IF - Needs Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        400,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.chosen_record_id}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: { clover_reconciliation_status: 'needs_review', clover_payment_id: $('Code - Normalize Clover Payment').first().json.payment_id, clover_payment_amount: $('Code - Normalize Clover Payment').first().json.amount, clover_payment_time: $('Code - Normalize Clover Payment').first().json.payment_time, clover_match_confidence: $json.confidence, reconciliation_notes: `${$json.note} Candidate count=${$json.candidate_count}.`, last_webhook_at: new Date().toISOString() } } }}",
+        "options": {}
+      },
+      "id": "565927c8-9ba1-41d8-88c3-584137725b6a",
+      "name": "HTTP - Update Airtable Order Needs Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        640,
+        160
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "replace-after-import",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, mode: 'payment', action: 'needs_review', airtable_record_id: $('Code - Choose Matching Airtable Order').first().json.chosen_record_id, candidate_count: $('Code - Choose Matching Airtable Order').first().json.candidate_count, clover_payment_id: $('Code - Normalize Clover Payment').first().json.payment_id } }}",
+        "options": {}
+      },
+      "id": "caa68e39-9e67-4826-87a0-8d3142a0b358",
+      "name": "Respond - Needs Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        880,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, mode: 'payment', action: 'ignored_or_not_found', match_status: $('Code - Choose Matching Airtable Order').first().json.match_status, clover_payment_id: $('Code - Normalize Clover Payment').first().json.payment_id } }}",
+        "options": {}
+      },
+      "id": "a538bf16-2712-4a58-81ca-6641a159af5a",
+      "name": "Respond - Ignored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        640,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, mode: 'ignored', note: 'Webhook did not include a verificationCode or a recognizable payment id.' } }}",
+        "options": {}
+      },
+      "id": "4d9d2aad-b815-4da5-8b09-103d0a3f7366",
+      "name": "Respond - Unsupported Payload",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, mode: 'ignored', note: 'Payment payload was not usable after Clover API verification.' } }}",
+        "options": {}
+      },
+      "id": "27aac937-7fef-4275-80b3-52bc43dd93b7",
+      "name": "Respond - Unusable Payment",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Clover Payment Updated": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Clover Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Clover Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF - Verification Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Verification Request?": {
+      "main": [
+        [
+          {
+            "node": "Respond - Verification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - Payment Event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Payment Event?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Clover Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Unsupported Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Clover Payment": {
+      "main": [
+        [
+          {
+            "node": "Code - Normalize Clover Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Normalize Clover Payment": {
+      "main": [
+        [
+          {
+            "node": "IF - Payment Usable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Payment Usable?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Find Pending Airtable Orders by Amount",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Unusable Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Find Pending Airtable Orders by Amount": {
+      "main": [
+        [
+          {
+            "node": "Code - Choose Matching Airtable Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Choose Matching Airtable Order": {
+      "main": [
+        [
+          {
+            "node": "IF - Exact Match?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Exact Match?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Airtable Order Reconciled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - Needs Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Airtable Order Reconciled": {
+      "main": [
+        [
+          {
+            "node": "Respond - Reconciled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Needs Review?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Airtable Order Needs Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Airtable Order Needs Review": {
+      "main": [
+        [
+          {
+            "node": "Respond - Needs Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "99b0a87c-4634-4ec9-bdda-0e86541d6317",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "v2QguZs8WLY6RZHb",
+  "tags": []
+}
