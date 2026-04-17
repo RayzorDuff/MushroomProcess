@@ -497,6 +497,7 @@
             "formula": "IF(\r\n  OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)",
             "isValid": true,
             "referencedFieldIds": [
+              "fldYnQ0r2CAvasnQu",
               "fldxEMPeLKGwRCK2M",
               "fldIC7hRmODZ0X3p0"
             ],
@@ -896,33 +897,19 @@
           "id": "fldCaAC0GQ4HQdkRw",
           "name": "process_type",
           "options": {
-            "fieldIdInLinkedTable": "fldBsxGzIXx2IO9Ts",
+            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
             "isValid": true,
             "recordLinkFieldId": "fldZKlmLflBlJOIri",
             "result": {
-              "options": {
-                "choices": [
-                  {
-                    "color": "blueLight2",
-                    "id": "selfceGzJIhPmLGMT",
-                    "name": "Sterilize"
-                  },
-                  {
-                    "color": "cyanLight2",
-                    "id": "selfY7EHC5aLiD7UR",
-                    "name": "Pasteurize"
-                  },
-                  {
-                    "color": "tealLight2",
-                    "id": "seljqQep6LW34vf6S",
-                    "name": "Abandoned"
-                  }
-                ]
-              },
-              "type": "singleSelect"
+              "type": "singleLineText"
             }
           },
           "type": "multipleLookupValues"
+        },
+        {
+          "id": "fldSVENsQQ2fL8HA1",
+          "name": "process_type_mat",
+          "type": "singleLineText"
         },
         {
           "id": "flda0L76dXoFvneR7",
@@ -1110,12 +1097,12 @@
           "id": "fldzfOifL6FVKrVed",
           "name": "label_subtitle_prod",
           "options": {
-            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")\r\n",
             "isValid": true,
             "referencedFieldIds": [
               "fldxEMPeLKGwRCK2M",
               "fldmasAoE3hLznq9h",
-              "fldCaAC0GQ4HQdkRw",
+              "fldSVENsQQ2fL8HA1",
               "fld0vFWc649maA7Vj",
               "fldqmbHWvrKsoiq65",
               "fld3kzM8siqsRjT2I",
@@ -1220,6 +1207,48 @@
           "id": "fldx3RqIx1OG0egZd",
           "name": "notes",
           "type": "multilineText"
+        },
+        {
+          "id": "fldYnQ0r2CAvasnQu",
+          "name": "ecwid_url (from ecommerce)",
+          "options": {
+            "fieldIdInLinkedTable": "fldFUbyQ5vcX3wci8",
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "result": {
+              "type": "url"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
+          "id": "fld8LD4yN5QwmttL3",
+          "name": "ecwid_upc (from ecommerce)",
+          "options": {
+            "fieldIdInLinkedTable": "fldM7Zh3go5VV1rOM",
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "multipleLookupValues"
+        },
+        {
+          "id": "fldwkcbXyZ8ENrT9A",
+          "name": "ecwid_price (from ecommerce)",
+          "options": {
+            "fieldIdInLinkedTable": "fldmuweHn1q3XMK3u",
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "result": {
+              "options": {
+                "precision": 2
+              },
+              "type": "number"
+            }
+          },
+          "type": "multipleLookupValues"
         }
       ],
       "id": "tbl51zhGGDuaL2Sm4",
@@ -1244,6 +1273,11 @@
         {
           "id": "viwcx0xtA7pRoyigo",
           "name": "All Rooted Psyche",
+          "type": "grid"
+        },
+        {
+          "id": "viw7biTItVlMH4rz9",
+          "name": "LC Syringes",
           "type": "grid"
         }
       ]
@@ -2939,6 +2973,21 @@
           "id": "viwu96JIPlYXCYv1h",
           "name": "Active Lots",
           "type": "grid"
+        },
+        {
+          "id": "viwwQUSWkK61nUlBE",
+          "name": "LC Syringes",
+          "type": "grid"
+        },
+        {
+          "id": "viwQXsDBBHAMFfjJK",
+          "name": "Newly Sterilized",
+          "type": "grid"
+        },
+        {
+          "id": "viwvCLMdQGbrG8t5B",
+          "name": "Unused Casing",
+          "type": "grid"
         }
       ]
     },
@@ -3778,6 +3827,11 @@
           "type": "multilineText"
         },
         {
+          "id": "fldLTAkYPWj5ZkDwY",
+          "name": "lots",
+          "type": "singleLineText"
+        },
+        {
           "id": "fldLYzMLC9yEeO1J0",
           "name": "event_time_for_rollup",
           "options": {
@@ -3797,11 +3851,6 @@
             }
           },
           "type": "formula"
-        },
-        {
-          "id": "fldLTAkYPWj5ZkDwY",
-          "name": "lots",
-          "type": "singleLineText"
         }
       ],
       "id": "tblSFVpaC8X07Xyvn",
@@ -5174,6 +5223,11 @@
           "type": "multipleAttachments"
         },
         {
+          "id": "fldM7Zh3go5VV1rOM",
+          "name": "ecwid_upc",
+          "type": "singleLineText"
+        },
+        {
           "id": "fldLoqJECuJzcTCFk",
           "name": "available_from_products",
           "options": {
@@ -5249,6 +5303,11 @@
             "precision": 0
           },
           "type": "number"
+        },
+        {
+          "id": "fldQpE3IjubgMC7ac",
+          "name": "order_code",
+          "type": "singleLineText"
         },
         {
           "id": "fldNzzDbyK0594KxU",
@@ -5371,6 +5430,234 @@
           "id": "fldybS4OyYh47mt1e",
           "name": "ecwid_skus",
           "type": "multilineText"
+        },
+        {
+          "id": "fld65aLgLj6ohtX5R",
+          "name": "payment_status",
+          "options": {
+            "choices": [
+              {
+                "color": "blueLight2",
+                "id": "selrr1LyZkzeMJi8t",
+                "name": "PAID"
+              },
+              {
+                "color": "cyanLight2",
+                "id": "selhrpMxlAuIUMaXi",
+                "name": "AWAITING_PAYMENT"
+              },
+              {
+                "color": "tealLight2",
+                "id": "selMPCL5D8eBf1Nsu",
+                "name": "REFUNDED"
+              },
+              {
+                "color": "greenLight2",
+                "id": "selCoSxRBOmjDJtCh",
+                "name": "PARTIALLY_REFUNDED"
+              },
+              {
+                "color": "yellowLight2",
+                "id": "selVBEZwBAXFrFaGc",
+                "name": "CANCELED"
+              }
+            ]
+          },
+          "type": "singleSelect"
+        },
+        {
+          "id": "fld9wlJb6mPyjWGYi",
+          "name": "payment_method",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fld85yvFPZBcDNhle",
+          "name": "subtotal",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "type": "currency"
+        },
+        {
+          "id": "fldqNU1h6DO8SQ0Oj",
+          "name": "tax_total",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "type": "currency"
+        },
+        {
+          "id": "fldLc2lnumeHpdfEr",
+          "name": "order_total",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "type": "currency"
+        },
+        {
+          "id": "flde6IhUfWXDm1GHf",
+          "name": "currency",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldUSfpi0i9cQn0Hk",
+          "name": "clover_reconciliation_status",
+          "options": {
+            "choices": [
+              {
+                "color": "blueLight2",
+                "id": "selsliCnEXSnbiaLo",
+                "name": "pending"
+              },
+              {
+                "color": "cyanLight2",
+                "id": "selq656IPcLjoMdnU",
+                "name": "matched"
+              },
+              {
+                "color": "tealLight2",
+                "id": "selrQ8MusnRsR59r0",
+                "name": "reconciled"
+              },
+              {
+                "color": "greenLight2",
+                "id": "selfTPZU52Iixs4rO",
+                "name": "needs_review"
+              },
+              {
+                "color": "yellowLight2",
+                "id": "selBMsu9SXyiHTZ3j",
+                "name": "not_found"
+              },
+              {
+                "color": "orangeLight2",
+                "id": "selWtbQGU2PNarAhI",
+                "name": "duplicate_match"
+              },
+              {
+                "color": "redLight2",
+                "id": "selmdD2Ha0sRukLee",
+                "name": "cancelled"
+              }
+            ]
+          },
+          "type": "singleSelect"
+        },
+        {
+          "id": "fldcz0zASvhuuuKH0",
+          "name": "clover_payment_id",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldcsOs2xemXWiain",
+          "name": "clover_payment_amount",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "type": "currency"
+        },
+        {
+          "id": "fldPMpoPN270C3GtC",
+          "name": "clover_payment_time",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldJUGUeeQiQQfNUu",
+          "name": "clover_match_confidence",
+          "options": {
+            "precision": 1
+          },
+          "type": "number"
+        },
+        {
+          "id": "fldqJyeOY1crz5hdc",
+          "name": "reconciled_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldtD3oyWT8d3rSi3",
+          "name": "reconciliation_notes",
+          "type": "multilineText"
+        },
+        {
+          "id": "fld4VonvknjRWSmIV",
+          "name": "ecwid_event_type",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldMLlYEp5COorSez",
+          "name": "ecwid_event_id",
+          "type": "singleLineText"
+        },
+        {
+          "id": "fldfjqSGP62qITvcB",
+          "name": "last_webhook_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldaDWizC52n2SU63",
+          "name": "products_report",
+          "options": {
+            "fieldIdInLinkedTable": "fldl45lXo0Jr4kQpf",
+            "isValid": true,
+            "recordLinkFieldId": "fldBeiYxWJWevTntu",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "rollup"
+        },
+        {
+          "id": "fld3lgDrrNesP7dPw",
+          "name": "product_ids_report",
+          "options": {
+            "fieldIdInLinkedTable": "fldgzDEo51u33bNf3",
+            "isValid": true,
+            "recordLinkFieldId": "fldBeiYxWJWevTntu",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "type": "rollup"
         }
       ],
       "id": "tblWXZlk8KB29P312",
