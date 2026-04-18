@@ -2,42 +2,36 @@
   "name": "MushroomProcess - Fulfillment API",
   "nodes": [
     {
-      "id": "029f156e-dd61-49d0-bee0-a21a3a15de05",
-      "name": "Webhook - List Fulfillment Orders",
-      "type": "n8n-nodes-base.webhook",
-      "position": [
-        -2200,
-        0
-      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/fulfillment/orders/list",
         "responseMode": "responseNode",
         "options": {}
       },
-      "typeVersion": 2
-    },
-    {
-      "id": "fd18ccaf-89fd-4bce-8bed-0d5dc8a09c81",
-      "name": "Code - Parse List Request",
-      "type": "n8n-nodes-base.code",
+      "id": "d1c0aa25-d00f-4801-8f5c-e4a48ca4a9cb",
+      "name": "Webhook - List Fulfillment Orders",
+      "type": "n8n-nodes-base.webhook",
       "position": [
-        -1980,
+        0,
         0
       ],
+      "typeVersion": 2,
+      "webhookId": "fe9dc472-4f99-43dd-836f-77cd7e17e241"
+    },
+    {
       "parameters": {
         "jsCode": "const body=$json.body||$json; return [{json:{mode:String(body.mode||'all').toLowerCase(), date:String(body.date||''), timezone:String(body.timezone||'America/Denver')}}];"
       },
+      "id": "3b75137f-bc75-4c89-b33b-9f4de7aa7949",
+      "name": "Code - Parse List Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        0
+      ],
       "typeVersion": 2
     },
     {
-      "id": "58e61e7b-a944-4387-825e-785799299337",
-      "name": "HTTP - List Orders Airtable",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        0
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
         "sendQuery": true,
@@ -72,75 +66,76 @@
         },
         "options": {}
       },
+      "id": "0a97955b-554c-42c6-985a-58c8f2afdfa0",
+      "name": "HTTP - List Orders Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        0
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "b1a3726a-5002-47d3-aa54-85506e4e1589",
+      "parameters": {
+        "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\n\nfunction zonedParts(v, tz) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return null;\n\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n  }).formatToParts(d);\n\n  return Object.fromEntries(parts.map(p => [p.type, p.value]));\n}\n\nfunction dateKey(v, tz) {\n  const m = zonedParts(v, tz);\n  if (!m) return '';\n  return `${m.year}-${m.month}-${m.day}`;\n}\n\nfunction localDateTime(v, tz) {\n  if (!v) return '';\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction parseItems(s) {\n  try {\n    const a = typeof s === 'string' ? JSON.parse(s) : [];\n    return Array.isArray(a) ? a : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction itemSummary(items) {\n  return items\n    .map(i => `${i.name || i.nameTranslated?.en || '(unknown)'} x${Number(i.quantity || 0) || 0}`)\n    .join(', ');\n}\n\n/*\n  IMPORTANT:\n  Treat requested date as a plain calendar date, not a moment in time.\n  Do not convert it through Date()/timezone math.\n*/\nfunction normalizeReqDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return '';\n\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  return m ? m[1] : '';\n}\n\nconst mode = String(req.mode || 'all');\nconst timezone = req.timezone || 'America/Denver';\nconst reqDateRaw = req.date || '';\nconst reqDate = normalizeReqDate(reqDateRaw);\n\nconst out = [];\nconst debug = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const items = parseItems(f.items_json);\n\n  const requiredCount = items.reduce(\n    (n, i) => n + (Number(i.quantity || 0) || 0),\n    0\n  );\n\n  const linkedProducts = Array.isArray(f.products) ? f.products : [];\n  const linkedCount = linkedProducts.length;\n\n  const paymentMethod = String(f.payment_method || '');\n  const market = paymentMethod === 'Sell on the Go - Placed';\n\n  const ready = market\n    ? String(f.clover_reconciliation_status || '').toLowerCase() === 'reconciled'\n    : String(f.payment_status || '').toUpperCase() === 'PAID';\n\n  const rowDate = dateKey(f.order_date, timezone);\n\n  let excludedBy = null;\n\n  if (mode === 'market' && !market) {\n    excludedBy = 'mode_market';\n  } else if (mode === 'web' && market) {\n    excludedBy = 'mode_web';\n  } else if (!ready) {\n    excludedBy = 'not_ready';\n  } else if (reqDate && rowDate !== reqDate) {\n    excludedBy = 'date';\n  } else if (linkedCount >= requiredCount) {\n    excludedBy = 'already_fulfilled';\n  }\n\n  debug.push({\n    id: rec.id,\n    order_code: f.order_code || null,\n    payment_method: paymentMethod,\n    market,\n    payment_status: f.payment_status || null,\n    clover_reconciliation_status: f.clover_reconciliation_status || null,\n    order_date_raw: f.order_date || null,\n    row_date: rowDate,\n    req_date_raw: reqDateRaw || null,\n    req_date: reqDate || null,\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    excluded_by: excludedBy\n  });\n\n  if (excludedBy) continue;\n\n  out.push({\n    airtable_record_id: rec.id,\n    order_ref: String(f.order_code || f.ecwid_order_id || f.order_number || ''),\n    order_number: f.order_number || null,\n    order_date: f.order_date || null,\n    order_date_local: localDateTime(f.order_date, timezone),\n    order_date_local_date: rowDate,\n    customer_name: f.customer_name || '',\n    payment_method: paymentMethod,\n    payment_status: f.payment_status || '',\n    clover_reconciliation_status: f.clover_reconciliation_status || '',\n    payment_state: market\n      ? (f.clover_reconciliation_status || 'pending')\n      : (f.payment_status || ''),\n    mode: market ? 'market' : 'web',\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_names: itemSummary(items) || '(none)',\n    products_report: f.products_report || '',\n    product_ids_report: f.product_ids_report || '',\n    items,\n    reconciliation_notes: f.reconciliation_notes || ''\n  });\n}\n\nout.sort((a, b) => String(a.order_date || '').localeCompare(String(b.order_date || '')));\n\nreturn [{\n  json: {\n    ok: true,\n    req: {\n      ...req,\n      date_raw: reqDateRaw,\n      date: reqDate,\n      timezone\n    },\n    orders: out,\n    count: out.length,\n    debug\n  }\n}];"
+      },
+      "id": "e0642591-c428-4fae-8f92-cfaaa56d8a5f",
       "name": "Code - Build Fulfillment Orders",
       "type": "n8n-nodes-base.code",
       "position": [
-        -1540,
+        672,
         0
       ],
-      "parameters": {
-        "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\nfunction dateKey(v,tz){ if(!v) return ''; const d=new Date(v); if(Number.isNaN(d.getTime())) return ''; const parts=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d); const m=Object.fromEntries(parts.map(p=>[p.type,p.value])); return `${m.year}-${m.month}-${m.day}`; }\nfunction localTime(v,tz){ if(!v) return ''; const d=new Date(v); if(Number.isNaN(d.getTime())) return ''; return new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true}).format(d); }\nfunction parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nfunction itemSummary(items){ return items.map(i=>`${i.name||i.nameTranslated?.en||'(unknown)'} x${Number(i.quantity||0)||0}`).join(', '); }\nconst out=[];\nfor(const rec of rows){ const f=rec.fields||{}; const items=parseItems(f.items_json); const requiredCount=items.reduce((n,i)=>n+(Number(i.quantity||0)||0),0); const linkedProducts=Array.isArray(f.products)?f.products:[]; const linkedCount=linkedProducts.length; const market=(f.payment_method==='Sell on the Go - Placed'); const ready = market ? String(f.clover_reconciliation_status||'')==='reconciled' : String(f.payment_status||'').toUpperCase()==='PAID'; const mode=req.mode||'all'; if(mode==='market' && !market) continue; if(mode==='web' && market) continue; if(!ready) continue; if(req.date && dateKey(f.order_date, req.timezone)!==req.date) continue; if(linkedCount>=requiredCount) continue; out.push({airtable_record_id:rec.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), order_number:f.order_number||null, order_date:f.order_date||null, order_date_local:localTime(f.order_date, req.timezone), customer_name:f.customer_name||'', payment_method:f.payment_method||'', payment_status:f.payment_status||'', clover_reconciliation_status:f.clover_reconciliation_status||'', payment_state: market ? (f.clover_reconciliation_status||'pending') : (f.payment_status||''), mode: market ? 'market' : 'web', linked_count:linkedCount, required_count:requiredCount, product_names:itemSummary(items)||'(none)', products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', items, reconciliation_notes:f.reconciliation_notes||''}); }\nout.sort((a,b)=> String(a.order_date||'').localeCompare(String(b.order_date||'')));\nreturn [{json:{ok:true, orders:out, count:out.length}}];"
-      },
       "typeVersion": 2
     },
     {
-      "id": "b5ffbb76-7dc5-42d4-a6db-05fabf40b913",
-      "name": "Respond - List Orders",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "position": [
-        -1320,
-        0
-      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $json }}",
         "options": {}
       },
+      "id": "bf7d7697-31e4-450f-a6d1-6165862be825",
+      "name": "Respond - List Orders",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        880,
+        0
+      ],
       "typeVersion": 1
     },
     {
-      "id": "fe28a4a0-fe08-471b-bb65-7a7ea5f96606",
-      "name": "Webhook - Order Detail",
-      "type": "n8n-nodes-base.webhook",
-      "position": [
-        -2200,
-        300
-      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/fulfillment/order/detail",
         "responseMode": "responseNode",
         "options": {}
       },
-      "typeVersion": 2
+      "id": "43d827b7-fe60-4de5-a5b9-0d603da68d05",
+      "name": "Webhook - Order Detail",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        304
+      ],
+      "typeVersion": 2,
+      "webhookId": "668307cf-d804-48de-97b4-4187f788b4d0"
     },
     {
-      "id": "644efe5d-cd2d-4f42-bd3a-6f4ee32ea52b",
-      "name": "Code - Parse Detail Request",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -1980,
-        300
-      ],
       "parameters": {
         "jsCode": "const body=$json.body||$json; const id=String(body.airtable_record_id||'').trim(); if(!id) throw new Error('Missing airtable_record_id'); return [{json:{airtable_record_id:id, timezone:String(body.timezone||'America/Denver')}}];"
       },
+      "id": "ec204d00-4177-4996-a122-6b1d1a58df71",
+      "name": "Code - Parse Detail Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        304
+      ],
       "typeVersion": 2
     },
     {
-      "id": "0eb40af2-765e-41c3-bcc8-4b684228620d",
-      "name": "HTTP - Get Order Airtable",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        300
-      ],
       "parameters": {
-        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$('Code - Parse Detail Request').first().json.airtable_record_id}` }}",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.airtable_record_id}` }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -156,73 +151,74 @@
         },
         "options": {}
       },
+      "id": "ae4aea5c-51eb-4024-91bd-f616b1cc89e8",
+      "name": "HTTP - Get Order Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        304
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "02080282-a554-4633-baeb-b5d94de83f94",
-      "name": "Code - Build Order Detail",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -1540,
-        300
-      ],
       "parameters": {
         "jsCode": "const f=$json.fields||{}; function parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nconst items=parseItems(f.items_json).map((i,idx)=>({line_index:idx+1,name:i.name||i.nameTranslated?.en||'(unknown)',sku:i.sku||'',productId:i.productId||null,quantity:Number(i.quantity||0)||0}));\nconst linked=Array.isArray(f.products)?f.products:[];\nconst summary=`Ecwid ${String(f.order_code||f.ecwid_order_id||f.order_number||'')} | ${f.customer_name||''} | linked ${linked.length} of ${items.reduce((n,i)=>n+i.quantity,0)} required`;\nreturn [{json:{ok:true, airtable_record_id:$json.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), summary, items, linked_products:linked, products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', raw_fields:f}}];"
       },
+      "id": "aaa59175-ff82-4ac9-9691-8a31d682f151",
+      "name": "Code - Build Order Detail",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        672,
+        304
+      ],
       "typeVersion": 2
     },
     {
-      "id": "22dd9a2f-1712-4a6c-a107-5726fa3d6364",
-      "name": "Respond - Order Detail",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "position": [
-        -1320,
-        300
-      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $json }}",
         "options": {}
       },
+      "id": "3f590342-de3a-4728-a047-92bd0de56014",
+      "name": "Respond - Order Detail",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        880,
+        304
+      ],
       "typeVersion": 1
     },
     {
-      "id": "cef3400d-f7bb-453a-b593-0e28a8d60870",
-      "name": "Webhook - Search Products",
-      "type": "n8n-nodes-base.webhook",
-      "position": [
-        -2200,
-        650
-      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/fulfillment/products/search",
         "responseMode": "responseNode",
         "options": {}
       },
-      "typeVersion": 2
+      "id": "f1877de2-a8cf-47f4-8c8a-1ac2cd9c6f85",
+      "name": "Webhook - Search Products",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        656
+      ],
+      "typeVersion": 2,
+      "webhookId": "e1dfc874-9a16-4b0c-98c1-d10dec59b36b"
     },
     {
-      "id": "d2beae68-5015-4241-862c-e85b6b2e4d9d",
-      "name": "Code - Parse Product Search",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -1980,
-        650
-      ],
       "parameters": {
         "jsCode": "const body=$json.body||$json; return [{json:{query:String(body.query||'').trim().toLowerCase()}}];"
       },
+      "id": "96860b52-e94f-416d-b477-07d00fba1a55",
+      "name": "Code - Parse Product Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        656
+      ],
       "typeVersion": 2
     },
     {
-      "id": "c3f55249-9dc5-45ea-9f5b-1f21eb242a4f",
-      "name": "HTTP - List Products Airtable",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        590
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}` }}",
         "sendQuery": true,
@@ -257,16 +253,16 @@
         },
         "options": {}
       },
+      "id": "e485e70e-9604-449d-b65e-5245e4aa3d6a",
+      "name": "HTTP - List Products Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        592
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "40aa6808-449a-4835-b298-ed080279be7d",
-      "name": "HTTP - List Locations Airtable",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        710
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_LOCATIONS_TABLE_ID}` }}",
         "sendQuery": true,
@@ -293,88 +289,89 @@
         },
         "options": {}
       },
+      "id": "06a2a3bb-05da-4ba0-955b-09da6c0d5913",
+      "name": "HTTP - List Locations Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        800
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "e2978405-6d1e-4221-a74d-451097e8ea82",
-      "name": "Merge - Products + Locations",
-      "type": "n8n-nodes-base.merge",
-      "position": [
-        -1540,
-        650
-      ],
       "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
         "options": {}
       },
+      "id": "d65ea8d6-51a4-4cb4-9c5d-090985faaca2",
+      "name": "Merge - Products + Locations",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        672,
+        656
+      ],
       "typeVersion": 3.2
     },
     {
-      "id": "e630a70d-05a8-4259-8e34-5ea4eb55e8b8",
+      "parameters": {
+        "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst prodResp = $('HTTP - List Products Airtable').first().json || {};\nconst locResp = $('HTTP - List Locations Airtable').first().json || {};\n\nconst excludedLocationNames = new Set(\n  ['Shipped', 'Consumed', 'Compost', 'Expired'].map(s => s.toLowerCase())\n);\n\nconst locRecords = Array.isArray(locResp.records) ? locResp.records : [];\nconst locMap = new Map(\n  locRecords.map(r => [r.id, String(r.fields?.name || '')])\n);\n\nconst excludedLocationIds = new Set(\n  locRecords\n    .filter(r => excludedLocationNames.has(String(r.fields?.name || '').toLowerCase()))\n    .map(r => r.id)\n);\n\nconst rows = Array.isArray(prodResp.records) ? prodResp.records : [];\nconst q = String(req.query || '').trim().toLowerCase();\n\nconst products = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const locs = Array.isArray(f.storage_location) ? f.storage_location : [];\n\n  if (locs.some(id => excludedLocationIds.has(id))) continue;\n\n  const hay = [\n    f.product_id,\n    f.name_mat,\n    f.unit_size,\n    f.item_category_mat,\n    f.notes\n  ]\n    .filter(Boolean)\n    .join(' ')\n    .toLowerCase();\n\n  if (q && !hay.includes(q)) continue;\n\n  products.push({\n    airtable_record_id: rec.id,\n    product_id: f.product_id || '',\n    name_mat: f.name_mat || '',\n    unit_size: f.unit_size || '',    \n    item_category_mat: f.item_category_mat || '',\n    storage_location_name: locs.map(id => locMap.get(id) || id).join(', '),\n    notes: f.notes || ''\n  });\n}\n\nreturn [{\n  json: {\n    ok: true,\n    products: products.slice(0, 100),\n    count: products.length\n  }\n}];"
+      },
+      "id": "1449a6d9-271c-47bc-8970-2499c894591a",
       "name": "Code - Build Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
-        -1320,
-        650
+        880,
+        656
       ],
-      "parameters": {
-        "jsCode": "const req=$('Code - Parse Product Search').first().json; const prodResp=$('HTTP - List Products Airtable').first().json||{}; const locResp=$('HTTP - List Locations Airtable').first().json||{}; const shipped=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; const locMap=new Map((locResp.records||[]).map(r=>[r.id, String(r.fields?.name||'')])); const rows=Array.isArray(prodResp.records)?prodResp.records:[]; const q=req.query; const products=[]; for(const rec of rows){ const f=rec.fields||{}; const locs=Array.isArray(f.storage_location)?f.storage_location:[]; if(shipped && locs.includes(shipped)) continue; const hay=[f.product_id,f.name_mat,f.item_category_mat,f.notes].filter(Boolean).join(' ').toLowerCase(); if(q && !hay.includes(q)) continue; products.push({airtable_record_id:rec.id, product_id:f.product_id||'', name_mat:f.name_mat||'', item_category_mat:f.item_category_mat||'', storage_location_name:locs.map(id=>locMap.get(id)||id).join(', '), notes:f.notes||''}); }\nreturn [{json:{ok:true, products:products.slice(0,100), count:products.length}}];"
-      },
       "typeVersion": 2
     },
     {
-      "id": "4c674930-a4d2-4158-8fa2-a6cb43bc4354",
-      "name": "Respond - Search Products",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "position": [
-        -1100,
-        650
-      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $json }}",
         "options": {}
       },
+      "id": "d5511717-eb81-43a8-a0ea-29240d6e9223",
+      "name": "Respond - Search Products",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1104,
+        656
+      ],
       "typeVersion": 1
     },
     {
-      "id": "bb11ee0a-f520-4222-bf9a-5d345744f88c",
-      "name": "Webhook - Assign Product",
-      "type": "n8n-nodes-base.webhook",
-      "position": [
-        -2200,
-        1060
-      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "mushroomprocess/fulfillment/assign-product",
         "responseMode": "responseNode",
         "options": {}
       },
-      "typeVersion": 2
+      "id": "bb32f2dc-8041-4a38-9f8e-c8ae099983ae",
+      "name": "Webhook - Assign Product",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        1072
+      ],
+      "typeVersion": 2,
+      "webhookId": "d0695050-1f4d-49b5-b3a6-c4a99a19b41e"
     },
     {
-      "id": "73144817-3d58-4763-9684-fb78b3093931",
-      "name": "Code - Parse Assign",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -1980,
-        1060
-      ],
       "parameters": {
         "jsCode": "const body=$json.body||$json; const oid=String(body.airtable_order_record_id||'').trim(); const pid=String(body.airtable_product_record_id||'').trim(); if(!oid||!pid) throw new Error('Missing airtable_order_record_id or airtable_product_record_id'); return [{json:{airtable_order_record_id:oid, airtable_product_record_id:pid}}];"
       },
+      "id": "b85d99a3-86dc-4b7f-ba1c-b7c5198683ec",
+      "name": "Code - Parse Assign",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        1072
+      ],
       "typeVersion": 2
     },
     {
-      "id": "1831e092-0c0f-4af5-a16b-b2fed99302fd",
-      "name": "HTTP - Get Assign Order",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        1000
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$('Code - Parse Assign').first().json.airtable_order_record_id}` }}",
         "sendHeaders": true,
@@ -392,16 +389,16 @@
         },
         "options": {}
       },
+      "id": "30f1c685-6928-4169-b4be-61ffa9aae747",
+      "name": "HTTP - Get Assign Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        960
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "6faeb725-45be-4a1c-b48b-7724cf7aebcc",
-      "name": "HTTP - Get Assign Product",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        1120
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}/${$('Code - Parse Assign').first().json.airtable_product_record_id}` }}",
         "sendHeaders": true,
@@ -419,16 +416,16 @@
         },
         "options": {}
       },
+      "id": "b77865cd-103a-49b6-a3a0-a457654dd025",
+      "name": "HTTP - Get Assign Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        1120
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "42eb5700-d9aa-45d3-9daa-e73c95212eeb",
-      "name": "HTTP - List Locations Assign",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1760,
-        1240
-      ],
       "parameters": {
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_LOCATIONS_TABLE_ID}` }}",
         "sendQuery": true,
@@ -455,44 +452,44 @@
         },
         "options": {}
       },
+      "id": "4c90df17-7ba2-42b2-94ee-ed2cf16168ef",
+      "name": "HTTP - List Locations Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        1312
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "5fe88113-4403-480e-99ed-9ebe26c93adc",
-      "name": "Merge - Assign Inputs",
-      "type": "n8n-nodes-base.merge",
-      "position": [
-        -1540,
-        1120
-      ],
       "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
         "options": {}
       },
+      "id": "92aa3b64-9f8d-4014-ac5a-7442383e778d",
+      "name": "Merge - Assign Inputs",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        736,
+        1056
+      ],
       "typeVersion": 3.2
     },
     {
-      "id": "9c0887fd-ae09-47b6-a923-fde2f61f10f4",
-      "name": "Code - Build Assign Updates",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -1320,
-        1120
-      ],
       "parameters": {
         "jsCode": "const order=$('HTTP - Get Assign Order').first().json||{}; const product=$('HTTP - Get Assign Product').first().json||{}; const locResp=$('HTTP - List Locations Assign').first().json||{}; const ship=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; if(!ship) throw new Error('Could not resolve Shipped location'); const of=order.fields||{}; const pf=product.fields||{}; const existing=Array.isArray(of.products)?of.products:[]; if(existing.includes(product.id)) throw new Error('Product already linked to this order'); const locs=Array.isArray(pf.storage_location)?pf.storage_location:[]; if(locs.includes(ship)) throw new Error('Product is already marked Shipped'); return [{json:{order_record_id:order.id, product_record_id:product.id, order_fields:{products:[...existing, product.id]}, product_fields:{storage_location:[ship]}, result:{ok:true, order_record_id:order.id, product_record_id:product.id, order_ref:String(of.order_code||of.ecwid_order_id||of.order_number||''), product_id:pf.product_id||'', message:'Product linked to order and marked shipped.'}}}];"
       },
+      "id": "c7f2e3f4-20dd-488e-91f4-17ff1bbf650d",
+      "name": "Code - Build Assign Updates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        1120
+      ],
       "typeVersion": 2
     },
     {
-      "id": "e3e5f4f9-2725-4a67-acb3-ec3f64588020",
-      "name": "HTTP - Patch Order Assign",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1100,
-        1060
-      ],
       "parameters": {
         "method": "PATCH",
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.order_record_id}` }}",
@@ -514,16 +511,16 @@
         "jsonBody": "={{ { fields: $json.order_fields } }}",
         "options": {}
       },
+      "id": "4c35d1ee-cca7-4b49-a2dd-079cd7f93814",
+      "name": "HTTP - Patch Order Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1104,
+        1008
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "653c2176-42f2-4fe3-88f1-29ab2dc25cb9",
-      "name": "HTTP - Patch Product Assign",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        -1100,
-        1180
-      ],
       "parameters": {
         "method": "PATCH",
         "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}/${$json.product_record_id}` }}",
@@ -545,52 +542,75 @@
         "jsonBody": "={{ { fields: $json.product_fields } }}",
         "options": {}
       },
+      "id": "8bdc1001-d8ae-41bb-8e52-3f617e0bc89e",
+      "name": "HTTP - Patch Product Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1104,
+        1264
+      ],
       "typeVersion": 4.3
     },
     {
-      "id": "85b999a4-93dc-407b-ae1d-ed4772c681c9",
-      "name": "Merge - Assign Patches",
-      "type": "n8n-nodes-base.merge",
-      "position": [
-        -880,
-        1120
-      ],
       "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
         "options": {}
       },
+      "id": "f4238549-1c3d-43ed-b9f9-0b5a04bb34b8",
+      "name": "Merge - Assign Patches",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1328,
+        1120
+      ],
       "typeVersion": 3.2
     },
     {
-      "id": "e1b3c3b9-2a51-49d6-923d-c150c62b622a",
-      "name": "Code - Assign Response",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -660,
-        1120
-      ],
       "parameters": {
         "jsCode": "return [{json: $('Code - Build Assign Updates').first().json.result }];"
       },
+      "id": "19c8e3f8-f1ba-4eb0-bed8-3686bf2a8b1a",
+      "name": "Code - Assign Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        1120
+      ],
       "typeVersion": 2
     },
     {
-      "id": "41d50766-6a72-4549-94b0-e9a2ac669ead",
-      "name": "Respond - Assign",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "position": [
-        -440,
-        1120
-      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $json }}",
         "options": {}
       },
+      "id": "77cf5f2e-c221-4ac5-9d79-abe9ea3c939c",
+      "name": "Respond - Assign",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        1120
+      ],
       "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        592,
+        1216
+      ],
+      "id": "7853c616-0820-42e6-99f3-7357dc5c2fa6",
+      "name": "Merge"
     }
   ],
+  "pinData": {},
   "connections": {
     "Webhook - List Fulfillment Orders": {
       "main": [
@@ -798,20 +818,9 @@
       "main": [
         [
           {
-            "node": "Merge - Assign Inputs",
+            "node": "Merge",
             "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "HTTP - List Locations Assign": {
-      "main": [
-        [
-          {
-            "node": "Merge - Assign Inputs",
-            "type": "main",
-            "index": 2
+            "index": 0
           }
         ]
       ]
@@ -886,17 +895,39 @@
           }
         ]
       ]
+    },
+    "HTTP - List Locations Assign": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "bf9aa28f-10e4-418c-af49-5a21633a41a6",
+  "versionId": "c2739845-982a-485f-9571-3f98d8a84243",
   "meta": {
-    "generatedBy": "OpenAI"
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
-  "id": "16598b1f"
+  "id": "wCghNJJ2yyImDgHF",
+  "tags": []
 }
