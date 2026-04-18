@@ -1,0 +1,902 @@
+{
+  "name": "MushroomProcess - Fulfillment API",
+  "nodes": [
+    {
+      "id": "029f156e-dd61-49d0-bee0-a21a3a15de05",
+      "name": "Webhook - List Fulfillment Orders",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2200,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/orders/list",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fd18ccaf-89fd-4bce-8bed-0d5dc8a09c81",
+      "name": "Code - Parse List Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1980,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const body=$json.body||$json; return [{json:{mode:String(body.mode||'all').toLowerCase(), date:String(body.date||''), timezone:String(body.timezone||'America/Denver')}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58e61e7b-a944-4387-825e-785799299337",
+      "name": "HTTP - List Orders Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        0
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "200"
+            },
+            {
+              "name": "sort[0][field]",
+              "value": "order_date"
+            },
+            {
+              "name": "sort[0][direction]",
+              "value": "desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "b1a3726a-5002-47d3-aa54-85506e4e1589",
+      "name": "Code - Build Fulfillment Orders",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1540,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\nfunction dateKey(v,tz){ if(!v) return ''; const d=new Date(v); if(Number.isNaN(d.getTime())) return ''; const parts=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d); const m=Object.fromEntries(parts.map(p=>[p.type,p.value])); return `${m.year}-${m.month}-${m.day}`; }\nfunction localTime(v,tz){ if(!v) return ''; const d=new Date(v); if(Number.isNaN(d.getTime())) return ''; return new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true}).format(d); }\nfunction parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nfunction itemSummary(items){ return items.map(i=>`${i.name||i.nameTranslated?.en||'(unknown)'} x${Number(i.quantity||0)||0}`).join(', '); }\nconst out=[];\nfor(const rec of rows){ const f=rec.fields||{}; const items=parseItems(f.items_json); const requiredCount=items.reduce((n,i)=>n+(Number(i.quantity||0)||0),0); const linkedProducts=Array.isArray(f.products)?f.products:[]; const linkedCount=linkedProducts.length; const market=(f.payment_method==='Sell on the Go - Placed'); const ready = market ? String(f.clover_reconciliation_status||'')==='reconciled' : String(f.payment_status||'').toUpperCase()==='PAID'; const mode=req.mode||'all'; if(mode==='market' && !market) continue; if(mode==='web' && market) continue; if(!ready) continue; if(req.date && dateKey(f.order_date, req.timezone)!==req.date) continue; if(linkedCount>=requiredCount) continue; out.push({airtable_record_id:rec.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), order_number:f.order_number||null, order_date:f.order_date||null, order_date_local:localTime(f.order_date, req.timezone), customer_name:f.customer_name||'', payment_method:f.payment_method||'', payment_status:f.payment_status||'', clover_reconciliation_status:f.clover_reconciliation_status||'', payment_state: market ? (f.clover_reconciliation_status||'pending') : (f.payment_status||''), mode: market ? 'market' : 'web', linked_count:linkedCount, required_count:requiredCount, product_names:itemSummary(items)||'(none)', products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', items, reconciliation_notes:f.reconciliation_notes||''}); }\nout.sort((a,b)=> String(a.order_date||'').localeCompare(String(b.order_date||'')));\nreturn [{json:{ok:true, orders:out, count:out.length}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b5ffbb76-7dc5-42d4-a6db-05fabf40b913",
+      "name": "Respond - List Orders",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -1320,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe28a4a0-fe08-471b-bb65-7a7ea5f96606",
+      "name": "Webhook - Order Detail",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2200,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/order/detail",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "644efe5d-cd2d-4f42-bd3a-6f4ee32ea52b",
+      "name": "Code - Parse Detail Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1980,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body=$json.body||$json; const id=String(body.airtable_record_id||'').trim(); if(!id) throw new Error('Missing airtable_record_id'); return [{json:{airtable_record_id:id, timezone:String(body.timezone||'America/Denver')}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0eb40af2-765e-41c3-bcc8-4b684228620d",
+      "name": "HTTP - Get Order Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        300
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$('Code - Parse Detail Request').first().json.airtable_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "02080282-a554-4633-baeb-b5d94de83f94",
+      "name": "Code - Build Order Detail",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1540,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const f=$json.fields||{}; function parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nconst items=parseItems(f.items_json).map((i,idx)=>({line_index:idx+1,name:i.name||i.nameTranslated?.en||'(unknown)',sku:i.sku||'',productId:i.productId||null,quantity:Number(i.quantity||0)||0}));\nconst linked=Array.isArray(f.products)?f.products:[];\nconst summary=`Ecwid ${String(f.order_code||f.ecwid_order_id||f.order_number||'')} | ${f.customer_name||''} | linked ${linked.length} of ${items.reduce((n,i)=>n+i.quantity,0)} required`;\nreturn [{json:{ok:true, airtable_record_id:$json.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), summary, items, linked_products:linked, products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', raw_fields:f}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "22dd9a2f-1712-4a6c-a107-5726fa3d6364",
+      "name": "Respond - Order Detail",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -1320,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cef3400d-f7bb-453a-b593-0e28a8d60870",
+      "name": "Webhook - Search Products",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2200,
+        650
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/products/search",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d2beae68-5015-4241-862c-e85b6b2e4d9d",
+      "name": "Code - Parse Product Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1980,
+        650
+      ],
+      "parameters": {
+        "jsCode": "const body=$json.body||$json; return [{json:{query:String(body.query||'').trim().toLowerCase()}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c3f55249-9dc5-45ea-9f5b-1f21eb242a4f",
+      "name": "HTTP - List Products Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        590
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "200"
+            },
+            {
+              "name": "sort[0][field]",
+              "value": "product_id"
+            },
+            {
+              "name": "sort[0][direction]",
+              "value": "asc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "40aa6808-449a-4835-b298-ed080279be7d",
+      "name": "HTTP - List Locations Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        710
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_LOCATIONS_TABLE_ID}` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "50"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "e2978405-6d1e-4221-a74d-451097e8ea82",
+      "name": "Merge - Products + Locations",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -1540,
+        650
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "e630a70d-05a8-4259-8e34-5ea4eb55e8b8",
+      "name": "Code - Build Product Search Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1320,
+        650
+      ],
+      "parameters": {
+        "jsCode": "const req=$('Code - Parse Product Search').first().json; const prodResp=$('HTTP - List Products Airtable').first().json||{}; const locResp=$('HTTP - List Locations Airtable').first().json||{}; const shipped=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; const locMap=new Map((locResp.records||[]).map(r=>[r.id, String(r.fields?.name||'')])); const rows=Array.isArray(prodResp.records)?prodResp.records:[]; const q=req.query; const products=[]; for(const rec of rows){ const f=rec.fields||{}; const locs=Array.isArray(f.storage_location)?f.storage_location:[]; if(shipped && locs.includes(shipped)) continue; const hay=[f.product_id,f.name_mat,f.item_category_mat,f.notes].filter(Boolean).join(' ').toLowerCase(); if(q && !hay.includes(q)) continue; products.push({airtable_record_id:rec.id, product_id:f.product_id||'', name_mat:f.name_mat||'', item_category_mat:f.item_category_mat||'', storage_location_name:locs.map(id=>locMap.get(id)||id).join(', '), notes:f.notes||''}); }\nreturn [{json:{ok:true, products:products.slice(0,100), count:products.length}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4c674930-a4d2-4158-8fa2-a6cb43bc4354",
+      "name": "Respond - Search Products",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -1100,
+        650
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb11ee0a-f520-4222-bf9a-5d345744f88c",
+      "name": "Webhook - Assign Product",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2200,
+        1060
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/assign-product",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "73144817-3d58-4763-9684-fb78b3093931",
+      "name": "Code - Parse Assign",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1980,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const body=$json.body||$json; const oid=String(body.airtable_order_record_id||'').trim(); const pid=String(body.airtable_product_record_id||'').trim(); if(!oid||!pid) throw new Error('Missing airtable_order_record_id or airtable_product_record_id'); return [{json:{airtable_order_record_id:oid, airtable_product_record_id:pid}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1831e092-0c0f-4af5-a16b-b2fed99302fd",
+      "name": "HTTP - Get Assign Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        1000
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$('Code - Parse Assign').first().json.airtable_order_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "6faeb725-45be-4a1c-b48b-7724cf7aebcc",
+      "name": "HTTP - Get Assign Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        1120
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}/${$('Code - Parse Assign').first().json.airtable_product_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "42eb5700-d9aa-45d3-9daa-e73c95212eeb",
+      "name": "HTTP - List Locations Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1760,
+        1240
+      ],
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_LOCATIONS_TABLE_ID}` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "50"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "5fe88113-4403-480e-99ed-9ebe26c93adc",
+      "name": "Merge - Assign Inputs",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -1540,
+        1120
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "9c0887fd-ae09-47b6-a923-fde2f61f10f4",
+      "name": "Code - Build Assign Updates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1320,
+        1120
+      ],
+      "parameters": {
+        "jsCode": "const order=$('HTTP - Get Assign Order').first().json||{}; const product=$('HTTP - Get Assign Product').first().json||{}; const locResp=$('HTTP - List Locations Assign').first().json||{}; const ship=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; if(!ship) throw new Error('Could not resolve Shipped location'); const of=order.fields||{}; const pf=product.fields||{}; const existing=Array.isArray(of.products)?of.products:[]; if(existing.includes(product.id)) throw new Error('Product already linked to this order'); const locs=Array.isArray(pf.storage_location)?pf.storage_location:[]; if(locs.includes(ship)) throw new Error('Product is already marked Shipped'); return [{json:{order_record_id:order.id, product_record_id:product.id, order_fields:{products:[...existing, product.id]}, product_fields:{storage_location:[ship]}, result:{ok:true, order_record_id:order.id, product_record_id:product.id, order_ref:String(of.order_code||of.ecwid_order_id||of.order_number||''), product_id:pf.product_id||'', message:'Product linked to order and marked shipped.'}}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e3e5f4f9-2725-4a67-acb3-ec3f64588020",
+      "name": "HTTP - Patch Order Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1100,
+        1060
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.order_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.order_fields } }}",
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "653c2176-42f2-4fe3-88f1-29ab2dc25cb9",
+      "name": "HTTP - Patch Product Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1100,
+        1180
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_PRODUCTS_TABLE_ID}/${$json.product_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.product_fields } }}",
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "85b999a4-93dc-407b-ae1d-ed4772c681c9",
+      "name": "Merge - Assign Patches",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -880,
+        1120
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "e1b3c3b9-2a51-49d6-923d-c150c62b622a",
+      "name": "Code - Assign Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -660,
+        1120
+      ],
+      "parameters": {
+        "jsCode": "return [{json: $('Code - Build Assign Updates').first().json.result }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "41d50766-6a72-4549-94b0-e9a2ac669ead",
+      "name": "Respond - Assign",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -440,
+        1120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook - List Fulfillment Orders": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse List Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse List Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Orders Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - List Orders Airtable": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Fulfillment Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Fulfillment Orders": {
+      "main": [
+        [
+          {
+            "node": "Respond - List Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Order Detail": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Detail Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Detail Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Order Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Order Airtable": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Order Detail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Order Detail": {
+      "main": [
+        [
+          {
+            "node": "Respond - Order Detail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Search Products": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Product Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Product Search": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Products Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - List Locations Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - List Products Airtable": {
+      "main": [
+        [
+          {
+            "node": "Merge - Products + Locations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - List Locations Airtable": {
+      "main": [
+        [
+          {
+            "node": "Merge - Products + Locations",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge - Products + Locations": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Product Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Product Search Results": {
+      "main": [
+        [
+          {
+            "node": "Respond - Search Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Assign Product": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Assign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Assign": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Assign Order",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Get Assign Product",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - List Locations Assign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Assign Order": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Assign Product": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP - List Locations Assign": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Inputs",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge - Assign Inputs": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Assign Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Assign Updates": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Patch Order Assign",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Patch Product Assign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Patch Order Assign": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Patches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Patch Product Assign": {
+      "main": [
+        [
+          {
+            "node": "Merge - Assign Patches",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge - Assign Patches": {
+      "main": [
+        [
+          {
+            "node": "Code - Assign Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Assign Response": {
+      "main": [
+        [
+          {
+            "node": "Respond - Assign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bf9aa28f-10e4-418c-af49-5a21633a41a6",
+  "meta": {
+    "generatedBy": "OpenAI"
+  },
+  "id": "16598b1f"
+}

@@ -63,6 +63,53 @@ Each page now has named widgets and working SQL/JS wiring:
 - Migrate ecwid integration to postgres/n8n
 - Branch and begin retiring station-centric Airtable interface (described below) following testing of lot-centric appsmith approach
 
+## 🧩 Fulfillment System (NEW)
+
+MushroomProcess now includes a unified fulfillment workflow supporting:
+
+- Farmers market POS (Ecwid + Clover)
+- Website orders (Ecwid online)
+
+### Key Concepts
+
+- Orders are created in Ecwid
+- Payments processed in Clover
+- Products tracked internally at **exact-instance level**
+- Fulfillment links internal `product_id` → Ecwid order
+
+---
+
+## 🧠 Fulfillment Flow
+
+### Farmers Market
+1. Order created via Sell on the Go (Awaiting Payment)
+2. Payment processed via Clover
+3. n8n reconciles payment
+4. End-of-day:
+   - Appsmith Fulfillment UI used
+   - Products assigned to orders
+   - Inventory marked as `Shipped`
+
+---
+
+### Website Orders
+1. Order created + paid in Ecwid
+2. Synced to Airtable
+3. During packing:
+   - Appsmith Fulfillment UI used
+   - Products assigned
+   - Inventory marked as `Shipped`
+
+---
+
+## ⚠️ Important Constraint
+
+Exact-instance tracking requires:
+- manual or scanned product assignment
+- cannot rely on Ecwid SKU-level inventory
+
+---
+
 # MushroomProcess  
 
 _Airtable / NocoDB Inventory, Traceability & Labeling System_

@@ -12,21 +12,6 @@ This document explains how each sync script works, how to install and configure 
 
 ---
 
-# Table of Contents
-
-1. [Overview](#overview)
-2. [Script 1: sync_ecommerce_to_ecwid.js](#script-1-sync_ecommerce_to_ecwidjs)
-3. [Script 2: sync_ecwid_to_ecommerce_orders.js](#script-2-sync_ecwid_to_ecommerce_ordersjs)
-4. [Shared Library: lib/ecwid_airtable.js](#shared-library-libecwid_airtablejs)
-5. [Airtable Schema Requirements](#airtable-schema-requirements)
-6. [Environment Variables](#environment-variables)
-7. [Installation](#installation)
-8. [Usage](#usage)
-9. [Recommended Fulfillment Workflow](#recommended-fulfillment-workflow)
-10. [Future Enhancements](#future-enhancements)
-
----
-
 # Overview
 
 This system is built around **two data flows**:
@@ -237,3 +222,30 @@ node sync_ecwid_to_ecommerce_orders.js
 - `sync_ecwid_to_ecommerce_orders.js`:
   - every 5â€“15 minutes
   - or more frequently if staff needs orders available quickly in Airtable
+
+## ¿¿ Interaction with n8n Reconciliation
+
+- This integration syncs ALL orders (paid + awaiting_payment)
+- n8n workflows:
+  - process farmers market orders (awaiting_payment)
+  - process Clover reconciliation separately
+
+---
+
+## ¿ Future Integration Point
+
+n8n will eventually replace this sync with:
+- webhook-driven ingestion
+- PostgreSQL persistence
+
+---
+
+## ¿ Key Field: `items_json`
+
+- Contains ordered product data
+- Used for:
+  - reporting
+  - fulfillment guidance
+  - product tally generation
+
+---
