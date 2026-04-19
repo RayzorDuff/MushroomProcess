@@ -858,6 +858,19 @@ function compileFormulaExpr(raw, ctx) {
   return { sql: compiled, notes: [] };
 }
 
+// Only certain text *_id columns should be unique.
+// Some *_id fields are batch/group identifiers (for example plate_group_id)
+// and legitimately repeat across rows.
+function shouldUniqueTextIdColumn(colName, autogenSpecs) {
+  if (!colName || colName === 'airtable_id') return false;
+
+  // Only auto-generated Airtable-style record IDs should be unique.
+  // Example: lot_id, product_id, recipe_id, item_id
+  const autogenCols = new Set((autogenSpecs || []).map(s => slug(s.fieldName)));
+  if (autogenCols.has(colName)) return true;
+
+  return false;
+}
 
 // ---------- Main generator ----------
 
@@ -1136,9 +1149,12 @@ CREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(tn)} (
       if (colName === 'nocopk' || colName === 'airtable_id') continue;
       if (colTyp !== 'text') continue;
       if (!/_id$/.test(colName)) continue;
-      // skip the internal airtable_id column (already unique)
-      if (colName === 'airtable_id') continue;
-      addUnique(colName);
+
+      if (shouldUniqueTextIdColumn(colName, autogenSpecs)) {
+        addUnique(colName);
+      } else {
+        addIndex(colName);
+      }
     }
   }
 }
