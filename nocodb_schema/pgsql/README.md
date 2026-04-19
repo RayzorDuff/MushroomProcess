@@ -318,3 +318,11 @@ After regenerating schema from Airtable export:
 5. Import schema SQL through Docker
 6. Import `100_load.sql` from the host with `psql`
 7. Verify schema and seed data loaded correctly
+
+
+## Notes on action helpers
+
+- `mp_lot_set_location_by_name(...)` updates the scalar `lots.location_id` and now also refreshes the Airtable-style location link tables for lots.
+- `mp_product_set_storage_location_by_name(...)` updates the scalar `products.storage_location_id` and now also refreshes the Airtable-style location link tables for products.
+- `mp_lots_package_basic(...)` now checks whether `lots.process_type_mat` or+  `lots.process_type` actually exists before referencing either column.
+

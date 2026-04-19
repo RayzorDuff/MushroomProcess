@@ -744,7 +744,8 @@ BEGIN
 
   SELECT nocopk INTO v_loc_id
   FROM public.locations
-  WHERE name = p_location_name
+  WHERE lower(btrim(name)) = lower(btrim(p_location_name))
+  ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
   LIMIT 1;
 
   IF v_loc_id IS NULL THEN
@@ -754,6 +755,28 @@ BEGIN
   UPDATE public.products
   SET storage_location_id = v_loc_id
   WHERE nocopk = p_product_id;
+
+  BEGIN
+    DELETE FROM public._m2m_products_locations_storage_location
+    WHERE products_id = p_product_id;
+
+    INSERT INTO public._m2m_products_locations_storage_location (products_id, locations_id)
+    VALUES (p_product_id, v_loc_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+
+  BEGIN
+    DELETE FROM public._m2m_locations_products_products
+    WHERE products_id = p_product_id;
+
+    INSERT INTO public._m2m_locations_products_products (locations_id, products_id)
+    VALUES (v_loc_id, p_product_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
 END;
 $$;
 
@@ -938,12 +961,35 @@ BEGIN
         AND table_name   = 'products'
         AND column_name  = 'process_type_mat'
     ) THEN
-      UPDATE public.products p
-      SET process_type_mat = COALESCE(
-        (SELECT l.process_type_mat FROM public.lots l WHERE l.nocopk = v_lot_id),
-        (SELECT l.process_type     FROM public.lots l WHERE l.nocopk = v_lot_id)
-      )
-      WHERE p.nocopk = v_product_id;
+      IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name   = 'lots'
+          AND column_name  = 'process_type_mat'
+      ) THEN
+        UPDATE public.products p
+        SET process_type_mat = (
+          SELECT l.process_type_mat
+          FROM public.lots l
+          WHERE l.nocopk = v_lot_id
+        )
+        WHERE p.nocopk = v_product_id;
+      ELSIF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name   = 'lots'
+          AND column_name  = 'process_type'
+      ) THEN
+        UPDATE public.products p
+        SET process_type_mat = (
+          SELECT l.process_type
+          FROM public.lots l
+          WHERE l.nocopk = v_lot_id
+        )
+        WHERE p.nocopk = v_product_id;
+      END IF;
     END IF;
 
 

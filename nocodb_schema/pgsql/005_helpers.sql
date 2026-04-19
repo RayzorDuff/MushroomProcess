@@ -255,7 +255,8 @@ BEGIN
 
   SELECT nocopk INTO v_loc_id
   FROM public.locations
-  WHERE name = p_location_name
+  WHERE lower(btrim(name)) = lower(btrim(p_location_name))
+  ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
   LIMIT 1;
 
   IF v_loc_id IS NULL THEN
@@ -265,5 +266,27 @@ BEGIN
   UPDATE public.lots
   SET location_id = v_loc_id
   WHERE nocopk = p_lot_id;
+
+  BEGIN
+    DELETE FROM public._m2m_lots_locations_location_id
+    WHERE lots_id = p_lot_id;
+
+    INSERT INTO public._m2m_lots_locations_location_id (lots_id, locations_id)
+    VALUES (p_lot_id, v_loc_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+
+  BEGIN
+    DELETE FROM public._m2m_locations_lots_lots
+    WHERE lots_id = p_lot_id;
+
+    INSERT INTO public._m2m_locations_lots_lots (locations_id, lots_id)
+    VALUES (v_loc_id, p_lot_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
 END;
 $$;
