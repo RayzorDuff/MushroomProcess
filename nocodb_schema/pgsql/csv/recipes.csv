@@ -1,13 +1,15 @@
 airtable_id,recipe_id,active,name,category,ingredients,notes
-rec0fOtk7c3IXZFqI,REC-SUB-CVG-V1,,CVG (Coir+CaCO3+Peat+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite,
-rec3KC4fKWLKAvUSc,REC-SUB-CVG-V2,true,CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite,
+rec0fOtk7c3IXZFqI,REC-SUB-CVG-V1,,CVG (Coir+CaCO3+Peat+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite,Last batch mid September 2025.  Use V2 instead.
+rec3KC4fKWLKAvUSc,REC-SUB-CVG-V2,true,CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite),substrate,Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite,"Preferred over V1 with Gypsum to help mitigate contamination found Sept 2025
+"
 rec9ayZPHs9K5WS4K,REC-GRAIN-WBS,true,Wild Bird Seed Blend,grain,Wild Bird Seed,
 recB4eowfedv0edip,REC-GRAIN-OATS,,Oats,grain,Oats,
-recN0dZqueLdUrR4N,REC-GRAIN-OWM,true,Organic Wheat/Millet Mix,grain,Organic Wheat; Millet,
-recZrabRvulEAIHGB,REC-SUB-MM50,,Masters Mix 50/50,substrate,Hardwood; Soy hulls,
-recdzi4MMq717DjmU,REC-SUB-MM75,true,Masters Mix 75/25,substrate,Hardwood; Soy hulls,
+recN0dZqueLdUrR4N,REC-GRAIN-OWM,true,Organic Wheat/Millet Mix,grain,Organic Wheat; Millet,Mixed ingredient grain spawn
+recZrabRvulEAIHGB,REC-SUB-MM50,,Masters Mix 50/50,substrate,Hardwood; Soy hulls,50/50 by weight
+recdzi4MMq717DjmU,REC-SUB-MM75,true,Masters Mix 75/25,substrate,Hardwood; Soy hulls,75/25 by weight
 recfgGM2NY57OwLnN,REC-LC-STD,true,Liquid Culture Base,lc,"Malt Extract, Dextrose, Soy Peptone, Gypsum, Nutritional Yeast
 ",
-recht7gvlBn3YPjan,REC-CASING-PEAT-V2,true,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite; Gypsum,
-recqU2qs9FZmmQewf,REC-CASING-PEAT-V1,,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite,
+recht7gvlBn3YPjan,REC-CASING-PEAT-V2,,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite; Gypsum,Adding Gypsum.  Pasteurize this.
+recqU2qs9FZmmQewf,REC-CASING-PEAT-V1,,Peat Moss Casing Layer,casing,Peat moss; Vermiculite; CaCO3; Perilite,Last batch early 2025 didn't include Gypsum and was Sterilized.  Use V2 instead.
 recwWg5UpF6UG5t3V,REC-AGAR-STD,true,Agar Base,agar,"Agar, Malt Extract, Nutritional Yeast",
+recz4tdr6wtSL6WHY,REC-CASING-PEAT-V3,true,Peat Moss Casing Layer,casing,Pre-moistened peat moss; Vermiculite; CaCO3; Perilite; Gypsum,Moving to pre-moistened to save the step of sifting dry peat

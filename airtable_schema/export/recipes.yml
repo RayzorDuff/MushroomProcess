@@ -3,21 +3,99 @@
   category: substrate
   ingredients: Coco coir; Calcium carbonate; Peat moss; Worm castings; Vermiculite
   name: CVG (Coir+CaCO3+Peat+Castings+Vermiculite)
+  notes: Last batch mid September 2025.  Use V2 instead.
   recipe_id: REC-SUB-CVG-V1
 - active: true
   airtable_createdTime: '2025-09-22T19:04:28.000Z'
   airtable_id: rec3KC4fKWLKAvUSc
   category: substrate
   ingredients: Coco coir; Calcium carbonate; Gypsum; Worm castings; Vermiculite
+  lots:
+  - recQaJdS3RpJRvmN2
+  - recjmXrfLOMmR175F
+  - recwhofmUSI5Qljd7
+  - rec7eP4HEzIgd3zlf
+  - recbriIzypF6Yyflp
+  - recF45m2bXe6UFhxZ
+  - recILaw7b0VokMNUg
+  - rec2LV9MFUuynmwig
+  - recJ0AiC0ZxIcDOAQ
+  - recdlYrtNqcvh5TKX
+  - rec9ZEsZtjqpxEZK0
+  - rec66vY8AY9xGrwZA
+  - recLE9aZyRq9LMjgH
+  - recTqovAGpSJK94Pe
+  - rec0xZpPJe4l2tIvw
   name: CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
+  notes: |
+    Preferred over V1 with Gypsum to help mitigate contamination found Sept 2025
   recipe_id: REC-SUB-CVG-V2
+  sterilization_runs:
+  - recBjYHAjvHFNP65d
+  - rec8cgEbS5fANlmZu
 - active: true
   airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: rec9ayZPHs9K5WS4K
   category: grain
   ingredients: Wild Bird Seed
+  lots:
+  - recpLZQpMFvnUSUbR
+  - recPTsQJpYoB97qcb
+  - rec6mV7zZFh2IfOgP
+  - recPe0kJ3RyxRRorH
+  - recHG6uHBrKFIouMH
+  - reccqbKCHQk5B18Vz
+  - recyLDXRVagClyLcH
+  - recWwgGMfhtnOeABw
+  - recZs07ldlAixJqUB
+  - rech3RPqvq9d5HZ0p
+  - reck2LZi08mFmuz1p
+  - rec6ZhDkGPCnoRSEF
+  - recRCUQLNBW8lhUEz
+  - recTgfeVSu1FnSAuA
+  - recVyPe4gzIEULJan
+  - recsGjSkvkwZJsD8o
+  - recFqOv4ulTcVkNcW
+  - recLzmMqnN9yD0wUJ
+  - recLoXkq9vU3mIoq5
+  - recVFqaZBbXcqLtak
+  - rec6dezpIfrxtV9Yf
+  - recuFurbEVrwWYrz8
+  - recXixSeVeJ0qvSKm
+  - rec2Ml5vjQdV53Gts
+  - recz4jMWuvWAQbc8D
+  - recflofAblWGLAYo4
+  - rec7vn7xnEv1VuIbg
+  - recD4AvVh3IR6kRcB
+  - recMx97rUXrekmkvr
+  - recwsrtkGQXgJuKQo
+  - recUlI6Jy5u9Kf32e
+  - recMqKbL6z0HWF3J1
+  - recwSmUWW8MbDMeTS
+  - recQL0ZbJVV9OYuyn
+  - rec6L32vzvxkWkTLA
+  - recdEYY9oRCEaX9h9
+  - recY4HfOKcEdgjIJO
+  - recyi6MphXdElEQ8G
+  - recLdmxlgaxQAFgjd
+  - recbcFPZylSXs4EgI
+  - recUnhrTIXUGHxcVW
+  - recyORG1D60Ang6qv
+  - recWKzq1OghcSXNl6
+  - reczX8tImXa5SH8Oz
+  - recxfCn6CtcdnICRV
+  - recJNY2EifD2wVHm8
+  - recoYQgxzuSr0I5kY
+  - recV82OHyOGrx2iyZ
+  - recV0fkHpiBJFFmol
+  - rec7OxTbl1Jw4agFi
+  - rec2alzkr2OS9LKEs
+  - recvHjMNzXE1oNtQG
   name: Wild Bird Seed Blend
   recipe_id: REC-GRAIN-WBS
+  sterilization_runs:
+  - recP2Xx5gAUDYMxKM
+  - recOSF8bNk5Sq0Acf
 - airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recB4eowfedv0edip
   category: grain
@@ -30,45 +108,177 @@
   category: grain
   ingredients: Organic Wheat; Millet
   name: Organic Wheat/Millet Mix
+  notes: Mixed ingredient grain spawn
   recipe_id: REC-GRAIN-OWM
 - airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recZrabRvulEAIHGB
   category: substrate
   ingredients: Hardwood; Soy hulls
   name: Masters Mix 50/50
+  notes: 50/50 by weight
   recipe_id: REC-SUB-MM50
 - active: true
   airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recdzi4MMq717DjmU
   category: substrate
   ingredients: Hardwood; Soy hulls
+  lots:
+  - recBS706EdhphdHF9
+  - recqNWxKXKlnPlFdh
+  - recsshF9dIWKoeLdr
+  - recUDqhCr8diCbSev
+  - recSiAPSUCQyMrdRd
+  - recq4uo3VEkVkjcy5
+  - recsWGK6tQySmWo75
+  - recGHILLo2SQorGSB
+  - reclFAvDlpJO8azHu
+  - recFogSVU6qM1oaya
+  - rec9GzYrjM9TscbjB
+  - recjPDNRcLr01Vpfn
+  - rectxI4B5hYudoJqy
+  - recKPIwrwiMpRuO9H
+  - rec20crkKcED5G637
+  - recFr4uYO9qmWoGlJ
+  - recCz4rOB1BVEvIgI
+  - rec4yeZBeQ9LhH9el
+  - recCz2u2MSmtpAx3w
+  - recfQBS4IfwojqxJm
+  - recyEC3Cou6tb1ri0
+  - rec56cHmEtj5h0Yz1
+  - recgdtbBAwcD0eRWH
+  - reczNtO7hQBO7Aazd
   name: Masters Mix 75/25
+  notes: 75/25 by weight
   recipe_id: REC-SUB-MM75
+  sterilization_runs:
+  - rec0JC7G8fTAXxlJZ
+  - recrCRbHVGXTgst5W
 - active: true
   airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recfgGM2NY57OwLnN
   category: lc
   ingredients: |
     Malt Extract, Dextrose, Soy Peptone, Gypsum, Nutritional Yeast
+  lots:
+  - recD3JJzM2GofILyI
+  - rec7UlNJ7YvvkZOzo
+  - recYIEaSeNv7Wjcpv
+  - receER88nYKrLQXU4
+  - rec1XaQp76729Trni
+  - recYmA0e8xl30gR2g
+  - rec0S8lyU3KDz8cKF
+  - recFP6weFLehaY4Od
+  - reciI7JRp8I3ZbuY9
+  - receTxaB3ycV0zAfY
+  - rec8ZyLRjSpvdWmBD
   name: Liquid Culture Base
   recipe_id: REC-LC-STD
-- active: true
-  airtable_createdTime: '2025-09-22T19:08:33.000Z'
+  sterilization_runs:
+  - recpFcbTcKrw3DX6J
+  - rect5WtJiGG4WFH27
+- airtable_createdTime: '2025-09-22T19:08:33.000Z'
   airtable_id: recht7gvlBn3YPjan
   category: casing
   ingredients: Peat moss; Vermiculite; CaCO3; Perilite; Gypsum
   name: Peat Moss Casing Layer
+  notes: Adding Gypsum.  Pasteurize this.
   recipe_id: REC-CASING-PEAT-V2
 - airtable_createdTime: '2025-09-22T19:06:55.000Z'
   airtable_id: recqU2qs9FZmmQewf
   category: casing
   ingredients: Peat moss; Vermiculite; CaCO3; Perilite
   name: Peat Moss Casing Layer
+  notes: Last batch early 2025 didn't include Gypsum and was Sterilized.  Use V2 instead.
   recipe_id: REC-CASING-PEAT-V1
 - active: true
   airtable_createdTime: '2025-10-27T01:07:51.000Z'
   airtable_id: recwWg5UpF6UG5t3V
   category: agar
   ingredients: Agar, Malt Extract, Nutritional Yeast
+  lots:
+  - recFSpqHZWWKaWNUM
+  - recFJuoGfwdGVDaaH
+  - recbexzYQLlJBTfqq
+  - rec68VDe3INOZ6LA2
+  - rec8o6FZRWgAb9eee
+  - recabB7gPQLCZ2P6l
+  - recfO2l8wFyWowJLw
+  - recN67yHqzqvf9OEM
+  - recbCBnfqJcCCkE55
+  - recjCVf8MDdpI3xXD
+  - recorwgedwf5rchKh
+  - recN72GLG8lX1hVq0
+  - recpbgiWv2EUEZYdv
+  - recLZIJGpPDd9Rt2H
+  - recJHgvS6PNgfr0a0
+  - recjMVTTRqTJcgDAQ
+  - recLeH3kMgAfewjly
+  - recEPh0rJfs4OzgZT
+  - recgz0ZXaq3ig8PNb
+  - recLhmYzDGiCICNZt
+  - recGabpjAFJDblUlA
+  - recLvpHmEQNY2aYvJ
+  - recD3e7NEZ0CHe3wt
+  - recQxSBFB1wA1hodF
+  - rec7MyBsRZaBoAKmv
+  - rec4UmgqFDekXQl9A
+  - rec8aL8PK6QxJw1Q3
+  - recfnRexbmghRJbOJ
+  - recrQ5hFVTKbPnfym
+  - rec35yICwnqGACxeN
+  - rec4RECQE22NROMAG
+  - recEm0bzueeMJrlBR
+  - recOyXwmKRYBnfaow
+  - recFXncf7Y0aNnFsc
+  - recCGsPiFYLZjQRaR
+  - recn6evogKO5MgWuW
+  - recVG9QC3BEvMDLIK
+  - recCKxBdi4VGqqoWo
+  - recRrZP1fDp5T8V1Q
+  - rec3aYPz1uYtgtBLt
+  - recvVzf762ex0fbaa
+  - recP1lNRuoo0NgkJk
+  - recutpEj9YePIPNLs
+  - recQ9KetW87x4rVuQ
+  - recXPzxtHRdIY4fin
+  - rec64bXJ0sdxht5dl
+  - recR8tYddQXweh3Rj
+  - rect7Hlv23YnHU7sb
+  - recyTdIURUQSQKGhg
+  - recnpfOHQVWLBADmW
+  - recM3z4XCNdQSG11v
+  - reczVR6cxNwRXKqpN
+  - recuT5JdQXezu3ANN
+  - recSZmbOFxUlB8oKB
+  - recfqT1Eo4wU2M5LV
+  - recod2DZyOP6318xs
+  - recGMNzwnjY5xbGvh
+  - recafVRXyGU22xG4A
+  - recKjWj4Nd2LLnCjL
+  - recyZ5aaLQbVGjHbe
+  - recGG4Pi3nqPcHsJ5
+  - recVN6rZgoYhU7EmS
+  - recGVkZ7v66QkvlCd
   name: Agar Base
   recipe_id: REC-AGAR-STD
+  sterilization_runs:
+  - rec8ZdEg2StmlxanB
+- active: true
+  airtable_createdTime: '2026-04-09T20:35:00.000Z'
+  airtable_id: recz4tdr6wtSL6WHY
+  category: casing
+  ingredients: Pre-moistened peat moss; Vermiculite; CaCO3; Perilite; Gypsum
+  lots:
+  - recMPbvQjXqntAF2K
+  - recpIpknvzMyX9XUL
+  - rec625XR3HDNSbo6k
+  - recdYyZTipBAVcK4T
+  - recMJxSK6MXMdQUeL
+  - recsZ00YXxe1QAivK
+  - rec6DYC2BQpVso10d
+  - recIO06iB4H4fsS88
+  name: Peat Moss Casing Layer
+  notes: Moving to pre-moistened to save the step of sifting dry peat
+  recipe_id: REC-CASING-PEAT-V3
+  sterilization_runs:
+  - recppjKznbkp9cKxo

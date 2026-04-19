@@ -1279,6 +1279,16 @@
           "id": "viw7biTItVlMH4rz9",
           "name": "LC Syringes",
           "type": "grid"
+        },
+        {
+          "id": "viwX8l2DhDkFiiJH8",
+          "name": "All Regulated",
+          "type": "grid"
+        },
+        {
+          "id": "viwLVDnM7KwBRwHlE",
+          "name": "Not Recent",
+          "type": "grid"
         }
       ]
     },
@@ -2988,6 +2998,16 @@
           "id": "viwvCLMdQGbrG8t5B",
           "name": "Unused Casing",
           "type": "grid"
+        },
+        {
+          "id": "viw4476hhYIQAzQel",
+          "name": "All Regulated",
+          "type": "grid"
+        },
+        {
+          "id": "viwhzEcXI4zWRoWWJ",
+          "name": "Not Recent",
+          "type": "grid"
         }
       ]
     },
@@ -3866,6 +3886,11 @@
           "id": "viwmMSLWKZiyUpqq0",
           "name": "Timeline",
           "type": "timeline"
+        },
+        {
+          "id": "viw5mNSPSJ8JUiDfw",
+          "name": "Unassociated",
+          "type": "grid"
         }
       ]
     },
@@ -4435,6 +4460,11 @@
         {
           "id": "viw7Hl1YUDg795NG4",
           "name": "Grid view",
+          "type": "grid"
+        },
+        {
+          "id": "viwUuPi6M2NwP9pBI",
+          "name": "Not Recent",
           "type": "grid"
         }
       ]
@@ -5085,6 +5115,11 @@
         {
           "id": "viwoifVv9Huueywaf",
           "name": "Queue_All_Trays",
+          "type": "grid"
+        },
+        {
+          "id": "viwK4mJAjoWRIXhOp",
+          "name": "Unassociated",
           "type": "grid"
         }
       ]

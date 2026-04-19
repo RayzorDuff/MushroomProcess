@@ -1,0 +1,11 @@
+airtable_id,start_time,end_time,operator,planned_count,good_count,destroyed_count,planned_unit_size,ui_error,ui_error_at,process_type,target_temp_c,pressure_mode,override_end_time
+rec0JC7G8fTAXxlJZ,2026-02-26T17:21:00.000Z,2026-02-28T18:29:00.000Z,Robert,16,16,0,7.5,,,Sterilize,121,Closed,2026-02-28T18:29:00.000Z
+rec8ZdEg2StmlxanB,2026-03-23T20:44:00.000Z,2026-03-23T20:45:00.000Z,,5,5,0,400,,,Sterilize,121,Closed,2026-03-23T20:45:00.000Z
+rec8cgEbS5fANlmZu,2026-03-09T18:23:00.000Z,2026-03-10T18:23:35.316Z,Robert,1,1,,2.5,,,Pasteurize,74,Closed,
+recBjYHAjvHFNP65d,2026-03-09T18:22:00.000Z,2026-03-10T18:23:50.693Z,Robert,14,14,0,5,,,Pasteurize,74,Closed,
+recOSF8bNk5Sq0Acf,2026-03-23T13:17:00.000Z,2026-03-24T13:17:23.986Z,,53,53,0,2,,,Sterilize,121,Closed,
+recP2Xx5gAUDYMxKM,2026-03-05T12:42:00.000Z,2026-03-07T12:42:00.000Z,,54,54,0,2,,,Sterilize,121,Closed,2026-03-07T12:42:00.000Z
+recpFcbTcKrw3DX6J,2026-03-23T20:45:00.000Z,2026-03-30T16:15:34.671Z,,7,7,0,500,,,Sterilize,121,Closed,
+recppjKznbkp9cKxo,2026-03-30T20:38:00.000Z,2026-04-09T20:38:59.422Z,,8,8,0,3,,,Sterilize,121,Closed,
+recrCRbHVGXTgst5W,2026-03-03T17:20:00.000Z,2026-03-05T17:21:04.594Z,Robert,8,8,0,7.5,,,Sterilize,121,Closed,
+rect5WtJiGG4WFH27,2026-03-24T20:46:00.000Z,2026-03-30T17:39:50.874Z,,19,19,0,500,,,Sterilize,121,Closed,
