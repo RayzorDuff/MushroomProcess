@@ -1665,9 +1665,61 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
       const rowsRaw = Array.isArray(data) ? data : (data.records || data.rows || []);
       if (!Array.isArray(rowsRaw) || rowsRaw.length === 0) continue;
 
+      const schemaT = schema ? tableById(schema, t.id) : null;
+      const schemaFieldById = schemaT && schemaT.fields ? new Map(schemaT.fields.map(sf => [sf.id, sf])) : null;
+
+      // Direct single-link FKs: populate the scalar FK column from exported Airtable ids.
+      const singleLinkFields = (t.fields || []).filter(f => f.type === 'singleRecordLink' && f.options && f.options.linkedTableId);
+      for (const f of singleLinkFields) {
+        const sf = (schemaFieldById && schemaFieldById.get(f.id)) ? schemaFieldById.get(f.id) : f;
+        const other = tableById(exportSchema, sf.options.linkedTableId) || tableById(schema, sf.options.linkedTableId);
+        if (!other) continue;
+
+        const b = slug(other.name);
+        const rawName = `${a}__${slug(f.name) || 'link'}__raw`;
+        const cols = ['a_airtable_id', 'b_airtable_id'];
+        const fkColNameBase = slug(f.name) || 'link';
+        const fkColName = fkColNameBase.endsWith('_id') ? fkColNameBase : `${fkColNameBase}_id`;
+
+        const jrows = [];
+        for (const r of rowsRaw) {
+          const aId = r.id || r.airtable_id || r.recordId || null;
+          if (!aId) continue;
+          const fieldsObj = (r.fields && typeof r.fields === 'object') ? r.fields : r;
+          const linked = fieldsObj[f.name];
+          if (!linked) continue;
+          const linkedIds = Array.isArray(linked) ? linked : [linked];
+          const bId = linkedIds.find(Boolean);
+          if (!bId) continue;
+          jrows.push({ a_airtable_id: aId, b_airtable_id: bId });
+        }
+        if (!jrows.length) continue;
+
+        const csvPath = writeCsv(csvDir, rawName, cols, jrows);
+        const relJ = path.relative(POSTGRES_OUT_DIR, csvPath).replace(/\\/g,'/');
+        loadSql.push(`\n-- Single link field: ${aName}.${f.name} -> ${other.name}\n`);
+        loadSql.push(`CREATE TEMP TABLE ${ident(rawName)}(${ident('a_airtable_id')} text, ${ident('b_airtable_id')} text);\n`);
+        loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM ${relJ} WITH (FORMAT csv, HEADER true);\n`);
+        loadSql.push(`WITH resolved AS (\n`);
+        loadSql.push(`  SELECT DISTINCT ON (src.${ident('nocopk')}) src.${ident('nocopk')} AS ${ident('src_nocopk')}, tgt.${ident('nocopk')} AS ${ident('tgt_nocopk')}\n`);
+        loadSql.push(`  FROM ${ident(rawName)} r\n`);
+        loadSql.push(`  JOIN ${ident(a)} src ON src.${ident('airtable_id')} = r.${ident('a_airtable_id')}\n`);
+        loadSql.push(`  JOIN ${ident(b)} tgt ON tgt.${ident('airtable_id')} = r.${ident('b_airtable_id')}\n`);
+        loadSql.push(`  ORDER BY src.${ident('nocopk')}, tgt.${ident('nocopk')}\n`);
+        loadSql.push(`)\n`);
+        loadSql.push(`UPDATE ${ident(a)} base\n`);
+        loadSql.push(`SET ${ident(fkColName)} = resolved.${ident('tgt_nocopk')}\n`);
+        loadSql.push(`FROM resolved\n`);
+        loadSql.push(`WHERE base.${ident('nocopk')} = resolved.${ident('src_nocopk')};\n`);
+        loadSql.push(`DROP TABLE ${ident(rawName)};\n`);
+      }
+
+      // Multi-link fields are loaded into junction tables. If Airtable marks the field as
+      // prefersSingleRecordLink, also backfill the scalar FK column from the same raw data.
       const linkFields = (t.fields || []).filter(f => f.type === 'multipleRecordLinks' && f.options && f.options.linkedTableId);
       for (const f of linkFields) {
-        const other = tableById(exportSchema, f.options.linkedTableId);
+        const sf = (schemaFieldById && schemaFieldById.get(f.id)) ? schemaFieldById.get(f.id) : f;
+        const other = tableById(exportSchema, sf.options.linkedTableId) || tableById(schema, sf.options.linkedTableId);
         if (!other) continue;
         const b = slug(other.name);
 
@@ -1677,6 +1729,10 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         const cols = ['a_airtable_id', 'b_airtable_id'];
         const aCol = `${a}_id`;
         const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
+        const prefersSingle = !!(sf.options && sf.options.prefersSingleRecordLink);
+        const fkColName = prefersSingle
+          ? (linkFieldSlug.endsWith('_id') ? linkFieldSlug : `${linkFieldSlug}_id`)
+          : null;
 
         const jrows = [];
         for (const r of rowsRaw) {
@@ -1700,6 +1756,21 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM ${relJ} WITH (FORMAT csv, HEADER true);\n`);
         loadSql.push(`INSERT INTO ${ident(jn)}(${ident(aCol)}, ${ident(bCol)})\n`);
         loadSql.push(`SELECT a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id;\n`);
+
+        if (prefersSingle && fkColName) {
+          loadSql.push(`WITH resolved AS (\n`);
+          loadSql.push(`  SELECT DISTINCT ON (src.${ident('nocopk')}) src.${ident('nocopk')} AS ${ident('src_nocopk')}, tgt.${ident('nocopk')} AS ${ident('tgt_nocopk')}\n`);
+          loadSql.push(`  FROM ${ident(rawName)} r\n`);
+          loadSql.push(`  JOIN ${ident(a)} src ON src.${ident('airtable_id')} = r.${ident('a_airtable_id')}\n`);
+          loadSql.push(`  JOIN ${ident(b)} tgt ON tgt.${ident('airtable_id')} = r.${ident('b_airtable_id')}\n`);
+          loadSql.push(`  ORDER BY src.${ident('nocopk')}, tgt.${ident('nocopk')}\n`);
+          loadSql.push(`)\n`);
+          loadSql.push(`UPDATE ${ident(a)} base\n`);
+          loadSql.push(`SET ${ident(fkColName)} = resolved.${ident('tgt_nocopk')}\n`);
+          loadSql.push(`FROM resolved\n`);
+          loadSql.push(`WHERE base.${ident('nocopk')} = resolved.${ident('src_nocopk')};\n`);
+        }
+
         loadSql.push(`DROP TABLE ${ident(rawName)};\n`);
       }
     }
