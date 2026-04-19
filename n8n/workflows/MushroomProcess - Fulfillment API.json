@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "d1c0aa25-d00f-4801-8f5c-e4a48ca4a9cb",
+      "id": "6cb4de2e-2d28-49b4-89c2-1061147178a4",
       "name": "Webhook - List Fulfillment Orders",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -22,7 +22,7 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; return [{json:{mode:String(body.mode||'all').toLowerCase(), date:String(body.date||''), timezone:String(body.timezone||'America/Denver')}}];"
       },
-      "id": "3b75137f-bc75-4c89-b33b-9f4de7aa7949",
+      "id": "fdb4454c-1305-46eb-bacc-aaf794b61f84",
       "name": "Code - Parse List Request",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -66,7 +66,7 @@
         },
         "options": {}
       },
-      "id": "0a97955b-554c-42c6-985a-58c8f2afdfa0",
+      "id": "165838e7-124d-4a39-93c5-ec3d14f63224",
       "name": "HTTP - List Orders Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -79,7 +79,7 @@
       "parameters": {
         "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\n\nfunction zonedParts(v, tz) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return null;\n\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n  }).formatToParts(d);\n\n  return Object.fromEntries(parts.map(p => [p.type, p.value]));\n}\n\nfunction dateKey(v, tz) {\n  const m = zonedParts(v, tz);\n  if (!m) return '';\n  return `${m.year}-${m.month}-${m.day}`;\n}\n\nfunction localDateTime(v, tz) {\n  if (!v) return '';\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction parseItems(s) {\n  try {\n    const a = typeof s === 'string' ? JSON.parse(s) : [];\n    return Array.isArray(a) ? a : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction itemSummary(items) {\n  return items\n    .map(i => `${i.name || i.nameTranslated?.en || '(unknown)'} x${Number(i.quantity || 0) || 0}`)\n    .join(', ');\n}\n\n/*\n  IMPORTANT:\n  Treat requested date as a plain calendar date, not a moment in time.\n  Do not convert it through Date()/timezone math.\n*/\nfunction normalizeReqDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return '';\n\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  return m ? m[1] : '';\n}\n\nconst mode = String(req.mode || 'all');\nconst timezone = req.timezone || 'America/Denver';\nconst reqDateRaw = req.date || '';\nconst reqDate = normalizeReqDate(reqDateRaw);\n\nconst out = [];\nconst debug = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const items = parseItems(f.items_json);\n\n  const requiredCount = items.reduce(\n    (n, i) => n + (Number(i.quantity || 0) || 0),\n    0\n  );\n\n  const linkedProducts = Array.isArray(f.products) ? f.products : [];\n  const linkedCount = linkedProducts.length;\n\n  const paymentMethod = String(f.payment_method || '');\n  const market = paymentMethod === 'Sell on the Go - Placed';\n\n  const ready = market\n    ? String(f.clover_reconciliation_status || '').toLowerCase() === 'reconciled'\n    : String(f.payment_status || '').toUpperCase() === 'PAID';\n\n  const rowDate = dateKey(f.order_date, timezone);\n\n  let excludedBy = null;\n\n  if (mode === 'market' && !market) {\n    excludedBy = 'mode_market';\n  } else if (mode === 'web' && market) {\n    excludedBy = 'mode_web';\n  } else if (!ready) {\n    excludedBy = 'not_ready';\n  } else if (reqDate && rowDate !== reqDate) {\n    excludedBy = 'date';\n  } else if (linkedCount >= requiredCount) {\n    excludedBy = 'already_fulfilled';\n  }\n\n  debug.push({\n    id: rec.id,\n    order_code: f.order_code || null,\n    payment_method: paymentMethod,\n    market,\n    payment_status: f.payment_status || null,\n    clover_reconciliation_status: f.clover_reconciliation_status || null,\n    order_date_raw: f.order_date || null,\n    row_date: rowDate,\n    req_date_raw: reqDateRaw || null,\n    req_date: reqDate || null,\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    excluded_by: excludedBy\n  });\n\n  if (excludedBy) continue;\n\n  out.push({\n    airtable_record_id: rec.id,\n    order_ref: String(f.order_code || f.ecwid_order_id || f.order_number || ''),\n    order_number: f.order_number || null,\n    order_date: f.order_date || null,\n    order_date_local: localDateTime(f.order_date, timezone),\n    order_date_local_date: rowDate,\n    customer_name: f.customer_name || '',\n    payment_method: paymentMethod,\n    payment_status: f.payment_status || '',\n    clover_reconciliation_status: f.clover_reconciliation_status || '',\n    payment_state: market\n      ? (f.clover_reconciliation_status || 'pending')\n      : (f.payment_status || ''),\n    mode: market ? 'market' : 'web',\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_names: itemSummary(items) || '(none)',\n    products_report: f.products_report || '',\n    product_ids_report: f.product_ids_report || '',\n    items,\n    reconciliation_notes: f.reconciliation_notes || ''\n  });\n}\n\nout.sort((a, b) => String(a.order_date || '').localeCompare(String(b.order_date || '')));\n\nreturn [{\n  json: {\n    ok: true,\n    req: {\n      ...req,\n      date_raw: reqDateRaw,\n      date: reqDate,\n      timezone\n    },\n    orders: out,\n    count: out.length,\n    debug\n  }\n}];"
       },
-      "id": "e0642591-c428-4fae-8f92-cfaaa56d8a5f",
+      "id": "b51406aa-776e-4d16-b949-8dc7df2a7f46",
       "name": "Code - Build Fulfillment Orders",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -94,7 +94,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "bf7d7697-31e4-450f-a6d1-6165862be825",
+      "id": "5b2e1680-578e-43e5-9463-3666792148a8",
       "name": "Respond - List Orders",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -110,7 +110,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "43d827b7-fe60-4de5-a5b9-0d603da68d05",
+      "id": "ca101afb-7a2a-4752-b1ed-1013c2724ef2",
       "name": "Webhook - Order Detail",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -124,7 +124,7 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const id=String(body.airtable_record_id||'').trim(); if(!id) throw new Error('Missing airtable_record_id'); return [{json:{airtable_record_id:id, timezone:String(body.timezone||'America/Denver')}}];"
       },
-      "id": "ec204d00-4177-4996-a122-6b1d1a58df71",
+      "id": "472d5c46-f22f-415d-8d66-a6b5f78890a1",
       "name": "Code - Parse Detail Request",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -151,7 +151,7 @@
         },
         "options": {}
       },
-      "id": "ae4aea5c-51eb-4024-91bd-f616b1cc89e8",
+      "id": "694c6d52-f97d-48f4-bb1b-ca1621e7e96c",
       "name": "HTTP - Get Order Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -164,7 +164,7 @@
       "parameters": {
         "jsCode": "const f=$json.fields||{}; function parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nconst items=parseItems(f.items_json).map((i,idx)=>({line_index:idx+1,name:i.name||i.nameTranslated?.en||'(unknown)',sku:i.sku||'',productId:i.productId||null,quantity:Number(i.quantity||0)||0}));\nconst linked=Array.isArray(f.products)?f.products:[];\nconst summary=`Ecwid ${String(f.order_code||f.ecwid_order_id||f.order_number||'')} | ${f.customer_name||''} | linked ${linked.length} of ${items.reduce((n,i)=>n+i.quantity,0)} required`;\nreturn [{json:{ok:true, airtable_record_id:$json.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), summary, items, linked_products:linked, products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', raw_fields:f}}];"
       },
-      "id": "aaa59175-ff82-4ac9-9691-8a31d682f151",
+      "id": "70320466-2cc3-44a4-a4e1-c1a64abeef79",
       "name": "Code - Build Order Detail",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -179,7 +179,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "3f590342-de3a-4728-a047-92bd0de56014",
+      "id": "b6dcdc54-3d7e-4802-9e4c-5f3e916e0b07",
       "name": "Respond - Order Detail",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -195,7 +195,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "f1877de2-a8cf-47f4-8c8a-1ac2cd9c6f85",
+      "id": "f33ff972-d0ef-4a28-bb3b-bea2527d24ab",
       "name": "Webhook - Search Products",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -207,9 +207,9 @@
     },
     {
       "parameters": {
-        "jsCode": "const body=$json.body||$json; return [{json:{query:String(body.query||'').trim().toLowerCase()}}];"
+        "jsCode": "const body = $json.body || $json;\nconst query = String(body.query || '').trim().toLowerCase();\n\nreturn [{\n  json: {\n    query,\n    allow_search: query.length >= 2\n  }\n}];"
       },
-      "id": "96860b52-e94f-416d-b477-07d00fba1a55",
+      "id": "090fb7cf-081e-4d11-a493-db947ca32f9c",
       "name": "Code - Parse Product Search",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -225,16 +225,44 @@
         "queryParameters": {
           "parameters": [
             {
-              "name": "maxRecords",
-              "value": "200"
+              "name": "pageSize",
+              "value": "100"
             },
             {
-              "name": "sort[0][field]",
+              "name": "filterByFormula",
+              "value": "={{ $('Code - Build Product Search Context').first().json.filter_formula }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $json.offset || \"\" }}"
+            },
+            {
+              "name": "fields[]",
               "value": "product_id"
             },
             {
-              "name": "sort[0][direction]",
-              "value": "asc"
+              "name": "fields[]",
+              "value": "name_mat"
+            },
+            {
+              "name": "fields[]",
+              "value": "unit_size"
+            },
+            {
+              "name": "fields[]",
+              "value": "item_category_mat"
+            },
+            {
+              "name": "fields[]",
+              "value": "notes"
+            },
+            {
+              "name": "fields[]",
+              "value": "storage_location"
+            },
+            {
+              "name": "fields[]",
+              "value": "label_company_prod"
             }
           ]
         },
@@ -253,12 +281,12 @@
         },
         "options": {}
       },
-      "id": "e485e70e-9604-449d-b65e-5245e4aa3d6a",
+      "id": "bb13fabe-4d10-4cc3-a0dd-a406d2881b78",
       "name": "HTTP - List Products Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        592
+        1088,
+        576
       ],
       "typeVersion": 4.3
     },
@@ -269,8 +297,8 @@
         "queryParameters": {
           "parameters": [
             {
-              "name": "maxRecords",
-              "value": "50"
+              "name": "pageSize",
+              "value": "100"
             }
           ]
         },
@@ -289,40 +317,25 @@
         },
         "options": {}
       },
-      "id": "06a2a3bb-05da-4ba0-955b-09da6c0d5913",
+      "id": "60a22762-98a4-459c-a7c2-9fdc108757ea",
       "name": "HTTP - List Locations Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        800
+        736,
+        512
       ],
       "typeVersion": 4.3
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
+        "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst q = String(req.query || '').trim().toLowerCase();\nconst companyName = $env['BUSINESS_NAME'] || null;\n\nconst locResp = $('HTTP - List Locations Airtable').first().json || {};\nconst locRecords = Array.isArray(locResp.records) ? locResp.records : [];\nconst locMap = new Map(\n  locRecords.map(r => [r.id, String(r.fields?.name || '')])\n);\n\nconst inputs = $input.all();\nconst rows = inputs.flatMap(item => {\n  const records = item.json?.records;\n  return Array.isArray(records) ? records : [];\n});\n\nconst products = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n\n  if (companyName && String(f.label_company_prod || '') !== companyName) continue;\n\n  const hay = [\n    f.product_id,\n    f.name_mat,\n    f.unit_size,\n    f.item_category_mat,\n    f.notes\n  ]\n    .filter(Boolean)\n    .join(' ')\n    .toLowerCase();\n\n  if (q && !hay.includes(q)) continue;\n\n  const locIds = Array.isArray(f.storage_location) ? f.storage_location : [];\n  const locNames = locIds.map(id => locMap.get(id) || id);\n\n  products.push({\n    airtable_record_id: rec.id,\n    product_id: f.product_id || '',\n    name_mat: f.name_mat || '',\n    unit_size: f.unit_size || '',\n    item_category_mat: f.item_category_mat || '',\n    storage_location: locIds,\n    storage_location_name: locNames.join(', '),\n    notes: f.notes || ''\n  });\n}\n\nreturn [{\n  json: {\n    ok: true,\n    page_count: inputs.length,\n    raw_record_count: rows.length,\n    products: products.slice(0, 100),\n    count: products.length\n  }\n}];"
       },
-      "id": "d65ea8d6-51a4-4cb4-9c5d-090985faaca2",
-      "name": "Merge - Products + Locations",
-      "type": "n8n-nodes-base.merge",
-      "position": [
-        672,
-        656
-      ],
-      "typeVersion": 3.2
-    },
-    {
-      "parameters": {
-        "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst prodResp = $('HTTP - List Products Airtable').first().json || {};\nconst locResp = $('HTTP - List Locations Airtable').first().json || {};\n\nconst excludedLocationNames = new Set(\n  ['Shipped', 'Consumed', 'Compost', 'Expired'].map(s => s.toLowerCase())\n);\n\nconst locRecords = Array.isArray(locResp.records) ? locResp.records : [];\nconst locMap = new Map(\n  locRecords.map(r => [r.id, String(r.fields?.name || '')])\n);\n\nconst excludedLocationIds = new Set(\n  locRecords\n    .filter(r => excludedLocationNames.has(String(r.fields?.name || '').toLowerCase()))\n    .map(r => r.id)\n);\n\nconst rows = Array.isArray(prodResp.records) ? prodResp.records : [];\nconst q = String(req.query || '').trim().toLowerCase();\n\nconst products = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const locs = Array.isArray(f.storage_location) ? f.storage_location : [];\n\n  if (locs.some(id => excludedLocationIds.has(id))) continue;\n\n  const hay = [\n    f.product_id,\n    f.name_mat,\n    f.unit_size,\n    f.item_category_mat,\n    f.notes\n  ]\n    .filter(Boolean)\n    .join(' ')\n    .toLowerCase();\n\n  if (q && !hay.includes(q)) continue;\n\n  products.push({\n    airtable_record_id: rec.id,\n    product_id: f.product_id || '',\n    name_mat: f.name_mat || '',\n    unit_size: f.unit_size || '',    \n    item_category_mat: f.item_category_mat || '',\n    storage_location_name: locs.map(id => locMap.get(id) || id).join(', '),\n    notes: f.notes || ''\n  });\n}\n\nreturn [{\n  json: {\n    ok: true,\n    products: products.slice(0, 100),\n    count: products.length\n  }\n}];"
-      },
-      "id": "1449a6d9-271c-47bc-8970-2499c894591a",
+      "id": "01aeca43-3586-4f0f-b259-1a0d89b30d48",
       "name": "Code - Build Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
-        880,
-        656
+        1584,
+        800
       ],
       "typeVersion": 2
     },
@@ -332,12 +345,12 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "d5511717-eb81-43a8-a0ea-29240d6e9223",
+      "id": "c935febd-9c8b-4e2c-bbe7-5925235d7da5",
       "name": "Respond - Search Products",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        1104,
-        656
+        1760,
+        800
       ],
       "typeVersion": 1
     },
@@ -348,7 +361,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "bb32f2dc-8041-4a38-9f8e-c8ae099983ae",
+      "id": "e6340b91-97bd-4aca-9a82-67f3c8c3eaf7",
       "name": "Webhook - Assign Product",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -362,7 +375,7 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const oid=String(body.airtable_order_record_id||'').trim(); const pid=String(body.airtable_product_record_id||'').trim(); if(!oid||!pid) throw new Error('Missing airtable_order_record_id or airtable_product_record_id'); return [{json:{airtable_order_record_id:oid, airtable_product_record_id:pid}}];"
       },
-      "id": "b85d99a3-86dc-4b7f-ba1c-b7c5198683ec",
+      "id": "294984e8-2184-4ad3-b256-838c86a8c671",
       "name": "Code - Parse Assign",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -389,7 +402,7 @@
         },
         "options": {}
       },
-      "id": "30f1c685-6928-4169-b4be-61ffa9aae747",
+      "id": "a29eddef-88b3-48ea-b4f2-8bb8c351c705",
       "name": "HTTP - Get Assign Order",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -416,7 +429,7 @@
         },
         "options": {}
       },
-      "id": "b77865cd-103a-49b6-a3a0-a457654dd025",
+      "id": "929aba81-ab57-432c-84cd-1e878a975fa1",
       "name": "HTTP - Get Assign Product",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -452,7 +465,7 @@
         },
         "options": {}
       },
-      "id": "4c90df17-7ba2-42b2-94ee-ed2cf16168ef",
+      "id": "5e93621e-044a-423e-96be-5bbf6d7a1bab",
       "name": "HTTP - List Locations Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -467,7 +480,7 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "92aa3b64-9f8d-4014-ac5a-7442383e778d",
+      "id": "9e7945c0-7e97-45b7-b0a8-eb72b3a2b283",
       "name": "Merge - Assign Inputs",
       "type": "n8n-nodes-base.merge",
       "position": [
@@ -480,7 +493,7 @@
       "parameters": {
         "jsCode": "const order=$('HTTP - Get Assign Order').first().json||{}; const product=$('HTTP - Get Assign Product').first().json||{}; const locResp=$('HTTP - List Locations Assign').first().json||{}; const ship=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; if(!ship) throw new Error('Could not resolve Shipped location'); const of=order.fields||{}; const pf=product.fields||{}; const existing=Array.isArray(of.products)?of.products:[]; if(existing.includes(product.id)) throw new Error('Product already linked to this order'); const locs=Array.isArray(pf.storage_location)?pf.storage_location:[]; if(locs.includes(ship)) throw new Error('Product is already marked Shipped'); return [{json:{order_record_id:order.id, product_record_id:product.id, order_fields:{products:[...existing, product.id]}, product_fields:{storage_location:[ship]}, result:{ok:true, order_record_id:order.id, product_record_id:product.id, order_ref:String(of.order_code||of.ecwid_order_id||of.order_number||''), product_id:pf.product_id||'', message:'Product linked to order and marked shipped.'}}}];"
       },
-      "id": "c7f2e3f4-20dd-488e-91f4-17ff1bbf650d",
+      "id": "6d112db0-985d-427d-8912-17aab7026537",
       "name": "Code - Build Assign Updates",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -511,7 +524,7 @@
         "jsonBody": "={{ { fields: $json.order_fields } }}",
         "options": {}
       },
-      "id": "4c35d1ee-cca7-4b49-a2dd-079cd7f93814",
+      "id": "f83dd711-0fc8-47ff-9c8d-6489574e1590",
       "name": "HTTP - Patch Order Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -542,7 +555,7 @@
         "jsonBody": "={{ { fields: $json.product_fields } }}",
         "options": {}
       },
-      "id": "8bdc1001-d8ae-41bb-8e52-3f617e0bc89e",
+      "id": "12ef9dd2-7ad7-4d05-80f7-02421c78c54f",
       "name": "HTTP - Patch Product Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
@@ -557,7 +570,7 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "f4238549-1c3d-43ed-b9f9-0b5a04bb34b8",
+      "id": "fa43cb64-bdd7-4e0a-a0eb-769398e0bb21",
       "name": "Merge - Assign Patches",
       "type": "n8n-nodes-base.merge",
       "position": [
@@ -570,7 +583,7 @@
       "parameters": {
         "jsCode": "return [{json: $('Code - Build Assign Updates').first().json.result }];"
       },
-      "id": "19c8e3f8-f1ba-4eb0-bed8-3686bf2a8b1a",
+      "id": "e4a5b997-99f6-41e3-8302-df475afd99c9",
       "name": "Code - Assign Response",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -585,7 +598,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "77cf5f2e-c221-4ac5-9d79-abe9ea3c939c",
+      "id": "e62aac87-face-45af-8bc0-c39368bcb9cd",
       "name": "Respond - Assign",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -606,8 +619,154 @@
         592,
         1216
       ],
-      "id": "7853c616-0820-42e6-99f3-7357dc5c2fa6",
+      "id": "f9a7c77f-1f46-4dc7-bb8d-fe8f4bac3d0a",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst companyName = $env['BUSINESS_NAME'] || null;\nconst query = String(req.query || '').trim().toLowerCase();\n\nfunction formulaEscape(s) {\n  return String(s || '')\n    .replace(/\\\\/g, '\\\\\\\\')\n    .replace(/\"/g, '\\\\\"');\n}\n\nconst clauses = [];\n\nif (companyName) {\n  clauses.push(`{label_company_prod}=\"${formulaEscape(companyName)}\"`);\n}\n\n// Exclude by linked-record display names, not record IDs\nfor (const locName of ['Shipped', 'Consumed', 'Compost', 'Expired']) {\n  clauses.push(`NOT(FIND(\"${formulaEscape(locName.toLowerCase())}\", LOWER(ARRAYJOIN({storage_location}&\"\"))))`);\n}\n\nif (req.allow_search && query) {\n  clauses.push(`OR(\n    FIND(\"${formulaEscape(query)}\", LOWER({product_id}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({name_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({unit_size}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({item_category_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({notes}&\"\"))\n  )`);\n}\n\nconst filter_formula =\n  clauses.length === 1 ? clauses[0] : `AND(${clauses.join(',')})`;\n\nreturn [{\n  json: {\n    query,\n    allow_search: !!req.allow_search,\n    company_name: companyName,\n    filter_formula,\n    offset: ''\n  }\n}];"
+      },
+      "id": "0f2b2d70-8ac0-4ca1-b3a8-f3b217be193d",
+      "name": "Code - Build Product Search Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        752,
+        720
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5705dce3-084c-4e5f-bc6e-a60ce40d842c",
+              "leftValue": "={{ $json.offset || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1fa3b3ca-71b8-4661-96f0-1042fecc41e5",
+      "name": "If - Has Next Product Page",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1168,
+        768
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    offset: String($json.offset || '')\n  }\n}];"
+      },
+      "id": "9ddf27b1-9e17-44d9-bed5-d77430ea8e66",
+      "name": "Code - Next Product Page Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1392,
+        384
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $getWorkflowStaticData('global');\ndata.fulfillmentProductSearchRecords = [];\nreturn [{ json: $json.body || $json }];"
+      },
+      "id": "be3ba02f-7a6b-47d3-aac3-174a5750e49d",
+      "name": "Code - Reset Product Pagination State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        576,
+        512
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!Array.isArray(data.fulfillmentProductSearchRecords)) {\n  data.fulfillmentProductSearchRecords = [];\n}\n\nconst pageRecords = Array.isArray($json.records) ? $json.records : [];\ndata.fulfillmentProductSearchRecords.push(...pageRecords);\n\nreturn [{\n  json: {\n    offset: $json.offset || '',\n    page_count: pageRecords.length,\n    accumulated_count: data.fulfillmentProductSearchRecords.length\n  }\n}];"
+      },
+      "id": "48e6c7b0-0b76-4ac5-9edb-feb11967e9e0",
+      "name": "Code - Accumulate Product Page",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        768
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $getWorkflowStaticData('global');\nconst allRecords = Array.isArray(data.fulfillmentProductSearchRecords)\n  ? data.fulfillmentProductSearchRecords\n  : [];\n\nconst out = [{\n  json: {\n    records: allRecords,\n    count: allRecords.length\n  }\n}];\n\ndata.fulfillmentProductSearchRecords = [];\n\nreturn out;"
+      },
+      "id": "da21a026-f21b-4096-aee2-d68241eebdec",
+      "name": "Code - Emit All Product Pages",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1408,
+        704
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7583b969-9a81-4244-b43a-7b22d5d396d6",
+              "leftValue": "={{ !!$json.allow_search }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2acc1282-587b-4ffa-b228-96d1cc64847a",
+      "name": "If - Allow Product Search",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        416,
+        656
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ok: true, page_count: 0, raw_record_count: 0, products: [], count: 0, skipped: true, message: 'Type at least 2 characters to search products.' } }];"
+      },
+      "id": "0dfe859a-2ec6-4d34-ad6a-1a720a9cddc4",
+      "name": "Code - Empty Product Search Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        752,
+        880
+      ],
+      "typeVersion": 2
     }
   ],
   "pinData": {},
@@ -715,12 +874,7 @@
       "main": [
         [
           {
-            "node": "HTTP - List Products Airtable",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "HTTP - List Locations Airtable",
+            "node": "If - Allow Product Search",
             "type": "main",
             "index": 0
           }
@@ -731,7 +885,7 @@
       "main": [
         [
           {
-            "node": "Merge - Products + Locations",
+            "node": "Code - Accumulate Product Page",
             "type": "main",
             "index": 0
           }
@@ -742,18 +896,7 @@
       "main": [
         [
           {
-            "node": "Merge - Products + Locations",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Merge - Products + Locations": {
-      "main": [
-        [
-          {
-            "node": "Code - Build Product Search Results",
+            "node": "Code - Build Product Search Context",
             "type": "main",
             "index": 0
           }
@@ -917,6 +1060,108 @@
           }
         ]
       ]
+    },
+    "Code - Build Product Search Context": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Products Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Has Next Product Page": {
+      "main": [
+        [
+          {
+            "node": "Code - Next Product Page Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Emit All Product Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Next Product Page Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Products Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Reset Product Pagination State": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Locations Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Accumulate Product Page": {
+      "main": [
+        [
+          {
+            "node": "If - Has Next Product Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Emit All Product Pages": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Product Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Allow Product Search": {
+      "main": [
+        [
+          {
+            "node": "Code - Reset Product Pagination State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Empty Product Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Empty Product Search Results": {
+      "main": [
+        [
+          {
+            "node": "Respond - Search Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -924,10 +1169,10 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "c2739845-982a-485f-9571-3f98d8a84243",
+  "versionId": "fb12d0d2-b38e-4c9b-85ae-5c0b3fc89caa",
   "meta": {
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
-  "id": "wCghNJJ2yyImDgHF",
+  "id": "C4Knwrk2UwNYdytY",
   "tags": []
 }
