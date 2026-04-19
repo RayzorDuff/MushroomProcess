@@ -1,3 +1,121 @@
+## [v1.0.8-beta] - 2026-04-19
+
+_This release continues the transition from the legacy station-centric Airtable interface toward a lot-centric Appsmith/Postgres workflow. It is the first release that includes a more fully usable Appsmith surface beyond sterilizer operations, with a stabilized **Fulfillment** interface, an initial **Personnel Reviews** page, and a larger imported Airtable data set used for basic interface testing through lot manipulation._
+
+---
+
+## Appsmith interface expansion
+
+- Expanded the Appsmith app (`nocodb_interfaces/MushroomProcess.json`) substantially beyond the initial Sterilizer and Lots pages.
+- Added and iterated on a **Fulfillment** page for assigning internal products to Ecwid/Clover orders and marking inventory appropriately during packing / market reconciliation.
+- Added an initial **Personnel – Reviews** page to support the 10-minute manager log / personnel review workflow.
+- Added or advanced additional lot-centric Appsmith pages and modals, including:
+  - **Products**
+  - **Lab – Receive**
+  - **Lab – Agar**
+  - **Spawn to Bulk**
+  - **Lots** actions for move / modify / package / inoculate / draw syringes
+  - early **Reporting** support
+- Refactored Appsmith page logic to pull repeated widget logic into shared JS objects, reducing console warnings and making the interfaces easier to maintain and extend.
+- Improved page sizing / layout so lot IDs and related fields render more cleanly.
+
+---
+
+## Fulfillment workflow
+
+- Added the first end-to-end **Fulfillment** workflow spanning Appsmith and n8n.
+- Added `n8n/workflows/MushroomProcess - Fulfillment API.json` and supporting documentation in `n8n/README.md`.
+- Fulfillment logic now supports the intended reconciliation flow for:
+  - **website orders** paid in Ecwid, and
+  - **farmers market / Clover** orders reconciled against Ecwid-created orders.
+- Improved product search behavior in the Fulfillment page so operators can find assignable products more reliably.
+- Stabilized the Fulfillment page by moving widget JS into a single shared object and tightening the search / assignment flow.
+
+---
+
+## Clover / Ecwid reconciliation
+
+- Added initial and follow-on n8n workflows for the Clover / Ecwid reconciliation process:
+  - Clover reconciliation poller / webhook workflows
+  - Ecwid order update workflow
+  - Daily reconciliation report email + PDF workflow
+- Updated ecommerce schema / fields to support **Ecwid ↔ Clover reconciliation**.
+- Adjusted reconciliation handling so orders processed through this path are not incorrectly marked as paid-due in ways that can create duplicate Clover payment behavior.
+- Added support for expanding order synchronization capacity and updating missing UPC values on Ecwid orders.
+
+---
+
+## Personnel reviews / operator identity
+
+- Added a new personnel review subsystem in Postgres:
+  - `021_personnel_reviews.sql`
+  - `022_personnel_reviews_seeds.sql`
+- Added `023_operator_identity.sql` and `124_operator_identity_backfill_and_review_integration.sql` to better map Appsmith-authenticated operators into the database and tie review entries to known people.
+- Added documentation for the new manager-log / review process in `doc/Personnel-Reviews-and-10-Minute-Manager-Log.md`.
+- Added logic to normalize and de-duplicate review subjects / operators, including current-operator helpers used across Appsmith pages.
+
+---
+
+## Postgres / imported-data development workflow
+
+- Refreshed the production schema and export artifacts to a **larger Airtable data set** for Postgres development and interface testing.
+- Added / updated load and import documentation for rebuilding the Postgres bridge database from the generated SQL + CSV artifacts.
+- Reworked handling of `100_load.sql` so it is run in the right context for host-side CSV access.
+- Removed older manual / obsolete migration paths and replaced them with the current documented import flow.
+
+---
+
+## Lot actions, validation, and interface-backed testing
+
+- Expanded `nocodb_schema/pgsql/008_lot_actions.sql` with more complete helper functions for lot-centric operations exposed through Appsmith.
+- Added validation for lot actions such as **Shake** and **Move**, and allowed multiple modifier actions where needed.
+- Added / refined SQL wiring for:
+  - Move Lots
+  - Modify Lots
+  - Package Lots
+  - Inoculate Lots
+  - Draw Syringes
+  - Receive Purchased Syringes
+  - Pour Plates
+  - Spawn to Bulk
+- Basic testing has now begun against the imported larger data set through **Lots manipulation** and related Appsmith workflows.
+
+---
+
+## Schema / workflow parity fixes
+
+- Added active flags for `items`, `locations`, and `strains`.
+- Added `recipes.active` and updated interface queries to use active recipes only where appropriate.
+- Ensured new lots created in **Sterilizer Out** receive `item_id` and `recipe_id` foreign keys and a default location.
+- Updated events schema and sterilization-related helper SQL to better match the Airtable production workflow.
+- Materialized additional fields used by the Postgres/Appsmith path, including `products.process_type_mat`.
+- Updated packaging-related computed fields such as `products.net_weight_g` and `products.net_weight_oz` to better mirror Airtable behavior.
+- Updated handling of lot volume and related materialized fields for liquid lots vs grain / agar lots.
+- Updated labeling behavior so `label_type` and `source_kind` match Airtable conventions more closely.
+- Improved print queue creation and syringe-receive labeling behavior.
+
+---
+
+## Documentation and migration direction
+
+- Updated the top-level README to make clear that **Retool is no longer a target** and Appsmith is the supported interface direction going forward.
+- Removed legacy `Retool_*.txt` files from `nocodb_interfaces/`.
+- Expanded README content across:
+  - root README
+  - `nocodb_interfaces/README.md`
+  - `n8n/README.md`
+  - `nocodb_schema/pgsql/README.md`
+  - `integrations/ecwid/README.md`
+- Added / retained supporting legacy UPC barcode tooling and code pools used for ecommerce workflows.
+
+---
+
+## Hardening and cleanup
+
+- Applied general hardening to reduce console warnings and tighten interface behavior.
+- Improved SQL import robustness and repaired additional syntax / schema mismatches encountered during development.
+- Cleaned up print-daemon behavior and README notes to align with the newer Postgres/Appsmith workflow.
+
 ## [v1.0.7-beta] - 2026-02-17
 
 _This release advances the NocoDB/Postgres migration by introducing the first **Appsmith interface** operating against a **Postgres database** (exposed through NocoDB). It also tightens schema parity, adds helper SQL for core workflows, and improves lot lifecycle/event logging._
