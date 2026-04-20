@@ -219,7 +219,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { await qAgarFlasks.run(); },\n  async pourPlatesFromSelectedFlask() {\n    if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n      showAlert(\"Select an agar flask lot first.\", \"warning\");\n      return;\n    }\n    const res = await qPourPlates.run();\n    showAlert(\"Plates created.\", \"success\");\n    await this.refresh();\n    return res;\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { await del.run(); },\n  async pourPlatesFromSelectedFlask() {\n    if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n      showAlert(\"Select an agar flask lot first.\", \"warning\");\n      return;\n    }\n    const res = await qPourPlates.run();\n    showAlert(\"Plates created.\", \"success\");\n    await this.refresh();\n    return res;\n  },\n};",
         "name": "LabAgar",
         "pageId": "Lab - Agar",
         "pluginId": "js-plugin",
@@ -235,7 +235,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { await qAgarFlasks.run(); },\n  async pourPlatesFromSelectedFlask() {\n    if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n      showAlert(\"Select an agar flask lot first.\", \"warning\");\n      return;\n    }\n    const res = await qPourPlates.run();\n    showAlert(\"Plates created.\", \"success\");\n    await this.refresh();\n    return res;\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { await qPourPlates.run(); },\n  async pourPlatesFromSelectedFlask() {\n    if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n      showAlert(\"Select an agar flask lot first.\", \"warning\");\n      return;\n    }\n    const res = await qPourPlates.run();\n    showAlert(\"Plates created.\", \"success\");\n    await this.refresh();\n    return res;\n  },\n};",
         "name": "LabAgar",
         "pageId": "Lab - Agar",
         "pluginId": "js-plugin",
@@ -1074,7 +1074,7 @@
       "pluginType": "DB",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "INSERT INTO public.sterilization_runs\n(planned_item_id, planned_recipe_id, planned_unit_size, planned_count, operator, start_time, process_type, target_temp_c, pressure_mode)\nVALUES (\n  {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? String(Number(selPlannedItem.selectedOptionValue)) : \"NULL\" }},\n  {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? String(Number(selPlannedRecipe.selectedOptionValue)) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? String(Number(inpPlannedUnitSize.text)) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedCount.text)) ? String(Number(inpPlannedCount.text)) : \"NULL\" }},\n  {{ (() => { const email = (appsmith.user?.email || \"\").trim().toLowerCase(); const name = (appsmith.user?.name || \"\").trim(); const op = email || name || \"system\"; return \"'\" + String(op).replace(/'/g, \"''\") + \"'\"; })() }}::text,\n  {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'\" : \"NULL\" }}::timestamp,\n  {{ selProcessType.selectedOptionValue ? \"'\" + String(selProcessType.selectedOptionValue).replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ txtTargetTemp.text ? \"'\" + String(txtTargetTemp.text).replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ txtPressureMode.text ? \"'\" + String(txtPressureMode.text).replace(/'/g, \"''\") + \"'\" : \"NULL\" }}\n)\nRETURNING nocopk, steri_run_id;",
+          "body": "INSERT INTO public.sterilization_runs\n(planned_item_id, planned_recipe_id, planned_unit_size, planned_count, operator, start_time, process_type, target_temp_c, pressure_mode)\nVALUES (\n  {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }},\n  {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }},\n  '{{ ((appsmith.user?.email || appsmith.user?.name || \"system\") + \"\").replace(/'/g, \"''\") }}'::text,\n  {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n  '{{ (selProcessType.selectedOptionValue || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtTargetTemp.text || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtPressureMode.text || \"\").replace(/'/g, \"''\") }}'\n)\nRETURNING nocopk, steri_run_id;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -1107,10 +1107,12 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          " Number.isFinite(Number(inpPlannedUnitSize.text)) ? String(Number(inpPlannedUnitSize.text)) : \"NULL\" ",
-          " Number.isFinite(Number(inpPlannedCount.text)) ? String(Number(inpPlannedCount.text)) : \"NULL\" ",
-          " Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? String(Number(selPlannedItem.selectedOptionValue)) : \"NULL\" ",
-          " Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? String(Number(selPlannedRecipe.selectedOptionValue)) : \"NULL\" "
+          " Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" ",
+          " Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" ",
+          " Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" ",
+          " (txtTargetTemp.text || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtPressureMode.text || \"\").replace(/'/g, \"''\") ",
+          " Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" ",
+          " ((appsmith.user?.email || appsmith.user?.name || \"system\") + \"\").replace(/'/g, \"''\") }}'::text,\n  {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n  '{{ (selProcessType.selectedOptionValue || \"\").replace(/'/g, \"''\") "
         ],
         "messages": [],
         "name": "qCreateRun",
@@ -1851,7 +1853,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT * FROM public.mp_sterilizer_complete_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ Number(inpGoodCount.text) }}::numeric,\n  {{ Number(inpDestroyedCount.text) }}::numeric,\n  {{ SterilizerOut.sql.str( SterilizerOut.currentOperator() ) }}::text,\n  {{ dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null }}::timestamp,\n\t{{  selSterilizedLocation.selectedOptionValue  }}::text\n);\n",
+          "body": "SELECT * FROM public.mp_sterilizer_complete_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ Number(inpGoodCount.text) }}::numeric,\n  {{ Number(inpDestroyedCount.text) }}::numeric,\n  {{ SterilizerOut.sql.str( SterilizerOut.currentOperator() ) }}::text,\n  {{ dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null }}::timestamp,\n\t{{ selSterilizedLocation.selectedOptionValue || NULL }}::bigint\n);\n",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -1883,10 +1885,10 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
+          " selSterilizedLocation.selectedOptionValue || NULL ",
           " tblOpenRuns.selectedRow.nocopk ",
           " Number(inpDestroyedCount.text) ",
           " dpEndTime.selectedDate ? SterilizerOut.sql.ts(dpEndTime.selectedDate) : null ",
-          "  selSterilizedLocation.selectedOptionValue  ",
           " SterilizerOut.sql.str( SterilizerOut.currentOperator() ) ",
           " Number(inpGoodCount.text) "
         ],
@@ -2030,7 +2032,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT DISTINCT name FROM public.vc_locations \n  WHERE name NOT ILIKE '%Fridge%' AND name NOT ILIKE '%Refrigerator%' AND name NOT ILIKE '%Fruiting%'\n\tAND name NOT ILIKE '%Retired%' AND name NOT ILIKE '%Compost%' AND name NOT ILIKE 'Expired' AND name NOT ILIKE '%Consumed%'\n\tAND name NOT ILIKE '%Freezer%'\nORDER BY name;",
+          "body": "SELECT DISTINCT nocopk, name, active FROM public.vc_locations \n  WHERE name NOT ILIKE '%Fridge%' AND name NOT ILIKE '%Refrigerator%' AND name NOT ILIKE '%Fruiting%'\n\tAND name NOT ILIKE '%Retired%' AND name NOT ILIKE '%Compost%' AND name NOT ILIKE 'Expired' AND name NOT ILIKE '%Consumed%'\n\tAND name NOT ILIKE '%Freezer%'\n\tAND active\nORDER BY name;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -5592,7 +5594,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_package_basic(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_package_count => {{ LotsPage.sql.num(inpPackageCount.text || 1) }}::numeric,\n  p_package_size_g => {{ LotsPage.sql.num(inpPackageSizeG.text || NULL) }}::numeric,\n  p_storage_location_name => {{ LotsPage.sql.str(inpPackageStorageLocation.selectedOptionValue || '') }}::text,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpPackageNotes.text || '') }}::text\n) AS packaged_count;\n",
+          "body": "SELECT public.mp_lots_package_basic(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_package_count => {{ LotsPage.sql.num(inpPackageCount.text || 1) }}::numeric,\n  p_package_size_g => {{ LotsPage.sql.num(inpPackageSizeG.text || NULL) }}::numeric,\n  p_storage_location_id => {{ LotsPage.sql.str(inpPackageStorageLocation.selectedOptionValue || NULL) }}::bigint,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpPackageNotes.text || '') }}::text\n) AS packaged_count;\n",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -5625,7 +5627,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          " LotsPage.sql.str(inpPackageStorageLocation.selectedOptionValue || '') ",
+          " LotsPage.sql.str(inpPackageStorageLocation.selectedOptionValue || NULL) ",
           " LotsPage.sql.num(inpPackageCount.text || 1) ",
           " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) ",
           " LotsPage.sql.str(inpPackageNotes.text || '') ",
@@ -6375,7 +6377,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_move(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_location_name => {{ LotsPage.sql.str(inpMoveLocation.selectedOptionValue || '') }}::text,\n  p_fridge_mode => {{ LotsPage.sql.str(radioMoveFridgeMode.selectedOptionValue || 'Fridge') }}::text,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpMoveNotes.text || '') }}::text\n) AS moved_count;\n",
+          "body": "SELECT public.mp_lots_move(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_location_id => {{ LotsPage.sql.num(inpMoveLocation.selectedOptionValue ) }}::bigint,\n  p_fridge_mode => {{ LotsPage.sql.str(radioMoveFridgeMode.selectedOptionValue || 'Fridge') }}::text,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpMoveNotes.text || '') }}::text\n) AS moved_count;\n",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -6408,10 +6410,10 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
+          " LotsPage.sql.num(inpMoveLocation.selectedOptionValue ) ",
           " LotsPage.sql.str(radioMoveFridgeMode.selectedOptionValue || 'Fridge') ",
           " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) ",
           " LotsPage.sql.str(inpMoveNotes.text || '') ",
-          " LotsPage.sql.str(inpMoveLocation.selectedOptionValue || '') ",
           " LotsPage.sql.str( LotsPage.currentOperator() ) "
         ],
         "messages": [],
@@ -6580,7 +6582,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_draw_syringes(\n  {{LotsPage.sql.num(tblLots.selectedRow.nocopk)}},\n  (SELECT nocopk FROM public.items WHERE category IN ('lc_syringe','syringe','LC Syringe','lc-syringe') OR lower(category) like '%syringe%' ORDER BY nocopk LIMIT 1),\n  {{LotsPage.sql.num(inpSyringeCount.text)}}::int,\n  {{LotsPage.sql.num(inpSyringeMlEach.text)}},\n  {{LotsPage.sql.str(selDrawSyringeLocation.selectedOptionValue)}},\n  {{LotsPage.sql.str(LotsPage.currentOperator())}},\n  'Lots',\n  NULL::timestamp,\n  {{LotsPage.sql.str(inpDrawSyringesNotes.text)}}\n);",
+          "body": "SELECT public.mp_lots_draw_syringes(\n  {{LotsPage.sql.num(tblLots.selectedRow.nocopk)}},\n  (SELECT nocopk FROM public.items WHERE category IN ('lc_syringe','syringe','LC Syringe','lc-syringe') OR lower(category) like '%syringe%' ORDER BY nocopk LIMIT 1),\n  {{LotsPage.sql.num(inpSyringeCount.text)}}::int,\n  {{LotsPage.sql.num(inpSyringeMlEach.text)}},\n  {{LotsPage.sql.num(selDrawSyringeLocation.selectedOptionValue)}}::bigint,\n  {{LotsPage.sql.str(LotsPage.currentOperator())}},\n  'Lots',\n  NULL::timestamp,\n  {{LotsPage.sql.str(inpDrawSyringesNotes.text)}}\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [],
@@ -6609,11 +6611,11 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
+          "LotsPage.sql.str(inpDrawSyringesNotes.text)",
           "LotsPage.sql.num(inpSyringeMlEach.text)",
           "LotsPage.sql.num(inpSyringeCount.text)",
-          "LotsPage.sql.str(inpDrawSyringesNotes.text)",
           "LotsPage.sql.str(LotsPage.currentOperator())",
-          "LotsPage.sql.str(selDrawSyringeLocation.selectedOptionValue)",
+          "LotsPage.sql.num(selDrawSyringeLocation.selectedOptionValue)",
           "LotsPage.sql.num(tblLots.selectedRow.nocopk)"
         ],
         "messages": [],
@@ -6768,7 +6770,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_inoculate_multiple(\n  p_source_lot_id => {{ Number(appsmith.store.inoc_source_id) }}::bigint,\n  p_target_lot_ids => {{ LotsPage.sql.arrBigint(appsmith.store.inoc_target_ids) }}::bigint[],\n  p_storage_location_name => {{ LotsPage.sql.str(appsmith.store.inoc_storage_loc || 'Dark Room') }}::text,\n  p_lc_volume_ml => {{ LotsPage.sql.num(appsmith.store.inoc_lc_vol) }}::numeric,\n  p_override_inoc_time => {{ LotsPage.sql.str(appsmith.store.inoc_override_time) }}::timestamp,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => {{ LotsPage.sql.str('Inoculation') }}::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(appsmith.store.inoc_note || '') }}::text\n) AS inoculated_count;",
+          "body": "SELECT public.mp_lots_inoculate_multiple(\n  p_source_lot_id => {{ Number(appsmith.store.inoc_source_id) }}::bigint,\n  p_target_lot_ids => {{ LotsPage.sql.arrBigint(appsmith.store.inoc_target_ids) }}::bigint[],\n  p_storage_location_id => {{ LotsPage.sql.num(appsmith.store.inoc_storage_loc ) }}::bigint,\n  p_lc_volume_ml => {{ LotsPage.sql.num(appsmith.store.inoc_lc_vol) }}::numeric,\n  p_override_inoc_time => {{ LotsPage.sql.str(appsmith.store.inoc_override_time) }}::timestamp,\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => {{ LotsPage.sql.str('Inoculation') }}::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(appsmith.store.inoc_note || '') }}::text\n) AS inoculated_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -6804,8 +6806,8 @@
           " LotsPage.sql.str(appsmith.store.inoc_override_time) ",
           " LotsPage.sql.num(appsmith.store.inoc_lc_vol) ",
           " LotsPage.sql.str(appsmith.store.inoc_note || '') ",
-          " LotsPage.sql.str(appsmith.store.inoc_storage_loc || 'Dark Room') ",
           " LotsPage.sql.str('Inoculation') ",
+          " LotsPage.sql.num(appsmith.store.inoc_storage_loc ) ",
           " LotsPage.sql.arrBigint(appsmith.store.inoc_target_ids) ",
           " Number(appsmith.store.inoc_source_id) ",
           " LotsPage.sql.str( LotsPage.currentOperator() ) "
@@ -8911,7 +8913,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds())}},\n  (SELECT nocopk FROM public.items WHERE COALESCE(category,'') IN ('freeze_dried','freeze_dried_packaged') ORDER BY nocopk LIMIT 1),\n  {{ProductsPage.sql.num(inpPkgFDSizeG.text)}},\n  {{ProductsPage.sql.num(inpPkgFDCount.text)}},\n  {{ProductsPage.sql.str(selPkgFDLocation.selectedOptionValue)}},\n  {{ProductsPage.sql.str(dpPkgFDUseBy.formattedDate)}}::date,\n  {{ProductsPage.sql.str( ProductsPage.currentOperator() ) }}::text,\n  'Products',\n  NULL::date,\n  {{ProductsPage.sql.str(inpPkgFDNotes.text)}}\n);",
+          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds())}},\n  (SELECT nocopk FROM public.items WHERE COALESCE(category,'') IN ('freeze_dried','freeze_dried_packaged') ORDER BY nocopk LIMIT 1),\n  {{ProductsPage.sql.num(inpPkgFDSizeG.text)}},\n  {{ProductsPage.sql.num(inpPkgFDCount.text)}},\n  {{ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue)}}::bigint,\n  {{ProductsPage.sql.str(dpPkgFDUseBy.formattedDate)}}::date,\n  {{ProductsPage.sql.str( ProductsPage.currentOperator() ) }}::text,\n  'Products',\n  NULL::date,\n  {{ProductsPage.sql.str(inpPkgFDNotes.text)}}\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -8952,8 +8954,8 @@
           "ProductsPage.sql.str(inpPkgFDNotes.text)",
           "ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds())",
           "ProductsPage.sql.num(inpPkgFDCount.text)",
-          "ProductsPage.sql.str(selPkgFDLocation.selectedOptionValue)",
-          "ProductsPage.sql.str( ProductsPage.currentOperator() ) "
+          "ProductsPage.sql.str( ProductsPage.currentOperator() ) ",
+          "ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue)"
         ],
         "messages": [],
         "name": "qPackageFreezeDried",
@@ -9178,9 +9180,9 @@
         "name": "qReceiveLocations",
         "pageId": "Lab - Receive",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
-        "userSetOnLoad": false
+        "userSetOnLoad": true
       },
       "unpublishedAction": {
         "actionConfiguration": {
@@ -9216,9 +9218,9 @@
         "name": "qReceiveLocations",
         "pageId": "Lab - Receive",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
-        "userSetOnLoad": false
+        "userSetOnLoad": true
       }
     },
     {
@@ -9351,9 +9353,9 @@
         "name": "qSpecies",
         "pageId": "Lab - Receive",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
-        "userSetOnLoad": false
+        "userSetOnLoad": true
       },
       "unpublishedAction": {
         "actionConfiguration": {
@@ -9390,9 +9392,9 @@
         "name": "qSpecies",
         "pageId": "Lab - Receive",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
-        "userSetOnLoad": false
+        "userSetOnLoad": true
       }
     },
     {
@@ -9460,7 +9462,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_receive_purchased_syringes(\n  {{LabReceive.sql.num(selReceiveItem.selectedOptionValue)}},\n  {{LabReceive.sql.num(selReceiveStrain.selectedOptionValue)}},\n  {{LabReceive.sql.str(inpReceiveVendor.text)}},\n  {{LabReceive.sql.str(inpReceiveBatch.text)}},\n  {{LabReceive.sql.str(dpReceiveDate.formattedDate)}}::date,\n  {{LabReceive.sql.num(inpReceiveMlEach.text)}},\n  {{LabReceive.sql.num(inpReceiveCount.text)}}::int,\n  {{LabReceive.sql.str(selReceiveLocation.selectedOptionValue)}},\n  {{LabReceive.sql.str( LabReceive.currentOperator() ) }}::text,\n  'Lab - Receive',\n  {{LabReceive.sql.str(\"\")}}\n);",
+          "body": "SELECT public.mp_lots_receive_purchased_syringes(\n  {{LabReceive.sql.num(selReceiveItem.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.num(selReceiveStrain.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str(inpReceiveVendor.text)}}::text,\n  {{LabReceive.sql.str(inpReceiveBatch.text)}}::text,\n  {{LabReceive.sql.str(dpReceiveDate.formattedDate)}}::date,\n  {{LabReceive.sql.num(inpReceiveMlEach.text)}}::numeric,\n  {{LabReceive.sql.num(inpReceiveCount.text)}}::integer,\n  {{LabReceive.sql.num(selReceiveLocation.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str( LabReceive.currentOperator() ) }}::text,\n  'Lab - Receive'::text,\n  {{LabReceive.sql.str(\"\")}}::text\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -9497,8 +9499,8 @@
         "isValid": true,
         "jsonPathKeys": [
           "LabReceive.sql.str(inpReceiveVendor.text)",
+          "LabReceive.sql.num(selReceiveLocation.selectedOptionValue)",
           "LabReceive.sql.str( LabReceive.currentOperator() ) ",
-          "LabReceive.sql.str(selReceiveLocation.selectedOptionValue)",
           "LabReceive.sql.str(inpReceiveBatch.text)",
           "LabReceive.sql.num(inpReceiveMlEach.text)",
           "LabReceive.sql.str(\"\")",
@@ -9554,10 +9556,10 @@
         "isValid": true,
         "jsonPathKeys": [],
         "messages": [],
-        "name": "qReceiveItems",
+        "name": "del",
         "pageId": "Lab - Receive",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
         "userSetOnLoad": true
       },
@@ -9587,8 +9589,54 @@
           "policyMap": {},
           "userPermissions": []
         },
+        "deletedAt": "2026-04-20T00:19:42Z",
         "dynamicBindingPathList": [],
         "fullyQualifiedName": "Lab - Receive.qReceiveItems",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "del",
+        "pageId": "Lab - Receive",
+        "policyMap": {},
+        "runBehaviour": "ON_PAGE_LOAD",
+        "userPermissions": [],
+        "userSetOnLoad": true
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69e55a5a1b5f572d03dc2413_a2e30014-c367-48d8-9cc5-e58e022f81a4",
+      "id": "Lab - Receive_qReceiveItems",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT nocopk, item_id, name, category, active\nFROM public.vc_items\nWHERE \n\t\t( category IN ('lc_syringe','syringe','LC Syringe','lc-syringe')\n   \t\tOR lower(category) like '%syringe%' )\n\t\tAND active\nORDER BY item_id;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-19T23:58:05Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [],
@@ -9598,7 +9646,45 @@
         "policyMap": {},
         "runBehaviour": "AUTOMATIC",
         "userPermissions": [],
-        "userSetOnLoad": true
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT nocopk, item_id, name, category, active\nFROM public.vc_items\nWHERE \n\t\t( category IN ('lc_syringe','syringe','LC Syringe','lc-syringe')\n   \t\tOR lower(category) like '%syringe%' )\n\t\tAND active\nORDER BY item_id;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-19T23:58:05Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "qReceiveItems",
+        "pageId": "Lab - Receive",
+        "policyMap": {},
+        "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
       }
     },
     {
@@ -9614,7 +9700,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9655,7 +9741,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9703,7 +9789,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9744,7 +9830,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9787,12 +9873,12 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await qAgarFlasks.run();\n}",
+          "body": "async function () {\n  await del.run();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9816,7 +9902,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await qAgarFlasks.run();\n}"
+          "async function () {\n  await del.run();\n}"
         ],
         "messages": [],
         "name": "refresh",
@@ -9828,12 +9914,12 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await qAgarFlasks.run();\n}",
+          "body": "async function () {\n  await qPourPlates.run();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lab - Agar_LabAgar",
         "confirmBeforeExecute": false,
@@ -9857,7 +9943,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await qAgarFlasks.run();\n}"
+          "async function () {\n  await qPourPlates.run();\n}"
         ],
         "messages": [],
         "name": "refresh",
@@ -9927,7 +10013,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_pour_plates(\n  {{LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)}},\n  (SELECT nocopk FROM public.items WHERE category IN ('plate','agar_plate','AGAR-PLATE') OR lower(category) like '%plate%' ORDER BY nocopk LIMIT 1),\n  {{LabAgar.sql.num(inpPlateCount.text)}}::int,\n  'Incubator',\n  {{ LabAgar.sql.str( LabAgar.currentOperator() ) }}::text,\n  'Lab - Agar',\n  NULL::timestamp,\n  {{LabAgar.sql.str(inpPourNotes.text)}}\n);",
+          "body": "SELECT public.mp_lots_pour_plates(\n  {{LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)}},\n  (SELECT nocopk FROM public.items WHERE category IN ('plate','agar_plate','AGAR-PLATE') OR lower(category) like '%plate%' ORDER BY nocopk LIMIT 1),\n  {{LabAgar.sql.num(inpPlateCount.text)}}::int,\n  {{ selAgarLocation.selectedOptionValue ? Number(selAgarLocation.selectedOptionValue) : null }},\n\t{{ LabAgar.sql.str( LabAgar.currentOperator() ) }}::text,\n  'Lab - Agar',\n  NULL::timestamp,\n  {{LabAgar.sql.str(inpPourNotes.text) || null }}\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -9963,10 +10049,11 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
+          " selAgarLocation.selectedOptionValue ? Number(selAgarLocation.selectedOptionValue) : null ",
+          "LabAgar.sql.str(inpPourNotes.text) || null ",
           " LabAgar.sql.str( LabAgar.currentOperator() ) ",
           "LabAgar.sql.num(inpPlateCount.text)",
-          "LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)",
-          "LabAgar.sql.str(inpPourNotes.text)"
+          "LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)"
         ],
         "messages": [],
         "name": "qPourPlates",
@@ -9979,8 +10066,8 @@
     },
     {
       "deleted": false,
-      "gitSyncId": "699e79531b92037d29ef8079_86733c33-541e-4c85-a2dd-de51a0ea194e",
-      "id": "Lab - Agar_Lab - Agar.qAgarFlasks",
+      "gitSyncId": "69e55a5a1b5f572d03dc2413_56a06e78-d092-4c0b-ac87-520a37e0a69a",
+      "id": "Lab - Agar_qAgarFlasks",
       "pluginId": "postgres-plugin",
       "pluginType": "DB",
       "publishedAction": {
@@ -9997,7 +10084,7 @@
           "timeoutInMillisecond": 10000
         },
         "confirmBeforeExecute": false,
-        "createdAt": "+58122-03-21T20:01:11Z",
+        "createdAt": "2026-04-20T00:00:54Z",
         "datasource": {
           "deleted": false,
           "id": "mushroomprocess-postgres",
@@ -10010,7 +10097,6 @@
           "userPermissions": []
         },
         "dynamicBindingPathList": [],
-        "fullyQualifiedName": "Lab - Agar.qAgarFlasks",
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [],
@@ -10018,7 +10104,7 @@
         "name": "qAgarFlasks",
         "pageId": "Lab - Agar",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
         "userSetOnLoad": true
       },
@@ -10036,7 +10122,7 @@
           "timeoutInMillisecond": 10000
         },
         "confirmBeforeExecute": false,
-        "createdAt": "+58122-03-21T20:01:11Z",
+        "createdAt": "2026-04-20T00:00:54Z",
         "datasource": {
           "deleted": false,
           "id": "mushroomprocess-postgres",
@@ -10049,7 +10135,6 @@
           "userPermissions": []
         },
         "dynamicBindingPathList": [],
-        "fullyQualifiedName": "Lab - Agar.qAgarFlasks",
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [],
@@ -10057,9 +10142,175 @@
         "name": "qAgarFlasks",
         "pageId": "Lab - Agar",
         "policyMap": {},
-        "runBehaviour": "AUTOMATIC",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
         "userSetOnLoad": true
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69e55a5a1b5f572d03dc2413_0c9f57a9-940d-4b4e-b25c-02b02b6eb376",
+      "id": "Lab - Agar_Query1",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT nocopk, name, active\nFROM public.locations\nWHERE lower(btrim(name)) = lower(btrim('Incubator'));",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-20T00:07:12Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "Query1",
+        "pageId": "Lab - Agar",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT nocopk, name, active\nFROM public.locations\nWHERE lower(btrim(name)) = lower(btrim('Incubator'));",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-20T00:07:12Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "Query1",
+        "pageId": "Lab - Agar",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69e55a5a1b5f572d03dc2413_332d9b0f-8aaa-4776-82fe-19e3fc69ecad",
+      "id": "Lab - Agar_qAgarLocations",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT DISTINCT nocopk, name, active FROM public.vc_locations \n  WHERE (name ILIKE '%Fridge%' OR name ILIKE '%Refrigerator%')\n  AND active\nORDER BY name;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-20T00:13:06Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "qAgarLocations",
+        "pageId": "Lab - Agar",
+        "policyMap": {},
+        "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT DISTINCT nocopk, name, active FROM public.vc_locations \n  WHERE (name ILIKE '%Fridge%' OR name ILIKE '%Refrigerator%')\n  AND active\nORDER BY name;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-20T00:13:06Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "qAgarLocations",
+        "pageId": "Lab - Agar",
+        "policyMap": {},
+        "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
       }
     },
     {
@@ -10392,7 +10643,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_spawn_to_bulk(\n  {{SpawnToBulk.sql.arrBigint(tblSpawnSources.selectedRows.map(r=>r.nocopk))}},\n  {{SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(selBulkRecipe.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(inpBulkCount.text)}}::int,\n  {{SpawnToBulk.sql.num(inpBulkUnitSize.text)}},\n  {{SpawnToBulk.sql.str(selBulkLocation.selectedOptionValue)}},\n  {{ SpawnToBulk.sql.str( SpawnToBulk.currentOperator() ) }}::text,\n  'Spawn to Bulk',\n  NULL::timestamp,\n  {{SpawnToBulk.sql.str(inpBulkNotes.text)}}\n);",
+          "body": "SELECT public.mp_lots_spawn_to_bulk(\n  {{SpawnToBulk.sql.arrBigint(tblSpawnSources.selectedRows.map(r=>r.nocopk))}},\n  {{SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(selBulkRecipe.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(inpBulkCount.text)}}::int,\n  {{SpawnToBulk.sql.num(inpBulkUnitSize.text)}},\n  {{SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue)}}::bigint,\n  {{ SpawnToBulk.sql.str( SpawnToBulk.currentOperator() ) }}::text,\n  'Spawn to Bulk',\n  NULL::timestamp,\n  {{SpawnToBulk.sql.str(inpBulkNotes.text)}}\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -10429,11 +10680,11 @@
         "isValid": true,
         "jsonPathKeys": [
           "SpawnToBulk.sql.num(inpBulkCount.text)",
-          "SpawnToBulk.sql.str(selBulkLocation.selectedOptionValue)",
-          "SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)",
+          "SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue)",
           " SpawnToBulk.sql.str( SpawnToBulk.currentOperator() ) ",
-          "SpawnToBulk.sql.str(inpBulkNotes.text)",
+          "SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)",
           "SpawnToBulk.sql.num(inpBulkUnitSize.text)",
+          "SpawnToBulk.sql.str(inpBulkNotes.text)",
           "SpawnToBulk.sql.arrBigint(tblSpawnSources.selectedRows.map(r=>r.nocopk))",
           "SpawnToBulk.sql.num(selBulkRecipe.selectedOptionValue)"
         ],
@@ -17416,7 +17667,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 36,
                           "serverSideFiltering": false,
-                          "sourceData": "{{(qNonFridgeFruitRetLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.name } })}}",
+                          "sourceData": "{{(qNonFridgeFruitRetLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.nocopk } })}}",
                           "topRow": 35,
                           "type": "SELECT_WIDGET",
                           "version": 1,
@@ -33111,14 +33362,14 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 408,
+                  "bottomRow": 398,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
                   "children": [
                     {
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "bottomRow": 340,
+                      "bottomRow": 330,
                       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                       "canExtend": true,
                       "children": [
@@ -33212,7 +33463,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 10,
+                          "bottomRow": 9,
                           "children": [],
                           "dynamicBindingPathList": [
                             {
@@ -33239,7 +33490,7 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 9,
+                          "originalBottomRow": 10,
                           "originalTopRow": 5,
                           "overflow": "NONE",
                           "parentColumnSpace": 6.9375,
@@ -33263,7 +33514,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 16,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "children": [],
                           "defaultOptionValue": "Fridge",
@@ -33308,8 +33559,8 @@
                           "onOptionChange": "",
                           "optionLabel": "label",
                           "optionValue": "value",
-                          "originalBottomRow": 15,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 16,
+                          "originalTopRow": 10,
                           "parentColumnSpace": 10.296875,
                           "parentId": "a062wdluf9",
                           "parentRowSpace": 10,
@@ -33318,8 +33569,8 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 31,
                           "serverSideFiltering": false,
-                          "sourceData": "{{(qFridgeFruitingLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.name } })}}",
-                          "topRow": 10,
+                          "sourceData": "{{(qFridgeFruitingLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.nocopk } })}}",
+                          "topRow": 9,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "m3r6zq80vu",
@@ -33329,7 +33580,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "alignment": "left",
                           "animateLoading": true,
-                          "bottomRow": 16,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "children": [],
                           "defaultOptionValue": "Fridge",
@@ -33373,14 +33624,14 @@
                               "value": "ColdShock"
                             }
                           ],
-                          "originalBottomRow": 15,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 16,
+                          "originalTopRow": 10,
                           "parentColumnSpace": 9.728125,
                           "parentId": "a062wdluf9",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "rightColumn": 63,
-                          "topRow": 10,
+                          "topRow": 9,
                           "type": "RADIO_GROUP_WIDGET",
                           "version": 1,
                           "widgetId": "sj4n6y1hka",
@@ -33391,7 +33642,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 28,
+                          "bottomRow": 27,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "",
@@ -33427,8 +33678,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 27,
-                          "originalTopRow": 15,
+                          "originalBottomRow": 28,
+                          "originalTopRow": 16,
                           "parentColumnSpace": 6.9375,
                           "parentId": "a062wdluf9",
                           "parentRowSpace": 10,
@@ -33437,7 +33688,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 63,
                           "showStepArrows": false,
-                          "topRow": 16,
+                          "topRow": 15,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "gf4omsuyin",
@@ -33446,7 +33697,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 32,
+                          "bottomRow": 31,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY",
@@ -33479,8 +33730,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{closeModal(modalMoveLots.name);}}",
-                          "originalBottomRow": 31,
-                          "originalTopRow": 27,
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
                           "parentId": "a062wdluf9",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -33489,7 +33740,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 47,
                           "text": "Close",
-                          "topRow": 28,
+                          "topRow": 27,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "eakfkfktfb",
@@ -33498,7 +33749,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 32,
+                          "bottomRow": 31,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY_BUTTON",
@@ -33531,8 +33782,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{ LotsPage.moveSelectedLots() }}",
-                          "originalBottomRow": 31,
-                          "originalTopRow": 27,
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
                           "parentId": "a062wdluf9",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -33541,7 +33792,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 63,
                           "text": "Move",
-                          "topRow": 28,
+                          "topRow": 27,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "g3fa6a5n32",
@@ -33594,14 +33845,14 @@
                     }
                   ],
                   "dynamicHeight": "AUTO_HEIGHT",
-                  "height": 340,
+                  "height": 330,
                   "isCanvas": true,
                   "isLoading": false,
                   "key": "3byj4q63sn",
                   "leftColumn": 0,
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 24,
-                  "minHeight": 340,
+                  "minHeight": 330,
                   "mobileBottomRow": 92,
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 15,
@@ -34081,14 +34332,14 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 406,
+                  "bottomRow": 396,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
                   "children": [
                     {
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "bottomRow": 340,
+                      "bottomRow": 330,
                       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                       "canExtend": true,
                       "children": [
@@ -34183,7 +34434,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 10,
+                          "bottomRow": 9,
                           "children": [],
                           "dynamicBindingPathList": [
                             {
@@ -34210,7 +34461,7 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 9,
+                          "originalBottomRow": 10,
                           "originalTopRow": 5,
                           "overflow": "NONE",
                           "parentColumnSpace": 6.9375,
@@ -34235,7 +34486,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 16,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "1",
@@ -34271,8 +34522,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 15,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 16,
+                          "originalTopRow": 10,
                           "parentColumnSpace": 6.9375,
                           "parentId": "kk329mymx7",
                           "parentRowSpace": 10,
@@ -34281,7 +34532,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 18,
                           "showStepArrows": false,
-                          "topRow": 10,
+                          "topRow": 9,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "99ezsygw6f",
@@ -34292,7 +34543,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 16,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "{{tblLots.selectedRow.unit_size}}",
@@ -34331,8 +34582,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 15,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 16,
+                          "originalTopRow": 10,
                           "parentColumnSpace": 6.9375,
                           "parentId": "kk329mymx7",
                           "parentRowSpace": 10,
@@ -34341,7 +34592,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 30,
                           "showStepArrows": false,
-                          "topRow": 10,
+                          "topRow": 9,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "tj4pdcdmcw",
@@ -34351,7 +34602,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 16,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "children": [],
                           "defaultOptionValue": "Products Storage",
@@ -34396,8 +34647,8 @@
                           "onOptionChange": "",
                           "optionLabel": "label",
                           "optionValue": "value",
-                          "originalBottomRow": 15,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 16,
+                          "originalTopRow": 10,
                           "parentColumnSpace": 10.296875,
                           "parentId": "kk329mymx7",
                           "parentRowSpace": 10,
@@ -34406,8 +34657,8 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 64,
                           "serverSideFiltering": false,
-                          "sourceData": "{{(qProductLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.name } })}}",
-                          "topRow": 10,
+                          "sourceData": "{{(qProductLocations.data || []).map( (obj) =>{ return  {'label': obj.name, 'value': obj.nocopk } })}}",
+                          "topRow": 9,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "80wet8t9wv",
@@ -34418,7 +34669,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 28,
+                          "bottomRow": 27,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "",
@@ -34454,8 +34705,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 27,
-                          "originalTopRow": 15,
+                          "originalBottomRow": 28,
+                          "originalTopRow": 16,
                           "parentColumnSpace": 6.9375,
                           "parentId": "kk329mymx7",
                           "parentRowSpace": 10,
@@ -34464,7 +34715,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 64,
                           "showStepArrows": false,
-                          "topRow": 16,
+                          "topRow": 15,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "yd3sjfxkgl",
@@ -34473,7 +34724,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 32,
+                          "bottomRow": 31,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY",
@@ -34506,8 +34757,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{closeModal(modalPackageLots.name);}}",
-                          "originalBottomRow": 31,
-                          "originalTopRow": 27,
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
                           "parentId": "kk329mymx7",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -34516,7 +34767,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 47,
                           "text": "Close",
-                          "topRow": 28,
+                          "topRow": 27,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "rhgkr077e1",
@@ -34525,7 +34776,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 32,
+                          "bottomRow": 31,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY_BUTTON",
@@ -34558,8 +34809,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{ LotsPage.packageSelectedLots() }}",
-                          "originalBottomRow": 31,
-                          "originalTopRow": 27,
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
                           "parentId": "kk329mymx7",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -34568,7 +34819,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 63,
                           "text": "Package",
-                          "topRow": 28,
+                          "topRow": 27,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "sno91822ek",
@@ -34621,14 +34872,14 @@
                     }
                   ],
                   "dynamicHeight": "AUTO_HEIGHT",
-                  "height": 340,
+                  "height": 330,
                   "isCanvas": true,
                   "isLoading": false,
                   "key": "3byj4q63sn",
                   "leftColumn": 0,
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 24,
-                  "minHeight": 340,
+                  "minHeight": 330,
                   "mobileBottomRow": 90,
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 14,
@@ -34650,14 +34901,14 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 452,
+                  "bottomRow": 462,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
                   "children": [
                     {
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "bottomRow": 420,
+                      "bottomRow": 430,
                       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                       "canExtend": true,
                       "children": [
@@ -34752,7 +35003,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 8,
+                          "bottomRow": 9,
                           "children": [],
                           "dynamicBindingPathList": [
                             {
@@ -34779,7 +35030,7 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 9,
+                          "originalBottomRow": 8,
                           "originalTopRow": 4,
                           "overflow": "NONE",
                           "parentColumnSpace": 6.9375,
@@ -34804,7 +35055,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 15,
+                          "bottomRow": 16,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "10",
@@ -34840,8 +35091,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 16,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 15,
+                          "originalTopRow": 8,
                           "parentColumnSpace": 6.9375,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -34850,7 +35101,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 42,
                           "showStepArrows": false,
-                          "topRow": 8,
+                          "topRow": 9,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "nk0s1j3qvu",
@@ -34860,7 +35111,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 15,
+                          "bottomRow": 16,
                           "boxShadow": "none",
                           "children": [],
                           "defaultOptionValue": "Dark Room",
@@ -34905,8 +35156,8 @@
                           "onOptionChange": "",
                           "optionLabel": "label",
                           "optionValue": "value",
-                          "originalBottomRow": 16,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 15,
+                          "originalTopRow": 8,
                           "parentColumnSpace": 10.296875,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -34915,8 +35166,8 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 64,
                           "serverSideFiltering": false,
-                          "sourceData": "{{ (qInocLocations.data || []).map( (o) => ({label:o.name, value:o.name}) ) }}",
-                          "topRow": 8,
+                          "sourceData": "{{ (qInocLocations.data || []).map( (o) => ({label:o.name, value:o.nocopk}) ) }}",
+                          "topRow": 9,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "ji3gixc76v",
@@ -34927,7 +35178,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 36,
+                          "bottomRow": 37,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "",
@@ -34963,8 +35214,8 @@
                           "mobileRightColumn": 21,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 37,
-                          "originalTopRow": 23,
+                          "originalBottomRow": 36,
+                          "originalTopRow": 22,
                           "parentColumnSpace": 6.9375,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -34973,7 +35224,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 64,
                           "showStepArrows": false,
-                          "topRow": 22,
+                          "topRow": 23,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "18lkpmzn4f",
@@ -34982,7 +35233,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 40,
+                          "bottomRow": 41,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY",
@@ -35020,8 +35271,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{closeModal(modalInoculateLots.name);}}",
-                          "originalBottomRow": 41,
-                          "originalTopRow": 37,
+                          "originalBottomRow": 40,
+                          "originalTopRow": 36,
                           "parentId": "d7vxaghtuj",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -35030,7 +35281,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 54,
                           "text": "Close",
-                          "topRow": 36,
+                          "topRow": 37,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "4tefro7vui",
@@ -35039,7 +35290,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 40,
+                          "bottomRow": 41,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonStyle": "PRIMARY_BUTTON",
@@ -35077,8 +35328,8 @@
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
                           "onClick": "{{LotsPage.inoculateSelectedLots()}}",
-                          "originalBottomRow": 41,
-                          "originalTopRow": 37,
+                          "originalBottomRow": 40,
+                          "originalTopRow": 36,
                           "parentId": "d7vxaghtuj",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -35087,7 +35338,7 @@
                           "responsiveBehavior": "hug",
                           "rightColumn": 64,
                           "text": "Inoculate",
-                          "topRow": 36,
+                          "topRow": 37,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "phak52jt31",
@@ -35099,7 +35350,7 @@
                           "borderColor": "#E0DEDE",
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "borderWidth": "1",
-                          "bottomRow": 40,
+                          "bottomRow": 41,
                           "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                           "cachedTableData": {},
                           "canFreezeColumn": true,
@@ -35209,8 +35460,8 @@
                           "mobileTopRow": 14,
                           "needsErrorInfo": false,
                           "onRowSelected": "{{}}",
-                          "originalBottomRow": 41,
-                          "originalTopRow": 16,
+                          "originalBottomRow": 40,
+                          "originalTopRow": 15,
                           "parentColumnSpace": 9.728125,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -35460,7 +35711,7 @@
                           "searchKey": "",
                           "tableData": "{{qSourceLotsSearch.data}}",
                           "textSize": "0.875rem",
-                          "topRow": 15,
+                          "topRow": 16,
                           "totalRecordsCount": 0,
                           "type": "TABLE_WIDGET_V2",
                           "version": 2,
@@ -35472,7 +35723,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 22,
+                          "bottomRow": 23,
                           "boxShadow": "none",
                           "children": [],
                           "closeOnSelection": true,
@@ -35511,8 +35762,8 @@
                           "mobileRightColumn": 50,
                           "mobileTopRow": 16,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 23,
-                          "originalTopRow": 16,
+                          "originalBottomRow": 22,
+                          "originalTopRow": 15,
                           "parentColumnSpace": 9.728125,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -35521,7 +35772,7 @@
                           "rightColumn": 64,
                           "shortcuts": false,
                           "timePrecision": "minute",
-                          "topRow": 15,
+                          "topRow": 16,
                           "type": "DATE_PICKER_WIDGET2",
                           "version": 2,
                           "widgetId": "y1qdwp3ejy",
@@ -35532,7 +35783,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 15,
+                          "bottomRow": 16,
                           "boxShadow": "none",
                           "children": [],
                           "defaultText": "",
@@ -35568,8 +35819,8 @@
                           "mobileRightColumn": 19,
                           "mobileTopRow": 8,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 16,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 15,
+                          "originalTopRow": 8,
                           "parentColumnSpace": 9.728125,
                           "parentId": "d7vxaghtuj",
                           "parentRowSpace": 10,
@@ -35578,7 +35829,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 19,
                           "showStepArrows": false,
-                          "topRow": 8,
+                          "topRow": 9,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "4ogkaycdp9",
@@ -35631,14 +35882,14 @@
                     }
                   ],
                   "dynamicHeight": "AUTO_HEIGHT",
-                  "height": 420,
+                  "height": 430,
                   "isCanvas": true,
                   "isLoading": false,
                   "key": "3byj4q63sn",
                   "leftColumn": 0,
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 24,
-                  "minHeight": 420,
+                  "minHeight": 430,
                   "mobileBottomRow": 90,
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 14,
@@ -36049,7 +36300,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 64,
                           "serverSideFiltering": false,
-                          "sourceData": "{{ (qLocations.data || []).map((o) => ({ label: o.name, value: o.name })) }}",
+                          "sourceData": "{{ (qLocations.data || []).map((o) => ({ label: o.name, value: o.nocopk })) }}",
                           "topRow": 9,
                           "type": "SELECT_WIDGET",
                           "version": 1,
@@ -45723,6 +45974,16 @@
                   "pluginType": "DB",
                   "timeoutInMillisecond": 10000
                 }
+              ],
+              [
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Lab - Receive_qReceiveItems",
+                  "jsonPathKeys": [],
+                  "name": "qReceiveItems",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                }
               ]
             ],
             "policies": [],
@@ -46322,7 +46583,7 @@
                           "responsiveBehavior": "fill",
                           "rightColumn": 19,
                           "serverSideFiltering": false,
-                          "sourceData": "{{ (qReceiveLocations.data || []).map(o => ({label:o.name, value:o.name})) }}",
+                          "sourceData": "{{ (qReceiveLocations.data || []).map(o => ({label:o.name, value:o.nocopk})) }}",
                           "topRow": 19,
                           "type": "SELECT_WIDGET",
                           "version": 1,
@@ -46484,14 +46745,6 @@
               [
                 {
                   "confirmBeforeExecute": false,
-                  "id": "Lab - Receive_Lab - Receive.qReceiveItems",
-                  "jsonPathKeys": [],
-                  "name": "Lab - Receive.qReceiveItems",
-                  "pluginType": "DB",
-                  "timeoutInMillisecond": 10000
-                },
-                {
-                  "confirmBeforeExecute": false,
                   "id": "Lab - Receive_qReceiveLocations",
                   "jsonPathKeys": [],
                   "name": "qReceiveLocations",
@@ -46503,6 +46756,16 @@
                   "id": "Lab - Receive_qSpecies",
                   "jsonPathKeys": [],
                   "name": "qSpecies",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                }
+              ],
+              [
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Lab - Receive_qReceiveItems",
+                  "jsonPathKeys": [],
+                  "name": "qReceiveItems",
                   "pluginType": "DB",
                   "timeoutInMillisecond": 10000
                 }
@@ -46605,13 +46868,24 @@
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonVariant": "PRIMARY",
-                          "disabledWhenInvalid": true,
+                          "disabledWhenInvalid": "true",
                           "dynamicBindingPathList": [
                             {
                               "key": "buttonColor"
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "disabledWhenInvalid"
+                            },
+                            {
+                              "key": "isDisabled"
                             }
                           ],
                           "dynamicTriggerPathList": [
@@ -46620,7 +46894,7 @@
                             }
                           ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
+                          "isDisabled": "{{\n\ntblAgarFlasks.selectedRow.nocopk === undefined\n\n}}",
                           "isLoading": false,
                           "isVisible": true,
                           "key": "aeuby9nh39",
@@ -46632,8 +46906,8 @@
                           "mobileTopRow": 33,
                           "needsErrorInfo": false,
                           "onClick": "{{ LabAgar.pourPlatesFromSelectedFlask() }}",
-                          "originalBottomRow": 37,
-                          "originalTopRow": 33,
+                          "originalBottomRow": 40,
+                          "originalTopRow": 36,
                           "parentId": "abyoqdh8yb",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -46704,7 +46978,7 @@
                           "borderColor": "#E0DEDE",
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "borderWidth": "1",
-                          "bottomRow": 32,
+                          "bottomRow": 36,
                           "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                           "cachedTableData": {},
                           "canFreezeColumn": true,
@@ -46798,7 +47072,11 @@
                               "key": "primaryColumns.notes.computedValue"
                             }
                           ],
-                          "dynamicPropertyPathList": [],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "tableData"
+                            }
+                          ],
                           "dynamicTriggerPathList": [],
                           "enableClientSideSearch": true,
                           "endOfData": false,
@@ -47153,7 +47431,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 14,
+                          "bottomRow": 12,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -47170,7 +47448,7 @@
                           "inputType": "NUMBER",
                           "isDisabled": false,
                           "isLoading": false,
-                          "isRequired": false,
+                          "isRequired": true,
                           "isVisible": true,
                           "key": "4ebc629ov3",
                           "label": "Number of Plates",
@@ -47199,7 +47477,7 @@
                           "rightColumn": 62,
                           "shouldAllowAutofill": false,
                           "showStepArrows": false,
-                          "topRow": 7,
+                          "topRow": 5,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "xzwzfivjb8",
@@ -47210,7 +47488,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 25,
+                          "bottomRow": 36,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -47245,18 +47523,18 @@
                           "mobileRightColumn": 46,
                           "mobileTopRow": 15,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 25,
-                          "originalTopRow": 15,
+                          "originalBottomRow": 36,
+                          "originalTopRow": 26,
                           "parentColumnSpace": 9.9375,
                           "parentId": "abyoqdh8yb",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "resetOnSubmit": true,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 62,
+                          "rightColumn": 64,
                           "shouldAllowAutofill": false,
                           "showStepArrows": false,
-                          "topRow": 15,
+                          "topRow": 26,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "zfixl98wor",
@@ -47266,7 +47544,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 33,
+                          "bottomRow": 19,
                           "boxShadow": "none",
                           "closeOnSelection": true,
                           "dateFormat": "YYYY-MM-DD HH:mm",
@@ -47311,14 +47589,76 @@
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 62,
+                          "rightColumn": 64,
                           "shortcuts": false,
                           "timePrecision": "minute",
-                          "topRow": 26,
+                          "topRow": 12,
                           "type": "DATE_PICKER_WIDGET2",
                           "version": 2,
                           "widgetId": "2scpp5lzyn",
                           "widgetName": "dpPourOverride"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 26,
+                          "boxShadow": "none",
+                          "defaultOptionValue": "Fridge",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            },
+                            {
+                              "key": "sourceData"
+                            }
+                          ],
+                          "dynamicHeight": "FIXED",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "sourceData"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [],
+                          "isDisabled": false,
+                          "isFilterable": true,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4gcpa6m66x",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelText": "Storage Location",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 42,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 44,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 19,
+                          "mobileTopRow": 37,
+                          "needsErrorInfo": false,
+                          "optionLabel": "label",
+                          "optionValue": "value",
+                          "parentColumnSpace": 13.875,
+                          "parentId": "abyoqdh8yb",
+                          "parentRowSpace": 10,
+                          "placeholderText": "Select option",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "serverSideFiltering": false,
+                          "sourceData": "{{ (qAgarLocations.data || []).map(o => ({label:o.name, value:o.name})) }}",
+                          "topRow": 19,
+                          "type": "SELECT_WIDGET",
+                          "version": 1,
+                          "widgetId": "bsdf68bybo",
+                          "widgetName": "Select1"
                         }
                       ],
                       "containerStyle": "none",
@@ -47420,9 +47760,19 @@
               [
                 {
                   "confirmBeforeExecute": false,
-                  "id": "Lab - Agar_Lab - Agar.qAgarFlasks",
+                  "id": "Lab - Agar_qAgarFlasks",
                   "jsonPathKeys": [],
-                  "name": "Lab - Agar.qAgarFlasks",
+                  "name": "qAgarFlasks",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                }
+              ],
+              [
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Lab - Agar_qAgarLocations",
+                  "jsonPathKeys": [],
+                  "name": "qAgarLocations",
                   "pluginType": "DB",
                   "timeoutInMillisecond": 10000
                 }
@@ -47521,13 +47871,24 @@
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonVariant": "PRIMARY",
-                          "disabledWhenInvalid": true,
+                          "disabledWhenInvalid": "true",
                           "dynamicBindingPathList": [
                             {
                               "key": "buttonColor"
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "disabledWhenInvalid"
+                            },
+                            {
+                              "key": "isDisabled"
                             }
                           ],
                           "dynamicTriggerPathList": [
@@ -47536,7 +47897,7 @@
                             }
                           ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
+                          "isDisabled": "{{\n\ntblAgarFlasks.selectedRow.nocopk === undefined\n\n}}",
                           "isLoading": false,
                           "isVisible": true,
                           "key": "aeuby9nh39",
@@ -47548,8 +47909,8 @@
                           "mobileTopRow": 33,
                           "needsErrorInfo": false,
                           "onClick": "{{ LabAgar.pourPlatesFromSelectedFlask() }}",
-                          "originalBottomRow": 37,
-                          "originalTopRow": 33,
+                          "originalBottomRow": 40,
+                          "originalTopRow": 36,
                           "parentId": "abyoqdh8yb",
                           "placement": "CENTER",
                           "recaptchaType": "V3",
@@ -47620,7 +47981,7 @@
                           "borderColor": "#E0DEDE",
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "borderWidth": "1",
-                          "bottomRow": 32,
+                          "bottomRow": 36,
                           "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                           "cachedTableData": {},
                           "canFreezeColumn": true,
@@ -47714,7 +48075,11 @@
                               "key": "primaryColumns.notes.computedValue"
                             }
                           ],
-                          "dynamicPropertyPathList": [],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "tableData"
+                            }
+                          ],
                           "dynamicTriggerPathList": [],
                           "enableClientSideSearch": true,
                           "endOfData": false,
@@ -48069,7 +48434,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 14,
+                          "bottomRow": 12,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -48086,7 +48451,7 @@
                           "inputType": "NUMBER",
                           "isDisabled": false,
                           "isLoading": false,
-                          "isRequired": false,
+                          "isRequired": true,
                           "isVisible": true,
                           "key": "4ebc629ov3",
                           "label": "Number of Plates",
@@ -48115,7 +48480,7 @@
                           "rightColumn": 62,
                           "shouldAllowAutofill": false,
                           "showStepArrows": false,
-                          "topRow": 7,
+                          "topRow": 5,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "xzwzfivjb8",
@@ -48126,7 +48491,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 25,
+                          "bottomRow": 36,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -48161,18 +48526,18 @@
                           "mobileRightColumn": 46,
                           "mobileTopRow": 15,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 25,
-                          "originalTopRow": 15,
+                          "originalBottomRow": 36,
+                          "originalTopRow": 26,
                           "parentColumnSpace": 9.9375,
                           "parentId": "abyoqdh8yb",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "resetOnSubmit": true,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 62,
+                          "rightColumn": 64,
                           "shouldAllowAutofill": false,
                           "showStepArrows": false,
-                          "topRow": 15,
+                          "topRow": 26,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "zfixl98wor",
@@ -48182,7 +48547,7 @@
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 33,
+                          "bottomRow": 19,
                           "boxShadow": "none",
                           "closeOnSelection": true,
                           "dateFormat": "YYYY-MM-DD HH:mm",
@@ -48227,14 +48592,76 @@
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 62,
+                          "rightColumn": 64,
                           "shortcuts": false,
                           "timePrecision": "minute",
-                          "topRow": 26,
+                          "topRow": 12,
                           "type": "DATE_PICKER_WIDGET2",
                           "version": 2,
                           "widgetId": "2scpp5lzyn",
                           "widgetName": "dpPourOverride"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 26,
+                          "boxShadow": "none",
+                          "defaultOptionValue": "Fridge",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            },
+                            {
+                              "key": "sourceData"
+                            }
+                          ],
+                          "dynamicHeight": "FIXED",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "sourceData"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [],
+                          "isDisabled": false,
+                          "isFilterable": true,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4gcpa6m66x",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelText": "Storage Location",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 42,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 44,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 19,
+                          "mobileTopRow": 37,
+                          "needsErrorInfo": false,
+                          "optionLabel": "label",
+                          "optionValue": "value",
+                          "parentColumnSpace": 13.875,
+                          "parentId": "abyoqdh8yb",
+                          "parentRowSpace": 10,
+                          "placeholderText": "Select option",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "serverSideFiltering": false,
+                          "sourceData": "{{ (qAgarLocations.data || []).map(o => ({label:o.name, value:o.nocopk})) }}",
+                          "topRow": 19,
+                          "type": "SELECT_WIDGET",
+                          "version": 1,
+                          "widgetId": "bsdf68bybo",
+                          "widgetName": "selAgarLocation"
                         }
                       ],
                       "containerStyle": "none",
@@ -48336,9 +48763,19 @@
               [
                 {
                   "confirmBeforeExecute": false,
-                  "id": "Lab - Agar_Lab - Agar.qAgarFlasks",
+                  "id": "Lab - Agar_qAgarFlasks",
                   "jsonPathKeys": [],
-                  "name": "Lab - Agar.qAgarFlasks",
+                  "name": "qAgarFlasks",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                }
+              ],
+              [
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Lab - Agar_qAgarLocations",
+                  "jsonPathKeys": [],
+                  "name": "qAgarLocations",
                   "pluginType": "DB",
                   "timeoutInMillisecond": 10000
                 }
@@ -50047,7 +50484,7 @@
                   "responsiveBehavior": "fill",
                   "rightColumn": 64,
                   "serverSideFiltering": false,
-                  "sourceData": "{{ (qNonFridgeFruitRetLocations.data || []).map(o => ({label:o.name, value:o.name})) }}",
+                  "sourceData": "{{ (qNonFridgeFruitRetLocations.data || []).map(o => ({label:o.name, value:o.nocopk})) }}",
                   "topRow": 28,
                   "type": "SELECT_WIDGET",
                   "version": 1,
