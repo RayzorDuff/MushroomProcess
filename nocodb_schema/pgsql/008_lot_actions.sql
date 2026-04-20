@@ -1529,7 +1529,41 @@ BEGIN
     -- END;
   END LOOP;
 
-  -- Optionally mark source as consumed if remaining_volume_ml is tracked and now <= 0 (do not decrement without a known rate)
+  -- Mark source agar flask as consumed/retired after pouring plates
+  UPDATE public.lots
+  SET
+    status = 'Consumed',
+    retired_at = COALESCE(p_timestamp, now()),
+    ui_error = NULL,
+    ui_error_at = NULL
+  WHERE nocopk = p_source_agar_flask_lot_id;
+
+  BEGIN
+    PERFORM public.mp_lot_set_location_by_name(p_source_agar_flask_lot_id, 'Consumed');
+  EXCEPTION WHEN undefined_function THEN NULL;
+  END;
+
+  BEGIN
+    v_event_id := public.mp_events_insert(
+      'Consume Agar Flask'::text,
+      COALESCE(p_operator,'')::text,
+      COALESCE(p_station,'Lab - Agar')::text,
+      v_ts,
+      jsonb_build_object(
+        'source_lot_id', p_source_agar_flask_lot_id,
+        'plate_group_id', v_group_id,
+        'result_status', 'Consumed',
+        'result_location', 'Consumed',
+        'notes', p_notes
+      )
+    );
+    BEGIN
+      PERFORM public.mp_events_link_lot(v_event_id, p_source_agar_flask_lot_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+  EXCEPTION WHEN undefined_function THEN NULL;
+  END;
+
   RETURN p_plate_count;
 END;
 $$;
