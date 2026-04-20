@@ -32,6 +32,14 @@ BEGIN
     RETURN 0;
   END IF;
 
+  SELECT l.name INTO v_location_name
+  FROM public.locations l
+  WHERE l.nocopk = p_location_id;
+
+  IF p_location_id IS NULL OR v_location_name IS NULL THEN
+    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
+  END IF;
+
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
     v_fields := jsonb_build_object(
       'action', 'Shake',
@@ -201,7 +209,7 @@ $$;
 --          * insert an event for the move/transition
 CREATE OR REPLACE FUNCTION public.mp_lots_move(
   p_lot_ids   bigint[],
-  p_location_name text,
+  p_location_id bigint,
   p_fridge_mode text DEFAULT 'Fridge',
   p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
@@ -218,20 +226,29 @@ DECLARE
   v_counter integer := 0;
   v_old_status text;
   v_new_status text;
+  v_location_name text;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
+  END IF;
+
+  SELECT l.name INTO v_location_name
+  FROM public.locations l
+  WHERE l.nocopk = p_location_id;
+
+  IF p_location_id IS NULL OR v_location_name IS NULL THEN
+    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
     SELECT status INTO v_old_status FROM public.lots WHERE nocopk = v_lot_id;
 
     -- Update location
-    PERFORM public.mp_lot_set_location_by_name(v_lot_id, p_location_name);
+    PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
 
     v_new_status := NULL;
 
-    IF p_location_name ILIKE '%Fridge%' OR p_location_name ILIKE '%Refrigerator%' THEN
+    IF v_location_name ILIKE '%Fridge%' OR v_location_name ILIKE '%Refrigerator%' THEN
       -- Ensure FullyColonized first
       IF COALESCE(v_old_status,'') NOT IN ('FullyColonized','Fridge','ColdShock') THEN
         UPDATE public.lots SET status = 'FullyColonized' WHERE nocopk = v_lot_id;
@@ -252,7 +269,7 @@ BEGIN
       v_new_status := CASE WHEN COALESCE(p_fridge_mode,'') = 'ColdShock' THEN 'ColdShock' ELSE 'Fridge' END;
       UPDATE public.lots SET status = v_new_status WHERE nocopk = v_lot_id;
 
-      v_fields := jsonb_build_object('action','Move','to_location',p_location_name,'to_status',v_new_status,'note',p_note);
+      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'note',p_note);
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
           v_lot_id::bigint, 
@@ -265,11 +282,11 @@ BEGIN
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
 
-    ELSIF p_location_name ILIKE '%Fruiting%' THEN
+    ELSIF v_location_name ILIKE '%Fruiting%' THEN
       v_new_status := 'Fruiting';
       UPDATE public.lots SET status = v_new_status WHERE nocopk = v_lot_id;
 
-      v_fields := jsonb_build_object('action','Move','to_location',p_location_name,'to_status',v_new_status,'note',p_note);
+      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'note',p_note);
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
           v_lot_id::bigint, 
@@ -282,7 +299,7 @@ BEGIN
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
     ELSE
-      v_fields := jsonb_build_object('action','Move','to_location',p_location_name,'note',p_note);
+      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'note',p_note);
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
           v_lot_id::bigint, 
@@ -334,6 +351,14 @@ DECLARE
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
+  END IF;
+
+  SELECT l.name INTO v_location_name
+  FROM public.locations l
+  WHERE l.nocopk = p_location_id;
+
+  IF p_location_id IS NULL OR v_location_name IS NULL THEN
+    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
@@ -395,7 +420,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.mp_lots_inoculate_multiple(
   p_source_lot_id bigint,
   p_target_lot_ids bigint[],
-  p_storage_location_name text DEFAULT 'Dark Room',
+  p_storage_location_id bigint DEFAULT NULL,
   p_lc_volume_ml numeric DEFAULT NULL,
   p_override_inoc_time timestamp without time zone DEFAULT NULL,
   p_operator text DEFAULT 'system',
@@ -454,6 +479,17 @@ BEGIN
   END IF;
 
   v_inoc_time := COALESCE(p_override_inoc_time, COALESCE(p_timestamp, now()));
+
+  v_loc_id := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Dark Room'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
 
   -- Load source lot + item
   SELECT
@@ -639,7 +675,7 @@ BEGIN
 
     -- Set target storage location
     BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_target_id, p_storage_location_name);
+      PERFORM public.mp_lot_set_location(v_target_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -731,6 +767,51 @@ END;
 $$;
 
 
+CREATE OR REPLACE FUNCTION public.mp_product_set_storage_location(p_product_id bigint, p_location_id bigint)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF p_location_id IS NULL THEN
+    RETURN;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.locations
+    WHERE nocopk = p_location_id
+  ) THEN
+    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
+  END IF;
+
+  UPDATE public.products
+  SET storage_location_id = p_location_id
+  WHERE nocopk = p_product_id;
+
+  BEGIN
+    DELETE FROM public._m2m_products_locations_storage_location
+    WHERE products_id = p_product_id;
+
+    INSERT INTO public._m2m_products_locations_storage_location (products_id, locations_id)
+    VALUES (p_product_id, p_location_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+
+  BEGIN
+    DELETE FROM public._m2m_locations_products_products
+    WHERE products_id = p_product_id;
+
+    INSERT INTO public._m2m_locations_products_products (locations_id, products_id)
+    VALUES (p_location_id, p_product_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.mp_product_set_storage_location_by_name(p_product_id bigint, p_location_name text)
 RETURNS void
 LANGUAGE plpgsql
@@ -752,31 +833,7 @@ BEGIN
     RAISE EXCEPTION 'Location not found: %', p_location_name;
   END IF;
 
-  UPDATE public.products
-  SET storage_location_id = v_loc_id
-  WHERE nocopk = p_product_id;
-
-  BEGIN
-    DELETE FROM public._m2m_products_locations_storage_location
-    WHERE products_id = p_product_id;
-
-    INSERT INTO public._m2m_products_locations_storage_location (products_id, locations_id)
-    VALUES (p_product_id, v_loc_id)
-    ON CONFLICT DO NOTHING;
-  EXCEPTION WHEN undefined_table THEN
-    NULL;
-  END;
-
-  BEGIN
-    DELETE FROM public._m2m_locations_products_products
-    WHERE products_id = p_product_id;
-
-    INSERT INTO public._m2m_locations_products_products (locations_id, products_id)
-    VALUES (v_loc_id, p_product_id)
-    ON CONFLICT DO NOTHING;
-  EXCEPTION WHEN undefined_table THEN
-    NULL;
-  END;
+  PERFORM public.mp_product_set_storage_location(p_product_id, v_loc_id);
 END;
 $$;
 
@@ -786,7 +843,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_package_basic(
   p_lot_ids   bigint[],
   p_package_count numeric DEFAULT 1,
   p_package_size_g numeric DEFAULT NULL,
-  p_storage_location_name text DEFAULT 'Products Storage',
+  p_storage_location_id bigint DEFAULT NULL,
   p_operator  text DEFAULT 'system',
   p_station   text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -818,6 +875,8 @@ DECLARE
 
   v_pack_date date;
   v_use_by date;
+  v_storage_location_id bigint;
+  v_storage_location_name text;
   v_is_freeze_dried boolean;
   v_spawned_at timestamp without time zone;
   v_inoculated_at timestamp without time zone;
@@ -831,6 +890,20 @@ BEGIN
   END IF;
 
   v_pack_date := now()::date;
+  v_storage_location_id := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Products Storage'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
+
+  SELECT l.name INTO v_storage_location_name
+  FROM public.locations l
+  WHERE l.nocopk = v_storage_location_id;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
     -- Load lot + item context
@@ -995,7 +1068,7 @@ BEGIN
 
     -- Set product storage location (user-selected)
     BEGIN
-      PERFORM public.mp_product_set_storage_location_by_name(v_product_id, p_storage_location_name);
+      PERFORM public.mp_product_set_storage_location(v_product_id, v_storage_location_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1030,7 +1103,8 @@ BEGIN
       'use_by', v_use_by,
       'package_count', p_package_count,
       'package_size_g', p_package_size_g,
-      'product_storage_location', p_storage_location_name,
+      'product_storage_location_id', v_storage_location_id,
+      'product_storage_location', v_storage_location_name,
       'source_lot_status', 'Consumed',
       'source_lot_location', 'Consumed',
       'note', p_note
@@ -1079,7 +1153,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_draw_syringes(
   p_syringe_item_id bigint,
   p_syringe_count integer,
   p_ml_each numeric,
-  p_storage_location text,
+  p_storage_location_id bigint,
   p_operator text,
   p_station text DEFAULT 'Lots',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -1094,7 +1168,16 @@ DECLARE
   v_new_lot_id bigint;
   v_event_id bigint;
   v_count integer := 0;
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Fridge');
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Fridge'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
   v_total_ml numeric := COALESCE(p_ml_each,0) * COALESCE(p_syringe_count,0);
 BEGIN
   IF p_source_lc_flask_lot_id IS NULL THEN
@@ -1151,7 +1234,7 @@ BEGIN
 
     -- Set location
     BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_new_lot_id, v_loc);
+      PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1225,7 +1308,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_receive_purchased_syringes(
   p_received_date date,
   p_ml_each numeric,
   p_count integer,
-  p_storage_location text,
+  p_storage_location_id bigint,
   p_operator text,
   p_station text DEFAULT 'Lab - Receive',
   p_notes text DEFAULT NULL
@@ -1238,7 +1321,16 @@ DECLARE
   v_new_lot_id bigint;
   v_event_id bigint;
   v_i integer;
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Fridge');
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Fridge'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
   v_rcv date := COALESCE(p_received_date, now()::date);
   v_strain record;
   v_item record;
@@ -1282,7 +1374,7 @@ BEGIN
     RETURNING nocopk INTO v_new_lot_id;
 
     BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_new_lot_id, v_loc);
+      PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1331,7 +1423,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_pour_plates(
   p_source_agar_flask_lot_id bigint,
   p_plate_item_id bigint,
   p_plate_count integer,
-  p_storage_location text,
+  p_storage_location_id bigint,
   p_operator text,
   p_station text DEFAULT 'Lab - Agar',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -1346,7 +1438,16 @@ DECLARE
   v_new_lot_id bigint;
   v_event_id bigint;
   v_group_id text := gen_random_uuid()::text;
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Fridge');
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Fridge'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
   v_i integer;
 BEGIN
   IF p_source_agar_flask_lot_id IS NULL THEN RAISE EXCEPTION 'Source agar_flask lot required'; END IF;
@@ -1385,7 +1486,7 @@ BEGIN
     RETURNING nocopk INTO v_new_lot_id;
 
     BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_new_lot_id, v_loc);
+      PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1435,7 +1536,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_spawn_to_bulk(
   p_recipe_id bigint,
   p_output_count integer,
   p_unit_size numeric,
-  p_storage_location text,
+  p_storage_location_id bigint,
   p_operator text,
   p_station text DEFAULT 'Spawn to Bulk',
   p_timestamp timestamp without time zone DEFAULT NULL,
@@ -1446,7 +1547,16 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   v_ts timestamp without time zone := COALESCE(p_timestamp, now());
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Dark Room');
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Dark Room'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
   v_new_lot_id bigint;
   v_src_id bigint;
   v_event_id bigint;
@@ -1485,7 +1595,7 @@ BEGIN
     RETURNING nocopk INTO v_new_lot_id;
 
     BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_new_lot_id, v_loc);
+      PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1555,7 +1665,7 @@ CREATE OR REPLACE FUNCTION public.mp_products_package_freeze_dried_basic(
   p_package_item_id bigint,
   p_package_size_g numeric,
   p_package_count numeric,
-  p_storage_location text,
+  p_storage_location_id bigint,
   p_use_by date,
   p_operator text,
   p_station text DEFAULT 'Products',
@@ -1567,7 +1677,16 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   v_pack_date date := COALESCE(p_pack_date, now()::date);
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Freezer');
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Freezer'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
   v_src_id bigint;
   v_new_product_id bigint;
   v_event_id bigint;
@@ -1640,11 +1759,8 @@ BEGIN
 
     -- Set product location
     BEGIN
-      UPDATE public.products p
-        SET storage_location_id = l.nocopk
-      FROM public.locations l
-      WHERE l.name = v_loc AND p.nocopk = v_new_product_id;
-    EXCEPTION WHEN undefined_table THEN NULL;
+      PERFORM public.mp_product_set_storage_location(v_new_product_id, v_loc_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
     -- Event

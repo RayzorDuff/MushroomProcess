@@ -58,7 +58,7 @@ CREATE OR REPLACE FUNCTION public.mp_sterilizer_complete_run(
   p_destroyed_count numeric,
   p_operator text,
   p_end_time timestamp without time zone DEFAULT NULL,
-  p_sterilized_location text DEFAULT 'New Lots'
+  p_sterilized_location_id bigint DEFAULT NULL
 )
 RETURNS TABLE(end_time timestamp without time zone, lots_created integer, print_queue_id bigint)
 LANGUAGE plpgsql
@@ -74,6 +74,7 @@ DECLARE
   v_pq_id bigint;
   v_n integer;
   v_lot_id bigint;
+  v_sterilized_location_id bigint;
 BEGIN
   SELECT sr.*, i."name" AS item_name, i."category" AS item_category
     INTO v_run
@@ -128,6 +129,17 @@ BEGIN
     ELSE 'Sterilized'
   END;
 
+  v_sterilized_location_id := COALESCE(
+    p_sterilized_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('New Lots'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
+
   lots_created := 0;
 
   -- Idempotency guard: prevent double-creating lots for the same run.
@@ -163,9 +175,9 @@ BEGIN
     PERFORM public.mp_link_lot_item(v_lot_id, v_run."planned_item_id");
     PERFORM public.mp_link_lot_recipe(v_lot_id, v_run."planned_recipe_id");
     
-    IF p_sterilized_location IS NOT NULL THEN
-      PERFORM public.mp_lot_set_location_by_name(v_lot_id, p_sterilized_location);
-    END IF;    
+    IF v_sterilized_location_id IS NOT NULL THEN
+      PERFORM public.mp_lot_set_location(v_lot_id, v_sterilized_location_id);
+    END IF;
 
     lots_created := lots_created + 1;
 

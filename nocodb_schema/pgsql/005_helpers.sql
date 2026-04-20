@@ -241,6 +241,52 @@ AS $$
   WHERE l.nocopk = p_lot_id
 $$;
 
+-- Helper: set location for a lot by location_id (uses lots.location_id FK)
+CREATE OR REPLACE FUNCTION public.mp_lot_set_location(p_lot_id bigint, p_location_id bigint)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF p_location_id IS NULL THEN
+    RETURN;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.locations
+    WHERE nocopk = p_location_id
+  ) THEN
+    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
+  END IF;
+
+  UPDATE public.lots
+  SET location_id = p_location_id
+  WHERE nocopk = p_lot_id;
+
+  BEGIN
+    DELETE FROM public._m2m_lots_locations_location_id
+    WHERE lots_id = p_lot_id;
+
+    INSERT INTO public._m2m_lots_locations_location_id (lots_id, locations_id)
+    VALUES (p_lot_id, p_location_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+
+  BEGIN
+    DELETE FROM public._m2m_locations_lots_lots
+    WHERE lots_id = p_lot_id;
+
+    INSERT INTO public._m2m_locations_lots_lots (locations_id, lots_id)
+    VALUES (p_location_id, p_lot_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+END;
+$$;
+
 -- Helper: set location for a lot by location name (uses lots.location_id FK)
 CREATE OR REPLACE FUNCTION public.mp_lot_set_location_by_name(p_lot_id bigint, p_location_name text)
 RETURNS void
@@ -263,30 +309,6 @@ BEGIN
     RAISE EXCEPTION 'Location not found: %', p_location_name;
   END IF;
 
-  UPDATE public.lots
-  SET location_id = v_loc_id
-  WHERE nocopk = p_lot_id;
-
-  BEGIN
-    DELETE FROM public._m2m_lots_locations_location_id
-    WHERE lots_id = p_lot_id;
-
-    INSERT INTO public._m2m_lots_locations_location_id (lots_id, locations_id)
-    VALUES (p_lot_id, v_loc_id)
-    ON CONFLICT DO NOTHING;
-  EXCEPTION WHEN undefined_table THEN
-    NULL;
-  END;
-
-  BEGIN
-    DELETE FROM public._m2m_locations_lots_lots
-    WHERE lots_id = p_lot_id;
-
-    INSERT INTO public._m2m_locations_lots_lots (locations_id, lots_id)
-    VALUES (v_loc_id, p_lot_id)
-    ON CONFLICT DO NOTHING;
-  EXCEPTION WHEN undefined_table THEN
-    NULL;
-  END;
+  PERFORM public.mp_lot_set_location(p_lot_id, v_loc_id);
 END;
 $$;
