@@ -1149,6 +1149,7 @@ AS $$
 DECLARE
   v_ts timestamp without time zone := COALESCE(p_timestamp, now());
   v_src record;
+  v_syringe_item record;
   v_new_lot_id bigint;
   v_event_id bigint;
   v_count integer := 0;
@@ -1185,6 +1186,13 @@ BEGIN
     RAISE EXCEPTION 'Source lot must be lc_flask (got %)', v_src.item_category_mat;
   END IF;
 
+  SELECT nocopk, name, category INTO v_syringe_item
+  FROM public.items
+  WHERE nocopk = p_syringe_item_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Syringe item not found: %', p_syringe_item_id;
+  END IF;
+
   FOR i IN 1..p_syringe_count LOOP
     INSERT INTO public.lots(
       item_id, recipe_id, strain_id,
@@ -1197,13 +1205,13 @@ BEGIN
     )
     VALUES (
       p_syringe_item_id,
-      NULL,
+      v_src.recipe_id,
       v_src.strain_id,
-      NULL,
-      'lc_syringe',
+      v_syringe_item.name,
+      COALESCE(v_syringe_item.category, 'lc_syringe'),
       v_src.strain_species_strain_mat,
       v_src.vendor_name_mat,
-      'Produced'
+      'Produced',
       'Fridge',
       p_operator,
       v_ts,
@@ -1216,13 +1224,21 @@ BEGIN
     )
     RETURNING nocopk INTO v_new_lot_id;
 
-    -- Set location
+    BEGIN
+      PERFORM public.mp_link_lot_item(v_new_lot_id, p_syringe_item_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    BEGIN
+      PERFORM public.mp_link_lot_recipe(v_new_lot_id, v_src.recipe_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
     BEGIN
       PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
-    -- Event
     BEGIN
       v_event_id := public.mp_events_insert(
         'Draw Syringes'::text,
@@ -1232,6 +1248,8 @@ BEGIN
         jsonb_build_object(
           'source_lot_id', p_source_lc_flask_lot_id,
           'ml_each', p_ml_each,
+          'syringe_item_id', p_syringe_item_id,
+          'recipe_id', v_src.recipe_id,
           'notes', p_notes
         )
       );
@@ -1242,7 +1260,6 @@ BEGIN
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
-    -- Print job (lot label)
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
@@ -1258,14 +1275,12 @@ BEGIN
     v_count := v_count + 1;
   END LOOP;
 
-  -- Decrement source volume
   IF v_src.remaining_volume_ml IS NOT NULL THEN
     UPDATE public.lots
       SET remaining_volume_ml = GREATEST(0, COALESCE(remaining_volume_ml,0) - v_total_ml),
           nc_updated_at = now()
       WHERE nocopk = p_source_lc_flask_lot_id;
 
-    -- Auto-consume if depleted
     IF (SELECT COALESCE(remaining_volume_ml,0) FROM public.lots WHERE nocopk = p_source_lc_flask_lot_id) <= 0 THEN
       UPDATE public.lots
         SET status = 'Consumed',
