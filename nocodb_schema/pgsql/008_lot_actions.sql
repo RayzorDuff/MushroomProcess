@@ -1346,7 +1346,7 @@ DECLARE
   v_new_lot_id bigint;
   v_event_id bigint;
   v_group_id text := gen_random_uuid()::text;
-  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Incubator');
+  v_loc text := COALESCE(NULLIF(btrim(p_storage_location),''), 'Fridge');
   v_i integer;
 BEGIN
   IF p_source_agar_flask_lot_id IS NULL THEN RAISE EXCEPTION 'Source agar_flask lot required'; END IF;
