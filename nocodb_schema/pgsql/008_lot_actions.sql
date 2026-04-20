@@ -32,14 +32,6 @@ BEGIN
     RETURN 0;
   END IF;
 
-  SELECT l.name INTO v_location_name
-  FROM public.locations l
-  WHERE l.nocopk = p_location_id;
-
-  IF p_location_id IS NULL OR v_location_name IS NULL THEN
-    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
-  END IF;
-
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
     v_fields := jsonb_build_object(
       'action', 'Shake',
@@ -351,14 +343,6 @@ DECLARE
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
-  END IF;
-
-  SELECT l.name INTO v_location_name
-  FROM public.locations l
-  WHERE l.nocopk = p_location_id;
-
-  IF p_location_id IS NULL OR v_location_name IS NULL THEN
-    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
