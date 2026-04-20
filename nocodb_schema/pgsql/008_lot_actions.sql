@@ -1435,6 +1435,7 @@ AS $$
 DECLARE
   v_ts timestamp without time zone := COALESCE(p_timestamp, now());
   v_src record;
+  v_plate_item record;
   v_new_lot_id bigint;
   v_event_id bigint;
   v_group_id text := gen_random_uuid()::text;
@@ -1460,20 +1461,31 @@ BEGIN
     RAISE EXCEPTION 'Source lot must be agar_flask (got %)', v_src.item_category_mat;
   END IF;
 
+  SELECT nocopk, name, category INTO v_plate_item
+  FROM public.items
+  WHERE nocopk = p_plate_item_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Plate item not found: %', p_plate_item_id;
+  END IF;
+
   FOR v_i IN 1..p_plate_count LOOP
     INSERT INTO public.lots(
       item_id, recipe_id, strain_id,
-      item_category_mat, status,
-      operator, created_at,
+      item_name_mat, item_category_mat,
+      strain_species_strain_mat, vendor_name_mat,
+      status, operator, created_at,
       source_lot_id, parent_lot_id,
       plate_group_id, received_date,
       notes
     )
     VALUES(
       p_plate_item_id,
-      NULL,
+      v_src.recipe_id,
       v_src.strain_id,
-      'plate',
+      v_plate_item.name,
+      COALESCE(v_plate_item.category, 'plate'),
+      v_src.strain_species_strain_mat,
+      v_src.vendor_name_mat,
       v_src.status,
       p_operator,
       v_ts,
@@ -1484,6 +1496,16 @@ BEGIN
       p_notes
     )
     RETURNING nocopk INTO v_new_lot_id;
+
+    BEGIN
+      PERFORM public.mp_link_lot_item(v_new_lot_id, p_plate_item_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    BEGIN
+      PERFORM public.mp_link_lot_recipe(v_new_lot_id, v_src.recipe_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
 
     BEGIN
       PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
