@@ -751,6 +751,212 @@ END;
 $$;
 
 
+-- DRAW SYRINGES -> PRODUCTS: create lc_syringe products from a single lc_flask lot,
+-- decrement source remaining_volume_ml, and keep the source active until exhausted.
+CREATE OR REPLACE FUNCTION public.mp_products_draw_syringes(
+  p_source_lc_flask_lot_id bigint,
+  p_syringe_item_id bigint,
+  p_syringe_count integer,
+  p_ml_each numeric,
+  p_storage_location_id bigint,
+  p_operator text,
+  p_station text DEFAULT 'Lots',
+  p_timestamp timestamp without time zone DEFAULT NULL,
+  p_notes text DEFAULT NULL
+)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_ts timestamp without time zone := COALESCE(p_timestamp, now());
+  v_src record;
+  v_syringe_item record;
+  v_product_id bigint;
+  v_event_id bigint;
+  v_count integer := 0;
+  v_loc_id bigint := COALESCE(
+    p_storage_location_id,
+    (
+      SELECT l.nocopk
+      FROM public.locations l
+      WHERE lower(btrim(l.name)) = lower(btrim('Products Storage'))
+      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      LIMIT 1
+    )
+  );
+  v_total_ml numeric := COALESCE(p_ml_each,0) * COALESCE(p_syringe_count,0);
+  v_storage_location_name text;
+  v_origin_lot_ref text;
+BEGIN
+  IF p_source_lc_flask_lot_id IS NULL THEN
+    RAISE EXCEPTION 'Source lc_flask lot is required';
+  END IF;
+  IF p_syringe_item_id IS NULL THEN
+    RAISE EXCEPTION 'Syringe item is required';
+  END IF;
+  IF p_syringe_count IS NULL OR p_syringe_count <= 0 THEN
+    RAISE EXCEPTION 'Syringe count must be > 0';
+  END IF;
+  IF p_ml_each IS NULL OR p_ml_each <= 0 THEN
+    RAISE EXCEPTION 'ml_each must be > 0';
+  END IF;
+
+  SELECT * INTO v_src FROM public.lots WHERE nocopk = p_source_lc_flask_lot_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Source lot not found: %', p_source_lc_flask_lot_id;
+  END IF;
+  IF COALESCE(v_src.item_category_mat,'') <> 'lc_flask' THEN
+    RAISE EXCEPTION 'Source lot must be lc_flask (got %)', v_src.item_category_mat;
+  END IF;
+
+  SELECT nocopk, name, category INTO v_syringe_item
+  FROM public.items
+  WHERE nocopk = p_syringe_item_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Syringe item not found: %', p_syringe_item_id;
+  END IF;
+
+  IF v_loc_id IS NOT NULL THEN
+    SELECT name INTO v_storage_location_name
+    FROM public.locations
+    WHERE nocopk = v_loc_id;
+  END IF;
+
+  v_origin_lot_ref := COALESCE(NULLIF(btrim(v_src.lot_id),''), p_source_lc_flask_lot_id::text);
+
+  FOR i IN 1..p_syringe_count LOOP
+    INSERT INTO public.products (
+      item_id,
+      name_mat,
+      item_category_mat,
+      origin_lot_ids_json,
+      strain_id,
+      notes
+    )
+    VALUES (
+      p_syringe_item_id,
+      COALESCE(v_syringe_item.name, v_src.item_name_mat, 'LC Syringe'),
+      COALESCE(v_syringe_item.category, 'lc_syringe'),
+      to_jsonb(ARRAY[v_origin_lot_ref])::text,
+      v_src.strain_id,
+      p_notes
+    )
+    RETURNING nocopk INTO v_product_id;
+
+    -- Materialize process type on products if available
+    IF EXISTS (
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = 'products'
+        AND column_name  = 'process_type_mat'
+    ) THEN
+      IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name   = 'lots'
+          AND column_name  = 'process_type_mat'
+      ) THEN
+        UPDATE public.products p
+        SET process_type_mat = (
+          SELECT l.process_type_mat
+          FROM public.lots l
+          WHERE l.nocopk = p_source_lc_flask_lot_id
+        )
+        WHERE p.nocopk = v_product_id;
+      ELSIF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name   = 'lots'
+          AND column_name  = 'process_type'
+      ) THEN
+        UPDATE public.products p
+        SET process_type_mat = (
+          SELECT l.process_type
+          FROM public.lots l
+          WHERE l.nocopk = p_source_lc_flask_lot_id
+        )
+        WHERE p.nocopk = v_product_id;
+      END IF;
+    END IF;
+
+    -- Storage location
+    BEGIN
+      PERFORM public.mp_product_set_storage_location(v_product_id, v_loc_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    -- Link product <-> origin lot
+    BEGIN
+      INSERT INTO public._m2m_products_lots_origin_lots (products_id, lots_id)
+      VALUES (v_product_id, p_source_lc_flask_lot_id)
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+
+    -- Event for product draw
+    BEGIN
+      v_event_id := public.mp_events_insert(
+        p_source_lc_flask_lot_id::bigint,
+        v_product_id::bigint,
+        'Draw Syringe Product'::text,
+        v_ts,
+        p_operator::text,
+        p_station::text,
+        jsonb_build_object(
+          'action', 'Draw Syringes',
+          'output_type', 'product',
+          'source_lot_id', p_source_lc_flask_lot_id,
+          'item_id', p_syringe_item_id,
+          'item_name', COALESCE(v_syringe_item.name, v_src.item_name_mat, 'LC Syringe'),
+          'ml_each', p_ml_each,
+          'storage_location_id', v_loc_id,
+          'storage_location', v_storage_location_name,
+          'note', p_notes
+        )
+      );
+      BEGIN
+        PERFORM public.mp_events_link_lot(v_event_id, p_source_lc_flask_lot_id);
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    v_count := v_count + 1;
+  END LOOP;
+
+  -- Decrement tracked source volume; keep active unless depleted
+  IF v_total_ml > 0 AND v_src.remaining_volume_ml IS NOT NULL THEN
+    UPDATE public.lots
+    SET remaining_volume_ml = (v_src.remaining_volume_ml - v_total_ml),
+        status = CASE WHEN (v_src.remaining_volume_ml - v_total_ml) <= 0 THEN 'Consumed' ELSE status END,
+        action = NULL,
+        lc_volume_ml = NULL,
+        ui_error = NULL,
+        ui_error_at = NULL
+    WHERE nocopk = p_source_lc_flask_lot_id;
+
+    IF (v_src.remaining_volume_ml - v_total_ml) <= 0 THEN
+      BEGIN
+        PERFORM public.mp_lot_set_location_by_name(p_source_lc_flask_lot_id, 'Consumed');
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
+    END IF;
+  ELSE
+    UPDATE public.lots
+    SET action = NULL,
+        lc_volume_ml = NULL,
+        ui_error = NULL,
+        ui_error_at = NULL
+    WHERE nocopk = p_source_lc_flask_lot_id;
+  END IF;
+
+  RETURN v_count;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.mp_product_set_storage_location(p_product_id bigint, p_location_id bigint)
 RETURNS void
 LANGUAGE plpgsql
