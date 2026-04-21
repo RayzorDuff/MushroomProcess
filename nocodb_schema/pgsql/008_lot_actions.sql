@@ -856,12 +856,17 @@ DECLARE
   v_item_default_oz numeric;
   v_net_g numeric;
   v_net_oz numeric;
+  v_net_volume_ml numeric;
+  v_is_volume_based boolean;
+  v_is_lb_based boolean;
+  v_is_g_based boolean;
 
   v_pack_date date;
   v_use_by date;
   v_storage_location_id bigint;
   v_storage_location_name text;
   v_is_freeze_dried boolean;
+  v_is_tray boolean;
   v_spawned_at timestamp without time zone;
   v_inoculated_at timestamp without time zone;
 
@@ -935,6 +940,12 @@ BEGIN
     v_is_freeze_dried := (lower(COALESCE(v_item_category_mat,'')) = 'freezedriedmushrooms')
                          OR (position('freeze dried' in lower(COALESCE(v_item_name,''))) > 0);
 
+    v_is_tray := lower(COALESCE(v_item_category_mat,'')) IN ('fresh_tray','freezer_tray');
+
+    v_is_volume_based := lower(COALESCE(v_item_category_mat,'')) IN ('lc_syringe','lc_flask','agar_flask');
+    v_is_lb_based := lower(COALESCE(v_item_category_mat,'')) IN ('casing','fruiting_block','substrate','grain');
+    v_is_g_based := lower(COALESCE(v_item_category_mat,'')) IN ('freezedriedmushrooms','fresh_tray','freezer_tray','plate');
+
     -- Compute use_by: freeze-dried = +2y from pack_date; else +3mo from spawned_at/inoculated_at/today
     IF v_is_freeze_dried THEN
       v_use_by := (v_pack_date + interval '2 years')::date;
@@ -948,34 +959,51 @@ BEGIN
       );
     END IF;
 
-    -- Compute net weight from Lot size + Item defaults (mirrors Airtable automation priority)
+    -- Compute package measures by category
     v_net_g := NULL;
     v_net_oz := NULL;
+    v_net_volume_ml := NULL;
 
-    -- A) lots.unit_size (assumed pounds)
-    IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
-      v_net_g  := round(v_lot_unit_size * c_lb_to_g, 2);
-      v_net_oz := round(v_lot_unit_size * 16, 2);
-    ELSE
-      -- B) items defaults priority: g, oz, lb
-      IF v_item_default_g IS NOT NULL AND v_item_default_g > 0 THEN
+    IF v_is_volume_based THEN
+      -- Volume-based products: preserve mL only; leave weight fields empty
+      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
+        v_net_volume_ml := round(v_lot_unit_size, 2);
+      END IF;
+
+    ELSIF v_is_g_based THEN
+      -- Freeze dried unit_size is in grams
+      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
+        v_net_g  := round(v_lot_unit_size, 2);
+        v_net_oz := round(v_lot_unit_size / c_oz_to_g, 2);
+      ELSIF v_item_default_g IS NOT NULL AND v_item_default_g > 0 THEN
         v_net_g  := round(v_item_default_g, 2);
         v_net_oz := round(v_item_default_g / c_oz_to_g, 2);
-      ELSIF v_item_default_oz IS NOT NULL AND v_item_default_oz > 0 THEN
-        v_net_g  := round(v_item_default_oz * c_oz_to_g, 2);
-        v_net_oz := round(v_item_default_oz, 2);
-      ELSIF v_item_default_lb IS NOT NULL AND v_item_default_lb > 0 THEN
-        v_net_g  := round(v_item_default_lb * c_lb_to_g, 2);
-        v_net_oz := round(v_item_default_lb * 16, 2);
       END IF;
-    END IF;
 
-    IF v_net_g IS NULL OR v_net_oz IS NULL THEN
-      UPDATE public.lots
-      SET ui_error = 'Validation: Unable to determine net weight. Provide lots.unit_size (lbs) or item default size (lb/g/oz).', ui_error_at = now()
-      WHERE nocopk = v_lot_id;
-      -- Silent error - create the product with zero net weight.
-      -- CONTINUE;
+    ELSIF v_is_lb_based THEN
+      -- Existing pound-based conversion for block/substrate/grain/casing
+      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
+        v_net_g  := round(v_lot_unit_size * c_lb_to_g, 2);
+        v_net_oz := round(v_lot_unit_size * 16, 2);
+      ELSE
+        IF v_item_default_g IS NOT NULL AND v_item_default_g > 0 THEN
+          v_net_g  := round(v_item_default_g, 2);
+          v_net_oz := round(v_item_default_g / c_oz_to_g, 2);
+        ELSIF v_item_default_oz IS NOT NULL AND v_item_default_oz > 0 THEN
+          v_net_g  := round(v_item_default_oz * c_oz_to_g, 2);
+          v_net_oz := round(v_item_default_oz, 2);
+        ELSIF v_item_default_lb IS NOT NULL AND v_item_default_lb > 0 THEN
+          v_net_g  := round(v_item_default_lb * c_lb_to_g, 2);
+          v_net_oz := round(v_item_default_lb * 16, 2);
+        END IF;
+      END IF;
+
+      IF v_net_g IS NULL OR v_net_oz IS NULL THEN
+        UPDATE public.lots
+        SET ui_error = 'Validation: Unable to determine net weight for pound-based packaging. Provide lots.unit_size (lbs) or item default size (lb/g/oz).',
+            ui_error_at = now()
+        WHERE nocopk = v_lot_id;
+      END IF;
     END IF;
 
     -- Create Product
@@ -985,6 +1013,7 @@ BEGIN
       item_category_mat,
       net_weight_g,
       net_weight_oz,
+      net_volume_ml,
       pack_date,
       use_by,
       package_size_g,
@@ -999,6 +1028,7 @@ BEGIN
       v_item_category_mat,
       v_net_g,
       v_net_oz,
+      v_net_volume_ml,
       v_pack_date,
       v_use_by,
       p_package_size_g,
@@ -1943,6 +1973,7 @@ BEGIN
       item_category_mat,
       net_weight_g,
       net_weight_oz,
+      net_volume_ml,
       pack_date,
       use_by,
       package_item_id,
