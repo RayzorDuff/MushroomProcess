@@ -6,10 +6,13 @@
     - link created events to lots via mp_events_link_lot (defined elsewhere; if missing, it won't fail)
 
   Schema assumptions:
-    - public.lots has: nocopk (PK), lot_id, status, location_id (FK 1:1), notes, inoculated_at, item_name_mat, strain_species_strain_mat
+    - public.lots has: nocopk (PK), lot_id, status, location_id (FK 1:1), notes, inoculated_at, beganfruiting_at, item_name_mat, strain_species_strain_mat
     - public.locations has: nocopk (PK), name
     - public.events table exists
 */
+
+ALTER TABLE public.lots
+  ADD COLUMN IF NOT EXISTS beganfruiting_at timestamp without time zone;
 
 -- 1) SHAKE: logs a Shake event for each lot, clears ui_error fields (if present), optional note append
 CREATE OR REPLACE FUNCTION public.mp_lots_shake(
@@ -276,9 +279,12 @@ BEGIN
 
     ELSIF v_location_name ILIKE '%Fruiting%' THEN
       v_new_status := 'Fruiting';
-      UPDATE public.lots SET status = v_new_status WHERE nocopk = v_lot_id;
+      UPDATE public.lots
+      SET status = v_new_status,
+          beganfruiting_at = COALESCE(beganfruiting_at, COALESCE(p_timestamp, now()))
+      WHERE nocopk = v_lot_id;
 
-      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'note',p_note);
+      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'beganfruiting_at_set', true,'note',p_note);
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
           v_lot_id::bigint, 

@@ -8,6 +8,11 @@ ALTER TABLE public.products
   ADD COLUMN IF NOT EXISTS harvest_weight_g numeric,
   ADD COLUMN IF NOT EXISTS harvested_at timestamp without time zone;
 
+ALTER TABLE public.lots
+  ADD COLUMN IF NOT EXISTS beganfruiting_at timestamp without time zone,
+  ADD COLUMN IF NOT EXISTS firstharvested_at timestamp without time zone,
+  ADD COLUMN IF NOT EXISTS lastharvested_at timestamp without time zone;
+
 CREATE INDEX IF NOT EXISTS idx_products_tray_state
   ON public.products(tray_state);
 
@@ -144,8 +149,10 @@ BEGIN
   UPDATE public.lots
   SET harvest_weight_g = p_harvest_weight_g,
       flush_no = p_flush_no,
-      fresh_tray_count = p_fresh_tray_count,
-      frozen_tray_count = p_frozen_tray_count,
+      fresh_tray_count = COALESCE(p_fresh_tray_count, 0),
+      frozen_tray_count = COALESCE(p_frozen_tray_count, 0),
+      firstharvested_at = COALESCE(firstharvested_at, v_ts),
+      lastharvested_at = v_ts,
       nc_updated_at = now()
   WHERE nocopk = p_block_lot_id;
 
