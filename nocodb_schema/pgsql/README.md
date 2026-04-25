@@ -77,6 +77,7 @@ Import in lexical order:
 006_triggers.sql
 007_sterilizer.sql
 008_lot_actions.sql
+009_harvest_actions.sql
 021_personnel_reviews.sql
 022_personnel_reviews_seeds.sql
 023_operator_identity.sql
