@@ -2077,3 +2077,202 @@ BEGIN
   RETURN v_counter;
 END;
 $$;
+
+
+-- PRODUCT TRAY LIFECYCLE: move freezer tray products to a Freeze Dryer location and log the transition
+CREATE OR REPLACE FUNCTION public.mp_products_move_to_freeze_dryer(
+  p_product_ids bigint[],
+  p_freeze_dryer_location_id bigint,
+  p_operator text DEFAULT NULL,
+  p_station text DEFAULT 'Products',
+  p_notes text DEFAULT NULL
+)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_product_id bigint;
+  v_event_id bigint;
+  v_count integer := 0;
+  v_bad_count integer;
+BEGIN
+  IF p_product_ids IS NULL OR array_length(p_product_ids, 1) IS NULL THEN
+    RAISE EXCEPTION 'At least one freezer tray product is required';
+  END IF;
+
+  IF p_freeze_dryer_location_id IS NULL THEN
+    RAISE EXCEPTION 'Freeze Dryer location is required';
+  END IF;
+
+  SELECT count(*) INTO v_bad_count
+  FROM public.products p
+  WHERE p.nocopk = ANY(p_product_ids)
+    AND COALESCE(p.item_category_mat, '') <> 'freezer_tray';
+
+  IF COALESCE(v_bad_count, 0) > 0 THEN
+    RAISE EXCEPTION 'Only freezer_tray products may be moved to the Freeze Dryer';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.locations l
+    WHERE l.nocopk = p_freeze_dryer_location_id
+      AND lower(COALESCE(l.name, '')) LIKE '%freeze dryer%'
+  ) THEN
+    RAISE EXCEPTION 'Selected location is not a Freeze Dryer location';
+  END IF;
+
+  BEGIN
+    v_event_id := public.mp_events_insert(
+      'Move Tray To Freeze Dryer'::text,
+      COALESCE(p_operator, '')::text,
+      COALESCE(p_station, 'Products')::text,
+      now(),
+      jsonb_build_object(
+        'product_ids', p_product_ids,
+        'freeze_dryer_location_id', p_freeze_dryer_location_id,
+        'notes', p_notes
+      )
+    );
+  EXCEPTION WHEN undefined_function THEN
+    v_event_id := NULL;
+  END;
+
+  FOREACH v_product_id IN ARRAY p_product_ids LOOP
+    UPDATE public.products
+    SET storage_location_id = p_freeze_dryer_location_id,
+        tray_state = 'freeze_drying',
+        nc_updated_at = now(),
+        notes = CASE
+          WHEN COALESCE(p_notes, '') = '' THEN notes
+          WHEN COALESCE(notes, '') = '' THEN p_notes
+          ELSE notes || E'\n' || p_notes
+        END
+    WHERE nocopk = v_product_id
+      AND COALESCE(item_category_mat, '') = 'freezer_tray';
+
+    IF FOUND THEN
+      BEGIN
+        PERFORM public.mp_product_set_storage_location(v_product_id, p_freeze_dryer_location_id);
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
+
+      IF v_event_id IS NOT NULL THEN
+        BEGIN
+          PERFORM public.mp_events_link_product(v_event_id, v_product_id);
+        EXCEPTION WHEN undefined_function THEN NULL;
+        END;
+      END IF;
+
+      v_count := v_count + 1;
+    END IF;
+  END LOOP;
+
+  RETURN v_count;
+END;
+$$;
+
+
+-- PRODUCT TRAY LIFECYCLE: retire/spoil/compost active tray products and log the transition
+CREATE OR REPLACE FUNCTION public.mp_products_retire_trays(
+  p_product_ids bigint[],
+  p_reason text,
+  p_operator text DEFAULT NULL,
+  p_station text DEFAULT 'Products',
+  p_notes text DEFAULT NULL
+)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_product_id bigint;
+  v_event_id bigint;
+  v_count integer := 0;
+  v_state text;
+  v_target_location_name text;
+  v_target_location_id bigint;
+  v_bad_count integer;
+BEGIN
+  IF p_product_ids IS NULL OR array_length(p_product_ids, 1) IS NULL THEN
+    RAISE EXCEPTION 'At least one tray product is required';
+  END IF;
+
+  v_state := lower(btrim(COALESCE(p_reason, '')));
+  IF v_state NOT IN ('retired', 'spoiled', 'compost') THEN
+    RAISE EXCEPTION 'Reason must be retired, spoiled, or compost';
+  END IF;
+
+  SELECT count(*) INTO v_bad_count
+  FROM public.products p
+  WHERE p.nocopk = ANY(p_product_ids)
+    AND COALESCE(p.item_category_mat, '') NOT IN ('fresh_tray', 'freezer_tray');
+
+  IF COALESCE(v_bad_count, 0) > 0 THEN
+    RAISE EXCEPTION 'Only fresh_tray and freezer_tray products may be retired by this action';
+  END IF;
+
+  v_target_location_name := CASE
+    WHEN v_state = 'compost' THEN 'Compost'
+    WHEN v_state = 'spoiled' THEN 'Expired'
+    ELSE 'Retired'
+  END;
+
+  SELECT l.nocopk INTO v_target_location_id
+  FROM public.locations l
+  WHERE lower(btrim(l.name)) = lower(btrim(v_target_location_name))
+  ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+  LIMIT 1;
+
+  BEGIN
+    v_event_id := public.mp_events_insert(
+      'Retire Tray Product'::text,
+      COALESCE(p_operator, '')::text,
+      COALESCE(p_station, 'Products')::text,
+      now(),
+      jsonb_build_object(
+        'product_ids', p_product_ids,
+        'reason', v_state,
+        'target_location_name', v_target_location_name,
+        'target_location_id', v_target_location_id,
+        'notes', p_notes
+      )
+    );
+  EXCEPTION WHEN undefined_function THEN
+    v_event_id := NULL;
+  END;
+
+  FOREACH v_product_id IN ARRAY p_product_ids LOOP
+    UPDATE public.products
+    SET tray_state = v_state,
+        storage_location_id = COALESCE(v_target_location_id, storage_location_id),
+        nc_updated_at = now(),
+        notes = CASE
+          WHEN COALESCE(p_notes, '') = '' THEN notes
+          WHEN COALESCE(notes, '') = '' THEN p_notes
+          ELSE notes || E'\n' || p_notes
+        END
+    WHERE nocopk = v_product_id
+      AND COALESCE(item_category_mat, '') IN ('fresh_tray', 'freezer_tray');
+
+    IF FOUND THEN
+      IF v_target_location_id IS NOT NULL THEN
+        BEGIN
+          PERFORM public.mp_product_set_storage_location(v_product_id, v_target_location_id);
+        EXCEPTION WHEN undefined_function THEN NULL;
+        END;
+      END IF;
+
+      IF v_event_id IS NOT NULL THEN
+        BEGIN
+          PERFORM public.mp_events_link_product(v_event_id, v_product_id);
+        EXCEPTION WHEN undefined_function THEN NULL;
+        END;
+      END IF;
+
+      v_count := v_count + 1;
+    END IF;
+  END LOOP;
+
+  RETURN v_count;
+END;
+$$;
