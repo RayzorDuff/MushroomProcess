@@ -78,6 +78,7 @@ Import in lexical order:
 007_sterilizer.sql
 008_lot_actions.sql
 009_harvest_actions.sql
+010_spawn_to_bulk.sql
 021_personnel_reviews.sql
 022_personnel_reviews_seeds.sql
 023_operator_identity.sql
@@ -195,6 +196,8 @@ for f in \
   nocodb_schema/pgsql/006_triggers.sql \
   nocodb_schema/pgsql/007_sterilizer.sql \
   nocodb_schema/pgsql/008_lot_actions.sql \
+  nocodb_schema/pgsql/009_harvest_actions.sql \
+  nocodb_schema/pgsql/010_spawn_to_bulk.sql \
   nocodb_schema/pgsql/021_personnel_reviews.sql \
   nocodb_schema/pgsql/022_personnel_reviews_seeds.sql \
   nocodb_schema/pgsql/023_operator_identity.sql \
