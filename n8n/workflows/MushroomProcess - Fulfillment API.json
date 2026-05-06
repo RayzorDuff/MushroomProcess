@@ -8,26 +8,26 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "6cb4de2e-2d28-49b4-89c2-1061147178a4",
+      "id": "f3370e9d-fe58-4737-9dde-0d659361b3d3",
       "name": "Webhook - List Fulfillment Orders",
       "type": "n8n-nodes-base.webhook",
       "position": [
-        0,
-        0
+        -112,
+        -16
       ],
       "typeVersion": 2,
       "webhookId": "fe9dc472-4f99-43dd-836f-77cd7e17e241"
     },
     {
       "parameters": {
-        "jsCode": "const body=$json.body||$json; return [{json:{mode:String(body.mode||'all').toLowerCase(), date:String(body.date||''), timezone:String(body.timezone||'America/Denver')}}];"
+        "jsCode": "const body = $json.body || $json;\n\nfunction boolish(v) {\n  return (\n    v === true ||\n    v === 1 ||\n    String(v || '').trim().toLowerCase() === 'true' ||\n    String(v || '').trim().toLowerCase() === 'yes' ||\n    String(v || '').trim().toLowerCase() === '1'\n  );\n}\n\nreturn [{\n  json: {\n    mode: String(body.mode || 'all').toLowerCase(),\n    date: String(body.date || ''),\n    timezone: String(body.timezone || 'America/Denver'),\n    include_review: boolish(body.include_review)\n  }\n}];"
       },
-      "id": "fdb4454c-1305-46eb-bacc-aaf794b61f84",
+      "id": "f0fa7595-8932-4734-b3a2-004172dd032d",
       "name": "Code - Parse List Request",
       "type": "n8n-nodes-base.code",
       "position": [
-        224,
-        0
+        112,
+        -16
       ],
       "typeVersion": 2
     },
@@ -66,25 +66,25 @@
         },
         "options": {}
       },
-      "id": "165838e7-124d-4a39-93c5-ec3d14f63224",
+      "id": "4527d3ce-51d7-4d75-be99-a2fb2574f1f4",
       "name": "HTTP - List Orders Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        0
+        336,
+        -16
       ],
       "typeVersion": 4.3
     },
     {
       "parameters": {
-        "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\n\nfunction zonedParts(v, tz) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return null;\n\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n  }).formatToParts(d);\n\n  return Object.fromEntries(parts.map(p => [p.type, p.value]));\n}\n\nfunction dateKey(v, tz) {\n  const m = zonedParts(v, tz);\n  if (!m) return '';\n  return `${m.year}-${m.month}-${m.day}`;\n}\n\nfunction localDateTime(v, tz) {\n  if (!v) return '';\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction parseItems(s) {\n  try {\n    const a = typeof s === 'string' ? JSON.parse(s) : [];\n    return Array.isArray(a) ? a : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction itemSummary(items) {\n  return items\n    .map(i => `${i.name || i.nameTranslated?.en || '(unknown)'} x${Number(i.quantity || 0) || 0}`)\n    .join(', ');\n}\n\n/*\n  IMPORTANT:\n  Treat requested date as a plain calendar date, not a moment in time.\n  Do not convert it through Date()/timezone math.\n*/\nfunction normalizeReqDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return '';\n\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  return m ? m[1] : '';\n}\n\nconst mode = String(req.mode || 'all');\nconst timezone = req.timezone || 'America/Denver';\nconst reqDateRaw = req.date || '';\nconst reqDate = normalizeReqDate(reqDateRaw);\n\nconst out = [];\nconst debug = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const items = parseItems(f.items_json);\n\n  const requiredCount = items.reduce(\n    (n, i) => n + (Number(i.quantity || 0) || 0),\n    0\n  );\n\n  const linkedProducts = Array.isArray(f.products) ? f.products : [];\n  const linkedCount = linkedProducts.length;\n\n  const paymentMethod = String(f.payment_method || '');\n  const market = paymentMethod === 'Sell on the Go - Placed';\n\n  const ready = market\n    ? String(f.clover_reconciliation_status || '').toLowerCase() === 'reconciled'\n    : String(f.payment_status || '').toUpperCase() === 'PAID';\n\n  const rowDate = dateKey(f.order_date, timezone);\n\n  let excludedBy = null;\n\n  if (mode === 'market' && !market) {\n    excludedBy = 'mode_market';\n  } else if (mode === 'web' && market) {\n    excludedBy = 'mode_web';\n  } else if (!ready) {\n    excludedBy = 'not_ready';\n  } else if (reqDate && rowDate !== reqDate) {\n    excludedBy = 'date';\n  } else if (linkedCount >= requiredCount) {\n    excludedBy = 'already_fulfilled';\n  }\n\n  debug.push({\n    id: rec.id,\n    order_code: f.order_code || null,\n    payment_method: paymentMethod,\n    market,\n    payment_status: f.payment_status || null,\n    clover_reconciliation_status: f.clover_reconciliation_status || null,\n    order_date_raw: f.order_date || null,\n    row_date: rowDate,\n    req_date_raw: reqDateRaw || null,\n    req_date: reqDate || null,\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    excluded_by: excludedBy\n  });\n\n  if (excludedBy) continue;\n\n  out.push({\n    airtable_record_id: rec.id,\n    order_ref: String(f.order_code || f.ecwid_order_id || f.order_number || ''),\n    order_number: f.order_number || null,\n    order_date: f.order_date || null,\n    order_date_local: localDateTime(f.order_date, timezone),\n    order_date_local_date: rowDate,\n    customer_name: f.customer_name || '',\n    payment_method: paymentMethod,\n    payment_status: f.payment_status || '',\n    clover_reconciliation_status: f.clover_reconciliation_status || '',\n    payment_state: market\n      ? (f.clover_reconciliation_status || 'pending')\n      : (f.payment_status || ''),\n    mode: market ? 'market' : 'web',\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_names: itemSummary(items) || '(none)',\n    products_report: f.products_report || '',\n    product_ids_report: f.product_ids_report || '',\n    items,\n    reconciliation_notes: f.reconciliation_notes || ''\n  });\n}\n\nout.sort((a, b) => String(a.order_date || '').localeCompare(String(b.order_date || '')));\n\nreturn [{\n  json: {\n    ok: true,\n    req: {\n      ...req,\n      date_raw: reqDateRaw,\n      date: reqDate,\n      timezone\n    },\n    orders: out,\n    count: out.length,\n    debug\n  }\n}];"
+        "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\n\nfunction zonedParts(v, tz) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return null;\n\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n  }).formatToParts(d);\n\n  return Object.fromEntries(parts.map(p => [p.type, p.value]));\n}\n\nfunction dateKey(v, tz) {\n  const m = zonedParts(v, tz);\n  if (!m) return '';\n  return `${m.year}-${m.month}-${m.day}`;\n}\n\nfunction localDateTime(v, tz) {\n  if (!v) return '';\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction parseItems(s) {\n  try {\n    const a = typeof s === 'string' ? JSON.parse(s) : [];\n    return Array.isArray(a) ? a : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction itemSummary(items) {\n  return items\n    .map(i => `${i.name || i.nameTranslated?.en || '(unknown)'} x${Number(i.quantity || 0) || 0}`)\n    .join(', ');\n}\n\n/*\n  IMPORTANT:\n  Treat requested date as a plain calendar date, not a moment in time.\n  Do not convert it through Date()/timezone math.\n*/\nfunction normalizeReqDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return '';\n\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  return m ? m[1] : '';\n}\n\nconst mode = String(req.mode || 'all');\nconst timezone = req.timezone || 'America/Denver';\nconst reqDateRaw = req.date || '';\nconst reqDate = normalizeReqDate(reqDateRaw);\n\nconst out = [];\nconst debug = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const items = parseItems(f.items_json);\n\n  const requiredCount = items.reduce(\n    (n, i) => n + (Number(i.quantity || 0) || 0),\n    0\n  );\n\n  const linkedProducts = Array.isArray(f.products) ? f.products : [];\n  const linkedCount = linkedProducts.length;\n\n  const paymentMethod = String(f.payment_method || '');\n  const market = String(paymentMethod || '').startsWith('Sell on the Go');  \n\n  const reconciliationStatus = String(f.clover_reconciliation_status || '').toLowerCase();\n  const paymentStatus = String(f.payment_status || '').toUpperCase();\n  \n  const includeReview =\n    req.include_review === true ||\n    String(req.include_review || '').toLowerCase() === 'true';\n  \n  const accounted = reconciliationStatus === 'accounted';\n\n  const reviewable =\n    market &&\n    ['pending', 'needs_review'].includes(reconciliationStatus);\n  \n  const marketCash = market && paymentMethod === 'Sell on the Go - Cash';\n  \n  const ready = marketCash\n    ? (paymentStatus === 'PAID' || accounted)\n    : market\n      ? (reconciliationStatus === 'reconciled' || accounted)\n      : paymentStatus === 'PAID';  \n  \n  const rowDate = dateKey(f.order_date, timezone);\n  \n  let excludedBy = null;\n  \n  if (mode === 'market' && !market) {\n    excludedBy = 'mode_market';\n  } else if (mode === 'web' && market) {\n    excludedBy = 'mode_web';\n  } else if (!ready && !(includeReview && reviewable)) {\n    excludedBy = 'not_ready';\n  } else if (reqDate && rowDate !== reqDate) {\n    excludedBy = 'date';\n  } else if (linkedCount >= requiredCount) {\n    excludedBy = 'already_fulfilled';\n  }\n\n  debug.push({\n    id: rec.id,\n    order_code: f.order_code || null,\n    payment_method: paymentMethod,\n    market,\n    payment_status: f.payment_status || null,\n    clover_reconciliation_status: f.clover_reconciliation_status || null,\n    order_date_raw: f.order_date || null,\n    row_date: rowDate,\n    req_date_raw: reqDateRaw || null,\n    req_date: reqDate || null,\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    excluded_by: excludedBy,\n    reconciliation_status: reconciliationStatus,\n    include_review: includeReview,\n    ready,\n    reviewable,\n    accounted\n  });\n\n  if (excludedBy) continue;\n\n  out.push({\n    airtable_record_id: rec.id,\n    order_ref: String(f.order_code || f.ecwid_order_id || f.order_number || ''),\n    order_number: f.order_number || null,\n    order_date: f.order_date || null,\n    order_date_local: localDateTime(f.order_date, timezone),\n    order_date_local_date: rowDate,\n    customer_name: f.customer_name || '',\n    payment_method: paymentMethod,\n    payment_status: f.payment_status || '',\n    clover_reconciliation_status: f.clover_reconciliation_status || '',\n    payment_state: market\n      ? (reconciliationStatus || 'pending')\n      : (f.payment_status || ''),\n    needs_reconciliation_review: market && !ready,\n    reviewable,\n    accounted,\n    mode: market ? 'market' : 'web',\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_names: itemSummary(items) || '(none)',\n    products_report: f.products_report || '',\n    product_ids_report: f.product_ids_report || '',\n    items,\n    reconciliation_notes: f.reconciliation_notes || ''\n  });\n}\n\nout.sort((a, b) => String(a.order_date || '').localeCompare(String(b.order_date || '')));\n\nreturn [{\n  json: {\n    ok: true,\n    req: {\n      ...req,\n      date_raw: reqDateRaw,\n      date: reqDate,\n      timezone\n    },\n    orders: out,\n    count: out.length,\n    debug\n  }\n}];"
       },
-      "id": "b51406aa-776e-4d16-b949-8dc7df2a7f46",
+      "id": "eaf99b2e-e10b-42fd-8d25-f3e859fc7627",
       "name": "Code - Build Fulfillment Orders",
       "type": "n8n-nodes-base.code",
       "position": [
-        672,
-        0
+        560,
+        -16
       ],
       "typeVersion": 2
     },
@@ -94,12 +94,12 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "5b2e1680-578e-43e5-9463-3666792148a8",
+      "id": "319b19a2-801c-4c8c-b65b-f0b14357fac6",
       "name": "Respond - List Orders",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        880,
-        0
+        768,
+        -16
       ],
       "typeVersion": 1
     },
@@ -110,12 +110,12 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "ca101afb-7a2a-4752-b1ed-1013c2724ef2",
+      "id": "8f3f1a99-5150-4844-80b9-447638843ff1",
       "name": "Webhook - Order Detail",
       "type": "n8n-nodes-base.webhook",
       "position": [
-        0,
-        304
+        -112,
+        288
       ],
       "typeVersion": 2,
       "webhookId": "668307cf-d804-48de-97b4-4187f788b4d0"
@@ -124,12 +124,12 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const id=String(body.airtable_record_id||'').trim(); if(!id) throw new Error('Missing airtable_record_id'); return [{json:{airtable_record_id:id, timezone:String(body.timezone||'America/Denver')}}];"
       },
-      "id": "472d5c46-f22f-415d-8d66-a6b5f78890a1",
+      "id": "4826239b-dada-4d38-9083-ab6dc1722aac",
       "name": "Code - Parse Detail Request",
       "type": "n8n-nodes-base.code",
       "position": [
-        224,
-        304
+        112,
+        288
       ],
       "typeVersion": 2
     },
@@ -151,12 +151,12 @@
         },
         "options": {}
       },
-      "id": "694c6d52-f97d-48f4-bb1b-ca1621e7e96c",
+      "id": "6369e016-9acd-4184-88c2-27d7535a69d5",
       "name": "HTTP - Get Order Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        304
+        336,
+        288
       ],
       "typeVersion": 4.3
     },
@@ -164,12 +164,12 @@
       "parameters": {
         "jsCode": "const f=$json.fields||{}; function parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nconst items=parseItems(f.items_json).map((i,idx)=>({line_index:idx+1,name:i.name||i.nameTranslated?.en||'(unknown)',sku:i.sku||'',productId:i.productId||null,quantity:Number(i.quantity||0)||0}));\nconst linked=Array.isArray(f.products)?f.products:[];\nconst summary=`Ecwid ${String(f.order_code||f.ecwid_order_id||f.order_number||'')} | ${f.customer_name||''} | linked ${linked.length} of ${items.reduce((n,i)=>n+i.quantity,0)} required`;\nreturn [{json:{ok:true, airtable_record_id:$json.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), summary, items, linked_products:linked, products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', raw_fields:f}}];"
       },
-      "id": "70320466-2cc3-44a4-a4e1-c1a64abeef79",
+      "id": "e4008fa5-b7bf-42e2-a847-55e6b0950793",
       "name": "Code - Build Order Detail",
       "type": "n8n-nodes-base.code",
       "position": [
-        672,
-        304
+        560,
+        288
       ],
       "typeVersion": 2
     },
@@ -179,12 +179,12 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "b6dcdc54-3d7e-4802-9e4c-5f3e916e0b07",
+      "id": "31e60553-8fa1-476e-b8e5-5dee0619b195",
       "name": "Respond - Order Detail",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        880,
-        304
+        768,
+        288
       ],
       "typeVersion": 1
     },
@@ -195,12 +195,12 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "f33ff972-d0ef-4a28-bb3b-bea2527d24ab",
+      "id": "dd044e5b-d0ff-4207-9c9e-f8d023c8044f",
       "name": "Webhook - Search Products",
       "type": "n8n-nodes-base.webhook",
       "position": [
-        0,
-        656
+        -112,
+        640
       ],
       "typeVersion": 2,
       "webhookId": "e1dfc874-9a16-4b0c-98c1-d10dec59b36b"
@@ -209,12 +209,12 @@
       "parameters": {
         "jsCode": "const body = $json.body || $json;\nconst query = String(body.query || '').trim().toLowerCase();\n\nreturn [{\n  json: {\n    query,\n    allow_search: query.length >= 2\n  }\n}];"
       },
-      "id": "090fb7cf-081e-4d11-a493-db947ca32f9c",
+      "id": "f5cdab39-2956-4ad5-8d84-0599fd07fc40",
       "name": "Code - Parse Product Search",
       "type": "n8n-nodes-base.code",
       "position": [
-        224,
-        656
+        112,
+        640
       ],
       "typeVersion": 2
     },
@@ -281,12 +281,12 @@
         },
         "options": {}
       },
-      "id": "bb13fabe-4d10-4cc3-a0dd-a406d2881b78",
+      "id": "24022d4b-2916-41c4-a2a7-d1f8c57fec63",
       "name": "HTTP - List Products Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1088,
-        576
+        976,
+        560
       ],
       "typeVersion": 4.3
     },
@@ -317,12 +317,12 @@
         },
         "options": {}
       },
-      "id": "60a22762-98a4-459c-a7c2-9fdc108757ea",
+      "id": "4a8a8bd3-16d2-4a10-b9c8-21c5f670acc5",
       "name": "HTTP - List Locations Airtable",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        736,
-        512
+        624,
+        496
       ],
       "typeVersion": 4.3
     },
@@ -330,12 +330,12 @@
       "parameters": {
         "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst q = String(req.query || '').trim().toLowerCase();\nconst companyName = $env['BUSINESS_NAME'] || null;\n\nconst locResp = $('HTTP - List Locations Airtable').first().json || {};\nconst locRecords = Array.isArray(locResp.records) ? locResp.records : [];\nconst locMap = new Map(\n  locRecords.map(r => [r.id, String(r.fields?.name || '')])\n);\n\nconst inputs = $input.all();\nconst rows = inputs.flatMap(item => {\n  const records = item.json?.records;\n  return Array.isArray(records) ? records : [];\n});\n\nconst products = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n\n  if (companyName && String(f.label_company_prod || '') !== companyName) continue;\n\n  const hay = [\n    f.product_id,\n    f.name_mat,\n    f.unit_size,\n    f.item_category_mat,\n    f.notes\n  ]\n    .filter(Boolean)\n    .join(' ')\n    .toLowerCase();\n\n  if (q && !hay.includes(q)) continue;\n\n  const locIds = Array.isArray(f.storage_location) ? f.storage_location : [];\n  const locNames = locIds.map(id => locMap.get(id) || id);\n\n  products.push({\n    airtable_record_id: rec.id,\n    product_id: f.product_id || '',\n    name_mat: f.name_mat || '',\n    unit_size: f.unit_size || '',\n    item_category_mat: f.item_category_mat || '',\n    storage_location: locIds,\n    storage_location_name: locNames.join(', '),\n    notes: f.notes || ''\n  });\n}\n\nreturn [{\n  json: {\n    ok: true,\n    page_count: inputs.length,\n    raw_record_count: rows.length,\n    products: products.slice(0, 100),\n    count: products.length\n  }\n}];"
       },
-      "id": "01aeca43-3586-4f0f-b259-1a0d89b30d48",
+      "id": "3c9c95fa-8aad-4b60-b828-bcaebb1ed885",
       "name": "Code - Build Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
-        1584,
-        800
+        1472,
+        784
       ],
       "typeVersion": 2
     },
@@ -345,12 +345,12 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "c935febd-9c8b-4e2c-bbe7-5925235d7da5",
+      "id": "7741904d-f9bc-4974-aa45-8765eff268ed",
       "name": "Respond - Search Products",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        1760,
-        800
+        1648,
+        784
       ],
       "typeVersion": 1
     },
@@ -361,12 +361,12 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "e6340b91-97bd-4aca-9a82-67f3c8c3eaf7",
+      "id": "70f20487-ba8f-4bfa-b0b1-f01afebe8a4b",
       "name": "Webhook - Assign Product",
       "type": "n8n-nodes-base.webhook",
       "position": [
-        0,
-        1072
+        -112,
+        1056
       ],
       "typeVersion": 2,
       "webhookId": "d0695050-1f4d-49b5-b3a6-c4a99a19b41e"
@@ -375,12 +375,12 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const oid=String(body.airtable_order_record_id||'').trim(); const pid=String(body.airtable_product_record_id||'').trim(); if(!oid||!pid) throw new Error('Missing airtable_order_record_id or airtable_product_record_id'); return [{json:{airtable_order_record_id:oid, airtable_product_record_id:pid}}];"
       },
-      "id": "294984e8-2184-4ad3-b256-838c86a8c671",
+      "id": "73a0c52f-c1da-46a1-ae4c-206d858eed06",
       "name": "Code - Parse Assign",
       "type": "n8n-nodes-base.code",
       "position": [
-        224,
-        1072
+        112,
+        1056
       ],
       "typeVersion": 2
     },
@@ -402,12 +402,12 @@
         },
         "options": {}
       },
-      "id": "a29eddef-88b3-48ea-b4f2-8bb8c351c705",
+      "id": "c6dc06c3-dbc1-44f9-bbb7-ae665c18ab88",
       "name": "HTTP - Get Assign Order",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        960
+        336,
+        944
       ],
       "typeVersion": 4.3
     },
@@ -429,12 +429,12 @@
         },
         "options": {}
       },
-      "id": "929aba81-ab57-432c-84cd-1e878a975fa1",
+      "id": "5ffed0e3-7b15-40dd-bb0a-8a85db3abc0b",
       "name": "HTTP - Get Assign Product",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        1120
+        336,
+        1104
       ],
       "typeVersion": 4.3
     },
@@ -465,12 +465,12 @@
         },
         "options": {}
       },
-      "id": "5e93621e-044a-423e-96be-5bbf6d7a1bab",
+      "id": "ebed346a-9c4e-41ac-9169-e650bcc2ec1c",
       "name": "HTTP - List Locations Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        448,
-        1312
+        336,
+        1296
       ],
       "typeVersion": 4.3
     },
@@ -480,12 +480,12 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "9e7945c0-7e97-45b7-b0a8-eb72b3a2b283",
+      "id": "22051cad-c752-41c7-94e6-9964d40afaff",
       "name": "Merge - Assign Inputs",
       "type": "n8n-nodes-base.merge",
       "position": [
-        736,
-        1056
+        624,
+        1040
       ],
       "typeVersion": 3.2
     },
@@ -493,12 +493,12 @@
       "parameters": {
         "jsCode": "const order=$('HTTP - Get Assign Order').first().json||{}; const product=$('HTTP - Get Assign Product').first().json||{}; const locResp=$('HTTP - List Locations Assign').first().json||{}; const ship=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; if(!ship) throw new Error('Could not resolve Shipped location'); const of=order.fields||{}; const pf=product.fields||{}; const existing=Array.isArray(of.products)?of.products:[]; if(existing.includes(product.id)) throw new Error('Product already linked to this order'); const locs=Array.isArray(pf.storage_location)?pf.storage_location:[]; if(locs.includes(ship)) throw new Error('Product is already marked Shipped'); return [{json:{order_record_id:order.id, product_record_id:product.id, order_fields:{products:[...existing, product.id]}, product_fields:{storage_location:[ship]}, result:{ok:true, order_record_id:order.id, product_record_id:product.id, order_ref:String(of.order_code||of.ecwid_order_id||of.order_number||''), product_id:pf.product_id||'', message:'Product linked to order and marked shipped.'}}}];"
       },
-      "id": "6d112db0-985d-427d-8912-17aab7026537",
+      "id": "337b42f1-6fff-4f83-9d3a-3e124b465f24",
       "name": "Code - Build Assign Updates",
       "type": "n8n-nodes-base.code",
       "position": [
-        880,
-        1120
+        768,
+        1104
       ],
       "typeVersion": 2
     },
@@ -524,12 +524,12 @@
         "jsonBody": "={{ { fields: $json.order_fields } }}",
         "options": {}
       },
-      "id": "f83dd711-0fc8-47ff-9c8d-6489574e1590",
+      "id": "a9de6c1d-c65d-47ef-af42-bfbe7601cf58",
       "name": "HTTP - Patch Order Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1104,
-        1008
+        992,
+        992
       ],
       "typeVersion": 4.3
     },
@@ -555,12 +555,12 @@
         "jsonBody": "={{ { fields: $json.product_fields } }}",
         "options": {}
       },
-      "id": "12ef9dd2-7ad7-4d05-80f7-02421c78c54f",
+      "id": "b109554e-1526-439d-870d-21bbb08b2e5a",
       "name": "HTTP - Patch Product Assign",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1104,
-        1264
+        992,
+        1248
       ],
       "typeVersion": 4.3
     },
@@ -570,12 +570,12 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "fa43cb64-bdd7-4e0a-a0eb-769398e0bb21",
+      "id": "d692c022-f927-4c17-b0e7-013a2b5e37c2",
       "name": "Merge - Assign Patches",
       "type": "n8n-nodes-base.merge",
       "position": [
-        1328,
-        1120
+        1216,
+        1104
       ],
       "typeVersion": 3.2
     },
@@ -583,12 +583,12 @@
       "parameters": {
         "jsCode": "return [{json: $('Code - Build Assign Updates').first().json.result }];"
       },
-      "id": "e4a5b997-99f6-41e3-8302-df475afd99c9",
+      "id": "25663079-620e-4d38-b906-2e59cbe8ead8",
       "name": "Code - Assign Response",
       "type": "n8n-nodes-base.code",
       "position": [
-        1552,
-        1120
+        1440,
+        1104
       ],
       "typeVersion": 2
     },
@@ -598,12 +598,12 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "e62aac87-face-45af-8bc0-c39368bcb9cd",
+      "id": "75fb68be-ef94-4a68-a03e-3a8ab8b4f105",
       "name": "Respond - Assign",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
-        1760,
-        1120
+        1648,
+        1104
       ],
       "typeVersion": 1
     },
@@ -616,22 +616,22 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        592,
-        1216
+        480,
+        1200
       ],
-      "id": "f9a7c77f-1f46-4dc7-bb8d-fe8f4bac3d0a",
+      "id": "c44029c7-00fd-486c-8c6e-472371fcf497",
       "name": "Merge"
     },
     {
       "parameters": {
         "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst companyName = $env['BUSINESS_NAME'] || null;\nconst query = String(req.query || '').trim().toLowerCase();\n\nfunction formulaEscape(s) {\n  return String(s || '')\n    .replace(/\\\\/g, '\\\\\\\\')\n    .replace(/\"/g, '\\\\\"');\n}\n\nconst clauses = [];\n\nif (companyName) {\n  clauses.push(`{label_company_prod}=\"${formulaEscape(companyName)}\"`);\n}\n\n// Exclude by linked-record display names, not record IDs\nfor (const locName of ['Shipped', 'Consumed', 'Compost', 'Expired']) {\n  clauses.push(`NOT(FIND(\"${formulaEscape(locName.toLowerCase())}\", LOWER(ARRAYJOIN({storage_location}&\"\"))))`);\n}\n\nif (req.allow_search && query) {\n  clauses.push(`OR(\n    FIND(\"${formulaEscape(query)}\", LOWER({product_id}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({name_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({unit_size}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({item_category_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({notes}&\"\"))\n  )`);\n}\n\nconst filter_formula =\n  clauses.length === 1 ? clauses[0] : `AND(${clauses.join(',')})`;\n\nreturn [{\n  json: {\n    query,\n    allow_search: !!req.allow_search,\n    company_name: companyName,\n    filter_formula,\n    offset: ''\n  }\n}];"
       },
-      "id": "0f2b2d70-8ac0-4ca1-b3a8-f3b217be193d",
+      "id": "97ac93b2-f83f-4a39-993c-54de9423d66e",
       "name": "Code - Build Product Search Context",
       "type": "n8n-nodes-base.code",
       "position": [
-        752,
-        720
+        640,
+        704
       ],
       "typeVersion": 2
     },
@@ -660,12 +660,12 @@
         },
         "options": {}
       },
-      "id": "1fa3b3ca-71b8-4661-96f0-1042fecc41e5",
+      "id": "5c8c0e94-8495-437f-bd98-9bc9e6c642fe",
       "name": "If - Has Next Product Page",
       "type": "n8n-nodes-base.if",
       "position": [
-        1168,
-        768
+        1056,
+        752
       ],
       "typeVersion": 2.2
     },
@@ -673,12 +673,12 @@
       "parameters": {
         "jsCode": "return [{\n  json: {\n    offset: String($json.offset || '')\n  }\n}];"
       },
-      "id": "9ddf27b1-9e17-44d9-bed5-d77430ea8e66",
+      "id": "1ba9a1b3-9f74-49da-ae83-a78f8b8d857f",
       "name": "Code - Next Product Page Request",
       "type": "n8n-nodes-base.code",
       "position": [
-        1392,
-        384
+        1408,
+        320
       ],
       "typeVersion": 2
     },
@@ -686,12 +686,12 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\ndata.fulfillmentProductSearchRecords = [];\nreturn [{ json: $json.body || $json }];"
       },
-      "id": "be3ba02f-7a6b-47d3-aac3-174a5750e49d",
+      "id": "7d23e3f3-fd70-490e-a006-65073bad590e",
       "name": "Code - Reset Product Pagination State",
       "type": "n8n-nodes-base.code",
       "position": [
-        576,
-        512
+        464,
+        496
       ],
       "typeVersion": 2
     },
@@ -699,12 +699,12 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!Array.isArray(data.fulfillmentProductSearchRecords)) {\n  data.fulfillmentProductSearchRecords = [];\n}\n\nconst pageRecords = Array.isArray($json.records) ? $json.records : [];\ndata.fulfillmentProductSearchRecords.push(...pageRecords);\n\nreturn [{\n  json: {\n    offset: $json.offset || '',\n    page_count: pageRecords.length,\n    accumulated_count: data.fulfillmentProductSearchRecords.length\n  }\n}];"
       },
-      "id": "48e6c7b0-0b76-4ac5-9edb-feb11967e9e0",
+      "id": "3e552fec-87d1-44c3-a912-1ab79f8c2f84",
       "name": "Code - Accumulate Product Page",
       "type": "n8n-nodes-base.code",
       "position": [
-        1008,
-        768
+        896,
+        752
       ],
       "typeVersion": 2
     },
@@ -712,12 +712,12 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\nconst allRecords = Array.isArray(data.fulfillmentProductSearchRecords)\n  ? data.fulfillmentProductSearchRecords\n  : [];\n\nconst out = [{\n  json: {\n    records: allRecords,\n    count: allRecords.length\n  }\n}];\n\ndata.fulfillmentProductSearchRecords = [];\n\nreturn out;"
       },
-      "id": "da21a026-f21b-4096-aee2-d68241eebdec",
+      "id": "37355a73-e3c9-4d3f-9237-9395da083e21",
       "name": "Code - Emit All Product Pages",
       "type": "n8n-nodes-base.code",
       "position": [
-        1408,
-        704
+        1296,
+        688
       ],
       "typeVersion": 2
     },
@@ -746,12 +746,12 @@
         },
         "options": {}
       },
-      "id": "2acc1282-587b-4ffa-b228-96d1cc64847a",
+      "id": "298d1790-95fb-45cb-a63c-edfb189cc6e6",
       "name": "If - Allow Product Search",
       "type": "n8n-nodes-base.if",
       "position": [
-        416,
-        656
+        304,
+        640
       ],
       "typeVersion": 2.2
     },
@@ -759,14 +759,166 @@
       "parameters": {
         "jsCode": "return [{ json: { ok: true, page_count: 0, raw_record_count: 0, products: [], count: 0, skipped: true, message: 'Type at least 2 characters to search products.' } }];"
       },
-      "id": "0dfe859a-2ec6-4d34-ad6a-1a720a9cddc4",
+      "id": "c6f93a52-350f-46cf-b61d-013346cd8dea",
       "name": "Code - Empty Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
-        752,
-        880
+        640,
+        864
       ],
       "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/reconciliation/accounted",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1f5396d8-c828-47eb-925e-0382c4fb3c0a",
+      "name": "Webhook - Reconciliation Accounted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        1472
+      ],
+      "webhookId": "45be2a37-5f47-4d20-af8f-4d299720aec3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst id = String(body.airtable_order_record_id || body.airtable_record_id || '').trim();\nif (!id) throw new Error('Missing airtable_order_record_id');\nconst operator = String(body.operator || 'system').trim() || 'system';\nconst note = String(body.note || 'Cash/manual payment accounted for; no Clover card reconciliation required.').trim();\nconst nowIso = new Date().toISOString();\nreturn [{\n  json: {\n    airtable_order_record_id: id,\n    result: {\n      ok: true,\n      airtable_order_record_id: id,\n      reconciliation_status: 'accounted',\n      message: 'Order marked accounted for without Clover card reconciliation.'\n    },\n    fields: {\n      clover_reconciliation_status: 'accounted',\n      clover_payment_id: null,\n      clover_payment_amount: null,\n      clover_payment_time: null,\n      clover_match_confidence: null,\n      reconciled_at: null,\n      reconciliation_notes: [\n        note,\n        `Accounted at: ${nowIso}`,\n        `Operator: ${operator}`\n      ].filter(Boolean).join(' | ')\n    }\n  }\n}];"
+      },
+      "id": "78d1f073-dd94-4cb7-946b-83031b7a9cfa",
+      "name": "Code - Parse Accounted Reconciliation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.airtable_order_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.fields } }}",
+        "options": {}
+      },
+      "id": "2e2a1678-3f83-4252-ba0e-f492c1189be7",
+      "name": "HTTP - Patch Accounted Reconciliation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        336,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Code - Parse Accounted Reconciliation').first().json.result }}",
+        "options": {}
+      },
+      "id": "38a7f542-da52-4f51-bd06-f7b9b28f8d40",
+      "name": "Respond - Accounted Reconciliation",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/reconciliation/manual-match",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "436e236c-60b4-4163-a5f0-e987fbee90bd",
+      "name": "Webhook - Manual Reconciliation Match",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        1760
+      ],
+      "webhookId": "7bee6c0c-9a41-4a40-8ddb-edd6fcd315bd"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst id = String(body.airtable_order_record_id || body.airtable_record_id || '').trim();\nconst paymentId = String(body.clover_payment_id || '').trim();\nif (!id) throw new Error('Missing airtable_order_record_id');\nif (!paymentId) throw new Error('Missing clover_payment_id');\n\nconst amountRaw = body.clover_payment_amount;\nconst amount = amountRaw === undefined || amountRaw === null || amountRaw === ''\n  ? null\n  : Number(amountRaw);\nif (amount !== null && !Number.isFinite(amount)) throw new Error('Invalid clover_payment_amount');\n\nfunction isoOrNull(v) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (!Number.isFinite(d.getTime())) throw new Error('Invalid clover_payment_time');\n  return d.toISOString();\n}\n\nconst paymentTime = isoOrNull(body.clover_payment_time);\nconst cloverOrderId = String(body.clover_order_id || '').trim();\nconst tenderId = String(body.clover_tender_id || '').trim();\nconst operator = String(body.operator || 'system').trim() || 'system';\nconst note = String(body.note || 'Manually matched Clover payment in Appsmith.').trim();\nconst nowIso = new Date().toISOString();\n\nreturn [{\n  json: {\n    airtable_order_record_id: id,\n    result: {\n      ok: true,\n      airtable_order_record_id: id,\n      reconciliation_status: 'reconciled',\n      clover_payment_id: paymentId,\n      message: 'Order manually reconciled to Clover payment.'\n    },\n    fields: {\n      clover_reconciliation_status: 'reconciled',\n      clover_payment_id: paymentId,\n      clover_payment_amount: amount,\n      clover_payment_time: paymentTime,\n      clover_match_confidence: 0.5,\n      reconciled_at: nowIso,\n      reconciliation_notes: [\n        note,\n        'Manually reconciled by operator.',\n        cloverOrderId ? `Clover order id: ${cloverOrderId}` : null,\n        tenderId ? `Tender id: ${tenderId}` : null,\n        `Operator: ${operator}`\n      ].filter(Boolean).join(' | ')\n    }\n  }\n}];"
+      },
+      "id": "446dd6a3-5f57-41cc-a466-c6861a4fc717",
+      "name": "Code - Parse Manual Reconciliation Match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}/${$json.airtable_order_record_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.AIRTABLE_API_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { fields: $json.fields } }}",
+        "options": {}
+      },
+      "id": "6ea4316b-eca6-4298-8b20-45a65171fe8f",
+      "name": "HTTP - Patch Manual Reconciliation Match",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        336,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Code - Parse Manual Reconciliation Match').first().json.result }}",
+        "options": {}
+      },
+      "id": "d9e37e59-224a-4dd0-ba1e-e9a21b2a760a",
+      "name": "Respond - Manual Reconciliation Match",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1760
+      ]
     }
   ],
   "pinData": {},
@@ -1162,6 +1314,72 @@
           }
         ]
       ]
+    },
+    "Webhook - Reconciliation Accounted": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Accounted Reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Accounted Reconciliation": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Patch Accounted Reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Patch Accounted Reconciliation": {
+      "main": [
+        [
+          {
+            "node": "Respond - Accounted Reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Manual Reconciliation Match": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse Manual Reconciliation Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse Manual Reconciliation Match": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Patch Manual Reconciliation Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Patch Manual Reconciliation Match": {
+      "main": [
+        [
+          {
+            "node": "Respond - Manual Reconciliation Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1169,10 +1387,10 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "fb12d0d2-b38e-4c9b-85ae-5c0b3fc89caa",
+  "versionId": "85bffc2d-a571-43c4-ab16-81f89a2375a9",
   "meta": {
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
-  "id": "C4Knwrk2UwNYdytY",
+  "id": "IgAORQg8UhP4FAAY",
   "tags": []
 }
