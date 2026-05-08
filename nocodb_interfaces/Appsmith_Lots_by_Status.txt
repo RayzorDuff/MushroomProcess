@@ -101,3 +101,76 @@ Two common modal-driven actions:
 - **Retire**: supports multi-select reasons; logs one event per reason per lot; updates `lots.status` and `lots.location_id` (FK) for terminal outcomes (e.g. Compost/Expired).
 
 These are implemented as Postgres functions under `nocodb_schema/pgsql/008_lot_actions.sql` and called via Appsmith queries (`qShakeLots`, `qRetireLots`).
+
+## Harvest Modal
+
+The Lots interface now supports Harvest operations directly.
+
+### Requirements
+
+User must select:
+
+- exactly one active `fruiting_block`
+
+### Harvest Outputs
+
+Supported output types:
+
+- `fresh_tray`
+- `freezer_tray`
+
+### Validation Rules
+
+- flush number auto-increments
+- storage locations constrained by tray type
+- tray count must be greater than 0
+- harvest weight must be greater than 0
+
+### Result
+
+Harvest creates tray `products` linked to the originating fruiting block lot.
+
+---
+
+## Spawn to Bulk Modal
+
+The Lots interface supports Spawn-to-Bulk operations.
+
+### Target Selection
+
+User selects:
+
+- one or more substrate lots
+
+### Source Selection
+
+Within modal:
+
+- one or more colonized grain lots
+- all grain sources must share the same species/strain
+
+### Output Planning
+
+Supports variable block sizing plans.
+
+Examples:
+
+```text
+5,5,2.5
+```
+
+or:
+
+```text
+FB-COCO-LG:5, FB-COCO-SM:2.5
+```
+
+### Result
+
+Creates new `fruiting_block` lots with:
+
+- lineage links
+- substrate lineage
+- grain lineage
+- inherited strain assignment
+

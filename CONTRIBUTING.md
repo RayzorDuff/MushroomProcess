@@ -17,6 +17,25 @@ git clone https://github.com/RayzorDuff/MushroomProcess.git
 5. Open a PR to **main** using the template. Assign a reviewer.
 6. After merge, cherry-pick to **production** or open a PR from `main` → `production` when ready to deploy.
 
+## Operational Workflow Architecture
+
+New operational workflows should prefer:
+
+- Postgres SQL functions
+- Appsmith-driven UI
+- explicit event logging
+- lineage preservation
+
+Legacy Airtable/NocoDB automations should be treated as migration references rather than primary operational logic.
+
+Avoid duplicating business logic between:
+
+- Appsmith JS
+- automation scripts
+- SQL functions
+
+Business rules should preferentially live in Postgres functions.
+
 ## Headers
 Each script has a succinct header:
 ```js

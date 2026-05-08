@@ -63,6 +63,114 @@ Each page now has named widgets and working SQL/JS wiring:
 - Migrate ecwid integration to postgres/n8n
 - Branch and begin retiring station-centric Airtable interface (described below) following testing of lot-centric appsmith approach
 
+## Harvest Workflow (Postgres / Appsmith)
+
+The Harvest workflow has been migrated from Airtable automation into the Postgres + Appsmith operational model.
+
+### Harvest Flow
+
+1. User selects a single `fruiting_block` lot in the Lots interface.
+2. User opens the **Harvest** modal.
+3. User selects a harvest output type:
+   - `fresh_tray`
+   - `freezer_tray`
+4. User enters:
+   - harvest weight (g)
+   - tray count
+5. Storage location is constrained automatically:
+   - Fresh trays → Shipping/Fulfillment locations
+   - Freezer trays → Freeze/Freeze Dryer locations
+6. Product tray records are created in `products`.
+7. Harvest lineage is linked back to the originating fruiting block lot.
+
+### Harvest Metadata
+
+The following fields are now populated during lifecycle transitions.
+
+#### `lots`
+
+- `beganfruiting_at`
+- `firstharvested_at`
+- `lastharvested_at`
+- `flush_no`
+- `fresh_tray_count`
+- `frozen_tray_count`
+
+#### `products`
+
+- `harvest_flush_no`
+- `harvest_weight_g`
+- `harvested_at`
+
+### Tray Products
+
+Harvested trays are represented as `products`, not `lots`.
+
+Supported tray product categories:
+
+- `fresh_tray`
+- `freezer_tray`
+
+These tray products are intended for:
+
+- fulfillment
+- freeze drying
+- downstream packaging operations
+
+### SQL Functions
+
+Implemented in:
+
+- `009_harvest_actions.sql`
+
+Primary function:
+
+- `mp_lots_harvest_create_tray_products(...)`
+
+---
+
+## Spawn to Bulk Workflow (Postgres / Appsmith)
+
+The Spawn-to-Bulk workflow has been migrated from Airtable automation into the Postgres + Appsmith operational model.
+
+### Spawn to Bulk Flow
+
+1. User selects one or more substrate lots from the Lots table.
+2. User opens the **Spawn to Bulk** modal.
+3. User selects one or more colonized grain source lots.
+4. All selected grain lots must:
+   - be category `grain`
+   - share the same species/strain
+5. User optionally specifies block sizing plans.
+6. New `fruiting_block` lots are created.
+7. Grain and substrate lineage are preserved.
+
+### Output Planning
+
+Supports variable block sizing.
+
+Examples:
+
+```text
+5,5,2.5
+```
+
+or:
+
+```text
+FB-COCO-LG:5, FB-COCO-SM:2.5
+```
+
+### SQL Functions
+
+Implemented in:
+
+- `010_spawn_to_bulk.sql`
+
+Primary function:
+
+- `mp_lots_spawn_to_bulk(...)`
+
 ## 🧩 Fulfillment System (NEW)
 
 MushroomProcess now includes a unified fulfillment workflow supporting:
