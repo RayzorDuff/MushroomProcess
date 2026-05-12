@@ -1248,8 +1248,42 @@ for (const t of exportTables) {
       linksSql += `\nCREATE TABLE IF NOT EXISTS ${ident(POSTGRES_SCHEMA)}.${ident(jn)} (\n  ${ident(aCol)} bigint NOT NULL,\n  ${ident(bCol)} bigint NOT NULL\n);\n`;
       linksSql += `CREATE INDEX IF NOT EXISTS ${ident(pgSafeIdent(jn + '_' + aCol + '_idx'))} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(aCol)});\n`;
       linksSql += `CREATE INDEX IF NOT EXISTS ${ident(pgSafeIdent(jn + '_' + bCol + '_idx'))} ON ${ident(POSTGRES_SCHEMA)}.${ident(jn)}(${ident(bCol)});\n`;
-      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}\n  ADD CONSTRAINT ${ident(pgSafeIdent(jn + '_' + aCol + '_fk'))} FOREIGN KEY (${ident(aCol)}) REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(a)}(${ident('nocopk')}) DEFERRABLE INITIALLY DEFERRED;\n`;
-      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}\n  ADD CONSTRAINT ${ident(pgSafeIdent(jn + '_' + bCol + '_fk'))} FOREIGN KEY (${ident(bCol)}) REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(b)}(${ident('nocopk')}) DEFERRABLE INITIALLY DEFERRED;\n`;
+
+      const aFkCName = pgSafeIdent(jn + '_' + aCol + '_fk');
+      const bFkCName = pgSafeIdent(jn + '_' + bCol + '_fk');
+      const jnRel = `${POSTGRES_SCHEMA}.${jn}`;
+      const aFkCNameSql = aFkCName.replace(/'/g, "''");
+      const bFkCNameSql = bFkCName.replace(/'/g, "''");
+
+      linksSql += `DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = '${aFkCNameSql}'
+            AND c.conrelid = '${jnRel}'::regclass
+        ) THEN
+          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+            ADD CONSTRAINT ${ident(aFkCName)}
+            FOREIGN KEY (${ident(aCol)})
+            REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(a)}(${ident('nocopk')})
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+      END $$;\n`;
+
+      linksSql += `DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = '${bFkCNameSql}'
+            AND c.conrelid = '${jnRel}'::regclass
+        ) THEN
+          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+            ADD CONSTRAINT ${ident(bFkCName)}
+            FOREIGN KEY (${ident(bCol)})
+            REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(b)}(${ident('nocopk')})
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+      END $$;\n`;
 
       // For "preferred single" links, maintain the junction table from the FK column and vice versa.
       if (prefersSingle && fkColName) {
