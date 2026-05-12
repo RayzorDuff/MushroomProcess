@@ -3,7 +3,7 @@ require('./load_env');
 const crypto = require('crypto');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-05-11.3
+ * Version: 2026-05-11.4
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -811,11 +811,6 @@ function compileFormulaExpr(raw, ctx) {
     }
     // Restore protected function markers
     s = s.replaceAll('?', '(');
-
-    // Defensive fix: if an OR()/AND() compilation bug ever produced boolean "juxtaposition" like `(a) ((b))`,
-    // patch it into `(a) OR ((b))` so Postgres can parse it.
-    // This should be a no-op when the compiler is behaving.
-    s = s.replace(/\)\s+\(\(/g, ') OR ((');
 
     return s;
   }

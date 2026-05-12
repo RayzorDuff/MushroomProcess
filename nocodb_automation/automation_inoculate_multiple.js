@@ -185,8 +185,13 @@ export default async function handler(req, res) {
       }
 
       const unitSize = Number(target.unit_size || 0);
-      const tTotalVol = Number(target.total_volume_ml || 0) || unitSize;
-      const tRemaining = Number(target.remaining_volume_ml || 0) || unitSize;
+      const usesBaseVolume = ["lc_flask", "cordyceps_substrate"].includes(targetCategory);
+      const tTotalVol = usesBaseVolume
+        ? (Number(target.total_volume_ml || 0) || unitSize)
+        : Number(target.total_volume_ml || 0);
+      const tRemaining = usesBaseVolume
+        ? (Number(target.remaining_volume_ml || 0) || unitSize)
+        : Number(target.remaining_volume_ml || 0);
 
       let newTotal = tTotalVol;
       let newRemaining = tRemaining;

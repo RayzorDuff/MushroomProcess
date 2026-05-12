@@ -160,7 +160,7 @@ BEGIN
        1, v_run."planned_unit_size", v_status,
        v_run."nocopk", p_operator, now(), v_end,
        CASE
-         WHEN v_item_category IN ('grain','substrate','casing')
+         WHEN v_item_category IN ('grain','substrate','casing','cordyceps_substrate')
          THEN (v_end::date + 90)
          ELSE NULL
        END,

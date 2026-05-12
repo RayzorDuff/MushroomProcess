@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2026-05-11.1
+ * Version: 2026-05-11.2
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -216,8 +216,9 @@
       // --- Calculate updated volumes for this target -----------------------
       const targetTotalVol  = targetLot.getCellValue('total_volume_ml') ?? 0;
       const targetRemaining = targetLot.getCellValue('remaining_volume_ml') ?? 0;
-      let newTotal          = targetTotalVol || unitSize;
-      let newRemaining      = targetRemaining || unitSize;
+      const usesBaseVolume  = ['lc_flask', 'cordyceps_substrate'].includes(targetCategory);
+      let newTotal          = usesBaseVolume ? (targetTotalVol || unitSize) : targetTotalVol;
+      let newRemaining      = usesBaseVolume ? (targetRemaining || unitSize) : targetRemaining;
 
       // Only tracked liquids actually modify target volume and source depletion
       if (!isUntrackedSource && isLiquidSource && volumePerLot > 0) {

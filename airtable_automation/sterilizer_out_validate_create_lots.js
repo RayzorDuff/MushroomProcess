@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2025-12-18.1
+ * Version: 2026-05-11.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -151,7 +151,7 @@ for (let i = 0; i < goodCount; i++) {
   else if (statusSterilized) fields.status = { id: statusSterilized.id };
 
   // Set lot.use_by for un-inoculated grain/substrate/casing lots: 3 months from sterilization
-  if (['grain', 'substrate', 'casing'].includes(itemCategory)) {
+  if (['grain', 'substrate', 'casing', 'cordyceps_substrate].includes(itemCategory)) {
     try {
       const d = new Date(tsDate);
       if (!Number.isNaN(d.getTime())) {
