@@ -19,6 +19,46 @@ The legacy Airtable UI is station-centric (Sterilizer, Inoculate, Dark Room, Fru
 - Multi-select actions use modals:
   - Shake (log event)
   - Retire (multi-reason, update status/location, log events)
+  
+## Fulfillment Page
+
+The Fulfillment page is a station-centric operational interface responsible for linking exact inventory products to customer orders.
+
+Unlike lot-centric production pages, fulfillment operates primarily against:
+
+- ecommerce_orders
+- products
+- storage locations
+- reconciliation state
+
+### Responsibilities
+
+- display fulfillment-ready orders
+- locate inventory
+- assign products
+- transition inventory to shipped state
+- review unresolved market transactions
+
+### Reconciliation Review
+
+The page supports review-mode visibility for unresolved Clover market transactions.
+
+Operators may:
+
+- manually reconcile Clover payments
+- mark transactions accounted/cash
+- review ambiguous duplicate-amount transactions
+
+### Product State Enforcement
+
+Products already located in:
+
+- Shipped
+- Consumed
+- Compost
+- Expired
+
+are excluded from fulfillment inventory search results.
 
 ## Next pages
 

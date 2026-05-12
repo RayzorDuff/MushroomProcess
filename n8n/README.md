@@ -37,15 +37,44 @@ n8n acts as:
 ---
 
 ### 2. Clover Reconciliation Poller
-- Polls Clover payments
-- Matches to Ecwid orders by:
-  - amount
-  - timestamp window
-- Updates Airtable:
-  - `clover_reconciliation_status`
-  - `clover_payment_id`
-  - `clover_payment_time`
-- DOES NOT update Ecwid payment status (to avoid duplicate Clover entries)
+
+The Clover reconciliation workflow:
+
+1. Retrieves pending market orders from Airtable.
+2. Retrieves Clover payments within a configurable time window.
+3. Attempts automatic reconciliation using:
+   - payment amount
+   - timestamp proximity
+   - tender type
+4. Prevents reuse of Clover payment IDs already reconciled.
+5. Flags unresolved orders for review.
+
+#### Reconciliation States
+
+| State | Meaning |
+|---|---|
+| reconciled | Clover payment matched automatically or manually |
+| pending | No valid Clover payment found |
+| needs_review | Multiple or ambiguous candidate payments |
+| accounted | Manually resolved without Clover reconciliation |
+
+#### Manual Reconciliation Actions
+
+The Fulfillment interface supports:
+
+##### Mark Cash / Accounted
+
+Used for:
+- cash market sales
+- offline/manual transactions
+- administrative overrides
+
+##### Manual Match Clover Payment
+
+Used when:
+- duplicate payment amounts exist
+- multiple Clover candidates exist
+- operator confirmation is required
 
 ---
 
@@ -57,32 +86,105 @@ n8n acts as:
   - reconciled orders
   - unreconciled orders
   - unmatched Clover payments
-  - **Ecwid product tally (NEW)**
+  - Ecwid product tally
 - Sends via email
 
 ---
 
-### 4. Fulfillment API (NEW)
-Endpoints for Appsmith:
+### 4. Fulfillment API
 
-#### `/fulfillment/orders/list`
+The `MushroomProcess - Fulfillment API` workflow provides operational fulfillment services to the Appsmith interface.
+
+#### Responsibilities
+
+The workflow handles:
+
+- fulfillment-ready order listing
+- order detail retrieval
+- inventory product search
+- product assignment
+- Clover reconciliation review
+- manual reconciliation actions
+- inventory state transitions
+
+#### Fulfillment Order States
+
+##### Website Orders
+
+Website orders become fulfillment-ready when:
+
+```text
+payment_status = PAID
+```
+
+##### Market Orders
+
+Market (`Sell on the Go`) orders become fulfillment-ready when:
+
+```text
+clover_reconciliation_status = reconciled
+```
+
+##### Reviewable Orders
+
+Orders may remain visible in review mode when:
+
+```text
+clover_reconciliation_status IN ('pending', 'needs_review')
+```
+
+##### Accounted Orders
+
+Cash/manual market orders may be resolved using:
+
+```text
+clover_reconciliation_status = accounted
+```
+
+This state indicates:
+- payment handled manually
+- no Clover card reconciliation required
+- operationally resolved
+
+#### Fulfillment Product Search
+
+The fulfillment workflow excludes products located in:
+
+- Shipped
+- Consumed
+- Compost
+- Expired
+
+This prevents reassignment of inventory already completed or discarded.
+
+#### Fulfillment Assignment
+
+When a product is assigned:
+
+1. Product is linked to the ecommerce order.
+2. Product storage location is updated to `Shipped`.
+3. Duplicate assignment is prevented.
+
+#### Endpoints for Appsmith:
+
+##### `/fulfillment/orders/list`
 Returns:
 - orders needing product assignment
 - supports:
   - farmers market (reconciled)
   - website orders (paid)
 
-#### `/fulfillment/order/detail`
+##### `/fulfillment/order/detail`
 Returns:
 - full order detail
 - parsed `items_json`
 
-#### `/fulfillment/products/search`
+##### `/fulfillment/products/search`
 Search available products by:
 - `product_id`
 - filters out shipped inventory
 
-#### `/fulfillment/assign-product`
+##### `/fulfillment/assign-product`
 - links product → order
 - moves product → `Shipped` location
 

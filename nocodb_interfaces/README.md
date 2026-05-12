@@ -1,4 +1,4 @@
-﻿# NocoDB + Appsmith Interface Bundle
+# NocoDB + Appsmith Interface Bundle
 
 This folder contains:
 
@@ -107,6 +107,79 @@ Use these notes to rebuild the equivalent of the Airtable Interfaces in Appsmith
 ##### Lots – Draw Syringes
 - Operates on selected lc_flask lot
 - Creates syringe lots and decrements source `remaining_volume_ml`
+
+##### Fulfillment Interface
+
+The Fulfillment interface is responsible for assigning exact inventory products to ecommerce and market orders.
+
+###### Features
+
+- fulfillment-ready order listing
+- market/web order filtering
+- timezone-aware date filtering
+- inventory product search
+- exact product assignment
+- linked-product visibility
+- Clover reconciliation review
+- manual reconciliation actions
+
+###### Operational Flow
+
+1. Load fulfillment-ready orders.
+2. Select an order.
+3. Review required products.
+4. Search inventory.
+5. Assign exact inventory products.
+6. Assigned products automatically transition to `Shipped`.
+
+Orders disappear from the fulfillment queue once all required products are linked.
+
+###### Market Order Handling
+
+Market orders use Clover reconciliation state to determine readiness.
+
+####### Ready Orders
+
+```text
+clover_reconciliation_status = reconciled
+```
+
+####### Reviewable Orders
+
+```text
+clover_reconciliation_status IN ('pending', 'needs_review')
+```
+
+Visible only when:
+```text
+Include Reconciliation Review = enabled
+```
+
+### Accounted Orders
+
+Cash/manual transactions may be marked:
+
+```text
+clover_reconciliation_status = accounted
+```
+
+###### Linked Product Visibility
+
+The fulfillment interface displays:
+
+- ordered products
+- linked internal inventory products
+- reconciliation notes
+- Clover reconciliation state
+
+###### Inventory Filtering
+
+Products are excluded if already located in:
+
+- Shipped
+- Consumed
+- Compost
+- Expired
 
 ## 4. Appsmith import file
 

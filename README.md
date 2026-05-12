@@ -32,8 +32,9 @@ Appsmith is **lot-centric** (centered on `lots`) while Airtable was more **stati
 
 ### New Appsmith pages (stub UI now wired)
 - **Products**
-- **Lab - Receive**
-- **Lab - Agar**
+- Lab - Receive
+- Lab - Agar
+- **Fullfillment**
 - **Spawn to Bulk**
 
 Each page now has named widgets and working SQL/JS wiring:
@@ -171,19 +172,37 @@ Primary function:
 
 - `mp_lots_spawn_to_bulk(...)`
 
-## 🧩 Fulfillment System (NEW)
+## Fulfillment + Reconciliation
 
-MushroomProcess now includes a unified fulfillment workflow supporting:
+MushroomProcess includes an operational fulfillment system built using:
 
-- Farmers market POS (Ecwid + Clover)
-- Website orders (Ecwid online)
+- Appsmith (UI)
+- n8n (API + orchestration)
+- Airtable/Postgres inventory data
 
-### Key Concepts
+### Features
 
-- Orders are created in Ecwid
-- Payments processed in Clover
-- Products tracked internally at **exact-instance level**
-- Fulfillment links internal `product_id` → Ecwid order
+- exact-instance inventory assignment
+- market + web order support
+- Clover payment reconciliation
+- manual reconciliation review
+- inventory shipment state tracking
+
+### Design Principles
+
+- Ecwid is NOT the inventory authority.
+- Clover is the payment authority for market card transactions.
+- Inventory is tracked at exact product-instance level.
+- Products are manually assigned to orders during fulfillment.
+
+### Reconciliation States
+
+| State | Meaning |
+|---|---|
+| reconciled | Clover payment matched |
+| pending | Awaiting valid Clover match |
+| needs_review | Ambiguous or unresolved match |
+| accounted | Cash/manual transaction resolved operationally |
 
 ---
 
