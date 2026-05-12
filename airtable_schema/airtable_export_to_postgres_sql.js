@@ -3,7 +3,7 @@ require('./load_env');
 const crypto = require('crypto');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-05-11.2
+ * Version: 2026-05-11.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1251,39 +1251,22 @@ for (const t of exportTables) {
 
       const aFkCName = pgSafeIdent(jn + '_' + aCol + '_fk');
       const bFkCName = pgSafeIdent(jn + '_' + bCol + '_fk');
-      const jnRel = `${POSTGRES_SCHEMA}.${jn}`;
-      const aFkCNameSql = aFkCName.replace(/'/g, "''");
-      const bFkCNameSql = bFkCName.replace(/'/g, "''");
 
-      linksSql += `DO $$ BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM pg_constraint c
-          WHERE c.conname = '${aFkCNameSql}'
-            AND c.conrelid = '${jnRel}'::regclass
-        ) THEN
-          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
-            ADD CONSTRAINT ${ident(aFkCName)}
-            FOREIGN KEY (${ident(aCol)})
-            REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(a)}(${ident('nocopk')})
-            DEFERRABLE INITIALLY DEFERRED;
-        END IF;
-      END $$;\n`;
+      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+  DROP CONSTRAINT IF EXISTS ${ident(aFkCName)};\n`;
+      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+  ADD CONSTRAINT ${ident(aFkCName)}
+  FOREIGN KEY (${ident(aCol)})
+  REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(a)}(${ident('nocopk')})
+  DEFERRABLE INITIALLY DEFERRED;\n`;
 
-      linksSql += `DO $$ BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM pg_constraint c
-          WHERE c.conname = '${bFkCNameSql}'
-            AND c.conrelid = '${jnRel}'::regclass
-        ) THEN
-          ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
-            ADD CONSTRAINT ${ident(bFkCName)}
-            FOREIGN KEY (${ident(bCol)})
-            REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(b)}(${ident('nocopk')})
-            DEFERRABLE INITIALLY DEFERRED;
-        END IF;
-      END $$;\n`;
+      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+  DROP CONSTRAINT IF EXISTS ${ident(bFkCName)};\n`;
+      linksSql += `ALTER TABLE ${ident(POSTGRES_SCHEMA)}.${ident(jn)}
+  ADD CONSTRAINT ${ident(bFkCName)}
+  FOREIGN KEY (${ident(bCol)})
+  REFERENCES ${ident(POSTGRES_SCHEMA)}.${ident(b)}(${ident('nocopk')})
+  DEFERRABLE INITIALLY DEFERRED;\n`;
 
       // For "preferred single" links, maintain the junction table from the FK column and vice versa.
       if (prefersSingle && fkColName) {
