@@ -3,7 +3,7 @@ require('./load_env');
 const crypto = require('crypto');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-05-11.4
+ * Version: 2026-05-11.5
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -811,6 +811,18 @@ function compileFormulaExpr(raw, ctx) {
     }
     // Restore protected function markers
     s = s.replaceAll('?', '(');
+
+    // Repair boolean argument juxtaposition produced by nested Airtable AND()
+    // compilation in formulas such as:
+    //   IF(AND({unit_size}, {total_volume_ml}), ...)
+    //
+    // Without this, generated SQL can become:
+    //   (condition_a) ((condition_b))
+    //
+    // The earlier fallback used OR, which made the SQL parse but changed semantics.
+    // This targeted repair uses AND because this malformed shape is produced by
+    // Airtable AND() argument compilation.
+    s = s.replace(/\)\s+\(\(/g, ') AND ((');
 
     return s;
   }
