@@ -3,7 +3,7 @@ require('./load_env');
 const crypto = require('crypto');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-05-11.1
+ * Version: 2026-05-11.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -432,7 +432,7 @@ function compileFormulaExpr(raw, ctx) {
   }
 
   const notes = [];
-  const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
+  const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'SEARCH', 'FIND', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
 
   
   function squashRedundantCasts(expr) {
@@ -624,6 +624,15 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'OR') return '(' + args.map(a=>`(${truthy(a)})`).join(' OR ') + ')';
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
+    if ((fn === 'SEARCH' || fn === 'FIND') && (args.length === 2 || args.length === 3)) {
+      const needle = ensureCast(args[0], 'text');
+      const haystack = ensureCast(args[1], 'text');
+      if (fn === 'SEARCH') {
+        return `(strpos(lower(${haystack}), lower(${needle})) > 0)`;
+      }
+      return `(strpos(${haystack}, ${needle}) > 0)`;
+    }
+
     if (fn === 'LOWER' && args.length >= 1) return `"lower"(${ensureCast(args[0], 'text')})`;
     if (fn === 'UPPER' && args.length===1) return `"upper"(${ensureCast(args[0],'text')})`;
     if (fn === 'LEN' && args.length===1) return `"length"(${ensureCast(args[0],'text')})`;
@@ -746,7 +755,7 @@ function compileFormulaExpr(raw, ctx) {
   // Replace innermost function calls iteratively.
   // We scan for NAME(...) patterns and resolve the one with the deepest nesting first.
     const KNOWN_AIRTABLE_FNS = new Set([
-    'IF','AND','OR','NOT',
+    'IF','AND','OR','NOT','SEARCH','FIND',
     'LOWER','UPPER','LEN','LEFT','RIGHT','MID','ROUND','VALUE','SUM','CONCAT','CONCATENATE',
     'YEAR','MONTH','DAY',
     'ISBLANK','ISNOTBLANK','BLANK',
