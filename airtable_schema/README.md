@@ -246,6 +246,11 @@ For Mac:
    curl.exe "https://api.airtable.com/v0/meta/bases/$Env:AIRTABLE_BASE/tables" -H "Authorization: Bearer $Env:AIRTABLE_KEY" --ssl-no-revoke  -o export/tables_dump.json
    ```
 
+   or on Mac:
+   ```bash
+   curl "https://api.airtable.com/v0/meta/bases/${AIRTABLE_BASE}/tables" -H "Authorization: Bearer ${AIRTABLE_KEY}" --ssl-no-revoke  -o export/tables_dump.json
+   ```
+
    Use the post-processor script to remove any "From field" style tables that were not removed from AirTable prior to export
    as well as to change the business-specific identifiers within the schema to generic entries.
 

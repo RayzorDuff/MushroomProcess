@@ -1,4 +1,4 @@
-﻿// automation_inoculate_multiple.js
+// automation_inoculate_multiple.js
 //
 // Inoculate Multiple – source-first batch inoculation against NocoDB
 // Mirrors Airtable automation_automation/inoculate_multiple.js semantics.
@@ -30,8 +30,8 @@
 //   - Writes any validation failures to source.ui_error and returns 400.
 //
 // Category semantics:
-//   - Liquid tracked sources: lc_syringe, lc_flask
-//   - Solid tracked sources:  plate, grain
+//   - Liquid tracked sources: lc_syringe, lc_flask, plate,
+//   - Solid tracked sources:  grain
 //   - Untracked source:       untracked_source
 //
 
@@ -177,10 +177,10 @@ export default async function handler(req, res) {
       if (!target) continue;
 
       const targetCategory = (target.item_category || "").toLowerCase();
-      if (!["grain", "lc_flask", "plate"].includes(targetCategory)) {
+      if (!["grain", "lc_flask", "plate", "cordyceps_substrate"].includes(targetCategory)) {
         await setErrorOnSource(
           source_lot_id,
-          `Target lot ${target.lot_id || target.id} must be grain, lc_flask, or plate (got "${targetCategory}").`
+        `Target lot ${target.lot_id || target.id} must be grain, lc_flask, plate, or cordyceps_substrate`
         );
       }
 

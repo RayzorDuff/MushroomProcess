@@ -605,9 +605,14 @@ BEGIN
 
     v_target_item_category := lower(COALESCE(v_target_item_category,''));
 
-    IF v_target_item_category NOT IN ('grain','lc_flask','plate') THEN
+    IF v_target_item_category NOT IN (
+      'grain',
+      'lc_flask',
+      'plate',
+      'cordyceps_substrate'
+    ) THEN
       UPDATE public.lots
-        SET ui_error = format('Inoculate validation: Target lot %s must be grain, lc_flask, or plate (got "%s").', v_target_id, v_target_item_category),
+        SET ui_error = format('Inoculate validation: Target lot %s must be grain, lc_flask, plate, or cordyceps_substrate (got "%s").', v_target_id, v_target_item_category),
             ui_error_at = now()
       WHERE nocopk = p_source_lot_id;
       CONTINUE;
@@ -616,11 +621,12 @@ BEGIN
     v_label_type := CASE 
         WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'grain' THEN 'Grain_Inoculated'
         WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'plate' THEN 'Plate_Inoculated'
+        WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'cordyceps_substrate' THEN 'Cordyceps_Substrate_Inoculated'
         ELSE 'LC_Flask_Inoculated'
     END;
     
     -- 1. Determine base volume based on target type
-    IF v_target_item_category = 'lc_flask' THEN
+    IF v_target_item_category IN ('lc_flask', 'cordyceps_substrate') THEN
       v_new_total_ml := COALESCE(v_target_total_ml, COALESCE(v_target_unit_size, 0));
       v_new_remaining_ml := COALESCE(v_target_remaining_ml, COALESCE(v_target_unit_size, 0));
     ELSE
@@ -656,7 +662,7 @@ BEGIN
       notes = CASE WHEN v_is_untracked_source THEN v_source_notes ELSE notes END,
       use_by = CASE
         WHEN v_target_item_category IN ('lc_flask','agar_flask','plate','agar_plate') THEN (v_inoc_time + interval '6 months')::date
-        WHEN v_target_item_category = 'grain' THEN (v_inoc_time + interval '3 months')::date
+        WHEN v_target_item_category IN ('grain', 'cordyceps_substrate') THEN (v_inoc_time + interval '3 months')::date
         ELSE use_by
       END,
       ui_error = NULL,
@@ -948,7 +954,7 @@ BEGIN
 
     v_is_tray := lower(COALESCE(v_item_category_mat,'')) IN ('fresh_tray','freezer_tray');
 
-    v_is_volume_based := lower(COALESCE(v_item_category_mat,'')) IN ('lc_syringe','lc_flask','agar_flask');
+    v_is_volume_based := lower(COALESCE(v_item_category_mat,'')) IN ('lc_syringe','lc_flask','agar_flask','cordyceps_substrate','agar_plate','plate');
     v_is_lb_based := lower(COALESCE(v_item_category_mat,'')) IN ('casing','fruiting_block','substrate','grain');
     v_is_g_based := lower(COALESCE(v_item_category_mat,'')) IN ('freezedriedmushrooms','fresh_tray','freezer_tray','plate');
 

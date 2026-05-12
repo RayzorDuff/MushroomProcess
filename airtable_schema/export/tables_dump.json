@@ -109,6 +109,11 @@
                 "color": "blueLight2"
               },
               {
+                "id": "selvU9KICxIo0XEql",
+                "name": "cordyceps_substrate",
+                "color": "yellowLight2"
+              },
+              {
                 "id": "selLROUPOeEFfEFcT",
                 "name": "substrate",
                 "color": "cyanLight2"
@@ -232,6 +237,16 @@
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum",
                     "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
                   },
                   {
                     "id": "selkx4dJ0X4teqqRs",
@@ -376,6 +391,11 @@
                     "color": "cyanLight2"
                   },
                   {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
+                  },
+                  {
                     "id": "selokiOjAWQvWtArM",
                     "name": "lc_flask",
                     "color": "tealLight2"
@@ -499,6 +519,7 @@
             "isValid": true,
             "formula": "IF(\r\n  OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)",
             "referencedFieldIds": [
+              "fldYnQ0r2CAvasnQu",
               "fldxEMPeLKGwRCK2M",
               "fldIC7hRmODZ0X3p0"
             ],
@@ -549,6 +570,16 @@
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum",
                     "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
                   },
                   {
                     "id": "selkx4dJ0X4teqqRs",
@@ -686,6 +717,11 @@
                     "id": "selTwLxwj1IdikUUl",
                     "name": "substrate",
                     "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
                   },
                   {
                     "id": "selokiOjAWQvWtArM",
@@ -900,32 +936,18 @@
           "options": {
             "isValid": true,
             "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldBsxGzIXx2IO9Ts",
+            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
             "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selfceGzJIhPmLGMT",
-                    "name": "Sterilize",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selfY7EHC5aLiD7UR",
-                    "name": "Pasteurize",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "seljqQep6LW34vf6S",
-                    "name": "Abandoned",
-                    "color": "tealLight2"
-                  }
-                ]
-              }
+              "type": "singleLineText"
             }
           },
           "id": "fldCaAC0GQ4HQdkRw",
           "name": "process_type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldSVENsQQ2fL8HA1",
+          "name": "process_type_mat"
         },
         {
           "type": "multipleRecordLinks",
@@ -1113,11 +1135,11 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & {fldCaAC0GQ4HQdkRw} & \"d\",\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")\r\n",
             "referencedFieldIds": [
               "fldxEMPeLKGwRCK2M",
               "fldmasAoE3hLznq9h",
-              "fldCaAC0GQ4HQdkRw",
+              "fldSVENsQQ2fL8HA1",
               "fld0vFWc649maA7Vj",
               "fldqmbHWvrKsoiq65",
               "fld3kzM8siqsRjT2I",
@@ -1223,6 +1245,80 @@
           "type": "multilineText",
           "id": "fldx3RqIx1OG0egZd",
           "name": "notes"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldFUbyQ5vcX3wci8",
+            "result": {
+              "type": "url"
+            }
+          },
+          "id": "fldYnQ0r2CAvasnQu",
+          "name": "ecwid_url (from ecommerce)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldM7Zh3go5VV1rOM",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld8LD4yN5QwmttL3",
+          "name": "ecwid_upc (from ecommerce)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldmuweHn1q3XMK3u",
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 2
+              }
+            }
+          },
+          "id": "fldwkcbXyZ8ENrT9A",
+          "name": "ecwid_price (from ecommerce)"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldUoL6sglFxXIpVe",
+          "name": "harvest_flush_no"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldkMBjudwIbsMIXo",
+          "name": "harvest_weight_g"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldOuogBJnarDSCvr",
+          "name": "harvested_at"
         }
       ],
       "views": [
@@ -1242,8 +1338,33 @@
           "type": "grid"
         },
         {
+          "id": "viwhoJqbiMuiTFISl",
+          "name": "Active Rooted Psyche Packages",
+          "type": "grid"
+        },
+        {
           "id": "viwcx0xtA7pRoyigo",
           "name": "All Rooted Psyche",
+          "type": "grid"
+        },
+        {
+          "id": "viw7biTItVlMH4rz9",
+          "name": "LC Syringes",
+          "type": "grid"
+        },
+        {
+          "id": "viwnRgqnpYSuPUMv7",
+          "name": "All Regulated",
+          "type": "grid"
+        },
+        {
+          "id": "viwpy8hM2zV5vRFmw",
+          "name": "Expired Products in Inventory",
+          "type": "grid"
+        },
+        {
+          "id": "viwQuxy9pk9BGfv7T",
+          "name": "Not Recent",
           "type": "grid"
         }
       ]
@@ -1306,6 +1427,16 @@
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum",
                     "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
                   },
                   {
                     "id": "selkx4dJ0X4teqqRs",
@@ -1855,6 +1986,11 @@
                     "color": "cyanLight2"
                   },
                   {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
+                  },
+                  {
                     "id": "selokiOjAWQvWtArM",
                     "name": "lc_flask",
                     "color": "tealLight2"
@@ -2245,6 +2381,11 @@
                     "color": "cyanLight2"
                   },
                   {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
+                  },
+                  {
                     "id": "selokiOjAWQvWtArM",
                     "name": "lc_flask",
                     "color": "tealLight2"
@@ -2467,6 +2608,11 @@
                 "color": "cyanLight2"
               },
               {
+                "id": "sel3WfzHRXyUIJwJK",
+                "name": "Cordyceps_Substrate_Inoculated",
+                "color": "orangeLight2"
+              },
+              {
                 "id": "selIkzif6RCCTSajO",
                 "name": "Bulk_Created",
                 "color": "tealLight2"
@@ -2490,7 +2636,7 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Cordyceps_Substrate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",    \r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldyTUBk7GuOEPJ9t"
@@ -2506,12 +2652,13 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Cordyceps_Substrate_Inoculated\",\r\n    IF(AND({fldPTVqPGEOa6aubh}, {fld26lj7zLFP2Hpvj}), ROUND({fld26lj7zLFP2Hpvj} - {fldPTVqPGEOa6aubh}, 2) & \" ml Inoc • \", \"\") & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldPTVqPGEOa6aubh",
               "fldsaZpCoA5zvj5mL",
               "fldEpaj8Bs2wnorzq",
+              "fld26lj7zLFP2Hpvj",
               "fldkVMtxjtdRDo6pp",
               "fldIs56WzEt6UFLfT",
               "fldmvugXRhoPenPoK",
@@ -2922,6 +3069,54 @@
           },
           "id": "fldiJIYJbwFx0cQrR",
           "name": "retired_at"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fld7YLm80TQ2KUgCu",
+          "name": "beganfruiting_at"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldLIckEOEJVJyHSb",
+          "name": "firstharvested_at"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldm1uJUAUoMZRX6D",
+          "name": "lastharvested_at"
         }
       ],
       "views": [
@@ -2938,6 +3133,56 @@
         {
           "id": "viwu96JIPlYXCYv1h",
           "name": "Active Lots",
+          "type": "grid"
+        },
+        {
+          "id": "viwwQUSWkK61nUlBE",
+          "name": "LC Syringes",
+          "type": "grid"
+        },
+        {
+          "id": "viwQXsDBBHAMFfjJK",
+          "name": "Newly Sterilized",
+          "type": "grid"
+        },
+        {
+          "id": "viwvCLMdQGbrG8t5B",
+          "name": "Unused Casing",
+          "type": "grid"
+        },
+        {
+          "id": "viwpKz78CxVmwGthz",
+          "name": "Unused Coco",
+          "type": "grid"
+        },
+        {
+          "id": "viwa0TUDO0y6ndvLp",
+          "name": "Unused Grain",
+          "type": "grid"
+        },
+        {
+          "id": "viwDjZhvrZMAsKlCR",
+          "name": "All Regulated",
+          "type": "grid"
+        },
+        {
+          "id": "viwH28Y8v0gZwoaLx",
+          "name": "Active Agar",
+          "type": "grid"
+        },
+        {
+          "id": "viwvRAcx0d7yLzOKT",
+          "name": "Active Grain",
+          "type": "grid"
+        },
+        {
+          "id": "viw1KFuJ0pKkgKKyV",
+          "name": "Expired Lots in Inventory",
+          "type": "grid"
+        },
+        {
+          "id": "viwgsDOcdJQuOakv0",
+          "name": "Not Recent",
           "type": "grid"
         }
       ]
@@ -2984,6 +3229,16 @@
                 "id": "selEarzPlvCfhOsUV",
                 "name": "Coco Verm Gypsum",
                 "color": "greenLight2"
+              },
+              {
+                "id": "selEBUceW8Kgo6qpn",
+                "name": "Cordyceps A",
+                "color": "tealBright"
+              },
+              {
+                "id": "selvWEuPqriWew2ZO",
+                "name": "Cordyceps B",
+                "color": "greenBright"
               },
               {
                 "id": "selkx4dJ0X4teqqRs",
@@ -3113,6 +3368,11 @@
                 "id": "selTwLxwj1IdikUUl",
                 "name": "substrate",
                 "color": "cyanLight2"
+              },
+              {
+                "id": "selSIFrDT5l9VhwRZ",
+                "name": "cordyceps_substrate",
+                "color": "blueLight1"
               },
               {
                 "id": "selokiOjAWQvWtArM",
@@ -3781,6 +4041,11 @@
           "name": "fields_json"
         },
         {
+          "type": "singleLineText",
+          "id": "fldLTAkYPWj5ZkDwY",
+          "name": "lots"
+        },
+        {
           "type": "formula",
           "options": {
             "isValid": true,
@@ -3800,11 +4065,6 @@
           },
           "id": "fldLYzMLC9yEeO1J0",
           "name": "event_time_for_rollup"
-        },
-        {
-          "type": "singleLineText",
-          "id": "fldLTAkYPWj5ZkDwY",
-          "name": "lots"
         }
       ],
       "views": [
@@ -3817,6 +4077,11 @@
           "id": "viwmMSLWKZiyUpqq0",
           "name": "Timeline",
           "type": "timeline"
+        },
+        {
+          "id": "viwAemrdcngL9NC6G",
+          "name": "All Regulated",
+          "type": "grid"
         }
       ]
     },
@@ -4033,6 +4298,16 @@
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum",
                     "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
                   },
                   {
                     "id": "selkx4dJ0X4teqqRs",
@@ -4386,6 +4661,11 @@
         {
           "id": "viw7Hl1YUDg795NG4",
           "name": "Grid view",
+          "type": "grid"
+        },
+        {
+          "id": "viwLpnlvWM3rp57Sk",
+          "name": "Not Recent",
           "type": "grid"
         }
       ]
@@ -4774,6 +5054,11 @@
                     "color": "cyanLight2"
                   },
                   {
+                    "id": "sel3WfzHRXyUIJwJK",
+                    "name": "Cordyceps_Substrate_Inoculated",
+                    "color": "orangeLight2"
+                  },
+                  {
                     "id": "selIkzif6RCCTSajO",
                     "name": "Bulk_Created",
                     "color": "tealLight2"
@@ -5037,6 +5322,11 @@
           "id": "viwoifVv9Huueywaf",
           "name": "Queue_All_Trays",
           "type": "grid"
+        },
+        {
+          "id": "viwF90pUcbDUuHzf1",
+          "name": "All Trays",
+          "type": "grid"
         }
       ]
     },
@@ -5177,6 +5467,11 @@
           "name": "ecwid_image"
         },
         {
+          "type": "singleLineText",
+          "id": "fldM7Zh3go5VV1rOM",
+          "name": "ecwid_upc"
+        },
+        {
           "type": "rollup",
           "options": {
             "isValid": true,
@@ -5252,6 +5547,11 @@
           },
           "id": "fldGRCrT8YDsd1rm1",
           "name": "order_number"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldQpE3IjubgMC7ac",
+          "name": "order_code"
         },
         {
           "type": "singleSelect",
@@ -5374,6 +5674,234 @@
           "type": "multilineText",
           "id": "fldybS4OyYh47mt1e",
           "name": "ecwid_skus"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selrr1LyZkzeMJi8t",
+                "name": "PAID",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selhrpMxlAuIUMaXi",
+                "name": "AWAITING_PAYMENT",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selMPCL5D8eBf1Nsu",
+                "name": "REFUNDED",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selCoSxRBOmjDJtCh",
+                "name": "PARTIALLY_REFUNDED",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selVBEZwBAXFrFaGc",
+                "name": "CANCELED",
+                "color": "yellowLight2"
+              }
+            ]
+          },
+          "id": "fld65aLgLj6ohtX5R",
+          "name": "payment_status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld9wlJb6mPyjWGYi",
+          "name": "payment_method"
+        },
+        {
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "id": "fld85yvFPZBcDNhle",
+          "name": "subtotal"
+        },
+        {
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "id": "fldqNU1h6DO8SQ0Oj",
+          "name": "tax_total"
+        },
+        {
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "id": "fldLc2lnumeHpdfEr",
+          "name": "order_total"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flde6IhUfWXDm1GHf",
+          "name": "currency"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selsliCnEXSnbiaLo",
+                "name": "pending",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selq656IPcLjoMdnU",
+                "name": "matched",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selrQ8MusnRsR59r0",
+                "name": "reconciled",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selfTPZU52Iixs4rO",
+                "name": "needs_review",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selBMsu9SXyiHTZ3j",
+                "name": "not_found",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selWtbQGU2PNarAhI",
+                "name": "duplicate_match",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selmdD2Ha0sRukLee",
+                "name": "cancelled",
+                "color": "redLight2"
+              }
+            ]
+          },
+          "id": "fldUSfpi0i9cQn0Hk",
+          "name": "clover_reconciliation_status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldcz0zASvhuuuKH0",
+          "name": "clover_payment_id"
+        },
+        {
+          "type": "currency",
+          "options": {
+            "precision": 2,
+            "symbol": "$"
+          },
+          "id": "fldcsOs2xemXWiain",
+          "name": "clover_payment_amount"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldPMpoPN270C3GtC",
+          "name": "clover_payment_time"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldJUGUeeQiQQfNUu",
+          "name": "clover_match_confidence"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldqJyeOY1crz5hdc",
+          "name": "reconciled_at"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldtD3oyWT8d3rSi3",
+          "name": "reconciliation_notes"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld4VonvknjRWSmIV",
+          "name": "ecwid_event_type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMLlYEp5COorSez",
+          "name": "ecwid_event_id"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldfjqSGP62qITvcB",
+          "name": "last_webhook_at"
+        },
+        {
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldBeiYxWJWevTntu",
+            "fieldIdInLinkedTable": "fldl45lXo0Jr4kQpf",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldaDWizC52n2SU63",
+          "name": "products_report"
+        },
+        {
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldBeiYxWJWevTntu",
+            "fieldIdInLinkedTable": "fldgzDEo51u33bNf3",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld3lgDrrNesP7dPw",
+          "name": "product_ids_report"
         }
       ],
       "views": [

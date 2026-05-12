@@ -107,6 +107,11 @@
                 "name": "grain"
               },
               {
+                "color": "yellowLight2",
+                "id": "selvU9KICxIo0XEql",
+                "name": "cordyceps_substrate"
+              },
+              {
                 "color": "cyanLight2",
                 "id": "selLROUPOeEFfEFcT",
                 "name": "substrate"
@@ -229,6 +234,16 @@
                     "color": "greenLight2",
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum"
+                  },
+                  {
+                    "color": "tealBright",
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A"
+                  },
+                  {
+                    "color": "greenBright",
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B"
                   },
                   {
                     "color": "yellowLight2",
@@ -371,6 +386,11 @@
                     "color": "cyanLight2",
                     "id": "selTwLxwj1IdikUUl",
                     "name": "substrate"
+                  },
+                  {
+                    "color": "blueLight1",
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate"
                   },
                   {
                     "color": "tealLight2",
@@ -549,6 +569,16 @@
                     "name": "Coco Verm Gypsum"
                   },
                   {
+                    "color": "tealBright",
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A"
+                  },
+                  {
+                    "color": "greenBright",
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B"
+                  },
+                  {
                     "color": "yellowLight2",
                     "id": "selkx4dJ0X4teqqRs",
                     "name": "Masters Mix 50/50"
@@ -684,6 +714,11 @@
                     "color": "cyanLight2",
                     "id": "selTwLxwj1IdikUUl",
                     "name": "substrate"
+                  },
+                  {
+                    "color": "blueLight1",
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate"
                   },
                   {
                     "color": "tealLight2",
@@ -1249,6 +1284,38 @@
             }
           },
           "type": "multipleLookupValues"
+        },
+        {
+          "id": "fldUoL6sglFxXIpVe",
+          "name": "harvest_flush_no",
+          "options": {
+            "precision": 0
+          },
+          "type": "number"
+        },
+        {
+          "id": "fldkMBjudwIbsMIXo",
+          "name": "harvest_weight_g",
+          "options": {
+            "precision": 2
+          },
+          "type": "number"
+        },
+        {
+          "id": "fldOuogBJnarDSCvr",
+          "name": "harvested_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
         }
       ],
       "id": "tbl51zhGGDuaL2Sm4",
@@ -1271,6 +1338,11 @@
           "type": "grid"
         },
         {
+          "id": "viwhoJqbiMuiTFISl",
+          "name": "Active Rooted Psyche Packages",
+          "type": "grid"
+        },
+        {
           "id": "viwcx0xtA7pRoyigo",
           "name": "All Rooted Psyche",
           "type": "grid"
@@ -1281,12 +1353,17 @@
           "type": "grid"
         },
         {
-          "id": "viwX8l2DhDkFiiJH8",
+          "id": "viwnRgqnpYSuPUMv7",
           "name": "All Regulated",
           "type": "grid"
         },
         {
-          "id": "viwLVDnM7KwBRwHlE",
+          "id": "viwpy8hM2zV5vRFmw",
+          "name": "Expired Products in Inventory",
+          "type": "grid"
+        },
+        {
+          "id": "viwQuxy9pk9BGfv7T",
           "name": "Not Recent",
           "type": "grid"
         }
@@ -1347,6 +1424,16 @@
                     "color": "greenLight2",
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum"
+                  },
+                  {
+                    "color": "tealBright",
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A"
+                  },
+                  {
+                    "color": "greenBright",
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B"
                   },
                   {
                     "color": "yellowLight2",
@@ -1896,6 +1983,11 @@
                     "name": "substrate"
                   },
                   {
+                    "color": "blueLight1",
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate"
+                  },
+                  {
                     "color": "tealLight2",
                     "id": "selokiOjAWQvWtArM",
                     "name": "lc_flask"
@@ -2286,6 +2378,11 @@
                     "name": "substrate"
                   },
                   {
+                    "color": "blueLight1",
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate"
+                  },
+                  {
                     "color": "tealLight2",
                     "id": "selokiOjAWQvWtArM",
                     "name": "lc_flask"
@@ -2509,6 +2606,11 @@
                 "name": "LC_Flask_Inoculated"
               },
               {
+                "color": "orangeLight2",
+                "id": "sel3WfzHRXyUIJwJK",
+                "name": "Cordyceps_Substrate_Inoculated"
+              },
+              {
                 "color": "tealLight2",
                 "id": "selIkzif6RCCTSajO",
                 "name": "Bulk_Created"
@@ -2531,7 +2633,7 @@
           "id": "fld0bl7fyxvBw5JLQ",
           "name": "label_title_lot",
           "options": {
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Cordyceps_Substrate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",    \r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
             "isValid": true,
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
@@ -2547,13 +2649,14 @@
           "id": "fldyuV576405KZzeD",
           "name": "label_subtitle_lot",
           "options": {
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Cordyceps_Substrate_Inoculated\",\r\n    IF(AND({fldPTVqPGEOa6aubh}, {fld26lj7zLFP2Hpvj}), ROUND({fld26lj7zLFP2Hpvj} - {fldPTVqPGEOa6aubh}, 2) & \" ml Inoc • \", \"\") & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
             "isValid": true,
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldPTVqPGEOa6aubh",
               "fldsaZpCoA5zvj5mL",
               "fldEpaj8Bs2wnorzq",
+              "fld26lj7zLFP2Hpvj",
               "fldkVMtxjtdRDo6pp",
               "fldIs56WzEt6UFLfT",
               "fldmvugXRhoPenPoK",
@@ -2963,6 +3066,54 @@
             "timeZone": "client"
           },
           "type": "dateTime"
+        },
+        {
+          "id": "fld7YLm80TQ2KUgCu",
+          "name": "beganfruiting_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldLIckEOEJVJyHSb",
+          "name": "firstharvested_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
+        },
+        {
+          "id": "fldm1uJUAUoMZRX6D",
+          "name": "lastharvested_at",
+          "options": {
+            "dateFormat": {
+              "format": "l",
+              "name": "local"
+            },
+            "timeFormat": {
+              "format": "h:mma",
+              "name": "12hour"
+            },
+            "timeZone": "client"
+          },
+          "type": "dateTime"
         }
       ],
       "id": "tblL2oACeE9P92BRA",
@@ -3000,12 +3151,37 @@
           "type": "grid"
         },
         {
-          "id": "viw4476hhYIQAzQel",
+          "id": "viwpKz78CxVmwGthz",
+          "name": "Unused Coco",
+          "type": "grid"
+        },
+        {
+          "id": "viwa0TUDO0y6ndvLp",
+          "name": "Unused Grain",
+          "type": "grid"
+        },
+        {
+          "id": "viwDjZhvrZMAsKlCR",
           "name": "All Regulated",
           "type": "grid"
         },
         {
-          "id": "viwhzEcXI4zWRoWWJ",
+          "id": "viwH28Y8v0gZwoaLx",
+          "name": "Active Agar",
+          "type": "grid"
+        },
+        {
+          "id": "viwvRAcx0d7yLzOKT",
+          "name": "Active Grain",
+          "type": "grid"
+        },
+        {
+          "id": "viw1KFuJ0pKkgKKyV",
+          "name": "Expired Lots in Inventory",
+          "type": "grid"
+        },
+        {
+          "id": "viwgsDOcdJQuOakv0",
           "name": "Not Recent",
           "type": "grid"
         }
@@ -3051,6 +3227,16 @@
                 "color": "greenLight2",
                 "id": "selEarzPlvCfhOsUV",
                 "name": "Coco Verm Gypsum"
+              },
+              {
+                "color": "tealBright",
+                "id": "selEBUceW8Kgo6qpn",
+                "name": "Cordyceps A"
+              },
+              {
+                "color": "greenBright",
+                "id": "selvWEuPqriWew2ZO",
+                "name": "Cordyceps B"
               },
               {
                 "color": "yellowLight2",
@@ -3180,6 +3366,11 @@
                 "color": "cyanLight2",
                 "id": "selTwLxwj1IdikUUl",
                 "name": "substrate"
+              },
+              {
+                "color": "blueLight1",
+                "id": "selSIFrDT5l9VhwRZ",
+                "name": "cordyceps_substrate"
               },
               {
                 "color": "tealLight2",
@@ -3888,8 +4079,8 @@
           "type": "timeline"
         },
         {
-          "id": "viw5mNSPSJ8JUiDfw",
-          "name": "Unassociated",
+          "id": "viwAemrdcngL9NC6G",
+          "name": "All Regulated",
           "type": "grid"
         }
       ]
@@ -4104,6 +4295,16 @@
                     "color": "greenLight2",
                     "id": "selEarzPlvCfhOsUV",
                     "name": "Coco Verm Gypsum"
+                  },
+                  {
+                    "color": "tealBright",
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A"
+                  },
+                  {
+                    "color": "greenBright",
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B"
                   },
                   {
                     "color": "yellowLight2",
@@ -4463,7 +4664,7 @@
           "type": "grid"
         },
         {
-          "id": "viwUuPi6M2NwP9pBI",
+          "id": "viwLpnlvWM3rp57Sk",
           "name": "Not Recent",
           "type": "grid"
         }
@@ -4850,6 +5051,11 @@
                     "name": "LC_Flask_Inoculated"
                   },
                   {
+                    "color": "orangeLight2",
+                    "id": "sel3WfzHRXyUIJwJK",
+                    "name": "Cordyceps_Substrate_Inoculated"
+                  },
+                  {
                     "color": "tealLight2",
                     "id": "selIkzif6RCCTSajO",
                     "name": "Bulk_Created"
@@ -5118,8 +5324,8 @@
           "type": "grid"
         },
         {
-          "id": "viwK4mJAjoWRIXhOp",
-          "name": "Unassociated",
+          "id": "viwF90pUcbDUuHzf1",
+          "name": "All Trays",
           "type": "grid"
         }
       ]

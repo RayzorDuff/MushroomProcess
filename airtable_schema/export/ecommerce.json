@@ -3,11 +3,11 @@
         "airtable_createdTime": "2025-11-22T02:38:23.000Z",
         "airtable_id": "rec02VOqyUOnHMPzQ",
         "available_from_lots": 4,
-        "available_from_products": 0,
+        "available_from_products": 4,
         "ecwid_category": "160277251",
         "ecwid_price": 14.95,
         "ecwid_sku": "E1SNHBC4QANF6",
-        "ecwid_stock": 4,
+        "ecwid_stock": 8,
         "ecwid_upc": "6865787502208",
         "ecwid_url": "https://danks.store/products/5lb-Coco-Coir-Bag-p711334877",
         "item_id": [
@@ -15,12 +15,36 @@
         ],
         "lots": [
             "rec0xZpPJe4l2tIvw",
-            "rec66vY8AY9xGrwZA",
-            "recLE9aZyRq9LMjgH",
-            "recTqovAGpSJK94Pe"
+            "reclrahfJlM1s4q79",
+            "recqbm3Ixcwx2z7LC",
+            "recsJCoALrwVWC5J7"
         ],
         "name": "5lb Pasteurized Coco Coir",
+        "products": [
+            "rec7jAIFvXo8EoLU8",
+            "reciHJkMDRL14f3zU",
+            "recoZ59clMAaE25Mn",
+            "recx5tWJKGmTIu0bX"
+        ],
         "status": "Pasteurized",
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T00:50:56.000Z",
+        "airtable_id": "rec17gjJmfd3cMjb3",
+        "available_from_lots": 1,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "recr7Q1UIYDVCNnVl"
+        ],
+        "name": "Pearl Oyster Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
         "sync_to_ecwid": true
     },
     {
@@ -39,10 +63,36 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T00:57:47.000Z",
+        "airtable_id": "rec30vSjSeQwmruux",
+        "available_from_lots": 3,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "rec4UmgqFDekXQl9A",
+            "recJOAtYBn5kT4qkM",
+            "recLeH3kMgAfewjly"
+        ],
+        "name": "Pink Oyster Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:37:02.000Z",
         "airtable_id": "rec3ArssudPfyLSlL",
         "available_from_lots": 0,
         "available_from_products": 0,
+        "ecwid_category": "160277251",
+        "ecwid_price": 14.95,
+        "ecwid_sku": "7G9L2K4X1V8N3",
+        "ecwid_stock": 0,
+        "ecwid_upc": "6865787501805",
+        "ecwid_url": "https://danks.store/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670",
         "item_id": [
             "recU9tdgUerFEM9oJ"
         ],
@@ -50,6 +100,21 @@
         "status": "FullyColonized",
         "strain_id": [
             "recxZKdhM1v5Wh51M"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T00:58:05.000Z",
+        "airtable_id": "rec3J4vzaxiqLFwGy",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Black Pearl King Oyster Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
         ],
         "sync_to_ecwid": true
     },
@@ -72,10 +137,28 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:05:17.000Z",
+        "airtable_id": "rec5ER9xAiFAEnSK2",
+        "available_from_lots": 1,
+        "available_from_products": 0,
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "lots": [
+            "recuFurbEVrwWYrz8"
+        ],
+        "name": "Lion's Mane 2lb Colonized WBS Grain Spawn Bag",
+        "status": "FullyColonized",
+        "strain_id": [
+            "reckNIjMtUO20q0f9"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:18:44.000Z",
         "airtable_id": "rec5XW9o8RaPGPb5i",
         "available_from_lots": 0,
-        "available_from_products": 4,
+        "available_from_products": 20,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "E3ZY47P9K64TT",
@@ -88,7 +171,23 @@
         "name": "Freeze Dried Blue Oyster",
         "products": [
             "rec0nTWtR3PuAAroq",
+            "rec8BLwjTW2kDBYQX",
+            "rec9VMluzXdyEVmmw",
+            "recDDYbwMxh4EaSiO",
+            "recGDOzQIb2k2CII4",
+            "recHPFJBTVYxgbv2Y",
+            "recI3FN6NDfm9paDb",
             "recNuDwyo7blqwSCF",
+            "recRIWsHaiLfcPtWL",
+            "recTrRkQVwnkJFks8",
+            "recUahUrJ6dO24JfB",
+            "recZaFCOVkQ0kU0mb",
+            "recZepSydyV7JUUwa",
+            "recZvVYUUID2jA2X9",
+            "recduR6g4IpVKcHsB",
+            "recjMZjQtQUXgqk2P",
+            "reckfZWPxe9r9KpBs",
+            "reckrws2FMkNOTI25",
             "recnVNhm1667VuCwy",
             "recvBEQ7gpo65L1Q9"
         ],
@@ -98,10 +197,25 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:06:03.000Z",
+        "airtable_id": "rec6oHBYB2tJoCRWV",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recM75qospUCh1DQ3"
+        ],
+        "name": "Lion's Mane 2lb 2lb Colonized OWM Grain Spawn Bag",
+        "status": "FullyColonized",
+        "strain_id": [
+            "reckNIjMtUO20q0f9"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:15:42.000Z",
         "airtable_id": "rec7U4A2SSRKwD3SC",
         "available_from_lots": 0,
-        "available_from_products": 3,
+        "available_from_products": 29,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "1KYKS1H0R71DP",
@@ -113,9 +227,35 @@
         ],
         "name": "Freeze Dried Lion's Mane",
         "products": [
+            "rec49d5BJ969ro2w8",
+            "rec5kTsVs6h2m3nOh",
+            "rec6ryj3JbBPEfsUt",
+            "rec6sZ4CTFCXYpakU",
+            "rec7KBhVzcmgzuWcO",
+            "recBAuLebLnEtLuvz",
+            "recCaPSApA5a5WtQS",
+            "recD1ggXXQIaLYBkH",
+            "recDZSRrZZxXApQM7",
+            "recEf2PUjhluhsVHe",
+            "recHreBSY3Q7IHcB7",
+            "recJmUhdNMmZSkKv3",
+            "recLcf7XzuQVuCTSO",
+            "recStq2vJTOo5di46",
+            "recTwD8ub99GM58vT",
+            "recUpcz7xKAoGCmXI",
+            "recWNEE0rKE9plnyw",
+            "recYeYZbdvh9IlOzd",
+            "recbHTkkBCQpGSV5v",
+            "recc1920YtIcVmQy3",
             "rech9RssC8BcRiVPB",
+            "recmcQMYkd5JVFUpl",
+            "recrZVmz2FvGxXPRC",
+            "recrnp5QRyhx77AhF",
+            "recuUCwQR3FzJ2tQW",
+            "recvZUzDXVgGKIajg",
             "recw4EsAxL48mhNTY",
-            "reczQ8HEcE6HK6R0a"
+            "reczQ8HEcE6HK6R0a",
+            "reczzJExw5l6QD3te"
         ],
         "strain_id": [
             "reckNIjMtUO20q0f9"
@@ -123,14 +263,42 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:03:23.000Z",
+        "airtable_id": "rec8ZVHZLmbi2tNLH",
+        "available_from_lots": 3,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "rec8ffFVXpHE3qwdU",
+            "recLZIJGpPDd9Rt2H",
+            "recQuNvBmhyc8cZbf"
+        ],
+        "name": "Chestnut Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:37:18.000Z",
         "airtable_id": "recAzjpFOyz2waprM",
         "available_from_lots": 0,
-        "available_from_products": 0,
+        "available_from_products": 6,
         "item_id": [
             "recU9tdgUerFEM9oJ"
         ],
         "name": "Small 2.5lb Turkey Tail Fruiting Block",
+        "products": [
+            "rec09EmiMwGZp1yDy",
+            "rec7VthJr9xQ7K7xW",
+            "recCzMeOnsafLPbJ6",
+            "recJBF3fmtJpX8c0r",
+            "recgL9mjgREad0NyR",
+            "recxuAC9eLsSV6DTx"
+        ],
         "status": "FullyColonized",
         "strain_id": [
             "recWQlBg26y23ZRWT"
@@ -155,17 +323,16 @@
     {
         "airtable_createdTime": "2025-12-26T18:37:27.000Z",
         "airtable_id": "recF3He1PR1Bo9voi",
-        "available_from_lots": 5,
+        "available_from_lots": 0,
         "available_from_products": 0,
+        "ecwid_category": "160277251",
+        "ecwid_price": 14.95,
+        "ecwid_sku": "M5P9B1D6Q8R2S",
+        "ecwid_stock": 0,
+        "ecwid_upc": "6865787500020",
+        "ecwid_url": "https://danks.store/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980",
         "item_id": [
             "recU9tdgUerFEM9oJ"
-        ],
-        "lots": [
-            "rec2alzkr2OS9LKEs",
-            "rec7OxTbl1Jw4agFi",
-            "recV0fkHpiBJFFmol",
-            "recV82OHyOGrx2iyZ",
-            "recoYQgxzuSr0I5kY"
         ],
         "name": "Small 2.5lb Blue Oyster Fruiting Block",
         "status": "FullyColonized",
@@ -177,25 +344,61 @@
     {
         "airtable_createdTime": "2025-11-21T21:52:39.000Z",
         "airtable_id": "recIo7Q8Si74dzuDk",
-        "available_from_lots": 6,
-        "available_from_products": 0,
+        "available_from_lots": 37,
+        "available_from_products": 3,
         "ecwid_price": 7.95,
         "ecwid_sku": "R6DCKT5XES9VJ",
-        "ecwid_stock": 6,
+        "ecwid_stock": 40,
         "ecwid_upc": "6.865787502055E12",
         "ecwid_url": "https://danks.store/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072",
         "item_id": [
             "recwdBny04rzSGGrO"
         ],
         "lots": [
-            "recMqKbL6z0HWF3J1",
-            "recMx97rUXrekmkvr",
-            "recQL0ZbJVV9OYuyn",
-            "recUlI6Jy5u9Kf32e",
-            "recwSmUWW8MbDMeTS",
-            "recwsrtkGQXgJuKQo"
+            "rec2N3dtheJfIWGL7",
+            "rec42w4NR3ujpUDGL",
+            "rec47jWqe7R9FrdfO",
+            "rec6klKRz7Dgosefa",
+            "recB0Ejn2ywwv5hVF",
+            "recB6EOwXGYPBuJd4",
+            "recDrVFVV3YlXQi4S",
+            "recElS2mqpiokv0ES",
+            "recFNfy1EZcVuHTOf",
+            "recHbrn9OPLBJybnc",
+            "recMV7ZsA7SVmNgEL",
+            "recMf9fRXX4d06atV",
+            "recNiOOqOrHbHmzWm",
+            "recSIXV7577HSR0HF",
+            "recU36UOlbTpt2x73",
+            "recV384WJZghfbJ9q",
+            "recX8QIPisq3KTlWc",
+            "recahStLZXY3BkpEt",
+            "recbq71hCdjx29Aj6",
+            "reccYdzriRA9vsWOB",
+            "recfGPOZJ9R0N6QWZ",
+            "recfr1CGriU06CLPU",
+            "recgeW212tDB3GZJB",
+            "recjdgnIpBghPptO3",
+            "reckukAElg5tR3Ulm",
+            "reclnNMpP8Ui9JW2t",
+            "recmDNNSvHUE6eOp3",
+            "recov6YyWJ7pgFPkH",
+            "recpQa3TJH4AIg5HF",
+            "recsBUJCa8DzhkcKS",
+            "recsetT0cUDMnDaTc",
+            "recuK7ak06yzEx8wc",
+            "recufcbNClNXHEoqk",
+            "recuyzQxsy8MvsWa9",
+            "recv33Hii3oPVAVOY",
+            "recvfSSWZvSLmCzlg",
+            "recxn9gv5HUkPsnxQ"
         ],
         "name": "2lb Sterilized Wild Bird Seed",
+        "products": [
+            "rec0z4mc3P08m5b4R",
+            "recLzr5v6uE9J5Lvv",
+            "recSTpW1sT7ElS11v"
+        ],
         "status": "Sterilized",
         "sync_to_ecwid": true
     },
@@ -232,7 +435,7 @@
         "airtable_createdTime": "2026-04-13T23:23:16.000Z",
         "airtable_id": "recJf2BclIGA4npJO",
         "available_from_lots": 0,
-        "available_from_products": 5,
+        "available_from_products": 6,
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "cdbd6f64-2637-488c-b9fc-0a5a47bb7322",
@@ -245,6 +448,7 @@
         "name": "Blue Oyster Liquid Culture Syringe",
         "products": [
             "rec6EGQRxavmphfVn",
+            "recDizTUgKe8QDPvQ",
             "recIP5KqopLSxrKuD",
             "recQbEZEdlDvr3Qln",
             "reciuzCgRKqLKz2Sz",
@@ -264,6 +468,27 @@
             "recDO7zTvQ1KaQksg"
         ],
         "name": "Large 7.5lb Turkey Tail Fruiting Block",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recWQlBg26y23ZRWT"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T00:56:52.000Z",
+        "airtable_id": "recKdymWp3LucG6ya",
+        "available_from_lots": 4,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "recD3e7NEZ0CHe3wt",
+            "recGabpjAFJDblUlA",
+            "recN67yHqzqvf9OEM",
+            "recv3ej5dH0OcG78j"
+        ],
+        "name": "Turkey Tail Agar Plate",
         "status": "FullyColonized",
         "strain_id": [
             "recWQlBg26y23ZRWT"
@@ -353,6 +578,21 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:01:42.000Z",
+        "airtable_id": "recQuB3gSveV1OAQw",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Bluey Vatton Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recwa4hnchhLcvKQX"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-22T02:42:44.000Z",
         "airtable_id": "recRYm0k8IbIlR1ny",
         "available_from_lots": 0,
@@ -368,13 +608,25 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:04:03.000Z",
+        "airtable_id": "recSfoHsMwRY6Wrg9",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "name": "Chestnut 2lb Colonized WBS Grain Spawn Bag",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:17:19.000Z",
         "airtable_id": "recT6P7uEB8P0nyYw",
         "available_from_lots": 0,
-        "available_from_products": 0,
-        "ecommerce_orders": [
-            "rec1F0sZVL68gWQzQ"
-        ],
+        "available_from_products": 9,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "N5L2W9K4C7JQ6",
@@ -385,23 +637,52 @@
             "reczPINTjlieWiqX3"
         ],
         "name": "Freeze Dried Chestnut",
+        "products": [
+            "rec0AQ75s4tHWW8iV",
+            "rec5lgiTCeWZuU2FM",
+            "rec8Pf1rW9Hr4l74O",
+            "recAeGfng5RmPIPA3",
+            "recQ1TJ5v69NSo4fj",
+            "recQouBqqfy17sTVx",
+            "recas95rNMbNctno0",
+            "recnI82CVvhTvAuqd",
+            "recvQBWDvZEYQdVzI"
+        ],
         "strain_id": [
             "recV9ephQ5NJProZu"
         ],
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T00:55:31.000Z",
+        "airtable_id": "recTcgbMrzxMv9Iwq",
+        "available_from_lots": 4,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "rec4RECQE22NROMAG",
+            "recYzUhO2Vmecd6ZY",
+            "recbCBnfqJcCCkE55",
+            "recfO2l8wFyWowJLw"
+        ],
+        "name": "Red Reishi Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-22T02:39:49.000Z",
         "airtable_id": "recVcvY7l7e4nk4Vt",
-        "available_from_lots": 15,
-        "available_from_products": 0,
-        "ecommerce_orders": [
-            "recRwHvBB3hiVKlOx"
-        ],
+        "available_from_lots": 19,
+        "available_from_products": 3,
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "7VX24W4Z0CAYJ",
-        "ecwid_stock": 15,
+        "ecwid_stock": 22,
         "ecwid_upc": "6.865787502079E12",
         "ecwid_url": "https://danks.store/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795",
         "item_id": [
@@ -415,16 +696,25 @@
             "recCz4rOB1BVEvIgI",
             "recFogSVU6qM1oaya",
             "recFr4uYO9qmWoGlJ",
+            "recMJl07J6vDuBjY8",
+            "recNy9QSQ9gujHYUd",
             "recUDqhCr8diCbSev",
             "recfQBS4IfwojqxJm",
             "recgdtbBAwcD0eRWH",
+            "rechQQL5EDBWzMDPZ",
             "reclFAvDlpJO8azHu",
+            "recnRHteTCMhCvAwX",
             "recsWGK6tQySmWo75",
             "rectxI4B5hYudoJqy",
             "recyEC3Cou6tb1ri0",
             "reczNtO7hQBO7Aazd"
         ],
         "name": "7.5lb Sterilized 75/25 Masters Mix",
+        "products": [
+            "recp1dwmRwCZceaUJ",
+            "recpRxMcjQozvTGuC",
+            "recsAuNjAZvZLbZtM"
+        ],
         "status": "Sterilized",
         "sync_to_ecwid": true
     },
@@ -456,10 +746,25 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T01:00:50.000Z",
+        "airtable_id": "recWat8trCGE6FIbx",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "BPlus Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recw292ouRGk021S6"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:17:41.000Z",
         "airtable_id": "recWdvTkDFYpLWygR",
         "available_from_lots": 0,
-        "available_from_products": 2,
+        "available_from_products": 9,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "PVVVDXGGZD3S4",
@@ -471,7 +776,14 @@
         ],
         "name": "Freeze Dried Turkey Tail",
         "products": [
+            "rec8y9iR5F7fEmeQt",
+            "rec9PX0zdCjATjJgm",
             "recLmLiVHzJIAGaAZ",
+            "recODZuhdhwWXPaa1",
+            "recSrndpWmaXFN6Ek",
+            "reca18JJjcar8oLqC",
+            "recalk2jyj5dUivUQ",
+            "recflMjPKh6wWJmWJ",
             "recvx3TtJmMaj8oRr"
         ],
         "strain_id": [
@@ -545,7 +857,7 @@
         "airtable_createdTime": "2025-12-26T18:16:59.000Z",
         "airtable_id": "recXsvzkxihvq5OEO",
         "available_from_lots": 0,
-        "available_from_products": 0,
+        "available_from_products": 2,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "K7M9P2R4V8XB1",
@@ -556,6 +868,10 @@
             "reczPINTjlieWiqX3"
         ],
         "name": "Freeze Dried Bronze Reishi",
+        "products": [
+            "rec4M2JX8jkef9SRm",
+            "rec5FF1kr9Kzt2pYL"
+        ],
         "strain_id": [
             "rec7lLl0rRBhkwO6H"
         ],
@@ -566,6 +882,12 @@
         "airtable_id": "recYTzvlqNTXHvawc",
         "available_from_lots": 0,
         "available_from_products": 0,
+        "ecwid_category": "160277251",
+        "ecwid_price": 14.95,
+        "ecwid_sku": "WF3B148HVX8TR",
+        "ecwid_stock": 0,
+        "ecwid_upc": "6865787500020",
+        "ecwid_url": "https://danks.store/products/Branched-Oyster-Grow-Kit-Ready-to-Grow-p753212607",
         "item_id": [
             "recU9tdgUerFEM9oJ"
         ],
@@ -577,17 +899,77 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T00:58:45.000Z",
+        "airtable_id": "recZEZytfi8v46PnB",
+        "available_from_lots": 1,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "rec7PBJa1I541bvat"
+        ],
+        "name": "Lion's Mane Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "reckNIjMtUO20q0f9"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T00:56:11.000Z",
+        "airtable_id": "recdU8DY3zKQ9o3MF",
+        "available_from_lots": 2,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "recN72GLG8lX1hVq0",
+            "recabB7gPQLCZ2P6l"
+        ],
+        "name": "Bronze Reishi Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-11-22T02:39:11.000Z",
         "airtable_id": "recgTNdPtGsE6oyvi",
-        "available_from_lots": 0,
+        "available_from_lots": 21,
         "available_from_products": 0,
         "ecwid_price": 7.95,
         "ecwid_sku": "T5N92Z1CQ2NTM",
-        "ecwid_stock": 0,
+        "ecwid_stock": 21,
         "ecwid_upc": "6.865787502062E12",
         "ecwid_url": "https://danks.store/products/2-5lb-Masters-Mix-Substrate-Bag-Sterilized-p711333863",
         "item_id": [
             "recaOtqLL80xSaYLT"
+        ],
+        "lots": [
+            "rec4Kk7Q2HUYPy3U5",
+            "rec5BdDEQYlvMjLLa",
+            "rec7WBWmi2WlMyQRo",
+            "recAAC2kv0zNKzRKP",
+            "recCFIoJHnO8pa5cp",
+            "recFA07XISHru06Wa",
+            "recJz8yt01j49RSHr",
+            "recMWmMAomB9DcFaY",
+            "recNDYavtetW88UqV",
+            "recOttOwiJVMomq3g",
+            "recRyRmIGEwRoGpFf",
+            "recTpUSLyilzSM2al",
+            "recYWNToc4VtBYeKF",
+            "reccpxS1qoNaA7LZS",
+            "receKsMVYjaL62j1M",
+            "receL0vTHMoY5B30M",
+            "recf9jzuiq6eQ6Erq",
+            "reciU4mkgIJc6FKss",
+            "recmFku57yRtfqkub",
+            "recp7KLAsLcPgLVDJ",
+            "rectV8TtEqO3K2xYB"
         ],
         "name": "2.5lb Sterilized 75/25 Masters Mix",
         "status": "Sterilized",
@@ -600,7 +982,7 @@
         "available_from_products": 0,
         "ecwid_category": "160277251",
         "ecwid_price": 14.95,
-        "ecwid_sku": "c7c54364-6846-4acd-8c95-bcd593a33d4f",
+        "ecwid_sku": "W4Z7C9F2H5J1K",
         "ecwid_stock": 0,
         "ecwid_upc": "6865787500044",
         "ecwid_url": "https://danks.store/products/Bronze-Reishi-Grow-Kit-Ready-to-Grow-p610274979",
@@ -630,6 +1012,44 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T00:52:16.000Z",
+        "airtable_id": "reciqKMhNt9vrKelh",
+        "available_from_lots": 6,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "lots": [
+            "recEPh0rJfs4OzgZT",
+            "recJHgvS6PNgfr0a0",
+            "recKOs8e4g5Hs0Rt4",
+            "recOkdrnS9AWtiVtc",
+            "recPdgIZS97CGlWqf",
+            "recorwgedwf5rchKh"
+        ],
+        "name": "Blue Oyster Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T00:59:41.000Z",
+        "airtable_id": "recjNWleDDgh8BGMt",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Penis Envy Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recmu5LgteQ6xVWwG"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2026-04-13T23:20:08.000Z",
         "airtable_id": "recknjqnio5ZJJEhN",
         "available_from_lots": 0,
@@ -644,10 +1064,25 @@
         "sync_to_ecwid": true
     },
     {
+        "airtable_createdTime": "2026-04-25T00:57:20.000Z",
+        "airtable_id": "reclJCTL9lY03ye28",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Branched Oyster Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recHQHphF8J6rBHPE"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
         "airtable_createdTime": "2025-12-26T18:18:03.000Z",
         "airtable_id": "recmq8dsmN1EMusGQ",
         "available_from_lots": 0,
-        "available_from_products": 4,
+        "available_from_products": 8,
         "ecwid_category": "160254004",
         "ecwid_price": 9.95,
         "ecwid_sku": "9H2L5P7K4M1R8",
@@ -660,12 +1095,46 @@
         "name": "Freeze Dried Branched Oyster",
         "products": [
             "rec5lIUDCVMNlGHDU",
+            "rec8CM8h0gtKgqR1h",
+            "rec8YWZlgxhMats8D",
             "recOBbbUIPrQRrVFB",
+            "recQi2x0KqaUB37hf",
             "recSqXahYLzHRcf4B",
-            "reca53QK3qnw2PszA"
+            "reca53QK3qnw2PszA",
+            "reczfqxQlvvmtoHRd"
         ],
         "strain_id": [
             "recHQHphF8J6rBHPE"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T01:01:20.000Z",
+        "airtable_id": "recoHmg53g3QMEKSP",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Hillbilly Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "rec91mqZG1AZdhopu"
+        ],
+        "sync_to_ecwid": true
+    },
+    {
+        "airtable_createdTime": "2026-04-25T01:00:15.000Z",
+        "airtable_id": "recsjtPJtMwZQY12U",
+        "available_from_lots": 0,
+        "available_from_products": 0,
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "name": "Golden Teacher Agar Plate",
+        "status": "FullyColonized",
+        "strain_id": [
+            "recFnCOoLSfmoATeP"
         ],
         "sync_to_ecwid": true
     },
@@ -712,14 +1181,28 @@
         "airtable_createdTime": "2025-12-26T18:36:18.000Z",
         "airtable_id": "recyKXNWcvve4pweO",
         "available_from_lots": 0,
-        "available_from_products": 0,
+        "available_from_products": 6,
+        "ecwid_category": "160277251",
+        "ecwid_price": 14.95,
+        "ecwid_sku": "7K9P2W4M5X1R3",
+        "ecwid_stock": 6,
+        "ecwid_upc": "6865787501546",
+        "ecwid_url": "https://danks.store/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912",
         "item_id": [
             "recU9tdgUerFEM9oJ"
         ],
         "name": "Small 2.5lb Lion's Mane Fruiting Block",
+        "products": [
+            "rec15YRMRXuEY3kd7",
+            "rec6Xb4VqTywVmbPp",
+            "recWJ03sOkTBI5ovV",
+            "recY6zO4xYL37h601",
+            "reciVuIeSLzbhPk70",
+            "recqN9YzBVJzWmN4Q"
+        ],
         "status": "FullyColonized",
         "strain_id": [
-            "recV9ephQ5NJProZu"
+            "reckNIjMtUO20q0f9"
         ],
         "sync_to_ecwid": true
     },

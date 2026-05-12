@@ -1,63 +1,5 @@
 [
     {
-        "airtable_createdTime": "2026-02-28T17:21:48.000Z",
-        "airtable_id": "rec0JC7G8fTAXxlJZ",
-        "default_unit_size (from planned_item)": [
-            "7.5lb"
-        ],
-        "destroyed_count": 0,
-        "end_time": "2026-02-28T18:29:00.000Z",
-        "good_count": 16,
-        "lots": [
-            "recBS706EdhphdHF9",
-            "recqNWxKXKlnPlFdh",
-            "recsshF9dIWKoeLdr",
-            "recUDqhCr8diCbSev",
-            "recSiAPSUCQyMrdRd",
-            "recq4uo3VEkVkjcy5",
-            "recsWGK6tQySmWo75",
-            "recGHILLo2SQorGSB",
-            "reclFAvDlpJO8azHu",
-            "recFogSVU6qM1oaya",
-            "rec9GzYrjM9TscbjB",
-            "recjPDNRcLr01Vpfn",
-            "rectxI4B5hYudoJqy",
-            "recKPIwrwiMpRuO9H",
-            "rec20crkKcED5G637",
-            "recFr4uYO9qmWoGlJ"
-        ],
-        "name (from planned_recipe)": [
-            "Masters Mix 75/25"
-        ],
-        "operator": "Robert",
-        "override_end_time": "2026-02-28T18:29:00.000Z",
-        "planned_count": 16,
-        "planned_item": [
-            "recXSlo6zHhTvnhZe"
-        ],
-        "planned_item_id": [
-            "SUB-MM75-7_5"
-        ],
-        "planned_item_name": [
-            "Masters Mix 75/25"
-        ],
-        "planned_recipe": [
-            "recdzi4MMq717DjmU"
-        ],
-        "planned_unit_size": 7.5,
-        "pressure_mode": "Closed",
-        "print_queue": [
-            "recMTBJq7SvwgjeXK"
-        ],
-        "process_type": "Sterilize",
-        "recipe_id (from planned_recipe)": [
-            "REC-SUB-MM75"
-        ],
-        "start_time": "2026-02-26T17:21:00.000Z",
-        "steri_run_id": "RUN-260228-xlJZ",
-        "target_temp_c": 121
-    },
-    {
         "airtable_createdTime": "2026-03-27T20:44:51.000Z",
         "airtable_id": "rec8ZdEg2StmlxanB",
         "default_unit_size (from planned_item)": [
@@ -92,9 +34,6 @@
         ],
         "planned_unit_size": 400,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "recMwI3WJeEsvuc5N"
-        ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-AGAR-STD"
@@ -104,21 +43,164 @@
         "target_temp_c": 121
     },
     {
-        "airtable_createdTime": "2026-03-10T18:23:14.000Z",
-        "airtable_id": "rec8cgEbS5fANlmZu",
+        "airtable_createdTime": "2026-04-24T20:22:37.000Z",
+        "airtable_id": "recCSZRx6w0VbzoXm",
+        "default_unit_size (from planned_item)": [
+            "2lb"
+        ],
+        "destroyed_count": 0,
+        "end_time": "2026-04-24T07:30:00.000Z",
+        "good_count": 54,
+        "lots": [
+            "rec1mfUCKWdZXJYeU",
+            "rech0qZ2yxBuRp6PG",
+            "recmDNNSvHUE6eOp3",
+            "recMf9fRXX4d06atV",
+            "recV384WJZghfbJ9q",
+            "recB0Ejn2ywwv5hVF",
+            "recgeW212tDB3GZJB",
+            "recsBUJCa8DzhkcKS",
+            "recvfSSWZvSLmCzlg",
+            "recsetT0cUDMnDaTc",
+            "reclnNMpP8Ui9JW2t",
+            "recjdgnIpBghPptO3",
+            "recMV7ZsA7SVmNgEL",
+            "rec80Q0dlUG89Rajn",
+            "recxn9gv5HUkPsnxQ",
+            "recov6YyWJ7pgFPkH",
+            "rec42w4NR3ujpUDGL",
+            "recX8QIPisq3KTlWc",
+            "reccYdzriRA9vsWOB",
+            "recHbrn9OPLBJybnc",
+            "rec80tLwY29WhPBqm",
+            "recB6EOwXGYPBuJd4",
+            "rec26j5zhA8ZVMXGb",
+            "recuyzQxsy8MvsWa9",
+            "recahStLZXY3BkpEt",
+            "recfr1CGriU06CLPU",
+            "rec3QEHNQTBrHyUij",
+            "recv33Hii3oPVAVOY",
+            "recElS2mqpiokv0ES",
+            "recU36UOlbTpt2x73",
+            "recpQa3TJH4AIg5HF",
+            "reckukAElg5tR3Ulm",
+            "recufcbNClNXHEoqk",
+            "recFNfy1EZcVuHTOf",
+            "recDrVFVV3YlXQi4S",
+            "rec2N3dtheJfIWGL7",
+            "rec05Odpc7B4xEZtd",
+            "recSIXV7577HSR0HF",
+            "rec6klKRz7Dgosefa",
+            "recfGPOZJ9R0N6QWZ",
+            "rec5CVObIhkWk8zAM",
+            "rec47jWqe7R9FrdfO",
+            "recuK7ak06yzEx8wc",
+            "recbq71hCdjx29Aj6",
+            "recNiOOqOrHbHmzWm"
+        ],
+        "name (from planned_recipe)": [
+            "Wild Bird Seed Blend"
+        ],
+        "operator": "Robert",
+        "override_end_time": "2026-04-24T07:30:00.000Z",
+        "planned_count": 54,
+        "planned_item": [
+            "recwdBny04rzSGGrO"
+        ],
+        "planned_item_id": [
+            "GRAIN-WBS-2"
+        ],
+        "planned_item_name": [
+            "Wild Bird Seed"
+        ],
+        "planned_recipe": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "planned_unit_size": 2,
+        "pressure_mode": "Closed",
+        "process_type": "Sterilize",
+        "recipe_id (from planned_recipe)": [
+            "REC-GRAIN-WBS"
+        ],
+        "start_time": "2026-04-22T21:30:00.000Z",
+        "steri_run_id": "RUN-260424-zoXm",
+        "target_temp_c": 121
+    },
+    {
+        "airtable_createdTime": "2026-05-05T22:23:32.000Z",
+        "airtable_id": "recGGBddzBqYNmguh",
+        "default_unit_size (from planned_item)": [
+            "7.5lb"
+        ],
+        "destroyed_count": 0,
+        "end_time": "2026-05-05T22:23:00.000Z",
+        "good_count": 4,
+        "lots": [
+            "rechQQL5EDBWzMDPZ",
+            "recnRHteTCMhCvAwX",
+            "recNy9QSQ9gujHYUd",
+            "recMJl07J6vDuBjY8"
+        ],
+        "name (from planned_recipe)": [
+            "Masters Mix 75/25"
+        ],
+        "override_end_time": "2026-05-05T22:23:00.000Z",
+        "planned_count": 4,
+        "planned_item": [
+            "recXSlo6zHhTvnhZe"
+        ],
+        "planned_item_id": [
+            "SUB-MM75-7_5"
+        ],
+        "planned_item_name": [
+            "Masters Mix 75/25"
+        ],
+        "planned_recipe": [
+            "recdzi4MMq717DjmU"
+        ],
+        "planned_unit_size": 7.5,
+        "pressure_mode": "Closed",
+        "process_type": "Sterilize",
+        "recipe_id (from planned_recipe)": [
+            "REC-SUB-MM75"
+        ],
+        "start_time": "2026-05-05T22:23:00.000Z",
+        "steri_run_id": "RUN-260505-mguh",
+        "target_temp_c": 121
+    },
+    {
+        "airtable_createdTime": "2026-04-22T12:27:12.000Z",
+        "airtable_id": "recKxVLX61XaTp3xU",
         "default_unit_size (from planned_item)": [
             "2.5lb"
         ],
-        "end_time": "2026-03-10T18:23:35.316Z",
-        "good_count": 1,
+        "destroyed_count": 0,
+        "end_time": "2026-04-22T12:28:52.942Z",
+        "good_count": 18,
         "lots": [
-            "recQaJdS3RpJRvmN2"
+            "recsSVjSB0VdvdEWS",
+            "recuFykChVpuCZrMq",
+            "recSyt4fdN3skhaZi",
+            "recbts1INAJgT81m9",
+            "recVmJ4C36kVJSSSS",
+            "recrkyWbwznqR7VCl",
+            "recQOaFteyKXFffBQ",
+            "recemSvu9sx45u6uG",
+            "recGxrJfMbJ98LMeC",
+            "recDqCiReiIn3ax7G",
+            "recSxIEFkkN75oHht",
+            "rec5JiIAhwDu2Ix1Y",
+            "recPfFbkyrTFAeto6",
+            "reczd82ubv793TMBD",
+            "rec70jzPud70QaYU0",
+            "rec1X28ao4DRCf2e4",
+            "recLfz2MTnUpwMa6m",
+            "recdOwo3Jb2RxBaPA"
         ],
         "name (from planned_recipe)": [
             "CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)"
         ],
-        "operator": "Robert",
-        "planned_count": 1,
+        "planned_count": 18,
         "planned_item": [
             "recgoe5aWJ1C3uuUN"
         ],
@@ -132,72 +214,72 @@
             "rec3KC4fKWLKAvUSc"
         ],
         "planned_unit_size": 2.5,
-        "pressure_mode": "Closed",
-        "print_queue": [
-            "recJRIupG50IoxEAp"
-        ],
+        "pressure_mode": "Open",
         "process_type": "Pasteurize",
         "recipe_id (from planned_recipe)": [
             "REC-SUB-CVG-V2"
         ],
-        "start_time": "2026-03-09T18:23:00.000Z",
-        "steri_run_id": "RUN-260310-lmZu",
+        "start_time": "2026-04-20T12:27:00.000Z",
+        "steri_run_id": "RUN-260422-p3xU",
         "target_temp_c": 74
     },
     {
-        "airtable_createdTime": "2026-03-10T18:22:38.000Z",
-        "airtable_id": "recBjYHAjvHFNP65d",
+        "airtable_createdTime": "2026-05-05T22:21:51.000Z",
+        "airtable_id": "recNmAs6kOzTAInt8",
         "default_unit_size (from planned_item)": [
-            "5lb"
+            "2.5lb"
         ],
-        "destroyed_count": 0,
-        "end_time": "2026-03-10T18:23:50.693Z",
-        "good_count": 14,
+        "destroyed_count": 9,
+        "end_time": "2026-05-05T22:22:14.543Z",
+        "good_count": 21,
         "lots": [
-            "recjmXrfLOMmR175F",
-            "recwhofmUSI5Qljd7",
-            "rec7eP4HEzIgd3zlf",
-            "recbriIzypF6Yyflp",
-            "recF45m2bXe6UFhxZ",
-            "recILaw7b0VokMNUg",
-            "rec2LV9MFUuynmwig",
-            "recJ0AiC0ZxIcDOAQ",
-            "recdlYrtNqcvh5TKX",
-            "rec9ZEsZtjqpxEZK0",
-            "rec66vY8AY9xGrwZA",
-            "recLE9aZyRq9LMjgH",
-            "recTqovAGpSJK94Pe",
-            "rec0xZpPJe4l2tIvw"
+            "recJz8yt01j49RSHr",
+            "recTpUSLyilzSM2al",
+            "recf9jzuiq6eQ6Erq",
+            "rec5BdDEQYlvMjLLa",
+            "recAAC2kv0zNKzRKP",
+            "reccpxS1qoNaA7LZS",
+            "recNDYavtetW88UqV",
+            "rectV8TtEqO3K2xYB",
+            "recFA07XISHru06Wa",
+            "recCFIoJHnO8pa5cp",
+            "recMWmMAomB9DcFaY",
+            "recYWNToc4VtBYeKF",
+            "receKsMVYjaL62j1M",
+            "reciU4mkgIJc6FKss",
+            "recOttOwiJVMomq3g",
+            "rec7WBWmi2WlMyQRo",
+            "recmFku57yRtfqkub",
+            "receL0vTHMoY5B30M",
+            "recp7KLAsLcPgLVDJ",
+            "rec4Kk7Q2HUYPy3U5",
+            "recRyRmIGEwRoGpFf"
         ],
         "name (from planned_recipe)": [
-            "CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)"
+            "Masters Mix 75/25"
         ],
-        "operator": "Robert",
-        "planned_count": 14,
+        "planned_count": 30,
         "planned_item": [
-            "recJgSj2nMQhhMQm3"
+            "recaOtqLL80xSaYLT"
         ],
         "planned_item_id": [
-            "SUB-CVG-5"
+            "SUB-MM75-2_5"
         ],
         "planned_item_name": [
-            "Coco Verm Gypsum"
+            "Masters Mix 75/25"
         ],
         "planned_recipe": [
-            "rec3KC4fKWLKAvUSc"
+            "recdzi4MMq717DjmU"
         ],
-        "planned_unit_size": 5,
+        "planned_unit_size": 2.5,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "recDaVRZfrzL616lj"
-        ],
-        "process_type": "Pasteurize",
+        "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
-            "REC-SUB-CVG-V2"
+            "REC-SUB-MM75"
         ],
-        "start_time": "2026-03-09T18:22:00.000Z",
-        "steri_run_id": "RUN-260310-P65d",
-        "target_temp_c": 74
+        "start_time": "2026-05-05T22:21:00.000Z",
+        "steri_run_id": "RUN-260505-Int8",
+        "target_temp_c": 121
     },
     {
         "airtable_createdTime": "2026-03-24T13:17:06.000Z",
@@ -223,12 +305,9 @@
             "recflofAblWGLAYo4",
             "rec7vn7xnEv1VuIbg",
             "recD4AvVh3IR6kRcB",
-            "recMx97rUXrekmkvr",
-            "recwsrtkGQXgJuKQo",
-            "recUlI6Jy5u9Kf32e",
             "recMqKbL6z0HWF3J1",
-            "recwSmUWW8MbDMeTS",
-            "recQL0ZbJVV9OYuyn"
+            "recQL0ZbJVV9OYuyn",
+            "recwSmUWW8MbDMeTS"
         ],
         "name (from planned_recipe)": [
             "Wild Bird Seed Blend"
@@ -248,54 +327,12 @@
         ],
         "planned_unit_size": 2,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "reck0twbIA0IW4Ybm"
-        ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-GRAIN-WBS"
         ],
         "start_time": "2026-03-23T13:17:00.000Z",
         "steri_run_id": "RUN-260324-0Acf",
-        "target_temp_c": 121
-    },
-    {
-        "airtable_createdTime": "2026-03-07T12:42:24.000Z",
-        "airtable_id": "recP2Xx5gAUDYMxKM",
-        "default_unit_size (from planned_item)": [
-            "2lb"
-        ],
-        "destroyed_count": 0,
-        "end_time": "2026-03-07T12:42:00.000Z",
-        "good_count": 54,
-        "name (from planned_recipe)": [
-            "Wild Bird Seed Blend"
-        ],
-        "override_end_time": "2026-03-07T12:42:00.000Z",
-        "planned_count": 54,
-        "planned_item": [
-            "recwdBny04rzSGGrO"
-        ],
-        "planned_item_id": [
-            "GRAIN-WBS-2"
-        ],
-        "planned_item_name": [
-            "Wild Bird Seed"
-        ],
-        "planned_recipe": [
-            "rec9ayZPHs9K5WS4K"
-        ],
-        "planned_unit_size": 2,
-        "pressure_mode": "Closed",
-        "print_queue": [
-            "recbNEHQIaXrTbWuM"
-        ],
-        "process_type": "Sterilize",
-        "recipe_id (from planned_recipe)": [
-            "REC-GRAIN-WBS"
-        ],
-        "start_time": "2026-03-05T12:42:00.000Z",
-        "steri_run_id": "RUN-260307-MxKM",
         "target_temp_c": 121
     },
     {
@@ -334,9 +371,6 @@
         ],
         "planned_unit_size": 500,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "recA1tdENQTqS82qB"
-        ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-LC-STD"
@@ -382,9 +416,6 @@
         ],
         "planned_unit_size": 3,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "rec57baf2O7FG7oWn"
-        ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-CASING-PEAT-V3"
@@ -394,53 +425,49 @@
         "target_temp_c": 121
     },
     {
-        "airtable_createdTime": "2026-03-05T17:20:43.000Z",
-        "airtable_id": "recrCRbHVGXTgst5W",
+        "airtable_createdTime": "2026-04-22T12:28:15.000Z",
+        "airtable_id": "recswN3XMcVEeXbvP",
         "default_unit_size (from planned_item)": [
-            "7.5lb"
+            "5lb"
         ],
         "destroyed_count": 0,
-        "end_time": "2026-03-05T17:21:04.594Z",
+        "end_time": "2026-04-22T12:29:05.101Z",
         "good_count": 8,
         "lots": [
-            "recCz4rOB1BVEvIgI",
-            "rec4yeZBeQ9LhH9el",
-            "recCz2u2MSmtpAx3w",
-            "recfQBS4IfwojqxJm",
-            "recyEC3Cou6tb1ri0",
-            "rec56cHmEtj5h0Yz1",
-            "recgdtbBAwcD0eRWH",
-            "reczNtO7hQBO7Aazd"
+            "recfbfYDnPBFZZhO4",
+            "rec1MGWuyG1bG08aA",
+            "reclrahfJlM1s4q79",
+            "recsJCoALrwVWC5J7",
+            "recqbm3Ixcwx2z7LC",
+            "recf78QHDAJVibt2m",
+            "rect9v6eCh9hP1Rlv",
+            "recP28SZes0LccG8h"
         ],
         "name (from planned_recipe)": [
-            "Masters Mix 75/25"
+            "CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)"
         ],
-        "operator": "Robert",
         "planned_count": 8,
         "planned_item": [
-            "recsvdSl40elBx6oe"
+            "recJgSj2nMQhhMQm3"
         ],
         "planned_item_id": [
-            "SUB-MM50-7_5"
+            "SUB-CVG-5"
         ],
         "planned_item_name": [
-            "Masters Mix 50/50"
+            "Coco Verm Gypsum"
         ],
         "planned_recipe": [
-            "recdzi4MMq717DjmU"
+            "rec3KC4fKWLKAvUSc"
         ],
-        "planned_unit_size": 7.5,
-        "pressure_mode": "Closed",
-        "print_queue": [
-            "recrwQXuaJST3rMzs"
-        ],
-        "process_type": "Sterilize",
+        "planned_unit_size": 5,
+        "pressure_mode": "Open",
+        "process_type": "Pasteurize",
         "recipe_id (from planned_recipe)": [
-            "REC-SUB-MM75"
+            "REC-SUB-CVG-V2"
         ],
-        "start_time": "2026-03-03T17:20:00.000Z",
-        "steri_run_id": "RUN-260305-st5W",
-        "target_temp_c": 121
+        "start_time": "2026-04-20T12:28:00.000Z",
+        "steri_run_id": "RUN-260422-XbvP",
+        "target_temp_c": 74
     },
     {
         "airtable_createdTime": "2026-03-27T20:46:10.000Z",
@@ -475,9 +502,6 @@
         ],
         "planned_unit_size": 500,
         "pressure_mode": "Closed",
-        "print_queue": [
-            "recm0hkQuv1TPYNaJ"
-        ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-LC-STD"

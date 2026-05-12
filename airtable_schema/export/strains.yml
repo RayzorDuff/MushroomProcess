@@ -18,7 +18,27 @@
   - rec1l48bgP4oen0dg
   - recgstukGWwQwhOBI
   - recwj3JB9j8Dff7fd
+  - recdU8DY3zKQ9o3MF
   lots:
+  - recXgokm67TkbtSGv
+  - reciaWCZX1huqggxW
+  - recaziyk9yW28fBhn
+  - recGkPZ8IAtmgps7G
+  - recHSBX0g2LbXoQKl
+  - recZBLsiYstYmydo8
+  - recqV2YP2xN7ZMpaY
+  - recJvQEVUfs2mgMcN
+  - recafdOd06wZKseml
+  - recgWMysdYiUFE1Zx
+  - recQtOuFfFdoKqwnJ
+  - rec4T0kxHQJkZsObv
+  - rec0muhkbeeEr9KX7
+  - recUo81Oh7LfrU24C
+  - recgfa0qoC6DmS7OO
+  - recBmKpx4N7SfPelP
+  - recSF3Jaw2jmdabRB
+  - recPC5g8giZxWEbFz
+  - recs4gwhBUyFKdekW
   - recjvuOtaS1aohLiW
   - recVyPe4gzIEULJan
   - recabB7gPQLCZ2P6l
@@ -27,6 +47,9 @@
   - recN72GLG8lX1hVq0
   - recpbgiWv2EUEZYdv
   products:
+  - recAysLX9S4rqQt9Q
+  - rec5FF1kr9Kzt2pYL
+  - rec4M2JX8jkef9SRm
   - rec2btRuVdviyX6Uy
   - recUdZICiW3sdT2si
   - recmccKyXTqDJoqlV
@@ -35,6 +58,9 @@
   - reccdRtAk75HR1ECm
   - recd1mQ1UAex9S0Kw
   - recUHPxYfTPBakTsy
+  - recM9RPSWQwyTXIUA
+  - recuymh26EjePVGCM
+  - recTEifwyWYroBRh4
   species_strain: Bronze Reishi
   strain_id: STR-BronzeReishi
 - active: true
@@ -42,6 +68,7 @@
   airtable_id: rec91mqZG1AZdhopu
   ecommerce:
   - recknjqnio5ZJJEhN
+  - recoHmg53g3QMEKSP
   regulated: true
   species_strain: Hillbilly
   strain_id: STR-Hillbilly
@@ -62,7 +89,14 @@
   airtable_id: recAJwZGQuVlEUFpb
   ecommerce:
   - recWM8HPA1fsICgCL
+  - rec17gjJmfd3cMjb3
   lots:
+  - recZ1VAUiN0Q7KqY2
+  - recr7Q1UIYDVCNnVl
+  - recWjEtSaoTxOJ9ql
+  - recyqYL44TqqBy1EY
+  - reche2q0Onokkt6Bl
+  - recmoNKT8WMOQEWKD
   - recyLDXRVagClyLcH
   - recWwgGMfhtnOeABw
   - recZs07ldlAixJqUB
@@ -76,6 +110,10 @@
   - recsw2KeS6bFyDD3d
   - rec8BW2fk334ocsfW
   - recGKdMxSa8xicpsi
+  - recORM34wVTAz5z1i
+  - recJMPe2rZctkqaS9
+  - recF6KGXdwltsOGLZ
+  - recqLG7t2R8R9r1hG
   species_strain: Pearl Oyster
   strain_id: STR-PearlOyster
 - active: true
@@ -87,11 +125,15 @@
 - active: true
   airtable_createdTime: '2026-03-27T20:36:16.000Z'
   airtable_id: recCh2Z1gu1BRgW5x
+  ecommerce:
+  - rec3J4vzaxiqLFwGy
   lots:
   - recl3fMPOxkB1zgwF
   - rec6dezpIfrxtV9Yf
   - recLhmYzDGiCICNZt
   - receTxaB3ycV0zAfY
+  - rech0qZ2yxBuRp6PG
+  - recEm0bzueeMJrlBR
   species_strain: Black Pearl King Oyster
   strain_id: STR-BlackPearlKingOyster
 - active: true
@@ -103,6 +145,8 @@
 - active: true
   airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recFnCOoLSfmoATeP
+  ecommerce:
+  - recsjtPJtMwZQY12U
   regulated: true
   species_strain: Golden Teacher
   strain_id: STR-GoldenTeacher
@@ -113,7 +157,36 @@
   - recmq8dsmN1EMusGQ
   - recBfOBojQZlUKsIW
   - recYTzvlqNTXHvawc
+  - reclJCTL9lY03ye28
+  lots:
+  - rec71XDFy3zWKR1jI
+  - recAwatR0dGptz8cd
+  - recpVumNCaJIjL0hb
+  - recqyOytv8GmngJzs
+  - recCEgmvtAZoqPbdZ
+  - recUxLCbgyM9Fr9Zq
+  - rec72hcvohVICQYj9
+  - receVIoiOjaG1acgp
+  - recwVBrvhqauKO1X1
+  - recScYv36VeqV2h6M
+  - rec51STE33B5G5ROu
   products:
+  - recD2VqVki53qge46
+  - rec58gDo84g2ZLDPj
+  - rec8CM8h0gtKgqR1h
+  - recllm4dMwBxrvCPK
+  - recagqFLmpBPhx8V6
+  - recYdK0h88eSQ0Dpd
+  - rec8YWZlgxhMats8D
+  - recw66KKG0NiSOLZS
+  - recm3vUSh6zXGEAmS
+  - recC0Cg5XuH8G6zqI
+  - reczfqxQlvvmtoHRd
+  - recQi2x0KqaUB37hf
+  - recOzDfUKUMgGV7gJ
+  - reckFAGrAvD7SfFIs
+  - recXb4XBtQlt1lvVX
+  - recxceZU4JaiE4SDX
   - rec5lIUDCVMNlGHDU
   - reca53QK3qnw2PszA
   - recrSS2keuVf7lxe5
@@ -129,6 +202,7 @@
   - recBTxIpW1iZGQAuZ
   - rec085HH49lYtFtWj
   - recHmPXVrimoPRgzF
+  - rec0Tpu1Nx9XNrUt7
   species_strain: Branched Oyster
   strain_id: STR-BranchedOyster
 - active: true
@@ -155,9 +229,36 @@
   - recRYm0k8IbIlR1ny
   - recT6P7uEB8P0nyYw
   - recJ0Sy8OEkHjYlns
-  - recyKXNWcvve4pweO
   - reczeBH1sg4jNkwOt
+  - rec8ZVHZLmbi2tNLH
+  - recSfoHsMwRY6Wrg9
   lots:
+  - reclsWDC2Bgu20CyY
+  - recrYXrhQijACT3Si
+  - recabsawPoHm9rFGK
+  - recei60L0VQ7IECPI
+  - recxfYWLv1zIeEv9o
+  - recmEXTZrba7RfffN
+  - recDsBnaM9BDNRuoq
+  - rec7HQLKz0t7JTIVS
+  - recpshV1uC0r1fr0Z
+  - recqTcDUaGisj7FYm
+  - recuMKmwD2S3bJiK4
+  - rec8ffFVXpHE3qwdU
+  - recA4ggWy3FhQSoUl
+  - recj3KxovQnbEeB52
+  - recUORMBSy1w6F7kE
+  - recrgiJlYs1Bp5wbc
+  - recQuNvBmhyc8cZbf
+  - rect61J3BWfVh2J2m
+  - recjtXa6HIDnAfxo8
+  - reczGlHa8hPAsBAWG
+  - recu9VqZoAoNwVvSy
+  - recR0880D14z0xtmW
+  - recq1CMR76KmhYwwi
+  - reccNKmQ81Gw9tdqs
+  - recM3DnRKo72Ciu5e
+  - reciqVCXZpJTPytFt
   - recpLZQpMFvnUSUbR
   - recPTsQJpYoB97qcb
   - rec6mV7zZFh2IfOgP
@@ -170,11 +271,31 @@
   - recgz0ZXaq3ig8PNb
   - recLvpHmEQNY2aYvJ
   products:
+  - recqP1KFet1Fn3zyq
+  - reczKff4XVyUzUf1k
+  - rec2oOuP8FuPS7Ia2
+  - receT81OBvz5oSlyW
+  - rec4NxQG80nvQOkxJ
+  - recvQBWDvZEYQdVzI
+  - rec8Pf1rW9Hr4l74O
+  - recQ1TJ5v69NSo4fj
+  - recQouBqqfy17sTVx
+  - recas95rNMbNctno0
+  - rec5lgiTCeWZuU2FM
+  - rec0AQ75s4tHWW8iV
+  - recB8b6dT6ldHCytb
+  - recLJaWPLPT9aIm9I
+  - recnI82CVvhTvAuqd
+  - recAeGfng5RmPIPA3
   - recKLVbUA8j56RU0y
   - recN79YZ0M5yzpyEM
   - rectL5C2iP73AwnsK
   - recstM0FHwiYiPN2s
   - recYJz8GHq1oSpGhh
+  - recP1YosbdEM28hV7
+  - recEaY7ZkT1pcTFYC
+  - rec4dlvocUVyAOXRH
+  - rec8zPYKgZsX2D7ip
   species_strain: Chestnut
   strain_id: STR-Chestnut
 - active: true
@@ -185,7 +306,47 @@
   - recWdvTkDFYpLWygR
   - recAzjpFOyz2waprM
   - recPAdHniCfUGw3Kw
+  - recKdymWp3LucG6ya
   lots:
+  - recuRC3WAkEeF6kHN
+  - recojQXdIcgCdS8Sb
+  - recXmQOenxUHE0AmV
+  - recdLf5ea1bQWuMy4
+  - recimtO1msdb9b2PB
+  - recjp6z9VTvhoVtGy
+  - rectVokN12BS9watD
+  - recAGo6zyGKwbHtHu
+  - recm7Hq18qZoBcCt9
+  - recMEeCShXUtn5X0h
+  - recplZMXJnHVIayxh
+  - recNkV6S8nLd9wSf3
+  - recSVdnhP5h21kLTM
+  - recpu6sdmMkIMkti1
+  - reckKSiETeHI4tWHS
+  - recpPqQgwznVXQmlt
+  - recXWGFV4xqGk0kQk
+  - recO5ZYeboHccgx0F
+  - rec6mTDbUY0UeV3Lz
+  - recidM7u8CrDb1qTi
+  - recv3ej5dH0OcG78j
+  - recYZffDz54KavAyJ
+  - recYElMmAVWesoJLn
+  - rec5X8jBB93Iog3jg
+  - recIft9rS0zp8tJvt
+  - recPlSRmRAulYP6Yx
+  - rec2QhkiZVDxXnBdn
+  - recoOOXTzmJnIYJUQ
+  - recfRSFGMiNHgzBVE
+  - rec7e4hlqnmOcy303
+  - rec4BROshofOAp7iR
+  - rec59VzI7E6XH3ReU
+  - rec6HbcQ0x1vGv6hB
+  - recOMVrdHgbF1xDpy
+  - recibcn1EmC9JAjSS
+  - reccVO7VtLlgeqE2h
+  - rechbs2NKwVgksDBN
+  - recTeMJRo9smvEopz
+  - rectHUAe7BPV4zpCM
   - recHG6uHBrKFIouMH
   - reccqbKCHQk5B18Vz
   - recJjqkS9shuFz0jB
@@ -202,6 +363,19 @@
   - recGabpjAFJDblUlA
   - recD3e7NEZ0CHe3wt
   products:
+  - recPDG9kYlznQ8UpA
+  - rec8mpJotkOtgeh30
+  - recalk2jyj5dUivUQ
+  - recSrndpWmaXFN6Ek
+  - reca18JJjcar8oLqC
+  - recODZuhdhwWXPaa1
+  - recbzTq8GtmMOHrLV
+  - rec9PIHsUpuyijEw5
+  - rec9PX0zdCjATjJgm
+  - rec8y9iR5F7fEmeQt
+  - recflMjPKh6wWJmWJ
+  - recs3JMCMJwYCRb1K
+  - recwtFBWnMfwpJJsy
   - recLmLiVHzJIAGaAZ
   - recvx3TtJmMaj8oRr
   - recDFj5MPq2TjHe7y
@@ -209,6 +383,12 @@
   - recnu2wvutMZQ0lpA
   - recA3daGyay91rLwn
   - recD3qvdQ8bbhEWvj
+  - rec09EmiMwGZp1yDy
+  - recxuAC9eLsSV6DTx
+  - recCzMeOnsafLPbJ6
+  - recJBF3fmtJpX8c0r
+  - rec7VthJr9xQ7K7xW
+  - recgL9mjgREad0NyR
   species_strain: Turkey Tail
   strain_id: STR-TurkeyTail
 - active: true
@@ -220,7 +400,19 @@
 - active: true
   airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: rechTbpjL4Nt9Tks0
+  ecommerce:
+  - rec30vSjSeQwmruux
   lots:
+  - recleYU8hoyQwl1Ta
+  - recJOAtYBn5kT4qkM
+  - recBQRzWgSKWq8O91
+  - recvt58p4y1vMMeZU
+  - recJcyWJZBZxURwqA
+  - rec9fLlVNPlJ3ScKS
+  - rec7cRl6IHZmLurgY
+  - reccykUEpT88tMTH6
+  - recqJbk5VgiOy0Ub3
+  - recsAOQq1v0qV0lVA
   - recy6vbBkaxJzFoTS
   - recLzmMqnN9yD0wUJ
   - recLeH3kMgAfewjly
@@ -242,7 +434,74 @@
   - recQnYKAQQqDrEnm2
   - rec7U4A2SSRKwD3SC
   - recPDPRthx23dASQy
+  - recZEZytfi8v46PnB
+  - rec5ER9xAiFAEnSK2
+  - rec6oHBYB2tJoCRWV
+  - recyKXNWcvve4pweO
   lots:
+  - recfx8CI8CSRvkS4A
+  - recVbZLT9VewzfzUy
+  - recDLwNXbEyMouclO
+  - recYRpi7vYmdRXQKe
+  - recdGEeNWbuEtbLL5
+  - reclBdQ5I4z5eRZFG
+  - rec5ZBHH24Yf0oe8m
+  - rec678cVZMUHUUeEg
+  - recDaVDwKRzVT2cwb
+  - reczzvSUFVtnlBJ3v
+  - recz91fUScQcfyNIH
+  - recOU4hpo0SJ88iJ0
+  - recmfdkhVMDBHB50O
+  - rec0gVNHkrGiqWLjC
+  - rec6nu5Fk7mhsXHA7
+  - recTpL0IIdiDR3bFt
+  - reciGeOXcFnSH8O4Q
+  - rec7y14H6wFHDqvJN
+  - recMsBXMBTwvu0jcB
+  - recUL6wmGl8LaTx5w
+  - recVfgWULaVgFmt9F
+  - recIyEYPAinHxCeKO
+  - recq8BsQN97RXTRcB
+  - recqg2CoxDfyTyOtT
+  - recslACbevWvCaQGv
+  - recipueRRGe6NqfwS
+  - recw21UnolXZpPWiv
+  - recfHdH0R4fA3Iwty
+  - recyW79VRH9BmQXHe
+  - recXsu5j1s0Xq9QJm
+  - recD2cmwtN62S55iq
+  - recRWC9kYFuUrzQWR
+  - recgDZAdrwyTEjx0w
+  - rec7PBJa1I541bvat
+  - recaW8ljuwclLkxeN
+  - recMcqLriZi6AcBX7
+  - recJ6RZGvH1zEJxAX
+  - receKmO521AEeaYuU
+  - rec6vEiNx3mSz8WQt
+  - receCGAfb2ERBsrWk
+  - recMtSQI7fMdBtGsK
+  - rec21SoS0BKEI3XgY
+  - rec2pACmVuDuls7QG
+  - rec1ymPORJIsY0au1
+  - recwqxTaQUf38BJd2
+  - recBCPOYW3sNIBW1v
+  - recsMDNntRjEDBo7V
+  - rec3j4FEb64EiScwX
+  - recLZGMLBTzDNmwDi
+  - recKhyC763sXlV2R3
+  - recQIP33t5ptMd1sx
+  - recuidfKm7HwdzxHF
+  - recHyrUUQREq00MEv
+  - recxs2S2orOr17DWu
+  - recJj9y4KrEDR2ANN
+  - recZwLANMicnL1IKN
+  - recSyCuS9hYno43si
+  - recbpnsqYnzoqmmck
+  - recuntmvZk3bxZvMz
+  - recPipaDRCARBPlfD
+  - recTp2QEELEteLyl3
+  - recGoM1I38hLDTy0m
+  - recvUlVNkcz7mF5xl
   - reck2LZi08mFmuz1p
   - rec6ZhDkGPCnoRSEF
   - recRCUQLNBW8lhUEz
@@ -257,7 +516,71 @@
   - recyi6MphXdElEQ8G
   - recLdmxlgaxQAFgjd
   - recbcFPZylSXs4EgI
+  - rec1mfUCKWdZXJYeU
+  - recn6evogKO5MgWuW
   products:
+  - recFmU6mqqC0Q6SQ6
+  - recq5Q8CcZ4tDRT7N
+  - reczFlPywUp6fVmOG
+  - reco63P81ySBAYfkY
+  - recMkd44ZbjY7ys2k
+  - recShz8Esn2sBfoQa
+  - recJyP6R2plnfKx07
+  - recKDlZhtaIskqb52
+  - recSOyQOp9w9yUVFf
+  - recuPSKAT9iCoz3hP
+  - recFA037KJ2pWZvFH
+  - rec5fWvDFLGDN1S2e
+  - recj7u2ouEKEJ5sIS
+  - recgcwZK4bZhX6E0J
+  - rec8Xh5f7gDNsVp7H
+  - recrUvMoBXzPgw7RP
+  - rech0uBbeOmF3z4nT
+  - recVcx8pYodnH2T0Z
+  - rec291nAyGTKp8rcL
+  - reckW99WbzodebGWR
+  - recYGvQAxyxatDX7S
+  - recV4J7wRlFcsk001
+  - recc5nKKQVX8Yt5qO
+  - recJQFHVMm2cwzLs1
+  - recStq2vJTOo5di46
+  - recYeYZbdvh9IlOzd
+  - recEf2PUjhluhsVHe
+  - recrZVmz2FvGxXPRC
+  - rec5kTsVs6h2m3nOh
+  - recTwD8ub99GM58vT
+  - recvZUzDXVgGKIajg
+  - recWNEE0rKE9plnyw
+  - rec6sZ4CTFCXYpakU
+  - recDZSRrZZxXApQM7
+  - recbHTkkBCQpGSV5v
+  - recD1ggXXQIaLYBkH
+  - recrnp5QRyhx77AhF
+  - rec6ryj3JbBPEfsUt
+  - recmcQMYkd5JVFUpl
+  - rec7KBhVzcmgzuWcO
+  - recmdK5TsvheZPGdz
+  - recKtTn2xo7dJYvjj
+  - recc1920YtIcVmQy3
+  - recBAuLebLnEtLuvz
+  - recUpcz7xKAoGCmXI
+  - recuUCwQR3FzJ2tQW
+  - rec49d5BJ969ro2w8
+  - recHreBSY3Q7IHcB7
+  - recCaPSApA5a5WtQS
+  - recaLGfWxIvxStzz4
+  - recEdZWm3V9zxDvjK
+  - recpXAdLdk2AbzP4G
+  - recr0PC0sTaZ8WhDO
+  - receCFE1g6Z065QFk
+  - recdKAakVimCiA67m
+  - reczzJExw5l6QD3te
+  - recpY9aosZGv78tzg
+  - recbOBcJGGWi7o02d
+  - recBjzlsUoL3xNd2O
+  - recLcf7XzuQVuCTSO
+  - recJmUhdNMmZSkKv3
+  - recgg0bIFF1qRT0hd
   - recUodRWH2P13Khet
   - rechhORGUIye0Eyul
   - recmofjio2Ll8sCxL
@@ -281,11 +604,27 @@
   - recFRpGh3dXJYnirW
   - recoqfyNbBCrmx14S
   - recDaCIeWIunekG0X
+  - recMH5G3sHFDAQcgb
+  - recyp6NMS8uM10wPr
+  - rec15YRMRXuEY3kd7
+  - rec6Xb4VqTywVmbPp
+  - recWJ03sOkTBI5ovV
+  - recqN9YzBVJzWmN4Q
+  - recY6zO4xYL37h601
+  - reciVuIeSLzbhPk70
+  - receOxu1Et6xXVIQC
+  - recHhHNkZgRqF5iXU
+  - recBeAOkGPx4euq8y
+  - recnWBFRzilW1bEDU
+  - recY40O4IhRC653RE
+  - rectizILUJ6mU2qDm
   species_strain: "Lion\u2019s Mane"
   strain_id: STR-LionsMane
 - active: true
   airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recmu5LgteQ6xVWwG
+  ecommerce:
+  - recjNWleDDgh8BGMt
   regulated: true
   species_strain: Penis Envy
   strain_id: STR-PE
@@ -303,7 +642,36 @@
   - reci0PAX15UT6HasR
   - recF3He1PR1Bo9voi
   - recJf2BclIGA4npJO
+  - reciqKMhNt9vrKelh
   lots:
+  - recrggVC6ZPmXwDTx
+  - rec2AXL1EN5UpDdSr
+  - recD3K8IvYBwtGRlk
+  - recFkjr149f7NxvXH
+  - rec2p0dsmchHxAUxv
+  - recCcv3VMVqlLQg0S
+  - recHj3iZDX3ngOFyW
+  - recuz1O1f44Csiapn
+  - recjZ3tnT12sVN8z3
+  - recwXrD8AgS9pIJop
+  - recMD8eNDhbhv7rbh
+  - rec6bYR3boBCsJVVA
+  - rec76OKQtFFGvyIiM
+  - reca65kQ3ecrZbwQb
+  - recVBKgBnREfVbOs2
+  - reck3slfrlR0UXLQO
+  - recwtjQV55qraROmO
+  - recKOs8e4g5Hs0Rt4
+  - recHYgcwZGN4o7fBE
+  - recPdgIZS97CGlWqf
+  - recOkdrnS9AWtiVtc
+  - rechP7fXl9hiMAEit
+  - recWdmBdUPUbr0bcO
+  - recgBZxhpKhFfd5zv
+  - recg1bgudx8P6LNRd
+  - recs6Rr6dP16TspQl
+  - recAxZjReZXwCJDWd
+  - rec46PMelcPebCDCQ
   - recEX9gLdbq1FDXuq
   - recLoXkq9vU3mIoq5
   - recorwgedwf5rchKh
@@ -318,6 +686,42 @@
   - recEPh0rJfs4OzgZT
   - recJHgvS6PNgfr0a0
   products:
+  - recDizTUgKe8QDPvQ
+  - rectLfVG7bQDnrWKJ
+  - rec2Q7AEJerPzzPax
+  - recpWlPohsr9048Ff
+  - recNYjfCJUStUIH64
+  - recvakdIRWWJB6XIC
+  - recyQ5upmDfCCoJQs
+  - recNJNriOcfE9OObP
+  - rechx79VAAkLYTAW8
+  - recZvVYUUID2jA2X9
+  - recduR6g4IpVKcHsB
+  - recRIWsHaiLfcPtWL
+  - recjMZjQtQUXgqk2P
+  - recZaFCOVkQ0kU0mb
+  - recTrRkQVwnkJFks8
+  - reckfZWPxe9r9KpBs
+  - recHPFJBTVYxgbv2Y
+  - rec9VMluzXdyEVmmw
+  - rec8BLwjTW2kDBYQX
+  - recCqAuPwv5CgndDy
+  - recUg9xRcdm8wrzcv
+  - recGDOzQIb2k2CII4
+  - recxEORMI6gvB8IMK
+  - recMBkGOPFEvOZbzO
+  - recDDYbwMxh4EaSiO
+  - recKXL02TJIr478zP
+  - recUahUrJ6dO24JfB
+  - rec1D8hO7Ddbpw7k8
+  - recBiGY3zWFvXcsef
+  - recrg5K3rmt3JqJxr
+  - rec9dAd18Z7oBUcOF
+  - reckrws2FMkNOTI25
+  - recI3FN6NDfm9paDb
+  - recZepSydyV7JUUwa
+  - recphdSoZNFuMeCw6
+  - recVZoGillQ5tkY8y
   - rec8z2NZJcsBmdOUM
   - recQ5nJPuJsYyPsUd
   - rectEAUL10f2LDhT7
@@ -341,6 +745,12 @@
   - rec1f89N0qnUBpeOh
   - recgjFroFXD7LXwAL
   - rec6YWDrsfz4wa1YC
+  - recu6bMNq7ogLGryh
+  - rec1gB5Y0OEoSXtX6
+  - recXu4uEgLeFhyEBA
+  - recuscfDV0o29AgxJ
+  - recx9LiEFcYl9iPpo
+  - rec1kf5lP1RpB8EmQ
   species_strain: Blue Oyster
   strain_id: STR-BlueOyster
 - active: true
@@ -354,6 +764,7 @@
   airtable_id: recw292ouRGk021S6
   ecommerce:
   - recJ8MTjH4mlJReXt
+  - recWat8trCGE6FIbx
   regulated: true
   species_strain: B Plus (B Positive)
   strain_id: STR-BPlus
@@ -362,6 +773,7 @@
   airtable_id: recwa4hnchhLcvKQX
   ecommerce:
   - recMfy4toCHnjQesK
+  - recQuB3gSveV1OAQw
   regulated: true
   species_strain: Bluey Vuitton
   strain_id: STR-BlueyVuitton
@@ -378,7 +790,39 @@
   - recWyQtfuAL3pUM7l
   - rec3ArssudPfyLSlL
   - recXc27A6fUIR0bJT
+  - recTcgbMrzxMv9Iwq
   lots:
+  - recoGY77CygXTz4aD
+  - recLkMzwuJuaxpcNU
+  - recaoQQurVVaDMOxL
+  - reck1kQVfHKXdOWCi
+  - recm59TLkELKPYfRn
+  - recm3iMu345ATmJDV
+  - recs2NMz43eEo1jRb
+  - recsyMVFdi122TxTv
+  - recsOdz06rm8TKQ63
+  - recejzoeypY7acBtb
+  - recJz6Ijz8HWzHkMv
+  - recoe3TtkqKPN8p9V
+  - recSmIUlzP7RMCCcB
+  - recInm0ognmr4N0NX
+  - recZYypJ5RdlpdoLo
+  - recFphkRwZ7Nubq4J
+  - recJSQi95tyNZzLoP
+  - recWSo0rXnx4UYVLc
+  - recQ5YKK1hRUK3AEy
+  - recuSnbtiyiw1dGby
+  - rectNMYIH97APuTFo
+  - rec1Ws73byXLpi68F
+  - recBIigKiLKrVEO2P
+  - recXNSKE2d3kAaZT1
+  - recsJnvJh21Jhg4sy
+  - recE2RHxWD4SkkOMv
+  - recYzUhO2Vmecd6ZY
+  - rec1UC326lBYO7NzM
+  - rec7f8nVIdC7NsnlO
+  - recr9236mt5jjyAZc
+  - reckgVV744mHVy1th
   - recefSoDg8E4ZrRKW
   - recsGjSkvkwZJsD8o
   - rec4RECQE22NROMAG
@@ -387,6 +831,9 @@
   - recfO2l8wFyWowJLw
   - recbCBnfqJcCCkE55
   products:
+  - recJCBY3fEOB4A4DB
+  - recxde02anW5UnMO9
+  - rectXYDCG269zYcS0
   - rect4zbNrhLsAXbHN
   - recOdxDw1csTLmA7H
   - recaB6APldcTV2qXY
@@ -395,6 +842,12 @@
   - rec7OQOSExJiPCzow
   - recYjzY7zM3Le4vkH
   - rec7Q5rW9QD8906Av
+  - recY5WQPNLrN1QOTY
+  - recYcHmPFEg6IehFP
+  - recFJKajJbRLExOMh
+  - rec3SQAxlVfclr34v
+  - rec1f0TJvkd2XvpiN
+  - rec96mFnPPs7OxGHX
   species_strain: Red Reishi
   strain_id: STR-RedReishi
 - active: true

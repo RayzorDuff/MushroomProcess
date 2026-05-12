@@ -1,6 +1,6 @@
 /**
  * Script: print_queue_populator.js
- * Version: 2025-12-15.2
+ * Version: 2026-05-11.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -98,8 +98,10 @@ if (eventType === 'Inoculated' || eventType === 'LCInoculate' || eventType === '
     labelType = 'Grain_Inoculated';
   } else if (itemCategory === 'plate') {
     labelType = 'Plate_Inoculated';
-  } else if (itemCategory === 'lc_flask') {  
+  } else if (itemCategory === 'lc_flask') {
     labelType = 'LC_Flask_Inoculated';
+  } else if (itemCategory === 'cordyceps_substrate') {
+    labelType = 'Cordyceps_Substrate_Inoculated';
   }
 } else if (eventType === 'Spawned' || eventType === 'SpawnedToBulk') {
   labelType = 'Bulk_Created';

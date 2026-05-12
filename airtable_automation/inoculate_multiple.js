@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2026-01-28.1
+ * Version: 2026-05-11.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -45,7 +45,7 @@
 
     for (const e of eventsTbl.fields) {
       console.log('events', `${e.id} :: ${e.name} [${e.type}]`);
-    }   
+    }
 */
     function hasField(tbl, name) {
       try { tbl.getField(name); return true; } catch { return false; }
@@ -56,7 +56,7 @@
       const f = table.getField(fieldName);
       if (f.type === 'singleSelect') return { name: valueStr };
       return valueStr; // singleLineText, etc.
-    }    
+    }
 
     const { lotRecordId } = input.config();
     if (!lotRecordId) throw new Error('Missing lotRecordId');
@@ -123,7 +123,7 @@
       : '';
     const sourceVendorBatch = hasField(lotsTbl, 'vendor_batch')
       ? (sourceLot.getCellValueAsString?.('vendor_batch') || sourceLot.getCellValue('vendor_batch') || '')
-      : '';    
+      : '';
 
     // Optional: vendor and species/strain materialized field to propagate (prefer lookup when present)
     const sourceVendorNameMat = (hasField(lotsTbl, 'vendor_name')
@@ -205,10 +205,10 @@
       const targetItem = await itemsTbl.selectRecordAsync(itemLink.id);
       const targetCategory = (targetItem?.getCellValueAsString('category') || '').toLowerCase();
 
-      if (!['grain', 'lc_flask', 'plate'].includes(targetCategory)) {
+      if (!['grain', 'lc_flask', 'plate', 'cordyceps_substrate'].includes(targetCategory)) {
         await updateSourceError(
           `Target lot ${targetLot.getCellValueAsString ? targetLot.getCellValueAsString('lot_id') : targetLot.id} must be ` +
-          `grain, lc_flask, or plate (got "${targetCategory || 'none'}").`
+          `grain, lc_flask, plate, or cordyceps_substrate (got "${targetCategory || 'none'}").`
         );
         continue;
       }
@@ -241,7 +241,7 @@
       }
       if (sourceVendorBatch && hasField(lotsTbl, 'vendor_batch')) {
         const v = coerceValueForField(lotsTbl, 'vendor_batch', sourceVendorBatch);
-        if (v != null) lotUpdates.vendor_batch = v;        
+        if (v != null) lotUpdates.vendor_batch = v;
       }
 
       // --- Propagate vendor_name_mat and strain_species_strain_mat from source lot (prefer lookup if present) ---
@@ -270,15 +270,15 @@
 
       // Compute lot.use_by based on target category and inoculation time
       let lotUseBy = null;
-      if (targetCategory === 'lc_flask') {
-        // Liquid culture flasks: 6 months from inoculation
+      if (['lc_flask', 'plate'].includes(targetCategory)) {
+        // Liquid culture flasks and plates: 6 months from inoculation
         const d = new Date(inocTime);
         if (!Number.isNaN(d.getTime())) {
           d.setMonth(d.getMonth() + 6);
           lotUseBy = d;
         }
-      } else if (targetCategory === 'grain') {
-        // Grain spawn: 3 months from inoculation
+      } else if (['grain', 'cordyceps_substrate'].includes(targetCategory)) {
+        // Grain spawn or cordyceps_substrate: 3 months from inoculation
         const d = new Date(inocTime);
         if (!Number.isNaN(d.getTime())) {
           d.setMonth(d.getMonth() + 3);
