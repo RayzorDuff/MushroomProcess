@@ -3,7 +3,7 @@ require('./load_env');
 const crypto = require('crypto');
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-02-07.5
+ * Version: 2026-05-11.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -620,8 +620,8 @@ function compileFormulaExpr(raw, ctx) {
 
       return `CASE WHEN (${truthy(cond)}) THEN (${tVal}) ELSE (${fVal}) END`;
     }
-    if (fn === 'AND') return '(' + args.map(a=>`(${a})`).join(' AND ') + ')';
-    if (fn === 'OR') return '(' + args.map(a=>`(${a})`).join(' OR ') + ')';
+    if (fn === 'AND') return '(' + args.map(a=>`(${truthy(a)})`).join(' AND ') + ')';
+    if (fn === 'OR') return '(' + args.map(a=>`(${truthy(a)})`).join(' OR ') + ')';
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
     if (fn === 'LOWER' && args.length >= 1) return `"lower"(${ensureCast(args[0], 'text')})`;
