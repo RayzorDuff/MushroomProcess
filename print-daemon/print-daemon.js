@@ -48,10 +48,21 @@ const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
-const { print } = require('pdf-to-printer');
+let print = null;
+try {
+  // pdf-to-printer is Windows-oriented. Keep it optional so the daemon can run on macOS/Linux.
+  ({ print } = require('pdf-to-printer'));
+} catch (e) {
+  print = null;
+}
 const { spawn } = require('child_process');
 
 const os = require('os');
+
+const PLATFORM = process.platform;
+const IS_WINDOWS = PLATFORM === 'win32';
+const IS_MAC = PLATFORM === 'darwin';
+const IS_POSIX_PRINT = IS_MAC || PLATFORM === 'linux';
 
 const INSTANCE_ID = (process.env.DAEMON_INSTANCE_ID || process.env.INSTANCE_ID || '').trim()
   || `${os.hostname()}-${process.pid}`;
@@ -253,9 +264,17 @@ const QR_SIZE_PT = safeNum(process.env.QR_SIZE_PT, 90);
 
 const DRAW_BORDER = String(process.env.DRAW_PAGE_BORDER || 'false').toLowerCase() === 'true';
 
-const USE_SUMATRA = String(process.env.USE_SUMATRA || 'false').toLowerCase() === 'true';
+const USE_SUMATRA = IS_WINDOWS && String(process.env.USE_SUMATRA || 'false').toLowerCase() === 'true';
 const SUMATRA_EXE = process.env.SUMATRA_EXE || 'SumatraPDF.exe';
 const SUMATRA_SETTINGS = process.env.SUMATRA_PRINT_SETTINGS || 'noscale,portrait';
+
+// macOS/Linux printing via CUPS command-line tools. On macOS this uses /usr/bin/lp.
+// Use `lpstat -p -d` to find printer names and `lpoptions -p <printer> -l` to inspect driver options.
+const LP_COMMAND = process.env.LP_COMMAND || 'lp';
+const LP_LABEL_OPTIONS = (process.env.LP_LABEL_OPTIONS || '').trim();
+const LP_SHEET_OPTIONS = (process.env.LP_SHEET_OPTIONS || '').trim();
+const LP_DEFAULT_OPTIONS = (process.env.LP_DEFAULT_OPTIONS || '').trim();
+const LP_DRY_RUN = String(process.env.LP_DRY_RUN || 'false').toLowerCase() === 'true';
 
 const PRINT_DRIVER_DELAY = parseInt(process.env.PRINT_DRIVER_DELAY) || 1000;
 
@@ -1296,11 +1315,95 @@ function inferProcessTypeFromRun(f) {
 }
 
 /* ---------- Printing ---------- */
+function splitPrinterOptions(raw) {
+  const txt = String(raw || '').trim();
+  if (!txt) return [];
+
+  // Supports either comma-separated or shell-like whitespace-separated options.
+  // Examples:
+  //   LP_LABEL_OPTIONS=media=Custom.4x2in,fit-to-page,landscape
+  //   LP_LABEL_OPTIONS="media=Custom.4x2in fit-to-page landscape"
+  return txt
+    .split(/[\s,]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function orientationOption() {
+  return (ORIENT === 'landscape' || FORCE_LAND) ? 'landscape' : 'portrait';
+}
+
+function defaultLabelLpOptions() {
+  const opts = splitPrinterOptions(LP_DEFAULT_OPTIONS);
+
+  // Only add defaults when caller did not provide explicit label options.
+  // CUPS media names are driver-specific, so LP_LABEL_OPTIONS is preferred.
+  if (!LP_LABEL_OPTIONS) {
+    opts.push(orientationOption());
+    opts.push('fit-to-page');
+  }
+
+  return opts;
+}
+
+function labelLpOptions() {
+  const explicit = splitPrinterOptions(LP_LABEL_OPTIONS);
+  return explicit.length ? explicit : defaultLabelLpOptions();
+}
+
+function sheetLpOptions() {
+  const explicit = splitPrinterOptions(LP_SHEET_OPTIONS);
+  if (explicit.length) return explicit;
+  return [...splitPrinterOptions(LP_DEFAULT_OPTIONS), 'media=Letter', 'portrait', 'fit-to-page'];
+}
+
+async function printWithLpTo(printerName, pdfPath, options = []) {
+  if (!IS_POSIX_PRINT) return false;
+
+  const args = [];
+  if (printerName) args.push('-d', printerName);
+  for (const opt of options) {
+    if (opt) args.push('-o', opt);
+  }
+  args.push(pdfPath);
+
+  if (LP_DRY_RUN) {
+    log.info('LP dry-run print command', { command: LP_COMMAND, args });
+    return true;
+  }
+
+  return await new Promise((resolve) => {
+    const p = spawn(LP_COMMAND, args, {
+      cwd: __dirname,
+      windowsHide: true,
+    });
+
+    let out = '';
+    let err = '';
+    p.stdout.on('data', (d) => (out += d.toString()));
+    p.stderr.on('data', (d) => (err += d.toString()));
+    p.on('error', (e) => {
+      log.error('lp spawn failed', { command: LP_COMMAND, printer: printerName, pdfPath, err: e?.message || String(e) });
+      resolve(false);
+    });
+    p.on('close', (code) => {
+      if (code === 0) {
+        log.info('lp print submitted', { printer: printerName || '(default)', pdfPath, options, out: out.trim() });
+        resolve(true);
+      } else {
+        log.error('lp print failed', { command: LP_COMMAND, printer: printerName, pdfPath, options, err: err.trim() || `exit ${code}` });
+        resolve(false);
+      }
+    });
+  });
+}
+
 async function printWithSumatraTo(
   printerName,
   pdfPath,
   settings = SUMATRA_SETTINGS
 ) {
+  if (!IS_WINDOWS) return false;
   if (!USE_SUMATRA) return false;
   if (!printerName) return false;
 
@@ -1321,6 +1424,10 @@ async function printWithSumatraTo(
     });
     let err = '';
     p.stderr.on('data', (d) => (err += d.toString()));
+    p.on('error', (e) => {
+      log.error('Sumatra spawn failed', { printer: printerName, pdfPath, err: e?.message || String(e) });
+      resolve(false);
+    });
     p.on('close', (code) => {
       if (code === 0) resolve(true);
       else {
@@ -1331,9 +1438,42 @@ async function printWithSumatraTo(
   });
 }
 
+async function printWithPdfToPrinter(pdfPath) {
+  if (!IS_WINDOWS) return false;
+  if (!print) {
+    log.error('pdf-to-printer is not available', { platform: PLATFORM });
+    return false;
+  }
+
+  try {
+    const opts = { printer: PRINTER, silent: true, margin: 0 };
+
+    if (FORM_NAME) {
+      opts.paperSize = FORM_NAME;
+    } else {
+      opts.paperSize = {
+        width: LABEL_W_IN || 4,
+        height: LABEL_H_IN || 2,
+      };
+      opts.landscape =
+        ORIENT === 'landscape' || FORCE_LAND;
+    }
+
+    await print(pdfPath, opts);
+    return true;
+  } catch (e) {
+    log.error('pdf-to-printer failed', { printer: PRINTER, pdfPath, err: e?.message || String(e) });
+    return false;
+  }
+}
+
 async function printLabelPdfWithFallback(pdfPath) {
   return await withPrinterLock(PRINTER, async () => {
-    // Try Sumatra, then pdf-to-printer
+    if (IS_POSIX_PRINT) {
+      return await printWithLpTo(PRINTER, pdfPath, labelLpOptions());
+    }
+
+    // Windows path: try Sumatra, then pdf-to-printer.
     const ok = await printWithSumatraTo(
       PRINTER,
       pdfPath,
@@ -1341,26 +1481,7 @@ async function printLabelPdfWithFallback(pdfPath) {
     );
     if (ok) return true;
 
-    try {
-      const opts = { printer: PRINTER, silent: true, margin: 0 };
-
-      if (FORM_NAME) {
-        opts.paperSize = FORM_NAME;
-      } else {
-        opts.paperSize = {
-          width: LABEL_W_IN || 4,
-          height: LABEL_H_IN || 2,
-        };
-        opts.landscape =
-          ORIENT === 'landscape' || FORCE_LAND;
-      }
-
-      await print(pdfPath, opts);
-      return true;
-    } catch (e) {
-      log.error('pdf-to-printer failed', { printer: PRINTER, pdfPath, err: e?.message || String(e) });
-      return false;
-    }
+    return await printWithPdfToPrinter(pdfPath);
   });
 }
 
@@ -1374,6 +1495,10 @@ async function printSheetPdfNoFallback(
   if (!target) return false;
 
   return await withPrinterLock(target, async () => {
+    if (IS_POSIX_PRINT) {
+      return await printWithLpTo(target, pdfPath, sheetLpOptions());
+    }
+
     const ok = await printWithSumatraTo(
       target,
       pdfPath,
@@ -1584,9 +1709,9 @@ async function cycle() {
   }`
 );
 log.info(
-  `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Sumatra=${
+  `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Platform=${PLATFORM} | Sumatra=${
     USE_SUMATRA ? 'on' : 'off'
-  }`
+  } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'}`
 );
 
 
