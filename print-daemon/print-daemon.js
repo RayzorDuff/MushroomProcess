@@ -276,6 +276,11 @@ const LP_SHEET_OPTIONS = (process.env.LP_SHEET_OPTIONS || '').trim();
 const LP_DEFAULT_OPTIONS = (process.env.LP_DEFAULT_OPTIONS || '').trim();
 const LP_DRY_RUN = String(process.env.LP_DRY_RUN || 'false').toLowerCase() === 'true';
 
+// Cross-platform dry run: render PDFs and mark jobs Printed, but skip physical printing.
+// Useful on macOS as a replacement for testing with a Windows PDF printer.
+// LP_DRY_RUN only logs the lp command path; PRINT_DRY_RUN skips all print backends.
+const PRINT_DRY_RUN = String(process.env.PRINT_DRY_RUN || 'false').toLowerCase() === 'true';
+
 const PRINT_DRIVER_DELAY = parseInt(process.env.PRINT_DRIVER_DELAY) || 1000;
 
 /* --- multi-instance / printer locking --- */
@@ -1469,6 +1474,15 @@ async function printWithPdfToPrinter(pdfPath) {
 
 async function printLabelPdfWithFallback(pdfPath) {
   return await withPrinterLock(PRINTER, async () => {
+    if (PRINT_DRY_RUN) {
+      log.info('PRINT_DRY_RUN enabled; skipping physical label print', {
+        printer: PRINTER || '(default)',
+        pdfPath,
+        platform: PLATFORM,
+      });
+      return true;
+    }
+
     if (IS_POSIX_PRINT) {
       return await printWithLpTo(PRINTER, pdfPath, labelLpOptions());
     }
@@ -1495,6 +1509,15 @@ async function printSheetPdfNoFallback(
   if (!target) return false;
 
   return await withPrinterLock(target, async () => {
+    if (PRINT_DRY_RUN) {
+      log.info('PRINT_DRY_RUN enabled; skipping physical sheet print', {
+        printer: target,
+        pdfPath,
+        platform: PLATFORM,
+      });
+      return true;
+    }
+
     if (IS_POSIX_PRINT) {
       return await printWithLpTo(target, pdfPath, sheetLpOptions());
     }
@@ -1711,7 +1734,7 @@ async function cycle() {
 log.info(
   `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Platform=${PLATFORM} | Sumatra=${
     USE_SUMATRA ? 'on' : 'off'
-  } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'}`
+  } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'} | PRINT_DRY_RUN=${PRINT_DRY_RUN} | LP_DRY_RUN=${LP_DRY_RUN}`
 );
 
 
