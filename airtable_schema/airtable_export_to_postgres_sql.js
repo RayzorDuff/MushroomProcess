@@ -1655,11 +1655,15 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
       if (!Array.isArray(rowsRaw) || rowsRaw.length === 0) continue;
 
       const storedFields = (t.fields || []).filter(f =>
-        !isComputedType(f.type) &&
+        (
+          !isComputedType(f.type) ||
+          autogenIdSpec(f, t.name)
+        ) &&
         f.type !== 'multipleRecordLinks' &&
         f.type !== 'singleRecordLink' &&
         f.type !== 'button'
       );
+
       const storedColSlugs = storedFields.map(f => slug(f.name)).filter(Boolean);
       const cols = ['airtable_id', ...storedColSlugs];
 
