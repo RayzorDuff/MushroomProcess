@@ -4838,6 +4838,11 @@
                 "color": "blueLight2"
               },
               {
+                "id": "selZXOWeDCzZjOS16",
+                "name": "Cordyceps_Substrate_Inoculated",
+                "color": "redLight2"
+              },
+              {
                 "id": "selxrPNe2GOyFD1q8",
                 "name": "LC_Flask_Inoculated",
                 "color": "cyanLight2"
