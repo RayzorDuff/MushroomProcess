@@ -1,3 +1,151 @@
+## [v1.1.0-RC1] - 2026-05-16
+
+_This is the first release candidate for the Appsmith/Postgres implementation. The release is intended to support structured row-by-row parity testing against the Airtable implementation, with the goal of reaching a stable feature-complete Appsmith/Postgres release._
+
+---
+
+## Release-candidate testing scope
+
+- Added a formal **MushroomProcess Appsmith / n8n / Postgres test matrix** for cutover validation.
+  - The matrix is intended to guide parity testing across Appsmith interfaces, n8n workflows, Postgres functions, and any remaining Airtable dependencies.
+  - The cutover matrix also accounts for SignatureGate Airtable dependencies that must be considered during the broader transition.
+- This release is positioned as the first test candidate for validating row-by-row functional parity between:
+  - existing Airtable automations / interfaces, and
+  - the Appsmith + Postgres + n8n implementation.
+
+---
+
+## Appsmith interface expansion and parity work
+
+- Continued expanding the Appsmith lot-centric operator interface toward feature-complete Airtable parity.
+- Added and wired additional Lots-page modals and action flows, including:
+  - **Draw Syringes**
+  - **Harvest Lot**
+  - **Spawn to Bulk**
+  - product manipulation / product-page mockup work
+- Added button-state and selection validation behavior so operation buttons are hidden or disabled when the current table selection is not valid for the selected action.
+- Improved Appsmith workflow wiring so interface actions call the corresponding Postgres functions with correct IDs, materialized values, and modal inputs.
+- Updated Appsmith page and modal definitions in `nocodb_interfaces/MushroomProcess.json` for the current production workflow surface.
+
+---
+
+## Spawn to Bulk implementation
+
+- Added initial and follow-up Postgres support for Spawn to Bulk in `nocodb_schema/pgsql/010_spawn_to_bulk.sql`.
+- Added helper logic for selecting the correct fruiting-block item from grain/substrate/species context.
+- Wired the Spawn to Bulk UI, modal widgets, Appsmith JavaScript, and SQL calls together.
+- Updated documentation to reflect the new Spawn to Bulk migration and SQL module.
+
+---
+
+## Harvest implementation
+
+- Added initial Postgres schema/function support for harvest operations in `nocodb_schema/pgsql/009_harvest_actions.sql`.
+- Implemented the Harvest Lot modal in Appsmith, including UI, SQL, and JS.
+- Added validation to disable modal submit buttons until the required selections and inputs are present.
+- Added lifecycle timestamp maintenance for harvest/fruiting workflows:
+  - `beganfruiting_at`
+  - `firstharvested_at`
+  - `lastharvested_at`
+
+---
+
+## Lab workflows: agar, LC, syringes, and plates
+
+- Expanded lot-action SQL and Appsmith wiring for lab workflows:
+  - receive purchased syringes,
+  - draw syringes,
+  - pour plates,
+  - inoculate multiple targets,
+  - create products directly from syringe drawing where applicable.
+- Repaired Postgres functions for:
+  - `mp_lots_draw_syringes`
+  - `mp_products_draw_syringes`
+  - `mp_lots_receive_purchased_syringes`
+  - `mp_lots_pour_plates`
+- Improved quantity, `use_by`, link creation, and print-enqueue behavior for syringe and plate workflows.
+- Set syringe recipe from LC source material and materialized item names for downstream UI/display use.
+- Set default storage location for agar plates to **Fridge**.
+- Mark agar flasks as **Consumed** after plates are poured.
+- Added item/recipe links and materialized fields when creating agar lots.
+- Updated flows to use `location_id` instead of location names wherever possible.
+
+---
+
+## Cordyceps substrate workflow support
+
+- Added a new `cordyceps_substrate` item/category path to support Cordyceps workflows that differ from standard grain/substrate flows.
+- Refreshed the Airtable schema export and generated Postgres/NocoDB artifacts to include the new Cordyceps substrate category.
+- Updated related inoculation, print queue, computed view, and data-load behavior to support the new category.
+- Added follow-up cleanup for remaining Cordyceps process support after the main schema update.
+
+---
+
+## Fulfillment, Clover, and Ecwid reconciliation
+
+- Enhanced the Clover/Ecwid polling and Appsmith Fulfillment interface to better support transaction processing and manual reconciliation.
+- Updated n8n workflows for:
+  - Clover payment reconciliation polling,
+  - Fulfillment API behavior,
+  - Ecwid/Clover order reconciliation support.
+- Improved Fulfillment documentation to reflect the implemented reconciliation flow.
+- Added logic to better support manual reconciliation paths and reduce operator friction when matching Clover payments to Ecwid orders.
+
+---
+
+## Postgres formula/computed-view generation
+
+- Improved the Airtable-to-Postgres formula translator and computed-view generator:
+  - added support for Airtable `SEARCH()` and `FIND()` formula functions,
+  - updated `AND()` / `OR()` handling so formula arguments are evaluated through the existing truthiness helper,
+  - restored fallback guard logic with the correct `AND` behavior,
+  - fixed loader behavior so Airtable formula ID values are no longer imported as data values.
+- Repaired idempotent FK generation for single-link FK columns.
+- Improved schema-refresh behavior by dropping existing FK constraints before recreating them.
+- Refreshed generated SQL and CSV artifacts after these generator fixes.
+
+---
+
+## Print daemon: Mac support and dry-run mode
+
+- Added Mac printing support for the print daemon.
+- Expanded print-daemon configuration and documentation for Mac/CUPS usage.
+- Added a dry-run mode where print jobs can be processed without rendering/spooling through CUPS, making it safer to test queue processing without producing physical labels.
+- Repaired Airtable print queue and sterilizer-out script typos.
+
+---
+
+## Data import and schema refresh
+
+- Refreshed Airtable export artifacts and Postgres/NocoDB generated outputs:
+  - `_schema.json`
+  - table JSON/YAML/NDJSON exports
+  - `tables_dump.json`
+  - generated SQL modules
+  - generated CSV import files
+- Updated `100_load.sql` and related generated artifacts for the current imported data set.
+- Continued cleanup around Airtable formula fields and generated values so the imported Postgres data more accurately represents operational data instead of Airtable internal formula IDs.
+
+---
+
+## Documentation updates
+
+- Updated documentation for:
+  - Harvest modal behavior,
+  - Spawn to Bulk modal behavior,
+  - Fulfillment implementation,
+  - new `009` and `010` Postgres migration modules,
+  - print-daemon Mac support and dry-run behavior,
+  - cutover/parity test planning.
+- Updated README and Appsmith/NocoDB interface documentation to reflect the current release-candidate direction.
+
+---
+
+## Summary
+
+`v1.1.0-RC1` is the first structured release candidate for validating the Appsmith/Postgres implementation against Airtable behavior. It adds the cutover test matrix, expands the Appsmith interface toward feature completeness, implements key Harvest and Spawn to Bulk workflows, improves Fulfillment reconciliation, adds Cordyceps substrate support, and hardens the Postgres import / formula-generation path for parity testing.
+
+
 ## [v1.0.8-beta] - 2026-04-19
 
 _This release continues the transition from the legacy station-centric Airtable interface toward a lot-centric Appsmith/Postgres workflow. It is the first release that includes a more fully usable Appsmith surface beyond sterilizer operations, with a stabilized **Fulfillment** interface, an initial **Personnel Reviews** page, and a larger imported Airtable data set used for basic interface testing through lot manipulation._
