@@ -1379,7 +1379,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_receive_purchased_syringes(
   p_count integer,
   p_storage_location_id bigint,
   p_operator text,
-  p_station text DEFAULT 'Lab - Receive',
+  p_station text DEFAULT 'Receiving',
   p_notes text DEFAULT NULL
 )
 RETURNS integer
@@ -1401,7 +1401,6 @@ DECLARE
     )
   );
   v_rcv date := COALESCE(p_received_date, now()::date);
-  v_use_by date := (COALESCE(p_received_date, now()::date) + interval '6 months')::date;
   v_strain record;
   v_item record;
 BEGIN
@@ -1439,7 +1438,7 @@ BEGIN
       p_ml_each,
       p_ml_each,
       p_ml_each,
-      v_use_by,
+      NULL, -- Airtable parity: purchased syringe use_by remains blank on receipt.
       'LC_Syringe_Received',
       p_operator,
       v_ts,
@@ -1463,25 +1462,31 @@ BEGIN
     END;
 
     BEGIN
-      v_event_id := public.mp_events_insert(
-        'Receive Purchased Syringe'::text,
-        COALESCE(p_operator,'')::text,
-        COALESCE(p_station,'Lab - Receive')::text,
+      v_event_id := public.mp_events_insert_and_link_lot(
+        v_new_lot_id,
+        'Received'::text,
         v_ts,
+        COALESCE(p_operator,'system')::text,
+        COALESCE(NULLIF(btrim(p_station), ''), 'Receiving')::text,
         jsonb_build_object(
           'vendor_name', p_vendor_name,
           'vendor_batch', p_vendor_batch,
           'source_type', 'Purchased',
-          'received_date', v_rcv,
-          'ml_each', p_ml_each,
-          'use_by', v_use_by,
-          'notes', p_notes
+          'total_volume_ml', p_ml_each
         )
       );
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_new_lot_id);
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    BEGIN
+      v_event_id := public.mp_events_insert_and_link_lot(
+        v_new_lot_id,
+        'FullyColonized'::text,
+        v_ts,
+        COALESCE(p_operator,'system')::text,
+        'Dark Room'::text,
+        '{}'::jsonb
+      );
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
 
@@ -1501,7 +1506,6 @@ BEGIN
   RETURN p_count;
 END;
 $$;
-
 
 
 -- POUR PLATES: create N plate lots from an agar_flask lot, events + print jobs, group_id assigned

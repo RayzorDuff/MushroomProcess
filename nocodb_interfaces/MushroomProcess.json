@@ -15592,7 +15592,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_receive_purchased_syringes(\n  {{LabReceive.sql.num(selReceiveItem.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.num(selReceiveStrain.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str(inpReceiveVendor.text)}}::text,\n  {{LabReceive.sql.str(inpReceiveBatch.text)}}::text,\n  {{ dpReceiveDate.selectedDate ? LabReceive.sql.str(dpReceiveDate.selectedDate) : \"NULL\" }}::date,\n  {{LabReceive.sql.num(inpReceiveMlEach.text)}}::numeric,\n  {{LabReceive.sql.num(inpReceiveCount.text)}}::integer,\n  {{LabReceive.sql.num(selReceiveLocation.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str( LabReceive.currentOperator() ) }}::text,\n  'Lab - Receive'::text,\n  {{LabReceive.sql.str(inpReceiveNotes?.text || \"\")}}::text\n);",
+          "body": "SELECT public.mp_lots_receive_purchased_syringes(\n  {{LabReceive.sql.num(selReceiveItem.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.num(selReceiveStrain.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str(inpReceiveVendor.text)}}::text,\n  {{LabReceive.sql.str(inpReceiveBatch.text)}}::text,\n  {{ dpReceiveDate.selectedDate ? LabReceive.sql.str(dpReceiveDate.selectedDate) : \"NULL\" }}::date,\n  {{LabReceive.sql.num(inpReceiveMlEach.text)}}::numeric,\n  {{LabReceive.sql.num(inpReceiveCount.text)}}::integer,\n  {{LabReceive.sql.num(selReceiveLocation.selectedOptionValue)}}::bigint,\n  {{LabReceive.sql.str( LabReceive.currentOperator() ) }}::text,\n  'Receiving'::text,\n  {{LabReceive.sql.str(inpReceiveNotes?.text || \"\")}}::text\n);",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
