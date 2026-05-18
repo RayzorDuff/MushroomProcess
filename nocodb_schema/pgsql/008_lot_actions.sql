@@ -80,17 +80,19 @@ BEGIN
 END;
 $$;
 
--- 2) RETIRE: supports multiple reasons; logs one event per reason per lot.
---    Terminal status/location rules:
---      - if reasons include Compost/Composted OR Contaminated -> status Composted, location Compost
---      - if reasons include Expired -> status Expired, location Expired
---      - else -> status Retired, location unchanged
+-- 2) RETIRE: supports multiple terminal reasons; logs one event per reason per lot.
+--    Airtable-equivalent terminal status/event rules:
+--      - Contaminated -> event Contaminated, status Retired, optional location Compost
+--      - Inviable -> event Inviable, status Retired, optional location Compost
+--      - Compost/Composted -> event Composted, status Retired, optional location Compost
+--      - Expire/Expired -> event Expired, status Expired, optional location Expired
+--    Station defaults from current lot location when p_station is NULL/blank/'Lots'.
 --    Also sets retired_at and appends note.
 CREATE OR REPLACE FUNCTION public.mp_lots_retire(
   p_lot_ids   bigint[],
   p_reasons   text[],
   p_operator  text,
-  p_station   text DEFAULT 'Lots',
+  p_station   text DEFAULT NULL,
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
@@ -100,16 +102,23 @@ AS $$
 DECLARE
   v_lot_id bigint;
   v_reason text;
+  v_reason_key text;
+  v_event_type text;
   v_event_id bigint;
   v_fields jsonb;
   v_reasons_lower text[];
   v_terminal_status text;
   v_terminal_location text;
+  v_station text;
+  v_current_location text;
+  v_ts timestamp without time zone;
   v_counter integer := 0;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
   END IF;
+
+  v_ts := COALESCE(p_timestamp, now())::timestamp without time zone;
 
   v_reasons_lower := ARRAY(
     SELECT lower(btrim(x))
@@ -117,12 +126,16 @@ BEGIN
     WHERE x IS NOT NULL AND btrim(x) <> ''
   );
 
-  -- Decide terminal status + optional terminal location
-  IF 'expired' = ANY(v_reasons_lower) THEN
+  -- Decide terminal status + optional terminal location. For Airtable parity,
+  -- Contaminated, Inviable, and Compost are Retired statuses, not Composted.
+  IF ('expired' = ANY(v_reasons_lower)) OR ('expire' = ANY(v_reasons_lower)) THEN
     v_terminal_status := 'Expired';
     v_terminal_location := 'Expired';
-  ELSIF ('compost' = ANY(v_reasons_lower)) OR ('composted' = ANY(v_reasons_lower)) OR ('contaminated' = ANY(v_reasons_lower)) OR ('inviable' = ANY(v_reasons_lower)) THEN
-    v_terminal_status := 'Composted';
+  ELSIF ('compost' = ANY(v_reasons_lower))
+     OR ('composted' = ANY(v_reasons_lower))
+     OR ('contaminated' = ANY(v_reasons_lower))
+     OR ('inviable' = ANY(v_reasons_lower)) THEN
+    v_terminal_status := 'Retired';
     v_terminal_location := 'Compost';
   ELSE
     v_terminal_status := 'Retired';
@@ -130,6 +143,21 @@ BEGIN
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
+    SELECT COALESCE(loc.name, '')
+    INTO v_current_location
+    FROM public.lots lot
+    LEFT JOIN public.locations loc ON loc.nocopk = lot.location_id
+    WHERE lot.nocopk = v_lot_id;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Lot not found: %', v_lot_id;
+    END IF;
+
+    v_station := CASE
+      WHEN p_station IS NULL OR btrim(p_station) = '' OR btrim(p_station) = 'Lots'
+        THEN COALESCE(NULLIF(v_current_location, ''), 'Lots')
+      ELSE p_station
+    END;
 
     -- log one event per reason
     FOREACH v_reason IN ARRAY COALESCE(p_reasons, ARRAY[]::text[]) LOOP
@@ -137,8 +165,18 @@ BEGIN
         CONTINUE;
       END IF;
 
+      v_reason_key := lower(btrim(v_reason));
+      v_event_type := CASE
+        WHEN v_reason_key IN ('compost', 'composted') THEN 'Composted'
+        WHEN v_reason_key IN ('expire', 'expired') THEN 'Expired'
+        WHEN v_reason_key = 'contaminated' THEN 'Contaminated'
+        WHEN v_reason_key = 'inviable' THEN 'Inviable'
+        ELSE btrim(v_reason)
+      END;
+
       v_fields := jsonb_build_object(
         'reason', v_reason,
+        'event_type', v_event_type,
         'reasons', COALESCE(p_reasons, ARRAY[]::text[]),
         'terminal_status', v_terminal_status,
         'terminal_location', v_terminal_location,
@@ -147,15 +185,15 @@ BEGIN
 
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
-		v_lot_id::bigint,
-		v_reason::text, 
-		COALESCE(p_timestamp, now())::timestamp, 
-		p_operator::text, 
-		p_station::text, 
-		v_fields::jsonb
-	);
+          v_lot_id::bigint,
+          v_event_type::text,
+          v_ts,
+          p_operator::text,
+          v_station::text,
+          v_fields::jsonb
+        );
       EXCEPTION WHEN undefined_function THEN
-	NULL;
+        NULL;
       END;
 
     END LOOP;
@@ -163,7 +201,7 @@ BEGIN
     -- terminal updates
     UPDATE public.lots
     SET status = v_terminal_status,
-        retired_at = COALESCE(p_timestamp, now())
+        retired_at = v_ts
     WHERE nocopk = v_lot_id;
 
     IF v_terminal_location IS NOT NULL THEN
