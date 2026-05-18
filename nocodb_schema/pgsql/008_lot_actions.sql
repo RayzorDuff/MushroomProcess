@@ -193,21 +193,22 @@ BEGIN
 END;
 $$;
 
--- 3) MOVE: updates location_id by name and performs special transitions for Fridge and Fruiting.
---    Special rules (minimal implementation matching Airtable Dark Room Actions intent):
---      - If moving to Fridge:
---          * ensure status is FullyColonized (insert event FullyColonized if it wasn't already)
---          * then set status to Fridge or ColdShock (based on p_fridge_mode)
---          * insert an event for the move/transition
---      - If moving to Fruiting:
---          * set status to Fruiting
---          * insert an event for the move/transition
+-- 3) MOVE / TRANSITION: transitions selected lots through Fully Colonized, Fridge,
+--    Cold Shock, Fruiting, or a simple location move.
+--
+--    p_fridge_mode is retained for backward compatibility with the earlier Fridge
+--    modal, but now represents the requested transition mode:
+--      - FullyColonized: set status and log FullyColonized without requiring a new location
+--      - Fridge: ensure/log FullyColonized, move to the selected fridge location, set status Fridge
+--      - ColdShock: ensure/log FullyColonized, move to the selected fridge location, set status ColdShock
+--      - Fruiting / StartFruiting: move to the selected fruiting location, set status Fruiting, log FruitingStart
+--      - any other value: simple location Move
 CREATE OR REPLACE FUNCTION public.mp_lots_move(
   p_lot_ids   bigint[],
-  p_location_id bigint,
+  p_location_id bigint DEFAULT NULL,
   p_fridge_mode text DEFAULT 'Fridge',
   p_operator  text DEFAULT 'system',
-  p_station   text DEFAULT 'Lots',
+  p_station   text DEFAULT 'Transition/Move',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
@@ -222,96 +223,166 @@ DECLARE
   v_old_status text;
   v_new_status text;
   v_location_name text;
+  v_mode text;
+  v_ts timestamp without time zone;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
   END IF;
 
-  SELECT l.name INTO v_location_name
-  FROM public.locations l
-  WHERE l.nocopk = p_location_id;
+  v_mode := COALESCE(NULLIF(btrim(p_fridge_mode), ''), 'Fridge');
+  v_ts := COALESCE(p_timestamp, now())::timestamp without time zone;
 
-  IF p_location_id IS NULL OR v_location_name IS NULL THEN
-    RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
+  IF p_location_id IS NOT NULL THEN
+    SELECT l.name INTO v_location_name
+    FROM public.locations l
+    WHERE l.nocopk = p_location_id;
+
+    IF v_location_name IS NULL THEN
+      RAISE EXCEPTION 'Location not found for nocopk: %', p_location_id;
+    END IF;
+  END IF;
+
+  IF v_mode IN ('Fridge', 'ColdShock', 'Fruiting', 'StartFruiting')
+     AND (p_location_id IS NULL OR v_location_name IS NULL) THEN
+    RAISE EXCEPTION 'Location is required for % transition', v_mode;
   END IF;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
-    SELECT status INTO v_old_status FROM public.lots WHERE nocopk = v_lot_id;
+    SELECT status INTO v_old_status
+    FROM public.lots
+    WHERE nocopk = v_lot_id;
 
-    -- Update location
-    PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Lot not found: %', v_lot_id;
+    END IF;
 
-    v_new_status := NULL;
+    IF v_mode = 'FullyColonized' THEN
+      UPDATE public.lots
+      SET status = 'FullyColonized'
+      WHERE nocopk = v_lot_id;
 
-    IF v_location_name ILIKE '%Fridge%' OR v_location_name ILIKE '%Refrigerator%' THEN
-      -- Ensure FullyColonized first
-      IF COALESCE(v_old_status,'') NOT IN ('FullyColonized','Fridge','ColdShock') THEN
-        UPDATE public.lots SET status = 'FullyColonized' WHERE nocopk = v_lot_id;
-        v_fields := jsonb_build_object('action','FullyColonized','from_status',v_old_status,'to_status','FullyColonized','note',p_note);
+      BEGIN
+        v_event_id := public.mp_events_insert_and_link_lot(
+          v_lot_id::bigint,
+          'FullyColonized'::text,
+          v_ts,
+          p_operator::text,
+          'Dark Room'::text,
+          '{}'::jsonb
+        );
+      EXCEPTION WHEN undefined_function THEN
+        NULL;
+      END;
+
+    ELSIF v_mode IN ('Fridge', 'ColdShock') THEN
+      IF COALESCE(v_old_status, '') NOT IN ('FullyColonized','Fridge','ColdShock') THEN
+        UPDATE public.lots
+        SET status = 'FullyColonized'
+        WHERE nocopk = v_lot_id;
+
         BEGIN
           v_event_id := public.mp_events_insert_and_link_lot(
-            v_lot_id::bigint, 
-            'FullyColonized'::text, 
-            COALESCE(p_timestamp, now())::timestamp, 
-            p_operator::text, 
-            p_station::text, 
-            v_fields::jsonb
+            v_lot_id::bigint,
+            'FullyColonized'::text,
+            v_ts,
+            p_operator::text,
+            'Dark Room'::text,
+            '{}'::jsonb
           );
-        EXCEPTION WHEN undefined_function THEN NULL;
+        EXCEPTION WHEN undefined_function THEN
+          NULL;
         END;
       END IF;
 
-      v_new_status := CASE WHEN COALESCE(p_fridge_mode,'') = 'ColdShock' THEN 'ColdShock' ELSE 'Fridge' END;
-      UPDATE public.lots SET status = v_new_status WHERE nocopk = v_lot_id;
+      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
 
-      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'note',p_note);
-      BEGIN
-        v_event_id := public.mp_events_insert_and_link_lot(
-          v_lot_id::bigint, 
-          v_new_status::text, 
-          COALESCE(p_timestamp, now())::timestamp, 
-          p_operator::text, 
-          p_station::text, 
-          v_fields::jsonb
-        );
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-
-    ELSIF v_location_name ILIKE '%Fruiting%' THEN
-      v_new_status := 'Fruiting';
+      v_new_status := CASE WHEN v_mode = 'ColdShock' THEN 'ColdShock' ELSE 'Fridge' END;
       UPDATE public.lots
-      SET status = v_new_status,
-          beganfruiting_at = COALESCE(beganfruiting_at, COALESCE(p_timestamp, now()))
+      SET status = v_new_status
       WHERE nocopk = v_lot_id;
 
-      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'to_status',v_new_status,'beganfruiting_at_set', true,'note',p_note);
+      v_fields := jsonb_build_object(
+        'action', v_new_status,
+        'from_status', v_old_status,
+        'to_status', v_new_status,
+        'to_location', v_location_name,
+        'to_location_id', p_location_id,
+        'note', p_note
+      );
+
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
-          v_lot_id::bigint, 
-          'Fruiting'::text, 
-          COALESCE(p_timestamp, now())::timestamp, 
-          p_operator::text, 
-          p_station::text, 
+          v_lot_id::bigint,
+          v_new_status::text,
+          v_ts,
+          p_operator::text,
+          COALESCE(NULLIF(btrim(p_station), ''), 'Transition/Move')::text,
           v_fields::jsonb
         );
-      EXCEPTION WHEN undefined_function THEN NULL;
+      EXCEPTION WHEN undefined_function THEN
+        NULL;
       END;
-    ELSE
-      v_fields := jsonb_build_object('action','Move','to_location',v_location_name,'to_location_id',p_location_id,'note',p_note);
+
+    ELSIF v_mode IN ('Fruiting', 'StartFruiting') THEN
+      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+
+      UPDATE public.lots
+      SET status = 'Fruiting',
+          beganfruiting_at = COALESCE(beganfruiting_at, v_ts)
+      WHERE nocopk = v_lot_id;
+
+      v_fields := jsonb_build_object(
+        'action', 'StartFruiting',
+        'from_status', v_old_status,
+        'to_status', 'Fruiting',
+        'to_location', v_location_name,
+        'to_location_id', p_location_id,
+        'beganfruiting_at_set', true,
+        'note', p_note
+      );
+
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
-          v_lot_id::bigint, 
-          'Move'::text, 
-          COALESCE(p_timestamp, now())::timestamp, 
-          p_operator::text, 
-          p_station::text, 
+          v_lot_id::bigint,
+          'FruitingStart'::text,
+          v_ts,
+          p_operator::text,
+          'Fruiting'::text,
           v_fields::jsonb
         );
-      EXCEPTION WHEN undefined_function THEN NULL;
+      EXCEPTION WHEN undefined_function THEN
+        NULL;
+      END;
+
+    ELSE
+      IF p_location_id IS NULL OR v_location_name IS NULL THEN
+        RAISE EXCEPTION 'Location is required for Move transition';
+      END IF;
+
+      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+
+      v_fields := jsonb_build_object(
+        'action', 'Move',
+        'to_location', v_location_name,
+        'to_location_id', p_location_id,
+        'note', p_note
+      );
+
+      BEGIN
+        v_event_id := public.mp_events_insert_and_link_lot(
+          v_lot_id::bigint,
+          'Move'::text,
+          v_ts,
+          p_operator::text,
+          COALESCE(NULLIF(btrim(p_station), ''), 'Transition/Move')::text,
+          v_fields::jsonb
+        );
+      EXCEPTION WHEN undefined_function THEN
+        NULL;
       END;
     END IF;
 
-    -- Optional notes append
     IF p_note IS NOT NULL AND btrim(p_note) <> '' THEN
       UPDATE public.lots
       SET notes = CASE
