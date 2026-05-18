@@ -772,7 +772,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "INSERT INTO public.sterilization_runs\n(planned_item_id, planned_recipe_id, planned_unit_size, planned_count, operator, start_time, process_type, target_temp_c, pressure_mode)\nVALUES (\n  {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }},\n  {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }},\n  {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }},\n  '{{ ((appsmith.user?.email || appsmith.user?.name || \"system\") + \"\").replace(/'/g, \"''\") }}'::text,\n  {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n  '{{ (selProcessType.selectedOptionValue || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtTargetTemp.text || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtPressureMode.text || \"\").replace(/'/g, \"''\") }}'\n)\nRETURNING nocopk, steri_run_id;",
+          "body": "WITH created AS (\n  SELECT public.mp_sterilizer_start_run(\n    p_planned_item_id => {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_recipe_id => {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_count => {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }}::numeric,\n    p_planned_unit_size => {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }}::numeric,\n    p_process_type => {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }}::text,\n    p_start_time => {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n    p_operator => {{ SterilizerIn.sql.str(SterilizerIn.currentOperator()) }}::text,\n    p_target_temp_c => {{ Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" }}::numeric,\n    p_pressure_mode => {{ SterilizerIn.sql.str(txtPressureMode.text) }}::text\n  ) AS nocopk\n)\nSELECT sr.nocopk, sr.steri_run_id\nFROM created c\nJOIN public.sterilization_runs sr ON sr.nocopk = c.nocopk;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -807,10 +807,13 @@
         "jsonPathKeys": [
           " Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" ",
           " Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" ",
+          " SterilizerIn.sql.str(selProcessType.selectedOptionValue) ",
           " Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" ",
-          " (txtTargetTemp.text || \"\").replace(/'/g, \"''\") }}',\n  '{{ (txtPressureMode.text || \"\").replace(/'/g, \"''\") ",
           " Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" ",
-          " ((appsmith.user?.email || appsmith.user?.name || \"system\") + \"\").replace(/'/g, \"''\") }}'::text,\n  {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n  '{{ (selProcessType.selectedOptionValue || \"\").replace(/'/g, \"''\") "
+          " SterilizerIn.sql.str(txtPressureMode.text) ",
+          " SterilizerIn.sql.str(SterilizerIn.currentOperator()) ",
+          " Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" ",
+          " dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" "
         ],
         "messages": [],
         "name": "qCreateRun",

@@ -18,14 +18,20 @@ AS $$
 DECLARE
   v_run_id bigint;
   v_err text := '';
+  v_process_type text;
 BEGIN
+  v_process_type := CASE lower(btrim(COALESCE(p_process_type, '')))
+    WHEN 'sterilize' THEN 'Sterilize'
+    WHEN 'pasteurize' THEN 'Pasteurize'
+    ELSE NULL
+  END;
   IF p_planned_item_id IS NULL THEN v_err := v_err || 'Planned Item is required. '; END IF;
   IF p_planned_recipe_id IS NULL THEN v_err := v_err || 'Planned Recipe is required. '; END IF;
   IF p_planned_count IS NULL OR p_planned_count <= 0 THEN v_err := v_err || 'Planned Count must be > 0. '; END IF;
   IF p_planned_unit_size IS NULL OR p_planned_unit_size <= 0 THEN v_err := v_err || 'Planned Unit Size must be > 0. '; END IF;
 
-  IF p_process_type NOT IN ('sterilize','pasteurize') THEN
-    v_err := v_err || 'Process Type must be sterilize or pasteurize. ';
+  IF v_process_type IS NULL THEN
+    v_err := v_err || 'Process Type must be Sterilize or Pasteurize. ';
   END IF;
 
   IF p_start_time IS NULL THEN
@@ -42,7 +48,7 @@ BEGIN
      "ui_error","ui_error_at")
   VALUES
     (p_planned_item_id, p_planned_recipe_id, p_planned_count, p_planned_unit_size,
-     p_process_type, p_start_time, p_operator, p_target_temp_c, p_pressure_mode,
+     v_process_type, p_start_time, p_operator, p_target_temp_c, p_pressure_mode,
      NULL, NULL)
   RETURNING "nocopk" INTO v_run_id;
 
@@ -125,7 +131,7 @@ BEGIN
   v_item_category := v_run.item_category;
 
   v_status := CASE
-    WHEN v_run."process_type" = 'pasteurize' THEN 'Pasteurized'
+    WHEN lower(btrim(v_run."process_type")) = 'pasteurize' THEN 'Pasteurized'
     ELSE 'Sterilized'
   END;
 
@@ -184,13 +190,13 @@ BEGIN
     -- Event: Sterilized/Pasteurized linked to each created lot (Airtable parity)
     v_evt_id := public.mp_events_insert_and_link_lot(
       v_lot_id::bigint,	
-      CASE WHEN v_run."process_type" = 'pasteurize' THEN 'Pasteurized' ELSE 'Sterilized' END,
+      CASE WHEN lower(btrim(v_run."process_type")) = 'pasteurize' THEN 'Pasteurized' ELSE 'Sterilized' END,
       v_end::timestamp,
       p_operator::text,
       'Sterilizer OUT'::text,
       json_build_object('run_id', v_run."nocopk",
         'run_no', v_run."steri_run_id",
-        'process_type', v_run."process_type",
+        'process_type', lower(btrim(v_run."process_type")),
         'unit_size', v_run."planned_unit_size")::jsonb
     );
   END LOOP;

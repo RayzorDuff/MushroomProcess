@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2026-05-12.1
+ * Version: 2026-05-17.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -241,18 +241,30 @@ await safeUpdate(runsTbl, run.id, {
 let pqTbl = null;
 try { pqTbl = base.getTable('print_queue'); } catch(_){}
 if (pqTbl) {
-  const SourceKindField     = pqTbl.getField('source_kind');
-  const SteriSheetKind  = (SourceKindField.options?.choices || []).find(c => c.name === 'steri_sheet');
-  const PrintStatusField     = pqTbl.getField('print_status');
-  const StatusQueued  = (PrintStatusField.options?.choices || []).find(c => c.name === 'Queued');
+  const SourceKindField = pqTbl.getField('source_kind');
+  const SteriSheetKind = (SourceKindField.options?.choices || []).find(c => c.name === 'steri_sheet');
+  const PrintStatusField = pqTbl.getField('print_status');
+  const StatusQueued = (PrintStatusField.options?.choices || []).find(c => c.name === 'Queued');
 
-  await pqTbl.createRecordAsync({
+  let SteriSheetLabel = null;
+  if (hasField(pqTbl, 'label_type')) {
+    const LabelTypeField = pqTbl.getField('label_type');
+    SteriSheetLabel = (LabelTypeField.options?.choices || []).find(c => c.name === 'Sterilizer_Sheet') || null;
+  }
+
+  const pqFields = {
     source_kind: SteriSheetKind,
     run_id: [{ id: run.id }],
     print_status: StatusQueued,
     // Optional: set a specific printer per job here:
     // target_printer: 'HP_Office_Letter'
-  });
+  };
+
+  // Set the explicit sterilizer sheet label type when the schema includes it.
+  // Older bases without this select choice can still route by source_kind = steri_sheet.
+  if (SteriSheetLabel) pqFields.label_type = SteriSheetLabel;
+
+  await pqTbl.createRecordAsync(pqFields);
 }
 
 notify(`Created ${createdLotIds.length} ${proc} lot(s). End time = ${tsIso}`);
