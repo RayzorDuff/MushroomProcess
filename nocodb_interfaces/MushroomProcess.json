@@ -5696,7 +5696,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_modify(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_actions => {{ LotsPage.sql.arrStr(chkbxgrpModifyAction.selectedValues || []) }}::text[],\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Lots'::text,\n  p_timestamp => now()::timestamp,\n  p_note => {{ LotsPage.sql.str(inpModifyNotes.text || '') }}::text\n) AS modified_count;\n",
+          "body": "SELECT public.mp_lots_modify(\n  p_lot_ids => {{ LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) }}::bigint[],\n  p_actions => {{ LotsPage.sql.arrStr(chkbxgrpModifyAction.selectedValues || []) }}::text[],\n  p_operator => {{ LotsPage.sql.str( LotsPage.currentOperator() ) }}::text,\n  p_station => 'Dark Room'::text,\n  p_timestamp => NULL::timestamp,\n  p_note => {{ LotsPage.sql.str(inpModifyNotes.text || '') }}::text\n) AS modified_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -5729,8 +5729,8 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          " LotsPage.sql.str(inpModifyNotes.text || '') ",
           " LotsPage.sql.arrBigint(LotsPage.selectedLotIds()) ",
+          " LotsPage.sql.str(inpModifyNotes.text || '') ",
           " LotsPage.sql.arrStr(chkbxgrpModifyAction.selectedValues || []) ",
           " LotsPage.sql.str( LotsPage.currentOperator() ) "
         ],

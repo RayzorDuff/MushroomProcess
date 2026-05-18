@@ -328,12 +328,12 @@ BEGIN
 END;
 $$;
 
--- 4) MODIFY: creates a modification event for each lot (does not change status by default)
+-- 4) MODIFY: creates a modification/treatment event for each lot (does not change status by default)
 CREATE OR REPLACE FUNCTION public.mp_lots_modify(
   p_lot_ids   bigint[],
   p_actions   text[],
   p_operator  text,
-  p_station   text DEFAULT 'Lots',
+  p_station   text DEFAULT 'Dark Room',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note      text DEFAULT NULL
 )
@@ -344,6 +344,9 @@ DECLARE
   v_lot_id bigint;
   v_event_id bigint;
   v_action text;
+  v_event_type text;
+  v_station text;
+  v_ts timestamp without time zone;
   v_fields jsonb;
   v_counter integer := 0;
 BEGIN
@@ -351,23 +354,46 @@ BEGIN
     RETURN 0;
   END IF;
 
+  v_ts := COALESCE(p_timestamp, now())::timestamp without time zone;
+  v_station := COALESCE(NULLIF(btrim(p_station), ''), 'Dark Room');
+
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
 
-    -- log one event per reason
+    -- log one event per selected action
     FOREACH v_action IN ARRAY COALESCE(p_actions, ARRAY[]::text[]) LOOP
-      IF v_action IS NULL OR btrim(v_action) = '' THEN
+      v_action := NULLIF(btrim(v_action), '');
+      IF v_action IS NULL THEN
         CONTINUE;
       END IF;
 
-      v_fields := jsonb_build_object('action', v_action, 'note', p_note);
+      v_event_type := CASE v_action
+        WHEN 'ApplyCasing' THEN 'CasingApplied'
+        WHEN 'ApplyDiatomaceousEarth' THEN 'DiatomaceousEarthApplied'
+        WHEN 'ApplyNematodes' THEN 'NematodesApplied'
+        WHEN 'ApplyBeneficialTrichoderma' THEN 'BeneficialTrichodermaApplied'
+        WHEN 'ModifyFAE' THEN 'FAEModified'
+        ELSE v_action
+      END;
+
+      v_fields := jsonb_build_object(
+        'action', v_action,
+        'note', p_note
+      );
+
+      IF v_action = 'ApplyCasing' THEN
+        v_fields := v_fields || jsonb_build_object(
+          'casing_lot_id', NULL,
+          'casing_item_id', NULL
+        );
+      END IF;
 
       BEGIN
         v_event_id := public.mp_events_insert_and_link_lot(
-          v_lot_id::bigint, 
-          COALESCE(NULLIF(btrim(v_action),''), 'Modify')::text, 
-          COALESCE(p_timestamp, now())::timestamp, 
-          p_operator::text, 
-          p_station::text, 
+          v_lot_id::bigint,
+          v_event_type::text,
+          v_ts::timestamp,
+          p_operator::text,
+          v_station::text,
           v_fields::jsonb
         );
       EXCEPTION WHEN undefined_function THEN NULL;
@@ -375,17 +401,18 @@ BEGIN
 
       IF v_action = 'ApplyCasing' THEN
         UPDATE public.lots
-        SET 
-          casing_applied_at = now()::date,
-	  casing_notes = CASE
-	    WHEN casing_notes IS NULL OR notes = '' THEN p_note
+        SET
+          casing_applied_at = v_ts,
+          casing_notes = CASE
+            WHEN p_note IS NULL OR btrim(p_note) = '' THEN casing_notes
+            WHEN casing_notes IS NULL OR casing_notes = '' THEN p_note
             ELSE casing_notes || E'\n' || p_note
           END
         WHERE nocopk = v_lot_id;
       END IF;
 
     END LOOP;
-    
+
     IF p_note IS NOT NULL AND btrim(p_note) <> '' THEN
       UPDATE public.lots
       SET notes = CASE
