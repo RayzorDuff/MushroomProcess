@@ -67,7 +67,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_spawn_to_bulk(
   p_storage_location_id bigint DEFAULT NULL,
   p_override_spawn_time timestamp without time zone DEFAULT NULL,
   p_operator text DEFAULT 'system',
-  p_station text DEFAULT 'Lots - Spawn to Bulk',
+  p_station text DEFAULT 'Spawn to Bulk',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_note text DEFAULT NULL
 )
@@ -110,6 +110,7 @@ DECLARE
   v_item_name text;
   v_item_category text;
   v_created_lot_id bigint;
+  v_created_lot_ids bigint[] := ARRAY[]::bigint[];
   v_created_count integer := 0;
   v_event_id bigint;
 BEGIN
@@ -354,6 +355,8 @@ BEGIN
     )
     RETURNING nocopk INTO v_created_lot_id;
 
+    v_created_lot_ids := array_append(v_created_lot_ids, v_created_lot_id);
+
     BEGIN
       PERFORM public.mp_lot_set_location(v_created_lot_id, v_storage_location_id);
     EXCEPTION WHEN undefined_function THEN NULL;
@@ -403,9 +406,9 @@ BEGIN
         jsonb_build_object(
           'grain_input_ids', p_grain_lot_ids,
           'substrate_input_ids', p_substrate_lot_ids,
-          'output_index', v_i,
+          'output_index', v_i - 1,
           'output_count', v_output_count,
-          'unit_size', v_unit_size,
+          'per_output_unit_size_lb', v_unit_size,
           'output_item_code', v_item_code,
           'output_plan_json', p_output_plan_json,
           'note', p_note
@@ -417,7 +420,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'lot'::text,
-        'Fruiting_Block'::text,
+        'Bulk_Created'::text,
         v_created_lot_id,
         NULL::bigint,
         NULL::bigint,
@@ -453,6 +456,7 @@ BEGIN
         p_operator,
         p_station,
         jsonb_build_object(
+          'consumed_by_lot_ids', v_created_lot_ids,
           'consumed_by_spawn_to_bulk', true,
           'created_lot_count', v_created_count,
           'grain_input_ids', p_grain_lot_ids,
