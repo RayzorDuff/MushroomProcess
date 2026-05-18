@@ -235,7 +235,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { \n\t  await qAgarFlasks.run();\n  \tawait qAgarLocations.run();\n\t},\n\t\t\n  async pourPlatesFromSelectedFlask() {\n\t\tif (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n\t\t\tshowAlert(\"Select an agar flask lot first.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tconst res = await qPourPlates.run();\n\t\tshowAlert(\"Plates created.\", \"success\");\n\n\t\tawait LabAgar.refresh();\n\t\treturn res;\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tcanSubmitPourPlates() {\n\t\tconst sourceId = tblAgarFlasks.selectedRow?.nocopk;\n\t\tconst plateCount = Number(inpPlateCount.text);\n\t\tconst locationId = selAgarLocation.selectedOptionValue;\n\n\t\treturn (\n\t\t\t!!sourceId &&\n\t\t\tNumber.isFinite(plateCount) &&\n\t\t\tplateCount > 0 &&\n\t\t\t!!locationId\n\t\t);\n\t},\n\t\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { \n\t  await qAgarFlasks.run();\n  \tawait qAgarLocations.run();\n\t},\n\t\n\tasync pourPlatesFromSelectedFlask() {\n\t\tif (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n\t\t\tshowAlert(\"Select an agar flask lot first.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tconst plateCount = Number(inpPlateCount.text);\n\t\tif (!Number.isFinite(plateCount) || plateCount <= 0) {\n\t\t\tshowAlert(\"Enter a plate count greater than 0.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!selAgarLocation.selectedOptionValue) {\n\t\t\tshowAlert(\"Select a storage location for the poured plates.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qPourPlates.run();\n\t\t\tconst created = res?.[0]?.created_count ?? plateCount;\n\n\t\t\tshowAlert(`Created ${created} plate lot(s).`, \"success\");\n\n\t\t\tinpPlateCount.setValue(\"\");\n\t\t\tinpPourNotes.setValue(\"\");\n\t\t\tdpPourOverride.setValue(\"\");\n\n\t\t\tawait LabAgar.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || \"Pour Plates failed.\", \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\t\n};",
         "name": "LabAgar",
         "pageId": "Lab - Agar",
         "pluginId": "js-plugin",
@@ -15968,7 +15968,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n    showAlert(\"Select an agar flask lot first.\", \"warning\");\n    return;\n  }\n  const res = await qPourPlates.run();\n  showAlert(\"Plates created.\", \"success\");\n  await LabAgar.refresh();\n  return res;\n}",
+          "body": "async function () {\n  if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n    showAlert(\"Select an agar flask lot first.\", \"warning\");\n    return;\n  }\n  const plateCount = Number(inpPlateCount.text);\n  if (!Number.isFinite(plateCount) || plateCount <= 0) {\n    showAlert(\"Enter a plate count greater than 0.\", \"warning\");\n    return;\n  }\n  if (!selAgarLocation.selectedOptionValue) {\n    showAlert(\"Select a storage location for the poured plates.\", \"warning\");\n    return;\n  }\n  try {\n    const res = await qPourPlates.run();\n    const created = res?.[0]?.created_count ?? plateCount;\n    showAlert(`Created ${created} plate lot(s).`, \"success\");\n    inpPlateCount.setValue(\"\");\n    inpPourNotes.setValue(\"\");\n    dpPourOverride.setValue(\"\");\n    await LabAgar.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || \"Pour Plates failed.\", \"error\");\n    return null;\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -15997,7 +15997,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n    showAlert(\"Select an agar flask lot first.\", \"warning\");\n    return;\n  }\n  const res = await qPourPlates.run();\n  showAlert(\"Plates created.\", \"success\");\n  await LabAgar.refresh();\n  return res;\n}"
+          "async function () {\n  if (!tblAgarFlasks.selectedRow || !tblAgarFlasks.selectedRow.nocopk) {\n    showAlert(\"Select an agar flask lot first.\", \"warning\");\n    return;\n  }\n  const plateCount = Number(inpPlateCount.text);\n  if (!Number.isFinite(plateCount) || plateCount <= 0) {\n    showAlert(\"Enter a plate count greater than 0.\", \"warning\");\n    return;\n  }\n  if (!selAgarLocation.selectedOptionValue) {\n    showAlert(\"Select a storage location for the poured plates.\", \"warning\");\n    return;\n  }\n  try {\n    const res = await qPourPlates.run();\n    const created = res?.[0]?.created_count ?? plateCount;\n    showAlert(`Created ${created} plate lot(s).`, \"success\");\n    inpPlateCount.setValue(\"\");\n    inpPourNotes.setValue(\"\");\n    dpPourOverride.setValue(\"\");\n    await LabAgar.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || \"Pour Plates failed.\", \"error\");\n    return null;\n  }\n}"
         ],
         "messages": [],
         "name": "pourPlatesFromSelectedFlask",
@@ -16068,7 +16068,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_pour_plates(\n  {{LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)}}::bigint,\n  (\n    SELECT nocopk\n    FROM public.items\n    WHERE category IN ('plate','agar_plate','AGAR-PLATE')\n       OR lower(category) LIKE '%plate%'\n    ORDER BY nocopk\n    LIMIT 1\n  )::bigint,\n  {{LabAgar.sql.num(inpPlateCount.text)}}::int,\n  {{LabAgar.sql.num(selAgarLocation.selectedOptionValue)}}::bigint,\n  {{LabAgar.sql.str( LabAgar.currentOperator() ) }}::text,\n  'Lab - Agar'::text,\n  {{ dpPourOverride.selectedDate ? LabAgar.sql.str(dpPourOverride.selectedDate) : \"NULL\" }}::timestamp,\n  {{LabAgar.sql.str(inpPourNotes.text || \"\")}}::text\n);",
+          "body": "SELECT public.mp_lots_pour_plates(\n  {{LabAgar.sql.num(tblAgarFlasks.selectedRow.nocopk)}}::bigint,\n  (\n    SELECT nocopk\n    FROM public.items\n    WHERE item_id = 'AGAR-PLATE'\n       OR category = 'plate'\n    ORDER BY\n      CASE WHEN item_id = 'AGAR-PLATE' THEN 0 ELSE 1 END,\n      nocopk\n    LIMIT 1\n  )::bigint,\n  {{LabAgar.sql.num(inpPlateCount.text)}}::int,\n  {{LabAgar.sql.num(selAgarLocation.selectedOptionValue)}}::bigint,\n  {{LabAgar.sql.str( LabAgar.currentOperator() ) }}::text,\n  'Pour Plates'::text,\n  {{ dpPourOverride.selectedDate ? LabAgar.sql.str(dpPourOverride.selectedDate) : \"NULL\" }}::timestamp,\n  {{LabAgar.sql.str(inpPourNotes.text || \"\")}}::text\n) AS created_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -16365,6 +16365,70 @@
         "pageId": "Lab - Agar",
         "policyMap": {},
         "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_ec50fc2b-08d7-4cdc-ab69-dc396aa550c9",
+      "id": "Lab - Agar_LabAgar.canSubmitPourPlates",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-18T22:36:58Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const sourceId = tblAgarFlasks.selectedRow?.nocopk;\n  const plateCount = Number(inpPlateCount.text);\n  const locationId = selAgarLocation.selectedOptionValue;\n  return !!sourceId && Number.isFinite(plateCount) && plateCount > 0 && !!locationId;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lab - Agar_LabAgar",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-18T22:36:58Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LabAgar.canSubmitPourPlates",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const sourceId = tblAgarFlasks.selectedRow?.nocopk;\n  const plateCount = Number(inpPlateCount.text);\n  const locationId = selAgarLocation.selectedOptionValue;\n  return !!sourceId && Number.isFinite(plateCount) && plateCount > 0 && !!locationId;\n}"
+        ],
+        "messages": [],
+        "name": "canSubmitPourPlates",
+        "pageId": "Lab - Agar",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
         "userPermissions": [],
         "userSetOnLoad": false
       }
@@ -63279,7 +63343,7 @@
                             }
                           ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": "{{\n\ntblAgarFlasks.selectedRow.nocopk === undefined\n\n}}",
+                          "isDisabled": "{{ !LabAgar.canSubmitPourPlates() }}",
                           "isLoading": false,
                           "isVisible": true,
                           "key": "aeuby9nh39",
@@ -64003,7 +64067,7 @@
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 26,
                           "boxShadow": "none",
-                          "defaultOptionValue": "Fridge",
+                          "defaultOptionValue": "{{ ((options, serverSideFiltering) => (  (qAgarLocations.data || [])[0]?.nocopk || \"\" ))(selAgarLocation.options, selAgarLocation.serverSideFiltering) }}",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -64013,6 +64077,9 @@
                             },
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "defaultOptionValue"
                             }
                           ],
                           "dynamicHeight": "FIXED",

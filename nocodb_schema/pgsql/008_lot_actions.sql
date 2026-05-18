@@ -1516,7 +1516,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_pour_plates(
   p_plate_count integer,
   p_storage_location_id bigint,
   p_operator text,
-  p_station text DEFAULT 'Lab - Agar',
+  p_station text DEFAULT 'Pour Plates',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_notes text DEFAULT NULL
 )
@@ -1528,6 +1528,7 @@ DECLARE
   v_src record;
   v_plate_item record;
   v_new_lot_id bigint;
+  v_new_lot_display_id text;
   v_event_id bigint;
   v_group_id text := gen_random_uuid()::text;
   v_loc_id bigint := COALESCE(
@@ -1542,15 +1543,21 @@ DECLARE
   );
   v_i integer;
   v_use_by date;
+  v_created_plate_ids text[] := ARRAY[]::text[];
+  v_created_plate_nocopks bigint[] := ARRAY[]::bigint[];
 BEGIN
   IF p_source_agar_flask_lot_id IS NULL THEN RAISE EXCEPTION 'Source agar_flask lot required'; END IF;
   IF p_plate_item_id IS NULL THEN RAISE EXCEPTION 'Plate item required'; END IF;
   IF p_plate_count IS NULL OR p_plate_count <= 0 THEN RAISE EXCEPTION 'Plate count must be > 0'; END IF;
+  IF v_loc_id IS NULL THEN RAISE EXCEPTION 'Storage location is required or Fridge must exist as a default location'; END IF;
 
   SELECT * INTO v_src FROM public.lots WHERE nocopk = p_source_agar_flask_lot_id;
   IF NOT FOUND THEN RAISE EXCEPTION 'Source lot not found: %', p_source_agar_flask_lot_id; END IF;
   IF COALESCE(v_src.item_category_mat,'') <> 'agar_flask' THEN
     RAISE EXCEPTION 'Source lot must be agar_flask (got %)', v_src.item_category_mat;
+  END IF;
+  IF lower(COALESCE(v_src.status, '')) IN ('consumed', 'retired', 'expired', 'compost', 'composted') THEN
+    RAISE EXCEPTION 'Source agar flask is already unavailable with status %', v_src.status;
   END IF;
 
   SELECT nocopk, name, category INTO v_plate_item
@@ -1558,6 +1565,9 @@ BEGIN
   WHERE nocopk = p_plate_item_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Plate item not found: %', p_plate_item_id;
+  END IF;
+  IF COALESCE(v_plate_item.category, '') <> 'plate' THEN
+    RAISE EXCEPTION 'Plate item must have category plate (got %)', v_plate_item.category;
   END IF;
 
   v_use_by := COALESCE(v_src.use_by, (v_ts + interval '6 months')::date);
@@ -1580,7 +1590,7 @@ BEGIN
       COALESCE(v_plate_item.category, 'plate'),
       v_src.strain_species_strain_mat,
       v_src.vendor_name_mat,
-      v_src.status,
+      COALESCE(v_src.status, 'Sterilized'),
       p_operator,
       v_ts,
       p_source_agar_flask_lot_id,
@@ -1592,6 +1602,14 @@ BEGIN
       p_notes
     )
     RETURNING nocopk INTO v_new_lot_id;
+
+    SELECT COALESCE(lot_id, v_new_lot_id::text)
+    INTO v_new_lot_display_id
+    FROM public.lots
+    WHERE nocopk = v_new_lot_id;
+
+    v_created_plate_nocopks := array_append(v_created_plate_nocopks, v_new_lot_id);
+    v_created_plate_ids := array_append(v_created_plate_ids, v_new_lot_display_id);
 
     BEGIN
       PERFORM public.mp_link_lot_item(v_new_lot_id, p_plate_item_id);
@@ -1614,27 +1632,37 @@ BEGIN
       PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
-
-    BEGIN
-      v_event_id := public.mp_events_insert(
-        'Pour Plates'::text,
-        COALESCE(p_operator,'')::text,
-        COALESCE(p_station,'Lab - Agar')::text,
-        v_ts,
-        jsonb_build_object(
-          'source_lot_id', p_source_agar_flask_lot_id,
-          'plate_group_id', v_group_id,
-          'use_by', v_use_by,
-          'notes', p_notes
-        )
-      );
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_new_lot_id);
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
   END LOOP;
+
+  UPDATE public.lots
+  SET
+    status = 'Consumed',
+    notes = CASE
+      WHEN NULLIF(btrim(COALESCE(p_notes, '')), '') IS NULL THEN notes
+      WHEN NULLIF(btrim(COALESCE(notes, '')), '') IS NULL THEN p_notes
+      ELSE notes || E'\n' || p_notes
+    END
+  WHERE nocopk = p_source_agar_flask_lot_id;
+
+  BEGIN
+    v_event_id := public.mp_events_insert_and_link_lot(
+      p_source_agar_flask_lot_id,
+      'PlatesPoured'::text,
+      v_ts,
+      COALESCE(p_operator,'system')::text,
+      COALESCE(NULLIF(btrim(p_station), ''), 'Pour Plates')::text,
+      jsonb_build_object(
+        'plate_group_id', v_group_id,
+        'plate_count', p_plate_count,
+        'recipe_id', v_src.recipe_id,
+        'created_plate_ids', to_jsonb(v_created_plate_ids),
+        'created_plate_nocopks', to_jsonb(v_created_plate_nocopks),
+        'storage_location_id', v_loc_id,
+        'notes', p_notes
+      )
+    );
+  EXCEPTION WHEN undefined_function THEN NULL;
+  END;
 
   RETURN p_plate_count;
 END;
