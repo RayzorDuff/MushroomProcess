@@ -321,6 +321,7 @@ BEGIN
       process_type_mat,
       strain_species_strain_mat,
       spawned_at,
+      label_template,
       notes
     )
     VALUES (
@@ -348,6 +349,7 @@ BEGIN
         ELSE initcap(v_output_species_label) || ' Mixed Strain'
       END,
       v_ts,
+      'Bulk_Created',
       NULLIF(p_note, '')
     )
     RETURNING nocopk INTO v_created_lot_id;

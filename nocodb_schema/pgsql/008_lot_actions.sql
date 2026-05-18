@@ -659,6 +659,7 @@ BEGIN
       strain_species_strain_mat = CASE WHEN COALESCE(v_source_species_strain_mat,'') <> '' THEN v_source_species_strain_mat ELSE strain_species_strain_mat END,
       item_name_mat = COALESCE(item_name_mat, v_target_item_name),
       item_category_mat = COALESCE(item_category_mat, v_target_item_category),
+      label_template = v_label_type,
       notes = CASE WHEN v_is_untracked_source THEN v_source_notes ELSE notes END,
       use_by = CASE
         WHEN v_target_item_category IN ('lc_flask','agar_flask','plate','agar_plate') THEN (v_inoc_time + interval '6 months')::date
@@ -1254,6 +1255,7 @@ BEGIN
       status, operator, created_at,
       source_lot_id, parent_lot_id,
       qty, unit_size, total_volume_ml, remaining_volume_ml, received_date, use_by,
+      label_template,
       notes
     )
     VALUES (
@@ -1276,6 +1278,7 @@ BEGIN
       p_ml_each,
       v_ts::date,
       v_use_by,
+      'LC_Syringe_Drawn',
       p_notes
     )
     RETURNING nocopk INTO v_new_lot_id;
@@ -1416,6 +1419,7 @@ BEGIN
       item_name_mat, item_category_mat, status,
       vendor_name, vendor_name_mat, vendor_batch, source_type, received_date,
       qty, unit_size, total_volume_ml, remaining_volume_ml, use_by,
+      label_template,
       operator, created_at, notes
     )
     VALUES(
@@ -1436,6 +1440,7 @@ BEGIN
       p_ml_each,
       p_ml_each,
       v_use_by,
+      'LC_Syringe_Received',
       p_operator,
       v_ts,
       p_notes
@@ -1682,6 +1687,7 @@ BEGIN
       qty, unit_size,
       status, operator, created_at,
       spawned_at,
+      label_template,
       notes
     )
     VALUES(
@@ -1694,6 +1700,7 @@ BEGIN
       p_operator,
       v_ts,
       v_ts,
+      'Bulk_Created',
       p_notes
     )
     RETURNING nocopk INTO v_new_lot_id;
