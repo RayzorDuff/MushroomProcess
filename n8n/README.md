@@ -203,15 +203,34 @@ Search available products by:
 
 ---
 
-## 🔄 Future Migration
+## 🔄 PostgreSQL replacements for Airtable nodes
 
-Replace Airtable nodes with:
-- PostgreSQL
-- or NocoDB
+These workflows duplicate the Airtable-backed workflows listed in MushroomProcess issue #37 and replace Airtable HTTP API nodes with n8n PostgreSQL nodes.
 
-NO changes required in:
-- Appsmith UI
-- n8n endpoints
+Generated workflows:
+
+- `MushroomProcess - Clover Payment Reconciliation Poller - PGSQL.json`
+- `MushroomProcess - Fulfillment API - PGSQL.json`
+- `MushroomProcess - Daily Reconciliation Report Email + PDF - PGSQL.json`
+
+The inactive `MushroomProcess - Clover Payment Reconciliation Webhook` was not duplicated because issue #37 explicitly marks it as `No Implementation - Not Used`.
+
+## Import notes
+
+1. Import the JSON files into n8n.
+2. Assign your PostgreSQL credential to each `PGSQL - ...` node.
+3. Keep the original Airtable workflows inactive during validation, or use distinct webhook paths before switching Appsmith/webhook callers.
+4. Validate with non-production data first.
+
+## Compatibility notes
+
+The PGSQL nodes intentionally return Airtable-shaped JSON where downstream code expects Airtable responses, for example:
+
+- list queries return `{ records: [{ id, fields }] }`
+- detail/update queries return `{ id, fields }`
+
+This minimizes workflow churn while removing Airtable API dependencies.
+
 
 ---
 
