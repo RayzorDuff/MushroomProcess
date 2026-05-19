@@ -14,7 +14,7 @@
 ALTER TABLE public.lots
   ADD COLUMN IF NOT EXISTS beganfruiting_at timestamp without time zone;
 
--- 1) SHAKE: logs a Shake event for each lot, clears ui_error fields (if present), optional note append
+-- 1) SHAKE: logs a ShakeBreak event for each lot, clears ui_error fields (if present), optional note append
 CREATE OR REPLACE FUNCTION public.mp_lots_shake(
   p_lot_ids   bigint[],
   p_operator  text,
@@ -37,7 +37,7 @@ BEGIN
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
     v_fields := jsonb_build_object(
-      'action', 'Shake',
+      'action', 'ShakeBreak',
       'note', p_note
     );
 
@@ -45,7 +45,7 @@ BEGIN
     BEGIN
       v_event_id := public.mp_events_insert_and_link_lot(
 	v_lot_id::bigint,
-	'Shake'::text, 
+	'ShakeBreak'::text, 
 	COALESCE(p_timestamp, now())::timestamp, 
 	p_operator::text, 
 	p_station::text, 

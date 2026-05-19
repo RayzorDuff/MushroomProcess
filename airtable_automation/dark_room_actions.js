@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2026-02-14.1
+ * Version: 2026-05-18.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -26,6 +26,8 @@
  *     - Ensure a FullyColonized event exists for the lot.
  *     - If missing, set status to FullyColonized
  *       and log a FullyColonized event before transitioning.
+ * - 2026-05-18.1:
+ *   - Changed Shake action event logging to canonical ShakeBreak event type.
  */
 try {
   const { lotId } = input.config();
@@ -205,7 +207,7 @@ try {
   }
 
   if (action === 'Shake') {
-    await logEvent(lot.id, 'Shake', 'Dark Room');
+    await logEvent(lot.id, 'ShakeBreak', 'Dark Room', { action: 'Shake' });
     await lotsTbl.updateRecordAsync(lot.id, { action: null, ui_error: null, ui_error_at: null });
     return;
   }
