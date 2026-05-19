@@ -272,7 +272,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n  async refresh() { await qSpawnSources.run(); },\n  async spawnSelected() {\n    if ((tblSpawnSources.selectedRows || []).length === 0) {\n      showAlert(\"Select one or more spawn lots first.\", \"warning\");\n      return;\n    }\n    const res = await qSpawnToBulk.run();\n    showAlert(\"Bulk lots created.\", \"success\");\n    await this.refresh();\n    return res;\n  },\n};",
+        "body": "export default {\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqSpawnSources.run(),\n\t\t\tqSubstrateSources.run(),\n\t\t\tqSpawnPageLocations.run()\n\t\t]);\n\t},\n\n\tspawnSourceRows() {\n\t\treturn tblSpawnSources.selectedRows || [];\n\t},\n\n\tsubstrateSourceRows() {\n\t\treturn tblSubstrateSources.selectedRows || [];\n\t},\n\n\tspawnSourceLotIds() {\n\t\treturn this.spawnSourceRows()\n\t\t\t.map(r => Number(r.nocopk))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tsubstrateLotIds() {\n\t\treturn this.substrateSourceRows()\n\t\t\t.map(r => Number(r.nocopk))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tspawnToBulkNotesText() {\n\t\treturn String(inpBulkNotes.text || \"\").trim();\n\t},\n\n\tspawnToBulkOutputPlan() {\n\t\tconst text = String(inpBulkUnitSize.text || \"\").trim();\n\n\t\tif (!text) return [];\n\n\t\treturn text\n\t\t\t.split(\",\")\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean)\n\t\t\t.map(token => {\n\t\t\t\tif (token.includes(\":\")) {\n\t\t\t\t\tconst [item_code, ratio] = token.split(\":\").map(x => x.trim());\n\t\t\t\t\treturn {\n\t\t\t\t\t\titem_code,\n\t\t\t\t\t\tratio: Number(ratio)\n\t\t\t\t\t};\n\t\t\t\t}\n\n\t\t\t\treturn {\n\t\t\t\t\tratio: Number(token)\n\t\t\t\t};\n\t\t\t})\n\t\t\t.filter(x => Number.isFinite(x.ratio) && x.ratio > 0);\n\t},\n\n\tspawnToBulkOutputPlanJson() {\n\t\treturn JSON.stringify(this.spawnToBulkOutputPlan());\n\t},\n\n\tspawnToBulkOutputCount() {\n\t\tconst plan = this.spawnToBulkOutputPlan();\n\t\tif (plan.length > 0) return plan.length;\n\n\t\tconst count = Number(inpBulkCount.text);\n\t\tif (Number.isFinite(count) && count > 0) return count;\n\n\t\treturn this.substrateLotIds().length;\n\t},\n\n\tspawnToBulkLocationOptions() {\n\t\treturn (qSpawnPageLocations.data || [])\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultSpawnToBulkLocationId() {\n\t\tconst opts = this.spawnToBulkLocationOptions();\n\n\t\tconst darkRoom = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"dark room\"\n\t\t);\n\n\t\tconst colonizing = opts.find(o =>\n\t\t\tString(o.label || \"\").toLowerCase().includes(\"colon\")\n\t\t);\n\n\t\treturn (darkRoom || colonizing || opts[0])?.value || \"\";\n\t},\n\n\tselectedSourceSpeciesKeys() {\n\t\treturn [\n\t\t\t...new Set(\n\t\t\t\tthis.spawnSourceRows()\n\t\t\t\t\t.map(r => String(r.strain_species_strain_mat || \"\").trim())\n\t\t\t\t\t.filter(Boolean)\n\t\t\t)\n\t\t];\n\t},\n\n\tcanSubmitSpawnToBulk() {\n\t\tconst sourceRows = this.spawnSourceRows();\n\t\tconst substrateRows = this.substrateSourceRows();\n\t\tconst sourceIds = this.spawnSourceLotIds();\n\t\tconst substrateIds = this.substrateLotIds();\n\t\tconst outputCount = this.spawnToBulkOutputCount();\n\t\tconst locationId = selBulkLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.spawnToBulkLocationOptions().map(o => String(o.value));\n\t\tconst sourceSpecies = this.selectedSourceSpeciesKeys();\n\n\t\tif (sourceIds.length < 1) return false;\n\t\tif (substrateIds.length < 1) return false;\n\n\t\tif (!sourceRows.every(r =>\n\t\t\tString(r.item_category_mat || \"\").toLowerCase() === \"grain\"\n\t\t)) return false;\n\n\t\tif (!substrateRows.every(r =>\n\t\t\tString(r.item_category_mat || \"\").toLowerCase() === \"substrate\"\n\t\t)) return false;\n\n\t\tif (sourceSpecies.length !== 1) return false;\n\n\t\tif (!Number.isFinite(outputCount) || outputCount <= 0) return false;\n\n\t\tif (!locationId || !validLocationIds.includes(String(locationId))) return false;\n\n\t\treturn true;\n\t},\n\n\tasync resetPage() {\n\t\tresetWidget(\"tblSpawnSources\", false);\n\t\tresetWidget(\"tblSubstrateSources\", false);\n\t\tresetWidget(\"inpBulkCount\", true);\n\t\tresetWidget(\"inpBulkUnitSize\", true);\n\t\tresetWidget(\"inpBulkNotes\", true);\n\n\t\tconst defaultLocationId = this.defaultSpawnToBulkLocationId();\n\t\tif (defaultLocationId) {\n\t\t\tawait selBulkLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selBulkLocation.setSelectedOption(\"\");\n\t\t}\n\t},\n\n\tasync spawnSelected() {\n\t\tif (!this.canSubmitSpawnToBulk()) {\n\t\t\tshowAlert(\n\t\t\t\t\"Select one or more colonized grain source lots, one or more active substrate lots, one shared source species/strain, and a valid storage location.\",\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t\treturn null;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qSpawnToBulk.run();\n\t\t\tconst created = res?.[0]?.created_count ?? 0;\n\n\t\t\tshowAlert(`Spawn to Bulk complete. Created ${created} fruiting block lot(s).`, \"success\");\n\n\t\t\tawait this.refresh();\n\t\t\tawait this.resetPage();\n\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
         "name": "SpawnToBulk",
         "pageId": "Spawn to Bulk",
         "pluginId": "js-plugin",
@@ -16932,7 +16932,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if ((tblSpawnSources.selectedRows || []).length === 0) {\n    showAlert(\"Select one or more spawn lots first.\", \"warning\");\n    return;\n  }\n  const res = await qSpawnToBulk.run();\n  showAlert(\"Bulk lots created.\", \"success\");\n  await SpawnToBulk.refresh();\n  return res;\n}",
+          "body": "async function () {\n  if (!SpawnToBulk.canSubmitSpawnToBulk()) {\n    showAlert(\"Select one or more colonized grain source lots, one or more active substrate lots, one shared source species/strain, and a valid storage location.\", \"warning\");\n    return null;\n  }\n  try {\n    const res = await qSpawnToBulk.run();\n    const created = res?.[0]?.created_count ?? 0;\n    showAlert(`Spawn to Bulk complete. Created ${created} fruiting block lot(s).`, \"success\");\n    await SpawnToBulk.refresh();\n    await SpawnToBulk.resetPage();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -16961,7 +16961,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if ((tblSpawnSources.selectedRows || []).length === 0) {\n    showAlert(\"Select one or more spawn lots first.\", \"warning\");\n    return;\n  }\n  const res = await qSpawnToBulk.run();\n  showAlert(\"Bulk lots created.\", \"success\");\n  await SpawnToBulk.refresh();\n  return res;\n}"
+          "async function () {\n  if (!SpawnToBulk.canSubmitSpawnToBulk()) {\n    showAlert(\"Select one or more colonized grain source lots, one or more active substrate lots, one shared source species/strain, and a valid storage location.\", \"warning\");\n    return null;\n  }\n  try {\n    const res = await qSpawnToBulk.run();\n    const created = res?.[0]?.created_count ?? 0;\n    showAlert(`Spawn to Bulk complete. Created ${created} fruiting block lot(s).`, \"success\");\n    await SpawnToBulk.refresh();\n    await SpawnToBulk.resetPage();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  }\n}"
         ],
         "messages": [],
         "name": "spawnSelected",
@@ -17021,7 +17021,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await qSpawnSources.run();\n}",
+          "body": "async function () {\n  await Promise.allSettled([qSpawnSources.run(), qSubstrateSources.run(), qSpawnPageLocations.run()]);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -17050,15 +17050,15 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await qSpawnSources.run();\n}"
+          "async function () {\n  await Promise.allSettled([qSpawnSources.run(), qSubstrateSources.run(), qSpawnPageLocations.run()]);\n}"
         ],
         "messages": [],
         "name": "refresh",
         "pageId": "Spawn to Bulk",
         "policyMap": {},
-        "runBehaviour": "MANUAL",
+        "runBehaviour": "ON_PAGE_LOAD",
         "userPermissions": [],
-        "userSetOnLoad": false
+        "userSetOnLoad": true
       }
     },
     {
@@ -17298,7 +17298,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_lots_spawn_to_bulk(\n  {{SpawnToBulk.sql.arrBigint(tblSpawnSources.selectedRows.map(r=>r.nocopk))}},\n  {{SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(selBulkRecipe.selectedOptionValue)}},\n  {{SpawnToBulk.sql.num(inpBulkCount.text)}}::int,\n  {{SpawnToBulk.sql.num(inpBulkUnitSize.text)}},\n  {{SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue)}}::bigint,\n  {{ SpawnToBulk.sql.str( SpawnToBulk.currentOperator() ) }}::text,\n  'Spawn to Bulk',\n  NULL::timestamp,\n  {{SpawnToBulk.sql.str(inpBulkNotes.text)}}\n);",
+          "body": "SELECT public.mp_lots_spawn_to_bulk(\n  p_grain_lot_ids        => {{ SpawnToBulk.sql.arrBigint(SpawnToBulk.spawnSourceLotIds()) }}::bigint[],\n  p_substrate_lot_ids    => {{ SpawnToBulk.sql.arrBigint(SpawnToBulk.substrateLotIds()) }}::bigint[],\n  p_output_count         => {{ SpawnToBulk.sql.num(SpawnToBulk.spawnToBulkOutputCount()) }}::int,\n  p_output_plan_json     => {{ SpawnToBulk.sql.str(SpawnToBulk.spawnToBulkOutputPlanJson()) }}::jsonb,\n  p_storage_location_id  => {{ SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue) }}::bigint,\n  p_override_spawn_time  => NULL::timestamp,\n  p_operator             => {{ SpawnToBulk.sql.str(SpawnToBulk.currentOperator()) }}::text,\n  p_station              => 'Spawn to Bulk'::text,\n  p_timestamp            => NULL::timestamp,\n  p_note                 => {{ SpawnToBulk.sql.str(SpawnToBulk.spawnToBulkNotesText()) }}::text\n) AS created_count;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -17334,14 +17334,13 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "SpawnToBulk.sql.num(inpBulkCount.text)",
-          "SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue)",
-          " SpawnToBulk.sql.str( SpawnToBulk.currentOperator() ) ",
-          "SpawnToBulk.sql.num(selBulkItem.selectedOptionValue)",
-          "SpawnToBulk.sql.num(inpBulkUnitSize.text)",
-          "SpawnToBulk.sql.str(inpBulkNotes.text)",
-          "SpawnToBulk.sql.arrBigint(tblSpawnSources.selectedRows.map(r=>r.nocopk))",
-          "SpawnToBulk.sql.num(selBulkRecipe.selectedOptionValue)"
+          " SpawnToBulk.sql.num(SpawnToBulk.spawnToBulkOutputCount()) ",
+          " SpawnToBulk.sql.str(SpawnToBulk.currentOperator()) ",
+          " SpawnToBulk.sql.num(selBulkLocation.selectedOptionValue) ",
+          " SpawnToBulk.sql.arrBigint(SpawnToBulk.spawnSourceLotIds()) ",
+          " SpawnToBulk.sql.str(SpawnToBulk.spawnToBulkNotesText()) ",
+          " SpawnToBulk.sql.str(SpawnToBulk.spawnToBulkOutputPlanJson()) ",
+          " SpawnToBulk.sql.arrBigint(SpawnToBulk.substrateLotIds()) "
         ],
         "messages": [],
         "name": "qSpawnToBulk",
@@ -17399,7 +17398,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT l.nocopk, l.lot_id, l.item_name_mat, l.strain_species_strain_mat, l.status, loc.name AS storage_location,\n       l.qty, l.unit_size, l.created_at\nFROM public.lots l\nLEFT JOIN public.locations loc ON loc.nocopk = l.location_id\nWHERE l.item_category_mat IN ('grain','grain_spawn','spawn')\n  AND l.status IN ('Fridge','Fully Colonized','Ready','Colonized')\nORDER BY l.created_at DESC\nLIMIT 300;",
+          "body": "SELECT\n  l.nocopk,\n  l.lot_id,\n  l.item_name_mat,\n  l.item_category_mat,\n  l.strain_id,\n  l.strain_species_strain_mat,\n  l.vendor_name_mat,\n  l.status,\n  l.qty,\n  l.unit_size,\n  l.created_at,\n  l.inoculated_at,\n  loc.name AS storage_location\nFROM public.vc_lots l\nLEFT JOIN public.locations loc ON loc.nocopk = l.location_id\nWHERE lower(COALESCE(l.item_category_mat, '')) = 'grain'\n  AND lower(COALESCE(l.status, '')) IN ('colonizing', 'fullycolonized', 'fridge')\nORDER BY\n  COALESCE(l.inoculated_at, l.created_at, now()) DESC,\n  l.nocopk DESC\nLIMIT 500;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -17435,6 +17434,960 @@
         "runBehaviour": "AUTOMATIC",
         "userPermissions": [],
         "userSetOnLoad": true
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_6f6e94c9-80d8-4222-ba4c-7f7fb11f0fc4",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnSourceRows",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return tblSpawnSources.selectedRows || [];\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnSourceRows",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return tblSpawnSources.selectedRows || [];\n}"
+        ],
+        "messages": [],
+        "name": "spawnSourceRows",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_21802cb3-5590-428e-a20a-4bd5c0ff9a48",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnToBulkOutputPlan",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const text = String(inpBulkUnitSize.text || \"\").trim();\n  if (!text) return [];\n  return text.split(\",\").map(s => s.trim()).filter(Boolean).map(token => {\n    if (token.includes(\":\")) {\n      const [item_code, ratio] = token.split(\":\").map(x => x.trim());\n      return {\n        item_code,\n        ratio: Number(ratio)\n      };\n    }\n    return {\n      ratio: Number(token)\n    };\n  }).filter(x => Number.isFinite(x.ratio) && x.ratio > 0);\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnToBulkOutputPlan",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const text = String(inpBulkUnitSize.text || \"\").trim();\n  if (!text) return [];\n  return text.split(\",\").map(s => s.trim()).filter(Boolean).map(token => {\n    if (token.includes(\":\")) {\n      const [item_code, ratio] = token.split(\":\").map(x => x.trim());\n      return {\n        item_code,\n        ratio: Number(ratio)\n      };\n    }\n    return {\n      ratio: Number(token)\n    };\n  }).filter(x => Number.isFinite(x.ratio) && x.ratio > 0);\n}"
+        ],
+        "messages": [],
+        "name": "spawnToBulkOutputPlan",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_e352be43-53a2-451d-bce8-9059524b3388",
+      "id": "Spawn to Bulk_SpawnToBulk.defaultSpawnToBulkLocationId",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = SpawnToBulk.spawnToBulkLocationOptions();\n  const darkRoom = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"dark room\");\n  const colonizing = opts.find(o => String(o.label || \"\").toLowerCase().includes(\"colon\"));\n  return (darkRoom || colonizing || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.defaultSpawnToBulkLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = SpawnToBulk.spawnToBulkLocationOptions();\n  const darkRoom = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"dark room\");\n  const colonizing = opts.find(o => String(o.label || \"\").toLowerCase().includes(\"colon\"));\n  return (darkRoom || colonizing || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultSpawnToBulkLocationId",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_8ca8d90d-7ed8-4f92-a747-f8f665ef7e8b",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnToBulkOutputCount",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const plan = SpawnToBulk.spawnToBulkOutputPlan();\n  if (plan.length > 0) return plan.length;\n  const count = Number(inpBulkCount.text);\n  if (Number.isFinite(count) && count > 0) return count;\n  return SpawnToBulk.substrateLotIds().length;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnToBulkOutputCount",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const plan = SpawnToBulk.spawnToBulkOutputPlan();\n  if (plan.length > 0) return plan.length;\n  const count = Number(inpBulkCount.text);\n  if (Number.isFinite(count) && count > 0) return count;\n  return SpawnToBulk.substrateLotIds().length;\n}"
+        ],
+        "messages": [],
+        "name": "spawnToBulkOutputCount",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_347cc26e-da80-4a10-82b7-8edae8309193",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnSourceLotIds",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return SpawnToBulk.spawnSourceRows().map(r => Number(r.nocopk)).filter(Number.isFinite);\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnSourceLotIds",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return SpawnToBulk.spawnSourceRows().map(r => Number(r.nocopk)).filter(Number.isFinite);\n}"
+        ],
+        "messages": [],
+        "name": "spawnSourceLotIds",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_c8fbade6-fa1f-4fd7-95fa-bcf50aba6a0a",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnToBulkNotesText",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return String(inpBulkNotes.text || \"\").trim();\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnToBulkNotesText",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return String(inpBulkNotes.text || \"\").trim();\n}"
+        ],
+        "messages": [],
+        "name": "spawnToBulkNotesText",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_dd798b0b-8476-4d2a-bd15-501c7a1b5090",
+      "id": "Spawn to Bulk_SpawnToBulk.substrateSourceRows",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return tblSubstrateSources.selectedRows || [];\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.substrateSourceRows",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return tblSubstrateSources.selectedRows || [];\n}"
+        ],
+        "messages": [],
+        "name": "substrateSourceRows",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_5ff025df-1214-4046-9ed9-fbc209a35822",
+      "id": "Spawn to Bulk_SpawnToBulk.canSubmitSpawnToBulk",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const sourceRows = SpawnToBulk.spawnSourceRows();\n  const substrateRows = SpawnToBulk.substrateSourceRows();\n  const sourceIds = SpawnToBulk.spawnSourceLotIds();\n  const substrateIds = SpawnToBulk.substrateLotIds();\n  const outputCount = SpawnToBulk.spawnToBulkOutputCount();\n  const locationId = selBulkLocation.selectedOptionValue;\n  const validLocationIds = SpawnToBulk.spawnToBulkLocationOptions().map(o => String(o.value));\n  const sourceSpecies = SpawnToBulk.selectedSourceSpeciesKeys();\n  if (sourceIds.length < 1) return false;\n  if (substrateIds.length < 1) return false;\n  if (!sourceRows.every(r => String(r.item_category_mat || \"\").toLowerCase() === \"grain\")) return false;\n  if (!substrateRows.every(r => String(r.item_category_mat || \"\").toLowerCase() === \"substrate\")) return false;\n  if (sourceSpecies.length !== 1) return false;\n  if (!Number.isFinite(outputCount) || outputCount <= 0) return false;\n  if (!locationId || !validLocationIds.includes(String(locationId))) return false;\n  return true;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.canSubmitSpawnToBulk",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const sourceRows = SpawnToBulk.spawnSourceRows();\n  const substrateRows = SpawnToBulk.substrateSourceRows();\n  const sourceIds = SpawnToBulk.spawnSourceLotIds();\n  const substrateIds = SpawnToBulk.substrateLotIds();\n  const outputCount = SpawnToBulk.spawnToBulkOutputCount();\n  const locationId = selBulkLocation.selectedOptionValue;\n  const validLocationIds = SpawnToBulk.spawnToBulkLocationOptions().map(o => String(o.value));\n  const sourceSpecies = SpawnToBulk.selectedSourceSpeciesKeys();\n  if (sourceIds.length < 1) return false;\n  if (substrateIds.length < 1) return false;\n  if (!sourceRows.every(r => String(r.item_category_mat || \"\").toLowerCase() === \"grain\")) return false;\n  if (!substrateRows.every(r => String(r.item_category_mat || \"\").toLowerCase() === \"substrate\")) return false;\n  if (sourceSpecies.length !== 1) return false;\n  if (!Number.isFinite(outputCount) || outputCount <= 0) return false;\n  if (!locationId || !validLocationIds.includes(String(locationId))) return false;\n  return true;\n}"
+        ],
+        "messages": [],
+        "name": "canSubmitSpawnToBulk",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_5d0679b9-c8cc-4ca8-9ac5-593bafcb9ef8",
+      "id": "Spawn to Bulk_SpawnToBulk.selectedSourceSpeciesKeys",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return [...new Set(SpawnToBulk.spawnSourceRows().map(r => String(r.strain_species_strain_mat || \"\").trim()).filter(Boolean))];\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.selectedSourceSpeciesKeys",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return [...new Set(SpawnToBulk.spawnSourceRows().map(r => String(r.strain_species_strain_mat || \"\").trim()).filter(Boolean))];\n}"
+        ],
+        "messages": [],
+        "name": "selectedSourceSpeciesKeys",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_0e674c04-6ad5-40d6-964d-b702309b95c8",
+      "id": "Spawn to Bulk_SpawnToBulk.substrateLotIds",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return SpawnToBulk.substrateSourceRows().map(r => Number(r.nocopk)).filter(Number.isFinite);\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.substrateLotIds",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return SpawnToBulk.substrateSourceRows().map(r => Number(r.nocopk)).filter(Number.isFinite);\n}"
+        ],
+        "messages": [],
+        "name": "substrateLotIds",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_82adb87a-8347-40d4-a873-6c246502469e",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnToBulkOutputPlanJson",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return JSON.stringify(SpawnToBulk.spawnToBulkOutputPlan());\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnToBulkOutputPlanJson",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return JSON.stringify(SpawnToBulk.spawnToBulkOutputPlan());\n}"
+        ],
+        "messages": [],
+        "name": "spawnToBulkOutputPlanJson",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_8459e5da-b3e0-409e-8f1c-006da7621861",
+      "id": "Spawn to Bulk_SpawnToBulk.spawnToBulkLocationOptions",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return (qSpawnPageLocations.data || []).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.spawnToBulkLocationOptions",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return (qSpawnPageLocations.data || []).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
+        ],
+        "messages": [],
+        "name": "spawnToBulkLocationOptions",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_9fcc3626-b315-40c4-bd57-512ebfcd4d56",
+      "id": "Spawn to Bulk_SpawnToBulk.resetPage",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n  resetWidget(\"tblSpawnSources\", false);\n  resetWidget(\"tblSubstrateSources\", false);\n  resetWidget(\"inpBulkCount\", true);\n  resetWidget(\"inpBulkUnitSize\", true);\n  resetWidget(\"inpBulkNotes\", true);\n  const defaultLocationId = SpawnToBulk.defaultSpawnToBulkLocationId();\n  if (defaultLocationId) {\n    await selBulkLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selBulkLocation.setSelectedOption(\"\");\n  }\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Spawn to Bulk_SpawnToBulk",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:24:42Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SpawnToBulk.resetPage",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n  resetWidget(\"tblSpawnSources\", false);\n  resetWidget(\"tblSubstrateSources\", false);\n  resetWidget(\"inpBulkCount\", true);\n  resetWidget(\"inpBulkUnitSize\", true);\n  resetWidget(\"inpBulkNotes\", true);\n  const defaultLocationId = SpawnToBulk.defaultSpawnToBulkLocationId();\n  if (defaultLocationId) {\n    await selBulkLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selBulkLocation.setSelectedOption(\"\");\n  }\n}"
+        ],
+        "messages": [],
+        "name": "resetPage",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_f6896eac-a2c6-4ecf-bb88-c0df905df190",
+      "id": "Spawn to Bulk_qSubstrateSources",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:25:06Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT\n  l.nocopk,\n  l.lot_id,\n  l.item_name_mat,\n  l.item_category_mat,\n  l.recipe_id,\n  l.process_type_mat,\n  l.status,\n  l.qty,\n  l.unit_size,\n  l.created_at,\n  loc.name AS storage_location\nFROM public.vc_lots l\nLEFT JOIN public.locations loc ON loc.nocopk = l.location_id\nWHERE lower(COALESCE(l.item_category_mat, '')) = 'substrate'\n  AND lower(COALESCE(l.status, '')) NOT IN (\n    'consumed',\n    'retired',\n    'expired',\n    'compost',\n    'composted'\n  )\nORDER BY\n  COALESCE(l.created_at, now()) DESC,\n  l.nocopk DESC\nLIMIT 500;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:25:06Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "qSubstrateSources",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_1081e36d-5d4d-4cff-b970-4adf62f56f8b",
+      "id": "Spawn to Bulk_qSpawnPageLocations",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:25:27Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT DISTINCT\n  nocopk,\n  name,\n  active,\n  CASE\n    WHEN name ILIKE '%Dark Room%' THEN 0\n    WHEN name ILIKE '%Colon%' THEN 1\n    WHEN name ILIKE '%Fruiting%' THEN 2\n    ELSE 3\n  END AS sort_order\nFROM public.vc_locations\nWHERE COALESCE(active, true)\n  AND name IS NOT NULL\n  AND name NOT ILIKE '%Consumed%'\n  AND name NOT ILIKE '%Retired%'\n  AND name NOT ILIKE '%Compost%'\n  AND name NOT ILIKE '%Expired%'\n  AND name NOT ILIKE '%Shipped%'\nORDER BY\n  sort_order,\n  name;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T02:25:27Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [],
+        "messages": [],
+        "name": "qSpawnPageLocations",
+        "pageId": "Spawn to Bulk",
+        "policyMap": {},
+        "runBehaviour": "AUTOMATIC",
+        "userPermissions": [],
+        "userSetOnLoad": false
       }
     },
     {
@@ -66070,7 +67023,11 @@
                       "key": "primaryColumns.created_at.computedValue"
                     }
                   ],
-                  "dynamicPropertyPathList": [],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "tableData"
+                    }
+                  ],
                   "dynamicTriggerPathList": [],
                   "enableClientSideSearch": true,
                   "endOfData": false,
@@ -66092,6 +67049,7 @@
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 23,
                   "mobileTopRow": 6,
+                  "multiRowSelection": true,
                   "needsErrorInfo": false,
                   "parentColumnSpace": 9.9375,
                   "parentId": "abyoqdh8yb",
@@ -66408,7 +67366,7 @@
                   "responsiveBehavior": "fill",
                   "rightColumn": 64,
                   "searchKey": "",
-                  "tableData": "{{qSpawnSources.data}}",
+                  "tableData": "{{ qSpawnSources.data }}",
                   "textSize": "0.875rem",
                   "topRow": 4,
                   "totalRecordsCount": 0,
@@ -66444,7 +67402,7 @@
                   "isFilterable": true,
                   "isLoading": false,
                   "isRequired": true,
-                  "isVisible": true,
+                  "isVisible": false,
                   "jsonPathKeys": [
                     "LotsPage.refresh()"
                   ],
@@ -66509,7 +67467,7 @@
                   "isFilterable": true,
                   "isLoading": false,
                   "isRequired": true,
-                  "isVisible": true,
+                  "isVisible": false,
                   "jsonPathKeys": [
                     "LotsPage.refresh()"
                   ],
@@ -66554,13 +67512,16 @@
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "bottomRow": 34,
                   "boxShadow": "none",
-                  "defaultOptionValue": "Dark Room",
+                  "defaultOptionValue": "{{ ((options, serverSideFiltering) => (  SpawnToBulk.defaultSpawnToBulkLocationId() ))(selBulkLocation.options, selBulkLocation.serverSideFiltering) }}",
                   "dynamicBindingPathList": [
                     {
                       "key": "borderRadius"
                     },
                     {
                       "key": "sourceData"
+                    },
+                    {
+                      "key": "defaultOptionValue"
                     }
                   ],
                   "dynamicHeight": "FIXED",
@@ -66606,7 +67567,7 @@
                   "responsiveBehavior": "fill",
                   "rightColumn": 64,
                   "serverSideFiltering": false,
-                  "sourceData": "{{ (qNonFridgeFruitRetLocations.data || []).map(o => ({label:o.name, value:o.nocopk})) }}",
+                  "sourceData": "{{ SpawnToBulk.spawnToBulkLocationOptions() }}",
                   "topRow": 28,
                   "type": "SELECT_WIDGET",
                   "version": 1,
@@ -66683,6 +67644,7 @@
                     }
                   ],
                   "dynamicHeight": "FIXED",
+                  "dynamicTriggerPathList": [],
                   "iconAlign": "left",
                   "inputType": "NUMBER",
                   "isDisabled": false,
@@ -66690,7 +67652,7 @@
                   "isRequired": false,
                   "isVisible": true,
                   "key": "rc2s64vs2o",
-                  "label": "Unit Size",
+                  "label": "Output Ratios / Item Overrides",
                   "labelAlignment": "left",
                   "labelPosition": "Top",
                   "labelStyle": "",
@@ -66708,6 +67670,7 @@
                   "parentColumnSpace": 9.9375,
                   "parentId": "abyoqdh8yb",
                   "parentRowSpace": 10,
+                  "placeholderText": "Optional: 1,1,1 or FB-CVG-5:1,FB-CVG-10:2",
                   "renderMode": "CANVAS",
                   "resetOnSubmit": true,
                   "responsiveBehavior": "fill",
@@ -66786,6 +67749,17 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "isDisabled"
+                    },
+                    {
+                      "key": "onClick"
                     }
                   ],
                   "dynamicTriggerPathList": [
@@ -66794,7 +67768,7 @@
                     }
                   ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
+                  "isDisabled": "{{ !SpawnToBulk.canSubmitSpawnToBulk() }}",
                   "isLoading": false,
                   "isVisible": true,
                   "key": "djtf3c8ho1",
@@ -66836,6 +67810,11 @@
                       "key": "borderRadius"
                     }
                   ],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "dynamicTriggerPathList": [
                     {
                       "key": "onClick"
@@ -66853,7 +67832,7 @@
                   "mobileRightColumn": 62,
                   "mobileTopRow": 33,
                   "needsErrorInfo": false,
-                  "onClick": "{{ resetWidget(\"tblSpawnSources\", false); resetWidget(\"selBulkItem\", true); resetWidget(\"selBulkRecipe\", true); resetWidget(\"selBulkLocation\", true); resetWidget(\"inpBulkCount\", true); resetWidget(\"inpBulkUnitSize\", true); resetWidget(\"inpBulkNotes\", true); }}",
+                  "onClick": "{{ SpawnToBulk.resetPage() }}",
                   "parentId": "abyoqdh8yb",
                   "placement": "CENTER",
                   "recaptchaType": "V3",
@@ -66921,9 +67900,17 @@
                     },
                     {
                       "key": "boxShadow"
+                    },
+                    {
+                      "key": "tableData"
                     }
                   ],
-                  "dynamicPropertyPathList": [],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "tableData"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [],
                   "enableClientSideSearch": true,
                   "endOfData": false,
                   "flexVerticalAlignment": "start",
@@ -66944,7 +67931,9 @@
                   "mobileLeftColumn": 0,
                   "mobileRightColumn": 21,
                   "mobileTopRow": 43,
+                  "multiRowSelection": true,
                   "needsErrorInfo": false,
+                  "onRowSelected": "{{}}",
                   "parentColumnSpace": 10.25,
                   "parentId": "0",
                   "parentRowSpace": 10,
@@ -66953,7 +67942,7 @@
                   "responsiveBehavior": "fill",
                   "rightColumn": 21,
                   "searchKey": "",
-                  "tableData": "",
+                  "tableData": "{{ qSubstrateSources.data }}",
                   "textSize": "0.875rem",
                   "topRow": 43,
                   "totalRecordsCount": 0,
@@ -66997,6 +67986,33 @@
                   "id": "Spawn to Bulk_Spawn to Bulk.qSpawnSources",
                   "jsonPathKeys": [],
                   "name": "Spawn to Bulk.qSpawnSources",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                },
+                {
+                  "collectionId": "Spawn to Bulk_SpawnToBulk",
+                  "confirmBeforeExecute": false,
+                  "id": "Spawn to Bulk_SpawnToBulk.refresh",
+                  "jsonPathKeys": [
+                    "async function () {\n  await Promise.allSettled([qSpawnSources.run(), qSubstrateSources.run(), qSpawnPageLocations.run()]);\n}"
+                  ],
+                  "name": "SpawnToBulk.refresh",
+                  "pluginType": "JS",
+                  "timeoutInMillisecond": 10000
+                },
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Spawn to Bulk_qSpawnPageLocations",
+                  "jsonPathKeys": [],
+                  "name": "qSpawnPageLocations",
+                  "pluginType": "DB",
+                  "timeoutInMillisecond": 10000
+                },
+                {
+                  "confirmBeforeExecute": false,
+                  "id": "Spawn to Bulk_qSubstrateSources",
+                  "jsonPathKeys": [],
+                  "name": "qSubstrateSources",
                   "pluginType": "DB",
                   "timeoutInMillisecond": 10000
                 }
