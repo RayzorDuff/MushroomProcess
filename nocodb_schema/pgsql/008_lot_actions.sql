@@ -1319,7 +1319,7 @@ CREATE OR REPLACE FUNCTION public.mp_lots_draw_syringes(
   p_ml_each numeric,
   p_storage_location_id bigint,
   p_operator text,
-  p_station text DEFAULT 'Lots',
+  p_station text DEFAULT 'LC – Make Syringes',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_notes text DEFAULT NULL
 )
@@ -1334,18 +1334,25 @@ DECLARE
   v_new_lot_id bigint;
   v_event_id bigint;
   v_count integer := 0;
+  v_created_lot_ids bigint[] := ARRAY[]::bigint[];
   v_loc_id bigint := COALESCE(
     p_storage_location_id,
     (
       SELECT l.nocopk
       FROM public.locations l
-      WHERE lower(btrim(l.name)) = lower(btrim('Fridge'))
-      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      WHERE lower(btrim(l.name)) IN ('fridge','refrigerator','refrigerated storage')
+         OR lower(l.name) LIKE '%fridge%'
+         OR lower(l.name) LIKE '%refrigerat%'
+      ORDER BY
+        CASE WHEN lower(btrim(l.name)) = 'fridge' THEN 0 ELSE 1 END,
+        CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END,
+        l.nocopk
       LIMIT 1
     )
   );
   v_total_ml numeric := COALESCE(p_ml_each,0) * COALESCE(p_syringe_count,0);
-  v_use_by date;
+  v_remaining_ml numeric;
+  v_use_by date := (v_ts + interval '3 months')::date;
   v_species_strain_mat text;
   v_vendor_name_mat text;
 BEGIN
@@ -1369,6 +1376,12 @@ BEGIN
   IF COALESCE(v_src.item_category_mat,'') <> 'lc_flask' THEN
     RAISE EXCEPTION 'Source lot must be lc_flask (got %)', v_src.item_category_mat;
   END IF;
+  IF COALESCE(v_src.remaining_volume_ml, 0) < v_total_ml THEN
+    RAISE EXCEPTION 'Not enough LC volume. Need % ml, have % ml.', v_total_ml, COALESCE(v_src.remaining_volume_ml, 0);
+  END IF;
+  IF v_loc_id IS NULL THEN
+    RAISE EXCEPTION 'Refrigerated storage location is required for drawn syringe lots.';
+  END IF;
 
   SELECT * INTO v_syringe_item FROM public.items WHERE nocopk = p_syringe_item_id;
   IF NOT FOUND THEN
@@ -1381,7 +1394,6 @@ BEGIN
 
   v_species_strain_mat := COALESCE(v_src.strain_species_strain_mat, v_strain.species_strain);
   v_vendor_name_mat := COALESCE(v_src.vendor_name_mat, v_src.vendor_name);
-  v_use_by := COALESCE(v_src.use_by, (v_ts + interval '6 months')::date);
 
   FOR i IN 1..p_syringe_count LOOP
     INSERT INTO public.lots(
@@ -1419,6 +1431,8 @@ BEGIN
     )
     RETURNING nocopk INTO v_new_lot_id;
 
+    v_created_lot_ids := array_append(v_created_lot_ids, v_new_lot_id);
+
     BEGIN
       PERFORM public.mp_link_lot_item(v_new_lot_id, p_syringe_item_id);
     EXCEPTION WHEN undefined_function THEN NULL;
@@ -1438,31 +1452,7 @@ BEGIN
       END;
     END IF;
 
-    BEGIN
-      PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
-
-    BEGIN
-      v_event_id := public.mp_events_insert(
-        'Draw Syringes'::text,
-        COALESCE(p_operator,'')::text,
-        COALESCE(p_station,'Lots')::text,
-        v_ts,
-        jsonb_build_object(
-          'source_lot_id', p_source_lc_flask_lot_id,
-          'output_type', 'lot',
-          'ml_each', p_ml_each,
-          'use_by', v_use_by,
-          'notes', p_notes
-        )
-      );
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_new_lot_id);
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    PERFORM public.mp_lot_set_location(v_new_lot_id, v_loc_id);
 
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
@@ -1479,28 +1469,59 @@ BEGIN
     v_count := v_count + 1;
   END LOOP;
 
-  IF v_src.remaining_volume_ml IS NOT NULL THEN
+  UPDATE public.lots
+    SET remaining_volume_ml = GREATEST(0, COALESCE(remaining_volume_ml,0) - v_total_ml),
+        nc_updated_at = now()
+    WHERE nocopk = p_source_lc_flask_lot_id
+    RETURNING remaining_volume_ml INTO v_remaining_ml;
+
+  IF COALESCE(v_remaining_ml,0) <= 0 THEN
     UPDATE public.lots
-      SET remaining_volume_ml = GREATEST(0, COALESCE(remaining_volume_ml,0) - v_total_ml),
+      SET status = 'Consumed',
           nc_updated_at = now()
       WHERE nocopk = p_source_lc_flask_lot_id;
-
-    IF (SELECT COALESCE(remaining_volume_ml,0) FROM public.lots WHERE nocopk = p_source_lc_flask_lot_id) <= 0 THEN
-      UPDATE public.lots
-        SET status = 'Consumed',
-            nc_updated_at = now()
-        WHERE nocopk = p_source_lc_flask_lot_id;
-      BEGIN
-        PERFORM public.mp_lot_set_location_by_name(p_source_lc_flask_lot_id, 'Consumed');
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    END IF;
+    BEGIN
+      PERFORM public.mp_lot_set_location_by_name(p_source_lc_flask_lot_id, 'Consumed');
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
   END IF;
+
+  BEGIN
+    v_event_id := public.mp_events_insert(
+      p_lot_id => p_source_lc_flask_lot_id,
+      p_product_id => NULL::bigint,
+      p_type => 'SyringesDrawn'::text,
+      p_timestamp => v_ts,
+      p_operator => COALESCE(p_operator,'')::text,
+      p_station => COALESCE(NULLIF(p_station,''),'LC – Make Syringes')::text,
+      p_fields_json => jsonb_build_object(
+        'source_lot_id', p_source_lc_flask_lot_id,
+        'output_type', 'lot',
+        'syringe_item_id', p_syringe_item_id,
+        'syringe_count', p_syringe_count,
+        'ml_each', p_ml_each,
+        'used_volume_ml', v_total_ml,
+        'remaining_volume_ml', v_remaining_ml,
+        'storage_location_id', v_loc_id,
+        'output_lot_ids', to_jsonb(v_created_lot_ids),
+        'use_by', v_use_by,
+        'notes', p_notes
+      )
+    );
+
+    BEGIN
+      PERFORM public.mp_events_link_lot(v_event_id, p_source_lc_flask_lot_id);
+      FOREACH v_new_lot_id IN ARRAY v_created_lot_ids LOOP
+        PERFORM public.mp_events_link_lot(v_event_id, v_new_lot_id);
+      END LOOP;
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+  EXCEPTION WHEN undefined_function THEN NULL;
+  END;
 
   RETURN v_count;
 END;
 $$;
-
 
 
 -- RECEIVE PURCHASED SYRINGES: create N lc_syringe lots from vendor receipt, events + print jobs
@@ -1946,7 +1967,7 @@ CREATE OR REPLACE FUNCTION public.mp_products_draw_syringes(
   p_ml_each numeric,
   p_storage_location_id bigint,
   p_operator text,
-  p_station text DEFAULT 'Lots',
+  p_station text DEFAULT 'LC – Make Syringes',
   p_timestamp timestamp without time zone DEFAULT NULL,
   p_notes text DEFAULT NULL
 )
@@ -1960,18 +1981,25 @@ DECLARE
   v_new_product_id bigint;
   v_event_id bigint;
   v_count integer := 0;
+  v_created_product_ids bigint[] := ARRAY[]::bigint[];
   v_loc_id bigint := COALESCE(
     p_storage_location_id,
     (
       SELECT l.nocopk
       FROM public.locations l
-      WHERE lower(btrim(l.name)) = lower(btrim('Products Storage'))
-      ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+      WHERE lower(btrim(l.name)) IN ('fridge','refrigerator','refrigerated storage')
+         OR lower(l.name) LIKE '%fridge%'
+         OR lower(l.name) LIKE '%refrigerat%'
+      ORDER BY
+        CASE WHEN lower(btrim(l.name)) = 'fridge' THEN 0 ELSE 1 END,
+        CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END,
+        l.nocopk
       LIMIT 1
     )
   );
   v_total_ml numeric := COALESCE(p_ml_each,0) * COALESCE(p_syringe_count,0);
-  v_use_by date;
+  v_remaining_ml numeric;
+  v_use_by date := (v_ts + interval '3 months')::date;
 BEGIN
   IF p_source_lc_flask_lot_id IS NULL THEN
     RAISE EXCEPTION 'Source lc_flask lot is required';
@@ -1993,13 +2021,17 @@ BEGIN
   IF COALESCE(v_src.item_category_mat,'') <> 'lc_flask' THEN
     RAISE EXCEPTION 'Source lot must be lc_flask (got %)', v_src.item_category_mat;
   END IF;
+  IF COALESCE(v_src.remaining_volume_ml, 0) < v_total_ml THEN
+    RAISE EXCEPTION 'Not enough LC volume. Need % ml, have % ml.', v_total_ml, COALESCE(v_src.remaining_volume_ml, 0);
+  END IF;
+  IF v_loc_id IS NULL THEN
+    RAISE EXCEPTION 'Refrigerated storage location is required for drawn syringe products.';
+  END IF;
 
   SELECT * INTO v_syringe_item FROM public.items WHERE nocopk = p_syringe_item_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Syringe item not found: %', p_syringe_item_id;
   END IF;
-
-  v_use_by := COALESCE(v_src.use_by, (v_ts + interval '6 months')::date);
 
   FOR i IN 1..p_syringe_count LOOP
     INSERT INTO public.products (
@@ -2026,6 +2058,8 @@ BEGIN
     )
     RETURNING nocopk INTO v_new_product_id;
 
+    v_created_product_ids := array_append(v_created_product_ids, v_new_product_id);
+
     IF EXISTS (
       SELECT 1 FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'products' AND column_name = 'process_type_mat'
@@ -2041,10 +2075,7 @@ BEGIN
       END;
     END IF;
 
-    BEGIN
-      PERFORM public.mp_product_set_storage_location(v_new_product_id, v_loc_id);
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    PERFORM public.mp_product_set_storage_location(v_new_product_id, v_loc_id);
 
     BEGIN
       INSERT INTO public._m2m_products_lots_origin_lots(products_id, lots_id)
@@ -2054,30 +2085,25 @@ BEGIN
     END;
 
     BEGIN
-      v_event_id := public.mp_events_insert(
-        'Draw Syringe Product'::text,
-        COALESCE(p_operator,'')::text,
-        COALESCE(p_station,'Lots')::text,
-        v_ts,
-        jsonb_build_object(
-          'source_lot_id', p_source_lc_flask_lot_id,
-          'output_type', 'product',
-          'ml_each', p_ml_each,
-          'use_by', v_use_by,
-          'notes', p_notes
-        )
-      );
-      BEGIN
-        PERFORM public.mp_events_link_product(v_event_id, v_new_product_id);
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    EXCEPTION WHEN undefined_function THEN NULL;
+      INSERT INTO public._m2m_products_items_item_id(products_id, items_id)
+      VALUES (v_new_product_id, p_syringe_item_id)
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
     END;
+
+    IF v_src.strain_id IS NOT NULL THEN
+      BEGIN
+        INSERT INTO public._m2m_products_strains_strain_id(products_id, strains_id)
+        VALUES (v_new_product_id, v_src.strain_id)
+        ON CONFLICT DO NOTHING;
+      EXCEPTION WHEN undefined_table THEN NULL;
+      END;
+    END IF;
 
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'product'::text,
-        'LC_Syringe_Drawn'::text,
+        'Product_Package'::text,
         NULL::bigint,
         v_new_product_id,
         NULL::bigint,
@@ -2089,28 +2115,63 @@ BEGIN
     v_count := v_count + 1;
   END LOOP;
 
-  IF v_src.remaining_volume_ml IS NOT NULL THEN
+  UPDATE public.lots
+    SET remaining_volume_ml = GREATEST(0, COALESCE(remaining_volume_ml,0) - v_total_ml),
+        nc_updated_at = now()
+    WHERE nocopk = p_source_lc_flask_lot_id
+    RETURNING remaining_volume_ml INTO v_remaining_ml;
+
+  IF COALESCE(v_remaining_ml,0) <= 0 THEN
     UPDATE public.lots
-      SET remaining_volume_ml = GREATEST(0, COALESCE(remaining_volume_ml,0) - v_total_ml),
+      SET status = 'Consumed',
           nc_updated_at = now()
       WHERE nocopk = p_source_lc_flask_lot_id;
-
-    IF (SELECT COALESCE(remaining_volume_ml,0) FROM public.lots WHERE nocopk = p_source_lc_flask_lot_id) <= 0 THEN
-      UPDATE public.lots
-        SET status = 'Consumed',
-            nc_updated_at = now()
-        WHERE nocopk = p_source_lc_flask_lot_id;
-      BEGIN
-        PERFORM public.mp_lot_set_location_by_name(p_source_lc_flask_lot_id, 'Consumed');
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    END IF;
+    BEGIN
+      PERFORM public.mp_lot_set_location_by_name(p_source_lc_flask_lot_id, 'Consumed');
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
   END IF;
+
+  BEGIN
+    v_event_id := public.mp_events_insert(
+      p_lot_id => p_source_lc_flask_lot_id,
+      p_product_id => NULL::bigint,
+      p_type => 'SyringesDrawn'::text,
+      p_timestamp => v_ts,
+      p_operator => COALESCE(p_operator,'')::text,
+      p_station => COALESCE(NULLIF(p_station,''),'LC – Make Syringes')::text,
+      p_fields_json => jsonb_build_object(
+        'source_lot_id', p_source_lc_flask_lot_id,
+        'output_type', 'product',
+        'syringe_item_id', p_syringe_item_id,
+        'syringe_count', p_syringe_count,
+        'ml_each', p_ml_each,
+        'used_volume_ml', v_total_ml,
+        'remaining_volume_ml', v_remaining_ml,
+        'storage_location_id', v_loc_id,
+        'created_product_ids', to_jsonb(v_created_product_ids),
+        'use_by', v_use_by,
+        'notes', p_notes
+      )
+    );
+
+    BEGIN
+      PERFORM public.mp_events_link_lot(v_event_id, p_source_lc_flask_lot_id);
+    EXCEPTION WHEN undefined_function THEN NULL;
+    END;
+
+    BEGIN
+      INSERT INTO public._m2m_products_events_events(products_id, events_id)
+      SELECT unnest(v_created_product_ids), v_event_id
+      ON CONFLICT DO NOTHING;
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+  EXCEPTION WHEN undefined_function THEN NULL;
+  END;
 
   RETURN v_count;
 END;
 $$;
-
 
 
 -- PACKAGE FREEZE DRIED (basic): create packaged product(s) from selected freeze tray products, link via merge_tray_products, events + print jobs
