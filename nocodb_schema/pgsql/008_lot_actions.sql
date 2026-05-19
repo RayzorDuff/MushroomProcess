@@ -2197,7 +2197,7 @@ DECLARE
     (
       SELECT l.nocopk
       FROM public.locations l
-      WHERE lower(btrim(l.name)) = lower(btrim('Freezer'))
+      WHERE lower(btrim(l.name)) = lower(btrim('Products Storage'))
       ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
       LIMIT 1
     )
@@ -2206,6 +2206,12 @@ DECLARE
   v_new_product_id bigint;
   v_event_id bigint;
   v_counter integer := 0;
+  v_requested_count integer;
+  v_total_source_weight_g numeric;
+  v_required_weight_g numeric;
+  v_package_item_category text;
+  v_package_item_name text;
+  v_source_product_ids_json text;
 BEGIN
   IF p_source_product_ids IS NULL OR array_length(p_source_product_ids,1) IS NULL THEN
     RAISE EXCEPTION 'At least one source product required';
@@ -2213,11 +2219,43 @@ BEGIN
   IF p_package_item_id IS NULL THEN RAISE EXCEPTION 'Package item required'; END IF;
   IF p_package_size_g IS NULL OR p_package_size_g <= 0 THEN RAISE EXCEPTION 'package_size_g must be > 0'; END IF;
   IF p_package_count IS NULL OR p_package_count <= 0 THEN RAISE EXCEPTION 'package_count must be > 0'; END IF;
+  IF v_loc_id IS NULL THEN RAISE EXCEPTION 'Storage location is required'; END IF;
 
-  -- Create one packaged product per selected tray product (simple 1:1 mapping)
-  FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
+  v_requested_count := p_package_count::integer;
+  IF v_requested_count::numeric <> p_package_count THEN
+    RAISE EXCEPTION 'package_count must be a whole number';
+  END IF;
+
+  SELECT i.category, i.name
+  INTO v_package_item_category, v_package_item_name
+  FROM public.items i
+  WHERE i.nocopk = p_package_item_id;
+
+  IF v_package_item_category IS NULL THEN
+    RAISE EXCEPTION 'Package item not found: %', p_package_item_id;
+  END IF;
+
+  SELECT COALESCE(sum(p.net_weight_g), 0)
+  INTO v_total_source_weight_g
+  FROM public.products p
+  WHERE p.nocopk = ANY(p_source_product_ids);
+
+  v_required_weight_g := p_package_size_g * v_requested_count;
+
+  IF v_total_source_weight_g < v_required_weight_g THEN
+    RAISE EXCEPTION 'Selected source products have % g available, but % g is required for % package(s) of % g.',
+      v_total_source_weight_g, v_required_weight_g, v_requested_count, p_package_size_g;
+  END IF;
+
+  v_source_product_ids_json := to_jsonb(p_source_product_ids)::text;
+
+  -- Create one package product per requested package. Each package can be linked
+  -- to one or more source tray products, allowing multiple harvest trays to make
+  -- up a single package or package run.
+  FOR v_counter IN 1..v_requested_count LOOP
     INSERT INTO public.products(
       item_id,
+      name_mat,
       item_category_mat,
       net_weight_g,
       net_weight_oz,
@@ -2227,24 +2265,28 @@ BEGIN
       package_item_id,
       package_size_g,
       package_count,
+      storage_location_id,
       notes
     )
     VALUES(
       p_package_item_id,
-      'freeze_dried_packaged',
-      (p_package_size_g * p_package_count),
-      (p_package_size_g * p_package_count) / 28.349523125,
+      v_package_item_name,
+      COALESCE(NULLIF(v_package_item_category, ''), 'freeze_dried_packaged'),
+      p_package_size_g,
+      p_package_size_g / 28.349523125,
+      NULL,
       v_pack_date,
       p_use_by,
       p_package_item_id,
       p_package_size_g,
-      p_package_count,
-      p_notes
+      1,
+      v_loc_id,
+      NULLIF(p_notes, '')
     )
     RETURNING nocopk INTO v_new_product_id;
 
-
-    -- Materialize products.process_type_mat if the column exists (inherit from source tray product when possible)
+    -- Materialize products.process_type_mat if the column exists. For merged
+    -- source trays, prefer the single shared source process type when present.
     IF EXISTS (
       SELECT 1
       FROM information_schema.columns
@@ -2254,26 +2296,28 @@ BEGIN
     ) THEN
       BEGIN
         UPDATE public.products p
-        SET process_type_mat = COALESCE(
-          (SELECT psrc.process_type_mat FROM public.products psrc WHERE psrc.nocopk = v_src_id),
-          (SELECT psrc.process_type     FROM public.products psrc WHERE psrc.nocopk = v_src_id),
-          (SELECT p.process_type        FROM public.products p    WHERE p.nocopk = v_new_product_id)
+        SET process_type_mat = (
+          SELECT CASE WHEN count(DISTINCT NULLIF(psrc.process_type_mat, '')) = 1
+                 THEN min(NULLIF(psrc.process_type_mat, ''))
+                 ELSE NULL
+                 END
+          FROM public.products psrc
+          WHERE psrc.nocopk = ANY(p_source_product_ids)
         )
         WHERE p.nocopk = v_new_product_id;
-      EXCEPTION WHEN undefined_column THEN
-        -- If process_type doesn't exist in this schema, just inherit process_type_mat from the source product
-        UPDATE public.products p
-        SET process_type_mat = (SELECT psrc.process_type_mat FROM public.products psrc WHERE psrc.nocopk = v_src_id)
-        WHERE p.nocopk = v_new_product_id;
+      EXCEPTION WHEN undefined_column THEN NULL;
       END;
     END IF;
 
-    -- Link source tray -> new packaged product
-    INSERT INTO public._m2m_products_products_merge_tray_products(products_id, products1_id)
-    VALUES (v_new_product_id, v_src_id)
-    ON CONFLICT DO NOTHING;
+    -- Link all selected source tray products to the new packaged product.
+    FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
+      INSERT INTO public._m2m_products_products_merge_tray_products(products_id, products1_id)
+      VALUES (v_new_product_id, v_src_id)
+      ON CONFLICT DO NOTHING;
+    END LOOP;
 
-    -- Set product location
+    -- Set product location through the helper as well, so canonical FK and
+    -- compatibility link tables stay synchronized in older schemas.
     BEGIN
       PERFORM public.mp_product_set_storage_location(v_new_product_id, v_loc_id);
     EXCEPTION WHEN undefined_function THEN NULL;
@@ -2285,16 +2329,26 @@ BEGIN
         'Package Freeze Dried'::text,
         COALESCE(p_operator,'')::text,
         COALESCE(p_station,'Products')::text,
-        now(),
+        v_pack_date::timestamp,
         jsonb_build_object(
-          'source_product_id', v_src_id,
+          'source_product_ids', p_source_product_ids,
+          'package_product_id', v_new_product_id,
+          'package_index', v_counter - 1,
           'package_size_g', p_package_size_g,
-          'package_count', p_package_count,
+          'package_count', v_requested_count,
+          'total_required_weight_g', v_required_weight_g,
+          'selected_source_weight_g', v_total_source_weight_g,
+          'pack_date', v_pack_date,
+          'use_by', p_use_by,
           'notes', p_notes
         )
       );
+
       BEGIN
         PERFORM public.mp_events_link_product(v_event_id, v_new_product_id);
+        FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
+          PERFORM public.mp_events_link_product(v_event_id, v_src_id);
+        END LOOP;
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
     EXCEPTION WHEN undefined_function THEN NULL;
@@ -2312,14 +2366,11 @@ BEGIN
       );
     EXCEPTION WHEN undefined_function THEN NULL;
     END;
-
-    v_counter := v_counter + 1;
   END LOOP;
 
-  RETURN v_counter;
+  RETURN v_requested_count;
 END;
 $$;
-
 
 -- PRODUCT TRAY LIFECYCLE: move freezer tray products to a Freeze Dryer location and log the transition
 CREATE OR REPLACE FUNCTION public.mp_products_move_to_freeze_dryer(
