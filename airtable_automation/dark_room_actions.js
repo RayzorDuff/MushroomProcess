@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2026-05-18.1
+ * Version: 2026-05-18.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -28,6 +28,8 @@
  *       and log a FullyColonized event before transitioning.
  * - 2026-05-18.1:
  *   - Changed Shake action event logging to canonical ShakeBreak event type.
+ * - 2026-05-18.2:
+ *   - ColdShock now sets lots.status to ColdShock while leaving location_id in Fridge.
  */
 try {
   const { lotId } = input.config();
@@ -175,7 +177,7 @@ try {
     // Same colonization assumption/handling for ColdShock.
     await ensureFullyColonizedHistoryForTransition();
 
-    await setStatus(lot.id, 'Fridge');
+    await setStatus(lot.id, 'ColdShock');
     const fridgeLoc = await findLocationByName('Fridge');
     if (fridgeLoc && hasField(lotsTbl, 'location_id')) {
       await lotsTbl.updateRecordAsync(lot.id, { location_id: [{ id: fridgeLoc.id }] });
