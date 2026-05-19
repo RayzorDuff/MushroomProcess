@@ -97,7 +97,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrStr(arr) {\n      // Safe Postgres text[] expression for use with = ANY(...)\n      if (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n      const vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n      return \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n    },\n    arrBigint(arr) {\n      // Safe Postgres bigint[] expression for function args\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    },\n  },\n\n\tsqlNull() {\n\t\treturn \"NULL\";\n\t},\n\n\tsqlNumOrNull(v) {\n\t\treturn this.sql.num(v);\n\t},\n\n\tsqlTimestampOrNull(v) {\n\t\tif (v === null || v === undefined || v === \"\" || v === \"NULL\") return \"NULL\";\n\t\treturn this.sql.str(v);\n\t},\n\t\n  selectedLotIds() {\n    return (tblLots.selectedRows || []).map(r => r.nocopk).filter(Boolean);\n  },\n\n\tselectedLotIdsSql() {\n\t\treturn this.selectedLotIds()\n\t\t\t.map(id => Number(id))\n\t\t\t.filter(Number.isFinite)\n\t\t\t.join(\",\");\n\t},\n\n  formatSelectedLots() {\n    const rows = (tblLots.selectedRows || []);\n    if (!rows.length) return \"(No lots selected)\";\n    return rows.map(r => {\n      const lotId = r.lot_id ?? r.nocopk;\n      const inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n      const item = r.item_name_mat || \"\";\n      const strain = r.strain_species_strain_mat || \"\";\n      return `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n    }).join(\"\\n\");\n  },\n\n  retireReason() {\n    // CheckboxGroup1.selectedValues is usually an array\n    const vals = [ radioReason.selectedOptionValue ]; \n    if (!vals.length) return \"Retired\";\n    // prefer Contaminated over Compost over Expired if multiple\n    const order = [\"Contaminated\", \"Compost\", \"Expired\"];\n    for (const v of order) if (vals.includes(v)) return v;\n    return vals[0];\n  },\n\n  lotTypeCategories() {\n    const t = inpLotType.selectedOptionValue || \"All\";\n    switch (t) {\n      case \"Grain\": return [\"grain\"];\n      case \"Substrate\": return [\"substrate\", \"casing\", \"cordyceps_substrate\"];\n      case \"Liquid Culture\": return [\"lc_flask\", \"lc_syringe\"];\n      case \"Fruiting Block\": return [\"fruiting_block\"];\n      case \"Freeze Dried Mushrooms\": return [\"freezedriedmushrooms\"];\n      case \"Tray\": return [\"freezer_tray\", \"fresh_tray\", \"empty_tray\"];\n      case \"Agar\": return [\"agar_flask\", \"plate\"];\n      case \"Untracked\": return [\"untracked_source\"];\n\t\t\tcase \"Inoculable\": return [\"grain\", \"plate\", \"lc_flask\", \"cordyceps_substrate\"];\n\t\t\tcase \"All\":\n\t\t\tdefault: return [];\t\t\t\t\n    }\n  },\n\n  statusSet() {\n    const s = inpLotStatus.selectedOptionValue || \"All\";\n    switch (s) {\n      case \"New\": return [\"Planned\", \"Sterilized\", \"Pasteurized\", \"Sealed\"];\n      case \"Colonizing\": return [\"Inoculated\", \"Spawned\", \"Colonizing\"];\n      case \"Colonized/Fridge\": return [\"FullyColonized\", \"Fridge\", \"ColdShock\"];\n      case \"Fruiting\": return [\"Fruiting\"];\n      case \"Frozen\": return [\"Frozen\"];\n      case \"Retired\": return [\"Consumed\", \"Retired\", \"Compost\", \"Composted\", \"Expired\"];\n      case \"All Active\":\n        return [\"Planned\",\"Sterilized\",\"Pasteurized\",\"Sealed\",\"Inoculated\",\"Spawned\",\"Colonizing\",\"FullyColonized\",\"Fridge\",\"ColdShock\",\"Fruiting\",\"Frozen\"];\n      case \"All\":\n      default: return [];\n    }\n  },\n\n  processTypeSet() {\n    const out = [];\n    if (chkSterilized.isChecked) out.push(\"sterilize\",\"sterilized\");\n    if (chkPasteurized.isChecked) out.push(\"pasteurize\",\"pasteurized\");\n    return out;\n  },\n\n  regulatedMode() {\n    const r = chkRegulated.isChecked;\n    const u = chkUnRegulated.isChecked;\n    if ((r && u) || (!r && !u)) return \"all\";\n    if (r) return \"regulated\";\n    return \"unregulated\";\n  },\n\n  async refresh() {\n    txtErrLots.setText(\"\");\n\t\ttxtShakeContent.setText(\"\");\n\t\tinpShakeNotes.setValue(\"\");\t\t\n\t\ttxtRetireContent.setText(\"\");\n\t\tinpRetireNotes.setValue(\"\");\n\t\ttxtMoveContent.setText(\"\");\n\t\tinpMoveNotes.setValue(\"\");\n\t\ttxtModifyContent.setText(\"\");\n\t\tinpModifyNotes.setValue(\"\");\n\t\ttxtPackageContent.setText(\"\");\n\t\tinpPackageNotes.setValue(\"\");\n    try {\n      await qLots.run();\n    } catch (e) {\n      txtErrLots.setText(e?.message || String(e));\n    }\n  },\n\n\tasync showinoculable() {\n\t\tinpLotType.setSelectedOption(\"Inoculable\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"New\");\n\t\tchkSterilized.setValue(true);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showfruiting() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Fruiting\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showrefrigerated() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Colonized/Fridge\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showretired() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Retired\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\t\n\t\n\tasync showcolonizing() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Colonizing\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\t\n\t\n  async init() {\n    txtErrLots.setText(\"\");\n\t\tawait Promise.allSettled([\n      qSpecies.run(),\n\t\t\tqRecipes.run(),\n      qLocations.run()\n    ]);\n\t\t\n    await this.refresh();\n  },\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotLocationName(row) {\n\t\tconst id = row?.location_id;\n\t\tconst loc = (qLocations.data || []).find(l => String(l.nocopk) === String(id));\n\t\treturn String(loc?.name || row?.location_name || row?.location || \"\");\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = this.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tshake: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\"],\n\t\t\t\trequireInoculated: true,\n\t\t\t\tmessage: \"Select one or more active inoculated grain lots to shake.\"\n\t\t\t},\n\t\t\tretire: {\n\t\t\t\trequireAny: true,\n\t\t\t\tmessage: \"Select one or more active lots to retire.\"\n\t\t\t},\n\t\t\tmodify: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\"],\n\t\t\t\tmessage: \"Select one or more active fruiting block lots to modify.\"\n\t\t\t},\n\t\t\tmove: {\n\t\t\t\trequireAny: true,\n\t\t\t\trequireInoculatedOrSpawned: true,\n\t\t\t\tdisallowFruitingLocation: true,\n\t\t\t\tmessage: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n\t\t\t},\n\t\t\tpackage: {\n\t\t\t\trequireAny: true,\n\t\t\t\tmessage: \"Select one or more active lots to package.\"\n\t\t\t},\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && this.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireInoculated && !row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} must be inoculated.` };\n\t\t\t}\n\n\t\t\tif (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n\t\t\t\treturn { ok: false, message: `${label} must be inoculated or spawned.` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\n\t\t\tif (rules.disallowFruitingLocation && this.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n\t\t\t\treturn { ok: false, message: `${label} is already located in Fruiting.` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn this.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = this.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tcanSubmitShake() {\n\t\treturn this.canOpenLotModal(\"shake\");\n\t},\n\t\n\tcanSubmitRetire() {\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"retire\") &&\n\t\t\t!!radioReason.selectedOptionValue\n\t\t);\n\t},\n\t\n\tcanSubmitMove() {\n\t\tconst mode = radioMoveTransitionMode.selectedOptionValue || \"\";\n\t\tconst locationRequired = [\"Fridge\", \"ColdShock\", \"Fruiting\", \"StartFruiting\", \"Move\"].includes(mode);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"move\") &&\n\t\t\t!!mode &&\n\t\t\t(!locationRequired || !!inpMoveLocation.selectedOptionValue)\n\t\t);\n\t},\n\t\n\tcanSubmitModify() {\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"modify\") &&\n\t\t\t(chkbxgrpModifyAction.selectedValues || []).length > 0\n\t\t);\n\t},\n\n\tpackageStorageLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"dark room\",\n\t\t\t\"fruiting\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"fridge\",\n\t\t\t\"refrigerat\",\n\t\t\t\"cold shock\",\n\t\t\t\"lab\",\n\t\t\t\"shipped\",\n\t\t\t\"consumed\",\n\t\t\t\"compost\",\n\t\t\t\"expired\"\n\t\t];\n\n\t\tconst preferredNameParts = [\n\t\t\t\"products storage\",\n\t\t\t\"product storage\",\n\t\t\t\"finished\",\n\t\t\t\"retail\",\n\t\t\t\"customer\",\n\t\t\t\"market\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\n\t\t\t\treturn preferredNameParts.some(part => lower.includes(part));\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultPackageStorageLocationId() {\n\t\tconst opts = this.packageStorageLocationOptions();\n\n\t\tconst productsStorage = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"products storage\"\n\t\t);\n\n\t\treturn (productsStorage || opts[0])?.value || \"\";\n\t},\n\n\tcanSubmitPackage() {\n\t\tconst count = Number(inpPackageCount.text);\n\t\tconst sizeG = Number(inpPackageSizeG.text);\n\t\tconst selectedLocationId = inpPackageStorageLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.packageStorageLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"package\") &&\n\t\t\tNumber.isFinite(count) &&\n\t\t\tcount > 0 &&\n\t\t\tNumber.isFinite(sizeG) &&\n\t\t\tsizeG > 0 &&\n\t\t\t!!selectedLocationId &&\n\t\t\tvalidLocationIds.includes(String(selectedLocationId))\n\t\t);\n\t},\n\t\n\tcanSubmitInoculate() {\n\t\tconst src = tblInocSourceLots.selectedRow;\n\t\tconst sourceCategory = String(src?.item_category_mat || \"\").toLowerCase();\n\t\tconst lcVol = Number(inpInocLCVolML.text);\n\n\t\tconst sourceNeedsVolume = [\n\t\t\t\"lc_flask\",\n\t\t\t\"lc_syringe\",\n\t\t\t\"agar_flask\"\n\t\t].includes(sourceCategory);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"inoculate\") &&\n\t\t\t!!src?.nocopk &&\n\t\t\t!!selInoculateLocation.selectedOptionValue &&\n\t\t\t(\n\t\t\t\t!sourceNeedsVolume ||\n\t\t\t\t(Number.isFinite(lcVol) && lcVol > 0)\n\t\t\t)\n\t\t);\n\t},\n\t\t\n\tcanSubmitDrawSyringes() {\n\t\tconst count = Number(inpSyringeCount.text);\n\t\tconst mlEach = Number(inpSyringeMlEach.text);\n\t\tconst selectedLocationId = selDrawSyringeLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.drawSyringeLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn (\n\t\t\tLotsPage.canOpenLotModal(\"draw_syringes\") &&\n\t\t\tNumber.isFinite(count) &&\n\t\t\tcount > 0 &&\n\t\t\tNumber.isFinite(mlEach) &&\n\t\t\tmlEach > 0 &&\n\t\t\t!!selectedLocationId &&\n\t\t\tvalidLocationIds.includes(String(selectedLocationId))\n\t\t);\n\t},\n\t\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = this.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = this.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\t\n\tasync verifyShakeableLots() {\n\t\treturn this.validateAndWarnLotModal(\"shake\", \"Select shakeable lots to shake.\");\n\t},\n\tasync verifyModifiableLots() {\n\t\treturn this.validateAndWarnLotModal(\"modify\", \"Select only active fruiting blocks to modify.\");\n\t},\n\tasync verifyMoveableLots() {\n\t\treturn this.validateAndWarnLotModal(\"move\", \"Select moveable lots to transition.\");\n\t},\n\tasync verifyRetireableLots() {\n\t\treturn this.validateAndWarnLotModal(\"retire\", \"Select active lots to retire.\");\n\t},\n\tasync verifyPackageableLots() {\n\t\treturn this.validateAndWarnLotModal(\"package\", \"Select valid lots to package.\");\n\t},\n\tasync verifyInoculateLots() {\n\t\treturn this.validateAndWarnLotModal(\"inoculate\", \"Select valid lots to inoculate.\");\n\t},\n\t\n\tasync openShakeModal() {\n\t\tif (!this.validateAndWarnLotModal(\"shake\", \"Select shakeable lots to shake.\")) return;\n\t\ttxtShakeContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalShakeLots.name);\n\t},\n\n\tasync openRetireModal() {\n\t\tif (!this.validateAndWarnLotModal(\"retire\", \"Select retireable lots to retire.\")) return;\n\n\t\ttxtRetireContent.setText(this.formatSelectedLots());\n\n\t\tconst today = moment().startOf(\"day\");\n\t\tconst rows = this.selectedLotRows();\n\t\tconst expiredRows = rows.filter(row => {\n\t\t\tif (!row.use_by) return false;\n\t\t\tconst useBy = moment(row.use_by).startOf(\"day\");\n\t\t\treturn useBy.isValid() && useBy.isBefore(today);\n\t\t});\n\n\t\tif (expiredRows.length > 0) {\n\t\t\tradioReason.setValue(\"Expired\");\n\t\t\tshowAlert(\n\t\t\t\t`${expiredRows.length} selected lot(s) are past use_by. Expired is recommended as the terminal reason.`,\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t}\n\n\t\tawait showModal(modalRetireLots.name);\n\t},\n\t\n\tasync openModifyModal() {\n\t\tif (!this.validateAndWarnLotModal(\"modify\", \"Select only modifiable fruiting blocks.\")) return;\n\t\ttxtModifyContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalModifyLots.name);\n\t},\t\n\n\tasync openMoveModal() {\n\t\tif (!this.validateAndWarnLotModal(\"move\", \"Select moveable lots to transition.\")) return;\n\t\ttxtMoveContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalMoveLots.name);\n\t},\t\n\t\n\tasync openPackageModal() {\n\t\tif (!this.validateAndWarnLotModal(\"package\", \"Select valid lots to package.\")) return;\n\n\t\ttxtPackageContent.setText(this.formatSelectedLots());\n\n\t\tPromise.allSettled([qProductLocations.run()]).finally(async () => {\n\t\t\tconst defaultLocationId = this.defaultPackageStorageLocationId();\n\n\t\t\tif (defaultLocationId) {\n\t\t\t\tawait inpPackageStorageLocation.setSelectedOption(defaultLocationId);\n\t\t\t} else {\n\t\t\t\tawait inpPackageStorageLocation.setSelectedOption(\"\");\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"No product-ready package storage location was found. Add or activate Products Storage before packaging.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t}\n\n\t\t\tshowModal(modalPackageLots.name);\n\t\t});\n\t},\n\n\tselectedLotsSummary() {\n\t\tconst rows = (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t\tif (!rows.length) return \"No lots selected.\";\n\t\treturn rows.map(r => {\n\t\tconst lot = r.lot_id || r.lotId || r.lot_id_mat || r.nocopk;\n\t\tconst inoc = r.inoculated_at || r.inoculatedAt || r.created_at || r.createdAt || \"\";\n\t\tconst item = r.item_name_mat || r.item_name || r.itemName || \"\";\n\t\tconst strain = r.strain_species_strain_mat || r.strain_species_strain || r.species_strain || \"\";\n\t\treturn `${lot} | inoculated: ${inoc || \"—\"} | ${item} | ${strain}`;\n\t\t}).join(\"\\n\");\n\t},\n\n\tasync shakeSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotsshaken;\n\t\ttry {\n\t\tlotsshaken = await qShakeLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'success');\n\n\t\t\ttxtShakeContent.setText(\"\");\n\t\t\tinpShakeNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalShakeLots.name);\n\t\tawait qLots.run();\n\t},\n\n\tasync retireSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\n\t\t\tlet lotsretired;\n\t\ttry {\n\t\tlotsretired = await qRetireLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error retiring lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\n\n\t\t\tshowAlert(\"Retired \" + lotsretired[0].retired_count + \" lot(s).\", 'success');\n\n\t\t\ttxtRetireContent.setText(\"\");\n\t\t\tinpRetireNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalRetireLots.name);\n\t\tawait qLots.run();\n\t},\n\n\tasync moveSelectedLots() {\n\t\tif (!this.selectedLotIds().length) {\n\t\t\treturn showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t}\n\n\t\tif (!this.canSubmitMove()) {\n\t\t\tshowAlert(\"Select a transition mode and, when required, a destination location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tlet lotsmoved;\n\t\ttry {\n\t\t\tlotsmoved = await qMoveLots.run();\n\t\t} catch (e) {\n\t\t\tshowAlert(\"Error moving lots: \" + ((e && e.message) ? e.message : String(e)), \"error\");\n\t\t\tawait storeValue(\"lots_error\", (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n\t\t}\n\n\t\tshowAlert(\"Transitioned \" + lotsmoved[0].moved_count + \" lot(s).\", \"success\");\n\n\t\ttxtMoveContent.setText(\"\");\n\t\tinpMoveNotes.setValue(\"\");\n\t\tcloseModal(modalMoveLots.name);\n\t\tawait qLots.run();\n\t},\t\n\n\tasync modifySelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotsmodified;\n\t\ttry {\n\t\tlotsmodified = await qModifyLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error modifying lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Modified \" + lotsmodified[0].modified_count + \" lot(s).\", 'success');\n\n\t\t\ttxtModifyContent.setText(\"\");\n\t\t\tinpModifyNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalModifyLots.name);\n\t\tawait qLots.run();\n\t},\t\n\t\t\n\tasync packageSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotspackaged;\n\t\ttry {\n\t\tlotspackaged = await qPackageLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error packaging lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Packaged \" + lotspackaged[0].packaged_count + \" lot(s).\", 'success');\n\n\t\t\ttxtPackageContent.setText(\"\");\n\t\t\tinpPackageNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalPackageLots.name);\n\t\tawait qLots.run();\n\t},\t\t\n\n\tasync openInoculateModal() {\n\t\tif (!this.validateAndWarnLotModal(\"inoculate\", \"Select valid lots to inoculate.\")) return;\n\t\t\t\n\t\t\ttxtInoculateContent.setText(this.formatSelectedLots());\n\t\t\t\n\t\t// Refresh source lots list + locations\n\t\tPromise.allSettled([qSourceLotsSearch.run(), qInocLocations.run()]).finally(() => {\n\t\tshowModal(modalInoculateLots.name);\n\t\t});\n\t},\n\n\tasync inoculateSelectedLots() {\n\t\tconst targetIds = this.selectedLotIds();\n\t\tif (!targetIds.length) {\n\t\t\tshowAlert('No target lots selected.', 'warning');\n\t\t\treturn;\n\t\t}\n\n\t\tconst src = tblInocSourceLots.selectedRow;\n\t\tconst sourceId = src?.nocopk;\n\t\tif (!sourceId) {\n\t\t\tshowAlert('Select a SOURCE lot in the Source Lots table.', 'warning');\n\t\t\treturn;\n\t\t}\n\n\t\t// Inputs from modal\n\t\tconst lcVol = Number(inpInocLCVolML.text);\n\t\tconst storageLoc = selInoculateLocation.selectedOptionValue || 'Dark Room';\n\t\tconst overrideTime = (dpInoculateOverrideTime.isVisible && dpInoculateOverrideTime.selectedDate) ? dpInoculateOverrideTime.selectedDate : null;\n\t\tconst notes = inpInoculateNotes.text || '';\n\n\t\t// Stash for query templating\n\t\tawait storeValue('inoc_source_id', sourceId);\n\t\tawait storeValue('inoc_target_ids', targetIds);\n\t\tawait storeValue('inoc_lc_vol', Number.isFinite(lcVol) ? lcVol : null);\n\t\tawait storeValue('inoc_storage_loc', storageLoc);\n\t\tawait storeValue('inoc_override_time', overrideTime);\n\t\tawait storeValue('inoc_note', notes);\n\n\t\ttry {\n\t\t\tconst inoculated = await qInoculateLots.run();\n\t\t\tcloseModal(modalInoculateLots.name);\n\t\t\tawait this.refresh();\n\t\t\tshowAlert('Inoculation of ' + inoculated.length + ' lot(s) complete.', 'success');\n\t\t} catch (e) {\n\t\t\t// Surface server-side validation errors on the source lot where possible.\n\t\t\tshowAlert(e?.message || 'Inoculation failed.', 'error');\n\t\t}\n\t},\n\n\tasync openDrawSyringesModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"draw_syringes\", \"Select exactly one active LC flask lot first.\")) return;\n\n\t\tinpSyringeCount.setValue(\"1\");\n\t\tinpSyringeMlEach.setValue(\"10\");\n\t\tinpDrawSyringesNotes.setValue(\"\");\n\n\t\tPromise.allSettled([qProductLocations.run()]).finally(async () => {\n\t\t\tconst defaultLocationId = this.defaultDrawSyringeLocationId();\n\n\t\t\tif (defaultLocationId) {\n\t\t\t\tawait selDrawSyringeLocation.setSelectedOption(defaultLocationId);\n\t\t\t} else {\n\t\t\t\tawait selDrawSyringeLocation.setSelectedOption(\"\");\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"No refrigerated syringe storage location was found. Add or activate a Fridge/Refrigerated location before drawing syringes.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t}\n\n\t\t\tawait showModal(modalDrawSyringes.name);\n\t\t});\n\t},\n\n\tdrawSyringeLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"dark room\",\n\t\t\t\"fruiting\",\n\t\t\t\"shipping\",\n\t\t\t\"fulfillment\",\n\t\t\t\"products storage\",\n\t\t\t\"product storage\",\n\t\t\t\"lab\",\n\t\t\t\"shipped\",\n\t\t\t\"consumed\",\n\t\t\t\"compost\",\n\t\t\t\"expired\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\n\t\t\t\tconst isRefrigerated =\n\t\t\t\t\tlower.includes(\"fridge\") ||\n\t\t\t\t\tlower.includes(\"refrigerat\");\n\n\t\t\t\tif (!isRefrigerated) return false;\n\n\t\t\t\treturn !invalidNameParts.some(part => lower.includes(part));\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultDrawSyringeLocationId() {\n\t\tconst opts = this.drawSyringeLocationOptions();\n\n\t\tconst fridge = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fridge\"\n\t\t);\n\n\t\treturn (fridge || opts[0])?.value || \"\";\n\t},\n\t\t\n\tasync drawSyringesFromSelectedFlask() {\n\t\tif (!LotsPage.canOpenLotModal(\"draw_syringes\")) {\n\t\t\tshowAlert(\"Select exactly one active LC flask lot first.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tconst count = Number(inpSyringeCount.text);\n\t\tconst mlEach = Number(inpSyringeMlEach.text);\n\t\tconst mode = selDrawSyringeOutputType.selectedOptionValue || \"product\";\n\t\tconst location = selDrawSyringeLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.drawSyringeLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tif (!Number.isFinite(count) || count <= 0) {\n\t\t\tshowAlert(\"Enter a syringe count greater than 0.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(mlEach) || mlEach <= 0) {\n\t\t\tshowAlert(\"Enter mL per syringe greater than 0.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!location || !validLocationIds.includes(String(location))) {\n\t\t\tshowAlert(\"Select a refrigerated Storage Location for drawn syringes.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = mode === \"product\"\n\t\t\t\t? await qDrawSyringeProducts.run()\n\t\t\t\t: await qDrawSyringes.run();\n\n\t\t\tshowAlert(\n\t\t\t\tmode === \"product\" ? \"Syringe products created.\" : \"Syringe lots created.\",\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalDrawSyringes.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\t\t\n\tasync verifyHarvestableLot() {\n\t\treturn this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = this.harvestFreshTrayCount();\n\t\tconst frozenCount = this.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tconst freshOpts = this.freshHarvestLocationOptions();\n\t\tconst frozenOpts = this.frozenHarvestLocationOptions();\n\n\t\tif (this.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (this.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(this.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = this.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = this.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\n\tspawnToBulkTargetLotIds() {\n\t\treturn this.selectedLotIds()\n\t\t\t.map(id => Number(id))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tselectedSpawnBulkSourceLots() {\n\t\treturn tblSpawnSourceLots.selectedRows || [];\n\t},\n\n\tspawnToBulkSourceLotIds() {\n\t\treturn this.selectedSpawnBulkSourceLots()\n\t\t\t.map(r => Number(r.nocopk))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tspawnToBulkBlockSizesText() {\n\t\treturn String(inpSpawnToBulkLotsSize.text || \"\").trim();\n\t},\n\n\tspawnToBulkNotesText() {\n\t\treturn String(inpSpawnToBulkNotes.text || \"\").trim();\n\t},\n\n\tspawnToBulkOutputPlan() {\n\t\tconst text = this.spawnToBulkBlockSizesText();\n\n\t\tif (!text) return [];\n\n\t\treturn text\n\t\t\t.split(\",\")\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean)\n\t\t\t.map(token => {\n\t\t\t\tif (token.includes(\":\")) {\n\t\t\t\t\tconst [item_id, size] = token.split(\":\").map(x => x.trim());\n\t\t\t\t\treturn { item_id, unit_lbs: Number(size) };\n\t\t\t\t}\n\n\t\t\t\treturn { unit_lbs: Number(token) };\n\t\t\t})\n\t\t\t.filter(x => Number.isFinite(x.unit_lbs) && x.unit_lbs > 0);\n\t},\n\n\tspawnToBulkOutputPlanJson() {\n\t\treturn JSON.stringify(this.spawnToBulkOutputPlan());\n\t},\n\n\tspawnToBulkOutputCount() {\n\t\tconst plan = this.spawnToBulkOutputPlan();\n\t\treturn plan.length > 0 ? plan.length : this.spawnToBulkTargetLotIds().length;\n\t},\n\n\tcanOpenSpawnToBulkModal() {\n\t\treturn this.canOpenLotModal({\n\t\t\trequireAny: true,\n\t\t\tallowedCategories: [\"substrate\"],\n\t\t\tmessage: \"Select one or more active substrate lots before spawning to bulk.\"\n\t\t});\n\t},\n\n\tasync openSpawnToBulkModal() {\n\t\tif (!this.validateAndWarnLotModal({\n\t\t\trequireAny: true,\n\t\t\tallowedCategories: [\"substrate\"],\n\t\t\tmessage: \"Select one or more active substrate lots before spawning to bulk.\"\n\t\t})) return;\n\n\t\ttxtSpawnToBulkContent.setText(this.formatSelectedLots());\n\t\tinpSpawnToBulkNotes.setValue(\"\");\n\t\tinpSpawnToBulkLotsSize.setValue(\"\");\n\n\t\tawait qSpawnSourceLotsSearch.run();\n\t\tawait showModal(modalSpawnToBulk.name);\n\t},\n\n\tcanSubmitSpawnToBulk() {\n\t\tconst targets = tblLots.selectedRows || [];\n\t\tconst sources = this.selectedSpawnBulkSourceLots();\n\n\t\tif (!this.canOpenSpawnToBulkModal()) return false;\n\t\tif (sources.length < 1) return false;\n\n\t\tif (!sources.every(r => r.item_category_mat === \"grain\")) return false;\n\n\t\tconst sourceSpecies = [\n\t\t\t...new Set(sources.map(r =>\n\t\t\t\tString(r.strain_species || r.strain_species_strain_mat || \"\").trim()\n\t\t\t))\n\t\t].filter(Boolean);\n\n\t\treturn sourceSpecies.length === 1;\n\t},\n\n\tasync submitSpawnToBulk() {\n\t\tif (!this.canSubmitSpawnToBulk()) {\n\t\t\tshowAlert(\"Select active substrate targets and one or more colonized grain source lots of the same species.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qSpawnToBulkLots.run();\n\t\t\tconst created = res?.[0]?.created_count ?? 0;\n\n\t\t\tshowAlert(`Spawn to Bulk complete. Created ${created} fruiting block lot(s).`, \"success\");\n\t\t\tcloseModal(modalSpawnToBulk.name);\n\t\t\tawait this.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\n};",
+        "body": "export default {\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\t\n\tsql: {\n\t\tstr(v) {\n\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\tconst n = Number(v);\n\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrStr(arr) {\n\t\t// Safe Postgres text[] expression for use with = ANY(...)\n\t\tif (!arr || arr.length === 0) return \"ARRAY[]::text[]\";\n\t\tconst vals = arr.map(x => \"'\" + String(x).replace(/'/g, \"''\") + \"'\");\n\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::text[]\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t// Safe Postgres bigint[] expression for function args\n\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\tconst vals = arr.map(x => {\n\t\t\tconst n = Number(x);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t}).filter(x => x !== \"NULL\");\n\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t},\n\t},\n\n\tsqlNull() {\n\t\treturn \"NULL\";\n\t},\n\n\tsqlNumOrNull(v) {\n\t\treturn this.sql.num(v);\n\t},\n\n\tsqlTimestampOrNull(v) {\n\t\tif (v === null || v === undefined || v === \"\" || v === \"NULL\") return \"NULL\";\n\t\treturn this.sql.str(v);\n\t},\n\t\n\tselectedLotIds() {\n\t\treturn (tblLots.selectedRows || []).map(r => r.nocopk).filter(Boolean);\n\t},\n\n\tselectedLotIdsSql() {\n\t\treturn this.selectedLotIds()\n\t\t\t.map(id => Number(id))\n\t\t\t.filter(Number.isFinite)\n\t\t\t.join(\",\");\n\t},\n\n\tformatSelectedLots() {\n\t\tconst rows = (tblLots.selectedRows || []);\n\t\tif (!rows.length) return \"(No lots selected)\";\n\t\treturn rows.map(r => {\n\t\tconst lotId = r.lot_id ?? r.nocopk;\n\t\tconst inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n\t\tconst item = r.item_name_mat || \"\";\n\t\tconst strain = r.strain_species_strain_mat || \"\";\n\t\treturn `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n\t\t}).join(\"\\n\");\n\t},\n\n\tlotsTableOriginalRow(row) {\n\t\tconst id = row?.nocopk;\n\t\treturn (qLots.data || []).find(r => String(r.nocopk) === String(id)) || row || {};\n\t},\n\n\tlocationById(locationId) {\n\t\treturn (qLocations.data || []).find(l => String(l.nocopk) === String(locationId)) || null;\n\t},\n\n\tlocationNameById(locationId) {\n\t\tconst loc = this.locationById(locationId);\n\t\treturn String(loc?.name || \"\").trim();\n\t},\n\n\tlotsTableLocationGroupFromName(name) {\n\t\tconst lower = String(name || \"\").trim().toLowerCase();\n\n\t\tif (!lower) return \"unknown\";\n\n\t\tif (\n\t\t\tlower.includes(\"consumed\") ||\n\t\t\tlower.includes(\"retired\") ||\n\t\t\tlower.includes(\"compost\") ||\n\t\t\tlower.includes(\"expired\") ||\n\t\t\tlower.includes(\"contaminated\") ||\n\t\t\tlower.includes(\"invalid\") ||\n\t\t\tlower.includes(\"inviable\")\n\t\t) {\n\t\t\treturn \"terminal\";\n\t\t}\n\n\t\tif (lower.includes(\"freeze dryer\") || lower.includes(\"freeze-dryer\")) {\n\t\t\treturn \"freeze_dryer\";\n\t\t}\n\n\t\tif (lower.includes(\"freezer\")) {\n\t\t\treturn \"freezer\";\n\t\t}\n\n\t\tif (lower.includes(\"fridge\") || lower.includes(\"refrigerat\")) {\n\t\t\treturn \"fridge\";\n\t\t}\n\n\t\tif (lower.includes(\"fruiting\")) {\n\t\t\treturn \"fruiting\";\n\t\t}\n\n\t\tif (lower.includes(\"dark room\")) {\n\t\t\treturn \"dark_room\";\n\t\t}\n\n\t\tif (\n\t\t\tlower.includes(\"products storage\") ||\n\t\t\tlower.includes(\"product storage\") ||\n\t\t\tlower.includes(\"fulfillment\") ||\n\t\t\tlower.includes(\"shipping\") ||\n\t\t\tlower.includes(\"retail\") ||\n\t\t\tlower.includes(\"market\")\n\t\t) {\n\t\t\treturn \"product_storage\";\n\t\t}\n\n\t\tif (\n\t\t\tlower.includes(\"new\") ||\n\t\t\tlower.includes(\"receiving\") ||\n\t\t\tlower.includes(\"intake\") ||\n\t\t\tlower.includes(\"staging\")\n\t\t) {\n\t\t\treturn \"new_lot\";\n\t\t}\n\n\t\tif (lower.includes(\"lab\")) {\n\t\t\treturn \"lab\";\n\t\t}\n\n\t\treturn \"other\";\n\t},\n\n\tlotsTableLocationEditValidation(row, proposedLocationId) {\n\t\tconst original = this.lotsTableOriginalRow(row);\n\t\tconst lotId = original?.nocopk;\n\t\tconst lotLabel = original?.lot_id || lotId || \"Selected lot\";\n\t\tconst status = String(original?.status || \"\").trim().toLowerCase();\n\n\t\tconst fromLocationId = original?.location_id;\n\t\tconst toLocationId = proposedLocationId ?? row?.location_id;\n\n\t\tconst fromName = this.locationNameById(fromLocationId);\n\t\tconst toName = this.locationNameById(toLocationId);\n\n\t\tconst fromGroup = this.lotsTableLocationGroupFromName(fromName);\n\t\tconst toGroup = this.lotsTableLocationGroupFromName(toName);\n\n\t\tif (!lotId) {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Could not identify the lot being edited.\"\n\t\t\t};\n\t\t}\n\n\t\tif (!toLocationId || !toName) {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Select a valid destination location.\"\n\t\t\t};\n\t\t}\n\n\t\tif (String(fromLocationId) === String(toLocationId)) {\n\t\t\treturn {\n\t\t\t\tok: true,\n\t\t\t\tmessage: \"\"\n\t\t\t};\n\t\t}\n\n\t\tif (\n\t\t\tstatus.includes(\"retired\") ||\n\t\t\tstatus.includes(\"expired\") ||\n\t\t\tstatus.includes(\"consumed\") ||\n\t\t\tstatus.includes(\"compost\")\n\t\t) {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: `${lotLabel} is terminal/retired and should not be moved from the Lots table.`\n\t\t\t};\n\t\t}\n\n\t\tif (toGroup === \"terminal\") {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: `${toName} is a terminal location. Use the Retire/Terminal workflow instead.`\n\t\t\t};\n\t\t}\n\n\t\tif (fromGroup === \"freeze_dryer\" || toGroup === \"freeze_dryer\") {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Freeze Dryer movement should be handled from Products / freeze-dry workflow, not Lots table inline edit.\"\n\t\t\t};\n\t\t}\n\n\t\tif (status === \"new\" && toGroup !== \"new_lot\") {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Moving New lots into production or product storage is a workflow action. Use the appropriate process modal instead.\"\n\t\t\t};\n\t\t}\n\n\t\tconst sameClassAllowedGroups = [\n\t\t\t\"product_storage\",\n\t\t\t\"fridge\",\n\t\t\t\"freezer\",\n\t\t\t\"fruiting\",\n\t\t\t\"new_lot\",\n\t\t\t\"lab\",\n\t\t\t\"dark_room\"\n\t\t];\n\n\t\tif (\n\t\t\tfromGroup === toGroup &&\n\t\t\tsameClassAllowedGroups.includes(fromGroup)\n\t\t) {\n\t\t\treturn {\n\t\t\t\tok: true,\n\t\t\t\tmessage: \"\"\n\t\t\t};\n\t\t}\n\n\t\tif (fromGroup === \"dark_room\" && [\"fridge\", \"freezer\", \"fruiting\"].includes(toGroup)) {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Moving from Dark Room to Fridge/Freezer/Fruiting is a transition. Use the Transition/Move modal.\"\n\t\t\t};\n\t\t}\n\n\t\tif (toGroup === \"product_storage\") {\n\t\t\treturn {\n\t\t\t\tok: false,\n\t\t\t\tmessage: \"Moving lots into product storage is productizing/package behavior. Use Package Lots.\"\n\t\t\t};\n\t\t}\n\n\t\treturn {\n\t\t\tok: false,\n\t\t\tmessage: `Inline location edit only supports same-class moves. Use the appropriate workflow to move from ${fromName || \"unknown\"} to ${toName}.`\n\t\t};\n\t},\n\n\tlotsTableLocationOptionsForRow(row) {\n\t\tconst original = this.lotsTableOriginalRow(row);\n\n\t\treturn (qLocations.data || [])\n\t\t\t.filter(loc => {\n\t\t\t\tif (!loc?.nocopk || !loc?.name) return false;\n\t\t\t\tif (loc.active === false) return false;\n\n\t\t\t\treturn this.lotsTableLocationEditValidation(original, loc.nocopk).ok;\n\t\t\t})\n\t\t\t.map(loc => ({\n\t\t\t\tlabel: loc.name,\n\t\t\t\tvalue: loc.nocopk\n\t\t\t}));\n\t},\n\n\tcanSaveLotsTableLocationEdit(row) {\n\t\tconst original = this.lotsTableOriginalRow(row);\n\t\tconst newLocationId = row?.location_id;\n\n\t\tif (!original?.nocopk) return false;\n\t\tif (!newLocationId) return false;\n\n\t\tif (String(original.location_id) === String(newLocationId)) {\n\t\t\treturn false;\n\t\t}\n\n\t\treturn this.lotsTableLocationEditValidation(row, newLocationId).ok;\n\t},\n\n\tasync onLotsTableLocationChanged(row) {\n\t\tconst validation = this.lotsTableLocationEditValidation(row, row?.location_id);\n\n\t\tif (!validation.ok) {\n\t\t\tshowAlert(validation.message, \"warning\");\n\t\t\treturn false;\n\t\t}\n\n\t\treturn true;\n\t},\n\n\tasync saveLotsTableLocationEdit(row) {\n\t\tconst original = this.lotsTableOriginalRow(row);\n\t\tconst edited = {\n\t\t\t...original,\n\t\t\t...(row || {})\n\t\t};\n\n\t\tconst newLocationId = edited?.location_id;\n\t\tconst validation = this.lotsTableLocationEditValidation(edited, newLocationId);\n\n\t\tif (!validation.ok) {\n\t\t\tshowAlert(validation.message, \"warning\");\n\t\t\treturn null;\n\t\t}\n\n\t\tawait storeValue(\"lots_table_move_lot_id\", original.nocopk);\n\t\tawait storeValue(\"lots_table_move_location_id\", newLocationId);\n\n\t\ttry {\n\t\t\tconst res = await qLotsTableMoveLocation.run();\n\t\t\tconst movedCount = res?.[0]?.moved_count ?? 0;\n\n\t\t\tshowAlert(`Moved ${movedCount} lot(s).`, \"success\");\n\n\t\t\tawait qLots.run();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\tawait storeValue(\"lots_error\", e?.message || String(e));\n\t\t\treturn null;\n\t\t}\n\t},\n\n\tretireReason() {\n\t\t// CheckboxGroup1.selectedValues is usually an array\n\t\tconst vals = [ radioReason.selectedOptionValue ]; \n\t\tif (!vals.length) return \"Retired\";\n\t\t// prefer Contaminated over Compost over Expired if multiple\n\t\tconst order = [\"Contaminated\", \"Compost\", \"Expired\"];\n\t\tfor (const v of order) if (vals.includes(v)) return v;\n\t\treturn vals[0];\n\t},\n\n\tlotTypeCategories() {\n\t\tconst t = inpLotType.selectedOptionValue || \"All\";\n\t\tswitch (t) {\n\t\tcase \"Grain\": return [\"grain\"];\n\t\tcase \"Substrate\": return [\"substrate\", \"casing\", \"cordyceps_substrate\"];\n\t\tcase \"Liquid Culture\": return [\"lc_flask\", \"lc_syringe\"];\n\t\tcase \"Fruiting Block\": return [\"fruiting_block\"];\n\t\tcase \"Freeze Dried Mushrooms\": return [\"freezedriedmushrooms\"];\n\t\tcase \"Tray\": return [\"freezer_tray\", \"fresh_tray\", \"empty_tray\"];\n\t\tcase \"Agar\": return [\"agar_flask\", \"plate\"];\n\t\tcase \"Untracked\": return [\"untracked_source\"];\n\t\t\t\tcase \"Inoculable\": return [\"grain\", \"plate\", \"lc_flask\", \"cordyceps_substrate\"];\n\t\t\t\tcase \"All\":\n\t\t\t\tdefault: return [];\t\t\t\t\n\t\t}\n\t},\n\n\tstatusSet() {\n\t\tconst s = inpLotStatus.selectedOptionValue || \"All\";\n\t\tswitch (s) {\n\t\tcase \"New\": return [\"Planned\", \"Sterilized\", \"Pasteurized\", \"Sealed\"];\n\t\tcase \"Colonizing\": return [\"Inoculated\", \"Spawned\", \"Colonizing\"];\n\t\tcase \"Colonized/Fridge\": return [\"FullyColonized\", \"Fridge\", \"ColdShock\"];\n\t\tcase \"Fruiting\": return [\"Fruiting\"];\n\t\tcase \"Frozen\": return [\"Frozen\"];\n\t\tcase \"Retired\": return [\"Consumed\", \"Retired\", \"Compost\", \"Composted\", \"Expired\"];\n\t\tcase \"All Active\":\n\t\t\treturn [\"Planned\",\"Sterilized\",\"Pasteurized\",\"Sealed\",\"Inoculated\",\"Spawned\",\"Colonizing\",\"FullyColonized\",\"Fridge\",\"ColdShock\",\"Fruiting\",\"Frozen\"];\n\t\tcase \"All\":\n\t\tdefault: return [];\n\t\t}\n\t},\n\n\tprocessTypeSet() {\n\t\tconst out = [];\n\t\tif (chkSterilized.isChecked) out.push(\"sterilize\",\"sterilized\");\n\t\tif (chkPasteurized.isChecked) out.push(\"pasteurize\",\"pasteurized\");\n\t\treturn out;\n\t},\n\n\tregulatedMode() {\n\t\tconst r = chkRegulated.isChecked;\n\t\tconst u = chkUnRegulated.isChecked;\n\t\tif ((r && u) || (!r && !u)) return \"all\";\n\t\tif (r) return \"regulated\";\n\t\treturn \"unregulated\";\n\t},\n\n\tasync refresh() {\n\t\ttxtErrLots.setText(\"\");\n\t\t\ttxtShakeContent.setText(\"\");\n\t\t\tinpShakeNotes.setValue(\"\");\t\t\n\t\t\ttxtRetireContent.setText(\"\");\n\t\t\tinpRetireNotes.setValue(\"\");\n\t\t\ttxtMoveContent.setText(\"\");\n\t\t\tinpMoveNotes.setValue(\"\");\n\t\t\ttxtModifyContent.setText(\"\");\n\t\t\tinpModifyNotes.setValue(\"\");\n\t\t\ttxtPackageContent.setText(\"\");\n\t\t\tinpPackageNotes.setValue(\"\");\n\t\ttry {\n\t\tawait qLots.run();\n\t\t} catch (e) {\n\t\ttxtErrLots.setText(e?.message || String(e));\n\t\t}\n\t},\n\n\tasync showinoculable() {\n\t\tinpLotType.setSelectedOption(\"Inoculable\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"New\");\n\t\tchkSterilized.setValue(true);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showfruiting() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Fruiting\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showrefrigerated() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Colonized/Fridge\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\n\n\tasync showretired() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Retired\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\t\n\t\n\tasync showcolonizing() {\n\t\tinpLotType.setSelectedOption(\"All\");\n\t\tinpStrains.setSelectedOption(\"All\");\n\t\tinpLotStatus.setSelectedOption(\"Colonizing\");\n\t\tchkSterilized.setValue(false);\n\t\tchkPasteurized.setValue(false);\n\t\tchkRegulated.setValue(false);\n\t\tchkUnRegulated.setValue(false);\n\t\t\n\t\tawait this.refresh();\n\t},\t\n\t\n\tasync init() {\n\t\ttxtErrLots.setText(\"\");\n\t\t\tawait Promise.allSettled([\n\t\tqSpecies.run(),\n\t\t\t\tqRecipes.run(),\n\t\tqLocations.run()\n\t\t]);\n\t\t\t\n\t\tawait this.refresh();\n\t},\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotLocationName(row) {\n\t\tconst id = row?.location_id;\n\t\tconst loc = (qLocations.data || []).find(l => String(l.nocopk) === String(id));\n\t\treturn String(loc?.name || row?.location_name || row?.location || \"\");\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = this.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tshake: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\"],\n\t\t\t\trequireInoculated: true,\n\t\t\t\tmessage: \"Select one or more active inoculated grain lots to shake.\"\n\t\t\t},\n\t\t\tretire: {\n\t\t\t\trequireAny: true,\n\t\t\t\tmessage: \"Select one or more active lots to retire.\"\n\t\t\t},\n\t\t\tmodify: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\"],\n\t\t\t\tmessage: \"Select one or more active fruiting block lots to modify.\"\n\t\t\t},\n\t\t\tmove: {\n\t\t\t\trequireAny: true,\n\t\t\t\trequireInoculatedOrSpawned: true,\n\t\t\t\tdisallowFruitingLocation: true,\n\t\t\t\tmessage: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n\t\t\t},\n\t\t\tpackage: {\n\t\t\t\trequireAny: true,\n\t\t\t\tmessage: \"Select one or more active lots to package.\"\n\t\t\t},\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && this.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireInoculated && !row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} must be inoculated.` };\n\t\t\t}\n\n\t\t\tif (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n\t\t\t\treturn { ok: false, message: `${label} must be inoculated or spawned.` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\n\t\t\tif (rules.disallowFruitingLocation && this.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n\t\t\t\treturn { ok: false, message: `${label} is already located in Fruiting.` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn this.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = this.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tcanSubmitShake() {\n\t\treturn this.canOpenLotModal(\"shake\");\n\t},\n\t\n\tcanSubmitRetire() {\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"retire\") &&\n\t\t\t!!radioReason.selectedOptionValue\n\t\t);\n\t},\n\t\n\tcanSubmitMove() {\n\t\tconst mode = radioMoveTransitionMode.selectedOptionValue || \"\";\n\t\tconst locationRequired = [\"Fridge\", \"ColdShock\", \"Fruiting\", \"StartFruiting\", \"Move\"].includes(mode);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"move\") &&\n\t\t\t!!mode &&\n\t\t\t(!locationRequired || !!inpMoveLocation.selectedOptionValue)\n\t\t);\n\t},\n\t\n\tcanSubmitModify() {\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"modify\") &&\n\t\t\t(chkbxgrpModifyAction.selectedValues || []).length > 0\n\t\t);\n\t},\n\n\tpackageStorageLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"dark room\",\n\t\t\t\"fruiting\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"fridge\",\n\t\t\t\"refrigerat\",\n\t\t\t\"cold shock\",\n\t\t\t\"lab\",\n\t\t\t\"shipped\",\n\t\t\t\"consumed\",\n\t\t\t\"compost\",\n\t\t\t\"expired\"\n\t\t];\n\n\t\tconst preferredNameParts = [\n\t\t\t\"products storage\",\n\t\t\t\"product storage\",\n\t\t\t\"finished\",\n\t\t\t\"retail\",\n\t\t\t\"customer\",\n\t\t\t\"market\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\n\t\t\t\treturn preferredNameParts.some(part => lower.includes(part));\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultPackageStorageLocationId() {\n\t\tconst opts = this.packageStorageLocationOptions();\n\n\t\tconst productsStorage = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"products storage\"\n\t\t);\n\n\t\treturn (productsStorage || opts[0])?.value || \"\";\n\t},\n\n\tcanSubmitPackage() {\n\t\tconst count = Number(inpPackageCount.text);\n\t\tconst sizeG = Number(inpPackageSizeG.text);\n\t\tconst selectedLocationId = inpPackageStorageLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.packageStorageLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"package\") &&\n\t\t\tNumber.isFinite(count) &&\n\t\t\tcount > 0 &&\n\t\t\tNumber.isFinite(sizeG) &&\n\t\t\tsizeG > 0 &&\n\t\t\t!!selectedLocationId &&\n\t\t\tvalidLocationIds.includes(String(selectedLocationId))\n\t\t);\n\t},\n\t\n\tcanSubmitInoculate() {\n\t\tconst src = tblInocSourceLots.selectedRow;\n\t\tconst sourceCategory = String(src?.item_category_mat || \"\").toLowerCase();\n\t\tconst lcVol = Number(inpInocLCVolML.text);\n\n\t\tconst sourceNeedsVolume = [\n\t\t\t\"lc_flask\",\n\t\t\t\"lc_syringe\",\n\t\t\t\"agar_flask\"\n\t\t].includes(sourceCategory);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"inoculate\") &&\n\t\t\t!!src?.nocopk &&\n\t\t\t!!selInoculateLocation.selectedOptionValue &&\n\t\t\t(\n\t\t\t\t!sourceNeedsVolume ||\n\t\t\t\t(Number.isFinite(lcVol) && lcVol > 0)\n\t\t\t)\n\t\t);\n\t},\n\t\t\n\tcanSubmitDrawSyringes() {\n\t\tconst count = Number(inpSyringeCount.text);\n\t\tconst mlEach = Number(inpSyringeMlEach.text);\n\t\tconst selectedLocationId = selDrawSyringeLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.drawSyringeLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn (\n\t\t\tLotsPage.canOpenLotModal(\"draw_syringes\") &&\n\t\t\tNumber.isFinite(count) &&\n\t\t\tcount > 0 &&\n\t\t\tNumber.isFinite(mlEach) &&\n\t\t\tmlEach > 0 &&\n\t\t\t!!selectedLocationId &&\n\t\t\tvalidLocationIds.includes(String(selectedLocationId))\n\t\t);\n\t},\n\t\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = this.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = this.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tthis.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\t\n\tasync verifyShakeableLots() {\n\t\treturn this.validateAndWarnLotModal(\"shake\", \"Select shakeable lots to shake.\");\n\t},\n\tasync verifyModifiableLots() {\n\t\treturn this.validateAndWarnLotModal(\"modify\", \"Select only active fruiting blocks to modify.\");\n\t},\n\tasync verifyMoveableLots() {\n\t\treturn this.validateAndWarnLotModal(\"move\", \"Select moveable lots to transition.\");\n\t},\n\tasync verifyRetireableLots() {\n\t\treturn this.validateAndWarnLotModal(\"retire\", \"Select active lots to retire.\");\n\t},\n\tasync verifyPackageableLots() {\n\t\treturn this.validateAndWarnLotModal(\"package\", \"Select valid lots to package.\");\n\t},\n\tasync verifyInoculateLots() {\n\t\treturn this.validateAndWarnLotModal(\"inoculate\", \"Select valid lots to inoculate.\");\n\t},\n\t\n\tasync openShakeModal() {\n\t\tif (!this.validateAndWarnLotModal(\"shake\", \"Select shakeable lots to shake.\")) return;\n\t\ttxtShakeContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalShakeLots.name);\n\t},\n\n\tasync openRetireModal() {\n\t\tif (!this.validateAndWarnLotModal(\"retire\", \"Select retireable lots to retire.\")) return;\n\n\t\ttxtRetireContent.setText(this.formatSelectedLots());\n\n\t\tconst today = moment().startOf(\"day\");\n\t\tconst rows = this.selectedLotRows();\n\t\tconst expiredRows = rows.filter(row => {\n\t\t\tif (!row.use_by) return false;\n\t\t\tconst useBy = moment(row.use_by).startOf(\"day\");\n\t\t\treturn useBy.isValid() && useBy.isBefore(today);\n\t\t});\n\n\t\tif (expiredRows.length > 0) {\n\t\t\tradioReason.setValue(\"Expired\");\n\t\t\tshowAlert(\n\t\t\t\t`${expiredRows.length} selected lot(s) are past use_by. Expired is recommended as the terminal reason.`,\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t}\n\n\t\tawait showModal(modalRetireLots.name);\n\t},\n\t\n\tasync openModifyModal() {\n\t\tif (!this.validateAndWarnLotModal(\"modify\", \"Select only modifiable fruiting blocks.\")) return;\n\t\ttxtModifyContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalModifyLots.name);\n\t},\t\n\n\tasync openMoveModal() {\n\t\tif (!this.validateAndWarnLotModal(\"move\", \"Select moveable lots to transition.\")) return;\n\t\ttxtMoveContent.setText(this.formatSelectedLots());\n\t\tawait showModal(modalMoveLots.name);\n\t},\t\n\t\n\tasync openPackageModal() {\n\t\tif (!this.validateAndWarnLotModal(\"package\", \"Select valid lots to package.\")) return;\n\n\t\ttxtPackageContent.setText(this.formatSelectedLots());\n\n\t\tPromise.allSettled([qProductLocations.run()]).finally(async () => {\n\t\t\tconst defaultLocationId = this.defaultPackageStorageLocationId();\n\n\t\t\tif (defaultLocationId) {\n\t\t\t\tawait inpPackageStorageLocation.setSelectedOption(defaultLocationId);\n\t\t\t} else {\n\t\t\t\tawait inpPackageStorageLocation.setSelectedOption(\"\");\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"No product-ready package storage location was found. Add or activate Products Storage before packaging.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t}\n\n\t\t\tshowModal(modalPackageLots.name);\n\t\t});\n\t},\n\n\tselectedLotsSummary() {\n\t\tconst rows = (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t\tif (!rows.length) return \"No lots selected.\";\n\t\treturn rows.map(r => {\n\t\tconst lot = r.lot_id || r.lotId || r.lot_id_mat || r.nocopk;\n\t\tconst inoc = r.inoculated_at || r.inoculatedAt || r.created_at || r.createdAt || \"\";\n\t\tconst item = r.item_name_mat || r.item_name || r.itemName || \"\";\n\t\tconst strain = r.strain_species_strain_mat || r.strain_species_strain || r.species_strain || \"\";\n\t\treturn `${lot} | inoculated: ${inoc || \"—\"} | ${item} | ${strain}`;\n\t\t}).join(\"\\n\");\n\t},\n\n\tasync shakeSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotsshaken;\n\t\ttry {\n\t\tlotsshaken = await qShakeLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error flagging lots as shaken: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Shook \" + lotsshaken[0].shaken_count + \" lot(s).\", 'success');\n\n\t\t\ttxtShakeContent.setText(\"\");\n\t\t\tinpShakeNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalShakeLots.name);\n\t\tawait qLots.run();\n\t},\n\n\tasync retireSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\n\t\t\tlet lotsretired;\n\t\ttry {\n\t\tlotsretired = await qRetireLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error retiring lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\n\n\t\t\tshowAlert(\"Retired \" + lotsretired[0].retired_count + \" lot(s).\", 'success');\n\n\t\t\ttxtRetireContent.setText(\"\");\n\t\t\tinpRetireNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalRetireLots.name);\n\t\tawait qLots.run();\n\t},\n\n\tasync moveSelectedLots() {\n\t\tif (!this.selectedLotIds().length) {\n\t\t\treturn showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t}\n\n\t\tif (!this.canSubmitMove()) {\n\t\t\tshowAlert(\"Select a transition mode and, when required, a destination location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tlet lotsmoved;\n\t\ttry {\n\t\t\tlotsmoved = await qMoveLots.run();\n\t\t} catch (e) {\n\t\t\tshowAlert(\"Error moving lots: \" + ((e && e.message) ? e.message : String(e)), \"error\");\n\t\t\tawait storeValue(\"lots_error\", (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n\t\t}\n\n\t\tshowAlert(\"Transitioned \" + lotsmoved[0].moved_count + \" lot(s).\", \"success\");\n\n\t\ttxtMoveContent.setText(\"\");\n\t\tinpMoveNotes.setValue(\"\");\n\t\tcloseModal(modalMoveLots.name);\n\t\tawait qLots.run();\n\t},\t\n\n\tasync modifySelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotsmodified;\n\t\ttry {\n\t\tlotsmodified = await qModifyLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error modifying lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Modified \" + lotsmodified[0].modified_count + \" lot(s).\", 'success');\n\n\t\t\ttxtModifyContent.setText(\"\");\n\t\t\tinpModifyNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalModifyLots.name);\n\t\tawait qLots.run();\n\t},\t\n\t\t\n\tasync packageSelectedLots() {\n\t\t\t\n\t\t\tif (!this.selectedLotIds().length) return showAlert(\"Select one or more lots first.\", \"warning\");\n\t\t\t\n\t\t\tlet lotspackaged;\n\t\ttry {\n\t\tlotspackaged = await qPackageLots.run();\n\t\t// refresh downstream view\n\t\t} catch (e) {\n\t\t\t\tshowAlert(\"Error packaging lots: \" + (e && e.message) ? e.message : String(e), 'error');\n\t\tawait storeValue('lots_error', (e && e.message) ? e.message : String(e));\n\t\t\t\treturn;\n\t\t}\t\t\n\t\t\n\t\t\tshowAlert(\"Packaged \" + lotspackaged[0].packaged_count + \" lot(s).\", 'success');\n\n\t\t\ttxtPackageContent.setText(\"\");\n\t\t\tinpPackageNotes.setValue(\"\");\t\t\n\t\tcloseModal(modalPackageLots.name);\n\t\tawait qLots.run();\n\t},\t\t\n\n\tasync openInoculateModal() {\n\t\tif (!this.validateAndWarnLotModal(\"inoculate\", \"Select valid lots to inoculate.\")) return;\n\t\t\t\n\t\t\ttxtInoculateContent.setText(this.formatSelectedLots());\n\t\t\t\n\t\t// Refresh source lots list + locations\n\t\tPromise.allSettled([qSourceLotsSearch.run(), qInocLocations.run()]).finally(() => {\n\t\tshowModal(modalInoculateLots.name);\n\t\t});\n\t},\n\n\tasync inoculateSelectedLots() {\n\t\tconst targetIds = this.selectedLotIds();\n\t\tif (!targetIds.length) {\n\t\t\tshowAlert('No target lots selected.', 'warning');\n\t\t\treturn;\n\t\t}\n\n\t\tconst src = tblInocSourceLots.selectedRow;\n\t\tconst sourceId = src?.nocopk;\n\t\tif (!sourceId) {\n\t\t\tshowAlert('Select a SOURCE lot in the Source Lots table.', 'warning');\n\t\t\treturn;\n\t\t}\n\n\t\t// Inputs from modal\n\t\tconst lcVol = Number(inpInocLCVolML.text);\n\t\tconst storageLoc = selInoculateLocation.selectedOptionValue || 'Dark Room';\n\t\tconst overrideTime = (dpInoculateOverrideTime.isVisible && dpInoculateOverrideTime.selectedDate) ? dpInoculateOverrideTime.selectedDate : null;\n\t\tconst notes = inpInoculateNotes.text || '';\n\n\t\t// Stash for query templating\n\t\tawait storeValue('inoc_source_id', sourceId);\n\t\tawait storeValue('inoc_target_ids', targetIds);\n\t\tawait storeValue('inoc_lc_vol', Number.isFinite(lcVol) ? lcVol : null);\n\t\tawait storeValue('inoc_storage_loc', storageLoc);\n\t\tawait storeValue('inoc_override_time', overrideTime);\n\t\tawait storeValue('inoc_note', notes);\n\n\t\ttry {\n\t\t\tconst inoculated = await qInoculateLots.run();\n\t\t\tcloseModal(modalInoculateLots.name);\n\t\t\tawait this.refresh();\n\t\t\tshowAlert('Inoculation of ' + inoculated.length + ' lot(s) complete.', 'success');\n\t\t} catch (e) {\n\t\t\t// Surface server-side validation errors on the source lot where possible.\n\t\t\tshowAlert(e?.message || 'Inoculation failed.', 'error');\n\t\t}\n\t},\n\n\tasync openDrawSyringesModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"draw_syringes\", \"Select exactly one active LC flask lot first.\")) return;\n\n\t\tinpSyringeCount.setValue(\"1\");\n\t\tinpSyringeMlEach.setValue(\"10\");\n\t\tinpDrawSyringesNotes.setValue(\"\");\n\n\t\tPromise.allSettled([qProductLocations.run()]).finally(async () => {\n\t\t\tconst defaultLocationId = this.defaultDrawSyringeLocationId();\n\n\t\t\tif (defaultLocationId) {\n\t\t\t\tawait selDrawSyringeLocation.setSelectedOption(defaultLocationId);\n\t\t\t} else {\n\t\t\t\tawait selDrawSyringeLocation.setSelectedOption(\"\");\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"No refrigerated syringe storage location was found. Add or activate a Fridge/Refrigerated location before drawing syringes.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t}\n\n\t\t\tawait showModal(modalDrawSyringes.name);\n\t\t});\n\t},\n\n\tdrawSyringeLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"dark room\",\n\t\t\t\"fruiting\",\n\t\t\t\"shipping\",\n\t\t\t\"fulfillment\",\n\t\t\t\"products storage\",\n\t\t\t\"product storage\",\n\t\t\t\"lab\",\n\t\t\t\"shipped\",\n\t\t\t\"consumed\",\n\t\t\t\"compost\",\n\t\t\t\"expired\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\n\t\t\t\tconst isRefrigerated =\n\t\t\t\t\tlower.includes(\"fridge\") ||\n\t\t\t\t\tlower.includes(\"refrigerat\");\n\n\t\t\t\tif (!isRefrigerated) return false;\n\n\t\t\t\treturn !invalidNameParts.some(part => lower.includes(part));\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultDrawSyringeLocationId() {\n\t\tconst opts = this.drawSyringeLocationOptions();\n\n\t\tconst fridge = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fridge\"\n\t\t);\n\n\t\treturn (fridge || opts[0])?.value || \"\";\n\t},\n\t\t\n\tasync drawSyringesFromSelectedFlask() {\n\t\tif (!LotsPage.canOpenLotModal(\"draw_syringes\")) {\n\t\t\tshowAlert(\"Select exactly one active LC flask lot first.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tconst count = Number(inpSyringeCount.text);\n\t\tconst mlEach = Number(inpSyringeMlEach.text);\n\t\tconst mode = selDrawSyringeOutputType.selectedOptionValue || \"product\";\n\t\tconst location = selDrawSyringeLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.drawSyringeLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tif (!Number.isFinite(count) || count <= 0) {\n\t\t\tshowAlert(\"Enter a syringe count greater than 0.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(mlEach) || mlEach <= 0) {\n\t\t\tshowAlert(\"Enter mL per syringe greater than 0.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!location || !validLocationIds.includes(String(location))) {\n\t\t\tshowAlert(\"Select a refrigerated Storage Location for drawn syringes.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = mode === \"product\"\n\t\t\t\t? await qDrawSyringeProducts.run()\n\t\t\t\t: await qDrawSyringes.run();\n\n\t\t\tshowAlert(\n\t\t\t\tmode === \"product\" ? \"Syringe products created.\" : \"Syringe lots created.\",\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalDrawSyringes.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\t\t\n\tasync verifyHarvestableLot() {\n\t\treturn this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = this.harvestFreshTrayCount();\n\t\tconst frozenCount = this.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tconst freshOpts = this.freshHarvestLocationOptions();\n\t\tconst frozenOpts = this.frozenHarvestLocationOptions();\n\n\t\tif (this.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (this.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(this.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!this.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = this.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = this.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\n\tspawnToBulkTargetLotIds() {\n\t\treturn this.selectedLotIds()\n\t\t\t.map(id => Number(id))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tselectedSpawnBulkSourceLots() {\n\t\treturn tblSpawnSourceLots.selectedRows || [];\n\t},\n\n\tspawnToBulkSourceLotIds() {\n\t\treturn this.selectedSpawnBulkSourceLots()\n\t\t\t.map(r => Number(r.nocopk))\n\t\t\t.filter(Number.isFinite);\n\t},\n\n\tspawnToBulkBlockSizesText() {\n\t\treturn String(inpSpawnToBulkLotsSize.text || \"\").trim();\n\t},\n\n\tspawnToBulkNotesText() {\n\t\treturn String(inpSpawnToBulkNotes.text || \"\").trim();\n\t},\n\n\tspawnToBulkOutputPlan() {\n\t\tconst text = this.spawnToBulkBlockSizesText();\n\n\t\tif (!text) return [];\n\n\t\treturn text\n\t\t\t.split(\",\")\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean)\n\t\t\t.map(token => {\n\t\t\t\tif (token.includes(\":\")) {\n\t\t\t\t\tconst [item_id, size] = token.split(\":\").map(x => x.trim());\n\t\t\t\t\treturn { item_id, unit_lbs: Number(size) };\n\t\t\t\t}\n\n\t\t\t\treturn { unit_lbs: Number(token) };\n\t\t\t})\n\t\t\t.filter(x => Number.isFinite(x.unit_lbs) && x.unit_lbs > 0);\n\t},\n\n\tspawnToBulkOutputPlanJson() {\n\t\treturn JSON.stringify(this.spawnToBulkOutputPlan());\n\t},\n\n\tspawnToBulkOutputCount() {\n\t\tconst plan = this.spawnToBulkOutputPlan();\n\t\treturn plan.length > 0 ? plan.length : this.spawnToBulkTargetLotIds().length;\n\t},\n\n\tcanOpenSpawnToBulkModal() {\n\t\treturn this.canOpenLotModal({\n\t\t\trequireAny: true,\n\t\t\tallowedCategories: [\"substrate\"],\n\t\t\tmessage: \"Select one or more active substrate lots before spawning to bulk.\"\n\t\t});\n\t},\n\n\tasync openSpawnToBulkModal() {\n\t\tif (!this.validateAndWarnLotModal({\n\t\t\trequireAny: true,\n\t\t\tallowedCategories: [\"substrate\"],\n\t\t\tmessage: \"Select one or more active substrate lots before spawning to bulk.\"\n\t\t})) return;\n\n\t\ttxtSpawnToBulkContent.setText(this.formatSelectedLots());\n\t\tinpSpawnToBulkNotes.setValue(\"\");\n\t\tinpSpawnToBulkLotsSize.setValue(\"\");\n\n\t\tawait qSpawnSourceLotsSearch.run();\n\t\tawait showModal(modalSpawnToBulk.name);\n\t},\n\n\tcanSubmitSpawnToBulk() {\n\t\tconst targets = tblLots.selectedRows || [];\n\t\tconst sources = this.selectedSpawnBulkSourceLots();\n\n\t\tif (!this.canOpenSpawnToBulkModal()) return false;\n\t\tif (sources.length < 1) return false;\n\n\t\tif (!sources.every(r => r.item_category_mat === \"grain\")) return false;\n\n\t\tconst sourceSpecies = [\n\t\t\t...new Set(sources.map(r =>\n\t\t\t\tString(r.strain_species || r.strain_species_strain_mat || \"\").trim()\n\t\t\t))\n\t\t].filter(Boolean);\n\n\t\treturn sourceSpecies.length === 1;\n\t},\n\n\tasync submitSpawnToBulk() {\n\t\tif (!this.canSubmitSpawnToBulk()) {\n\t\t\tshowAlert(\"Select active substrate targets and one or more colonized grain source lots of the same species.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qSpawnToBulkLots.run();\n\t\t\tconst created = res?.[0]?.created_count ?? 0;\n\n\t\t\tshowAlert(`Spawn to Bulk complete. Created ${created} fruiting block lot(s).`, \"success\");\n\t\t\tcloseModal(modalSpawnToBulk.name);\n\t\t\tawait this.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t},\n\n};",
         "name": "LotsPage",
         "pageId": "Lots",
         "pluginId": "js-plugin",
@@ -9113,7 +9113,7 @@
           "policyMap": {},
           "userPermissions": []
         },
-        "deletedAt": "2026-05-19T02:15:56Z",
+        "deletedAt": "2026-05-19T03:56:19Z",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -9203,7 +9203,7 @@
           "policyMap": {},
           "userPermissions": []
         },
-        "deletedAt": "2026-05-19T02:15:56Z",
+        "deletedAt": "2026-05-19T03:56:19Z",
         "dynamicBindingPathList": [
           {
             "key": "body"
@@ -11228,7 +11228,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lots_LotsPage",
         "confirmBeforeExecute": false,
@@ -11356,7 +11356,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lots_LotsPage",
         "confirmBeforeExecute": false,
@@ -11420,7 +11420,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lots_LotsPage",
         "confirmBeforeExecute": false,
@@ -11484,7 +11484,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lots_LotsPage",
         "confirmBeforeExecute": false,
@@ -11548,7 +11548,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 0
+          "timeoutInMillisecond": 10000
         },
         "collectionId": "Lots_LotsPage",
         "confirmBeforeExecute": false,
@@ -11576,6 +11576,690 @@
         ],
         "messages": [],
         "name": "drawSyringeLocationOptions",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_abf255b7-0407-4a90-96ec-6cfaa75a7d90",
+      "id": "Lots_qLotsTableMoveLocation",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:23:04Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT public.mp_lots_move(\n  p_lot_ids     => ARRAY[{{ LotsPage.sql.num(appsmith.store.lots_table_move_lot_id) }}]::bigint[],\n  p_location_id => {{ LotsPage.sql.num(appsmith.store.lots_table_move_location_id) }}::bigint,\n  p_fridge_mode => 'Move'::text,\n  p_operator    => {{ LotsPage.sql.str(LotsPage.currentOperator()) }}::text,\n  p_station     => 'Lots Table Location Edit'::text,\n  p_timestamp   => NULL::timestamp,\n  p_note        => NULL::text\n) AS moved_count;",
+          "encodeParamsToggle": true,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:23:04Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          " LotsPage.sql.str(LotsPage.currentOperator()) ",
+          " LotsPage.sql.num(appsmith.store.lots_table_move_lot_id) ",
+          " LotsPage.sql.num(appsmith.store.lots_table_move_location_id) "
+        ],
+        "messages": [],
+        "name": "qLotsTableMoveLocation",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_9db59847-6723-47f7-94e7-c8bc33f7c9ef",
+      "id": "Lots_LotsPage.lotsTableOriginalRow",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (row) {\n  const id = row?.nocopk;\n  return (qLots.data || []).find(r => String(r.nocopk) === String(id)) || row || ({});\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.lotsTableOriginalRow",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (row) {\n  const id = row?.nocopk;\n  return (qLots.data || []).find(r => String(r.nocopk) === String(id)) || row || ({});\n}"
+        ],
+        "messages": [],
+        "name": "lotsTableOriginalRow",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_49ad0511-2488-4df6-9ba7-cdef93d1ff03",
+      "id": "Lots_LotsPage.lotsTableLocationOptionsForRow",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  return (qLocations.data || []).filter(loc => {\n    if (!loc?.nocopk || !loc?.name) return false;\n    if (loc.active === false) return false;\n    return LotsPage.lotsTableLocationEditValidation(original, loc.nocopk).ok;\n  }).map(loc => ({\n    label: loc.name,\n    value: loc.nocopk\n  }));\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.lotsTableLocationOptionsForRow",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  return (qLocations.data || []).filter(loc => {\n    if (!loc?.nocopk || !loc?.name) return false;\n    if (loc.active === false) return false;\n    return LotsPage.lotsTableLocationEditValidation(original, loc.nocopk).ok;\n  }).map(loc => ({\n    label: loc.name,\n    value: loc.nocopk\n  }));\n}"
+        ],
+        "messages": [],
+        "name": "lotsTableLocationOptionsForRow",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_e5d75d45-2870-4d27-8a31-9d9dfdc208a5",
+      "id": "Lots_LotsPage.canSaveLotsTableLocationEdit",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const newLocationId = row?.location_id;\n  if (!original?.nocopk) return false;\n  if (!newLocationId) return false;\n  if (String(original.location_id) === String(newLocationId)) {\n    return false;\n  }\n  return LotsPage.lotsTableLocationEditValidation(row, newLocationId).ok;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.canSaveLotsTableLocationEdit",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const newLocationId = row?.location_id;\n  if (!original?.nocopk) return false;\n  if (!newLocationId) return false;\n  if (String(original.location_id) === String(newLocationId)) {\n    return false;\n  }\n  return LotsPage.lotsTableLocationEditValidation(row, newLocationId).ok;\n}"
+        ],
+        "messages": [],
+        "name": "canSaveLotsTableLocationEdit",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_ca4b33ac-d5f1-4c34-9308-10523c2f0f0b",
+      "id": "Lots_LotsPage.locationNameById",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (locationId) {\n  const loc = LotsPage.locationById(locationId);\n  return String(loc?.name || \"\").trim();\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "locationId"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.locationNameById",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (locationId) {\n  const loc = LotsPage.locationById(locationId);\n  return String(loc?.name || \"\").trim();\n}"
+        ],
+        "messages": [],
+        "name": "locationNameById",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_0e35dfbb-e542-4985-8301-8905a78305c8",
+      "id": "Lots_LotsPage.lotsTableLocationEditValidation",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (row, proposedLocationId) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const lotId = original?.nocopk;\n  const lotLabel = original?.lot_id || lotId || \"Selected lot\";\n  const status = String(original?.status || \"\").trim().toLowerCase();\n  const fromLocationId = original?.location_id;\n  const toLocationId = proposedLocationId ?? row?.location_id;\n  const fromName = LotsPage.locationNameById(fromLocationId);\n  const toName = LotsPage.locationNameById(toLocationId);\n  const fromGroup = LotsPage.lotsTableLocationGroupFromName(fromName);\n  const toGroup = LotsPage.lotsTableLocationGroupFromName(toName);\n  if (!lotId) {\n    return {\n      ok: false,\n      message: \"Could not identify the lot being edited.\"\n    };\n  }\n  if (!toLocationId || !toName) {\n    return {\n      ok: false,\n      message: \"Select a valid destination location.\"\n    };\n  }\n  if (String(fromLocationId) === String(toLocationId)) {\n    return {\n      ok: true,\n      message: \"\"\n    };\n  }\n  if (status.includes(\"retired\") || status.includes(\"expired\") || status.includes(\"consumed\") || status.includes(\"compost\")) {\n    return {\n      ok: false,\n      message: `${lotLabel} is terminal/retired and should not be moved from the Lots table.`\n    };\n  }\n  if (toGroup === \"terminal\") {\n    return {\n      ok: false,\n      message: `${toName} is a terminal location. Use the Retire/Terminal workflow instead.`\n    };\n  }\n  if (fromGroup === \"freeze_dryer\" || toGroup === \"freeze_dryer\") {\n    return {\n      ok: false,\n      message: \"Freeze Dryer movement should be handled from Products / freeze-dry workflow, not Lots table inline edit.\"\n    };\n  }\n  if (status === \"new\" && toGroup !== \"new_lot\") {\n    return {\n      ok: false,\n      message: \"Moving New lots into production or product storage is a workflow action. Use the appropriate process modal instead.\"\n    };\n  }\n  const sameClassAllowedGroups = [\"product_storage\", \"fridge\", \"freezer\", \"fruiting\", \"new_lot\", \"lab\", \"dark_room\"];\n  if (fromGroup === toGroup && sameClassAllowedGroups.includes(fromGroup)) {\n    return {\n      ok: true,\n      message: \"\"\n    };\n  }\n  if (fromGroup === \"dark_room\" && [\"fridge\", \"freezer\", \"fruiting\"].includes(toGroup)) {\n    return {\n      ok: false,\n      message: \"Moving from Dark Room to Fridge/Freezer/Fruiting is a transition. Use the Transition/Move modal.\"\n    };\n  }\n  if (toGroup === \"product_storage\") {\n    return {\n      ok: false,\n      message: \"Moving lots into product storage is productizing/package behavior. Use Package Lots.\"\n    };\n  }\n  return {\n    ok: false,\n    message: `Inline location edit only supports same-class moves. Use the appropriate workflow to move from ${fromName || \"unknown\"} to ${toName}.`\n  };\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            },
+            {
+              "name": "proposedLocationId"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.lotsTableLocationEditValidation",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (row, proposedLocationId) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const lotId = original?.nocopk;\n  const lotLabel = original?.lot_id || lotId || \"Selected lot\";\n  const status = String(original?.status || \"\").trim().toLowerCase();\n  const fromLocationId = original?.location_id;\n  const toLocationId = proposedLocationId ?? row?.location_id;\n  const fromName = LotsPage.locationNameById(fromLocationId);\n  const toName = LotsPage.locationNameById(toLocationId);\n  const fromGroup = LotsPage.lotsTableLocationGroupFromName(fromName);\n  const toGroup = LotsPage.lotsTableLocationGroupFromName(toName);\n  if (!lotId) {\n    return {\n      ok: false,\n      message: \"Could not identify the lot being edited.\"\n    };\n  }\n  if (!toLocationId || !toName) {\n    return {\n      ok: false,\n      message: \"Select a valid destination location.\"\n    };\n  }\n  if (String(fromLocationId) === String(toLocationId)) {\n    return {\n      ok: true,\n      message: \"\"\n    };\n  }\n  if (status.includes(\"retired\") || status.includes(\"expired\") || status.includes(\"consumed\") || status.includes(\"compost\")) {\n    return {\n      ok: false,\n      message: `${lotLabel} is terminal/retired and should not be moved from the Lots table.`\n    };\n  }\n  if (toGroup === \"terminal\") {\n    return {\n      ok: false,\n      message: `${toName} is a terminal location. Use the Retire/Terminal workflow instead.`\n    };\n  }\n  if (fromGroup === \"freeze_dryer\" || toGroup === \"freeze_dryer\") {\n    return {\n      ok: false,\n      message: \"Freeze Dryer movement should be handled from Products / freeze-dry workflow, not Lots table inline edit.\"\n    };\n  }\n  if (status === \"new\" && toGroup !== \"new_lot\") {\n    return {\n      ok: false,\n      message: \"Moving New lots into production or product storage is a workflow action. Use the appropriate process modal instead.\"\n    };\n  }\n  const sameClassAllowedGroups = [\"product_storage\", \"fridge\", \"freezer\", \"fruiting\", \"new_lot\", \"lab\", \"dark_room\"];\n  if (fromGroup === toGroup && sameClassAllowedGroups.includes(fromGroup)) {\n    return {\n      ok: true,\n      message: \"\"\n    };\n  }\n  if (fromGroup === \"dark_room\" && [\"fridge\", \"freezer\", \"fruiting\"].includes(toGroup)) {\n    return {\n      ok: false,\n      message: \"Moving from Dark Room to Fridge/Freezer/Fruiting is a transition. Use the Transition/Move modal.\"\n    };\n  }\n  if (toGroup === \"product_storage\") {\n    return {\n      ok: false,\n      message: \"Moving lots into product storage is productizing/package behavior. Use Package Lots.\"\n    };\n  }\n  return {\n    ok: false,\n    message: `Inline location edit only supports same-class moves. Use the appropriate workflow to move from ${fromName || \"unknown\"} to ${toName}.`\n  };\n}"
+        ],
+        "messages": [],
+        "name": "lotsTableLocationEditValidation",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_5e5f6311-e79a-4d93-bc72-b4fa049fab6e",
+      "id": "Lots_LotsPage.onLotsTableLocationChanged",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function (row) {\n  const validation = LotsPage.lotsTableLocationEditValidation(row, row?.location_id);\n  if (!validation.ok) {\n    showAlert(validation.message, \"warning\");\n    return false;\n  }\n  return true;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.onLotsTableLocationChanged",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function (row) {\n  const validation = LotsPage.lotsTableLocationEditValidation(row, row?.location_id);\n  if (!validation.ok) {\n    showAlert(validation.message, \"warning\");\n    return false;\n  }\n  return true;\n}"
+        ],
+        "messages": [],
+        "name": "onLotsTableLocationChanged",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_ada01068-9b91-4794-9a9a-80341100b11d",
+      "id": "Lots_LotsPage.lotsTableLocationGroupFromName",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (name) {\n  const lower = String(name || \"\").trim().toLowerCase();\n  if (!lower) return \"unknown\";\n  if (lower.includes(\"consumed\") || lower.includes(\"retired\") || lower.includes(\"compost\") || lower.includes(\"expired\") || lower.includes(\"contaminated\") || lower.includes(\"invalid\") || lower.includes(\"inviable\")) {\n    return \"terminal\";\n  }\n  if (lower.includes(\"freeze dryer\") || lower.includes(\"freeze-dryer\")) {\n    return \"freeze_dryer\";\n  }\n  if (lower.includes(\"freezer\")) {\n    return \"freezer\";\n  }\n  if (lower.includes(\"fridge\") || lower.includes(\"refrigerat\")) {\n    return \"fridge\";\n  }\n  if (lower.includes(\"fruiting\")) {\n    return \"fruiting\";\n  }\n  if (lower.includes(\"dark room\")) {\n    return \"dark_room\";\n  }\n  if (lower.includes(\"products storage\") || lower.includes(\"product storage\") || lower.includes(\"fulfillment\") || lower.includes(\"shipping\") || lower.includes(\"retail\") || lower.includes(\"market\")) {\n    return \"product_storage\";\n  }\n  if (lower.includes(\"new\") || lower.includes(\"receiving\") || lower.includes(\"intake\") || lower.includes(\"staging\")) {\n    return \"new_lot\";\n  }\n  if (lower.includes(\"lab\")) {\n    return \"lab\";\n  }\n  return \"other\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "name"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.lotsTableLocationGroupFromName",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (name) {\n  const lower = String(name || \"\").trim().toLowerCase();\n  if (!lower) return \"unknown\";\n  if (lower.includes(\"consumed\") || lower.includes(\"retired\") || lower.includes(\"compost\") || lower.includes(\"expired\") || lower.includes(\"contaminated\") || lower.includes(\"invalid\") || lower.includes(\"inviable\")) {\n    return \"terminal\";\n  }\n  if (lower.includes(\"freeze dryer\") || lower.includes(\"freeze-dryer\")) {\n    return \"freeze_dryer\";\n  }\n  if (lower.includes(\"freezer\")) {\n    return \"freezer\";\n  }\n  if (lower.includes(\"fridge\") || lower.includes(\"refrigerat\")) {\n    return \"fridge\";\n  }\n  if (lower.includes(\"fruiting\")) {\n    return \"fruiting\";\n  }\n  if (lower.includes(\"dark room\")) {\n    return \"dark_room\";\n  }\n  if (lower.includes(\"products storage\") || lower.includes(\"product storage\") || lower.includes(\"fulfillment\") || lower.includes(\"shipping\") || lower.includes(\"retail\") || lower.includes(\"market\")) {\n    return \"product_storage\";\n  }\n  if (lower.includes(\"new\") || lower.includes(\"receiving\") || lower.includes(\"intake\") || lower.includes(\"staging\")) {\n    return \"new_lot\";\n  }\n  if (lower.includes(\"lab\")) {\n    return \"lab\";\n  }\n  return \"other\";\n}"
+        ],
+        "messages": [],
+        "name": "lotsTableLocationGroupFromName",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_11a6eec2-8b95-4b91-bb9c-0cbed6033681",
+      "id": "Lots_LotsPage.locationById",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function (locationId) {\n  return (qLocations.data || []).find(l => String(l.nocopk) === String(locationId)) || null;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "locationId"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.locationById",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function (locationId) {\n  return (qLocations.data || []).find(l => String(l.nocopk) === String(locationId)) || null;\n}"
+        ],
+        "messages": [],
+        "name": "locationById",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "69fb8d83f11774f76eb72459_b262c841-6871-42c4-970d-2b92601b1e1f",
+      "id": "Lots_LotsPage.saveLotsTableLocationEdit",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const edited = {\n    ...original,\n    ...row || ({})\n  };\n  const newLocationId = edited?.location_id;\n  const validation = LotsPage.lotsTableLocationEditValidation(edited, newLocationId);\n  if (!validation.ok) {\n    showAlert(validation.message, \"warning\");\n    return null;\n  }\n  await storeValue(\"lots_table_move_lot_id\", original.nocopk);\n  await storeValue(\"lots_table_move_location_id\", newLocationId);\n  try {\n    const res = await qLotsTableMoveLocation.run();\n    const movedCount = res?.[0]?.moved_count ?? 0;\n    showAlert(`Moved ${movedCount} lot(s).`, \"success\");\n    await qLots.run();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    await storeValue(\"lots_error\", e?.message || String(e));\n    return null;\n  }\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [
+            {
+              "name": "row"
+            }
+          ],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Lots_LotsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-19T03:26:16Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsPage.saveLotsTableLocationEdit",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function (row) {\n  const original = LotsPage.lotsTableOriginalRow(row);\n  const edited = {\n    ...original,\n    ...row || ({})\n  };\n  const newLocationId = edited?.location_id;\n  const validation = LotsPage.lotsTableLocationEditValidation(edited, newLocationId);\n  if (!validation.ok) {\n    showAlert(validation.message, \"warning\");\n    return null;\n  }\n  await storeValue(\"lots_table_move_lot_id\", original.nocopk);\n  await storeValue(\"lots_table_move_location_id\", newLocationId);\n  try {\n    const res = await qLotsTableMoveLocation.run();\n    const movedCount = res?.[0]?.moved_count ?? 0;\n    showAlert(`Moved ${movedCount} lot(s).`, \"success\");\n    await qLots.run();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    await storeValue(\"lots_error\", e?.message || String(e));\n    return null;\n  }\n}"
+        ],
+        "messages": [],
+        "name": "saveLotsTableLocationEdit",
         "pageId": "Lots",
         "policyMap": {},
         "runBehaviour": "MANUAL",
@@ -38300,7 +38984,7 @@
                     "lastharvested_at",
                     "EditActions1"
                   ],
-                  "columnUpdatedAt": 1779153582684,
+                  "columnUpdatedAt": 1779162306315,
                   "columnWidthMap": {
                     "beganfruiting_at": 175,
                     "firstharvested_at": 175,
@@ -38308,7 +38992,7 @@
                     "item_category_mat": 123,
                     "item_name_mat": 185,
                     "lastharvested_at": 180,
-                    "location_id": 155,
+                    "location_id": 321,
                     "recipe_id": 177,
                     "regulated_from_strain_id": 111,
                     "remaining_volume_ml": 168,
@@ -38328,21 +39012,6 @@
                   "dynamicBindingPathList": [
                     {
                       "key": "tableData"
-                    },
-                    {
-                      "key": "primaryColumns.EditActions1.isSaveDisabled"
-                    },
-                    {
-                      "key": "primaryColumns.EditActions1.isDiscardDisabled"
-                    },
-                    {
-                      "key": "primaryColumns.EditActions1.saveButtonColor"
-                    },
-                    {
-                      "key": "primaryColumns.EditActions1.saveBorderRadius"
-                    },
-                    {
-                      "key": "primaryColumns.EditActions1.discardBorderRadius"
                     },
                     {
                       "key": "primaryColumns.__primary.computedValue"
@@ -38670,17 +39339,26 @@
                     },
                     {
                       "key": "boxShadow"
-                    }
-                  ],
-                  "dynamicPropertyPathList": [
+                    },
                     {
-                      "key": "tableData"
+                      "key": "primaryColumns.EditActions1.saveButtonColor"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.discardBorderRadius"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.saveBorderRadius"
                     },
                     {
                       "key": "primaryColumns.EditActions1.isSaveDisabled"
                     },
                     {
                       "key": "primaryColumns.EditActions1.isDiscardDisabled"
+                    }
+                  ],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "tableData"
                     },
                     {
                       "key": "primaryColumns.location_id.onOptionChange"
@@ -38690,11 +39368,23 @@
                     },
                     {
                       "key": "primaryColumns.spawned_at.outputFormat"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.isSaveDisabled"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.isDiscardDisabled"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.onSave"
                     }
                   ],
                   "dynamicTriggerPathList": [
                     {
                       "key": "primaryColumns.location_id.onOptionChange"
+                    },
+                    {
+                      "key": "primaryColumns.EditActions1.onSave"
                     }
                   ],
                   "enableClientSideSearch": true,
@@ -38751,11 +39441,12 @@
                       "isDiscardDisabled": "{{tblLots.processedTableData.map((currentRow, currentIndex) => ( !tblLots.updatedRowIndices.includes(currentIndex)))}}",
                       "isDiscardVisible": true,
                       "isEditable": false,
-                      "isSaveDisabled": "{{tblLots.processedTableData.map((currentRow, currentIndex) => ( !tblLots.updatedRowIndices.includes(currentIndex)))}}",
+                      "isSaveDisabled": "{{(() => { const tableData = tblLots.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (\n  tblLots.processedTableData.map((currentRow, currentIndex) =>\n    !tblLots.updatedRowIndices.includes(currentIndex) ||\n    !LotsPage.canSaveLotsTableLocationEdit(currentRow)\n  )\n)) : \n  tblLots.processedTableData.map((currentRow, currentIndex) =>\n    !tblLots.updatedRowIndices.includes(currentIndex) ||\n    !LotsPage.canSaveLotsTableLocationEdit(currentRow)\n  )\n })()}}",
                       "isSaveVisible": true,
                       "isVisible": true,
                       "label": "Save / Discard",
                       "notation": "standard",
+                      "onSave": "{{\n  LotsPage.saveLotsTableLocationEdit(tblLots.updatedRow)\n}}",
                       "originalId": "EditActions1",
                       "saveActionLabel": "Save",
                       "saveBorderRadius": "{{tblLots.processedTableData.map((currentRow, currentIndex) => ( (appsmith.theme.borderRadius.appBorderRadius)))}}",
@@ -40169,7 +40860,7 @@
                       "allowSameOptionsInNewRow": true,
                       "cellBackground": "",
                       "columnType": "select",
-                      "computedValue": "{{(() => { const tableData = tblLots.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow) => currentRow.location_id) : location_id })()}}",
+                      "computedValue": "{{(() => { const tableData = tblLots.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => ( currentRow.location_id )) :  currentRow.location_id  })()}}",
                       "currencyCode": "USD",
                       "decimals": 0,
                       "enableFilter": true,
@@ -40188,9 +40879,9 @@
                       "isVisible": true,
                       "label": "Location",
                       "notation": "standard",
-                      "onOptionChange": "{{\n\n//Add validation here so that a lot is not moved from *Dark Room* or *Fridge* to Fruiting or from *Dark Room* to *Fridge* because the user should use Move(Transition) instead.  Also the lot should not be moved to Compost, Expired, or Retired here because they should use the Retire button instead. A lot should not be moved to Consumed in any case because this is handled by Spawn to Bulk. \ntrue\n}}",
+                      "onOptionChange": "{{\n  LotsPage.onLotsTableLocationChanged(currentRow)\n}}",
                       "originalId": "location_id",
-                      "selectOptions": "{{(() => { const tableData = tblLots.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => ( \n  (qLocations.data || []).map(loc => ({ \n    label: loc.name, \n    value: loc.nocopk \n  })) \n)) :  \n  (qLocations.data || []).map(loc => ({ \n    label: loc.name, \n    value: loc.nocopk \n  })) \n })()}}",
+                      "selectOptions": "{{(() => { const tableData = tblLots.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (\n  (qLocations.data || [])\n    .filter(loc =>\n      loc?.nocopk &&\n      loc?.name &&\n      loc.active !== false\n    )\n    .map(loc => ({\n      label: loc.name,\n      value: loc.nocopk\n    }))\n)) : \n  (qLocations.data || [])\n    .filter(loc =>\n      loc?.nocopk &&\n      loc?.name &&\n      loc.active !== false\n    )\n    .map(loc => ({\n      label: loc.name,\n      value: loc.nocopk\n    }))\n })()}}",
                       "sortBy": "label",
                       "sticky": "",
                       "textColor": "",
@@ -48200,7 +48891,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 30,
+                  "bottomRow": 752,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
