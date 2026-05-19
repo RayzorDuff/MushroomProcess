@@ -1,6 +1,6 @@
 /**
  * Script: harvest_create_tray_product.js
- * Version: 2025-12-28.1
+ * Version: 2026-05-18.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -19,6 +19,8 @@
  * =============================================================================
  * Summary: Harvest – Create Tray Product
  * Notes: Succinct header; no diff blocks; try/catch + error surfacing.
+ * - 2026-05-18.1:
+ *   - Fresh Tray products created by Harvest are placed in Fulfillment.
  */
 try {
 
@@ -29,6 +31,7 @@ const lotsTbl     = base.getTable('lots');
 const itemsTbl    = base.getTable('items');
 const productsTbl = base.getTable('products');
 const eventsTbl   = base.getTable('events');
+const locTbl      = base.getTable('locations');
 let strainsTbl = null;
 try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
  
@@ -41,6 +44,16 @@ try { strainsTbl = base.getTable('strains'); } catch { /* optional */ }
 //}
 
 function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+
+async function findLocationByName(name) {
+  try {
+    const q = await locTbl.selectRecordsAsync({ fields: ['name'] });
+    for (const r of q.records) {
+      if ((r.getCellValueAsString('name') || '').toLowerCase() === name.toLowerCase()) return r;
+    }
+  } catch {}
+  return null;
+}
 
 const block = await lotsTbl.selectRecordAsync(blockLotId);
 if (!block) throw new Error('Fruiting block not found');
@@ -150,6 +163,12 @@ const trayChoiceFresh  = (productsTrayStateField.options?.choices || []).find(c 
 const trayChoiceFrozen = (productsTrayStateField.options?.choices || []).find(c => c.name === 'freezer_tray') || null;
 if (wantFresh && !trayChoiceFresh) throw new Error('products.tray_state missing "fresh_tray".');
 if (wantFrozen && !trayChoiceFrozen) throw new Error('products.tray_state missing "freezer_tray".');
+
+const storageLocFieldExists = hasField(productsTbl, 'storage_location');
+const fulfillmentLoc = (wantFresh && storageLocFieldExists) ? await findLocationByName('Fulfillment') : null;
+if (wantFresh && storageLocFieldExists && !fulfillmentLoc) {
+  throw new Error('products.storage_location exists, but locations.name = "Fulfillment" was not found.');
+}
  
 // Optional: copy strain from block (purely for display via lookups you already added)
 const srcStrain = block.getCellValue('strain_id')?.[0] || null;
@@ -172,8 +191,8 @@ function allocateCounts(total, recs) {
 }
 
 const allocations = [
-  ...(wantFresh ? allocateCounts(freshTrayCount, byCat.fresh_tray).map(x => ({ ...x, trayChoice: trayChoiceFresh })) : []),
-  ...(wantFrozen ? allocateCounts(frozenTrayCount, byCat.freezer_tray).map(x => ({ ...x, trayChoice: trayChoiceFrozen })) : []),
+  ...(wantFresh ? allocateCounts(freshTrayCount, byCat.fresh_tray).map(x => ({ ...x, trayChoice: trayChoiceFresh, storageLocationRec: fulfillmentLoc })) : []),
+  ...(wantFrozen ? allocateCounts(frozenTrayCount, byCat.freezer_tray).map(x => ({ ...x, trayChoice: trayChoiceFrozen, storageLocationRec: null })) : []),
 ].filter(x => x.n > 0);
 
 const totalTrays = allocations.reduce((s, a) => s + a.n, 0);
@@ -190,6 +209,9 @@ for (const a of allocations) {
       tray_state: { id: a.trayChoice.id },
       net_weight_g: perTrayWeightG
     };
+    if (storageLocFieldExists && a.storageLocationRec) {
+      fields.storage_location = [{ id: a.storageLocationRec.id }];
+    }
     if (hasField(productsTbl, 'strain_id')) {
       if (srcStrain && srcStrain.id) fields.strain_id = [{ id: srcStrain.id }];
       else if (strainLinksFromBlock.length) fields.strain_id = strainLinksFromBlock;
