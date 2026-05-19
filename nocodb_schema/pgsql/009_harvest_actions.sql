@@ -21,16 +21,20 @@ CREATE INDEX IF NOT EXISTS idx_products_harvested_at
 
 CREATE OR REPLACE FUNCTION public.mp_lots_harvest_create_tray_products(
   p_block_lot_id bigint,
-  p_harvest_item_id bigint,
-  p_harvest_weight_g numeric,
-  p_flush_no integer,
+  p_harvest_item_id bigint DEFAULT NULL,
+  p_harvest_weight_g numeric DEFAULT NULL,
+  p_flush_no integer DEFAULT NULL,
   p_fresh_tray_count integer DEFAULT 0,
   p_frozen_tray_count integer DEFAULT 0,
   p_storage_location_id bigint DEFAULT NULL,
   p_operator text DEFAULT NULL,
-  p_station text DEFAULT 'Lots',
+  p_station text DEFAULT 'Harvest',
   p_timestamp timestamp without time zone DEFAULT NULL,
-  p_notes text DEFAULT NULL
+  p_notes text DEFAULT NULL,
+  p_fresh_harvest_item_id bigint DEFAULT NULL,
+  p_frozen_harvest_item_id bigint DEFAULT NULL,
+  p_fresh_storage_location_id bigint DEFAULT NULL,
+  p_frozen_storage_location_id bigint DEFAULT NULL
 )
 RETURNS integer
 LANGUAGE plpgsql
@@ -38,29 +42,31 @@ AS $$
 DECLARE
   v_ts timestamp without time zone := COALESCE(p_timestamp, now());
   v_block record;
-  v_item record;
+  v_fresh_item record;
+  v_frozen_item record;
+  v_fallback_item record;
   v_created_id bigint;
   v_event_id bigint;
   v_total_count integer;
   v_count integer := 0;
+  v_fresh_count integer := GREATEST(COALESCE(p_fresh_tray_count, 0), 0);
+  v_frozen_count integer := GREATEST(COALESCE(p_frozen_tray_count, 0), 0);
   v_per_tray_g numeric;
-  v_loc_id bigint := COALESCE(
-    p_storage_location_id,
-    (
-      SELECT nocopk
-      FROM public.locations
-      WHERE lower(btrim(name)) = lower(btrim('Products Storage'))
-      ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
-      LIMIT 1
-    )
-  );
+  v_fresh_item_id bigint;
+  v_frozen_item_id bigint;
+  v_fresh_loc_id bigint;
+  v_frozen_loc_id bigint;
+  v_created_product_nocopks bigint[] := ARRAY[]::bigint[];
+  v_created_product_ids text[] := ARRAY[]::text[];
+  v_item_name text;
+  v_item_category text;
+  v_loc_id bigint;
 BEGIN
   IF p_block_lot_id IS NULL THEN RAISE EXCEPTION 'Fruiting block lot is required'; END IF;
-  IF p_harvest_item_id IS NULL THEN RAISE EXCEPTION 'Harvest item is required'; END IF;
   IF p_harvest_weight_g IS NULL OR p_harvest_weight_g <= 0 THEN RAISE EXCEPTION 'Harvest weight must be > 0'; END IF;
   IF p_flush_no IS NULL OR p_flush_no <= 0 THEN RAISE EXCEPTION 'Flush number must be > 0'; END IF;
 
-  v_total_count := COALESCE(p_fresh_tray_count, 0) + COALESCE(p_frozen_tray_count, 0);
+  v_total_count := v_fresh_count + v_frozen_count;
   IF v_total_count <= 0 THEN
     RAISE EXCEPTION 'At least one fresh or freezer tray is required';
   END IF;
@@ -74,18 +80,119 @@ BEGIN
     RAISE EXCEPTION 'Source lot must be fruiting_block or cordyceps_substrate, got %', v_block.item_category_mat;
   END IF;
 
-  SELECT * INTO v_item
-  FROM public.items
-  WHERE nocopk = p_harvest_item_id;
+  IF p_harvest_item_id IS NOT NULL THEN
+    SELECT * INTO v_fallback_item
+    FROM public.items
+    WHERE nocopk = p_harvest_item_id;
 
-  IF NOT FOUND THEN RAISE EXCEPTION 'Harvest item not found: %', p_harvest_item_id; END IF;
-  IF COALESCE(v_item.category, '') NOT IN ('fresh_tray', 'freezer_tray') THEN
-    RAISE EXCEPTION 'Harvest item category must be fresh_tray or freezer_tray, got %', v_item.category;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Harvest item not found: %', p_harvest_item_id; END IF;
+    IF COALESCE(v_fallback_item.category, '') NOT IN ('fresh_tray', 'freezer_tray') THEN
+      RAISE EXCEPTION 'Harvest item category must be fresh_tray or freezer_tray, got %', v_fallback_item.category;
+    END IF;
+  END IF;
+
+  v_fresh_item_id := COALESCE(
+    p_fresh_harvest_item_id,
+    CASE WHEN v_fallback_item.category = 'fresh_tray' THEN p_harvest_item_id END,
+    (
+      SELECT i.nocopk
+      FROM public.items i
+      WHERE i.category = 'fresh_tray'
+        AND COALESCE(i.active, true)
+      ORDER BY i.nocopk
+      LIMIT 1
+    )
+  );
+
+  v_frozen_item_id := COALESCE(
+    p_frozen_harvest_item_id,
+    CASE WHEN v_fallback_item.category = 'freezer_tray' THEN p_harvest_item_id END,
+    (
+      SELECT i.nocopk
+      FROM public.items i
+      WHERE i.category = 'freezer_tray'
+        AND COALESCE(i.active, true)
+      ORDER BY i.nocopk
+      LIMIT 1
+    )
+  );
+
+  IF v_fresh_count > 0 THEN
+    SELECT * INTO v_fresh_item FROM public.items WHERE nocopk = v_fresh_item_id;
+    IF NOT FOUND OR COALESCE(v_fresh_item.category, '') <> 'fresh_tray' THEN
+      RAISE EXCEPTION 'Fresh tray item is required when fresh_tray_count > 0';
+    END IF;
+  END IF;
+
+  IF v_frozen_count > 0 THEN
+    SELECT * INTO v_frozen_item FROM public.items WHERE nocopk = v_frozen_item_id;
+    IF NOT FOUND OR COALESCE(v_frozen_item.category, '') <> 'freezer_tray' THEN
+      RAISE EXCEPTION 'Freezer tray item is required when frozen_tray_count > 0';
+    END IF;
+  END IF;
+
+  v_fresh_loc_id := COALESCE(
+    p_fresh_storage_location_id,
+    CASE WHEN v_frozen_count = 0 THEN p_storage_location_id END,
+    (
+      SELECT nocopk
+      FROM public.locations
+      WHERE active
+        AND (name ILIKE '%Fulfillment%' OR name ILIKE '%Shipping%')
+      ORDER BY CASE WHEN name ILIKE '%Fulfillment%' THEN 0 ELSE 1 END, nocopk
+      LIMIT 1
+    ),
+    p_storage_location_id,
+    (
+      SELECT nocopk
+      FROM public.locations
+      WHERE lower(btrim(name)) = lower(btrim('Products Storage'))
+      ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
+      LIMIT 1
+    )
+  );
+
+  v_frozen_loc_id := COALESCE(
+    p_frozen_storage_location_id,
+    CASE WHEN v_fresh_count = 0 THEN p_storage_location_id END,
+    (
+      SELECT nocopk
+      FROM public.locations
+      WHERE active
+        AND name ILIKE '%Freeze%'
+      ORDER BY CASE WHEN name ILIKE '%Freezer%' THEN 0 ELSE 1 END, nocopk
+      LIMIT 1
+    ),
+    p_storage_location_id,
+    (
+      SELECT nocopk
+      FROM public.locations
+      WHERE lower(btrim(name)) = lower(btrim('Products Storage'))
+      ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
+      LIMIT 1
+    )
+  );
+
+  IF v_fresh_count > 0 AND v_fresh_loc_id IS NULL THEN
+    RAISE EXCEPTION 'Fresh tray storage location could not be resolved';
+  END IF;
+  IF v_frozen_count > 0 AND v_frozen_loc_id IS NULL THEN
+    RAISE EXCEPTION 'Freezer tray storage location could not be resolved';
   END IF;
 
   v_per_tray_g := p_harvest_weight_g / v_total_count;
 
   FOR i IN 1..v_total_count LOOP
+    IF i <= v_fresh_count THEN
+      v_item_name := v_fresh_item.name;
+      v_item_category := v_fresh_item.category;
+      v_loc_id := v_fresh_loc_id;
+    ELSE
+      v_item_name := v_frozen_item.name;
+      v_item_category := v_frozen_item.category;
+      v_loc_id := v_frozen_loc_id;
+    END IF;
+
     INSERT INTO public.products (
       item_id,
       strain_id,
@@ -104,16 +211,16 @@ BEGIN
       notes
     )
     VALUES (
-      p_harvest_item_id,
+      CASE WHEN v_item_category = 'fresh_tray' THEN v_fresh_item_id ELSE v_frozen_item_id END,
       v_block.strain_id,
-      v_item.name,
-      v_item.category,
+      v_item_name,
+      v_item_category,
       v_per_tray_g,
       v_per_tray_g / 28.349523125,
       v_ts::date,
       to_jsonb(ARRAY[COALESCE(NULLIF(btrim(v_block.lot_id), ''), p_block_lot_id::text)])::text,
       v_block.process_type_mat,
-      v_item.category,
+      v_item_category,
       v_loc_id,
       p_flush_no,
       v_per_tray_g,
@@ -121,6 +228,8 @@ BEGIN
       p_notes
     )
     RETURNING nocopk INTO v_created_id;
+
+    v_created_product_nocopks := array_append(v_created_product_nocopks, v_created_id);
 
     INSERT INTO public._m2m_products_lots_origin_lots(products_id, lots_id)
     VALUES (v_created_id, p_block_lot_id)
@@ -134,7 +243,7 @@ BEGIN
     BEGIN
       PERFORM public.mp_print_queue_enqueue(
         'product',
-        'Harvest_Tray',
+        'Product_Package',
         NULL::bigint,
         v_created_id,
         NULL::bigint,
@@ -146,11 +255,16 @@ BEGIN
     v_count := v_count + 1;
   END LOOP;
 
+  SELECT COALESCE(array_agg(COALESCE(NULLIF(product_id, ''), nocopk::text) ORDER BY nocopk), ARRAY[]::text[])
+  INTO v_created_product_ids
+  FROM public.products
+  WHERE nocopk = ANY(v_created_product_nocopks);
+
   UPDATE public.lots
   SET harvest_weight_g = p_harvest_weight_g,
       flush_no = p_flush_no,
-      fresh_tray_count = COALESCE(p_fresh_tray_count, 0),
-      frozen_tray_count = COALESCE(p_frozen_tray_count, 0),
+      fresh_tray_count = v_fresh_count,
+      frozen_tray_count = v_frozen_count,
       firstharvested_at = COALESCE(firstharvested_at, v_ts),
       lastharvested_at = v_ts,
       nc_updated_at = now()
@@ -160,17 +274,22 @@ BEGIN
     v_event_id := public.mp_events_insert(
       'Harvest',
       COALESCE(p_operator, ''),
-      COALESCE(p_station, 'Lots'),
+      COALESCE(NULLIF(btrim(p_station), ''), 'Harvest'),
       v_ts,
       jsonb_build_object(
         'source_lot_id', p_block_lot_id,
-        'harvest_item_id', p_harvest_item_id,
         'harvest_weight_g', p_harvest_weight_g,
         'flush_no', p_flush_no,
-        'fresh_tray_count', p_fresh_tray_count,
-        'frozen_tray_count', p_frozen_tray_count,
+        'fresh_tray_count', v_fresh_count,
+        'frozen_tray_count', v_frozen_count,
         'total_trays', v_total_count,
         'per_tray_weight_g', v_per_tray_g,
+        'created_product_ids', to_jsonb(v_created_product_ids),
+        'created_product_nocopks', to_jsonb(v_created_product_nocopks),
+        'fresh_harvest_item_id', CASE WHEN v_fresh_count > 0 THEN v_fresh_item_id ELSE NULL END,
+        'frozen_harvest_item_id', CASE WHEN v_frozen_count > 0 THEN v_frozen_item_id ELSE NULL END,
+        'fresh_storage_location_id', CASE WHEN v_fresh_count > 0 THEN v_fresh_loc_id ELSE NULL END,
+        'frozen_storage_location_id', CASE WHEN v_frozen_count > 0 THEN v_frozen_loc_id ELSE NULL END,
         'notes', p_notes
       )
     );
@@ -181,4 +300,4 @@ BEGIN
 
   RETURN v_count;
 END;
-$$;
+$$

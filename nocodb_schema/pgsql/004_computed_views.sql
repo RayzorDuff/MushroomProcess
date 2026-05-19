@@ -164,7 +164,15 @@ WITH comp AS (
   FROM "public"."v_print_queue" base
 )
 SELECT comp.*,
-  (CASE WHEN (comp."source_kind" = 'steri_sheet') THEN ('ZEBRA') ELSE (CASE WHEN ((((('fresh_mushrooms')::text = ANY((comp."item_category_mat_from_product_id")::text[]))) AND (((((('freezer_tray')::text = ANY((comp."item_category_mat_from_product_id")::text[])))))) AND (((((('fresh_tray')::text = ANY((comp."item_category_mat_from_product_id")::text[])))))) AND (((((('fresh_mushrooms')::text = ANY((comp."item_category_mat_from_lot_id")::text[])))))) AND (((((('freezer_tray')::text = ANY((comp."item_category_mat_from_lot_id")::text[])))))) AND (((((('fresh_tray')::text = ANY((comp."item_category_mat_from_lot_id")::text[])))))))) THEN ('TRAYS') ELSE ('ZEBRA') END) END) AS "print_target"
+  (CASE
+    WHEN comp."source_kind" = 'steri_sheet' THEN 'ZEBRA'
+    WHEN comp."source_kind" = 'product'
+      AND (
+        'fresh_tray' = ANY((comp."item_category_mat_from_product_id")::text[])
+        OR 'freezer_tray' = ANY((comp."item_category_mat_from_product_id")::text[])
+      ) THEN 'TRAYS'
+    ELSE 'ZEBRA'
+  END) AS "print_target"
 FROM comp;
 
 CREATE VIEW "public"."vc_ecommerce" AS
