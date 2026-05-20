@@ -105,6 +105,38 @@
   start_time: '2026-04-22T21:30:00.000Z'
   steri_run_id: RUN-260424-zoXm
   target_temp_c: 121
+- airtable_createdTime: '2026-05-14T14:23:22.000Z'
+  airtable_id: recCtajCBKC85PDeW
+  default_unit_size (from planned_item):
+  - 500ml
+  destroyed_count: 0
+  end_time: '2026-05-14T14:24:38.276Z'
+  good_count: 2
+  lots:
+  - rectuNhMtxH00RE60
+  - recXhGS3sb8puZ5aN
+  name (from planned_recipe):
+  - Agar Base
+  operator: Ray
+  planned_count: 2
+  planned_item:
+  - reccntFuiyUAopZsM
+  planned_item_id:
+  - AGAR-FLASK-500
+  planned_item_name:
+  - Agar Flask
+  planned_recipe:
+  - recwWg5UpF6UG5t3V
+  planned_unit_size: 500
+  pressure_mode: Closed
+  print_queue:
+  - rechWM9JYg8nCC2iM
+  process_type: Sterilize
+  recipe_id (from planned_recipe):
+  - REC-AGAR-STD
+  start_time: '2026-05-14T14:22:00.000Z'
+  steri_run_id: RUN-260514-PDeW
+  target_temp_c: 121
 - airtable_createdTime: '2026-05-05T22:23:32.000Z'
   airtable_id: recGGBddzBqYNmguh
   default_unit_size (from planned_item):

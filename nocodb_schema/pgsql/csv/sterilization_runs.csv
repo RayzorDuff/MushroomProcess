@@ -1,6 +1,7 @@
 airtable_id,steri_run_id,start_time,end_time,operator,planned_count,good_count,destroyed_count,planned_unit_size,ui_error,ui_error_at,process_type,target_temp_c,pressure_mode,override_end_time
 rec8ZdEg2StmlxanB,RUN-260327-xanB,2026-03-23T20:44:00.000Z,2026-03-23T20:45:00.000Z,,5,5,0,400,,,Sterilize,121,Closed,2026-03-23T20:45:00.000Z
 recCSZRx6w0VbzoXm,RUN-260424-zoXm,2026-04-22T21:30:00.000Z,2026-04-24T07:30:00.000Z,Robert,54,54,0,2,,,Sterilize,121,Closed,2026-04-24T07:30:00.000Z
+recCtajCBKC85PDeW,RUN-260514-PDeW,2026-05-14T14:22:00.000Z,2026-05-14T14:24:38.276Z,Ray,2,2,0,500,,,Sterilize,121,Closed,
 recGGBddzBqYNmguh,RUN-260505-mguh,2026-05-05T22:23:00.000Z,2026-05-05T22:23:00.000Z,,4,4,0,7.5,,,Sterilize,121,Closed,2026-05-05T22:23:00.000Z
 recKxVLX61XaTp3xU,RUN-260422-p3xU,2026-04-20T12:27:00.000Z,2026-04-22T12:28:52.942Z,,18,18,0,2.5,,,Pasteurize,74,Open,
 recNmAs6kOzTAInt8,RUN-260505-Int8,2026-05-05T22:21:00.000Z,2026-05-05T22:22:14.543Z,,30,21,9,2.5,,,Sterilize,121,Closed,

@@ -1,3 +1,113 @@
+## [v1.1.0-RC2] - 2026-05-19
+
+_This release is the next Appsmith/Postgres release candidate after `v1.1.0-RC1`. It focuses on first-pass parity findings from testing: tightening Appsmith modal behavior, aligning Postgres lot-action functions with Airtable row-by-row behavior, adding PGSQL n8n workflow duplicates, and correcting several Airtable production behaviors discovered during comparison._
+
+---
+
+## Release-candidate focus
+
+- Continued structured parity work toward a stable Appsmith/Postgres implementation that is feature-complete with the existing Airtable workflows.
+- Addressed a broad set of first-pass Appsmith/Postgres parity defects across Lots-page actions, standalone workflow pages, n8n workflows, and Postgres helper functions.
+- Refactored the Appsmith Lots-page modal logic into smaller JS containers to make the growing interface easier to maintain, debug, and test.
+
+---
+
+## Appsmith interface hardening
+
+- Split the large Lots modal JavaScript into dedicated modal-specific Appsmith JS containers, including separate handling for Spawn to Bulk and legacy Lots actions.
+- Fixed cross-object query references introduced during modal splitting:
+  - `qSpawnToBulkLots` now uses `LotsSpawnToBulk.currentOperator()`.
+  - legacy Lots actions now use `LotsPage.currentOperator()`.
+  - `qLotsTableMoveLocation` now uses `LotsPage.currentOperator()`.
+- Fixed JavaScript `NULL` usage in SQL bindings.
+- Flattened broken Appsmith table select-option arrays for:
+  - `tblLots.location_id`
+  - `tblLots.recipe_id`
+- Flattened `tblLots.EditActions1.isSaveDisabled`.
+- Hardened Lots table filters to avoid unsafe boolean/string SQL fragments.
+- Made Personnel Reviews subject filters prepared-statement-safe.
+- Removed the stale hidden `qRecipes` reference from the standalone Spawn to Bulk page.
+- Disabled Appsmith SQL parameter encoding on SQL-helper-fragment queries while keeping it enabled for prepared-safe read/reporting queries.
+- Cleared stale modal timestamp defaults so modal state does not leak between operations.
+- Refreshed Products and Reporting pages after the RC1 test pass.
+- Wired the standalone Spawn to Bulk page and Lots table inline location-save behavior.
+
+---
+
+## Lots actions: Airtable parity fixes
+
+- Improved parity for Postgres lot-action functions in `nocodb_schema/pgsql/008_lot_actions.sql`.
+- Standardized shake event naming as `ShakeBreak` in both Airtable and Postgres paths.
+- Preserved terminal event parity and retired-lot state when retiring lots.
+- Added Fully Colonized and Start Fruiting transitions for Move Lots.
+- Mapped fruiting-block treatment events to stable event types in Modify Lots.
+- Limited Package modal storage-location choices to product-ready storage locations.
+- Added support for multi-tray freeze-dried packaging.
+- Aligned syringe draw behavior with Airtable expectations, including data handling and downstream generated records.
+- Improved Draw Syringes, Receive Purchased Syringes, Pour Plates, Move, Modify, Retire, and Package workflows based on parity testing findings.
+
+---
+
+## Spawn to Bulk parity
+
+- Updated Spawn to Bulk event behavior and print-queue behavior to better match Airtable.
+- Persisted lot label template values used when generated labels are created.
+- Wired and corrected the standalone Spawn to Bulk page.
+- Continued aligning `010_spawn_to_bulk.sql` with the modal behavior expected from Airtable.
+
+---
+
+## Harvest parity
+
+- Updated Harvest behavior to support mixed fresh-tray and freezer-tray output.
+- Refined `009_harvest_actions.sql` and related Appsmith wiring for Harvest Lot modal behavior.
+- Updated computed views affected by harvest output and product state.
+- Corrected Airtable harvest behavior so harvested fresh trays are placed into Fulfillment as expected.
+
+---
+
+## Lab workflow parity: receive, pour plates, and draw syringes
+
+- Aligned purchased syringe receipt behavior with Airtable.
+- Aligned Pour Plates behavior for:
+  - source event creation,
+  - source flask consumption,
+  - generated lot / label behavior.
+- Aligned syringe draw behavior so Appsmith/Postgres output more closely matches Airtable row behavior.
+
+---
+
+## Sterilizer parity
+
+- Normalized process-type casing in Sterilizer Out behavior.
+- Updated both Airtable and Postgres sterilizer logic so generated lots/products use consistent process-type values.
+
+---
+
+## n8n PGSQL workflow duplicates
+
+- Added PGSQL duplicate workflows for Airtable-dependent n8n workflows so the Appsmith/Postgres path can be tested without relying on Airtable-backed automation flows.
+- Added PGSQL versions of:
+  - Clover Payment Reconciliation Poller,
+  - Daily Reconciliation Report Email + PDF,
+  - Fulfillment API.
+- Updated `n8n/README.md` to document the Airtable and PGSQL workflow split.
+
+---
+
+## Airtable production fixes retained for parity
+
+- Updated Airtable Dark Room behavior so Cold Shock also sets the lot status to `ColdShock`.
+- Updated Airtable event behavior so shake events use the same `ShakeBreak` event naming as Postgres.
+- Updated Airtable harvest tray product creation so harvested fresh trays are placed in Fulfillment.
+
+---
+
+## Summary
+
+`v1.1.0-RC2` is primarily a parity-hardening release. It addresses the first wave of test findings after RC1 by tightening Appsmith state handling, splitting modal logic into maintainable containers, aligning Postgres lot-action behavior with Airtable, adding PGSQL n8n workflow duplicates, and fixing several Airtable-side behaviors that are part of the parity baseline.
+
+
 ## [v1.1.0-RC1] - 2026-05-16
 
 _This is the first release candidate for the Appsmith/Postgres implementation. The release is intended to support structured row-by-row parity testing against the Airtable implementation, with the goal of reaching a stable feature-complete Appsmith/Postgres release._

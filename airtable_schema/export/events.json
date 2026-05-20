@@ -1,1 +1,568 @@
-[]
+[
+    {
+        "airtable_createdTime": "2026-05-16T18:05:02.000Z",
+        "airtable_id": "rec3Zi0KCOcoqaeEq",
+        "event_id": "EVENT-260516-aeEq",
+        "event_time_for_rollup": "2026-05-16T18:05:01.223Z",
+        "fields_json": "{\"created_product_ids\":[\"reckF5AtTkdZbzA6y\",\"recZtwaSM41va59Nc\",\"recczNTvuupgmm327\",\"recMjKV1kswgyjL1r\",\"recF8OQ4LUCgnLXyJ\"],\"harvest_weight_g\":300,\"flush_no\":2,\"fresh_tray_count\":2,\"frozen_tray_count\":3,\"total_trays\":5,\"per_tray_weight_g\":60}",
+        "grain_inputs (from lot_id)": [
+            "rechP7fXl9hiMAEit"
+        ],
+        "lot_id": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "station": "Harvest",
+        "status (from lot_id)": [
+            "Fruiting"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Blue Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recGnWGF3f92zXBrN",
+            "recvQYPEs7URQGP0M",
+            "reclq4McHJH7t1NRT"
+        ],
+        "timestamp": "2026-05-16T18:05:01.223Z",
+        "type": "Harvest",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "Fungaia"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T17:22:08.000Z",
+        "airtable_id": "rec668Q33E11eINQM",
+        "event_id": "EVENT-260516-INQM",
+        "event_time_for_rollup": "2026-05-16T17:22:07.209Z",
+        "grain_inputs (from lot_id)": [
+            "rechP7fXl9hiMAEit"
+        ],
+        "lot_id": [
+            "recvHjMNzXE1oNtQG"
+        ],
+        "station": "Fruiting",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Blue Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recGnWGF3f92zXBrN",
+            "recvQYPEs7URQGP0M",
+            "reclq4McHJH7t1NRT"
+        ],
+        "timestamp": "2026-05-16T17:22:07.209Z",
+        "type": "Composted",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "Fungaia"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T15:20:26.000Z",
+        "airtable_id": "rec6CGRLe6XFzaDyT",
+        "event_id": "EVENT-260514-aDyT",
+        "event_time_for_rollup": "2026-05-14T15:20:26.000Z",
+        "fields_json": "{\"grain_input_ids\":[\"rec6dezpIfrxtV9Yf\"],\"substrate_input_ids\":[\"recoq3GtzlaJgRlTv\"],\"per_output_unit_size_lb\":9.5,\"output_item_code\":\"FB-MM75-LG\",\"output_index\":0,\"output_count\":1}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Spawn to Bulk",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "type": "SpawnedToBulk",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:24:39.000Z",
+        "airtable_id": "rec6xhfbzJbipLixj",
+        "event_id": "EVENT-260514-Lixj",
+        "event_time_for_rollup": "2026-05-14T14:24:38.276Z",
+        "fields_json": "{\"run_id\":\"recCtajCBKC85PDeW\",\"run_no\":\"RUN-260514-PDeW\",\"process_type\":\"sterilize\",\"unit_size\":500}",
+        "lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "operator": "Ray",
+        "station": "Sterilizer OUT",
+        "status (from lot_id)": [
+            "Consumed"
+        ],
+        "timestamp": "2026-05-14T14:24:38.276Z",
+        "type": "Sterilized"
+    },
+    {
+        "airtable_createdTime": "2026-05-15T22:46:44.000Z",
+        "airtable_id": "rec7U0UDh90lQAZNs",
+        "event_id": "EVENT-260515-AZNs",
+        "event_time_for_rollup": "2026-05-15T22:46:43.165Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-15T22:46:43.165Z",
+        "type": "ColdShock",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T15:24:52.000Z",
+        "airtable_id": "recAPtxp1gnvbMj92",
+        "event_id": "EVENT-260514-Mj92",
+        "event_time_for_rollup": "2026-05-14T15:24:51.872Z",
+        "fields_json": "{\"casing_lot_id\":null,\"casing_item_id\":null}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-14T15:24:51.872Z",
+        "type": "CasingApplied",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T15:20:27.000Z",
+        "airtable_id": "recAV4yqh1B3ScHfu",
+        "event_id": "EVENT-260514-cHfu",
+        "event_time_for_rollup": "2026-05-14T15:20:27.000Z",
+        "fields_json": "{\"consumed_by_lot_ids\":[\"recn2iRV2ot8pdfuh\"]}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "station": "Spawn to Bulk",
+        "status (from lot_id)": [
+            "Consumed"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "type": "Consumed",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:09:09.000Z",
+        "airtable_id": "recDZnrgqupY5PLHW",
+        "event_id": "EVENT-260514-PLHW",
+        "event_time_for_rollup": "2026-05-14T14:09:08.243Z",
+        "fields_json": "{}",
+        "lot_id": [
+            "recQg8vhKeWG5r3Wr"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Fridge"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "King Oyster"
+        ],
+        "timestamp": "2026-05-14T14:09:08.243Z",
+        "type": "FullyColonized"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:04.000Z",
+        "airtable_id": "recDnqIGT2h7jBDVu",
+        "event_id": "EVENT-260514-BDVu",
+        "event_time_for_rollup": "2026-05-14T14:25:03.561Z",
+        "fields_json": "{\"plate_group_id\":\"PLATEGRP-1778768702614\",\"plate_count\":15,\"recipe_id\":\"REC-AGAR-STD\",\"created_plate_ids\":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}",
+        "lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "station": "Pour Plates",
+        "status (from lot_id)": [
+            "Consumed"
+        ],
+        "timestamp": "2026-05-14T14:25:03.561Z",
+        "type": "PlatesPoured"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T20:40:14.000Z",
+        "airtable_id": "recHS2F08VTQLA7s2",
+        "event_id": "EVENT-260516-A7s2",
+        "event_time_for_rollup": "2026-05-16T20:40:13.592Z",
+        "fields_json": "{\"syringe_item_id\":\"recBobuevQac9j1wL\",\"syringe_count\":1,\"used_volume_ml\":10,\"remaining_volume_ml\":477}",
+        "lot_id": [
+            "rec2AXL1EN5UpDdSr"
+        ],
+        "station": "LC \u2013 Make Syringes",
+        "status (from lot_id)": [
+            "Fridge"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Blue Oyster"
+        ],
+        "timestamp": "2026-05-16T20:40:13.592Z",
+        "type": "SyringesDrawn",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-15T22:44:38.000Z",
+        "airtable_id": "recHV1TNE6MAktRIB",
+        "event_id": "EVENT-260515-tRIB",
+        "event_time_for_rollup": "2026-05-15T22:44:37.286Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-15T22:44:37.286Z",
+        "type": "FullyColonized",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T17:19:34.000Z",
+        "airtable_id": "recHY4hxxj7PmO4ZA",
+        "event_id": "EVENT-260516-O4ZA",
+        "event_time_for_rollup": "2026-05-16T17:19:33.105Z",
+        "fields_json": "{}",
+        "lot_id": [
+            "rec1mfUCKWdZXJYeU"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Lion\u2019s Mane"
+        ],
+        "timestamp": "2026-05-16T17:19:33.105Z",
+        "type": "Inviable",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-15T22:49:49.000Z",
+        "airtable_id": "recNoQ8zY4wUmnkdr",
+        "event_id": "EVENT-260515-nkdr",
+        "event_time_for_rollup": "2026-05-15T22:49:48.200Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-15T22:49:48.200Z",
+        "type": "ColdShock",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T20:45:09.000Z",
+        "airtable_id": "recV1ZdGcIr4uV1Aa",
+        "event_id": "EVENT-260516-V1Aa",
+        "event_time_for_rollup": "2026-05-16T20:45:08.257Z",
+        "fields_json": "{\"syringe_item_id\":\"recBobuevQac9j1wL\",\"syringe_count\":2,\"used_volume_ml\":20,\"remaining_volume_ml\":453}",
+        "lot_id": [
+            "recLkMzwuJuaxpcNU"
+        ],
+        "station": "LC \u2013 Make Syringes",
+        "status (from lot_id)": [
+            "Fridge"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Red Reishi"
+        ],
+        "timestamp": "2026-05-16T20:45:08.257Z",
+        "type": "SyringesDrawn",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            null
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:09:00.000Z",
+        "airtable_id": "recZrWks4GRV2vHUJ",
+        "event_id": "EVENT-260514-vHUJ",
+        "event_time_for_rollup": "2026-05-14T14:08:59.344Z",
+        "fields_json": "{\"vendor_name\":\"MYYCO\",\"vendor_batch\":\"test batch\",\"source_type\":\"Purchased\",\"total_volume_ml\":10}",
+        "lot_id": [
+            "recQg8vhKeWG5r3Wr"
+        ],
+        "station": "Receiving",
+        "status (from lot_id)": [
+            "Fridge"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "King Oyster"
+        ],
+        "timestamp": "2026-05-14T14:08:59.344Z",
+        "type": "Received"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T16:09:30.000Z",
+        "airtable_id": "recaobSfWC2HmWQ7Q",
+        "event_id": "EVENT-260514-WQ7Q",
+        "event_time_for_rollup": "2026-05-14T16:09:30.203Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-14T16:09:30.203Z",
+        "type": "BeneficialTrichodermaApplied",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T15:20:27.000Z",
+        "airtable_id": "recayKQO1abwA06sn",
+        "event_id": "EVENT-260514-06sn",
+        "event_time_for_rollup": "2026-05-14T15:20:27.000Z",
+        "fields_json": "{\"consumed_by_lot_ids\":[\"recn2iRV2ot8pdfuh\"]}",
+        "lot_id": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "station": "Spawn to Bulk",
+        "status (from lot_id)": [
+            "Consumed"
+        ],
+        "type": "Consumed"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T16:07:27.000Z",
+        "airtable_id": "recdMQJ3PnJlSKgHy",
+        "event_id": "EVENT-260514-KgHy",
+        "event_time_for_rollup": "2026-05-14T16:07:27.178Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-14T16:07:27.178Z",
+        "type": "NematodesApplied",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:24:39.000Z",
+        "airtable_id": "receBS7u53sTpgUuU",
+        "event_id": "EVENT-260514-gUuU",
+        "event_time_for_rollup": "2026-05-14T14:24:38.276Z",
+        "fields_json": "{\"run_id\":\"recCtajCBKC85PDeW\",\"run_no\":\"RUN-260514-PDeW\",\"process_type\":\"sterilize\",\"unit_size\":500}",
+        "lot_id": [
+            "rectuNhMtxH00RE60"
+        ],
+        "operator": "Ray",
+        "station": "Sterilizer OUT",
+        "status (from lot_id)": [
+            "Sterilized"
+        ],
+        "timestamp": "2026-05-14T14:24:38.276Z",
+        "type": "Sterilized"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T17:17:57.000Z",
+        "airtable_id": "receXsXeErl1bgevk",
+        "event_id": "EVENT-260516-gevk",
+        "event_time_for_rollup": "2026-05-16T17:17:56.939Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-16T17:17:56.939Z",
+        "type": "Contaminated",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:01:04.000Z",
+        "airtable_id": "reckzZ6qvwSupqGqd",
+        "event_id": "EVENT-260516-qGqd",
+        "event_time_for_rollup": "2026-05-16T18:01:03.880Z",
+        "fields_json": "{\"created_product_ids\":[\"recnzvklPFXLiB8dR\"],\"harvest_weight_g\":150,\"flush_no\":2,\"fresh_tray_count\":0,\"frozen_tray_count\":1,\"total_trays\":1,\"per_tray_weight_g\":150}",
+        "grain_inputs (from lot_id)": [
+            "rechP7fXl9hiMAEit"
+        ],
+        "lot_id": [
+            "rec7OxTbl1Jw4agFi"
+        ],
+        "station": "Harvest",
+        "status (from lot_id)": [
+            "Fruiting"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Blue Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recGnWGF3f92zXBrN",
+            "recvQYPEs7URQGP0M",
+            "reclq4McHJH7t1NRT"
+        ],
+        "timestamp": "2026-05-16T18:01:03.880Z",
+        "type": "Harvest",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "Fungaia"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:02:41.000Z",
+        "airtable_id": "reclgG4xKqcJMSFZI",
+        "event_id": "EVENT-260516-SFZI",
+        "event_time_for_rollup": "2026-05-16T18:02:40.825Z",
+        "fields_json": "{\"created_product_ids\":[\"reckpJVN7HIM5QfEE\"],\"harvest_weight_g\":150,\"flush_no\":2,\"fresh_tray_count\":1,\"frozen_tray_count\":0,\"total_trays\":1,\"per_tray_weight_g\":150}",
+        "grain_inputs (from lot_id)": [
+            "rechP7fXl9hiMAEit"
+        ],
+        "lot_id": [
+            "recV0fkHpiBJFFmol"
+        ],
+        "station": "Harvest",
+        "status (from lot_id)": [
+            "Fruiting"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Blue Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recGnWGF3f92zXBrN",
+            "recvQYPEs7URQGP0M",
+            "reclq4McHJH7t1NRT"
+        ],
+        "timestamp": "2026-05-16T18:02:40.825Z",
+        "type": "Harvest",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "Fungaia"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-14T16:04:35.000Z",
+        "airtable_id": "recn1TdYx1XePDT0f",
+        "event_id": "EVENT-260514-DT0f",
+        "event_time_for_rollup": "2026-05-14T16:04:34.780Z",
+        "fields_json": "{}",
+        "grain_inputs (from lot_id)": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "lot_id": [
+            "recn2iRV2ot8pdfuh"
+        ],
+        "station": "Dark Room",
+        "status (from lot_id)": [
+            "Retired"
+        ],
+        "strain_species_strain (from lot_id)": [
+            "Black Pearl King Oyster"
+        ],
+        "substrate_inputs (from lot_id)": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "timestamp": "2026-05-14T16:04:34.780Z",
+        "type": "DiatomaceousEarthApplied",
+        "vendor_name (from lc_lot_id) (from lot_id)": [
+            "MYYCO"
+        ]
+    }
+]

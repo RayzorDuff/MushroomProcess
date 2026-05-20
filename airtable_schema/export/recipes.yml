@@ -456,6 +456,7 @@
   - recuK7ak06yzEx8wc
   - recbq71hCdjx29Aj6
   - recNiOOqOrHbHmzWm
+  - recn2iRV2ot8pdfuh
   name: Wild Bird Seed Blend
   recipe_id: REC-GRAIN-WBS
   sterilization_runs:
@@ -962,10 +963,28 @@
   - recGG4Pi3nqPcHsJ5
   - recVN6rZgoYhU7EmS
   - recGVkZ7v66QkvlCd
+  - rectuNhMtxH00RE60
+  - recXhGS3sb8puZ5aN
+  - recOPmHXMB4ttB6YF
+  - recrHYk1MbXHbMzaM
+  - rec4THr9xjeYCUvrB
+  - recQkfOjyy7GaXdVd
+  - reccrlF1pwkZiPQo2
+  - recwzsk4ZfbSinJpe
+  - rechGmsWntiPzy7xP
+  - recJq2syrKzB8dEfI
+  - recRtHFhUIt5rGtjE
+  - recpOzPnAdmHMHS9k
+  - recHQUBIVWnTPfARS
+  - recb3M2ASQWs0K24Q
+  - recSxFsWAiyICnxiR
+  - recTs2kPoS7OUq41F
+  - reczRG9ahO7bnES6S
   name: Agar Base
   recipe_id: REC-AGAR-STD
   sterilization_runs:
   - rec8ZdEg2StmlxanB
+  - recCtajCBKC85PDeW
 - active: true
   airtable_createdTime: '2026-04-09T20:35:00.000Z'
   airtable_id: recz4tdr6wtSL6WHY

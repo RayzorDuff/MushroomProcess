@@ -20,7 +20,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-EZtd",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -443,7 +443,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-tIvw",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec0xZpPJe4l2tIvw",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec0xZpPJe4l2tIvw",
@@ -1169,6 +1169,10 @@
         "airtable_createdTime": "2026-04-24T20:23:02.000Z",
         "airtable_id": "rec1mfUCKWdZXJYeU",
         "created_at": "2026-04-24T20:23:02.000Z",
+        "events": [
+            "recHY4hxxj7PmO4ZA"
+        ],
+        "first_event_date": "2026-05-16T17:19:33.105Z",
         "inoculated_at": "2026-04-24T20:30:39.015Z",
         "inoculated_at (from grain_inputs)": [],
         "item_category": [
@@ -1190,8 +1194,9 @@
         "label_template": "Grain_Inoculated",
         "label_title_lot": "Grain: Wild Bird Seed",
         "label_useby_line": "Use by: 2026-07-23",
+        "last_event_date": "2026-05-16T17:19:33.105Z",
         "lot_id": "LOT-260424-JYeU",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -1217,10 +1222,11 @@
             null
         ],
         "remaining_volume_ml": 5,
+        "retired_at": "2026-05-16T17:19:33.105Z",
         "source_lot_id": [
             "rec8ZyLRjSpvdWmBD"
         ],
-        "status": "Colonizing",
+        "status": "Retired",
         "steri_run_id": [
             "recCSZRx6w0VbzoXm"
         ],
@@ -1381,7 +1387,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-G637",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec20crkKcED5G637",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec20crkKcED5G637",
@@ -1521,7 +1527,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-MXGb",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -1621,6 +1627,10 @@
         "airtable_createdTime": "2025-09-29T15:52:21.000Z",
         "airtable_id": "rec2AXL1EN5UpDdSr",
         "created_at": "2025-09-29T15:52:21.000Z",
+        "events": [
+            "recHS2F08VTQLA7s2"
+        ],
+        "first_event_date": "2026-05-16T20:40:13.592Z",
         "fresh_tray_count": 0,
         "frozen_tray_count": 0,
         "inoculated_at": "2025-08-31T15:53:00.000Z",
@@ -1640,19 +1650,22 @@
         "label_footer_lot": "Lot: LOT-250929-DdSr",
         "label_inoc_line": "Inoculated: 2025-08-31 ",
         "label_proc_line": "Sterilized: 2025-05-01",
-        "label_subtitle_lot": "487 ml \u2022 Blue Oyster MYYCO",
+        "label_subtitle_lot": "477 ml \u2022 Blue Oyster MYYCO",
         "label_template": "LC_Flask_Inoculated",
         "label_title_lot": "Liquid Culture \u2014 Flask",
         "label_useby_line": "Use by: 2026-02-27",
+        "last_event_date": "2026-05-16T20:40:13.592Z",
         "lc_volume_ml": 2,
         "location_id": [
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-250929-DdSr",
+        "notes": "Test Draw multiple syringe",
         "override_inoc_time": "2025-08-31T15:53:00.000Z",
         "process_type_mat": "Sterilize",
         "products": [
-            "recDizTUgKe8QDPvQ"
+            "recDizTUgKe8QDPvQ",
+            "recQmXyevdlAJjGEB"
         ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec2AXL1EN5UpDdSr",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec2AXL1EN5UpDdSr",
@@ -1674,7 +1687,7 @@
         "regulated (from strain_id)": [
             null
         ],
-        "remaining_volume_ml": 487,
+        "remaining_volume_ml": 477,
         "status": "Fridge",
         "sterilized_at": "2025-05-01T15:52:00.000Z",
         "strain_id": [
@@ -1684,7 +1697,7 @@
             "Blue Oyster"
         ],
         "strain_species_strain_mat": "Blue Oyster",
-        "syringe_count": 1,
+        "syringe_count": 2,
         "syringe_item": [
             "recBobuevQac9j1wL"
         ],
@@ -1763,7 +1776,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-mwig",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec2LV9MFUuynmwig",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec2LV9MFUuynmwig",
@@ -1888,7 +1901,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-WGL7",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -2033,8 +2046,9 @@
         "airtable_createdTime": "2026-04-06T20:45:21.000Z",
         "airtable_id": "rec2alzkr2OS9LKEs",
         "created_at": "2026-04-06T20:45:21.000Z",
-        "flush_no": 1,
-        "fresh_tray_count": 1,
+        "flush_no": 2,
+        "fresh_tray_count": 0,
+        "frozen_tray_count": 1,
         "grain_inputs": [
             "rechP7fXl9hiMAEit"
         ],
@@ -2044,7 +2058,7 @@
         "harvest_item_category": [
             "fresh_tray"
         ],
-        "harvest_weight_g": 204.58,
+        "harvest_weight_g": 150,
         "inoculated_at (from grain_inputs)": [
             "2025-12-22T20:50:58.125Z"
         ],
@@ -2078,6 +2092,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-260406-LKEs",
+        "notes": "Frozen Harvest Test Notes",
         "parents_json": "[\"rechP7fXl9hiMAEit\",\"recGnWGF3f92zXBrN\",\"recvQYPEs7URQGP0M\",\"reclq4McHJH7t1NRT\"]",
         "process_type_mat (from substrate_inputs)": [
             "Sterilize"
@@ -2106,7 +2121,7 @@
             null
         ],
         "spawned_at": "2026-04-06T20:45:20.854Z",
-        "status": "Fruiting",
+        "status": "Retired",
         "strain_id": [
             "recszNf2WlZjSQqyL"
         ],
@@ -2119,6 +2134,8 @@
             "recvQYPEs7URQGP0M",
             "reclq4McHJH7t1NRT"
         ],
+        "ui_error": "fresh_tray_count must be >= 1 when a fresh_tray harvest_item is selected.",
+        "ui_error_at": "2026-05-16T17:59:37.822Z",
         "unit_lbs": "1.67 lb",
         "unit_size": 1.6666666666666667,
         "use_by": "2026-07-06",
@@ -2326,7 +2343,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-0adZ",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "products": [
             "rec4e8Q0UoDqyGFlm"
@@ -2577,7 +2594,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-yUij",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -2886,7 +2903,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-UDGL",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -3142,7 +3159,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-rdfO",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -3552,6 +3569,47 @@
         "vendor_name_mat": "Fungaia"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "rec4THr9xjeYCUvrB",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-UvrB",
+        "lot_id": "LOT-260514-UvrB",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec4THr9xjeYCUvrB",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec4THr9xjeYCUvrB",
+        "public_link_freeze_dry_package": "FIXMErec4THr9xjeYCUvrB",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=rec4THr9xjeYCUvrB",
+        "public_link_harvest": "FIXMErec4THr9xjeYCUvrB",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=rec4THr9xjeYCUvrB",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=rec4THr9xjeYCUvrB",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=rec4THr9xjeYCUvrB",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=rec4THr9xjeYCUvrB",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=rec4THr9xjeYCUvrB",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "From field: substrate_inputs": [
             "receKmO521AEeaYuU",
             "recHyrUUQREq00MEv",
@@ -3741,7 +3799,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-H9el",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec4yeZBeQ9LhH9el",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec4yeZBeQ9LhH9el",
@@ -3937,7 +3995,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-0Yz1",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec56cHmEtj5h0Yz1",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec56cHmEtj5h0Yz1",
@@ -4116,7 +4174,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-8zAM",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -4641,7 +4699,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-rwZA",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec66vY8AY9xGrwZA",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec66vY8AY9xGrwZA",
@@ -5175,7 +5233,7 @@
         "label_footer_lot": "Lot: LOT-251031-KYHR",
         "label_proc_line": "Sterilized: 2025-10-30",
         "lot_id": "LOT-251031-KYHR",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "plate_count": 19,
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec6OLBIhdjeMKYHR",
@@ -5324,7 +5382,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-AEoy",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec6YkRHnMzxbAEoy",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec6YkRHnMzxbAEoy",
@@ -5569,11 +5627,24 @@
         "use_by": "2026-04-17"
     },
     {
+        "From field: grain_inputs": [
+            "rec6dezpIfrxtV9Yf",
+            "recn2iRV2ot8pdfuh"
+        ],
         "airtable_createdTime": "2026-03-24T13:17:24.000Z",
         "airtable_id": "rec6dezpIfrxtV9Yf",
         "created_at": "2026-03-24T13:17:24.000Z",
+        "events": [
+            "recAV4yqh1B3ScHfu"
+        ],
+        "fruiting_goal": "Side",
+        "grain_inputs": [
+            "rec6dezpIfrxtV9Yf"
+        ],
         "inoculated_at": "2026-03-30T18:58:44.967Z",
-        "inoculated_at (from grain_inputs)": [],
+        "inoculated_at (from grain_inputs)": [
+            "2026-03-30T18:58:44.967Z"
+        ],
         "item_category": [
             "grain"
         ],
@@ -5585,6 +5656,12 @@
             "Wild Bird Seed"
         ],
         "item_name_mat": "Wild Bird Seed",
+        "item_name_mat (from grain_inputs)": [
+            "Wild Bird Seed"
+        ],
+        "item_name_mat (from substrate_inputs)": [
+            "Masters Mix 75/25"
+        ],
         "label_company_lot": "Dank Mushrooms",
         "label_footer_lot": "Lot: LOT-260324-V9Yf",
         "label_inoc_line": "Inoculated: 2026-03-30 LOT-260327-zgwF",
@@ -5597,10 +5674,15 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-260324-V9Yf",
+        "operator": "Ray Danks <ray@edanks.com>",
+        "output_count": 1,
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
         "process_type_mat": "Sterilize",
+        "process_type_mat (from substrate_inputs)": [
+            "Sterilize"
+        ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec6dezpIfrxtV9Yf",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec6dezpIfrxtV9Yf",
         "public_link_freeze_dry_package": "FIXMErec6dezpIfrxtV9Yf",
@@ -5625,7 +5707,7 @@
         "source_lot_id": [
             "recl3fMPOxkB1zgwF"
         ],
-        "status": "Fridge",
+        "status": "Consumed",
         "steri_run_id": [
             "recOSF8bNk5Sq0Acf"
         ],
@@ -5637,6 +5719,9 @@
             "Black Pearl King Oyster"
         ],
         "strain_species_strain_mat": "Black Pearl King Oyster",
+        "substrate_inputs": [
+            "recoq3GtzlaJgRlTv"
+        ],
         "total_volume_ml": 4.5,
         "unit_lbs": "2 lb",
         "unit_size": 2,
@@ -5668,7 +5753,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-sefa",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -6355,7 +6440,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-elSN",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "products": [
             "recCxhrW0lGGE8K6Z"
@@ -6746,7 +6831,11 @@
         "airtable_createdTime": "2026-04-06T20:45:21.000Z",
         "airtable_id": "rec7OxTbl1Jw4agFi",
         "created_at": "2026-04-06T20:45:21.000Z",
-        "flush_no": 1,
+        "events": [
+            "reckzZ6qvwSupqGqd"
+        ],
+        "first_event_date": "2026-05-16T18:01:03.880Z",
+        "flush_no": 2,
         "frozen_tray_count": 1,
         "grain_inputs": [
             "rechP7fXl9hiMAEit"
@@ -6757,7 +6846,7 @@
         "harvest_item_category": [
             "freezer_tray"
         ],
-        "harvest_weight_g": 127.41,
+        "harvest_weight_g": 150,
         "inoculated_at (from grain_inputs)": [
             "2025-12-22T20:50:58.125Z"
         ],
@@ -6787,16 +6876,19 @@
         "label_template": "Bulk_Created",
         "label_title_lot": "Small Masters Mix 75/25",
         "label_useby_line": "Use by: 2026-07-05",
+        "last_event_date": "2026-05-16T18:01:03.880Z",
         "location_id": [
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-260406-agFi",
+        "notes": "Harvest Test Freezer Notes",
         "parents_json": "[\"rechP7fXl9hiMAEit\",\"recGnWGF3f92zXBrN\",\"recvQYPEs7URQGP0M\",\"reclq4McHJH7t1NRT\"]",
         "process_type_mat (from substrate_inputs)": [
             "Sterilize"
         ],
         "products": [
-            "rec1kf5lP1RpB8EmQ"
+            "rec1kf5lP1RpB8EmQ",
+            "recnzvklPFXLiB8dR"
         ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec7OxTbl1Jw4agFi",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec7OxTbl1Jw4agFi",
@@ -7297,7 +7389,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-3zlf",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec7eP4HEzIgd3zlf",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec7eP4HEzIgd3zlf",
@@ -7789,7 +7881,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-Rajn",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -7844,7 +7936,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-PBqm",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -8585,7 +8677,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-cbjB",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec9GzYrjM9TscbjB",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec9GzYrjM9TscbjB",
@@ -8772,7 +8864,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-EZK0",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rec9ZEsZtjqpxEZK0",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rec9ZEsZtjqpxEZK0",
@@ -8996,7 +9088,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-6kTr",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "products": [
             "recoqkYV1wMYPzwJS"
@@ -9245,7 +9337,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-BBYx",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recAB93J499E1BBYx",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recAB93J499E1BBYx",
@@ -9841,7 +9933,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-5hVF",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -9896,7 +9988,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-uJd4",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -10244,7 +10336,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-dHF9",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recBS706EdhphdHF9",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recBS706EdhphdHF9",
@@ -11041,7 +11133,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-Ax3w",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recCz2u2MSmtpAx3w",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recCz2u2MSmtpAx3w",
@@ -11090,7 +11182,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-vIgI",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recCz4rOB1BVEvIgI",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recCz4rOB1BVEvIgI",
@@ -11318,7 +11410,7 @@
         "label_useby_line": "Use by: 2026-04-09",
         "lc_volume_ml": 2,
         "lot_id": "LOT-251008-GRlk",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:40:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recD3K8IvYBwtGRlk",
@@ -11581,7 +11673,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-uclO",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:42:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recDLwNXbEyMouclO",
@@ -11938,7 +12030,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-Qi4S",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -12401,7 +12493,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-v0ES",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -12561,7 +12653,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-FhxZ",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recF45m2bXe6UFhxZ",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recF45m2bXe6UFhxZ",
@@ -12828,7 +12920,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-HTOf",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -13103,7 +13195,7 @@
         "label_useby_line": "Use by: 2026-04-09",
         "lc_volume_ml": 2,
         "lot_id": "LOT-251008-xvXH",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:41:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recFkjr149f7NxvXH",
@@ -13169,7 +13261,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-oaya",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recFogSVU6qM1oaya",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recFogSVU6qM1oaya",
@@ -13417,6 +13509,7 @@
         "label_title_lot": "Grain: Wild Bird Seed",
         "label_useby_line": "Use by: 2026-06-29",
         "lot_id": "LOT-260324-kNcW",
+        "notes": "Note for Shake and Break",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -13488,7 +13581,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-oGlJ",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recFr4uYO9qmWoGlJ",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recFr4uYO9qmWoGlJ",
@@ -13678,7 +13771,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-rGSB",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recGHILLo2SQorGSB",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recGHILLo2SQorGSB",
@@ -14569,6 +14662,47 @@
         "use_by": "2026-02-10"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recHQUBIVWnTPfARS",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-fARS",
+        "lot_id": "LOT-260514-fARS",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recHQUBIVWnTPfARS",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recHQUBIVWnTPfARS",
+        "public_link_freeze_dry_package": "FIXMErecHQUBIVWnTPfARS",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recHQUBIVWnTPfARS",
+        "public_link_harvest": "FIXMErecHQUBIVWnTPfARS",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recHQUBIVWnTPfARS",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recHQUBIVWnTPfARS",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recHQUBIVWnTPfARS",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recHQUBIVWnTPfARS",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recHQUBIVWnTPfARS",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "airtable_createdTime": "2025-12-13T19:07:16.000Z",
         "airtable_id": "recHSBX0g2LbXoQKl",
         "created_at": "2025-12-13T19:07:16.000Z",
@@ -14765,7 +14899,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-ybnc",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -15148,7 +15282,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-MNUg",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recILaw7b0VokMNUg",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recILaw7b0VokMNUg",
@@ -15348,7 +15482,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-73CO",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recIRxVeZnE5I73CO",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recIRxVeZnE5I73CO",
@@ -15443,7 +15577,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-4pZO",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "products": [
             "recry4YYnWNGmBWnP"
@@ -15715,7 +15849,7 @@
         "label_footer_lot": "Lot: LOT-251031-bhHL",
         "label_proc_line": "Sterilized: 2025-10-30",
         "lot_id": "LOT-251031-bhHL",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "plate_count": 19,
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recIoueYryVVpbhHL",
@@ -15930,7 +16064,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-DOAQ",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recJ0AiC0ZxIcDOAQ",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recJ0AiC0ZxIcDOAQ",
@@ -16796,6 +16930,47 @@
         "vendor_name": "Fungaia"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recJq2syrKzB8dEfI",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-dEfI",
+        "lot_id": "LOT-260514-dEfI",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recJq2syrKzB8dEfI",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recJq2syrKzB8dEfI",
+        "public_link_freeze_dry_package": "FIXMErecJq2syrKzB8dEfI",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recJq2syrKzB8dEfI",
+        "public_link_harvest": "FIXMErecJq2syrKzB8dEfI",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recJq2syrKzB8dEfI",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recJq2syrKzB8dEfI",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recJq2syrKzB8dEfI",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recJq2syrKzB8dEfI",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recJq2syrKzB8dEfI",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "airtable_createdTime": "2025-12-22T20:03:14.000Z",
         "airtable_id": "recJvQEVUfs2mgMcN",
         "created_at": "2025-12-22T20:03:14.000Z",
@@ -17029,7 +17204,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-2VhT",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recK8jiydCzqZ2VhT",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recK8jiydCzqZ2VhT",
@@ -17207,7 +17382,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-uO9H",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recKPIwrwiMpRuO9H",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recKPIwrwiMpRuO9H",
@@ -17589,7 +17764,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-MjgH",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recLE9aZyRq9LMjgH",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recLE9aZyRq9LMjgH",
@@ -18114,6 +18289,10 @@
         "airtable_createdTime": "2025-09-29T15:52:21.000Z",
         "airtable_id": "recLkMzwuJuaxpcNU",
         "created_at": "2025-09-29T15:52:21.000Z",
+        "events": [
+            "recV1ZdGcIr4uV1Aa"
+        ],
+        "first_event_date": "2026-05-16T20:45:08.257Z",
         "fresh_tray_count": 0,
         "frozen_tray_count": 0,
         "inoculated_at": "2025-08-31T16:02:00.000Z",
@@ -18133,17 +18312,21 @@
         "label_footer_lot": "Lot: LOT-250929-pcNU",
         "label_inoc_line": "Inoculated: 2025-08-31 ",
         "label_proc_line": "Sterilized: 2025-05-01",
-        "label_subtitle_lot": "473 ml \u2022 Red Reishi ",
+        "label_subtitle_lot": "453 ml \u2022 Red Reishi ",
         "label_template": "LC_Flask_Inoculated",
         "label_title_lot": "Liquid Culture \u2014 Flask",
         "label_useby_line": "Use by: 2026-02-27",
+        "last_event_date": "2026-05-16T20:45:08.257Z",
         "location_id": [
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-250929-pcNU",
+        "notes": "Test Draw multiple syringe",
         "process_type_mat": "Sterilize",
         "products": [
-            "recJCBY3fEOB4A4DB"
+            "recJCBY3fEOB4A4DB",
+            "recbJif5ZfwRNlOie",
+            "recYaJYRbS1l0Pql4"
         ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recLkMzwuJuaxpcNU",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recLkMzwuJuaxpcNU",
@@ -18165,7 +18348,7 @@
         "regulated (from strain_id)": [
             null
         ],
-        "remaining_volume_ml": 473,
+        "remaining_volume_ml": 453,
         "status": "Fridge",
         "sterilized_at": "2025-05-01T15:52:00.000Z",
         "strain_id": [
@@ -18175,7 +18358,7 @@
             "Red Reishi"
         ],
         "strain_species_strain_mat": "Red Reishi",
-        "syringe_count": 1,
+        "syringe_count": 2,
         "syringe_item": [
             "recBobuevQac9j1wL"
         ],
@@ -18866,9 +19049,6 @@
         "airtable_createdTime": "2026-05-05T22:23:50.000Z",
         "airtable_id": "recMJl07J6vDuBjY8",
         "created_at": "2026-05-05T22:23:50.000Z",
-        "ecommerce": [
-            "recVcvY7l7e4nk4Vt"
-        ],
         "inoculated_at (from grain_inputs)": [],
         "item_category": [
             "substrate"
@@ -18886,10 +19066,14 @@
         "label_proc_line": "Sterilized: 2026-05-05",
         "label_useby_line": "Use by: 2026-08-04",
         "lot_id": "LOT-260505-BjY8",
+        "notes": "Productize Note",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
         "process_type_mat": "Sterilize",
+        "products": [
+            "recuNP2UVD9kn4TuR"
+        ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recMJl07J6vDuBjY8",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recMJl07J6vDuBjY8",
         "public_link_freeze_dry_package": "FIXMErecMJl07J6vDuBjY8",
@@ -18907,7 +19091,7 @@
         "recipe_name": [
             "Masters Mix 75/25"
         ],
-        "status": "Sterilized",
+        "status": "Consumed",
         "steri_run_id": [
             "recGGBddzBqYNmguh"
         ],
@@ -19179,7 +19363,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-NgEL",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -19509,7 +19693,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-6atV",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -20214,7 +20398,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-hN31",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "products": [
             "recbkepj06AUoX8Y5"
@@ -20313,7 +20497,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-mzWm",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -20980,6 +21164,47 @@
         "unit_lbs": "8.75 lb",
         "unit_size": 8.75,
         "use_by": "2026-04-07"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recOPmHXMB4ttB6YF",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-B6YF",
+        "lot_id": "LOT-260514-B6YF",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recOPmHXMB4ttB6YF",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recOPmHXMB4ttB6YF",
+        "public_link_freeze_dry_package": "FIXMErecOPmHXMB4ttB6YF",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recOPmHXMB4ttB6YF",
+        "public_link_harvest": "FIXMErecOPmHXMB4ttB6YF",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recOPmHXMB4ttB6YF",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recOPmHXMB4ttB6YF",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recOPmHXMB4ttB6YF",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recOPmHXMB4ttB6YF",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recOPmHXMB4ttB6YF",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "airtable_createdTime": "2025-10-31T19:13:00.000Z",
@@ -22554,7 +22779,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-vmN2",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recQaJdS3RpJRvmN2",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recQaJdS3RpJRvmN2",
@@ -22578,6 +22803,111 @@
         "unit_lbs": "2.5 lb",
         "unit_size": 2.5,
         "use_by": "2026-06-10"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:08:52.000Z",
+        "airtable_id": "recQg8vhKeWG5r3Wr",
+        "created_at": "2026-05-14T14:08:52.000Z",
+        "events": [
+            "recZrWks4GRV2vHUJ",
+            "recDZnrgqupY5PLHW"
+        ],
+        "first_event_date": "2026-05-14T14:08:59.344Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "lc_syringe"
+        ],
+        "item_category_mat": "lc_syringe",
+        "item_id": [
+            "recBobuevQac9j1wL"
+        ],
+        "item_name": [
+            "Liquid Culture Syringe"
+        ],
+        "item_name_mat": "Liquid Culture Syringe",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-r3Wr",
+        "label_proc_line": "Received: 2026-05-10",
+        "label_subtitle_lot": "10 ml \u2022 King Oyster MYYCO test batch",
+        "label_template": "LC_Syringe_Received",
+        "label_title_lot": "Liquid Culture Syringe",
+        "last_event_date": "2026-05-14T14:09:08.243Z",
+        "location_id": [
+            "recJxAz3OdFSxvs0l"
+        ],
+        "lot_id": "LOT-260514-r3Wr",
+        "notes": "Add some notes",
+        "print_queue": [
+            "rec5AUEMpfSNFeitf"
+        ],
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recQg8vhKeWG5r3Wr",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recQg8vhKeWG5r3Wr",
+        "public_link_freeze_dry_package": "FIXMErecQg8vhKeWG5r3Wr",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recQg8vhKeWG5r3Wr",
+        "public_link_harvest": "FIXMErecQg8vhKeWG5r3Wr",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recQg8vhKeWG5r3Wr",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recQg8vhKeWG5r3Wr",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recQg8vhKeWG5r3Wr",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recQg8vhKeWG5r3Wr",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recQg8vhKeWG5r3Wr",
+        "qty": 1,
+        "received_date": "2026-05-10",
+        "regulated (from strain_id)": [
+            null
+        ],
+        "remaining_volume_ml": 10,
+        "source_type": "Purchased",
+        "status": "Fridge",
+        "strain_id": [
+            "recx8dOsjCeAnkoBU"
+        ],
+        "strain_species_strain": [
+            "King Oyster"
+        ],
+        "total_volume_ml": 10,
+        "vendor_batch": "test batch",
+        "vendor_name": "MYYCO"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recQkfOjyy7GaXdVd",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-XdVd",
+        "lot_id": "LOT-260514-XdVd",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recQkfOjyy7GaXdVd",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recQkfOjyy7GaXdVd",
+        "public_link_freeze_dry_package": "FIXMErecQkfOjyy7GaXdVd",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recQkfOjyy7GaXdVd",
+        "public_link_harvest": "FIXMErecQkfOjyy7GaXdVd",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recQkfOjyy7GaXdVd",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recQkfOjyy7GaXdVd",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recQkfOjyy7GaXdVd",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recQkfOjyy7GaXdVd",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recQkfOjyy7GaXdVd",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "From field: grain_inputs": [
@@ -23374,6 +23704,47 @@
         "use_by": "2026-03-13"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recRtHFhUIt5rGtjE",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-GtjE",
+        "lot_id": "LOT-260514-GtjE",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recRtHFhUIt5rGtjE",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recRtHFhUIt5rGtjE",
+        "public_link_freeze_dry_package": "FIXMErecRtHFhUIt5rGtjE",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recRtHFhUIt5rGtjE",
+        "public_link_harvest": "FIXMErecRtHFhUIt5rGtjE",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recRtHFhUIt5rGtjE",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recRtHFhUIt5rGtjE",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recRtHFhUIt5rGtjE",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recRtHFhUIt5rGtjE",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recRtHFhUIt5rGtjE",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "airtable_createdTime": "2026-02-16T23:15:57.000Z",
         "airtable_id": "recRut2SCEfW48ubq",
         "created_at": "2026-02-16T23:15:57.000Z",
@@ -23615,7 +23986,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-R0HF",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -23933,7 +24304,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-rdRd",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recSiAPSUCQyMrdRd",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recSiAPSUCQyMrdRd",
@@ -24179,6 +24550,47 @@
         "unit_lbs": "5 lb",
         "unit_size": 5,
         "use_by": "2026-05-16"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recSxFsWAiyICnxiR",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-nxiR",
+        "lot_id": "LOT-260514-nxiR",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recSxFsWAiyICnxiR",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recSxFsWAiyICnxiR",
+        "public_link_freeze_dry_package": "FIXMErecSxFsWAiyICnxiR",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recSxFsWAiyICnxiR",
+        "public_link_harvest": "FIXMErecSxFsWAiyICnxiR",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recSxFsWAiyICnxiR",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recSxFsWAiyICnxiR",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recSxFsWAiyICnxiR",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recSxFsWAiyICnxiR",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recSxFsWAiyICnxiR",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "airtable_createdTime": "2026-04-22T12:28:53.000Z",
@@ -24945,7 +25357,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-94Pe",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recTqovAGpSJK94Pe",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recTqovAGpSJK94Pe",
@@ -24969,6 +25381,47 @@
         "unit_lbs": "5 lb",
         "unit_size": 5,
         "use_by": "2026-06-10"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recTs2kPoS7OUq41F",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-q41F",
+        "lot_id": "LOT-260514-q41F",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recTs2kPoS7OUq41F",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recTs2kPoS7OUq41F",
+        "public_link_freeze_dry_package": "FIXMErecTs2kPoS7OUq41F",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recTs2kPoS7OUq41F",
+        "public_link_harvest": "FIXMErecTs2kPoS7OUq41F",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recTs2kPoS7OUq41F",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recTs2kPoS7OUq41F",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recTs2kPoS7OUq41F",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recTs2kPoS7OUq41F",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recTs2kPoS7OUq41F",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "From field: substrate_inputs": [
@@ -25046,7 +25499,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-2x73",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -25146,7 +25599,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-bSev",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recUDqhCr8diCbSev",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recUDqhCr8diCbSev",
@@ -25597,7 +26050,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-DMEL",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recUre8PkL7bbDMEL",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recUre8PkL7bbDMEL",
@@ -25863,18 +26316,22 @@
         "airtable_createdTime": "2026-04-06T20:45:21.000Z",
         "airtable_id": "recV0fkHpiBJFFmol",
         "created_at": "2026-04-06T20:45:21.000Z",
-        "flush_no": 1,
-        "frozen_tray_count": 1,
+        "events": [
+            "reclgG4xKqcJMSFZI"
+        ],
+        "first_event_date": "2026-05-16T18:02:40.825Z",
+        "flush_no": 2,
+        "fresh_tray_count": 1,
         "grain_inputs": [
             "rechP7fXl9hiMAEit"
         ],
         "harvest_item": [
-            "recfe2XhEw2mDbQIw"
+            "recSjLjtQ57lT91YI"
         ],
         "harvest_item_category": [
-            "freezer_tray"
+            "fresh_tray"
         ],
-        "harvest_weight_g": 139.92,
+        "harvest_weight_g": 150,
         "inoculated_at (from grain_inputs)": [
             "2025-12-22T20:50:58.125Z"
         ],
@@ -25904,16 +26361,19 @@
         "label_template": "Bulk_Created",
         "label_title_lot": "Small Masters Mix 75/25",
         "label_useby_line": "Use by: 2026-07-05",
+        "last_event_date": "2026-05-16T18:02:40.825Z",
         "location_id": [
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-260406-Fmol",
+        "notes": "Harvest Test Fresh Notes",
         "parents_json": "[\"rechP7fXl9hiMAEit\",\"recGnWGF3f92zXBrN\",\"recvQYPEs7URQGP0M\",\"reclq4McHJH7t1NRT\"]",
         "process_type_mat (from substrate_inputs)": [
             "Sterilize"
         ],
         "products": [
-            "recx9LiEFcYl9iPpo"
+            "recx9LiEFcYl9iPpo",
+            "reckpJVN7HIM5QfEE"
         ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recV0fkHpiBJFFmol",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recV0fkHpiBJFFmol",
@@ -25978,7 +26438,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-bJ9q",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -26013,18 +26473,25 @@
         "airtable_createdTime": "2026-04-06T20:45:21.000Z",
         "airtable_id": "recV82OHyOGrx2iyZ",
         "created_at": "2026-04-06T20:45:21.000Z",
-        "flush_no": 1,
-        "frozen_tray_count": 1,
+        "events": [
+            "rec3Zi0KCOcoqaeEq"
+        ],
+        "first_event_date": "2026-05-16T18:05:01.223Z",
+        "flush_no": 2,
+        "fresh_tray_count": 2,
+        "frozen_tray_count": 3,
         "grain_inputs": [
             "rechP7fXl9hiMAEit"
         ],
         "harvest_item": [
-            "recfe2XhEw2mDbQIw"
+            "recfe2XhEw2mDbQIw",
+            "recSjLjtQ57lT91YI"
         ],
         "harvest_item_category": [
-            "freezer_tray"
+            "freezer_tray",
+            "fresh_tray"
         ],
-        "harvest_weight_g": 160.84,
+        "harvest_weight_g": 300,
         "inoculated_at (from grain_inputs)": [
             "2025-12-22T20:50:58.125Z"
         ],
@@ -26054,16 +26521,23 @@
         "label_template": "Bulk_Created",
         "label_title_lot": "Small Masters Mix 75/25",
         "label_useby_line": "Use by: 2026-07-05",
+        "last_event_date": "2026-05-16T18:05:01.223Z",
         "location_id": [
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-260406-2iyZ",
+        "notes": "Multiple Fresh and Freezer Test",
         "parents_json": "[\"rechP7fXl9hiMAEit\",\"recGnWGF3f92zXBrN\",\"recvQYPEs7URQGP0M\",\"reclq4McHJH7t1NRT\"]",
         "process_type_mat (from substrate_inputs)": [
             "Sterilize"
         ],
         "products": [
-            "recuscfDV0o29AgxJ"
+            "recuscfDV0o29AgxJ",
+            "reckF5AtTkdZbzA6y",
+            "recZtwaSM41va59Nc",
+            "recczNTvuupgmm327",
+            "recMjKV1kswgyjL1r",
+            "recF8OQ4LUCgnLXyJ"
         ],
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recV82OHyOGrx2iyZ",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recV82OHyOGrx2iyZ",
@@ -27613,7 +28087,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-TlWc",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -28101,6 +28575,82 @@
         "unit_lbs": "2.5 lb",
         "unit_size": 2.5,
         "use_by": "2026-04-15"
+    },
+    {
+        "From field: parent_lot_id": [
+            "recOPmHXMB4ttB6YF",
+            "recrHYk1MbXHbMzaM",
+            "rec4THr9xjeYCUvrB",
+            "recQkfOjyy7GaXdVd",
+            "reccrlF1pwkZiPQo2",
+            "recwzsk4ZfbSinJpe",
+            "rechGmsWntiPzy7xP",
+            "recJq2syrKzB8dEfI",
+            "recRtHFhUIt5rGtjE",
+            "recpOzPnAdmHMHS9k",
+            "recHQUBIVWnTPfARS",
+            "recb3M2ASQWs0K24Q",
+            "recSxFsWAiyICnxiR",
+            "recTs2kPoS7OUq41F",
+            "reczRG9ahO7bnES6S"
+        ],
+        "airtable_createdTime": "2026-05-14T14:24:39.000Z",
+        "airtable_id": "recXhGS3sb8puZ5aN",
+        "created_at": "2026-05-14T14:24:39.000Z",
+        "events": [
+            "rec6xhfbzJbipLixj",
+            "recDnqIGT2h7jBDVu"
+        ],
+        "first_event_date": "2026-05-14T14:24:38.276Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "agar_flask"
+        ],
+        "item_category_mat": "agar_flask",
+        "item_id": [
+            "reccntFuiyUAopZsM"
+        ],
+        "item_name": [
+            "Agar Flask"
+        ],
+        "item_name_mat": "Agar Flask",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-Z5aN",
+        "label_proc_line": "Sterilized: 2026-05-14",
+        "last_event_date": "2026-05-14T14:25:03.561Z",
+        "lot_id": "LOT-260514-Z5aN",
+        "notes": "Some notes for pur plates",
+        "operator": "Ray Danks <ray@edanks.com>",
+        "plate_count": 15,
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "process_type (from steri_run_id)": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recXhGS3sb8puZ5aN",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recXhGS3sb8puZ5aN",
+        "public_link_freeze_dry_package": "FIXMErecXhGS3sb8puZ5aN",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recXhGS3sb8puZ5aN",
+        "public_link_harvest": "FIXMErecXhGS3sb8puZ5aN",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recXhGS3sb8puZ5aN",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recXhGS3sb8puZ5aN",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recXhGS3sb8puZ5aN",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recXhGS3sb8puZ5aN",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recXhGS3sb8puZ5aN",
+        "qty": 1,
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Consumed",
+        "steri_run_id": [
+            "recCtajCBKC85PDeW"
+        ],
+        "sterilized_at": "2026-05-14T14:24:38.276Z",
+        "unit_lbs": "500 lb",
+        "unit_size": 500
     },
     {
         "airtable_createdTime": "2026-03-24T13:17:24.000Z",
@@ -28789,7 +29339,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-XQKe",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:42:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recYRpi7vYmdRXQKe",
@@ -30580,7 +31130,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-rFGK",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:43:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recabsawPoHm9rFGK",
@@ -30749,7 +31299,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-kpEt",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -31061,6 +31611,47 @@
         "unit_size": 2,
         "use_by": "2025-11-18",
         "vendor_name_mat": "Fungaia"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recb3M2ASQWs0K24Q",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-K24Q",
+        "lot_id": "LOT-260514-K24Q",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recb3M2ASQWs0K24Q",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recb3M2ASQWs0K24Q",
+        "public_link_freeze_dry_package": "FIXMErecb3M2ASQWs0K24Q",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recb3M2ASQWs0K24Q",
+        "public_link_harvest": "FIXMErecb3M2ASQWs0K24Q",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recb3M2ASQWs0K24Q",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recb3M2ASQWs0K24Q",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recb3M2ASQWs0K24Q",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recb3M2ASQWs0K24Q",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recb3M2ASQWs0K24Q",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "From field: substrate_inputs": [
@@ -31699,7 +32290,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-9Aj6",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -31751,7 +32342,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-yflp",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recbriIzypF6Yyflp",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recbriIzypF6Yyflp",
@@ -32290,7 +32881,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-sWOB",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -32453,6 +33044,47 @@
         "unit_lbs": "8.5 lb",
         "unit_size": 8.5,
         "use_by": "2026-05-28"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "reccrlF1pwkZiPQo2",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-PQo2",
+        "lot_id": "LOT-260514-PQo2",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reccrlF1pwkZiPQo2",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reccrlF1pwkZiPQo2",
+        "public_link_freeze_dry_package": "FIXMEreccrlF1pwkZiPQo2",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=reccrlF1pwkZiPQo2",
+        "public_link_harvest": "FIXMEreccrlF1pwkZiPQo2",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=reccrlF1pwkZiPQo2",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=reccrlF1pwkZiPQo2",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=reccrlF1pwkZiPQo2",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=reccrlF1pwkZiPQo2",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=reccrlF1pwkZiPQo2",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "airtable_createdTime": "2025-12-18T16:45:54.000Z",
@@ -33160,7 +33792,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-5TKX",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recdlYrtNqcvh5TKX",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recdlYrtNqcvh5TKX",
@@ -33824,7 +34456,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-fNbM",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=receOaP89aOJHfNbM",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=receOaP89aOJHfNbM",
@@ -34166,7 +34798,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-ECPI",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:43:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recei60L0VQ7IECPI",
@@ -34366,7 +34998,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-Tn98",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recexUEwgW7H7Tn98",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recexUEwgW7H7Tn98",
@@ -34615,7 +35247,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-6QWZ",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -34807,7 +35439,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-qxJm",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recfQBS4IfwojqxJm",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recfQBS4IfwojqxJm",
@@ -35183,7 +35815,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-CLPU",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -35815,7 +36447,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-eRWH",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recgdtbBAwcD0eRWH",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recgdtbBAwcD0eRWH",
@@ -35864,7 +36496,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-GZJB",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -36244,7 +36876,7 @@
         "label_title_lot": "Grain: Wild Bird Seed",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-p6PG",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -36480,6 +37112,47 @@
         "unit_lbs": "3 lb",
         "unit_size": 3,
         "use_by": "2026-02-17"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "rechGmsWntiPzy7xP",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-y7xP",
+        "lot_id": "LOT-260514-y7xP",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rechGmsWntiPzy7xP",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rechGmsWntiPzy7xP",
+        "public_link_freeze_dry_package": "FIXMErechGmsWntiPzy7xP",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=rechGmsWntiPzy7xP",
+        "public_link_harvest": "FIXMErechGmsWntiPzy7xP",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=rechGmsWntiPzy7xP",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=rechGmsWntiPzy7xP",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=rechGmsWntiPzy7xP",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=rechGmsWntiPzy7xP",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=rechGmsWntiPzy7xP",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "From field: substrate_inputs": [
@@ -38089,7 +38762,7 @@
         "label_footer_lot": "Lot: LOT-251031-aaoQ",
         "label_proc_line": "Sterilized: 2025-10-30",
         "lot_id": "LOT-251031-aaoQ",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "plate_count": 19,
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recireqPbJLK3aaoQ",
@@ -38437,7 +39110,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-Vpfn",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recjPDNRcLr01Vpfn",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recjPDNRcLr01Vpfn",
@@ -38584,7 +39257,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-ptO3",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -38636,7 +39309,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-175F",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recjmXrfLOMmR175F",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recjmXrfLOMmR175F",
@@ -38697,7 +39370,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-VtGy",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:44:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recjp6z9VTvhoVtGy",
@@ -39645,7 +40318,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-3Ulm",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -39853,7 +40526,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-azHu",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reclFAvDlpJO8azHu",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reclFAvDlpJO8azHu",
@@ -40309,7 +40982,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-JW2t",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -40641,7 +41314,7 @@
             "recJxAz3OdFSxvs0l"
         ],
         "lot_id": "LOT-251008-mJDV",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "override_inoc_time": "2025-10-10T15:44:00.000Z",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recm3iMu345ATmJDV",
@@ -40886,7 +41559,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-eOp3",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -41378,6 +42051,106 @@
         ],
         "status": "Retired",
         "total_volume_ml": 0
+    },
+    {
+        "airtable_createdTime": "2026-05-14T15:20:26.000Z",
+        "airtable_id": "recn2iRV2ot8pdfuh",
+        "casing_applied_at": "2026-05-14T15:24:51.872Z",
+        "created_at": "2026-05-14T15:20:26.000Z",
+        "events": [
+            "rec6CGRLe6XFzaDyT",
+            "recAPtxp1gnvbMj92",
+            "recn1TdYx1XePDT0f",
+            "recdMQJ3PnJlSKgHy",
+            "recaobSfWC2HmWQ7Q",
+            "recHV1TNE6MAktRIB",
+            "rec7U0UDh90lQAZNs",
+            "recNoQ8zY4wUmnkdr",
+            "receXsXeErl1bgevk"
+        ],
+        "first_event_date": "2026-05-14T15:24:51.872Z",
+        "grain_inputs": [
+            "rec6dezpIfrxtV9Yf"
+        ],
+        "inoculated_at (from grain_inputs)": [
+            "2026-03-30T18:58:44.967Z"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "item_name": [
+            "Large Masters Mix 75/25"
+        ],
+        "item_name_mat": "Large Masters Mix 75/25",
+        "item_name_mat (from grain_inputs)": [
+            "Wild Bird Seed"
+        ],
+        "item_name_mat (from substrate_inputs)": [
+            "Masters Mix 75/25"
+        ],
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-dfuh",
+        "label_graininputblocks_line": "Wild Bird Seed 2026-03-30",
+        "label_spawned_line": "Spawned: 2026-05-14",
+        "label_substrateinputblocks_line": "Sterilized Masters Mix 75/25",
+        "label_subtitle_lot": "9.5 lb \u2022 Black Pearl King Oyster MYYCO",
+        "label_template": "Bulk_Created",
+        "label_title_lot": "Large Masters Mix 75/25",
+        "label_useby_line": "Use by: 2026-08-13",
+        "last_event_date": "2026-05-16T17:17:56.939Z",
+        "location_id": [
+            "recJxAz3OdFSxvs0l"
+        ],
+        "lot_id": "LOT-260514-dfuh",
+        "notes": "Contaminated Notes",
+        "parents_json": "[\"rec6dezpIfrxtV9Yf\",\"recoq3GtzlaJgRlTv\"]",
+        "print_queue": [
+            "rec7xvBJxtCglbRlz"
+        ],
+        "process_type_mat (from substrate_inputs)": [
+            "Sterilize"
+        ],
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recn2iRV2ot8pdfuh",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recn2iRV2ot8pdfuh",
+        "public_link_freeze_dry_package": "FIXMErecn2iRV2ot8pdfuh",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recn2iRV2ot8pdfuh",
+        "public_link_harvest": "FIXMErecn2iRV2ot8pdfuh",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recn2iRV2ot8pdfuh",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recn2iRV2ot8pdfuh",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recn2iRV2ot8pdfuh",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recn2iRV2ot8pdfuh",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recn2iRV2ot8pdfuh",
+        "qty": 1,
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "recipe_name": [
+            "Wild Bird Seed Blend"
+        ],
+        "regulated (from strain_id)": [
+            null
+        ],
+        "retired_at": "2026-05-16T17:17:56.939Z",
+        "spawned_at": "2026-05-14T15:20:25.428Z",
+        "status": "Retired",
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "strain_species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "strain_species_strain_mat": "Black Pearl King Oyster",
+        "substrate_inputs": [
+            "recoq3GtzlaJgRlTv"
+        ],
+        "unit_lbs": "9.5 lb",
+        "unit_size": 9.5,
+        "use_by": "2026-08-14",
+        "vendor_name_mat": "MYYCO"
     },
     {
         "airtable_createdTime": "2025-10-01T20:38:51.000Z",
@@ -42184,7 +42957,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-GIml",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recodzAmi82PoGIml",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recodzAmi82PoGIml",
@@ -42419,9 +43192,16 @@
         "use_by": "2026-02-28"
     },
     {
+        "From field: substrate_inputs": [
+            "rec6dezpIfrxtV9Yf",
+            "recn2iRV2ot8pdfuh"
+        ],
         "airtable_createdTime": "2026-01-17T13:36:05.000Z",
         "airtable_id": "recoq3GtzlaJgRlTv",
         "created_at": "2026-01-17T13:36:05.000Z",
+        "events": [
+            "recayKQO1abwA06sn"
+        ],
         "inoculated_at (from grain_inputs)": [],
         "item_category": [
             "substrate"
@@ -42457,7 +43237,7 @@
         "recipe_name": [
             "Masters Mix 75/25"
         ],
-        "status": "Sterilized",
+        "status": "Consumed",
         "sterilized_at": "2026-01-17T13:36:00.000Z",
         "unit_lbs": "7.5 lb",
         "unit_size": 7.5,
@@ -42556,7 +43336,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-FPkH",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -42923,6 +43703,47 @@
         "use_by": "2026-05-25"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recpOzPnAdmHMHS9k",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-HS9k",
+        "lot_id": "LOT-260514-HS9k",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recpOzPnAdmHMHS9k",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recpOzPnAdmHMHS9k",
+        "public_link_freeze_dry_package": "FIXMErecpOzPnAdmHMHS9k",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recpOzPnAdmHMHS9k",
+        "public_link_harvest": "FIXMErecpOzPnAdmHMHS9k",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recpOzPnAdmHMHS9k",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recpOzPnAdmHMHS9k",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recpOzPnAdmHMHS9k",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recpOzPnAdmHMHS9k",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recpOzPnAdmHMHS9k",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "airtable_createdTime": "2025-11-21T16:59:57.000Z",
         "airtable_id": "recpPqQgwznVXQmlt",
         "created_at": "2025-11-21T16:59:57.000Z",
@@ -43026,7 +43847,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-g5HF",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -43704,7 +44525,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-jcy5",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recq4uo3VEkVkjcy5",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recq4uo3VEkVkjcy5",
@@ -44017,7 +44838,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-lFdh",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recqNWxKXKlnPlFdh",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recqNWxKXKlnPlFdh",
@@ -44934,7 +45755,7 @@
         "label_proc_line": "Sterilized: 2025-10-08",
         "label_useby_line": "Use by: 2026-04-07",
         "lot_id": "LOT-251008-lnkB",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recrEDP39w7ielnkB",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recrEDP39w7ielnkB",
@@ -44959,6 +45780,47 @@
         "unit_lbs": "300 lb",
         "unit_size": 300,
         "use_by": "2026-04-08"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recrHYk1MbXHbMzaM",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-MzaM",
+        "lot_id": "LOT-260514-MzaM",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recrHYk1MbXHbMzaM",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recrHYk1MbXHbMzaM",
+        "public_link_freeze_dry_package": "FIXMErecrHYk1MbXHbMzaM",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recrHYk1MbXHbMzaM",
+        "public_link_harvest": "FIXMErecrHYk1MbXHbMzaM",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recrHYk1MbXHbMzaM",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recrHYk1MbXHbMzaM",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recrHYk1MbXHbMzaM",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recrHYk1MbXHbMzaM",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recrHYk1MbXHbMzaM",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "From field: substrate_inputs": [
@@ -45990,7 +46852,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-kcKS",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -46513,7 +47375,7 @@
         "label_proc_line": "Sterilized: 2025-10-08",
         "label_useby_line": "Use by: 2026-04-07",
         "lot_id": "LOT-251008-bXYg",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recsTGZDOemz5bXYg",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recsTGZDOemz5bXYg",
@@ -46607,7 +47469,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-Wo75",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recsWGK6tQySmWo75",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recsWGK6tQySmWo75",
@@ -46707,7 +47569,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-DaTc",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -46952,7 +47814,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-eLdr",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recsshF9dIWKoeLdr",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recsshF9dIWKoeLdr",
@@ -47744,7 +48606,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-95eI",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rectZ0EJtlNts95eI",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rectZ0EJtlNts95eI",
@@ -47871,6 +48733,61 @@
         "use_by": "2025-12-29"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:24:39.000Z",
+        "airtable_id": "rectuNhMtxH00RE60",
+        "created_at": "2026-05-14T14:24:39.000Z",
+        "events": [
+            "receBS7u53sTpgUuU"
+        ],
+        "first_event_date": "2026-05-14T14:24:38.276Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "agar_flask"
+        ],
+        "item_category_mat": "agar_flask",
+        "item_id": [
+            "reccntFuiyUAopZsM"
+        ],
+        "item_name": [
+            "Agar Flask"
+        ],
+        "item_name_mat": "Agar Flask",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-RE60",
+        "label_proc_line": "Sterilized: 2026-05-14",
+        "last_event_date": "2026-05-14T14:24:38.276Z",
+        "lot_id": "LOT-260514-RE60",
+        "operator": "Ray Danks <ray@edanks.com>",
+        "process_type (from steri_run_id)": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rectuNhMtxH00RE60",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rectuNhMtxH00RE60",
+        "public_link_freeze_dry_package": "FIXMErectuNhMtxH00RE60",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=rectuNhMtxH00RE60",
+        "public_link_harvest": "FIXMErectuNhMtxH00RE60",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=rectuNhMtxH00RE60",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=rectuNhMtxH00RE60",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=rectuNhMtxH00RE60",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=rectuNhMtxH00RE60",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=rectuNhMtxH00RE60",
+        "qty": 1,
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized",
+        "steri_run_id": [
+            "recCtajCBKC85PDeW"
+        ],
+        "sterilized_at": "2026-05-14T14:24:38.276Z",
+        "unit_lbs": "500 lb",
+        "unit_size": 500
+    },
+    {
         "From field: PlateSourceLot": [
             "recuFurbEVrwWYrz8",
             "recjCVf8MDdpI3xXD",
@@ -47952,7 +48869,7 @@
         "label_proc_line": "Sterilized: 2026-02-28",
         "label_useby_line": "Use by: 2026-05-27",
         "lot_id": "LOT-260228-oJqy",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=rectxI4B5hYudoJqy",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=rectxI4B5hYudoJqy",
@@ -48375,7 +49292,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-x8wc",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -48701,7 +49618,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-Eoqk",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -49079,7 +49996,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-sWa9",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -49236,7 +50153,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-AVOY",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -49341,6 +50258,10 @@
         "airtable_createdTime": "2026-04-06T20:45:21.000Z",
         "airtable_id": "recvHjMNzXE1oNtQG",
         "created_at": "2026-04-06T20:45:21.000Z",
+        "events": [
+            "rec668Q33E11eINQM"
+        ],
+        "first_event_date": "2026-05-16T17:22:07.209Z",
         "flush_no": 1,
         "fresh_tray_count": 1,
         "grain_inputs": [
@@ -49376,7 +50297,9 @@
         "label_template": "Bulk_Created",
         "label_title_lot": "Small Masters Mix 75/25",
         "label_useby_line": "Use by: 2026-07-05",
+        "last_event_date": "2026-05-16T17:22:07.209Z",
         "lot_id": "LOT-260406-NtQG",
+        "notes": "Compost Notes",
         "parents_json": "[\"rechP7fXl9hiMAEit\",\"recGnWGF3f92zXBrN\",\"recvQYPEs7URQGP0M\",\"reclq4McHJH7t1NRT\"]",
         "process_type_mat (from substrate_inputs)": [
             "Sterilize"
@@ -49401,8 +50324,9 @@
         "regulated (from strain_id)": [
             null
         ],
+        "retired_at": "2026-05-16T17:22:07.209Z",
         "spawned_at": "2026-04-06T20:45:20.854Z",
-        "status": "Fruiting",
+        "status": "Retired",
         "strain_id": [
             "recszNf2WlZjSQqyL"
         ],
@@ -49672,7 +50596,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-Czlg",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -49726,7 +50650,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-UZZ0",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recvgiuP5DlsFUZZ0",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recvgiuP5DlsFUZZ0",
@@ -50326,7 +51250,7 @@
         "label_proc_line": "Pasteurized: 2026-03-10",
         "label_useby_line": "Use by: 2026-06-09",
         "lot_id": "LOT-260310-ljd7",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recwhofmUSI5Qljd7",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recwhofmUSI5Qljd7",
@@ -50627,6 +51551,47 @@
         "use_by": "2026-02-12"
     },
     {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "recwzsk4ZfbSinJpe",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-nJpe",
+        "lot_id": "LOT-260514-nJpe",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recwzsk4ZfbSinJpe",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recwzsk4ZfbSinJpe",
+        "public_link_freeze_dry_package": "FIXMErecwzsk4ZfbSinJpe",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=recwzsk4ZfbSinJpe",
+        "public_link_harvest": "FIXMErecwzsk4ZfbSinJpe",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=recwzsk4ZfbSinJpe",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=recwzsk4ZfbSinJpe",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=recwzsk4ZfbSinJpe",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=recwzsk4ZfbSinJpe",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=recwzsk4ZfbSinJpe",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
+    },
+    {
         "airtable_createdTime": "2025-10-01T20:38:51.000Z",
         "airtable_id": "recx4wStoV9Kk74EU",
         "created_at": "2025-10-01T20:38:51.000Z",
@@ -50749,7 +51714,7 @@
         "label_footer_lot": "Lot: LOT-251031-5njW",
         "label_proc_line": "Sterilized: 2025-10-30",
         "lot_id": "LOT-251031-5njW",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "plate_count": 20,
         "plate_group_id": "PLATEGRP-1761940473597",
         "process_type_mat": "Sterilize",
@@ -51029,7 +51994,7 @@
         "label_proc_line": "Sterilized: 2026-04-24",
         "label_useby_line": "Use by: 2026-07-23",
         "lot_id": "LOT-260424-snxQ",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type (from steri_run_id)": [
             "Sterilize"
         ],
@@ -51494,7 +52459,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-1ri0",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=recyEC3Cou6tb1ri0",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=recyEC3Cou6tb1ri0",
@@ -52647,7 +53612,7 @@
         "label_proc_line": "Sterilized: 2026-03-05",
         "label_useby_line": "Use by: 2026-06-04",
         "lot_id": "LOT-260305-Aazd",
-        "operator": "Robert",
+        "operator": "Robert Weber <bobbyweber13@gmail.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reczNtO7hQBO7Aazd",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reczNtO7hQBO7Aazd",
@@ -52671,6 +53636,47 @@
         "unit_lbs": "7.5 lb",
         "unit_size": 7.5,
         "use_by": "2026-06-05"
+    },
+    {
+        "airtable_createdTime": "2026-05-14T14:25:03.000Z",
+        "airtable_id": "reczRG9ahO7bnES6S",
+        "created_at": "2026-05-14T14:25:03.000Z",
+        "inoculated_at (from grain_inputs)": [],
+        "item_category": [
+            "plate"
+        ],
+        "item_category_mat": "plate",
+        "item_id": [
+            "recQdTiiT2VLuJOMJ"
+        ],
+        "item_name": [
+            "Agar Plate 90x15mm"
+        ],
+        "item_name_mat": "Agar Plate 90x15mm",
+        "label_company_lot": "Dank Mushrooms",
+        "label_footer_lot": "Lot: LOT-260514-ES6S",
+        "lot_id": "LOT-260514-ES6S",
+        "parent_lot_id": [
+            "recXhGS3sb8puZ5aN"
+        ],
+        "plate_group_id": "PLATEGRP-1778768702614",
+        "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reczRG9ahO7bnES6S",
+        "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reczRG9ahO7bnES6S",
+        "public_link_freeze_dry_package": "FIXMEreczRG9ahO7bnES6S",
+        "public_link_fruiting": "https://airtable.com/appxJ59Wmyd96jXMm/pagttgRxM4k6lahsp?jmVTq=reczRG9ahO7bnES6S",
+        "public_link_harvest": "FIXMEreczRG9ahO7bnES6S",
+        "public_link_inoculate_flask": "https://airtable.com/appxJ59Wmyd96jXMm/paglNTehzE6kSB5zX?UPFEz=reczRG9ahO7bnES6S",
+        "public_link_inoculate_grain": "https://airtable.com/appxJ59Wmyd96jXMm/pagbsdJa1bNycfeCP?9boTG=reczRG9ahO7bnES6S",
+        "public_link_lot_lineage": "https://airtable.com/appxJ59Wmyd96jXMm/pagy6IGrvfVAVo9Sl?YckDK=reczRG9ahO7bnES6S",
+        "public_link_spawn_to_bulk": "https://airtable.com/appxJ59Wmyd96jXMm/pagR4tAJvqmh3llqt?PivwV=reczRG9ahO7bnES6S",
+        "public_link_substrate_package": "https://airtable.com/appxJ59Wmyd96jXMm/pagpd4iKvhBjM98NJ/preview?6Mp29=reczRG9ahO7bnES6S",
+        "recipe_id": [
+            "recwWg5UpF6UG5t3V"
+        ],
+        "recipe_name": [
+            "Agar Base"
+        ],
+        "status": "Sterilized"
     },
     {
         "airtable_createdTime": "2025-09-29T18:28:45.000Z",
@@ -53169,7 +54175,7 @@
         "label_proc_line": "Sterilized: 2025-10-08",
         "label_useby_line": "Use by: 2026-04-07",
         "lot_id": "LOT-251008-kkLu",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Sterilize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reczfb6T8SEP8kkLu",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reczfb6T8SEP8kkLu",
@@ -53425,7 +54431,7 @@
         "label_proc_line": "Pasteurized: 2025-10-07",
         "label_useby_line": "Use by: 2026-01-06",
         "lot_id": "LOT-251007-Sjuf",
-        "operator": "Ray",
+        "operator": "Ray Danks <ray@edanks.com>",
         "process_type_mat": "Pasteurize",
         "public_link": "https://airtable.com/appxJ59Wmyd96jXMm/pagWksRvwslppY76o?ByfiZ=reczyMblwwYU6Sjuf",
         "public_link_dark_room": "https://airtable.com/appxJ59Wmyd96jXMm/pagJhBDbljrVzBkye?9APYL=reczyMblwwYU6Sjuf",

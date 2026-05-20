@@ -6460,6 +6460,63 @@
         ]
     },
     {
+        "airtable_createdTime": "2026-05-16T18:05:01.000Z",
+        "airtable_id": "recF8OQ4LUCgnLXyJ",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-LXyJ",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "60 g \u2022 Blue Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 60,
+        "origin_lot_ids_json": "[\"recV82OHyOGrx2iyZ\"]",
+        "origin_lots": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recMv8oFlBxORTFUk"
+        ],
+        "product_id": "PROD-260516-LXyJ",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "freezer_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
+    },
+    {
         "airtable_createdTime": "2025-11-21T18:35:18.000Z",
         "airtable_id": "recFA037KJ2pWZvFH",
         "item_category": [
@@ -8643,6 +8700,63 @@
         ]
     },
     {
+        "airtable_createdTime": "2026-05-16T18:05:01.000Z",
+        "airtable_id": "recMjKV1kswgyjL1r",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-jL1r",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "60 g \u2022 Blue Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 60,
+        "origin_lot_ids_json": "[\"recV82OHyOGrx2iyZ\"]",
+        "origin_lots": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "receJdogkPvDYHobS"
+        ],
+        "product_id": "PROD-260516-jL1r",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "freezer_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
+    },
+    {
         "From field: merge_tray_products": [
             "recmdK5TsvheZPGdz"
         ],
@@ -10016,6 +10130,84 @@
             8.5
         ],
         "use_by": "2028-02-13"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T20:40:14.000Z",
+        "airtable_id": "recQmXyevdlAJjGEB",
+        "ecommerce": [
+            "recJf2BclIGA4npJO"
+        ],
+        "ecwid_price (from ecommerce)": [
+            9.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787500037"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://danks.store/products/Blue-Oyster-Liquid-Culture-Syringe-p610274742"
+        ],
+        "item_category": [
+            "lc_syringe"
+        ],
+        "item_category_mat": "lc_syringe",
+        "item_id": [
+            "recBobuevQac9j1wL"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-jGEB",
+        "label_inoc_prod": [
+            "Inoculated: 2025-08-31 "
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            "Sterilized: 2025-05-01"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "10 mL \u2022 Blue Oyster",
+        "label_title_prod": "Liquid Culture Syringe",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Liquid Culture Syringe"
+        ],
+        "name_mat": "Liquid Culture Syringe",
+        "net_volume_ml": 10,
+        "origin_lot_ids_json": "[\"rec2AXL1EN5UpDdSr\"]",
+        "origin_lots": [
+            "rec2AXL1EN5UpDdSr"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "rec1R3HQpyRaEZhRl"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "product_id": "PROD-260516-jGEB",
+        "public_link": [
+            "https://danks.store/products/Blue-Oyster-Liquid-Culture-Syringe-p610274742"
+        ],
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "storage_location": [
+            "recJxAz3OdFSxvs0l"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "unit_lbs": [
+            "500 lb"
+        ],
+        "unit_size": [
+            500
+        ],
+        "use_by": "2026-08-16"
     },
     {
         "airtable_createdTime": "2025-12-26T18:36:47.000Z",
@@ -12647,6 +12839,84 @@
         "use_by": "2026-07-15"
     },
     {
+        "airtable_createdTime": "2026-05-16T20:45:08.000Z",
+        "airtable_id": "recYaJYRbS1l0Pql4",
+        "ecommerce": [
+            "recXc27A6fUIR0bJT"
+        ],
+        "ecwid_price (from ecommerce)": [
+            9.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787501812"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://danks.store/products/Red-Reishi-Liquid-Culture-Syringe-p610276199"
+        ],
+        "item_category": [
+            "lc_syringe"
+        ],
+        "item_category_mat": "lc_syringe",
+        "item_id": [
+            "recBobuevQac9j1wL"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-Pql4",
+        "label_inoc_prod": [
+            "Inoculated: 2025-08-31 "
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            "Sterilized: 2025-05-01"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "10 mL \u2022 Red Reishi",
+        "label_title_prod": "Liquid Culture Syringe",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Liquid Culture Syringe"
+        ],
+        "name_mat": "Liquid Culture Syringe",
+        "net_volume_ml": 10,
+        "origin_lot_ids_json": "[\"recLkMzwuJuaxpcNU\"]",
+        "origin_lots": [
+            "recLkMzwuJuaxpcNU"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "rec8ge74Rmo2S2ylc"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "product_id": "PROD-260516-Pql4",
+        "public_link": [
+            "https://danks.store/products/Red-Reishi-Liquid-Culture-Syringe-p610276199"
+        ],
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "recJxAz3OdFSxvs0l"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "unit_lbs": [
+            "500 lb"
+        ],
+        "unit_size": [
+            500
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
         "airtable_createdTime": "2026-04-19T19:55:01.000Z",
         "airtable_id": "recYcHmPFEg6IehFP",
         "item_category": [
@@ -13070,6 +13340,63 @@
             8.5
         ],
         "use_by": "2028-02-13"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:05:01.000Z",
+        "airtable_id": "recZtwaSM41va59Nc",
+        "item_category": [
+            "fresh_tray"
+        ],
+        "item_category_mat": "fresh_tray",
+        "item_id": [
+            "recSjLjtQ57lT91YI"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-59Nc",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "60 g \u2022 Blue Oyster",
+        "label_title_prod": "Fresh Tray",
+        "name": [
+            "Fresh Tray"
+        ],
+        "name_mat": "Fresh Tray",
+        "net_weight_g": 60,
+        "origin_lot_ids_json": "[\"recV82OHyOGrx2iyZ\"]",
+        "origin_lots": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recjnKPIgHPXRHP5l"
+        ],
+        "product_id": "PROD-260516-59Nc",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "fresh_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
     },
     {
         "airtable_createdTime": "2025-12-26T18:25:27.000Z",
@@ -13752,6 +14079,84 @@
         "use_by": "2027-12-18"
     },
     {
+        "airtable_createdTime": "2026-05-16T20:45:08.000Z",
+        "airtable_id": "recbJif5ZfwRNlOie",
+        "ecommerce": [
+            "recXc27A6fUIR0bJT"
+        ],
+        "ecwid_price (from ecommerce)": [
+            9.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787501812"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://danks.store/products/Red-Reishi-Liquid-Culture-Syringe-p610276199"
+        ],
+        "item_category": [
+            "lc_syringe"
+        ],
+        "item_category_mat": "lc_syringe",
+        "item_id": [
+            "recBobuevQac9j1wL"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-lOie",
+        "label_inoc_prod": [
+            "Inoculated: 2025-08-31 "
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            "Sterilized: 2025-05-01"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "10 mL \u2022 Red Reishi",
+        "label_title_prod": "Liquid Culture Syringe",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Liquid Culture Syringe"
+        ],
+        "name_mat": "Liquid Culture Syringe",
+        "net_volume_ml": 10,
+        "origin_lot_ids_json": "[\"recLkMzwuJuaxpcNU\"]",
+        "origin_lots": [
+            "recLkMzwuJuaxpcNU"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recXKLQXexMDCdGkA"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "product_id": "PROD-260516-lOie",
+        "public_link": [
+            "https://danks.store/products/Red-Reishi-Liquid-Culture-Syringe-p610276199"
+        ],
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "recJxAz3OdFSxvs0l"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "unit_lbs": [
+            "500 lb"
+        ],
+        "unit_size": [
+            500
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
         "From field: merge_tray_products": [
             "recBjzlsUoL3xNd2O"
         ],
@@ -14250,6 +14655,63 @@
         ],
         "unit_size": [
             8.5
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:05:01.000Z",
+        "airtable_id": "recczNTvuupgmm327",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-m327",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "60 g \u2022 Blue Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 60,
+        "origin_lot_ids_json": "[\"recV82OHyOGrx2iyZ\"]",
+        "origin_lots": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "rec8WJDLZrEl9KTQK"
+        ],
+        "product_id": "PROD-260516-m327",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "freezer_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
         ]
     },
     {
@@ -16015,6 +16477,63 @@
         ]
     },
     {
+        "airtable_createdTime": "2026-05-16T18:05:01.000Z",
+        "airtable_id": "reckF5AtTkdZbzA6y",
+        "item_category": [
+            "fresh_tray"
+        ],
+        "item_category_mat": "fresh_tray",
+        "item_id": [
+            "recSjLjtQ57lT91YI"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-zA6y",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "60 g \u2022 Blue Oyster",
+        "label_title_prod": "Fresh Tray",
+        "name": [
+            "Fresh Tray"
+        ],
+        "name_mat": "Fresh Tray",
+        "net_weight_g": 60,
+        "origin_lot_ids_json": "[\"recV82OHyOGrx2iyZ\"]",
+        "origin_lots": [
+            "recV82OHyOGrx2iyZ"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recWJhFxn7mHTfAXQ"
+        ],
+        "product_id": "PROD-260516-zA6y",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "fresh_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
+    },
+    {
         "From field: merge_tray_products": [
             "recllm4dMwBxrvCPK"
         ],
@@ -16266,6 +16785,63 @@
             8.5
         ],
         "use_by": "2027-12-31"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:02:41.000Z",
+        "airtable_id": "reckpJVN7HIM5QfEE",
+        "item_category": [
+            "fresh_tray"
+        ],
+        "item_category_mat": "fresh_tray",
+        "item_id": [
+            "recSjLjtQ57lT91YI"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-QfEE",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "150 g \u2022 Blue Oyster",
+        "label_title_prod": "Fresh Tray",
+        "name": [
+            "Fresh Tray"
+        ],
+        "name_mat": "Fresh Tray",
+        "net_weight_g": 150,
+        "origin_lot_ids_json": "[\"recV0fkHpiBJFFmol\"]",
+        "origin_lots": [
+            "recV0fkHpiBJFFmol"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recn8K1aUQPcoQXEr"
+        ],
+        "product_id": "PROD-260516-QfEE",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "fresh_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
     },
     {
         "airtable_createdTime": "2026-02-13T17:31:08.000Z",
@@ -17443,6 +18019,63 @@
             300
         ],
         "use_by": "2026-07-15"
+    },
+    {
+        "airtable_createdTime": "2026-05-16T18:01:04.000Z",
+        "airtable_id": "recnzvklPFXLiB8dR",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-B8dR",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            null
+        ],
+        "label_spawned_prod": [
+            "Spawned: 2026-04-06"
+        ],
+        "label_subtitle_prod": "150 g \u2022 Blue Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 150,
+        "origin_lot_ids_json": "[\"rec7OxTbl1Jw4agFi\"]",
+        "origin_lots": [
+            "rec7OxTbl1Jw4agFi"
+        ],
+        "origin_strain_regulated": [
+            null
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recnxK9iAeNhYM3tL"
+        ],
+        "product_id": "PROD-260516-B8dR",
+        "public_link": "https://danks.store/",
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "tray_state": "freezer_tray",
+        "unit_lbs": [
+            "1.67 lb"
+        ],
+        "unit_size": [
+            1.6666666666666667
+        ]
     },
     {
         "airtable_createdTime": "2025-11-13T01:24:52.000Z",
@@ -19746,6 +20379,74 @@
         "unit_size": [
             8.5
         ]
+    },
+    {
+        "airtable_createdTime": "2026-05-16T20:32:26.000Z",
+        "airtable_id": "recuNP2UVD9kn4TuR",
+        "ecommerce": [
+            "recVcvY7l7e4nk4Vt"
+        ],
+        "ecwid_price (from ecommerce)": [
+            9.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502079E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://danks.store/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795"
+        ],
+        "item_category": [
+            "substrate"
+        ],
+        "item_category_mat": "substrate",
+        "item_id": [
+            "recXSlo6zHhTvnhZe"
+        ],
+        "label_company_prod": "Dank Mushrooms",
+        "label_companyaddress_prod": "1726 Goldenvue Drive\nJohnstown, CO 80534\nhttps://www.danks.store\n970-587-3294\nsales@danks.net",
+        "label_footer_prod": "PROD-260516-4TuR",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-05-15",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-05"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "7.5 lb \u2022 Sterilized",
+        "label_title_prod": "Masters Mix 75/25 Substrate",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Masters Mix 75/25"
+        ],
+        "name_mat": "Masters Mix 75/25",
+        "net_weight_g": 3401.94,
+        "net_weight_oz": 120,
+        "origin_lot_ids_json": "[\"LOT-260505-BjY8\"]",
+        "origin_lots": [
+            "recMJl07J6vDuBjY8"
+        ],
+        "pack_date": "2026-05-16",
+        "print_queue": [
+            "recAhMFc3y7RiQNzA"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260516-4TuR",
+        "public_link": [
+            "https://danks.store/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795"
+        ],
+        "unit_lbs": [
+            "7.5 lb"
+        ],
+        "unit_size": [
+            7.5
+        ],
+        "use_by": "2026-08-16"
     },
     {
         "airtable_createdTime": "2025-11-21T18:56:02.000Z",

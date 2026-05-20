@@ -1785,12 +1785,12 @@
             "choices": [
               {
                 "id": "selSPNBtJvJECIpNl",
-                "name": "Robert",
+                "name": "Robert Weber <bobbyweber13@gmail.com>",
                 "color": "greenLight2"
               },
               {
                 "id": "selGxRg8rblVPdbzY",
-                "name": "Ray",
+                "name": "Ray Danks <ray@edanks.com>",
                 "color": "blueLight2"
               }
             ]
@@ -4866,6 +4866,11 @@
                 "id": "selfkBvRPEG5azw5T",
                 "name": "LC_Syringe_Received",
                 "color": "orangeLight2"
+              },
+              {
+                "id": "selIOSTA6IRPpezKY",
+                "name": "Sterilizer_Sheet",
+                "color": "pinkLight2"
               }
             ]
           },

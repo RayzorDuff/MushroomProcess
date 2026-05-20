@@ -159,7 +159,8 @@
             "recLhmYzDGiCICNZt",
             "receTxaB3ycV0zAfY",
             "rech0qZ2yxBuRp6PG",
-            "recEm0bzueeMJrlBR"
+            "recEm0bzueeMJrlBR",
+            "recn2iRV2ot8pdfuh"
         ],
         "species_strain": "Black Pearl King Oyster",
         "strain_id": "STR-BlackPearlKingOyster"
@@ -824,7 +825,15 @@
             "recXu4uEgLeFhyEBA",
             "recuscfDV0o29AgxJ",
             "recx9LiEFcYl9iPpo",
-            "rec1kf5lP1RpB8EmQ"
+            "rec1kf5lP1RpB8EmQ",
+            "recnzvklPFXLiB8dR",
+            "reckpJVN7HIM5QfEE",
+            "reckF5AtTkdZbzA6y",
+            "recZtwaSM41va59Nc",
+            "recczNTvuupgmm327",
+            "recMjKV1kswgyjL1r",
+            "recF8OQ4LUCgnLXyJ",
+            "recQmXyevdlAJjGEB"
         ],
         "species_strain": "Blue Oyster",
         "strain_id": "STR-BlueOyster"
@@ -865,6 +874,9 @@
         "active": true,
         "airtable_createdTime": "2025-09-16T01:30:40.000Z",
         "airtable_id": "recx8dOsjCeAnkoBU",
+        "lots": [
+            "recQg8vhKeWG5r3Wr"
+        ],
         "species_strain": "King Oyster",
         "strain_id": "STR-KingOyster"
     },
@@ -936,7 +948,9 @@
             "recFJKajJbRLExOMh",
             "rec3SQAxlVfclr34v",
             "rec1f0TJvkd2XvpiN",
-            "rec96mFnPPs7OxGHX"
+            "rec96mFnPPs7OxGHX",
+            "recbJif5ZfwRNlOie",
+            "recYaJYRbS1l0Pql4"
         ],
         "species_strain": "Red Reishi",
         "strain_id": "STR-RedReishi"

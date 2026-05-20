@@ -353,7 +353,7 @@
 - airtable_createdTime: '2026-04-13T23:23:16.000Z'
   airtable_id: recJf2BclIGA4npJO
   available_from_lots: 0
-  available_from_products: 6
+  available_from_products: 7
   ecwid_category: '160277251'
   ecwid_price: 9.95
   ecwid_sku: cdbd6f64-2637-488c-b9fc-0a5a47bb7322
@@ -368,6 +368,7 @@
   - recDizTUgKe8QDPvQ
   - recIP5KqopLSxrKuD
   - recQbEZEdlDvr3Qln
+  - recQmXyevdlAJjGEB
   - reciuzCgRKqLKz2Sz
   - recmCmwILxGJnoWnY
   strain_id:
@@ -541,8 +542,8 @@
   sync_to_ecwid: true
 - airtable_createdTime: '2025-11-22T02:39:49.000Z'
   airtable_id: recVcvY7l7e4nk4Vt
-  available_from_lots: 19
-  available_from_products: 3
+  available_from_lots: 18
+  available_from_products: 4
   ecwid_category: '160277251'
   ecwid_price: 9.95
   ecwid_sku: 7VX24W4Z0CAYJ
@@ -559,7 +560,6 @@
   - recCz4rOB1BVEvIgI
   - recFogSVU6qM1oaya
   - recFr4uYO9qmWoGlJ
-  - recMJl07J6vDuBjY8
   - recNy9QSQ9gujHYUd
   - recUDqhCr8diCbSev
   - recfQBS4IfwojqxJm
@@ -576,6 +576,7 @@
   - recp1dwmRwCZceaUJ
   - recpRxMcjQozvTGuC
   - recsAuNjAZvZLbZtM
+  - recuNP2UVD9kn4TuR
   status: Sterilized
   sync_to_ecwid: true
 - airtable_createdTime: '2026-04-13T23:23:59.000Z'
@@ -667,7 +668,7 @@
 - airtable_createdTime: '2026-04-13T23:22:48.000Z'
   airtable_id: recXc27A6fUIR0bJT
   available_from_lots: 0
-  available_from_products: 5
+  available_from_products: 7
   ecwid_category: '160277251'
   ecwid_price: 9.95
   ecwid_sku: 8e69307a-cb75-484d-a3dd-0ff758adb094
@@ -682,7 +683,9 @@
   - rec7OQOSExJiPCzow
   - rec7Q5rW9QD8906Av
   - recQClATvtkjrRcPO
+  - recYaJYRbS1l0Pql4
   - recYjzY7zM3Le4vkH
+  - recbJif5ZfwRNlOie
   strain_id:
   - recxZKdhM1v5Wh51M
   sync_to_ecwid: true

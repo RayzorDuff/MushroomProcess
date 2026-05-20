@@ -59,6 +59,7 @@
   - recJjqkS9shuFz0jB
   - recl3fMPOxkB1zgwF
   - rectvibIMlYW8HCG1
+  - recQg8vhKeWG5r3Wr
   lots 2:
   - rec2AXL1EN5UpDdSr
   - recLkMzwuJuaxpcNU
@@ -112,6 +113,9 @@
   - rec7OQOSExJiPCzow
   - recYjzY7zM3Le4vkH
   - rec7Q5rW9QD8906Av
+  - recQmXyevdlAJjGEB
+  - recbJif5ZfwRNlOie
+  - recYaJYRbS1l0Pql4
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recCyFfJJ5MzZOiEM
@@ -262,6 +266,7 @@
   - rec6ZhDkGPCnoRSEF
   - recRCUQLNBW8lhUEz
   - recTgfeVSu1FnSAuA
+  - recn2iRV2ot8pdfuh
   name: Large Masters Mix 75/25
 - active: true
   airtable_createdTime: '2025-09-21T20:08:29.000Z'
@@ -608,6 +613,21 @@
   - recGG4Pi3nqPcHsJ5
   - recVN6rZgoYhU7EmS
   - recGVkZ7v66QkvlCd
+  - recOPmHXMB4ttB6YF
+  - recrHYk1MbXHbMzaM
+  - rec4THr9xjeYCUvrB
+  - recQkfOjyy7GaXdVd
+  - reccrlF1pwkZiPQo2
+  - recwzsk4ZfbSinJpe
+  - rechGmsWntiPzy7xP
+  - recJq2syrKzB8dEfI
+  - recRtHFhUIt5rGtjE
+  - recpOzPnAdmHMHS9k
+  - recHQUBIVWnTPfARS
+  - recb3M2ASQWs0K24Q
+  - recSxFsWAiyICnxiR
+  - recTs2kPoS7OUq41F
+  - reczRG9ahO7bnES6S
   name: Agar Plate 90x15mm
 - airtable_createdTime: '2025-09-21T20:09:16.000Z'
   airtable_id: recSWCNLKZ2oUGdwc
@@ -626,6 +646,8 @@
   - recoYQgxzuSr0I5kY
   - rec2alzkr2OS9LKEs
   - recTgfeVSu1FnSAuA
+  - recV0fkHpiBJFFmol
+  - recV82OHyOGrx2iyZ
   name: Fresh Tray
   products:
   - recP1YosbdEM28hV7
@@ -634,6 +656,9 @@
   - recXu4uEgLeFhyEBA
   - receOxu1Et6xXVIQC
   - recHhHNkZgRqF5iXU
+  - reckpJVN7HIM5QfEE
+  - reckF5AtTkdZbzA6y
+  - recZtwaSM41va59Nc
 - active: true
   airtable_createdTime: '2025-09-21T20:09:00.000Z'
   airtable_id: recU9tdgUerFEM9oJ
@@ -822,6 +847,7 @@
   - recp1dwmRwCZceaUJ
   - recsAuNjAZvZLbZtM
   - recpRxMcjQozvTGuC
+  - recuNP2UVD9kn4TuR
   sterilization_runs:
   - recGGBddzBqYNmguh
 - active: true
@@ -919,9 +945,12 @@
   - recbexzYQLlJBTfqq
   - rec68VDe3INOZ6LA2
   - rec8o6FZRWgAb9eee
+  - rectuNhMtxH00RE60
+  - recXhGS3sb8puZ5aN
   name: Agar Flask
   sterilization_runs:
   - rec8ZdEg2StmlxanB
+  - recCtajCBKC85PDeW
 - active: true
   airtable_createdTime: '2025-09-21T20:07:36.000Z'
   airtable_id: recdgi69xDmdtrOcT
@@ -999,7 +1028,6 @@
   - recUxLCbgyM9Fr9Zq
   - rec6ZhDkGPCnoRSEF
   - recV82OHyOGrx2iyZ
-  - recV0fkHpiBJFFmol
   - rec7OxTbl1Jw4agFi
   - rec21SoS0BKEI3XgY
   - recRCUQLNBW8lhUEz
@@ -1162,6 +1190,10 @@
   - rec8zPYKgZsX2D7ip
   - recY40O4IhRC653RE
   - rectizILUJ6mU2qDm
+  - recnzvklPFXLiB8dR
+  - recczNTvuupgmm327
+  - recMjKV1kswgyjL1r
+  - recF8OQ4LUCgnLXyJ
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recgoe5aWJ1C3uuUN
