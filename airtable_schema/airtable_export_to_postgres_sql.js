@@ -1401,7 +1401,13 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
 
       const map = tableFieldIdToCol.get(slug(tableObj.name)) || new Map();
       const physicalCols = physicalColsByTableSlug.get(slug(tableObj.name)) || new Set();
-      const outColSlug = slug(fieldObj.name);
+      const outColSlug = slug(fieldObj.name); 
+      const materializedAutogenId = autogenIdSpec(fieldObj, tableObj.name);
+      if (materializedAutogenId && physicalCols.has(outColSlug)) {
+        const sql = `${qualifier}.${ident(outColSlug)}`;
+        compiledFormulaMemo.set(key, sql);
+        return sql;
+      }
       const legacySlug = slug(`${fieldObj.name}_legacy`);
       const hasLegacy = physicalCols.has(legacySlug);
       const ctx = {
