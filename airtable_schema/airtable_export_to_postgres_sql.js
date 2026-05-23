@@ -330,46 +330,59 @@ function compileFormulaExpr(raw, ctx) {
 
   function compileSingleLinkDisplay(linkField, ctx) {
     // When a formula references a single-record link field, Airtable returns the linked record's primary field display.
-    // We emulate that by selecting the linked table's primary field (best-effort) for the first linked row.
+    // We emulate that by selecting the linked table's primary field display from the persisted FK when available.
     try {
       const opts = linkField.options || {};
       if (!opts.linkedTableId) return "''";
       const thisSlug = slug(ctx.tableObj.name);
       const linkSlug = slug(linkField.name);
-      const other = tablesDump ? tableById(tablesDump, opts.linkedTableId) : null;
-      const otherExport = exportTableById.get(opts.linkedTableId) || null;
+      const schemaForLinks = ctx.tablesDump || ctx.schema || null;
+      const other = schemaForLinks ? tableById(schemaForLinks, opts.linkedTableId) : null;
+      const otherExport = ctx.exportTableById ? (ctx.exportTableById.get(opts.linkedTableId) || null) : null;
       const otherSlug = slug((other && other.name) || (otherExport && otherExport.name) || '');
       if (!otherSlug) return "''";
   
-      const joinTable = m2mJoinName(thisSlug, linkSlug, otherSlug);
-      const leftFk = `${thisSlug}_id`;
-      const rightFk = (thisSlug === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
-  
-      // Determine the linked table's primary field
+      // Determine the linked table's primary field.
       let primaryField = null;
       if (other && other.primaryFieldId) primaryField = findFieldById(other, other.primaryFieldId);
-      if (!primaryField && otherExport && otherExport.primaryFieldId) {
-        const m = tableFieldById.get(otherExport.id);
+      if (!primaryField && otherExport && otherExport.primaryFieldId && ctx.tableFieldById) {
+        const m = ctx.tableFieldById.get(otherExport.id);
         if (m) primaryField = m.get(otherExport.primaryFieldId);
       }
   
-      let displayExpr = "btbl." + ident("airtable_id");
+      let displayExpr = "ltbl." + ident("airtable_id");
       if (primaryField) {
-        if (primaryField.type === 'formula' && primaryField.options && primaryField.options.formula) {
-          displayExpr = compileFormulaFor(other || otherExport || ctx.tableObj, primaryField, 'btbl');
+        if (primaryField.type === 'formula' && primaryField.options && primaryField.options.formula && typeof ctx.compileFormulaFor === 'function') {
+          displayExpr = ctx.compileFormulaFor(other || otherExport || ctx.tableObj, primaryField, 'ltbl');
         } else {
-          displayExpr = "btbl." + ident(slug(primaryField.name));
+          displayExpr = "ltbl." + ident(slug(primaryField.name));
         }
       }
   
       const otherRel = (thisSlug === otherSlug)
         ? `${ident(POSTGRES_SCHEMA)}.${ident('v_' + thisSlug)}`
         : `${ident(POSTGRES_SCHEMA)}.${ident('v_' + otherSlug)}`;
+
+      // Prefer the materialized FK column used for Airtable prefersSingleRecordLink fields.
+      // This keeps label formulas grounded in the persisted linkage instead of relying on
+      // display text or an optional compatibility junction table.
+      const fkColName = linkSlug.endsWith('_id') ? linkSlug : `${linkSlug}_id`;
+      const physicalCols = ctx.physicalCols || new Set();
+      if (physicalCols.has(fkColName)) {
+        return `COALESCE((SELECT (${displayExpr})::text FROM ${otherRel} ltbl ` +
+               `WHERE ltbl.${ident('nocopk')} = ${ctx.qualifier}.${ident(fkColName)} ` +
+               `ORDER BY ltbl.${ident('nocopk')} LIMIT 1), '')`;
+      }
+
+      // Fallback for link fields that are only represented through the compatibility m2m table.
+      const joinTable = m2mJoinName(thisSlug, linkSlug, otherSlug);
+      const leftFk = `${thisSlug}_id`;
+      const rightFk = (thisSlug === otherSlug) ? `${otherSlug}1_id` : `${otherSlug}_id`;
   
       return `COALESCE((SELECT (${displayExpr})::text FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
-             `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
+             `JOIN ${otherRel} ltbl ON ltbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
              `WHERE j.${ident(leftFk)} = ${ctx.qualifier}.${ident('nocopk')} ` +
-             `ORDER BY btbl.${ident('nocopk')} LIMIT 1), '')`;
+             `ORDER BY ltbl.${ident('nocopk')} LIMIT 1), '')`;
     } catch (e) {
       return "''";
     }
@@ -895,6 +908,7 @@ function main() {
   const exportSchema = readJson(AIRTABLE_SCHEMA_PATH);
   const exportTables = exportSchema.tables || [];
   if (!exportTables.length) die('export/_schema.json has no tables');
+  const exportTableById = new Map(exportTables.map(t => [t.id, t]));
 
   let tablesDump = null;
   // Best-effort: load tables_dump.json (Airtable "get tables" export) if present.
@@ -1418,6 +1432,11 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         outColSlug,
         legacySlug,
         hasLegacy,
+        physicalCols,
+        schema,
+        tablesDump,
+        exportTableById,
+        tableFieldById,
         // Allow formula compiler to inline same-table formula references
         compileFormulaFor,
         currentFieldId: fieldObj.id,
