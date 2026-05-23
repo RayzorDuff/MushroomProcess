@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * Script: create_airtable_from_schema.js
- * Version: 2025-12-17.1
+ * Version: 2026-05-23.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
