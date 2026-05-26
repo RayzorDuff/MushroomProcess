@@ -45,6 +45,7 @@ DECLARE
   v_fresh_item record;
   v_frozen_item record;
   v_fallback_item record;
+  v_fallback_item_category text;
   v_created_id bigint;
   v_event_id bigint;
   v_total_count integer;
@@ -86,14 +87,18 @@ BEGIN
     WHERE nocopk = p_harvest_item_id;
 
     IF NOT FOUND THEN RAISE EXCEPTION 'Harvest item not found: %', p_harvest_item_id; END IF;
-    IF COALESCE(v_fallback_item.category, '') NOT IN ('fresh_tray', 'freezer_tray') THEN
-      RAISE EXCEPTION 'Harvest item category must be fresh_tray or freezer_tray, got %', v_fallback_item.category;
+    v_fallback_item_category := v_fallback_item.category;
+
+    IF COALESCE(v_fallback_item_category, '') NOT IN ('fresh_tray', 'freezer_tray') THEN
+      RAISE EXCEPTION 'Harvest item category must be fresh_tray or freezer_tray, got %', v_fallback_item_category;
     END IF;
+  ELSE
+    v_fallback_item_category := NULL;
   END IF;
 
   v_fresh_item_id := COALESCE(
     p_fresh_harvest_item_id,
-    CASE WHEN v_fallback_item.category = 'fresh_tray' THEN p_harvest_item_id END,
+    CASE WHEN v_fallback_item_category = 'fresh_tray' THEN p_harvest_item_id END,
     (
       SELECT i.nocopk
       FROM public.items i
@@ -106,7 +111,7 @@ BEGIN
 
   v_frozen_item_id := COALESCE(
     p_frozen_harvest_item_id,
-    CASE WHEN v_fallback_item.category = 'freezer_tray' THEN p_harvest_item_id END,
+    CASE WHEN v_fallback_item_category = 'freezer_tray' THEN p_harvest_item_id END,
     (
       SELECT i.nocopk
       FROM public.items i
