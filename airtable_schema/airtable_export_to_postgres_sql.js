@@ -1442,7 +1442,17 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         currentFieldId: fieldObj.id,
         _formulaStack: nextStack,
       };
-      const { sql } = compileFormulaExpr(fieldObj.options.formula, ctx);
+      let { sql } = compileFormulaExpr(fieldObj.options.formula, ctx);
+
+      // Issue #40: Airtable's lots.unit_lbs formula formats unit_size as pounds,
+      // but Postgres workflows also use unit_size for non-pound lot categories
+      // such as LC syringes/flasks. Keep the generated display field blank
+      // unless the lot category is one of the pound-based lot types.
+      if (slug(tableObj.name) === 'lots' && outColSlug === 'unit_lbs' && physicalCols.has('item_category_mat')) {
+        sql = `(CASE WHEN lower(COALESCE(${qualifier}.${ident('item_category_mat')}::text, '')) IN ` +
+              `('casing','fruiting_block','grain','substrate') THEN (${sql}) ELSE '' END)`;
+      }
+
       compiledFormulaMemo.set(key, sql);
       return sql;
     }
