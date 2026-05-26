@@ -23,7 +23,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  async init() {\n    await storeValue('ster_in_error', '');\n\t\tawait storeValue('ster_in_default_size', '');\n    await Promise.allSettled([qItems.run(), qRecipes.run()]);\n  },\n\n  validate() {\n    const errs = [];\n    if (!selProcessType.selectedOptionValue) {\n\t\t\tshowAlert('Select a process type.', 'error');\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n    if (!selPlannedItem.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned item.', 'error');\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n    if (!selPlannedRecipe.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned recipe.', 'error');\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n    const unit = Number(inpPlannedUnitSize.text);\n    const cnt  = Number(inpPlannedCount.text);\n    if (!Number.isFinite(unit) || unit <= 0) {\n\t\t\tshowAlert('Planned unit size must be > 0.', 'error');\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n    if (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\tshowAlert('Planned count must be > 0.', 'error');\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n    return errs;\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\nreturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tasync createRun() {\n    await storeValue('ster_in_error', '');\n    const errs = this.validate();\n    if (errs.length) {\n      await storeValue('ster_in_error', errs.join(' '));\n      return;\n    }\n\n\t\tlet createdRun;\n    try {\n      createdRun = await qCreateRun.run();\n      // refresh downstream view\n    } catch (e) {\n\t\t\tshowAlert(\"Error creating run: \" + ((e && e.message) ? e.message : String(e)), 'error');\n      await storeValue('ster_in_error', (e && e.message) ? e.message : String(e));\n\t\t\treturn;\n    }\n\t\tshowAlert('Successfully created ' + createdRun[0].steri_run_id, 'success');\n\t\tawait storeValue('ster_in_error','Successfully created ' + createdRun[0].steri_run_id);\n\t\t\n\t\tinpPlannedCount.setValue('');\n\t\tinpPlannedUnitSize.setValue('');\n  },\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tasync init() {\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_last_created_run_id\", \"\");\n\t\tawait Promise.allSettled([qItems.run(), qRecipes.run()]);\n\t},\n\n  validate() {\n    const errs = [];\n    if (!selProcessType.selectedOptionValue) {\n\t\t\tshowAlert('Select a process type.', 'error');\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n    if (!selPlannedItem.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned item.', 'error');\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n    if (!selPlannedRecipe.selectedOptionValue) {\n\t\t\tshowAlert('Select a planned recipe.', 'error');\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n    const unit = Number(inpPlannedUnitSize.text);\n    const cnt  = Number(inpPlannedCount.text);\n    if (!Number.isFinite(unit) || unit <= 0) {\n\t\t\tshowAlert('Planned unit size must be > 0.', 'error');\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n    if (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\tshowAlert('Planned count must be > 0.', 'error');\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n    return errs;\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tformSignature() {\n\t\treturn JSON.stringify({\n\t\t\tplanned_item_id: selPlannedItem.selectedOptionValue || \"\",\n\t\t\tplanned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n\t\t\tprocess_type: selProcessType.selectedOptionValue || \"\",\n\t\t\tplanned_count: String(inpPlannedCount.text || \"\").trim(),\n\t\t\tplanned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n\t\t\tstart_time: dpStartTime.formattedDate || \"\"\n\t\t});\n\t},\n\n\tisSubmitting() {\n\t\treturn appsmith.store.ster_in_submitting === true;\n\t},\n\n\tisDuplicateOfLastSuccess() {\n\t\tconst current = this.formSignature();\n\t\treturn !!current && current === appsmith.store.ster_in_last_success_signature;\n\t},\n\n\tcanCreateRun() {\n\t\treturn !this.isSubmitting()\n\t\t\t&& !this.isDuplicateOfLastSuccess()\n\t\t\t&& !this.validate().length;\n\t},\n\n\tasync markFormChanged() {\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t},\n\n\tasync resetCreateRunForm() {\n\t\tawait selPlannedItem.setSelectedOption(\"\");\n\t\tawait selPlannedRecipe.setSelectedOption(\"\");\n\t\tawait selProcessType.setSelectedOption(\"sterilize\");\n\t\tawait inpPlannedCount.setValue(\"\");\n\t\tawait inpPlannedUnitSize.setValue(\"\");\n\t\tawait dpStartTime.setValue(new Date());\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t},\n\n\tasync createRun() {\n\t\tif (this.isSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\tawait storeValue(\"ster_in_error\", errs.join(\" \"));\n\t\t\tshowAlert(errs.join(\" \"), \"error\");\n\t\t\treturn;\n\t\t}\n\n\t\tconst signature = this.formSignature();\n\n\t\tif (signature === appsmith.store.ster_in_last_success_signature) {\n\t\t\tshowAlert(\n\t\t\t\t\"This run was already created. Change the inputs before creating another run.\",\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_submitting\", true);\n\n\t\tlet createdRun;\n\t\ttry {\n\t\t\tcreatedRun = await qCreateRun.run();\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error creating run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\t\t\treturn;\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\t}\n\n\t\tconst runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n\t\tconst msg = \"Successfully created sterilizer run \" + runId;\n\n\t\tawait storeValue(\"ster_in_last_success_signature\", signature);\n\t\tawait storeValue(\"ster_in_last_created_run_id\", runId);\n\t\tawait storeValue(\"ster_in_error\", msg);\n\n\t\tshowAlert(msg, \"success\");\n\n\t\tawait this.resetCreateRunForm();\n\n\t\tawait Promise.allSettled([\n\t\t\tqItems.run(),\n\t\t\tqRecipes.run()\n\t\t]);\n\t},\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
         "name": "SterilizerIn",
         "pageId": "Sterilizer – In",
         "pluginId": "js-plugin",
@@ -32,7 +32,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
+            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
           }
         ]
       }
@@ -60,7 +60,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n  async init() {\n    await storeValue('ster_out_error', '');\n    await qOpenRuns.run();\n  },\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\nreturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\t\tconst completedRun = await qCompleteRunMP.run();\n\t\tshowAlert('Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, 'success');\n\t\tawait storeValue('ster_out_error','Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n\t\tawait LotsPage.refresh();\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\treturn errs;\n\t},\n\n\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n  async init() {\n    await storeValue('ster_out_error', '');\n    await qOpenRuns.run();\n  },\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\n\t\ttry {\n\t\t\tconst completedRun = await qCompleteRunMP.run();\n\t\t\tshowAlert(\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id,\n\t\t\t\t\"success\"\n\t\t\t);\n\t\t\tawait storeValue(\n\t\t\t\t\"ster_out_error\",\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id\n\t\t\t);\n\t\t\tawait this.refresh();\n\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error completing run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t\t\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\treturn errs;\n\t},\n\n\n};",
         "name": "SterilizerOut",
         "pageId": "Sterilizer – Out",
         "pluginId": "js-plugin",
@@ -69,7 +69,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
+            "value": "{\n  str(v) {\n    if (v === undefined || v === null) return \"NULL\";\n    return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n  },\n  ts(d) {\n    if (!d) return \"NULL\";\n    const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n    return \"'\" + s + \"'\";\n  },\n  num(v) {\n    const n = Number(v);\n    return Number.isFinite(n) ? String(n) : \"NULL\";\n  }\n}"
           }
         ]
       }
@@ -670,7 +670,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await storeValue('ster_in_error', '');\n  const errs = SterilizerIn.validate();\n  if (errs.length) {\n    await storeValue('ster_in_error', errs.join(' '));\n    return;\n  }\n  let createdRun;\n  try {\n    createdRun = await qCreateRun.run();\n  } catch (e) {\n    showAlert(\"Error creating run: \" + (e && e.message ? e.message : String(e)), 'error');\n    await storeValue('ster_in_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert('Successfully created ' + createdRun[0].steri_run_id, 'success');\n  await storeValue('ster_in_error', 'Successfully created ' + createdRun[0].steri_run_id);\n  inpPlannedCount.setValue('');\n  inpPlannedUnitSize.setValue('');\n}",
+          "body": "async function () {\n  if (SterilizerIn.isSubmitting()) {\n    return;\n  }\n  await storeValue(\"ster_in_error\", \"\");\n  const errs = SterilizerIn.validate();\n  if (errs.length) {\n    await storeValue(\"ster_in_error\", errs.join(\" \"));\n    showAlert(errs.join(\" \"), \"error\");\n    return;\n  }\n  const signature = SterilizerIn.formSignature();\n  if (signature === appsmith.store.ster_in_last_success_signature) {\n    showAlert(\"This run was already created. Change the inputs before creating another run.\", \"warning\");\n    return;\n  }\n  await storeValue(\"ster_in_submitting\", true);\n  let createdRun;\n  try {\n    createdRun = await qCreateRun.run();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error creating run: \" + msg, \"error\");\n    await storeValue(\"ster_in_error\", msg);\n    return;\n  } finally {\n    await storeValue(\"ster_in_submitting\", false);\n  }\n  const runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n  const msg = \"Successfully created sterilizer run \" + runId;\n  await storeValue(\"ster_in_last_success_signature\", signature);\n  await storeValue(\"ster_in_last_created_run_id\", runId);\n  await storeValue(\"ster_in_error\", msg);\n  showAlert(msg, \"success\");\n  await SterilizerIn.resetCreateRunForm();\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -699,7 +699,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await storeValue('ster_in_error', '');\n  const errs = SterilizerIn.validate();\n  if (errs.length) {\n    await storeValue('ster_in_error', errs.join(' '));\n    return;\n  }\n  let createdRun;\n  try {\n    createdRun = await qCreateRun.run();\n  } catch (e) {\n    showAlert(\"Error creating run: \" + (e && e.message ? e.message : String(e)), 'error');\n    await storeValue('ster_in_error', e && e.message ? e.message : String(e));\n    return;\n  }\n  showAlert('Successfully created ' + createdRun[0].steri_run_id, 'success');\n  await storeValue('ster_in_error', 'Successfully created ' + createdRun[0].steri_run_id);\n  inpPlannedCount.setValue('');\n  inpPlannedUnitSize.setValue('');\n}"
+          "async function () {\n  if (SterilizerIn.isSubmitting()) {\n    return;\n  }\n  await storeValue(\"ster_in_error\", \"\");\n  const errs = SterilizerIn.validate();\n  if (errs.length) {\n    await storeValue(\"ster_in_error\", errs.join(\" \"));\n    showAlert(errs.join(\" \"), \"error\");\n    return;\n  }\n  const signature = SterilizerIn.formSignature();\n  if (signature === appsmith.store.ster_in_last_success_signature) {\n    showAlert(\"This run was already created. Change the inputs before creating another run.\", \"warning\");\n    return;\n  }\n  await storeValue(\"ster_in_submitting\", true);\n  let createdRun;\n  try {\n    createdRun = await qCreateRun.run();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error creating run: \" + msg, \"error\");\n    await storeValue(\"ster_in_error\", msg);\n    return;\n  } finally {\n    await storeValue(\"ster_in_submitting\", false);\n  }\n  const runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n  const msg = \"Successfully created sterilizer run \" + runId;\n  await storeValue(\"ster_in_last_success_signature\", signature);\n  await storeValue(\"ster_in_last_created_run_id\", runId);\n  await storeValue(\"ster_in_error\", msg);\n  showAlert(msg, \"success\");\n  await SterilizerIn.resetCreateRunForm();\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}"
         ],
         "messages": [],
         "name": "createRun",
@@ -1135,7 +1135,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await storeValue('ster_in_error', '');\n  await storeValue('ster_in_default_size', '');\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}",
+          "body": "async function () {\n  await storeValue(\"ster_in_error\", \"\");\n  await storeValue(\"ster_in_default_size\", \"\");\n  await storeValue(\"ster_in_submitting\", false);\n  await storeValue(\"ster_in_last_success_signature\", \"\");\n  await storeValue(\"ster_in_last_created_run_id\", \"\");\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1164,7 +1164,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await storeValue('ster_in_error', '');\n  await storeValue('ster_in_default_size', '');\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}"
+          "async function () {\n  await storeValue(\"ster_in_error\", \"\");\n  await storeValue(\"ster_in_default_size\", \"\");\n  await storeValue(\"ster_in_submitting\", false);\n  await storeValue(\"ster_in_last_success_signature\", \"\");\n  await storeValue(\"ster_in_last_created_run_id\", \"\");\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}"
         ],
         "messages": [],
         "name": "init",
@@ -1440,6 +1440,390 @@
     },
     {
       "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_97ac9d88-9a88-4757-b8ca-6eb65b669d1b",
+      "id": "Sterilizer – In_SterilizerIn.isSubmitting",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return appsmith.store.ster_in_submitting === true;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.isSubmitting",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return appsmith.store.ster_in_submitting === true;\n}"
+        ],
+        "messages": [],
+        "name": "isSubmitting",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_25822059-3c32-404f-b455-22c7f1c69260",
+      "id": "Sterilizer – In_SterilizerIn.resetCreateRunForm",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.resetCreateRunForm",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}"
+        ],
+        "messages": [],
+        "name": "resetCreateRunForm",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_a9755161-5fba-4dff-a21a-93f357da0158",
+      "id": "Sterilizer – In_SterilizerIn.markFormChanged",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n  await storeValue(\"ster_in_last_success_signature\", \"\");\n  await storeValue(\"ster_in_error\", \"\");\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.markFormChanged",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n  await storeValue(\"ster_in_last_success_signature\", \"\");\n  await storeValue(\"ster_in_error\", \"\");\n}"
+        ],
+        "messages": [],
+        "name": "markFormChanged",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_50f58b6e-fe50-40d6-9810-ac426da2cf82",
+      "id": "Sterilizer – In_SterilizerIn.canCreateRun",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return !SterilizerIn.isSubmitting() && !SterilizerIn.isDuplicateOfLastSuccess() && !SterilizerIn.validate().length;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.canCreateRun",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return !SterilizerIn.isSubmitting() && !SterilizerIn.isDuplicateOfLastSuccess() && !SterilizerIn.validate().length;\n}"
+        ],
+        "messages": [],
+        "name": "canCreateRun",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_777e9f20-c752-469b-ba0b-81c3def1ad9e",
+      "id": "Sterilizer – In_SterilizerIn.isDuplicateOfLastSuccess",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const current = SterilizerIn.formSignature();\n  return !!current && current === appsmith.store.ster_in_last_success_signature;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.isDuplicateOfLastSuccess",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const current = SterilizerIn.formSignature();\n  return !!current && current === appsmith.store.ster_in_last_success_signature;\n}"
+        ],
+        "messages": [],
+        "name": "isDuplicateOfLastSuccess",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_3d84b7ee-f393-4b03-9e79-98d788565776",
+      "id": "Sterilizer – In_SterilizerIn.formSignature",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Sterilizer – In_SterilizerIn",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-26T03:35:25Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "SterilizerIn.formSignature",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}"
+        ],
+        "messages": [],
+        "name": "formSignature",
+        "pageId": "Sterilizer – In",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
       "gitSyncId": "69890a1b998ff522738882d3_2627682a-b80f-4ba5-a60d-ab8182a746c6",
       "id": "Sterilizer – Out_SterilizerOut.refresh",
       "pluginId": "js-plugin",
@@ -1576,7 +1960,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const errs = SterilizerOut.validate();\n  if (errs.length) {\n    await storeValue('ster_out_error', errs.join(\" \"));\n    return;\n  }\n  const completedRun = await qCompleteRunMP.run();\n  showAlert('Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, 'success');\n  await storeValue('ster_out_error', 'Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n  await LotsPage.refresh();\n}",
+          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const errs = SterilizerOut.validate();\n  if (errs.length) {\n    await storeValue('ster_out_error', errs.join(\" \"));\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    const completedRun = await qCompleteRunMP.run();\n    showAlert(\"Created \" + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, \"success\");\n    await storeValue(\"ster_out_error\", \"Created \" + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error completing run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1605,7 +1989,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  txtErrOut.setText(\"\");\n  const errs = SterilizerOut.validate();\n  if (errs.length) {\n    await storeValue('ster_out_error', errs.join(\" \"));\n    return;\n  }\n  const completedRun = await qCompleteRunMP.run();\n  showAlert('Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, 'success');\n  await storeValue('ster_out_error', 'Created ' + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n  await LotsPage.refresh();\n}"
+          "async function () {\n  txtErrOut.setText(\"\");\n  const errs = SterilizerOut.validate();\n  if (errs.length) {\n    await storeValue('ster_out_error', errs.join(\" \"));\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    const completedRun = await qCompleteRunMP.run();\n    showAlert(\"Created \" + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id, \"success\");\n    await storeValue(\"ster_out_error\", \"Created \" + completedRun[0].lots_created + \" lots from \" + tblOpenRuns.selectedRow.steri_run_id + \" and generated print job \" + completedRun[0].print_queue_id);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error completing run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}"
         ],
         "messages": [],
         "name": "completeRun",
@@ -35660,6 +36044,12 @@
                             },
                             {
                               "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "text"
                             }
                           ],
                           "dynamicPropertyPathList": [
@@ -35676,7 +36066,7 @@
                             }
                           ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": "false",
+                          "isDisabled": "{{ !SterilizerIn.canCreateRun() }}",
                           "isLoading": false,
                           "isVisible": true,
                           "key": "mv4uo711sx",
@@ -35699,7 +36089,7 @@
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
                           "rightColumn": 64,
-                          "text": "Create Run",
+                          "text": "{{ appsmith.store.ster_in_submitting ? \"Creating...\" : \"Create Run\" }}",
                           "topRow": 30,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
@@ -35800,7 +36190,7 @@
                           "mobileRightColumn": 9,
                           "mobileTopRow": 22,
                           "needsErrorInfo": false,
-                          "onOptionChange": "{{\nSterilizerIn.setSelectedItemSize()\n}}",
+                          "onOptionChange": "{{\n  SterilizerIn.markFormChanged();\n  SterilizerIn.setSelectedItemSize();\n}}",
                           "optionLabel": "label",
                           "optionValue": "value",
                           "originalBottomRow": 13,
@@ -35839,9 +36229,16 @@
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
                           "isFilterable": true,
                           "isLoading": false,
@@ -35862,6 +36259,7 @@
                           "mobileRightColumn": 17,
                           "mobileTopRow": 18,
                           "needsErrorInfo": false,
+                          "onOptionChange": "{{ SterilizerIn.markFormChanged() }}",
                           "optionLabel": "label",
                           "optionValue": "value",
                           "originalBottomRow": 20,
@@ -35900,9 +36298,16 @@
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
                           "isFilterable": true,
                           "isLoading": false,
@@ -35923,6 +36328,7 @@
                           "mobileRightColumn": 6,
                           "mobileTopRow": 26,
                           "needsErrorInfo": false,
+                          "onOptionChange": "{{ SterilizerIn.markFormChanged() }}",
                           "optionLabel": "label",
                           "optionValue": "value",
                           "originalBottomRow": 27,
@@ -35959,7 +36365,16 @@
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
                           "errorMessage": "Enter an integer",
                           "iconAlign": "left",
                           "inputType": "NUMBER",
@@ -35983,6 +36398,7 @@
                           "mobileRightColumn": 6,
                           "mobileTopRow": 6,
                           "needsErrorInfo": false,
+                          "onTextChanged": "{{ SterilizerIn.markFormChanged() }}",
                           "originalBottomRow": 35,
                           "originalTopRow": 28,
                           "parentColumnSpace": 10.296875,
@@ -36020,7 +36436,16 @@
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
                           "errorMessage": "Enter a two digit decimal",
                           "iconAlign": "left",
                           "inputType": "NUMBER",
@@ -36044,6 +36469,7 @@
                           "mobileRightColumn": 10,
                           "mobileTopRow": 15,
                           "needsErrorInfo": false,
+                          "onTextChanged": "{{ SterilizerIn.markFormChanged() }}",
                           "originalBottomRow": 35,
                           "originalTopRow": 28,
                           "parentColumnSpace": 10.296875,
@@ -36083,7 +36509,16 @@
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onDateSelected"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onDateSelected"
+                            }
+                          ],
                           "firstDayOfWeek": 0,
                           "isDisabled": false,
                           "isLoading": false,
@@ -36106,6 +36541,7 @@
                           "mobileRightColumn": 5,
                           "mobileTopRow": 28,
                           "needsErrorInfo": false,
+                          "onDateSelected": "{{ SterilizerIn.markFormChanged() }}",
                           "parentColumnSpace": 10.296875,
                           "parentId": "qe263dcab1",
                           "parentRowSpace": 10,
@@ -36487,7 +36923,7 @@
                   "confirmBeforeExecute": false,
                   "id": "Sterilizer – In_SterilizerIn.init",
                   "jsonPathKeys": [
-                    "async function () {\n  await storeValue('ster_in_error', '');\n  await storeValue('ster_in_default_size', '');\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}"
+                    "async function () {\n  await storeValue(\"ster_in_error\", \"\");\n  await storeValue(\"ster_in_default_size\", \"\");\n  await storeValue(\"ster_in_submitting\", false);\n  await storeValue(\"ster_in_last_success_signature\", \"\");\n  await storeValue(\"ster_in_last_created_run_id\", \"\");\n  await Promise.allSettled([qItems.run(), qRecipes.run()]);\n}"
                   ],
                   "name": "SterilizerIn.init",
                   "pluginType": "JS",
@@ -38560,7 +38996,7 @@
                           ],
                           "dynamicTriggerPathList": [],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": "{{!SterilizerOut.selectedRun()}}",
+                          "isDisabled": "{{ appsmith.store.ster_out_submitting === true || !SterilizerOut.selectedRun() }}",
                           "isLoading": false,
                           "isVisible": "{{ !!(tblOpenRuns.selectedRow && tblOpenRuns.selectedRow.nocopk) }}",
                           "key": "mv4uo711sx",
