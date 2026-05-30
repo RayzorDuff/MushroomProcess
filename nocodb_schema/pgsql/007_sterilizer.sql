@@ -17,8 +17,16 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   v_run_id bigint;
+  v_steri_run_id text;
+  v_event_id bigint;
   v_err text := '';
   v_process_type text;
+  v_target_temp_c numeric;
+  v_pressure_mode text;
+  v_planned_item_id text;
+  v_planned_item_name text;
+  v_planned_recipe_id text;
+  v_planned_recipe_name text;
 BEGIN
   v_process_type := CASE lower(btrim(COALESCE(p_process_type, '')))
     WHEN 'sterilize' THEN 'Sterilize'
@@ -42,15 +50,61 @@ BEGIN
     RAISE EXCEPTION '%', trim(v_err);
   END IF;
 
+  v_target_temp_c := COALESCE(
+    p_target_temp_c,
+    CASE WHEN lower(v_process_type) = 'sterilize' THEN 121 ELSE 74 END
+  );
+
+  v_pressure_mode := COALESCE(
+    NULLIF(btrim(p_pressure_mode), ''),
+    CASE WHEN lower(v_process_type) = 'sterilize' THEN 'Closed' ELSE 'Open' END
+  );
+
+  SELECT i."item_id", i."name"
+    INTO v_planned_item_id, v_planned_item_name
+  FROM "public"."items" i
+  WHERE i."nocopk" = p_planned_item_id;
+
+  SELECT r."recipe_id", r."name"
+    INTO v_planned_recipe_id, v_planned_recipe_name
+  FROM "public"."recipes" r
+  WHERE r."nocopk" = p_planned_recipe_id;
+
   INSERT INTO "public"."sterilization_runs"
     ("planned_item_id","planned_recipe_id","planned_count","planned_unit_size",
      "process_type","start_time","operator","target_temp_c","pressure_mode",
      "ui_error","ui_error_at")
   VALUES
     (p_planned_item_id, p_planned_recipe_id, p_planned_count, p_planned_unit_size,
-     v_process_type, p_start_time, p_operator, p_target_temp_c, p_pressure_mode,
+     v_process_type, p_start_time, p_operator, v_target_temp_c, v_pressure_mode,
      NULL, NULL)
-  RETURNING "nocopk" INTO v_run_id;
+  RETURNING "nocopk", "steri_run_id" INTO v_run_id, v_steri_run_id;
+
+  v_event_id := public.mp_events_insert(
+    NULL::bigint,
+    NULL::bigint,
+    'SterilizerRunCreated'::text,
+    p_start_time::timestamp without time zone,
+    p_operator::text,
+    'Sterilizer IN'::text,
+    jsonb_build_object(
+      'steri_run_id', v_steri_run_id,
+      'steri_run_nocopk', v_run_id,
+      'planned_item_nocopk', p_planned_item_id,
+      'planned_item_id', v_planned_item_id,
+      'planned_item_name', v_planned_item_name,
+      'planned_recipe_nocopk', p_planned_recipe_id,
+      'planned_recipe_id', v_planned_recipe_id,
+      'planned_recipe_name', v_planned_recipe_name,
+      'planned_count', p_planned_count,
+      'planned_unit_size', p_planned_unit_size,
+      'process_type', v_process_type,
+      'target_temp_c', v_target_temp_c,
+      'pressure_mode', v_pressure_mode,
+      'operator', p_operator,
+      'start_time', p_start_time
+    )
+  );
 
   RETURN v_run_id;
 END;
