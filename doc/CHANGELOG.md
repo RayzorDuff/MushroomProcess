@@ -1,3 +1,169 @@
+## [v1.1.0-RC3] - 2026-05-30
+
+_This release is the next release candidate for validating the Appsmith/Postgres implementation against the Airtable production baseline. It is focused on RC2 test-pass cleanup: standalone workflow pages, Appsmith modal hardening, duplicate-submit guards, tighter row-parity validation for lab/harvest/spawn workflows, and preservation of imported Airtable identifiers in generated Postgres views._
+
+---
+
+## Release-candidate focus
+
+- Continued the Appsmith/Postgres parity test cycle after RC2 and began reworking the test candidate for RC3.
+- Added standalone workflow pages to reduce reliance on overloaded Lots-page modal workflows and make parity testing more focused by functional area.
+- Tightened validation across lab, harvest, spawn-to-bulk, packaging, products, and sterilizer workflows so Appsmith actions only submit when the selected records and inputs are valid.
+- Updated the Appsmith test matrix artifact for the v1.1.0 release candidate cycle.
+
+---
+
+## Standalone Appsmith workflow pages
+
+- Added standalone workflow pages for:
+  - **Lab - Inoculate**
+  - **Lab - Spawn to Bulk**
+  - **Lab - Draw Syringes**
+  - **Harvest**
+- Copied and adapted the relevant Lots table, SQL queries, filter widgets, modal widgets, and JavaScript helpers into the new workflow-specific pages.
+- Restricted each page’s `qLots` query to workflow-eligible lots so operators see only records appropriate for that workflow.
+- Added missing page-scoped query dependencies and load actions.
+- Removed copied `LotsPage` helper dependencies from the standalone workflow pages.
+- Preserved existing Lots-page modal workflows while requiring future fixes/tests to cover both modal and standalone page entry points.
+
+---
+
+## Appsmith interface hardening
+
+- Cleaned up Appsmith-generated JavaScript metadata for the RC3 interface:
+  - synchronized generated JS action entries with current JS collection bodies,
+  - removed duplicate generated action metadata,
+  - removed stale generated actions no longer present in JS collections,
+  - added missing generated action metadata for existing helpers,
+  - updated stale widget `jsonPathKeys` to match current handlers,
+  - validated generated JS bodies and JS collection bodies with `node --check`.
+- Fixed Appsmith SQL binding behavior where optional timestamps were passed as the literal string `"NULL"` instead of SQL `NULL`.
+- Cleaned up Products modals and smoke-tested the updated Products page behavior.
+- Refreshed and smoke-tested the new individual workflow pages.
+
+---
+
+## Duplicate-submit protection
+
+- Added or tightened duplicate-submit guards across Appsmith workflows:
+  - **Sterilizer IN**
+  - **Sterilizer OUT**
+  - **Move to Freeze Dryer**
+  - **Retire Tray**
+  - **Package Freeze Dried**
+  - **Package Lots**
+- Submit buttons are disabled while the related query is running, and modal submit state is reset when workflows are opened.
+- Sterilizer IN now shows a success confirmation with the created `steri_run_id`, resets the form after successful creation, and refreshes option data.
+- Sterilizer OUT refreshes the open-run list after successful completion.
+
+---
+
+## Sterilizer workflow parity
+
+- Added a `SterilizerRunCreated` audit event when a sterilizer run is created.
+- The audit event stores planned sterilizer details in `fields_json`, including:
+  - sterilizer run reference,
+  - planned item and recipe,
+  - planned count,
+  - unit size,
+  - process type,
+  - target temperature,
+  - pressure mode,
+  - operator,
+  - start time.
+- Existing Sterilizer OUT lot-linked events remain unchanged.
+
+---
+
+## Formula/compiler and imported-ID preservation
+
+- Fixed computed-view formula generation so materialized auto-generated `*_id` columns are used where appropriate.
+- Prevented label footer formulas from rebuilding `LOT-yymmdd-abcd` values during view generation.
+- Preserved imported Airtable `lot_id` values in `vc_lots` and print-queue lookups.
+- Kept trigger-generated `lot_id` behavior for newly created Postgres rows.
+- Fixed single-link formula display for inoculation labels:
+  - compiled `prefersSingleRecordLink` formula references from persisted FK columns,
+  - restored source lot display ID in `vc_lots.label_inoc_line`,
+  - avoided alias shadowing when formulas are compiled through print-queue lookups,
+  - retained fallback many-to-many lookup behavior for non-materialized link fields.
+- Fixed `unit_lbs` display so non-pound lot categories do not show misleading calculated pounds.
+  - Pound display remains for casing, fruiting block, grain, and substrate lots.
+  - LC syringes/flasks and other volume/non-weight categories no longer show fake pound values.
+
+---
+
+## Lab workflow parity: draw syringes and inoculate
+
+- Added an explicit syringe item selector to the Draw Syringes workflow.
+- Added `qSyringeItems` for active LC syringe item choices.
+- Passed the selected syringe item into product and lot draw functions instead of relying on a hidden first-matching item lookup.
+- Tightened Draw Syringes validation across both the Lots modal and standalone Lab Draw Syringes page:
+  - hide LC flask lots without assigned strain,
+  - hide LC flask lots with null/zero remaining volume,
+  - prevent Draw Syringes from opening for flasks without remaining volume,
+  - validate requested syringe volume against `remaining_volume_ml`,
+  - validate active syringe item selection,
+  - validate refrigerated destination selection,
+  - restrict syringe destinations to fridge/refrigerated/cooler locations,
+  - exclude terminal, product, lab, dark room, freezer, and fulfillment locations.
+- Tightened Inoculate parity across both the Lots modal and Lab Inoculate page:
+  - standardized inoculation source-lot query behavior,
+  - normalized source category and status checks,
+  - excluded terminal source statuses,
+  - validated LC/agar source volume before submit,
+  - prevented requested LC volume from exceeding remaining source volume,
+  - tightened destination selection and excluded terminal/product/freezer locations.
+
+---
+
+## Spawn to Bulk parity
+
+- Tightened Spawn to Bulk validation across both the Lots modal and standalone Lab Spawn to Bulk page.
+- Added robust selected-row fallback handling for Spawn to Bulk target lots.
+- Restricted Spawn to Bulk targets to active, unspawned substrate lots.
+- Excluded already inoculated, spawned, colonizing, fruiting, frozen, and terminal target lots.
+- Restricted grain sources to colonized/colonizing/fridge grain lots with strain data.
+- Standardized spawn-source search across Lots and Lab pages.
+- Restricted Spawn to Bulk destinations to Dark Room / colonizing / incubation locations.
+- Replaced hardcoded Dark Room behavior with the selected Spawn to Bulk destination.
+- Validated destination before calling `mp_lots_spawn_to_bulk`.
+
+---
+
+## Harvest workflow parity
+
+- Tightened Harvest destination defaults and validation.
+- Preferred Fulfillment/product-ready locations for fresh harvest trays.
+- Restricted frozen harvest output to freezer/frozen/freeze destinations.
+- Excluded shipped, expired, compost, consumed, retired, lab, dark room, freezer, and other invalid destinations where appropriate.
+- Defaulted fresh and frozen harvest destinations when output counts change.
+- Validated selected fresh and frozen destinations before calling the harvest function.
+- Fixed standalone Harvest page `canSubmitHarvest` object references.
+- Kept Lots Harvest modal and standalone Harvest page behavior aligned.
+
+---
+
+## Products and packaging parity
+
+- Added an **Active Products** filter to the Products page.
+  - When enabled, empty, composted, spoiled, retired, expired, consumed, and shipped tray states are hidden.
+  - Products in Compost, Expired, and Shipped locations are hidden.
+  - Inactive products remain visible when the filter is unchecked.
+- Improved packaging weight derivation:
+  - avoid ambiguous lot `unit_size` defaults,
+  - prefer explicit gram weight where available,
+  - fall back to item `default_unit_size_g`,
+  - convert item `default_unit_size_oz` / `default_unit_size_lb` to grams when needed,
+  - show a clearer warning when no packageable weight can be derived.
+- Disabled manual package-size entry for Package Freeze Dried and autofilled package size from item default gram/ounce values.
+- Preserved positive gram-size validation before packaging.
+
+---
+
+## Summary
+
+`v1.1.0-RC3` is a parity-hardening and testability release. It adds standalone Appsmith workflow pages for lab and harvest operations, tightens validation across the highest-risk lot actions, prevents duplicate submissions, preserves imported Airtable lot identifiers in computed views, improves label/display formulas, and brings Spawn to Bulk, Harvest, Draw Syringes, Inoculate, Products, Packaging, and Sterilizer behavior closer to the Airtable production baseline.
+
 ## [v1.1.0-RC2] - 2026-05-19
 
 _This release is the next Appsmith/Postgres release candidate after `v1.1.0-RC1`. It focuses on first-pass parity findings from testing: tightening Appsmith modal behavior, aligning Postgres lot-action functions with Airtable row-by-row behavior, adding PGSQL n8n workflow duplicates, and correcting several Airtable production behaviors discovered during comparison._
