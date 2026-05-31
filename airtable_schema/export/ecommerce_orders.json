@@ -11,11 +11,6 @@
         "order_number": 493677939,
         "order_total": 25.66,
         "payment_status": "PAID",
-        "product_ids_report": "PROD-251111-XWrM",
-        "products": [
-            "recGLW93Nie9lXWrM"
-        ],
-        "products_report": "Masters Mix 75/25",
         "status": "SHIPPED",
         "subtotal": 15.95,
         "tax_total": 0.46

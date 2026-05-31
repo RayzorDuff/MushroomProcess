@@ -1052,7 +1052,7 @@
           "id": "fldg5EftGwMNxsvTV",
           "name": "label_companyaddress_prod",
           "options": {
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBuinessAddressAndContact\"),\r\n\"MyBuinessAddressAndContact\")",
+            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBusinessAddressAndContact\"),\r\n\"MyBusinessAddressAndContact\")",
             "isValid": true,
             "referencedFieldIds": [
               "fldIC7hRmODZ0X3p0",
@@ -1316,6 +1316,25 @@
             "timeZone": "client"
           },
           "type": "dateTime"
+        },
+        {
+          "id": "fld4kSwt7eCk5KMOY",
+          "name": "operator",
+          "options": {
+            "choices": [
+              {
+                "color": "blueLight2",
+                "id": "seljDM6b1ROjnHKnP",
+                "name": "Robert Weber <bobbyweber13@gmail.com>"
+              },
+              {
+                "color": "cyanLight2",
+                "id": "sel2nT8TuD1uyDpjL",
+                "name": "Ray Danks <bobbyweber13@gmail.com>"
+              }
+            ]
+          },
+          "type": "singleSelect"
         }
       ],
       "id": "tbl51zhGGDuaL2Sm4",
@@ -4082,6 +4101,11 @@
           "id": "viwAemrdcngL9NC6G",
           "name": "All Regulated",
           "type": "grid"
+        },
+        {
+          "id": "viw2F6SvHNxcoUA90",
+          "name": "Not recent",
+          "type": "grid"
         }
       ]
     },
@@ -4463,12 +4487,12 @@
               {
                 "color": "redLight2",
                 "id": "selMcwKPzoYHIVPiw",
-                "name": "Robert"
+                "name": "Robert Weber <bobbyweber13@gmail.com>"
               },
               {
                 "color": "blueLight2",
                 "id": "sel3jt3Y70acIGJRf",
-                "name": "Ray"
+                "name": "Ray Danks <bobbyweber13@gmail.com>"
               }
             ]
           },
@@ -4837,7 +4861,7 @@
               },
               {
                 "color": "redLight2",
-                "id": "selZXOWeDCzZjOS16",
+                "id": "selYTaCI0n4HJeahy",
                 "name": "Cordyceps_Substrate_Inoculated"
               },
               {
@@ -4867,7 +4891,7 @@
               },
               {
                 "color": "pinkLight2",
-                "id": "selIOSTA6IRPpezKY",
+                "id": "seloxCJ7OhVOceq8t",
                 "name": "Sterilizer_Sheet"
               }
             ]

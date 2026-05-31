@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * airtable_export_postprocess.js
- * Version: 2025-12-29.1
+ * Version: 2026-05-31.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -47,7 +47,6 @@ const POSTPROCESS_REMOVE_EXTRA_FIELDS =
     ? global.envBool('POSTPROCESS_REMOVE_EXTRA_FIELDS', true)
     : (process.env.POSTPROCESS_REMOVE_EXTRA_FIELDS || 'true').toString().toLowerCase() === 'true';
 
-function readJson(path) {
 const POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS =
   typeof global.envBool === 'function'
     ? global.envBool('POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS', true)
@@ -58,6 +57,7 @@ const POSTPROCESS_REWRITE_BRANDING_STRINGS =
     ? global.envBool('POSTPROCESS_REWRITE_BRANDING_STRINGS', true)
     : (process.env.POSTPROCESS_REWRITE_BRANDING_STRINGS || 'true').toString().toLowerCase() === 'true';
 
+function readJson(path) {
   const raw = fs.readFileSync(path, "utf8");
   return JSON.parse(raw);
 }

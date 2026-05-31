@@ -1,35 +1,35 @@
-- airtable_createdTime: '2026-03-27T20:44:51.000Z'
-  airtable_id: rec8ZdEg2StmlxanB
+- airtable_createdTime: '2026-05-12T02:12:41.000Z'
+  airtable_id: rec0NcLKQYHfN0M5j
   default_unit_size (from planned_item):
   - 500ml
   destroyed_count: 0
-  end_time: '2026-03-23T20:45:00.000Z'
-  good_count: 5
+  end_time: '2026-05-12T15:21:55.005Z'
+  good_count: 6
   lots:
-  - recFSpqHZWWKaWNUM
-  - recFJuoGfwdGVDaaH
-  - recbexzYQLlJBTfqq
-  - rec68VDe3INOZ6LA2
-  - rec8o6FZRWgAb9eee
+  - rec34tNtceOfWaihk
+  - recxqesjPcoVamnSv
+  - recZpMQRv6kkccQ13
+  - rec1H2qUGTb4p5cqY
+  - rec689aaANUwqwWxr
+  - recwOLDrnD1q6kGdW
   name (from planned_recipe):
-  - Agar Base
-  override_end_time: '2026-03-23T20:45:00.000Z'
-  planned_count: 5
+  - Liquid Assisted Broth Rice Formula
+  planned_count: 6
   planned_item:
-  - reccntFuiyUAopZsM
+  - reck37LYwv7KPri6w
   planned_item_id:
-  - AGAR-FLASK-500
+  - FB-CORDYCEPS-B-500
   planned_item_name:
-  - Agar Flask
+  - Cordyceps B
   planned_recipe:
-  - recwWg5UpF6UG5t3V
-  planned_unit_size: 400
+  - recWi2mg0oo9QtFFx
+  planned_unit_size: 500
   pressure_mode: Closed
   process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-AGAR-STD
-  start_time: '2026-03-23T20:44:00.000Z'
-  steri_run_id: RUN-260327-xanB
+  - REC-SUB-CORDYCEPS-B
+  start_time: '2026-05-11T21:00:00.000Z'
+  steri_run_id: RUN-260512-0M5j
   target_temp_c: 121
 - airtable_createdTime: '2026-04-24T20:22:37.000Z'
   airtable_id: recCSZRx6w0VbzoXm
@@ -41,40 +41,10 @@
   lots:
   - rec1mfUCKWdZXJYeU
   - rech0qZ2yxBuRp6PG
-  - recmDNNSvHUE6eOp3
-  - recMf9fRXX4d06atV
-  - recV384WJZghfbJ9q
-  - recB0Ejn2ywwv5hVF
-  - recgeW212tDB3GZJB
-  - recsBUJCa8DzhkcKS
-  - recvfSSWZvSLmCzlg
-  - recsetT0cUDMnDaTc
-  - reclnNMpP8Ui9JW2t
-  - recjdgnIpBghPptO3
-  - recMV7ZsA7SVmNgEL
   - rec80Q0dlUG89Rajn
-  - recxn9gv5HUkPsnxQ
-  - recov6YyWJ7pgFPkH
-  - rec42w4NR3ujpUDGL
-  - recX8QIPisq3KTlWc
-  - reccYdzriRA9vsWOB
-  - recHbrn9OPLBJybnc
   - rec80tLwY29WhPBqm
-  - recB6EOwXGYPBuJd4
   - rec26j5zhA8ZVMXGb
-  - recuyzQxsy8MvsWa9
-  - recahStLZXY3BkpEt
-  - recfr1CGriU06CLPU
   - rec3QEHNQTBrHyUij
-  - recv33Hii3oPVAVOY
-  - recElS2mqpiokv0ES
-  - recU36UOlbTpt2x73
-  - recpQa3TJH4AIg5HF
-  - reckukAElg5tR3Ulm
-  - recufcbNClNXHEoqk
-  - recFNfy1EZcVuHTOf
-  - recDrVFVV3YlXQi4S
-  - rec2N3dtheJfIWGL7
   - rec05Odpc7B4xEZtd
   - recSIXV7577HSR0HF
   - rec6klKRz7Dgosefa
@@ -86,7 +56,7 @@
   - recNiOOqOrHbHmzWm
   name (from planned_recipe):
   - Wild Bird Seed Blend
-  operator: Robert
+  operator: Robert Weber <bobbyweber13@gmail.com>
   override_end_time: '2026-04-24T07:30:00.000Z'
   planned_count: 54
   planned_item:
@@ -105,37 +75,38 @@
   start_time: '2026-04-22T21:30:00.000Z'
   steri_run_id: RUN-260424-zoXm
   target_temp_c: 121
-- airtable_createdTime: '2026-05-14T14:23:22.000Z'
-  airtable_id: recCtajCBKC85PDeW
+- airtable_createdTime: '2026-05-19T18:34:52.000Z'
+  airtable_id: recCzwiynOzb8UQbk
   default_unit_size (from planned_item):
-  - 500ml
+  - 7.5lb
   destroyed_count: 0
-  end_time: '2026-05-14T14:24:38.276Z'
-  good_count: 2
+  end_time: '2026-05-19T18:36:15.927Z'
+  good_count: 5
   lots:
-  - rectuNhMtxH00RE60
-  - recXhGS3sb8puZ5aN
+  - rec147K0RiZBNkLe2
+  - recLxbYolvrzsPB1s
+  - recBA0b4p7yCmn03H
+  - rec4QF0LSv1qIKWqg
+  - receXyX0xRj94sHQo
   name (from planned_recipe):
-  - Agar Base
-  operator: Ray
-  planned_count: 2
+  - Masters Mix 75/25
+  operator: Robert Weber <bobbyweber13@gmail.com>
+  planned_count: 5
   planned_item:
-  - reccntFuiyUAopZsM
+  - recXSlo6zHhTvnhZe
   planned_item_id:
-  - AGAR-FLASK-500
+  - SUB-MM75-7_5
   planned_item_name:
-  - Agar Flask
+  - Masters Mix 75/25
   planned_recipe:
-  - recwWg5UpF6UG5t3V
-  planned_unit_size: 500
+  - recdzi4MMq717DjmU
+  planned_unit_size: 7.5
   pressure_mode: Closed
-  print_queue:
-  - rechWM9JYg8nCC2iM
   process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-AGAR-STD
-  start_time: '2026-05-14T14:22:00.000Z'
-  steri_run_id: RUN-260514-PDeW
+  - REC-SUB-MM75
+  start_time: '2026-05-15T18:34:00.000Z'
+  steri_run_id: RUN-260519-UQbk
   target_temp_c: 121
 - airtable_createdTime: '2026-05-05T22:23:32.000Z'
   airtable_id: recGGBddzBqYNmguh
@@ -262,34 +233,73 @@
   start_time: '2026-05-05T22:21:00.000Z'
   steri_run_id: RUN-260505-Int8
   target_temp_c: 121
-- airtable_createdTime: '2026-03-24T13:17:06.000Z'
-  airtable_id: recOSF8bNk5Sq0Acf
+- airtable_createdTime: '2026-05-23T19:07:08.000Z'
+  airtable_id: recT7cCdNjTLducvq
   default_unit_size (from planned_item):
   - 2lb
   destroyed_count: 0
-  end_time: '2026-03-24T13:17:23.986Z'
-  good_count: 53
+  end_time: '2026-05-23T19:07:25.243Z'
+  good_count: 55
   lots:
-  - recVyPe4gzIEULJan
-  - recsGjSkvkwZJsD8o
-  - recFqOv4ulTcVkNcW
-  - recLzmMqnN9yD0wUJ
-  - recLoXkq9vU3mIoq5
-  - recVFqaZBbXcqLtak
-  - rec6dezpIfrxtV9Yf
-  - recuFurbEVrwWYrz8
-  - recXixSeVeJ0qvSKm
-  - rec2Ml5vjQdV53Gts
-  - recz4jMWuvWAQbc8D
-  - recflofAblWGLAYo4
-  - rec7vn7xnEv1VuIbg
-  - recD4AvVh3IR6kRcB
-  - recMqKbL6z0HWF3J1
-  - recQL0ZbJVV9OYuyn
-  - recwSmUWW8MbDMeTS
+  - recpyoMscyvYIHr1i
+  - recBVAv49VufvI265
+  - recVLVCKgLHm34tud
+  - recwe7NjcQV0gR2Pe
+  - recvovrAA0mOVsWSF
+  - recgBr6zxu8BUBaYB
+  - recUl9OYA3j8H1vDY
+  - recilI8JFnygdX9rn
+  - recTyCLAEdFanc695
+  - recoMnoCnqoiyOWxE
+  - rectrJMfA9sYddT3s
+  - recGkJruFOFc7WP55
+  - rec2jXQOkWf1GH2Ou
+  - recD6fUcJCdySGaD1
+  - recLxfzXn4GKLCA6Z
+  - recAvOv1LrIkaV9ye
+  - recm4aVHlbHuHSjOy
+  - reckhPRgdLf9aoeDs
+  - recmHotH3ZmsQ0bmb
+  - recVEkAv3d3qrak3K
+  - recz0aTu61I9GUXDP
+  - recAiDcCIpqlnYbR8
+  - receHWhFohgQvf3Oo
+  - recLgCgWOA0iK2nTp
+  - recHqA7c9aEoLLBlF
+  - rectiyuoziWwdcVnp
+  - recqLMWPvTT4sgKgn
+  - recclDGjv4z3B5bWr
+  - recbS1o4UDdP8ZN1P
+  - recUoAVFNvhZkfD6B
+  - rec14MNnlhuDvE2TY
+  - recgAB155jydT0p3t
+  - recWQvpP9NC2TYTjR
+  - recBvJHYzQCW97v3s
+  - recGTIV32NvVWgFWj
+  - rec4BDgXz6lreRc6b
+  - rec1FmLyooTIlyPtK
+  - rechyqcWnCLXCG074
+  - recsHHh3LrQE1oq7L
+  - recm7xuUoTBpD5Jhg
+  - recCInvjtrVRj7m3y
+  - recY8zLI2ISqbAIGF
+  - recf4k39rFLPDP23o
+  - recpxC1yDCvcXuozn
+  - recLM6RyuLyKRpPKQ
+  - rec4S7KSVyQ86jWvN
+  - recbuh1S07dywq406
+  - recHRTjuMdkC4OKR5
+  - recEUwOZGOROMJT4m
+  - reccWS68ZEoiLw9ql
+  - recnit1zd11kzpWFu
+  - recYxO1hew8XvwllH
+  - recoOuXzylqA7OsBY
+  - recQCw2tD2D8dThGJ
+  - recypnaXHXCeTSJyV
   name (from planned_recipe):
   - Wild Bird Seed Blend
-  planned_count: 53
+  operator: Robert Weber <bobbyweber13@gmail.com>
+  planned_count: 55
   planned_item:
   - recwdBny04rzSGGrO
   planned_item_id:
@@ -303,78 +313,85 @@
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-GRAIN-WBS
-  start_time: '2026-03-23T13:17:00.000Z'
-  steri_run_id: RUN-260324-0Acf
+  start_time: '2026-05-20T19:06:00.000Z'
+  steri_run_id: RUN-260523-ucvq
   target_temp_c: 121
-- airtable_createdTime: '2026-03-27T20:45:47.000Z'
-  airtable_id: recpFcbTcKrw3DX6J
+- airtable_createdTime: '2026-05-12T02:12:19.000Z'
+  airtable_id: recWAbeni0r7lEmMj
   default_unit_size (from planned_item):
-  - 300ml
+  - 500ml
   destroyed_count: 0
-  end_time: '2026-03-30T16:15:34.671Z'
-  good_count: 7
+  end_time: '2026-05-13T16:47:37.020Z'
+  good_count: 6
   lots:
-  - recD3JJzM2GofILyI
-  - rec7UlNJ7YvvkZOzo
-  - recYIEaSeNv7Wjcpv
-  - receER88nYKrLQXU4
-  - rec1XaQp76729Trni
-  - recYmA0e8xl30gR2g
-  - rec0S8lyU3KDz8cKF
+  - rec34emtMzGgC51ad
+  - recAu1w9QrpnQ3tzc
+  - rec7XlTO3zMS3qM7i
+  - rec1D4BqvDwCASibG
+  - reco0ji1b2KjEthzB
+  - recLZDYpCTXGEHtdu
   name (from planned_recipe):
-  - Liquid Culture Base
-  planned_count: 7
+  - Cordyceps Soy Peptone Formula
+  planned_count: 6
   planned_item:
-  - recuX0iZcaztbUtcm
+  - recji2ItsnGzAI2ej
   planned_item_id:
-  - LC-FLASK-300
+  - FB-CORDYCEPS-A-500
   planned_item_name:
-  - Liquid Culture Flask
+  - Cordyceps A
   planned_recipe:
-  - recfgGM2NY57OwLnN
+  - recwC8OXLVVl9Tv7C
   planned_unit_size: 500
   pressure_mode: Closed
   process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-LC-STD
-  start_time: '2026-03-23T20:45:00.000Z'
-  steri_run_id: RUN-260327-DX6J
+  - REC-SUB-CORDYCEPS-A
+  start_time: '2026-05-11T21:00:00.000Z'
+  steri_run_id: RUN-260512-EmMj
   target_temp_c: 121
-- airtable_createdTime: '2026-04-09T20:38:45.000Z'
-  airtable_id: recppjKznbkp9cKxo
+- airtable_createdTime: '2026-05-25T18:52:44.000Z'
+  airtable_id: recgRAjPX8HKei2lj
   default_unit_size (from planned_item):
-  - 2.5lb
+  - 5lb
   destroyed_count: 0
-  end_time: '2026-04-09T20:38:59.422Z'
-  good_count: 8
+  end_time: '2026-05-25T18:58:06.442Z'
+  good_count: 15
   lots:
-  - recMPbvQjXqntAF2K
-  - recpIpknvzMyX9XUL
-  - rec625XR3HDNSbo6k
-  - recdYyZTipBAVcK4T
-  - recMJxSK6MXMdQUeL
-  - recsZ00YXxe1QAivK
-  - rec6DYC2BQpVso10d
-  - recIO06iB4H4fsS88
+  - recA5hUFz1FetrJnS
+  - recrntJHWnUkJrBSj
+  - recieeYRLAxwYee43
+  - recdR544DMHw0OCg9
+  - recT9NdvFU8PiJ9in
+  - rectWrJcnE6VtrvI3
+  - recL1ZrJ20r94Q6Jr
+  - recue6AUa66Y55HLR
+  - reclJVNXn9xlhyf6e
+  - reciaGUcYWidRaWgY
+  - reclUDdKx5lIDRBYM
+  - rec2GfTpiWX5HpxJB
+  - recq1yPnG1f0YeI3r
+  - rechupBWHW7wvvvi2
+  - recrMH17yDNn5ss2b
   name (from planned_recipe):
-  - Peat Moss Casing Layer
-  planned_count: 8
+  - CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
+  operator: Robert Weber <bobbyweber13@gmail.com>
+  planned_count: 15
   planned_item:
-  - recDCpU62u25fRPHJ
+  - recJgSj2nMQhhMQm3
   planned_item_id:
-  - CASING-PEAT-2_5
+  - SUB-CVG-5
   planned_item_name:
-  - Peat Moss
+  - Coco Verm Gypsum
   planned_recipe:
-  - recz4tdr6wtSL6WHY
-  planned_unit_size: 3
+  - rec3KC4fKWLKAvUSc
+  planned_unit_size: 5
   pressure_mode: Closed
-  process_type: Sterilize
+  process_type: Pasteurize
   recipe_id (from planned_recipe):
-  - REC-CASING-PEAT-V3
-  start_time: '2026-03-30T20:38:00.000Z'
-  steri_run_id: RUN-260409-cKxo
-  target_temp_c: 121
+  - REC-SUB-CVG-V2
+  start_time: '2026-05-23T18:52:00.000Z'
+  steri_run_id: RUN-260525-i2lj
+  target_temp_c: 74
 - airtable_createdTime: '2026-04-22T12:28:15.000Z'
   airtable_id: recswN3XMcVEeXbvP
   default_unit_size (from planned_item):
@@ -410,34 +427,3 @@
   start_time: '2026-04-20T12:28:00.000Z'
   steri_run_id: RUN-260422-XbvP
   target_temp_c: 74
-- airtable_createdTime: '2026-03-27T20:46:10.000Z'
-  airtable_id: rect5WtJiGG4WFH27
-  default_unit_size (from planned_item):
-  - 300ml
-  destroyed_count: 0
-  end_time: '2026-03-30T17:39:50.874Z'
-  good_count: 19
-  lots:
-  - recFP6weFLehaY4Od
-  - reciI7JRp8I3ZbuY9
-  - receTxaB3ycV0zAfY
-  - rec8ZyLRjSpvdWmBD
-  name (from planned_recipe):
-  - Liquid Culture Base
-  planned_count: 19
-  planned_item:
-  - recuX0iZcaztbUtcm
-  planned_item_id:
-  - LC-FLASK-300
-  planned_item_name:
-  - Liquid Culture Flask
-  planned_recipe:
-  - recfgGM2NY57OwLnN
-  planned_unit_size: 500
-  pressure_mode: Closed
-  process_type: Sterilize
-  recipe_id (from planned_recipe):
-  - REC-LC-STD
-  start_time: '2026-03-24T20:46:00.000Z'
-  steri_run_id: RUN-260327-FH27
-  target_temp_c: 121

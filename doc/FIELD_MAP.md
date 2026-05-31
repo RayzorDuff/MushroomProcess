@@ -91,6 +91,7 @@ This document maps all tables and their fields as defined in the current Airtabl
 | harvest_flush_no             | number        |
 | harvest_weight_g             | number        |
 | harvested_at                 | date/time     |
+| operator                     | single select |
 ---
 
 ## ✅ `lots`
