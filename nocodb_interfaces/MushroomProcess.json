@@ -309,7 +309,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n  isActiveTrayProduct(row) {\n    const state = String(row?.tray_state || \"\").toLowerCase();\n    const location = String(row?.storage_location || \"\").toLowerCase();\n\n    return ![\n      \"consumed\",\n      \"retired\",\n      \"spoiled\",\n      \"compost\",\n      \"composted\",\n      \"expired\",\n      \"shipped\",\n      \"empty_tray\"\n    ].some(s => state.includes(s) || location.includes(s));\n  },\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canSubmitMoveFreezeDryer() {\n    const selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n    const validLocationIds = this.freezeDryerLocationOptions().map(o => String(o.value));\n\n    return this.canMoveFreezeDryer()\n      && !!selectedLocationId\n      && validLocationIds.includes(String(selectedLocationId));\n  },\n\n  canSubmitRetireTray() {\n    return this.canRetireTray() && !!selRetireTrayReason.selectedOptionValue;\n  },\n\n\tfreezeDriedPackageItemOptions() {\n\t\treturn (qFreezeDriedPackageItems.data || [])\n\t\t\t.filter(i => i && i.nocopk)\n\t\t\t.map(i => ({\n\t\t\t\tlabel: i.label || `${i.name || i.item_id || i.nocopk}`,\n\t\t\t\tvalue: i.nocopk,\n\t\t\t\tdefault_unit_size: i.default_unit_size\n\t\t\t}));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t\tconst opts = this.freezeDriedPackageItemOptions();\n\t\treturn opts[0]?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t\tconst selected = selPkgFDPackageItem.selectedOptionValue;\n\t\treturn (qFreezeDriedPackageItems.data || [])\n\t\t\t.find(i => String(i.nocopk) === String(selected)) || null;\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t\tconst count = Number(inpPkgFDCount.text);\n\t\tconst sizeG = Number(inpPkgFDSizeG.text);\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\tconst selectedPackageItemId = selPkgFDPackageItem.selectedOptionValue;\n\t\tconst validPackageItemIds = this.freezeDriedPackageItemOptions().map(o => String(o.value));\n\n\t\tconst selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.productReadyLocationOptions().map(o => String(o.value));\n\n\t\tconst selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t\tconst requiredWeightG = count * sizeG;\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => this.isActiveTrayProduct(r))\n\t\t\t&& Number.isFinite(count) && count > 0\n\t\t\t&& Number.isFinite(sizeG) && sizeG > 0\n\t\t\t&& selectedWeightG >= requiredWeightG\n\t\t\t&& !!selectedPackageItemId\n\t\t\t&& validPackageItemIds.includes(String(selectedPackageItemId))\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n  async openMoveFreezeDryerModal() {\n    if (!this.canMoveFreezeDryer()) {\n      showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n      return;\n    }\n\n    inpMoveFreezeDryerNotes.setValue(\"\");\n\n    const defaultLocationId = this.defaultFreezeDryerLocationId();\n    if (defaultLocationId) {\n      await selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n    } else {\n      await selFreezeDryerLocation.setSelectedOption(\"\");\n      showAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n    }\n\n    await showModal(modalMoveFreezeDryer.name);\n  },\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t\tconst sizeG = this.freezeDriedPackageItemSizeG();\n\n\t\tif (sizeG) {\n\t\t\tawait inpPkgFDSizeG.setValue(String(sizeG));\n\t\t} else {\n\t\t\tawait inpPkgFDSizeG.setValue(\"\");\n\t\t\tshowAlert(\n\t\t\t\t\"Selected package item does not have default_unit_size_g or default_unit_size_oz.\",\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t}\n\t},\n\n\tfreezeDriedPackageItemSizeG(item = this.selectedFreezeDriedPackageItem()) {\n\t\tif (!item) return \"\";\n\n\t\tconst sizeG = Number(item.default_unit_size_g);\n\t\tif (Number.isFinite(sizeG) && sizeG > 0) {\n\t\t\treturn sizeG;\n\t\t}\n\n\t\tconst sizeOz = Number(item.default_unit_size_oz);\n\t\tif (Number.isFinite(sizeOz) && sizeOz > 0) {\n\t\t\treturn +(sizeOz * 28.349523125).toFixed(2);\n\t\t}\n\n\t\treturn \"\";\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\tif (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t\t\tshowAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!rows.every(r => this.isActiveTrayProduct(r))) {\n\t\t\tshowAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\n\t\tinpPkgFDCount.setValue(inpPkgFDCount.text || \"1\");\n\t\tinpPkgFDNotes.setValue(\"\");\n\n\t\tconst defaultPackageItemId = this.defaultFreezeDriedPackageItemId();\n\t\tif (defaultPackageItemId) {\n\t\t\tawait selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t\t\tawait this.onFreezeDriedPackageItemChanged();\n\t\t} else {\n\t\t\tawait selPkgFDPackageItem.setSelectedOption(\"\");\n\t\t\tawait inpPkgFDSizeG.setValue(\"\");\n\t\t\tshowAlert(\"No active freeze-dried package item was found. Add an item with category freezedriedmushrooms.\", \"warning\");\n\t\t}\n\n\t\tconst defaultLocationId = this.defaultProductReadyLocationId();\n\t\tif (defaultLocationId) {\n\t\t\tawait selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selPkgFDLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalPackageFreezeDried.name);\n\t},\n\n  async openRetireTrayModal() {\n    if (!this.canRetireTray()) {\n      showAlert(\"Select one or more active fresh/freezer tray products.\", \"warning\");\n      return;\n    }\n\n    selRetireTrayReason.setSelectedOption(\"\");\n    inpRetireTrayNotes.setValue(\"\");\n    await showModal(modalRetireTray.name);\n  },\n\n  async moveToFreezeDryer() {\n    if (!this.canSubmitMoveFreezeDryer()) {\n      showAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n      return;\n    }\n\n    try {\n      const res = await qMoveProductsToFreezeDryer.run();\n      showAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n      closeModal(modalMoveFreezeDryer.name);\n      await ProductsPage.refresh();\n      return res;\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n      return null;\n    }\n  },\n\n  async retireTrayProducts() {\n    if (!this.canSubmitRetireTray()) {\n      showAlert(\"Select active tray products and a reason.\", \"warning\");\n      return;\n    }\n\n    try {\n      const res = await qRetireTrayProducts.run();\n      showAlert(\"Tray product(s) updated.\", \"success\");\n      closeModal(modalRetireTray.name);\n      await ProductsPage.refresh();\n      return res;\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n      return null;\n    }\n  },\n\n  async packageFreezeDried() {\n    if (!this.canSubmitPackageFreezeDried()) {\n      showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n      return;\n    }\n\n    try {\n      const res = await qPackageFreezeDried.run();\n      showAlert(\"Packaged freeze dried product(s) created.\", \"success\");\n      closeModal(modalPackageFreezeDried.name);\n      await ProductsPage.refresh();\n      return res;\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n      return null;\n    }\n  }\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n  isActiveTrayProduct(row) {\n    const state = String(row?.tray_state || \"\").toLowerCase();\n    const location = String(row?.storage_location || \"\").toLowerCase();\n\n    return ![\n      \"consumed\",\n      \"retired\",\n      \"spoiled\",\n      \"compost\",\n      \"composted\",\n      \"expired\",\n      \"shipped\",\n      \"empty_tray\"\n    ].some(s => state.includes(s) || location.includes(s));\n  },\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n\tisMoveFreezeDryerSubmitting() {\n\t\treturn appsmith.store.products_move_freeze_dryer_submitting === true;\n\t},\n\t\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n\tcanSubmitMoveFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tconst selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n\t\tconst validLocationIds = ProductsPage.freezeDryerLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn ProductsPage.canMoveFreezeDryer()\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n  canSubmitRetireTray() {\n    return this.canRetireTray() && !!selRetireTrayReason.selectedOptionValue;\n  },\n\n\tfreezeDriedPackageItemOptions() {\n\t\treturn (qFreezeDriedPackageItems.data || [])\n\t\t\t.filter(i => i && i.nocopk)\n\t\t\t.map(i => ({\n\t\t\t\tlabel: i.label || `${i.name || i.item_id || i.nocopk}`,\n\t\t\t\tvalue: i.nocopk,\n\t\t\t\tdefault_unit_size: i.default_unit_size\n\t\t\t}));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t\tconst opts = this.freezeDriedPackageItemOptions();\n\t\treturn opts[0]?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t\tconst selected = selPkgFDPackageItem.selectedOptionValue;\n\t\treturn (qFreezeDriedPackageItems.data || [])\n\t\t\t.find(i => String(i.nocopk) === String(selected)) || null;\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t\tconst count = Number(inpPkgFDCount.text);\n\t\tconst sizeG = Number(inpPkgFDSizeG.text);\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\tconst selectedPackageItemId = selPkgFDPackageItem.selectedOptionValue;\n\t\tconst validPackageItemIds = this.freezeDriedPackageItemOptions().map(o => String(o.value));\n\n\t\tconst selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t\tconst validLocationIds = this.productReadyLocationOptions().map(o => String(o.value));\n\n\t\tconst selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t\tconst requiredWeightG = count * sizeG;\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => this.isActiveTrayProduct(r))\n\t\t\t&& Number.isFinite(count) && count > 0\n\t\t\t&& Number.isFinite(sizeG) && sizeG > 0\n\t\t\t&& selectedWeightG >= requiredWeightG\n\t\t\t&& !!selectedPackageItemId\n\t\t\t&& validPackageItemIds.includes(String(selectedPackageItemId))\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tasync openMoveFreezeDryerModal() {\n\t\tif (!ProductsPage.canMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\n\t\tinpMoveFreezeDryerNotes.setValue(\"\");\n\n\t\tconst defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n\n\t\tif (defaultLocationId) {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalMoveFreezeDryer.name);\n\t},\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t\tconst sizeG = this.freezeDriedPackageItemSizeG();\n\n\t\tif (sizeG) {\n\t\t\tawait inpPkgFDSizeG.setValue(String(sizeG));\n\t\t} else {\n\t\t\tawait inpPkgFDSizeG.setValue(\"\");\n\t\t\tshowAlert(\n\t\t\t\t\"Selected package item does not have default_unit_size_g or default_unit_size_oz.\",\n\t\t\t\t\"warning\"\n\t\t\t);\n\t\t}\n\t},\n\n\tfreezeDriedPackageItemSizeG(item = this.selectedFreezeDriedPackageItem()) {\n\t\tif (!item) return \"\";\n\n\t\tconst sizeG = Number(item.default_unit_size_g);\n\t\tif (Number.isFinite(sizeG) && sizeG > 0) {\n\t\t\treturn sizeG;\n\t\t}\n\n\t\tconst sizeOz = Number(item.default_unit_size_oz);\n\t\tif (Number.isFinite(sizeOz) && sizeOz > 0) {\n\t\t\treturn +(sizeOz * 28.349523125).toFixed(2);\n\t\t}\n\n\t\treturn \"\";\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\tif (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t\t\tshowAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!rows.every(r => this.isActiveTrayProduct(r))) {\n\t\t\tshowAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\n\t\tinpPkgFDCount.setValue(inpPkgFDCount.text || \"1\");\n\t\tinpPkgFDNotes.setValue(\"\");\n\n\t\tconst defaultPackageItemId = this.defaultFreezeDriedPackageItemId();\n\t\tif (defaultPackageItemId) {\n\t\t\tawait selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t\t\tawait this.onFreezeDriedPackageItemChanged();\n\t\t} else {\n\t\t\tawait selPkgFDPackageItem.setSelectedOption(\"\");\n\t\t\tawait inpPkgFDSizeG.setValue(\"\");\n\t\t\tshowAlert(\"No active freeze-dried package item was found. Add an item with category freezedriedmushrooms.\", \"warning\");\n\t\t}\n\n\t\tconst defaultLocationId = this.defaultProductReadyLocationId();\n\t\tif (defaultLocationId) {\n\t\t\tawait selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selPkgFDLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalPackageFreezeDried.name);\n\t},\n\n  async openRetireTrayModal() {\n    if (!this.canRetireTray()) {\n      showAlert(\"Select one or more active fresh/freezer tray products.\", \"warning\");\n      return;\n    }\n\n    selRetireTrayReason.setSelectedOption(\"\");\n    inpRetireTrayNotes.setValue(\"\");\n    await showModal(modalRetireTray.name);\n  },\n\n\tasync moveToFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", true);\n\n\t\ttry {\n\t\t\tconst res = await qMoveProductsToFreezeDryer.run();\n\n\t\t\tshowAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n\n\t\t\tcloseModal(modalMoveFreezeDryer.name);\n\n\t\t\tawait ProductsPage.refresh();\n\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\t\t}\n\t},\n\n  async retireTrayProducts() {\n    if (!this.canSubmitRetireTray()) {\n      showAlert(\"Select active tray products and a reason.\", \"warning\");\n      return;\n    }\n\n    try {\n      const res = await qRetireTrayProducts.run();\n      showAlert(\"Tray product(s) updated.\", \"success\");\n      closeModal(modalRetireTray.name);\n      await ProductsPage.refresh();\n      return res;\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n      return null;\n    }\n  },\n\n  async packageFreezeDried() {\n    if (!this.canSubmitPackageFreezeDried()) {\n      showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n      return;\n    }\n\n    try {\n      const res = await qPackageFreezeDried.run();\n      showAlert(\"Packaged freeze dried product(s) created.\", \"success\");\n      closeModal(modalPackageFreezeDried.name);\n      await ProductsPage.refresh();\n      return res;\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n      return null;\n    }\n  }\n};",
         "name": "ProductsPage",
         "pageId": "Products",
         "pluginId": "js-plugin",
@@ -18815,7 +18815,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!ProductsPage.canMoveFreezeDryer()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  inpMoveFreezeDryerNotes.setValue(\"\");\n  const defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n  if (defaultLocationId) {\n    await selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selFreezeDryerLocation.setSelectedOption(\"\");\n    showAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n  }\n  await showModal(modalMoveFreezeDryer.name);\n}",
+          "body": "async function () {\n  if (!ProductsPage.canMoveFreezeDryer()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_move_freeze_dryer_submitting\", false);\n  inpMoveFreezeDryerNotes.setValue(\"\");\n  const defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n  if (defaultLocationId) {\n    await selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selFreezeDryerLocation.setSelectedOption(\"\");\n    showAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n  }\n  await showModal(modalMoveFreezeDryer.name);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -18844,7 +18844,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!ProductsPage.canMoveFreezeDryer()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  inpMoveFreezeDryerNotes.setValue(\"\");\n  const defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n  if (defaultLocationId) {\n    await selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selFreezeDryerLocation.setSelectedOption(\"\");\n    showAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n  }\n  await showModal(modalMoveFreezeDryer.name);\n}"
+          "async function () {\n  if (!ProductsPage.canMoveFreezeDryer()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_move_freeze_dryer_submitting\", false);\n  inpMoveFreezeDryerNotes.setValue(\"\");\n  const defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n  if (defaultLocationId) {\n    await selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selFreezeDryerLocation.setSelectedOption(\"\");\n    showAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n  }\n  await showModal(modalMoveFreezeDryer.name);\n}"
         ],
         "messages": [],
         "name": "openMoveFreezeDryerModal",
@@ -18993,7 +18993,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.freezeDryerLocationOptions().map(o => String(o.value));\n  return ProductsPage.canMoveFreezeDryer() && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}",
+          "body": "function () {\n  if (ProductsPage.isMoveFreezeDryerSubmitting()) {\n    return false;\n  }\n  const selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.freezeDryerLocationOptions().map(o => String(o.value));\n  return ProductsPage.canMoveFreezeDryer() && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -19022,7 +19022,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.freezeDryerLocationOptions().map(o => String(o.value));\n  return ProductsPage.canMoveFreezeDryer() && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}"
+          "function () {\n  if (ProductsPage.isMoveFreezeDryerSubmitting()) {\n    return false;\n  }\n  const selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.freezeDryerLocationOptions().map(o => String(o.value));\n  return ProductsPage.canMoveFreezeDryer() && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}"
         ],
         "messages": [],
         "name": "canSubmitMoveFreezeDryer",
@@ -19535,7 +19535,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!ProductsPage.canSubmitMoveFreezeDryer()) {\n    showAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n    return;\n  }\n  try {\n    const res = await qMoveProductsToFreezeDryer.run();\n    showAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n    closeModal(modalMoveFreezeDryer.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  }\n}",
+          "body": "async function () {\n  if (ProductsPage.isMoveFreezeDryerSubmitting()) {\n    return;\n  }\n  if (!ProductsPage.canSubmitMoveFreezeDryer()) {\n    showAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_move_freeze_dryer_submitting\", true);\n  try {\n    const res = await qMoveProductsToFreezeDryer.run();\n    showAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n    closeModal(modalMoveFreezeDryer.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_move_freeze_dryer_submitting\", false);\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -19564,7 +19564,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!ProductsPage.canSubmitMoveFreezeDryer()) {\n    showAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n    return;\n  }\n  try {\n    const res = await qMoveProductsToFreezeDryer.run();\n    showAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n    closeModal(modalMoveFreezeDryer.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  }\n}"
+          "async function () {\n  if (ProductsPage.isMoveFreezeDryerSubmitting()) {\n    return;\n  }\n  if (!ProductsPage.canSubmitMoveFreezeDryer()) {\n    showAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_move_freeze_dryer_submitting\", true);\n  try {\n    const res = await qMoveProductsToFreezeDryer.run();\n    showAlert(\"Moved freezer tray product(s) to Freeze Dryer.\", \"success\");\n    closeModal(modalMoveFreezeDryer.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_move_freeze_dryer_submitting\", false);\n  }\n}"
         ],
         "messages": [],
         "name": "moveToFreezeDryer",
@@ -20957,6 +20957,134 @@
         ],
         "messages": [],
         "name": "freezeDriedPackageItemSizeG",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_a8a6c266-85f8-404e-87d7-b49f17c41961",
+      "id": "Products_ProductsPage.isMoveFreezeDryerSubmitting",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T00:31:24Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return appsmith.store.products_move_freeze_dryer_submitting === true;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T00:31:24Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.isMoveFreezeDryerSubmitting",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return appsmith.store.products_move_freeze_dryer_submitting === true;\n}"
+        ],
+        "messages": [],
+        "name": "isMoveFreezeDryerSubmitting",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_8252e892-c3ef-43ba-aa02-4fd66e09efdc",
+      "id": "Products_ProductsPage.isMoveFreezeDryerSubmitting",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T00:31:24Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "messages": [],
+        "policyMap": {},
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  return appsmith.store.products_move_freeze_dryer_submitting === true;\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T00:31:24Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.isMoveFreezeDryerSubmitting",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  return appsmith.store.products_move_freeze_dryer_submitting === true;\n}"
+        ],
+        "messages": [],
+        "name": "isMoveFreezeDryerSubmitting",
         "pageId": "Products",
         "policyMap": {},
         "runBehaviour": "MANUAL",
@@ -74167,20 +74295,20 @@
                     "net_weight_oz",
                     "pack_date",
                     "use_by",
+                    "tray_state",
                     "storage_location",
                     "item_id_text",
                     "net_volume_ml",
                     "storage_location_id",
                     "strain_id",
                     "species_strain",
-                    "tray_state",
                     "harvest_flush_no",
                     "notes",
                     "harvest_weight_g",
                     "harvested_at",
                     "origin_lot_ids_json"
                   ],
-                  "columnUpdatedAt": 1779765340560,
+                  "columnUpdatedAt": 1780188007927,
                   "columnWidthMap": {},
                   "customIsLoading": false,
                   "customIsLoadingValue": "",
@@ -74968,8 +75096,8 @@
                       "isDiscardVisible": true,
                       "isEditable": false,
                       "isSaveVisible": true,
-                      "isVisible": false,
-                      "label": "tray_state",
+                      "isVisible": true,
+                      "label": "Tray State",
                       "notation": "standard",
                       "originalId": "tray_state",
                       "sticky": "",
@@ -75257,6 +75385,9 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "text"
                     }
                   ],
                   "dynamicPropertyPathList": [
@@ -75273,7 +75404,7 @@
                     }
                   ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": "{{ !ProductsPage.canMoveFreezeDryer() }}",
+                  "isDisabled": "{{ appsmith.store.products_move_freeze_dryer_submitting === true || !ProductsPage.canSubmitMoveFreezeDryer() }}",
                   "isLoading": false,
                   "isVisible": true,
                   "key": "s44dqhxeuk",
@@ -75294,7 +75425,7 @@
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
                   "rightColumn": 20,
-                  "text": "Move to Freeze Dryer",
+                  "text": "{{ appsmith.store.products_move_freeze_dryer_submitting ? \"Moving...\" : \"Move to Freeze Dryer\" }}",
                   "topRow": 43,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
@@ -76071,7 +76202,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 293,
+                  "bottomRow": 24,
                   "boxShadow": "none",
                   "canEscapeKeyClose": true,
                   "canOutsideClickClose": true,
@@ -76396,7 +76527,7 @@
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
                           "rightColumn": 63,
-                          "text": "Confirm",
+                          "text": "Move",
                           "topRow": 16,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
