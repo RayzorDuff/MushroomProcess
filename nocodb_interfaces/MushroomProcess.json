@@ -155,7 +155,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\ncanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tLotsPage.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\nasync verifyHarvestableLot() {\n\t\treturn LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\nselectedHarvestItem() {\n\t\treturn null;\n\t},\n\nselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\nfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\nfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\nasync onHarvestCountsChanged() {\n\t\tconst freshOpts = LotsHarvest.freshHarvestLocationOptions();\n\t\tconst frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\nasync openHarvestModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsPage.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\nharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\nharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\nasync harvestSelectedLot() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
+        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\tconst freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n\t\tconst frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n\n\t\tconst validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tconst validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn LotsPage.canOpenLotModal(\"harvest\")\n\t\t\t&& Number.isFinite(weightG)\n\t\t\t&& weightG > 0\n\t\t\t&& Number.isFinite(flushNo)\n\t\t\t&& flushNo > 0\n\t\t\t&& freshTrayCount + frozenTrayCount > 0\n\t\t\t&& (\n\t\t\t\tfreshTrayCount <= 0\n\t\t\t\t|| (!!freshLocationId && validFreshLocationIds.includes(String(freshLocationId)))\n\t\t\t)\n\t\t\t&& (\n\t\t\t\tfrozenTrayCount <= 0\n\t\t\t\t|| (!!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)))\n\t\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"shipped\",\n\t\t\t\"shipping\",\n\t\t\t\"expired\",\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"retired\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"lab\",\n\t\t\t\"dark room\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) return false;\n\n\t\t\t\treturn lower.includes(\"fulfillment\")\n\t\t\t\t\t|| lower.includes(\"product-ready\")\n\t\t\t\t\t|| lower.includes(\"product ready\")\n\t\t\t\t\t|| lower.includes(\"products storage\")\n\t\t\t\t\t|| lower.includes(\"product storage\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultFreshHarvestLocationId() {\n\t\tconst opts = LotsHarvest.freshHarvestLocationOptions();\n\n\t\tconst fulfillment = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fulfillment\"\n\t\t);\n\n\t\treturn (fulfillment || opts[0])?.value || \"\";\n\t},\t\n\n\tdefaultFrozenHarvestLocationId() {\n\t\tconst opts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tconst freezer = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase().includes(\"freezer\")\n\t\t);\n\n\t\treturn (freezer || opts[0])?.value || \"\";\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0) {\n\t\t\tconst freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(\"\");\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0) {\n\t\t\tconst frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n\t\t}\n\t},\t\t\t\t\t\t\n\n\tasync openHarvestModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsPage.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait LotsHarvest.onHarvestCountsChanged();\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
         "name": "LotsHarvest",
         "pageId": "Lots",
         "pluginId": "js-plugin",
@@ -171,7 +171,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\ncanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tLotsPage.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\nasync verifyHarvestableLot() {\n\t\treturn LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\nselectedHarvestItem() {\n\t\treturn null;\n\t},\n\nselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\nfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\nfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\nasync onHarvestCountsChanged() {\n\t\tconst freshOpts = LotsHarvest.freshHarvestLocationOptions();\n\t\tconst frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\nasync openHarvestModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsPage.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\nharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\nharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\nasync harvestSelectedLot() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
+        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\tconst freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n\t\tconst frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n\n\t\tconst validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tconst validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn LotsPage.canOpenLotModal(\"harvest\")\n\t\t\t&& Number.isFinite(weightG)\n\t\t\t&& weightG > 0\n\t\t\t&& Number.isFinite(flushNo)\n\t\t\t&& flushNo > 0\n\t\t\t&& freshTrayCount + frozenTrayCount > 0\n\t\t\t&& (\n\t\t\t\tfreshTrayCount <= 0\n\t\t\t\t|| (!!freshLocationId && validFreshLocationIds.includes(String(freshLocationId)))\n\t\t\t)\n\t\t\t&& (\n\t\t\t\tfrozenTrayCount <= 0\n\t\t\t\t|| (!!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)))\n\t\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"shipped\",\n\t\t\t\"shipping\",\n\t\t\t\"expired\",\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"retired\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"lab\",\n\t\t\t\"dark room\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) return false;\n\n\t\t\t\treturn lower.includes(\"fulfillment\")\n\t\t\t\t\t|| lower.includes(\"product-ready\")\n\t\t\t\t\t|| lower.includes(\"product ready\")\n\t\t\t\t\t|| lower.includes(\"products storage\")\n\t\t\t\t\t|| lower.includes(\"product storage\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultFreshHarvestLocationId() {\n\t\tconst opts = LotsHarvest.freshHarvestLocationOptions();\n\n\t\tconst fulfillment = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fulfillment\"\n\t\t);\n\n\t\treturn (fulfillment || opts[0])?.value || \"\";\n\t},\t\n\n\tdefaultFrozenHarvestLocationId() {\n\t\tconst opts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tconst freezer = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase().includes(\"freezer\")\n\t\t);\n\n\t\treturn (freezer || opts[0])?.value || \"\";\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0) {\n\t\t\tconst freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(\"\");\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0) {\n\t\t\tconst frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n\t\t}\n\t},\t\t\t\t\t\t\n\n\tasync openHarvestModal() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsPage.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait LotsHarvest.onHarvestCountsChanged();\n\n\t\tawait showModal(modalHarvestLot.name);\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\tcloseModal(modalHarvestLot.name);\n\t\t\tawait LotsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
         "name": "LotsHarvest",
         "pageId": "Lots",
         "pluginId": "js-plugin",
@@ -552,7 +552,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tselectedLotIds() {\n\t\treturn LotsHarvest.selectedLotRows().map(r => r.nocopk).filter(Boolean);\n\t},\n\n\tformatSelectedLots() {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tif (!rows.length) return \"(No lots selected)\";\n\t\treturn rows.map(r => {\n\t\t\tconst lotId = r.lot_id ?? r.nocopk;\n\t\t\tconst inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n\t\t\tconst item = r.item_name_mat || \"\";\n\t\t\tconst strain = r.strain_species_strain_mat || \"\";\n\t\t\treturn `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n\t\t}).join(\"\\n\");\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn LotsHarvest.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = LotsHarvest.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tasync refresh() {\n\t\tawait qLots.run();\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tLotsHarvest.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tconst freshOpts = LotsHarvest.freshHarvestLocationOptions();\n\t\tconst frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\t/* standalone page: modal open not needed */\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\t/* standalone page: modal close not needed */\n\t\t\tawait LotsHarvest.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
+        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tselectedLotIds() {\n\t\treturn LotsHarvest.selectedLotRows().map(r => r.nocopk).filter(Boolean);\n\t},\n\n\tformatSelectedLots() {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tif (!rows.length) return \"(No lots selected)\";\n\t\treturn rows.map(r => {\n\t\t\tconst lotId = r.lot_id ?? r.nocopk;\n\t\t\tconst inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n\t\t\tconst item = r.item_name_mat || \"\";\n\t\t\tconst strain = r.strain_species_strain_mat || \"\";\n\t\t\treturn `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n\t\t}).join(\"\\n\");\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn LotsHarvest.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = LotsHarvest.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tasync refresh() {\n\t\tawait qLots.run();\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\tconst freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n\t\tconst frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n\n\t\tconst validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tconst validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn LotsPage.canOpenLotModal(\"harvest\")\n\t\t\t&& Number.isFinite(weightG)\n\t\t\t&& weightG > 0\n\t\t\t&& Number.isFinite(flushNo)\n\t\t\t&& flushNo > 0\n\t\t\t&& freshTrayCount + frozenTrayCount > 0\n\t\t\t&& (\n\t\t\t\tfreshTrayCount <= 0\n\t\t\t\t|| (!!freshLocationId && validFreshLocationIds.includes(String(freshLocationId)))\n\t\t\t)\n\t\t\t&& (\n\t\t\t\tfrozenTrayCount <= 0\n\t\t\t\t|| (!!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)))\n\t\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"shipped\",\n\t\t\t\"shipping\",\n\t\t\t\"expired\",\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"retired\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"lab\",\n\t\t\t\"dark room\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) return false;\n\n\t\t\t\treturn lower.includes(\"fulfillment\")\n\t\t\t\t\t|| lower.includes(\"product-ready\")\n\t\t\t\t\t|| lower.includes(\"product ready\")\n\t\t\t\t\t|| lower.includes(\"products storage\")\n\t\t\t\t\t|| lower.includes(\"product storage\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultFreshHarvestLocationId() {\n\t\tconst opts = LotsHarvest.freshHarvestLocationOptions();\n\n\t\tconst fulfillment = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fulfillment\"\n\t\t);\n\n\t\treturn (fulfillment || opts[0])?.value || \"\";\n\t},\t\n\n\tdefaultFrozenHarvestLocationId() {\n\t\tconst opts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tconst freezer = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase().includes(\"freezer\")\n\t\t);\n\n\t\treturn (freezer || opts[0])?.value || \"\";\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0) {\n\t\t\tconst freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(\"\");\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0) {\n\t\t\tconst frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait LotsHarvest.onHarvestCountsChanged();\n\n\t\t/* standalone page: modal open not needed */\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\t/* standalone page: modal close not needed */\n\t\t\tawait LotsHarvest.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
         "name": "LotsHarvest",
         "pageId": "Harvest",
         "pluginId": "js-plugin",
@@ -568,7 +568,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tselectedLotIds() {\n\t\treturn LotsHarvest.selectedLotRows().map(r => r.nocopk).filter(Boolean);\n\t},\n\n\tformatSelectedLots() {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tif (!rows.length) return \"(No lots selected)\";\n\t\treturn rows.map(r => {\n\t\t\tconst lotId = r.lot_id ?? r.nocopk;\n\t\t\tconst inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n\t\t\tconst item = r.item_name_mat || \"\";\n\t\t\tconst strain = r.strain_species_strain_mat || \"\";\n\t\t\treturn `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n\t\t}).join(\"\\n\");\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn LotsHarvest.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = LotsHarvest.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tasync refresh() {\n\t\tawait qLots.run();\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\treturn (\n\t\t\tLotsHarvest.canOpenLotModal(\"harvest\") &&\n\t\t\tNumber.isFinite(weightG) &&\n\t\t\tweightG > 0 &&\n\t\t\tNumber.isFinite(flushNo) &&\n\t\t\tflushNo > 0 &&\n\t\t\t(freshTrayCount + frozenTrayCount) > 0 &&\n\t\t\t(\n\t\t\tfreshTrayCount <= 0 ||\n\t\t\t!!selHarvestFreshStorageLocation.selectedOptionValue\n\t\t\t) &&\n\t\t\t(\n\t\t\tfrozenTrayCount <= 0 ||\n\t\t\t!!selHarvestFrozeStorageLocation.selectedOptionValue\n\t\t\t)\n\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tconst freshOpts = LotsHarvest.freshHarvestLocationOptions();\n\t\tconst frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n\t\t\tselHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n\t\t\tselHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\t/* standalone page: modal open not needed */\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\t/* standalone page: modal close not needed */\n\t\t\tawait LotsHarvest.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
+        "body": "export default {\n\tsql: {\n\t\tstr(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\treturn \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n\t\t},\n\t\tnum(v) {\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n\t\tarrBigint(arr) {\n\t\t\tif (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\tconst vals = arr.map(x => {\n\t\t\t\tconst n = Number(x);\n\t\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t\t}).filter(x => x !== \"NULL\");\n\t\t\tif (vals.length === 0) return \"ARRAY[]::bigint[]\";\n\t\t\treturn \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n\t\t}\n\t},\n\n\tcurrentOperator() {\n\t\tconst email = (appsmith.user?.email || \"\").trim().toLowerCase();\n\t\tconst name = (appsmith.user?.name || \"\").trim();\n\t\tif (email) return email;\n\t\tif (name) return name;\n\t\treturn \"system\";\n\t},\n\n\tselectedLotRows() {\n\t\treturn (tblLots.selectedRows || []).filter(r => r && r.nocopk != null);\n\t},\n\n\tselectedLotIds() {\n\t\treturn LotsHarvest.selectedLotRows().map(r => r.nocopk).filter(Boolean);\n\t},\n\n\tformatSelectedLots() {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tif (!rows.length) return \"(No lots selected)\";\n\t\treturn rows.map(r => {\n\t\t\tconst lotId = r.lot_id ?? r.nocopk;\n\t\t\tconst inoc = r.inoculated_at ? moment(r.inoculated_at).format(\"YYYY-MM-DD\") : \"\";\n\t\t\tconst item = r.item_name_mat || \"\";\n\t\t\tconst strain = r.strain_species_strain_mat || \"\";\n\t\t\treturn `${lotId} | inoc:${inoc} | ${item} | ${strain}`.trim();\n\t\t}).join(\"\\n\");\n\t},\n\n\tlotIsRetired(row) {\n\t\tconst status = String(row?.status || \"\").toLowerCase();\n\t\treturn [\"consumed\", \"expired\", \"retired\", \"compost\", \"composted\", \"compose\"].some(s => status.includes(s));\n\t},\n\n\tlotModalValidation(actionOrOptions = {}) {\n\t\tconst rows = LotsHarvest.selectedLotRows();\n\t\tconst action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n\t\tconst options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n\n\t\tconst rulesByAction = {\n\t\t\tinoculate: {\n\t\t\t\trequireAny: true,\n\t\t\t\tallowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\"],\n\t\t\t\trequireNoStrain: true,\n\t\t\t\trequireNotInoculated: true,\n\t\t\t\tmessage: \"Select one or more active grain, LC flask, plate, or cordyceps substrate lots that have not already been inoculated or assigned a strain.\"\n\t\t\t},\n\t\t\tdraw_syringes: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"lc_flask\"],\n\t\t\t\tmessage: \"Select exactly one active LC flask lot to draw syringes.\"\n\t\t\t},\n\t\t\tharvest: {\n\t\t\t\trequireSingle: true,\n\t\t\t\tallowedCategories: [\"fruiting_block\", \"cordyceps_substrate\"],\n\t\t\t\tmessage: \"Select exactly one active fruiting block or cordyceps substrate lot to harvest.\"\n\t\t\t}\n\t\t};\n\n\t\tconst rules = {\n\t\t\t...(action ? (rulesByAction[action] || {}) : {}),\n\t\t\t...options\n\t\t};\n\n\t\tif (rules.requireSingle && rows.length !== 1) {\n\t\t\treturn { ok: false, message: rules.message || \"Select exactly one valid lot.\" };\n\t\t}\n\n\t\tif ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n\t\t\treturn { ok: false, message: rules.message || \"Select one or more valid lots.\" };\n\t\t}\n\n\t\tfor (const row of rows) {\n\t\t\tconst label = row.lot_id || row.nocopk || \"Selected lot\";\n\t\t\tconst category = String(row.item_category_mat || \"\");\n\n\t\t\tif (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n\t\t\t\treturn { ok: false, message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.` };\n\t\t\t}\n\n\t\t\tif (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {\n\t\t\t\treturn { ok: false, message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNoStrain && row.strain_species_strain_mat) {\n\t\t\t\treturn { ok: false, message: `${label} already has a strain (${row.strain_species_strain_mat}).` };\n\t\t\t}\n\n\t\t\tif (rules.requireNotInoculated && row.inoculated_at) {\n\t\t\t\treturn { ok: false, message: `${label} was already inoculated (${row.inoculated_at}).` };\n\t\t\t}\n\t\t}\n\n\t\treturn { ok: true, message: \"\" };\n\t},\n\n\tcanOpenLotModal(actionOrOptions = {}) {\n\t\treturn LotsHarvest.lotModalValidation(actionOrOptions).ok;\n\t},\n\n\tvalidateAndWarnLotModal(actionOrOptions = {}, fallbackMessage = \"Invalid lot selection for this action.\") {\n\t\tconst result = LotsHarvest.lotModalValidation(actionOrOptions);\n\t\tif (!result.ok) {\n\t\t\tshowAlert(result.message || fallbackMessage, \"warning\");\n\t\t\treturn false;\n\t\t}\n\t\treturn true;\n\t},\n\n\tasync refresh() {\n\t\tawait qLots.run();\n\t},\n\n\tcanSubmitHarvest() {\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\n\t\tconst freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n\t\tconst frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n\n\t\tconst validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\tconst validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn LotsPage.canOpenLotModal(\"harvest\")\n\t\t\t&& Number.isFinite(weightG)\n\t\t\t&& weightG > 0\n\t\t\t&& Number.isFinite(flushNo)\n\t\t\t&& flushNo > 0\n\t\t\t&& freshTrayCount + frozenTrayCount > 0\n\t\t\t&& (\n\t\t\t\tfreshTrayCount <= 0\n\t\t\t\t|| (!!freshLocationId && validFreshLocationIds.includes(String(freshLocationId)))\n\t\t\t)\n\t\t\t&& (\n\t\t\t\tfrozenTrayCount <= 0\n\t\t\t\t|| (!!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)))\n\t\t\t);\n\t},\n\n\tasync verifyHarvestableLot() {\n\t\treturn LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\");\n\t},\n\n\tselectedHarvestItem() {\n\t\treturn null;\n\t},\n\n\tselectedHarvestCategory() {\n\t\tconst freshCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenCount = LotsHarvest.harvestFrozenTrayCount();\n\n\t\tif (freshCount > 0 && frozenCount > 0) return \"mixed_trays\";\n\t\tif (freshCount > 0) return \"fresh_tray\";\n\t\tif (frozenCount > 0) return \"freezer_tray\";\n\n\t\treturn null;\n\t},\n\n\tfreshHarvestLocationOptions() {\n\t\tconst invalidNameParts = [\n\t\t\t\"shipped\",\n\t\t\t\"shipping\",\n\t\t\t\"expired\",\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"retired\",\n\t\t\t\"freeze\",\n\t\t\t\"freezer\",\n\t\t\t\"lab\",\n\t\t\t\"dark room\"\n\t\t];\n\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\t\tconst name = String(l.name || \"\").trim();\n\t\t\t\tconst lower = name.toLowerCase();\n\n\t\t\t\tif (!name) return false;\n\t\t\t\tif (l.active === false) return false;\n\t\t\t\tif (invalidNameParts.some(part => lower.includes(part))) return false;\n\n\t\t\t\treturn lower.includes(\"fulfillment\")\n\t\t\t\t\t|| lower.includes(\"product-ready\")\n\t\t\t\t\t|| lower.includes(\"product ready\")\n\t\t\t\t\t|| lower.includes(\"products storage\")\n\t\t\t\t\t|| lower.includes(\"product storage\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\t\tlabel: l.name,\n\t\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tdefaultFreshHarvestLocationId() {\n\t\tconst opts = LotsHarvest.freshHarvestLocationOptions();\n\n\t\tconst fulfillment = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"fulfillment\"\n\t\t);\n\n\t\treturn (fulfillment || opts[0])?.value || \"\";\n\t},\t\n\n\tdefaultFrozenHarvestLocationId() {\n\t\tconst opts = LotsHarvest.frozenHarvestLocationOptions();\n\n\t\tconst freezer = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase().includes(\"freezer\")\n\t\t);\n\n\t\treturn (freezer || opts[0])?.value || \"\";\n\t},\t\n\n\tfrozenHarvestLocationOptions() {\n\t\treturn (qProductLocations.data || [])\n\t\t\t.filter(l => {\n\t\t\tconst name = String(l.name || \"\").toLowerCase();\n\t\t\treturn name.includes(\"freeze\");\n\t\t\t})\n\t\t\t.map(l => ({\n\t\t\tlabel: l.name,\n\t\t\tvalue: l.nocopk\n\t\t\t}));\n\t},\n\n\tasync onHarvestCountsChanged() {\n\t\tif (LotsHarvest.harvestFreshTrayCount() > 0) {\n\t\t\tconst freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFreshStorageLocation.setSelectedOption(\"\");\n\t\t}\n\n\t\tif (LotsHarvest.harvestFrozenTrayCount() > 0) {\n\t\t\tconst frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n\t\t} else {\n\t\t\tawait selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n\t\t}\n\t},\n\n\tasync openHarvestModal() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\ttxtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n\n\t\tinpHarvestWeightG.setValue(\"\");\n\t\tinpHarvestFreshTrayCount.setValue(\"1\");\n\t\tinpHarvestFrozenTrayCount.setValue(\"0\");\n\t\tinpHarvestNotes.setValue(\"\");\n\n\t\tawait Promise.allSettled([\n\t\t\tqHarvestItems.run(),\n\t\t\tqProductLocations.run(),\n\t\t\tqHarvestFlushNo.run()\n\t\t]);\n\n\t\tconst nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n\t\tinpHarvestFlushNo.setValue(String(nextFlush));\n\n\t\tawait LotsHarvest.onHarvestCountsChanged();\n\n\t\t/* standalone page: modal open not needed */\n\t},\n\n\tharvestFreshTrayCount() {\n\t\tconst count = Number(inpHarvestFreshTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tharvestFrozenTrayCount() {\n\t\tconst count = Number(inpHarvestFrozenTrayCount.text || 0);\n\t\treturn Number.isFinite(count) && count > 0 ? count : 0;\n\t},\n\n\tasync harvestSelectedLot() {\n\t\tif (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n\n\t\tconst weightG = Number(inpHarvestWeightG.text);\n\t\tconst flushNo = Number(inpHarvestFlushNo.text);\n\t\tconst freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n\t\tconst frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n\t\tconst totalTrayCount = freshTrayCount + frozenTrayCount;\n\n\t\tif (!Number.isFinite(weightG) || weightG <= 0) {\n\t\t\tshowAlert(\"Enter harvest weight in grams.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (!Number.isFinite(flushNo) || flushNo <= 0) {\n\t\t\tshowAlert(\"Enter a valid flush number.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tif (totalTrayCount <= 0) {\n\t\t\tshowAlert(\"Enter at least one fresh or freezer tray.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\ttry {\n\t\t\tconst res = await qHarvestLot.run();\n\t\t\tshowAlert(\"Harvest created \" + res[0].created_count + \" tray product(s).\", \"success\");\n\t\t\t/* standalone page: modal close not needed */\n\t\t\tawait LotsHarvest.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t}\n\t}\n};",
         "name": "LotsHarvest",
         "pageId": "Harvest",
         "pluginId": "js-plugin",
@@ -5732,7 +5732,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}",
+          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -5761,7 +5761,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}"
+          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}"
         ],
         "messages": [],
         "name": "canSubmitHarvest",
@@ -5773,7 +5773,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}",
+          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -5802,7 +5802,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}"
+          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}"
         ],
         "messages": [],
         "name": "canSubmitHarvest",
@@ -9256,7 +9256,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await showModal(modalHarvestLot.name);\n}",
+          "body": "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n  await showModal(modalHarvestLot.name);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -9285,7 +9285,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await showModal(modalHarvestLot.name);\n}"
+          "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n  await showModal(modalHarvestLot.name);\n}"
         ],
         "messages": [],
         "name": "openHarvestModal",
@@ -9297,7 +9297,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await showModal(modalHarvestLot.name);\n}",
+          "body": "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n  await showModal(modalHarvestLot.name);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -9326,7 +9326,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await showModal(modalHarvestLot.name);\n}"
+          "async function () {\n  if (!LotsPage.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsPage.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n  await showModal(modalHarvestLot.name);\n}"
         ],
         "messages": [],
         "name": "openHarvestModal",
@@ -10412,7 +10412,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}",
+          "body": "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -10441,7 +10441,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}"
+          "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}"
         ],
         "messages": [],
         "name": "onHarvestCountsChanged",
@@ -10453,7 +10453,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}",
+          "body": "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -10482,7 +10482,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}"
+          "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}"
         ],
         "messages": [],
         "name": "onHarvestCountsChanged",
@@ -14151,7 +14151,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
+          "body": "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -14180,7 +14180,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
+          "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
         ],
         "messages": [],
         "name": "freshHarvestLocationOptions",
@@ -14192,7 +14192,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
+          "body": "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -14221,7 +14221,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
+          "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
         ],
         "messages": [],
         "name": "freshHarvestLocationOptions",
@@ -16543,6 +16543,184 @@
         ],
         "messages": [],
         "name": "hasEnoughSelectedFlaskVolume",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_ea598d71-0871-4f55-8101-c373e1e6b11d",
+      "id": "Lots_LotsHarvest.defaultFreshHarvestLocationId",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:52:04Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFreshHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFreshHarvestLocationId",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:52:04Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFreshHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFreshHarvestLocationId",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_90a7f4bd-ef9c-4ea3-9090-2bca45ded2a9",
+      "id": "Lots_LotsHarvest.defaultFrozenHarvestLocationId",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:52:04Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFrozenHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFrozenHarvestLocationId",
+        "pageId": "Lots",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Lots_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:52:04Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFrozenHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFrozenHarvestLocationId",
         "pageId": "Lots",
         "policyMap": {},
         "runBehaviour": "MANUAL",
@@ -32911,7 +33089,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsHarvest.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}",
+          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -32940,7 +33118,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsHarvest.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}"
+          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}"
         ],
         "messages": [],
         "name": "canSubmitHarvest",
@@ -32952,7 +33130,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsHarvest.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}",
+          "body": "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -32981,7 +33159,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  return LotsHarvest.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!selHarvestFreshStorageLocation.selectedOptionValue) && (frozenTrayCount <= 0 || !!selHarvestFrozeStorageLocation.selectedOptionValue);\n}"
+          "function () {\n  const weightG = Number(inpHarvestWeightG.text);\n  const freshTrayCount = LotsHarvest.harvestFreshTrayCount();\n  const frozenTrayCount = LotsHarvest.harvestFrozenTrayCount();\n  const flushNo = Number(inpHarvestFlushNo.text);\n  const freshLocationId = selHarvestFreshStorageLocation.selectedOptionValue;\n  const frozenLocationId = selHarvestFrozeStorageLocation.selectedOptionValue;\n  const validFreshLocationIds = LotsHarvest.freshHarvestLocationOptions().map(o => String(o.value));\n  const validFrozenLocationIds = LotsHarvest.frozenHarvestLocationOptions().map(o => String(o.value));\n  return LotsPage.canOpenLotModal(\"harvest\") && Number.isFinite(weightG) && weightG > 0 && Number.isFinite(flushNo) && flushNo > 0 && freshTrayCount + frozenTrayCount > 0 && (freshTrayCount <= 0 || !!freshLocationId && validFreshLocationIds.includes(String(freshLocationId))) && (frozenTrayCount <= 0 || !!frozenLocationId && validFrozenLocationIds.includes(String(frozenLocationId)));\n}"
         ],
         "messages": [],
         "name": "canSubmitHarvest",
@@ -33000,7 +33178,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}",
+          "body": "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33029,7 +33207,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}"
+          "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}"
         ],
         "messages": [],
         "name": "onHarvestCountsChanged",
@@ -33041,7 +33219,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}",
+          "body": "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33070,7 +33248,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  const freshOpts = LotsHarvest.freshHarvestLocationOptions();\n  const frozenOpts = LotsHarvest.frozenHarvestLocationOptions();\n  if (LotsHarvest.harvestFreshTrayCount() > 0 && freshOpts.length === 1) {\n    selHarvestFreshStorageLocation.setSelectedOption(freshOpts[0].value);\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0 && frozenOpts.length === 1) {\n    selHarvestFrozeStorageLocation.setSelectedOption(frozenOpts[0].value);\n  }\n}"
+          "async function () {\n  if (LotsHarvest.harvestFreshTrayCount() > 0) {\n    const freshDefault = LotsHarvest.defaultFreshHarvestLocationId();\n    await selHarvestFreshStorageLocation.setSelectedOption(freshDefault || \"\");\n  } else {\n    await selHarvestFreshStorageLocation.setSelectedOption(\"\");\n  }\n  if (LotsHarvest.harvestFrozenTrayCount() > 0) {\n    const frozenDefault = LotsHarvest.defaultFrozenHarvestLocationId();\n    await selHarvestFrozeStorageLocation.setSelectedOption(frozenDefault || \"\");\n  } else {\n    await selHarvestFrozeStorageLocation.setSelectedOption(\"\");\n  }\n}"
         ],
         "messages": [],
         "name": "onHarvestCountsChanged",
@@ -33356,7 +33534,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
+          "body": "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33385,7 +33563,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
+          "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
         ],
         "messages": [],
         "name": "freshHarvestLocationOptions",
@@ -33397,7 +33575,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
+          "body": "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33426,7 +33604,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").toLowerCase();\n    return name.includes(\"shipping\") || name.includes(\"fulfillment\") || name.includes(\"product\") || name.includes(\"packag\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
+          "function () {\n  const invalidNameParts = [\"shipped\", \"shipping\", \"expired\", \"compost\", \"consumed\", \"retired\", \"freeze\", \"freezer\", \"lab\", \"dark room\"];\n  return (qProductLocations.data || []).filter(l => {\n    const name = String(l.name || \"\").trim();\n    const lower = name.toLowerCase();\n    if (!name) return false;\n    if (l.active === false) return false;\n    if (invalidNameParts.some(part => lower.includes(part))) return false;\n    return lower.includes(\"fulfillment\") || lower.includes(\"product-ready\") || lower.includes(\"product ready\") || lower.includes(\"products storage\") || lower.includes(\"product storage\");\n  }).map(l => ({\n    label: l.name,\n    value: l.nocopk\n  }));\n}"
         ],
         "messages": [],
         "name": "freshHarvestLocationOptions",
@@ -33534,7 +33712,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n}",
+          "body": "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33563,7 +33741,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n}"
+          "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n}"
         ],
         "messages": [],
         "name": "openHarvestModal",
@@ -33575,7 +33753,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n}",
+          "body": "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -33604,7 +33782,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n}"
+          "async function () {\n  if (!LotsHarvest.validateAndWarnLotModal(\"harvest\", \"Select exactly one active fruiting block lot to harvest.\")) return;\n  txtHarvestContent.setText(LotsHarvest.formatSelectedLots());\n  inpHarvestWeightG.setValue(\"\");\n  inpHarvestFreshTrayCount.setValue(\"1\");\n  inpHarvestFrozenTrayCount.setValue(\"0\");\n  inpHarvestNotes.setValue(\"\");\n  await Promise.allSettled([qHarvestItems.run(), qProductLocations.run(), qHarvestFlushNo.run()]);\n  const nextFlush = qHarvestFlushNo.data?.[0]?.next_flush_no || 1;\n  inpHarvestFlushNo.setValue(String(nextFlush));\n  await LotsHarvest.onHarvestCountsChanged();\n}"
         ],
         "messages": [],
         "name": "openHarvestModal",
@@ -34920,6 +35098,184 @@
         ],
         "messages": [],
         "name": "canOpenLotModal",
+        "pageId": "Harvest",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_edacc42d-8394-47ff-814c-444d292e003d",
+      "id": "Harvest_LotsHarvest.defaultFreshHarvestLocationId",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Harvest_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:51:15Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFreshHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFreshHarvestLocationId",
+        "pageId": "Harvest",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Harvest_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:51:15Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFreshHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.freshHarvestLocationOptions();\n  const fulfillment = opts.find(o => String(o.label || \"\").trim().toLowerCase() === \"fulfillment\");\n  return (fulfillment || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFreshHarvestLocationId",
+        "pageId": "Harvest",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "6a121a7288813d60385a685b_e5a10ca7-068e-4332-a30a-b362f31994ca",
+      "id": "Harvest_LotsHarvest.defaultFrozenHarvestLocationId",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Harvest_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:51:30Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFrozenHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFrozenHarvestLocationId",
+        "pageId": "Harvest",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 0
+        },
+        "collectionId": "Harvest_LotsHarvest",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-05-31T01:51:30Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "LotsHarvest.defaultFrozenHarvestLocationId",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n  const opts = LotsHarvest.frozenHarvestLocationOptions();\n  const freezer = opts.find(o => String(o.label || \"\").trim().toLowerCase().includes(\"freezer\"));\n  return (freezer || opts[0])?.value || \"\";\n}"
+        ],
+        "messages": [],
+        "name": "defaultFrozenHarvestLocationId",
         "pageId": "Harvest",
         "policyMap": {},
         "runBehaviour": "MANUAL",
