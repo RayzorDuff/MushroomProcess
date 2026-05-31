@@ -1326,12 +1326,12 @@
             "choices": [
               {
                 "id": "seljDM6b1ROjnHKnP",
-                "name": "Robert Weber <bobbyweber13@gmail.com>",
+                "name": "Robert Weber <operator1.email.address@mybusiness.com>",
                 "color": "blueLight2"
               },
               {
                 "id": "sel2nT8TuD1uyDpjL",
-                "name": "Ray Danks <bobbyweber13@gmail.com>",
+                "name": "Ray Danks <operator1.email.address@mybusiness.com>",
                 "color": "cyanLight2"
               }
             ]
@@ -1353,17 +1353,17 @@
         },
         {
           "id": "viwUL4gsb8bAIROHp",
-          "name": "Active Rooted Psyche",
+          "name": "Active Regulated Business",
           "type": "grid"
         },
         {
           "id": "viwhoJqbiMuiTFISl",
-          "name": "Active Rooted Psyche Packages",
+          "name": "Active Regulated Business Packages",
           "type": "grid"
         },
         {
           "id": "viwcx0xtA7pRoyigo",
-          "name": "All Rooted Psyche",
+          "name": "All Regulated Business",
           "type": "grid"
         },
         {
@@ -1804,12 +1804,12 @@
             "choices": [
               {
                 "id": "selSPNBtJvJECIpNl",
-                "name": "Robert Weber <bobbyweber13@gmail.com>",
+                "name": "Robert Weber <operator1.email.address@mybusiness.com>",
                 "color": "greenLight2"
               },
               {
                 "id": "selGxRg8rblVPdbzY",
-                "name": "Ray Danks <ray@edanks.com>",
+                "name": "Ray Danks <operator2.email.address@mybusiness.com>",
                 "color": "blueLight2"
               }
             ]
@@ -4488,12 +4488,12 @@
             "choices": [
               {
                 "id": "selMcwKPzoYHIVPiw",
-                "name": "Robert Weber <bobbyweber13@gmail.com>",
+                "name": "Robert Weber <operator1.email.address@mybusiness.com>",
                 "color": "redLight2"
               },
               {
                 "id": "sel3jt3Y70acIGJRf",
-                "name": "Ray Danks <bobbyweber13@gmail.com>",
+                "name": "Ray Danks <operator1.email.address@mybusiness.com>",
                 "color": "blueLight2"
               }
             ]

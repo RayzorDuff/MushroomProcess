@@ -2,7 +2,7 @@
 require('./load_env');
 /**
  * airtable_export_postprocess.js
- * Version: 2026-05-31.1
+ * Version: 2026-05-31.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -284,8 +284,6 @@ function main() {
     rewriteCompanyFormulasLots(schema);
   }
   
-  writeJson(outPath, schema);
-
   let obfuscatedOperatorEmailCount = 0;
   if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
     const obfuscator = createOperatorEmailObfuscator();
@@ -296,6 +294,8 @@ function main() {
   if (POSTPROCESS_REWRITE_BRANDING_STRINGS) {
     rewriteStringsDeep(schema, replaceBrandingInString);
   }
+  
+  writeJson(outPath, schema);
   console.log(`Wrote ${outPath}`);
   if (POSTPROCESS_REMOVE_EXTRA_FIELDS) {
     console.log(`Removed ${removed} " From: " fields`);
