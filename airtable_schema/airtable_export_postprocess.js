@@ -48,6 +48,16 @@ const POSTPROCESS_REMOVE_EXTRA_FIELDS =
     : (process.env.POSTPROCESS_REMOVE_EXTRA_FIELDS || 'true').toString().toLowerCase() === 'true';
 
 function readJson(path) {
+const POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS =
+  typeof global.envBool === 'function'
+    ? global.envBool('POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS', true)
+    : (process.env.POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS || 'true').toString().toLowerCase() === 'true';
+
+const POSTPROCESS_REWRITE_BRANDING_STRINGS =
+  typeof global.envBool === 'function'
+    ? global.envBool('POSTPROCESS_REWRITE_BRANDING_STRINGS', true)
+    : (process.env.POSTPROCESS_REWRITE_BRANDING_STRINGS || 'true').toString().toLowerCase() === 'true';
+
   const raw = fs.readFileSync(path, "utf8");
   return JSON.parse(raw);
 }
@@ -63,12 +73,70 @@ const COMPANY = {
   myBusinessUrl: "https://www.mybusiness.com/",
   regulatedBusinessUrl: "https://www.regulatedbusiness.com/",
   regulatedBusinessAddressAndContact: "RegulatedBusinessAddressAndContact",
-  myBusinessAddressAndContact: "MyBuinessAddressAndContact",
+  myBusinessAddressAndContact: "MyBusinessAddressAndContact",
   myBusinessOffering: "MyBusinessOffering",
 };
 
 // Airtable-export formulas in _schema.json use field IDs inside { ... }.
 // We build formulas using IDs discovered by field NAME in the same table.
+const OPERATOR_EMAIL_DOMAIN = (process.env.POSTPROCESS_OPERATOR_EMAIL_DOMAIN || 'mybusiness.com')
+  .toString()
+  .trim()
+  .replace(/^@+/, '') || 'mybusiness.com';
+
+const BRANDING_REPLACEMENTS = [
+  [/Rooted\s+Psyche\s+Church/gi, COMPANY.regulatedBusinessName],
+  [/Rooted\s+Psyche/gi, COMPANY.regulatedBusinessName],
+  [/Dank\s+Mushrooms,?\s+LLC/gi, COMPANY.myBusinessName],
+  [/Dank\s+Mushrooms/gi, COMPANY.myBusinessName],
+  [/https?:\/\/(?:www\.)?danks\.store\/?/gi, COMPANY.myBusinessUrl],
+  [/\b(?:www\.)?danks\.store\b/gi, 'www.mybusiness.com'],
+  [/\bdanks\.store\b/gi, 'mybusiness.com'],
+  [/\bdanks\.net\b/gi, 'mybusiness.com'],
+  [/\bsales@mybusiness\.com\b/gi, 'contact@mybusiness.com'],
+  [/\bsales@danks\.net\b/gi, 'contact@mybusiness.com'],
+  [/1726\s+Goldenvue\s+Drive\s*\nJohnstown,\s*CO\s*80534\s*\nhttps?:\/\/(?:www\.)?mybusiness\.com\/?\s*\n970-587-3294\s*\ncontact@mybusiness\.com/gi, COMPANY.myBusinessAddressAndContact],
+  [/1726\s+Goldenvue\s+Drive\s*\nJohnstown,\s*CO\s*80534\s*\nhttps?:\/\/(?:www\.)?danks\.store\/?\s*\n970-587-3294\s*\n(?:sales@danks\.net|contact@mybusiness\.com)/gi, COMPANY.myBusinessAddressAndContact],
+];
+
+function replaceBrandingInString(value) {
+  let out = value;
+  for (const [pattern, replacement] of BRANDING_REPLACEMENTS) {
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+}
+
+function createOperatorEmailObfuscator() {
+  const emailMap = new Map();
+  const emailRe = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+
+  function replacementFor(email) {
+    const normalized = String(email).trim().toLowerCase();
+    if (!emailMap.has(normalized)) {
+      emailMap.set(normalized, `operator${emailMap.size + 1}.email.address@${OPERATOR_EMAIL_DOMAIN}`);
+    }
+    return emailMap.get(normalized);
+  }
+
+  function obfuscateString(value) {
+    return value.replace(emailRe, (email) => replacementFor(email));
+  }
+
+  return { obfuscateString, emailMap };
+}
+
+function rewriteStringsDeep(value, transformString) {
+  if (typeof value === 'string') return transformString(value);
+  if (Array.isArray(value)) return value.map((x) => rewriteStringsDeep(x, transformString));
+  if (value && typeof value === 'object') {
+    for (const key of Object.keys(value)) {
+      value[key] = rewriteStringsDeep(value[key], transformString);
+    }
+  }
+  return value;
+}
+
 function getFieldIdByName(table, fieldName) {
   const f = (table.fields || []).find((x) => x && x.name === fieldName);
   return f ? f.id : null;
@@ -218,6 +286,16 @@ function main() {
   
   writeJson(outPath, schema);
 
+  let obfuscatedOperatorEmailCount = 0;
+  if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
+    const obfuscator = createOperatorEmailObfuscator();
+    rewriteStringsDeep(schema, obfuscator.obfuscateString);
+    obfuscatedOperatorEmailCount = obfuscator.emailMap.size;
+  }
+
+  if (POSTPROCESS_REWRITE_BRANDING_STRINGS) {
+    rewriteStringsDeep(schema, replaceBrandingInString);
+  }
   console.log(`Wrote ${outPath}`);
   if (POSTPROCESS_REMOVE_EXTRA_FIELDS) {
     console.log(`Removed ${removed} " From: " fields`);
@@ -227,6 +305,15 @@ function main() {
 
   if (!POSTPROCESS_REWRITE_COMPANY) {
     console.log('Skipped company formula rewrites (POSTPROCESS_REWRITE_COMPANY=false)');
+  }
+  if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
+    console.log(`Obfuscated ${obfuscatedOperatorEmailCount} distinct email address(es)`);
+  } else {
+    console.log('Skipped operator email obfuscation (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS=false)');
+  }
+
+  if (!POSTPROCESS_REWRITE_BRANDING_STRINGS) {
+    console.log('Skipped generic branding string rewrites (POSTPROCESS_REWRITE_BRANDING_STRINGS=false)');
   }
 }
 
