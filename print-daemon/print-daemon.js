@@ -166,9 +166,25 @@ function nowStamp() {
 }
 
 const DB_BACKEND = String(process.env.DB_BACKEND || 'airtable').toLowerCase();
+const NOCODB_API_VERSION = String(process.env.NOCODB_API_VERSION || 'v2').toLowerCase();
+const NOCODB_SOURCE_ID = (process.env.NOCODB_SOURCE_ID || process.env.NOCODB_BASE_SOURCE_ID || '').trim();
+const NOCODB_PAGE_SIZE = safeNum(process.env.NOCODB_PAGE_SIZE, 25);
+
+// Airtable uses table names/IDs directly. NocoDB v2 also used table names/IDs directly.
+// NocoDB v3 external PostgreSQL sources usually require internal table/view IDs from API Snippets.
+// For v3, the daemon can read rendered label fields from vc_print_queue while writing status fields
+// back to the underlying print_queue table.
 const PRINT_QUEUE_TABLE = process.env.PRINT_QUEUE_TABLE || process.env.AIRTABLE_QUEUE_TABLE || process.env.NOCODB_QUEUE_TABLE_ID || 'print_queue';
+const PRINT_QUEUE_READ_TABLE = process.env.PRINT_QUEUE_READ_TABLE || process.env.PRINT_QUEUE_TABLE_READ || PRINT_QUEUE_TABLE;
+const PRINT_QUEUE_WRITE_TABLE = process.env.PRINT_QUEUE_WRITE_TABLE || process.env.PRINT_QUEUE_TABLE_WRITE || PRINT_QUEUE_TABLE;
+const PRINT_QUEUE_READ_VIEW_ID = (process.env.PRINT_QUEUE_READ_VIEW_ID || process.env.PRINT_QUEUE_VIEW_ID || process.env.NOCODB_QUEUE_VIEW_ID || '').trim();
+const PRINT_QUEUE_WRITE_VIEW_ID = (process.env.PRINT_QUEUE_WRITE_VIEW_ID || '').trim();
+const PRINT_QUEUE_WRITE_ID_FIELD = (process.env.PRINT_QUEUE_WRITE_ID_FIELD || 'nocopk').trim();
+
 const STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || 'sterilization_runs';
+const STERILIZATION_RUNS_VIEW_ID = (process.env.STERILIZATION_RUNS_VIEW_ID || '').trim();
 const LOTS_TABLE = process.env.LOTS_TABLE || 'lots';
+const LOTS_VIEW_ID = (process.env.LOTS_VIEW_ID || '').trim();
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
@@ -242,6 +258,111 @@ function pick(fields, keys) {
     }
   }
   return '';
+}
+
+function isNocoV3() {
+  return DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
+}
+
+function nocoV3RecordsPath(tableId) {
+  if (!NOCODB_SOURCE_ID) {
+    throw new Error('NOCODB_SOURCE_ID is required when NOCODB_API_VERSION=v3');
+  }
+  if (!tableId) {
+    throw new Error('NocoDB v3 table id is required');
+  }
+  return `/api/v3/data/${encodeURIComponent(NOCODB_SOURCE_ID)}/${encodeURIComponent(tableId)}/records`;
+}
+
+async function fetchNocoV3Records(tableId, viewId = '', params = {}, allPages = false) {
+  const out = [];
+  let url = nocoV3RecordsPath(tableId);
+  let first = true;
+
+  while (url) {
+    const requestParams = first
+      ? {
+          pageSize: NOCODB_PAGE_SIZE,
+          ...(viewId ? { viewId } : {}),
+          ...params,
+        }
+      : undefined;
+
+    const { data } = await NC.get(url, requestParams ? { params: requestParams } : undefined);
+    const records = data && Array.isArray(data.records) ? data.records : [];
+    out.push(...records);
+
+    if (!allPages) break;
+    url = data && data.next ? data.next : '';
+    first = false;
+  }
+
+  return out;
+}
+
+function nocoV3RecordFields(row) {
+  return (row && row.fields && typeof row.fields === 'object') ? row.fields : {};
+}
+
+function nocoV3RecordId(row, preferredField = 'nocopk') {
+  const f = nocoV3RecordFields(row);
+  const idFields = (row && row.id_fields && typeof row.id_fields === 'object') ? row.id_fields : {};
+
+  const candidates = [
+    preferredField ? f[preferredField] : undefined,
+    preferredField ? idFields[preferredField] : undefined,
+    f.nocopk,
+    idFields.nocopk,
+    row && row.id,
+    row && row.Id,
+  ];
+
+  for (const v of candidates) {
+    if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+  }
+  return null;
+}
+
+function normalizeNocoV3QueueRecord(row) {
+  return {
+    id: nocoV3RecordId(row, PRINT_QUEUE_WRITE_ID_FIELD),
+    read_id: row && row.id,
+    fields: nocoV3RecordFields(row),
+    _raw: row,
+  };
+}
+
+function linkedNocoValue(value, fieldNames = []) {
+  if (value == null) return '';
+  const one = Array.isArray(value) ? value[0] : value;
+  if (one == null) return '';
+  if (typeof one !== 'object') return one;
+
+  const f = one.fields && typeof one.fields === 'object' ? one.fields : {};
+  const idf = one.id_fields && typeof one.id_fields === 'object' ? one.id_fields : {};
+
+  for (const k of fieldNames) {
+    if (f[k] !== undefined && f[k] !== null && String(f[k]).trim() !== '') return f[k];
+    if (idf[k] !== undefined && idf[k] !== null && String(idf[k]).trim() !== '') return idf[k];
+  }
+
+  return one.id ?? one.Id ?? idf.nocopk ?? '';
+}
+
+function nocoV3MatchesRecord(row, value, fieldNames = []) {
+  const target = String(value || '').trim();
+  if (!target) return false;
+  const f = nocoV3RecordFields(row);
+  const id = nocoV3RecordId(row);
+
+  if (String(row?.id ?? '').trim() === target) return true;
+  if (String(id ?? '').trim() === target) return true;
+
+  for (const k of fieldNames) {
+    if (String(f[k] ?? '').trim() === target) return true;
+  }
+
+  return false;
 }
 
 /* ---------- Env (hardened) ---------- */
@@ -396,7 +517,27 @@ async function fetchQueued(viewName) {
     return data.records || [];
   
   } else {
-    // "viewName" is ignored for NocoDB, kept for API compatibility with old code.
+    if (isNocoV3()) {
+      // NocoDB v3 external PostgreSQL API. Read from vc_print_queue or another read view
+      // that contains rendered label fields; write status updates back to print_queue.
+      const records = await fetchNocoV3Records(
+        PRINT_QUEUE_READ_TABLE,
+        PRINT_QUEUE_READ_VIEW_ID,
+        {},
+        false
+      );
+
+      return records
+        .map(normalizeNocoV3QueueRecord)
+        .filter(rec => String(toFlat(rec.fields?.print_status)).trim() === 'Queued')
+        .filter(rec => {
+          if (!PRINT_TARGET_VALUE) return true;
+          const v = toFlat(rec.fields?.[PRINT_TARGET_FIELD]);
+          return String(v || '').trim() === PRINT_TARGET_VALUE;
+        });
+    }
+
+    // "viewName" is ignored for NocoDB v2, kept for API compatibility with old code.
     // Build NocoDB where clause:
     // - always require print_status='Queued'
     // - optionally require print_target match (PRINT_TARGET_VALUE)
@@ -446,6 +587,12 @@ async function updateQueueRecord(id, fields) {
     
     await API.patch(PRINT_QUEUE_TABLE, payload);
   } else {
+    if (isNocoV3()) {
+      const url = nocoV3RecordsPath(PRINT_QUEUE_WRITE_TABLE);
+      await NC.patch(url, { id, fields });
+      return;
+    }
+
     const url = `/api/v2/tables/${encodeURIComponent(PRINT_QUEUE_TABLE)}/records/${encodeURIComponent(id)}`;
     await NC.patch(url, fields);
   }
@@ -1034,7 +1181,16 @@ async function fetchRun(runId) {
       
   } else {
     
-    // NocoDB: accept either a numeric record Id or a steri_run_id string
+    // NocoDB v3: fetch from the configured sterilization_runs table/view and match locally.
+    if (isNocoV3()) {
+      if (runId == null || runId === '') return null;
+      const target = String(runId).trim();
+      const rows = await fetchNocoV3Records(STERILIZATION_RUNS_TABLE, STERILIZATION_RUNS_VIEW_ID, {}, true);
+      const row = rows.find(r => nocoV3MatchesRecord(r, target, ['steri_run_id']));
+      return row ? { id: nocoV3RecordId(row), fields: nocoV3RecordFields(row), _raw: row } : null;
+    }
+
+    // NocoDB v2: accept either a numeric record Id or a steri_run_id string
     if (runId == null || runId === '') return null;
 
     const table = encodeURIComponent(STERILIZATION_RUNS_TABLE);
@@ -1100,6 +1256,21 @@ async function fetchLotsForRun(runId) {
     return out;
       
   } else {
+    if (isNocoV3()) {
+      if (runId == null || runId === '') return [];
+      const target = String(runId).trim();
+      const rows = await fetchNocoV3Records(LOTS_TABLE, LOTS_VIEW_ID, {}, true);
+      return rows
+        .filter(row => {
+          const f = nocoV3RecordFields(row);
+          if (String(f.steri_run_id ?? '').includes(target)) return true;
+          if (String(f.sterilization_run_id ?? '').includes(target)) return true;
+          if (String(f.sterilization_runs ?? '').includes(target)) return true;
+          return JSON.stringify(f).includes(target);
+        })
+        .map(row => ({ id: nocoV3RecordId(row), fields: nocoV3RecordFields(row), _raw: row }));
+    }
+
     if (runId == null || runId === '') return [];
 
     const table = encodeURIComponent(LOTS_TABLE);
@@ -1557,10 +1728,16 @@ async function processRecord(rec) {
       const runLink =
         f.run_id && Array.isArray(f.run_id) && f.run_id[0]
           ? f.run_id[0]
-          : null;
+          : (
+              linkedNocoValue(f.sterilization_runs, ['steri_run_id', 'nocopk']) ||
+              linkedNocoValue(f.run_id, ['steri_run_id', 'nocopk']) ||
+              f.steri_run_id ||
+              f.sterilization_run_id ||
+              null
+            );
       if (!runLink)
         throw new Error(
-          'steri_sheet job missing run_id link'
+          'steri_sheet job missing run_id/sterilization_runs link'
         );
 
       const run = await fetchRun(runLink);
@@ -1568,7 +1745,7 @@ async function processRecord(rec) {
         throw new Error(`steri_sheet run not found for run_id="${runLink}"`);
       }      
       const r = run.fields || {};
-      const lots = await fetchLotsForRun(r.steri_run_id);
+      const lots = await fetchLotsForRun(r.steri_run_id || runLink);
 
       const outName = `steri-sheet_${
         (run.fields && run.fields.steri_run_id) || run.id
@@ -1714,6 +1891,20 @@ async function cycle() {
 }
 
   log.info(`MushroomProcess print daemon starting`, { backend: DB_BACKEND, instance: INSTANCE_ID });
+  if (DB_BACKEND !== 'airtable') {
+    log.info('NocoDB config', {
+      api_version: NOCODB_API_VERSION,
+      source_id: NOCODB_SOURCE_ID || '(v2/not set)',
+      queue_read_table: PRINT_QUEUE_READ_TABLE,
+      queue_read_view: PRINT_QUEUE_READ_VIEW_ID || '(none)',
+      queue_write_table: PRINT_QUEUE_WRITE_TABLE,
+      queue_write_id_field: PRINT_QUEUE_WRITE_ID_FIELD,
+      lots_table: LOTS_TABLE,
+      lots_view: LOTS_VIEW_ID || '(none)',
+      sterilization_runs_table: STERILIZATION_RUNS_TABLE,
+      sterilization_runs_view: STERILIZATION_RUNS_VIEW_ID || '(none)',
+    });
+  }
   log.info(
   `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
     PRINTER || '(default)'
