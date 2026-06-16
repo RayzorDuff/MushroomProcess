@@ -2469,6 +2469,10 @@ DECLARE
   v_event_id bigint;
   v_count integer := 0;
   v_bad_count integer;
+  v_prev_tray_state text;
+  v_prev_location_id bigint;
+  v_prev_location_name text;
+  v_new_location_name text;
 BEGIN
   IF p_product_ids IS NULL OR array_length(p_product_ids, 1) IS NULL THEN
     RAISE EXCEPTION 'At least one freezer tray product is required';
@@ -2496,23 +2500,17 @@ BEGIN
     RAISE EXCEPTION 'Selected location is not a Freeze Dryer location';
   END IF;
 
-  BEGIN
-    v_event_id := public.mp_events_insert(
-      'Move Tray To Freeze Dryer'::text,
-      COALESCE(p_operator, '')::text,
-      COALESCE(p_station, 'Products')::text,
-      now(),
-      jsonb_build_object(
-        'product_ids', p_product_ids,
-        'freeze_dryer_location_id', p_freeze_dryer_location_id,
-        'notes', p_notes
-      )
-    );
-  EXCEPTION WHEN undefined_function THEN
-    v_event_id := NULL;
-  END;
+  SELECT l.name INTO v_new_location_name
+  FROM public.locations l
+  WHERE l.nocopk = p_freeze_dryer_location_id;
 
   FOREACH v_product_id IN ARRAY p_product_ids LOOP
+    SELECT p.tray_state, p.storage_location_id, l.name
+    INTO v_prev_tray_state, v_prev_location_id, v_prev_location_name
+    FROM public.products p
+    LEFT JOIN public.locations l ON l.nocopk = p.storage_location_id
+    WHERE p.nocopk = v_product_id;
+
     UPDATE public.products
     SET storage_location_id = p_freeze_dryer_location_id,
         tray_state = 'freeze_drying',
@@ -2531,12 +2529,35 @@ BEGIN
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
 
-      IF v_event_id IS NOT NULL THEN
+      BEGIN
+        v_event_id := public.mp_events_insert(
+          p_lot_id => NULL::bigint,
+          p_product_id => v_product_id,
+          p_type => 'MovedToFreezeDryer'::text,
+          p_timestamp => now(),
+          p_operator => COALESCE(p_operator, '')::text,
+          p_station => COALESCE(p_station, 'Products')::text,
+          p_fields_json => jsonb_build_object(
+            'action', 'Move to Freeze Dryer',
+            'workflow', 'mp_products_move_to_freeze_dryer',
+            'product_id', v_product_id,
+            'previous_tray_state', v_prev_tray_state,
+            'new_tray_state', 'freeze_drying',
+            'previous_storage_location_id', v_prev_location_id,
+            'previous_storage_location', v_prev_location_name,
+            'new_storage_location_id', p_freeze_dryer_location_id,
+            'new_storage_location', v_new_location_name,
+            'operator', p_operator,
+            'notes', p_notes
+          )
+        );
+
         BEGIN
           PERFORM public.mp_events_link_product(v_event_id, v_product_id);
         EXCEPTION WHEN undefined_function THEN NULL;
         END;
-      END IF;
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
 
       v_count := v_count + 1;
     END IF;
@@ -2563,8 +2584,13 @@ DECLARE
   v_event_id bigint;
   v_count integer := 0;
   v_state text;
+  v_event_type text;
   v_target_location_name text;
   v_target_location_id bigint;
+  v_prev_tray_state text;
+  v_prev_location_id bigint;
+  v_prev_location_name text;
+  v_target_location_resolved_name text;
   v_bad_count integer;
 BEGIN
   IF p_product_ids IS NULL OR array_length(p_product_ids, 1) IS NULL THEN
@@ -2597,25 +2623,27 @@ BEGIN
   ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
   LIMIT 1;
 
-  BEGIN
-    v_event_id := public.mp_events_insert(
-      'Retire Tray Product'::text,
-      COALESCE(p_operator, '')::text,
-      COALESCE(p_station, 'Products')::text,
-      now(),
-      jsonb_build_object(
-        'product_ids', p_product_ids,
-        'reason', v_state,
-        'target_location_name', v_target_location_name,
-        'target_location_id', v_target_location_id,
-        'notes', p_notes
-      )
-    );
-  EXCEPTION WHEN undefined_function THEN
-    v_event_id := NULL;
+  IF v_target_location_id IS NULL THEN
+    RAISE EXCEPTION 'Target location not found: %', v_target_location_name;
+  END IF;
+
+  SELECT l.name INTO v_target_location_resolved_name
+  FROM public.locations l
+  WHERE l.nocopk = v_target_location_id;
+
+  v_event_type := CASE
+    WHEN v_state = 'compost' THEN 'ProductComposted'
+    WHEN v_state = 'spoiled' THEN 'ProductSpoiled'
+    ELSE 'ProductRetired'
   END;
 
   FOREACH v_product_id IN ARRAY p_product_ids LOOP
+    SELECT p.tray_state, p.storage_location_id, l.name
+    INTO v_prev_tray_state, v_prev_location_id, v_prev_location_name
+    FROM public.products p
+    LEFT JOIN public.locations l ON l.nocopk = p.storage_location_id
+    WHERE p.nocopk = v_product_id;
+
     UPDATE public.products
     SET tray_state = v_state,
         storage_location_id = COALESCE(v_target_location_id, storage_location_id),
@@ -2636,12 +2664,36 @@ BEGIN
         END;
       END IF;
 
-      IF v_event_id IS NOT NULL THEN
+      BEGIN
+        v_event_id := public.mp_events_insert(
+          p_lot_id => NULL::bigint,
+          p_product_id => v_product_id,
+          p_type => v_event_type,
+          p_timestamp => now(),
+          p_operator => COALESCE(p_operator, '')::text,
+          p_station => COALESCE(p_station, 'Products')::text,
+          p_fields_json => jsonb_build_object(
+            'action', 'Retire Tray Product',
+            'workflow', 'mp_products_retire_trays',
+            'product_id', v_product_id,
+            'reason', v_state,
+            'previous_tray_state', v_prev_tray_state,
+            'new_tray_state', v_state,
+            'previous_storage_location_id', v_prev_location_id,
+            'previous_storage_location', v_prev_location_name,
+            'new_storage_location_id', v_target_location_id,
+            'new_storage_location', v_target_location_resolved_name,
+            'operator', p_operator,
+            'notes', p_notes
+          )
+        );
+
         BEGIN
           PERFORM public.mp_events_link_product(v_event_id, v_product_id);
         EXCEPTION WHEN undefined_function THEN NULL;
         END;
-      END IF;
+      EXCEPTION WHEN undefined_function THEN NULL;
+      END;
 
       v_count := v_count + 1;
     END IF;
