@@ -278,7 +278,17 @@ BEGIN
       v_end::timestamp,
       p_operator::text,
       'Sterilizer OUT'::text,
-      json_build_object('run_id', v_run."nocopk")::jsonb
+      json_build_object(
+        'run_id', v_run."nocopk",
+        'run_no', v_run."steri_run_id",
+        'process_type', lower(btrim(v_run."process_type")),
+        'planned_item_id', v_run."planned_item_id",
+        'planned_item_name', v_item_name,
+        'planned_recipe_id', v_run."planned_recipe_id",
+        'planned_unit_size', v_run."planned_unit_size",
+        'destroyed_count', p_destroyed_count,
+        'destroyed_sequence', v_n
+      )::jsonb
     );
   END LOOP;
 
