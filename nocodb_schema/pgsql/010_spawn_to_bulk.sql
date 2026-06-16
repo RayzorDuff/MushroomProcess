@@ -59,6 +59,19 @@ BEGIN
 END;
 $$;
 
+DROP FUNCTION IF EXISTS public.mp_lots_spawn_to_bulk(
+  bigint[],
+  bigint[],
+  integer,
+  jsonb,
+  bigint,
+  timestamp without time zone,
+  text,
+  text,
+  timestamp without time zone,
+  text
+);
+
 CREATE OR REPLACE FUNCTION public.mp_lots_spawn_to_bulk(
   p_grain_lot_ids bigint[],
   p_substrate_lot_ids bigint[],
@@ -69,7 +82,8 @@ CREATE OR REPLACE FUNCTION public.mp_lots_spawn_to_bulk(
   p_operator text DEFAULT 'system',
   p_station text DEFAULT 'Spawn to Bulk',
   p_timestamp timestamp without time zone DEFAULT NULL,
-  p_note text DEFAULT NULL
+  p_note text DEFAULT NULL,
+  p_fruiting_goal text DEFAULT NULL
 )
 RETURNS integer
 LANGUAGE plpgsql
@@ -115,6 +129,7 @@ DECLARE
   v_created_lot_ids bigint[] := ARRAY[]::bigint[];
   v_created_count integer := 0;
   v_event_id bigint;
+  v_fruiting_goal text;
 BEGIN
   IF p_grain_lot_ids IS NULL OR array_length(p_grain_lot_ids, 1) IS NULL THEN
     RAISE EXCEPTION 'Select at least one colonized grain source lot.';
@@ -277,6 +292,12 @@ BEGIN
     RAISE EXCEPTION 'Storage location is required.';
   END IF;
 
+  v_fruiting_goal := NULLIF(lower(btrim(COALESCE(p_fruiting_goal, ''))), '');
+  IF v_fruiting_goal IS NOT NULL
+     AND v_fruiting_goal NOT IN ('top', 'side', 'shoebox', 'monotub') THEN
+    RAISE EXCEPTION 'Fruiting goal must be top, side, shoebox, or monotub.';
+  END IF;
+
   SELECT nocopk
   INTO v_consumed_location_id
   FROM public.locations
@@ -349,6 +370,7 @@ BEGIN
       strain_species_strain_mat,
       vendor_name_mat,
       spawned_at,
+      fruiting_goal,
       label_template,
       notes
     )
@@ -370,6 +392,7 @@ BEGIN
       v_output_species_strain_mat,
       v_output_vendor_name_mat,
       v_ts,
+      v_fruiting_goal,
       'Bulk_Created',
       NULLIF(p_note, '')
     )
@@ -430,6 +453,7 @@ BEGIN
           'output_count', v_output_count,
           'per_output_unit_size_lb', v_unit_size,
           'output_item_code', v_item_code,
+          'fruiting_goal', v_fruiting_goal,
           'output_plan_json', p_output_plan_json,
           'note', p_note
         )
