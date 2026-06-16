@@ -236,7 +236,7 @@ $$;
 --
 --    p_fridge_mode is retained for backward compatibility with the earlier Fridge
 --    modal, but now represents the requested transition mode:
---      - FullyColonized: set status and log FullyColonized without requiring a new location
+--      - FullyColonized: set status, move to Dark Room by default, and log FullyColonized
 --      - Fridge: ensure/log FullyColonized, move to the selected fridge location, set status Fridge
 --      - ColdShock: ensure/log FullyColonized, move to the selected fridge location, set status ColdShock
 --      - Fruiting / StartFruiting: move to the selected fruiting location, set status Fruiting, log FruitingStart
@@ -260,6 +260,7 @@ DECLARE
   v_counter integer := 0;
   v_old_status text;
   v_new_status text;
+  v_effective_location_id bigint;
   v_location_name text;
   v_mode text;
   v_ts timestamp without time zone;
@@ -272,7 +273,7 @@ BEGIN
   v_ts := COALESCE(p_timestamp, now())::timestamp without time zone;
 
   IF p_location_id IS NOT NULL THEN
-    SELECT l.name INTO v_location_name
+    SELECT l.nocopk, l.name INTO v_effective_location_id, v_location_name
     FROM public.locations l
     WHERE l.nocopk = p_location_id;
 
@@ -281,8 +282,19 @@ BEGIN
     END IF;
   END IF;
 
-  IF v_mode IN ('Fridge', 'ColdShock', 'Fruiting', 'StartFruiting')
-     AND (p_location_id IS NULL OR v_location_name IS NULL) THEN
+  IF v_mode = 'FullyColonized' AND v_effective_location_id IS NULL THEN
+    SELECT l.nocopk, l.name INTO v_effective_location_id, v_location_name
+    FROM public.locations l
+    WHERE COALESCE(l.active, true)
+      AND l.name ILIKE '%Dark Room%'
+    ORDER BY
+      CASE WHEN lower(btrim(l.name)) = 'dark room' THEN 0 ELSE 1 END,
+      l.nocopk
+    LIMIT 1;
+  END IF;
+
+  IF v_mode IN ('FullyColonized', 'Fridge', 'ColdShock', 'Fruiting', 'StartFruiting')
+     AND (v_effective_location_id IS NULL OR v_location_name IS NULL) THEN
     RAISE EXCEPTION 'Location is required for % transition', v_mode;
   END IF;
 
@@ -296,6 +308,8 @@ BEGIN
     END IF;
 
     IF v_mode = 'FullyColonized' THEN
+      PERFORM public.mp_lot_set_location(v_lot_id, v_effective_location_id);
+
       UPDATE public.lots
       SET status = 'FullyColonized'
       WHERE nocopk = v_lot_id;
@@ -306,8 +320,15 @@ BEGIN
           'FullyColonized'::text,
           v_ts,
           p_operator::text,
-          'Dark Room'::text,
-          '{}'::jsonb
+          COALESCE(v_location_name, 'Dark Room')::text,
+          jsonb_build_object(
+            'action', 'FullyColonized',
+            'from_status', v_old_status,
+            'to_status', 'FullyColonized',
+            'to_location', v_location_name,
+            'to_location_id', v_effective_location_id,
+            'note', p_note
+          )
         );
       EXCEPTION WHEN undefined_function THEN
         NULL;
@@ -333,7 +354,7 @@ BEGIN
         END;
       END IF;
 
-      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+      PERFORM public.mp_lot_set_location(v_lot_id, v_effective_location_id);
 
       v_new_status := CASE WHEN v_mode = 'ColdShock' THEN 'ColdShock' ELSE 'Fridge' END;
       UPDATE public.lots
@@ -345,7 +366,7 @@ BEGIN
         'from_status', v_old_status,
         'to_status', v_new_status,
         'to_location', v_location_name,
-        'to_location_id', p_location_id,
+        'to_location_id', v_effective_location_id,
         'note', p_note
       );
 
@@ -363,7 +384,7 @@ BEGIN
       END;
 
     ELSIF v_mode IN ('Fruiting', 'StartFruiting') THEN
-      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+      PERFORM public.mp_lot_set_location(v_lot_id, v_effective_location_id);
 
       UPDATE public.lots
       SET status = 'Fruiting',
@@ -375,7 +396,7 @@ BEGIN
         'from_status', v_old_status,
         'to_status', 'Fruiting',
         'to_location', v_location_name,
-        'to_location_id', p_location_id,
+        'to_location_id', v_effective_location_id,
         'beganfruiting_at_set', true,
         'note', p_note
       );
@@ -394,16 +415,16 @@ BEGIN
       END;
 
     ELSE
-      IF p_location_id IS NULL OR v_location_name IS NULL THEN
+      IF v_effective_location_id IS NULL OR v_location_name IS NULL THEN
         RAISE EXCEPTION 'Location is required for Move transition';
       END IF;
 
-      PERFORM public.mp_lot_set_location(v_lot_id, p_location_id);
+      PERFORM public.mp_lot_set_location(v_lot_id, v_effective_location_id);
 
       v_fields := jsonb_build_object(
         'action', 'Move',
         'to_location', v_location_name,
-        'to_location_id', p_location_id,
+        'to_location_id', v_effective_location_id,
         'note', p_note
       );
 
