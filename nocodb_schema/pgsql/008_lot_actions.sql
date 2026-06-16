@@ -593,6 +593,8 @@ DECLARE
   v_source_sterilized_at timestamp without time zone;
   v_source_received_date date;
   v_source_available_at timestamp without time zone;
+  v_source_lot_id text;
+  v_source_airtable_id text;
 
   v_inoc_time timestamp without time zone;
 
@@ -607,6 +609,8 @@ DECLARE
   v_target_unit_size numeric;
   v_target_total_ml numeric;
   v_target_remaining_ml numeric;
+  v_target_lot_id text;
+  v_target_airtable_id text;
 
   v_label_type text;
   
@@ -655,6 +659,8 @@ BEGIN
     l.created_at,
     l.sterilized_at,
     l.received_date,
+    l.lot_id,
+    l.airtable_id,
     i.category,
     i.name
   INTO
@@ -669,6 +675,8 @@ BEGIN
     v_source_created_at,
     v_source_sterilized_at,
     v_source_received_date,
+    v_source_lot_id,
+    v_source_airtable_id,
     v_source_item_category,
     v_source_item_name
   FROM public.lots l
@@ -771,6 +779,8 @@ BEGIN
       l.unit_size,
       l.total_volume_ml,
       l.remaining_volume_ml,
+      l.lot_id,
+      l.airtable_id,
       i.category,
       i.name
     INTO
@@ -778,6 +788,8 @@ BEGIN
       v_target_unit_size,
       v_target_total_ml,
       v_target_remaining_ml,
+      v_target_lot_id,
+      v_target_airtable_id,
       v_target_item_category,
       v_target_item_name
     FROM public.lots l
@@ -867,9 +879,16 @@ BEGIN
 
     -- Events
     v_fields := jsonb_build_object(
-      'source_lot_id', p_source_lot_id,
+      'source_lot_id', COALESCE(NULLIF(v_source_airtable_id, ''), NULLIF(v_source_lot_id, ''), p_source_lot_id::text),
+      'source_lot_nocopk', p_source_lot_id,
+      'source_lot_display_id', COALESCE(NULLIF(v_source_lot_id, ''), p_source_lot_id::text),
+      'source_lot_airtable_id', NULLIF(v_source_airtable_id, ''),
       'source_category', v_source_item_category,
       'volume_ml', CASE WHEN (NOT v_is_untracked_source) AND v_is_liquid_source THEN p_lc_volume_ml ELSE NULL END,
+      'operator', COALESCE(p_operator, ''),
+      'target_lot_id', COALESCE(NULLIF(v_target_lot_id, ''), v_target_id::text),
+      'target_lot_nocopk', v_target_id,
+      'target_lot_airtable_id', NULLIF(v_target_airtable_id, ''),
       'note', CASE WHEN v_is_untracked_source THEN v_source_notes ELSE p_note END
     );
 
