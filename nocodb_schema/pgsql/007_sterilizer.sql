@@ -1,5 +1,20 @@
 -- 007_sterilizer.sql
 
+ALTER TABLE "public"."sterilization_runs"
+  ADD COLUMN IF NOT EXISTS "notes" text;
+
+DROP FUNCTION IF EXISTS public.mp_sterilizer_start_run(
+  bigint,
+  bigint,
+  numeric,
+  numeric,
+  text,
+  timestamp without time zone,
+  text,
+  numeric,
+  text
+);
+
 -- Start a sterilization run (Sterilizer IN) with Airtable-parity validation.
 CREATE OR REPLACE FUNCTION public.mp_sterilizer_start_run(
   p_planned_item_id bigint,
@@ -10,7 +25,8 @@ CREATE OR REPLACE FUNCTION public.mp_sterilizer_start_run(
   p_start_time timestamp without time zone,
   p_operator text,
   p_target_temp_c numeric DEFAULT NULL,
-  p_pressure_mode text DEFAULT NULL
+  p_pressure_mode text DEFAULT NULL,
+  p_notes text DEFAULT NULL
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -73,11 +89,11 @@ BEGIN
   INSERT INTO "public"."sterilization_runs"
     ("planned_item_id","planned_recipe_id","planned_count","planned_unit_size",
      "process_type","start_time","operator","target_temp_c","pressure_mode",
-     "ui_error","ui_error_at")
+     "notes","ui_error","ui_error_at")
   VALUES
     (p_planned_item_id, p_planned_recipe_id, p_planned_count, p_planned_unit_size,
      v_process_type, p_start_time, p_operator, v_target_temp_c, v_pressure_mode,
-     NULL, NULL)
+     NULLIF(btrim(p_notes), ''), NULL, NULL)
   RETURNING "nocopk", "steri_run_id" INTO v_run_id, v_steri_run_id;
 
   v_event_id := public.mp_events_insert(
@@ -87,7 +103,7 @@ BEGIN
     p_start_time::timestamp without time zone,
     p_operator::text,
     'Sterilizer IN'::text,
-    jsonb_build_object(
+    jsonb_strip_nulls(jsonb_build_object(
       'steri_run_id', v_steri_run_id,
       'steri_run_nocopk', v_run_id,
       'planned_item_nocopk', p_planned_item_id,
@@ -101,9 +117,10 @@ BEGIN
       'process_type', v_process_type,
       'target_temp_c', v_target_temp_c,
       'pressure_mode', v_pressure_mode,
+      'notes', NULLIF(btrim(p_notes), ''),
       'operator', p_operator,
       'start_time', p_start_time
-    )
+    ))
   );
 
   RETURN v_run_id;

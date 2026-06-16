@@ -7,7 +7,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tasync init() {\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_last_created_run_id\", \"\");\n\t\tawait Promise.allSettled([qItems.run(), qRecipes.run()]);\n\t},\n\n\tvalidate({ show = true } = {}) {\n\t\tconst errs = [];\n\n\t\tif (!selProcessType.selectedOptionValue) {\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n\n\t\tif (!selPlannedItem.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n\n\t\tif (!selPlannedRecipe.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n\t\tconst unit = Number(inpPlannedUnitSize.text);\n\t\tconst cnt = Number(inpPlannedCount.text);\n\n\t\tif (!Number.isFinite(unit) || unit <= 0) {\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n\n\t\tif (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n\t\tif (show) {\n\t\t\terrs.forEach(msg => showAlert(msg, \"error\"));\n\t\t}\n\n\t\treturn errs;\n\t},\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tformSignature() {\n\t\treturn JSON.stringify({\n\t\t\tplanned_item_id: selPlannedItem.selectedOptionValue || \"\",\n\t\t\tplanned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n\t\t\tprocess_type: selProcessType.selectedOptionValue || \"\",\n\t\t\tplanned_count: String(inpPlannedCount.text || \"\").trim(),\n\t\t\tplanned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n\t\t\tstart_time: dpStartTime.formattedDate || \"\"\n\t\t});\n\t},\n\n\tisSubmitting() {\n\t\treturn appsmith.store.ster_in_submitting === true;\n\t},\n\n\tisDuplicateOfLastSuccess() {\n\t\tconst current = this.formSignature();\n\t\treturn !!current && current === appsmith.store.ster_in_last_success_signature;\n\t},\n\n\tasync markFormChanged() {\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t},\n\n\tasync resetCreateRunForm() {\n\t\tawait selPlannedItem.setSelectedOption(\"\");\n\t\tawait selPlannedRecipe.setSelectedOption(\"\");\n\t\tawait selProcessType.setSelectedOption(\"sterilize\");\n\t\tawait inpPlannedCount.setValue(\"\");\n\t\tawait inpPlannedUnitSize.setValue(\"\");\n\t\tawait dpStartTime.setValue(new Date());\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t},\n\n\tasync createRun() {\n\t\tif (this.isSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_submitting\", true);\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\n\t\ttry {\n\t\t\tconst errs = this.validate({ show: true });\n\t\t\tif (errs.length) {\n\t\t\t\tawait storeValue(\"ster_in_error\", errs.join(\" \"));\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst signature = this.formSignature();\n\n\t\t\tif (signature === appsmith.store.ster_in_last_success_signature) {\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"This run was already created. Change the inputs before creating another run.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst createdRun = await qCreateRun.run();\n\t\t\tconst runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n\t\t\tconst msg = \"Successfully created sterilizer run \" + runId;\n\n\t\t\tawait storeValue(\"ster_in_last_success_signature\", signature);\n\t\t\tawait storeValue(\"ster_in_last_created_run_id\", runId);\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\n\t\t\tshowAlert(msg, \"success\");\n\n\t\t\tawait this.resetCreateRunForm();\n\n\t\t\tawait Promise.allSettled([\n\t\t\t\tqItems.run(),\n\t\t\t\tqRecipes.run()\n\t\t\t]);\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error creating run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\t}\n\t},\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tasync init() {\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_last_created_run_id\", \"\");\n\t\tawait Promise.allSettled([qItems.run(), qRecipes.run()]);\n\t},\n\n\tvalidate({ show = true } = {}) {\n\t\tconst errs = [];\n\n\t\tif (!selProcessType.selectedOptionValue) {\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n\n\t\tif (!selPlannedItem.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n\n\t\tif (!selPlannedRecipe.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n\t\tconst unit = Number(inpPlannedUnitSize.text);\n\t\tconst cnt = Number(inpPlannedCount.text);\n\n\t\tif (!Number.isFinite(unit) || unit <= 0) {\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n\n\t\tif (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n\t\tif (show) {\n\t\t\terrs.forEach(msg => showAlert(msg, \"error\"));\n\t\t}\n\n\t\treturn errs;\n\t},\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tformSignature() {\n\t\treturn JSON.stringify({\n\t\t\tplanned_item_id: selPlannedItem.selectedOptionValue || \"\",\n\t\t\tplanned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n\t\t\tprocess_type: selProcessType.selectedOptionValue || \"\",\n\t\t\tplanned_count: String(inpPlannedCount.text || \"\").trim(),\n\t\t\tplanned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n\t\t\tnotes: String(inpRunNotes.text || \"\").trim(),\n\t\t\tstart_time: dpStartTime.formattedDate || \"\"\n\t\t});\n\t},\n\n\tisSubmitting() {\n\t\treturn appsmith.store.ster_in_submitting === true;\n\t},\n\n\tisDuplicateOfLastSuccess() {\n\t\tconst current = this.formSignature();\n\t\treturn !!current && current === appsmith.store.ster_in_last_success_signature;\n\t},\n\n\tasync markFormChanged() {\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t},\n\n\tasync resetCreateRunForm() {\n\t\tawait selPlannedItem.setSelectedOption(\"\");\n\t\tawait selPlannedRecipe.setSelectedOption(\"\");\n\t\tawait selProcessType.setSelectedOption(\"sterilize\");\n\t\tawait inpPlannedCount.setValue(\"\");\n\t\tawait inpPlannedUnitSize.setValue(\"\");\n\t\tawait inpRunNotes.setValue(\"\");\n\t\tawait dpStartTime.setValue(new Date());\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t},\n\n\tasync createRun() {\n\t\tif (this.isSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_submitting\", true);\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\n\t\ttry {\n\t\t\tconst errs = this.validate({ show: true });\n\t\t\tif (errs.length) {\n\t\t\t\tawait storeValue(\"ster_in_error\", errs.join(\" \"));\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst signature = this.formSignature();\n\n\t\t\tif (signature === appsmith.store.ster_in_last_success_signature) {\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"This run was already created. Change the inputs before creating another run.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst createdRun = await qCreateRun.run();\n\t\t\tconst runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n\t\t\tconst msg = \"Successfully created sterilizer run \" + runId;\n\n\t\t\tawait storeValue(\"ster_in_last_success_signature\", signature);\n\t\t\tawait storeValue(\"ster_in_last_created_run_id\", runId);\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\n\t\t\tshowAlert(msg, \"success\");\n\n\t\t\tawait this.resetCreateRunForm();\n\n\t\t\tawait Promise.allSettled([\n\t\t\t\tqItems.run(),\n\t\t\t\tqRecipes.run()\n\t\t\t]);\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error creating run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\t}\n\t},\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
         "name": "SterilizerIn",
         "pageId": "Sterilizer – In",
         "pluginId": "js-plugin",
@@ -23,7 +23,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tasync init() {\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_last_created_run_id\", \"\");\n\t\tawait Promise.allSettled([qItems.run(), qRecipes.run()]);\n\t},\n\n\tvalidate({ show = true } = {}) {\n\t\tconst errs = [];\n\n\t\tif (!selProcessType.selectedOptionValue) {\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n\n\t\tif (!selPlannedItem.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n\n\t\tif (!selPlannedRecipe.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n\t\tconst unit = Number(inpPlannedUnitSize.text);\n\t\tconst cnt = Number(inpPlannedCount.text);\n\n\t\tif (!Number.isFinite(unit) || unit <= 0) {\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n\n\t\tif (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n\t\tif (show) {\n\t\t\terrs.forEach(msg => showAlert(msg, \"error\"));\n\t\t}\n\n\t\treturn errs;\n\t},\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tformSignature() {\n\t\treturn JSON.stringify({\n\t\t\tplanned_item_id: selPlannedItem.selectedOptionValue || \"\",\n\t\t\tplanned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n\t\t\tprocess_type: selProcessType.selectedOptionValue || \"\",\n\t\t\tplanned_count: String(inpPlannedCount.text || \"\").trim(),\n\t\t\tplanned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n\t\t\tstart_time: dpStartTime.formattedDate || \"\"\n\t\t});\n\t},\n\n\tisSubmitting() {\n\t\treturn appsmith.store.ster_in_submitting === true;\n\t},\n\n\tisDuplicateOfLastSuccess() {\n\t\tconst current = this.formSignature();\n\t\treturn !!current && current === appsmith.store.ster_in_last_success_signature;\n\t},\n\n\tasync markFormChanged() {\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t},\n\n\tasync resetCreateRunForm() {\n\t\tawait selPlannedItem.setSelectedOption(\"\");\n\t\tawait selPlannedRecipe.setSelectedOption(\"\");\n\t\tawait selProcessType.setSelectedOption(\"sterilize\");\n\t\tawait inpPlannedCount.setValue(\"\");\n\t\tawait inpPlannedUnitSize.setValue(\"\");\n\t\tawait dpStartTime.setValue(new Date());\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t},\n\n\tasync createRun() {\n\t\tif (this.isSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_submitting\", true);\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\n\t\ttry {\n\t\t\tconst errs = this.validate({ show: true });\n\t\t\tif (errs.length) {\n\t\t\t\tawait storeValue(\"ster_in_error\", errs.join(\" \"));\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst signature = this.formSignature();\n\n\t\t\tif (signature === appsmith.store.ster_in_last_success_signature) {\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"This run was already created. Change the inputs before creating another run.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst createdRun = await qCreateRun.run();\n\t\t\tconst runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n\t\t\tconst msg = \"Successfully created sterilizer run \" + runId;\n\n\t\t\tawait storeValue(\"ster_in_last_success_signature\", signature);\n\t\t\tawait storeValue(\"ster_in_last_created_run_id\", runId);\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\n\t\t\tshowAlert(msg, \"success\");\n\n\t\t\tawait this.resetCreateRunForm();\n\n\t\t\tawait Promise.allSettled([\n\t\t\t\tqItems.run(),\n\t\t\t\tqRecipes.run()\n\t\t\t]);\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error creating run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\t}\n\t},\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\tasync init() {\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_last_created_run_id\", \"\");\n\t\tawait Promise.allSettled([qItems.run(), qRecipes.run()]);\n\t},\n\n\tvalidate({ show = true } = {}) {\n\t\tconst errs = [];\n\n\t\tif (!selProcessType.selectedOptionValue) {\n\t\t\terrs.push(\"Select a process type.\");\n\t\t}\n\n\t\tif (!selPlannedItem.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned item.\");\n\t\t}\n\n\t\tif (!selPlannedRecipe.selectedOptionValue) {\n\t\t\terrs.push(\"Select a planned recipe.\");\n\t\t}\n\n\t\tconst unit = Number(inpPlannedUnitSize.text);\n\t\tconst cnt = Number(inpPlannedCount.text);\n\n\t\tif (!Number.isFinite(unit) || unit <= 0) {\n\t\t\terrs.push(\"Planned unit size must be > 0.\");\n\t\t}\n\n\t\tif (!Number.isFinite(cnt) || cnt <= 0) {\n\t\t\terrs.push(\"Planned count must be > 0.\");\n\t\t}\n\n\t\tif (show) {\n\t\t\terrs.forEach(msg => showAlert(msg, \"error\"));\n\t\t}\n\n\t\treturn errs;\n\t},\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      // format without the ISO 'T'\n      const s = moment(d).format(\"YYYY-MM-DD HH:mm:ss\");\n      return \"'\" + s + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n  },\n\n\tformSignature() {\n\t\treturn JSON.stringify({\n\t\t\tplanned_item_id: selPlannedItem.selectedOptionValue || \"\",\n\t\t\tplanned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n\t\t\tprocess_type: selProcessType.selectedOptionValue || \"\",\n\t\t\tplanned_count: String(inpPlannedCount.text || \"\").trim(),\n\t\t\tplanned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n\t\t\tnotes: String(inpRunNotes.text || \"\").trim(),\n\t\t\tstart_time: dpStartTime.formattedDate || \"\"\n\t\t});\n\t},\n\n\tisSubmitting() {\n\t\treturn appsmith.store.ster_in_submitting === true;\n\t},\n\n\tisDuplicateOfLastSuccess() {\n\t\tconst current = this.formSignature();\n\t\treturn !!current && current === appsmith.store.ster_in_last_success_signature;\n\t},\n\n\tasync markFormChanged() {\n\t\tawait storeValue(\"ster_in_last_success_signature\", \"\");\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\t},\n\n\tasync resetCreateRunForm() {\n\t\tawait selPlannedItem.setSelectedOption(\"\");\n\t\tawait selPlannedRecipe.setSelectedOption(\"\");\n\t\tawait selProcessType.setSelectedOption(\"sterilize\");\n\t\tawait inpPlannedCount.setValue(\"\");\n\t\tawait inpPlannedUnitSize.setValue(\"\");\n\t\tawait inpRunNotes.setValue(\"\");\n\t\tawait dpStartTime.setValue(new Date());\n\t\tawait storeValue(\"ster_in_default_size\", \"\");\n\t},\n\n\tasync createRun() {\n\t\tif (this.isSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_in_submitting\", true);\n\t\tawait storeValue(\"ster_in_error\", \"\");\n\n\t\ttry {\n\t\t\tconst errs = this.validate({ show: true });\n\t\t\tif (errs.length) {\n\t\t\t\tawait storeValue(\"ster_in_error\", errs.join(\" \"));\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst signature = this.formSignature();\n\n\t\t\tif (signature === appsmith.store.ster_in_last_success_signature) {\n\t\t\t\tshowAlert(\n\t\t\t\t\t\"This run was already created. Change the inputs before creating another run.\",\n\t\t\t\t\t\"warning\"\n\t\t\t\t);\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tconst createdRun = await qCreateRun.run();\n\t\t\tconst runId = createdRun?.[0]?.steri_run_id || \"(unknown run)\";\n\t\t\tconst msg = \"Successfully created sterilizer run \" + runId;\n\n\t\t\tawait storeValue(\"ster_in_last_success_signature\", signature);\n\t\t\tawait storeValue(\"ster_in_last_created_run_id\", runId);\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\n\t\t\tshowAlert(msg, \"success\");\n\n\t\t\tawait this.resetCreateRunForm();\n\n\t\t\tawait Promise.allSettled([\n\t\t\t\tqItems.run(),\n\t\t\t\tqRecipes.run()\n\t\t\t]);\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error creating run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_in_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_in_submitting\", false);\n\t\t}\n\t},\n\n\tasync setSelectedItemSize() {\n    const selectedValue = selPlannedItem.selectedOptionValue; // Get the selected 'value' (e.g., \"1\")\n\n    // Find the full object in the original data array\n    const selectedItem = qItems.data.find(item => item.nocopk === selectedValue);\n\n\t\tif (selectedItem) {\n      // Use this data for further actions, such as running another query or updating another widget\n      storeValue('ster_in_default_size', selectedItem.default_unit_size_lb || selectedItem.default_unit_size_ml || selectedItem.default_unit_size_g || selectedItem.default_unit_size_oz || '');\n    } \n  },\n\t\n  async refresh() {\n    await this.init();\n  },\n};",
         "name": "SterilizerIn",
         "pageId": "Sterilizer – In",
         "pluginId": "js-plugin",
@@ -726,7 +726,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}",
+          "body": "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    notes: String(inpRunNotes.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -755,7 +755,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}"
+          "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    notes: String(inpRunNotes.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}"
         ],
         "messages": [],
         "name": "formSignature",
@@ -767,7 +767,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}",
+          "body": "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    notes: String(inpRunNotes.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -796,7 +796,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}"
+          "function () {\n  return JSON.stringify({\n    planned_item_id: selPlannedItem.selectedOptionValue || \"\",\n    planned_recipe_id: selPlannedRecipe.selectedOptionValue || \"\",\n    process_type: selProcessType.selectedOptionValue || \"\",\n    planned_count: String(inpPlannedCount.text || \"\").trim(),\n    planned_unit_size: String(inpPlannedUnitSize.text || \"\").trim(),\n    notes: String(inpRunNotes.text || \"\").trim(),\n    start_time: dpStartTime.formattedDate || \"\"\n  });\n}"
         ],
         "messages": [],
         "name": "formSignature",
@@ -1260,7 +1260,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}",
+          "body": "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await inpRunNotes.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1289,7 +1289,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}"
+          "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await inpRunNotes.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}"
         ],
         "messages": [],
         "name": "resetCreateRunForm",
@@ -1301,7 +1301,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}",
+          "body": "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await inpRunNotes.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -1330,7 +1330,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}"
+          "async function () {\n  await selPlannedItem.setSelectedOption(\"\");\n  await selPlannedRecipe.setSelectedOption(\"\");\n  await selProcessType.setSelectedOption(\"sterilize\");\n  await inpPlannedCount.setValue(\"\");\n  await inpPlannedUnitSize.setValue(\"\");\n  await inpRunNotes.setValue(\"\");\n  await dpStartTime.setValue(new Date());\n  await storeValue(\"ster_in_default_size\", \"\");\n}"
         ],
         "messages": [],
         "name": "resetCreateRunForm",
@@ -1438,7 +1438,7 @@
       "pluginType": "DB",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "WITH created AS (\n  SELECT public.mp_sterilizer_start_run(\n    p_planned_item_id => {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_recipe_id => {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_count => {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }}::numeric,\n    p_planned_unit_size => {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }}::numeric,\n    p_process_type => {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }}::text,\n    p_start_time => {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n    p_operator => {{ SterilizerIn.sql.str(SterilizerIn.currentOperator()) }}::text,\n    p_target_temp_c => {{ Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" }}::numeric,\n    p_pressure_mode => {{ SterilizerIn.sql.str(txtPressureMode.text) }}::text\n  ) AS nocopk\n)\nSELECT sr.nocopk, sr.steri_run_id\nFROM created c\nJOIN public.sterilization_runs sr ON sr.nocopk = c.nocopk;",
+          "body": "WITH created AS (\n  SELECT public.mp_sterilizer_start_run(\n    p_planned_item_id => {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_recipe_id => {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_count => {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }}::numeric,\n    p_planned_unit_size => {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }}::numeric,\n    p_process_type => {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }}::text,\n    p_start_time => {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n    p_operator => {{ SterilizerIn.sql.str(SterilizerIn.currentOperator()) }}::text,\n    p_target_temp_c => {{ Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" }}::numeric,\n    p_pressure_mode => {{ SterilizerIn.sql.str(txtPressureMode.text) }}::text,\n    p_notes => {{ SterilizerIn.sql.str(inpRunNotes.text) }}::text\n  ) AS nocopk\n)\nSELECT sr.nocopk, sr.steri_run_id\nFROM created c\nJOIN public.sterilization_runs sr ON sr.nocopk = c.nocopk;",
           "encodeParamsToggle": false,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -1491,7 +1491,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "WITH created AS (\n  SELECT public.mp_sterilizer_start_run(\n    p_planned_item_id => {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_recipe_id => {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_count => {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }}::numeric,\n    p_planned_unit_size => {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }}::numeric,\n    p_process_type => {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }}::text,\n    p_start_time => {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n    p_operator => {{ SterilizerIn.sql.str(SterilizerIn.currentOperator()) }}::text,\n    p_target_temp_c => {{ Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" }}::numeric,\n    p_pressure_mode => {{ SterilizerIn.sql.str(txtPressureMode.text) }}::text\n  ) AS nocopk\n)\nSELECT sr.nocopk, sr.steri_run_id\nFROM created c\nJOIN public.sterilization_runs sr ON sr.nocopk = c.nocopk;",
+          "body": "WITH created AS (\n  SELECT public.mp_sterilizer_start_run(\n    p_planned_item_id => {{ Number.isFinite(Number(selPlannedItem.selectedOptionValue)) ? Number(selPlannedItem.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_recipe_id => {{ Number.isFinite(Number(selPlannedRecipe.selectedOptionValue)) ? Number(selPlannedRecipe.selectedOptionValue) : \"NULL\" }}::bigint,\n    p_planned_count => {{ Number.isFinite(Number(inpPlannedCount.text)) ? Number(inpPlannedCount.text) : \"NULL\" }}::numeric,\n    p_planned_unit_size => {{ Number.isFinite(Number(inpPlannedUnitSize.text)) ? Number(inpPlannedUnitSize.text) : \"NULL\" }}::numeric,\n    p_process_type => {{ SterilizerIn.sql.str(selProcessType.selectedOptionValue) }}::text,\n    p_start_time => {{ dpStartTime.selectedDate ? \"'\" + moment(dpStartTime.selectedDate).format(\"YYYY-MM-DD HH:mm:ss\") + \"'::timestamp\" : \"NULL::timestamp\" }},\n    p_operator => {{ SterilizerIn.sql.str(SterilizerIn.currentOperator()) }}::text,\n    p_target_temp_c => {{ Number.isFinite(Number(txtTargetTemp.text)) ? Number(txtTargetTemp.text) : \"NULL\" }}::numeric,\n    p_pressure_mode => {{ SterilizerIn.sql.str(txtPressureMode.text) }}::text,\n    p_notes => {{ SterilizerIn.sql.str(inpRunNotes.text) }}::text\n  ) AS nocopk\n)\nSELECT sr.nocopk, sr.steri_run_id\nFROM created c\nJOIN public.sterilization_runs sr ON sr.nocopk = c.nocopk;",
           "encodeParamsToggle": false,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -39851,6 +39851,74 @@
                           "version": 1,
                           "widgetId": "gckt8muic7",
                           "widgetName": "txtPressureMode"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 43,
+                          "boxShadow": "none",
+                          "children": [],
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "sterinn0tes",
+                          "label": "Notes",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 50,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 18,
+                          "mobileTopRow": 43,
+                          "needsErrorInfo": false,
+                          "onTextChanged": "{{ SterilizerIn.markFormChanged() }}",
+                          "originalBottomRow": 43,
+                          "originalTopRow": 35,
+                          "parentColumnSpace": 10.296875,
+                          "parentId": "qe263dcab1",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 35,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "sterinn0tes",
+                          "widgetName": "inpRunNotes"
                         }
                       ],
                       "containerStyle": "none",
@@ -39871,7 +39939,7 @@
                       "leftColumn": 0,
                       "maxDynamicHeight": 9000,
                       "minDynamicHeight": 4,
-                      "minHeight": 400,
+                      "minHeight": 440,
                       "minWidth": 450,
                       "mobileBottomRow": 400,
                       "mobileLeftColumn": 0,
@@ -40863,6 +40931,74 @@
                           "version": 1,
                           "widgetId": "gckt8muic7",
                           "widgetName": "txtPressureMode"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 43,
+                          "boxShadow": "none",
+                          "children": [],
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onTextChanged"
+                            }
+                          ],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "sterinn0tes",
+                          "label": "Notes",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 50,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 18,
+                          "mobileTopRow": 43,
+                          "needsErrorInfo": false,
+                          "onTextChanged": "{{ SterilizerIn.markFormChanged() }}",
+                          "originalBottomRow": 43,
+                          "originalTopRow": 35,
+                          "parentColumnSpace": 10.296875,
+                          "parentId": "qe263dcab1",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 35,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "sterinn0tes",
+                          "widgetName": "inpRunNotes"
                         }
                       ],
                       "containerStyle": "none",
@@ -40883,7 +41019,7 @@
                       "leftColumn": 0,
                       "maxDynamicHeight": 9000,
                       "minDynamicHeight": 4,
-                      "minHeight": 400,
+                      "minHeight": 440,
                       "minWidth": 450,
                       "mobileBottomRow": 400,
                       "mobileLeftColumn": 0,
