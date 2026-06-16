@@ -192,7 +192,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(p.airtable_id, p.nocopk::text), 'fields', json_build_object(\n  'product_id', p.product_id,\n  'name_mat', p.name_mat,\n  'unit_size', COALESCE(p.package_size_g, p.net_weight_g, p.net_volume_ml),\n  'item_category_mat', p.item_category_mat,\n  'notes', p.notes,\n  'storage_location', CASE WHEN p.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END,\n  'label_company_prod', NULL\n)) ORDER BY p.product_id), '[]'::json) AS records\nFROM public.products p\nLEFT JOIN public.locations loc ON loc.nocopk = p.storage_location_id\nWHERE p.product_id IS NOT NULL\n  AND COALESCE(loc.name, '') NOT ILIKE '%Shipped%'\nLIMIT 100;",
+        "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(p.airtable_id, p.nocopk::text), 'fields', json_build_object(\n  'product_id', p.product_id,\n  'name_mat', p.name_mat,\n  'unit_size', COALESCE(p.package_size_g, p.net_weight_g, p.net_volume_ml),\n  'item_category_mat', p.item_category_mat,\n  'notes', p.notes,\n  'storage_location', CASE WHEN p.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END,\n  'label_company_prod', NULL\n)) ORDER BY p.product_id), '[]'::json) AS records\nFROM public.products p\nLEFT JOIN public.locations loc ON loc.nocopk = p.storage_location_id\nWHERE p.product_id IS NOT NULL\n  AND COALESCE(loc.name, '') NOT IN ('shipped', 'consumed', 'compost', 'expired')\nLIMIT 100;",
         "options": {}
       },
       "id": "124ecf8c-1db5-44d1-ab57-18b35199adca",
@@ -1225,7 +1225,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "791eea03-5a85-4e45-a473-d66eb239cd7e",
+  "versionId": "9ea2c88c-3724-4bcf-a93d-89ecbc4775f1",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
