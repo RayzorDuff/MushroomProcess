@@ -893,10 +893,14 @@ function compileFormulaExpr(raw, ctx) {
     // Without this, generated SQL can become:
     //   (condition_a) ((condition_b))
     //
-    // The earlier fallback used OR, which made the SQL parse but changed semantics.
-    // This targeted repair uses AND because this malformed shape is produced by
-    // Airtable AND() argument compilation.
-    s = s.replace(/\)\s+\(\(/g, ') AND ((');
+    // Use the boolean operator from the original Airtable formula. This keeps
+    // route-selection formulas such as print_queue.print_target as "any tray
+    // category" while preserving the AND repair for formulas that need it.
+    if (/\bOR\s*\(/i.test(e)) {
+      s = s.replace(/\)\s+\(\(/g, ') OR ((');
+    } else if (/\bAND\s*\(/i.test(e)) {
+      s = s.replace(/\)\s+\(\(/g, ') AND ((');
+    }
 
     return s;
   }
