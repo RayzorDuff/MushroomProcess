@@ -604,13 +604,16 @@ function compileFormulaExpr(raw, ctx) {
   }  
 
   // When Airtable formulas concatenate text using `&` (compiled here as `||`),
-  // Airtable coerces lookup/rollup arrays to a string. Postgres does not.
+  // Airtable coerces blanks to empty strings. Postgres `||` propagates NULL.
+  // Keep that null-safety local to concat operands so non-concat formulas retain
+  // their existing numeric/date/null behavior.
+  //
+  // Airtable also coerces lookup/rollup arrays to a string. Postgres does not.
   // If we leave an array-typed lookup/rollup reference uncoerced, expressions like
   // `'' || comp."some_lookup" || ' '` can trigger "malformed array literal" errors
   // because Postgres tries to interpret adjacent string literals as array literals.
   //
-  // We fix this by scalarizing known array-typed column refs *only when* they're
-  // used adjacent to the concatenation operator.
+  // We fix both cases only when refs are adjacent to the concatenation operator.
   function coerceArrayRefsInConcat(sqlExpr) {
     const s = String(sqlExpr);
     let out = '';
@@ -645,9 +648,15 @@ function compileFormulaExpr(raw, ctx) {
             if (j + 1 < s.length && s[j] === '|' && s[j + 1] === '|') rightIsConcat = true;
           }
 
-          if ((leftIsConcat || rightIsConcat) && __arrayCols.has(col)) {
-            // Coerce to scalar text; Airtable-ish behavior is "first element".
-            out += `COALESCE(((${qual}."${col}")[1])::text, '')`;
+          if (leftIsConcat || rightIsConcat) {
+            if (__arrayCols.has(col)) {
+              // Coerce to scalar text; Airtable-ish behavior is "first element".
+              out += `COALESCE(((${qual}."${col}")[1])::text, '')`;
+              i += full.length;
+              continue;
+            }
+
+            out += `COALESCE(${full}::text, '')`;
             i += full.length;
             continue;
           }
