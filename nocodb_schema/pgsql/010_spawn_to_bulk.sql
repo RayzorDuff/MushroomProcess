@@ -96,6 +96,8 @@ DECLARE
   v_distinct_strain_count integer;
   v_output_strain_id bigint;
   v_output_species_label text;
+  v_output_species_strain_mat text;
+  v_output_vendor_name_mat text;
   v_output_recipe_id bigint;
   v_process_type text;
 
@@ -165,6 +167,30 @@ BEGIN
 
   IF v_species_count <> 1 THEN
     RAISE EXCEPTION 'Selected grain source lots must all be the same species.';
+  END IF;
+
+  SELECT
+    CASE
+      WHEN count(DISTINCT NULLIF(btrim(l.strain_species_strain_mat), '')) = 1
+        THEN min(NULLIF(btrim(l.strain_species_strain_mat), ''))
+      ELSE initcap(v_output_species_label) || ' Mixed Strain'
+    END,
+    CASE
+      WHEN count(DISTINCT NULLIF(btrim(l.vendor_name_mat), '')) = 1
+        THEN min(NULLIF(btrim(l.vendor_name_mat), ''))
+      ELSE NULL
+    END
+  INTO v_output_species_strain_mat, v_output_vendor_name_mat
+  FROM public.lots l
+  WHERE l.nocopk = ANY(p_grain_lot_ids);
+
+  IF v_output_strain_id IS NULL AND NULLIF(v_output_species_strain_mat, '') IS NOT NULL THEN
+    SELECT s.nocopk
+    INTO v_output_strain_id
+    FROM public.strains s
+    WHERE lower(btrim(s.species_strain)) = lower(btrim(v_output_species_strain_mat))
+    ORDER BY CASE WHEN COALESCE(s.active, false) THEN 0 ELSE 1 END, s.nocopk
+    LIMIT 1;
   END IF;
 
   SELECT COALESCE(sum(NULLIF(unit_size, 0)), 0)
@@ -321,6 +347,7 @@ BEGIN
       use_by,
       process_type_mat,
       strain_species_strain_mat,
+      vendor_name_mat,
       spawned_at,
       label_template,
       notes
@@ -340,15 +367,8 @@ BEGIN
       v_ts,
       (v_ts::date + interval '3 months')::date,
       v_process_type,
-      CASE
-        WHEN v_distinct_strain_count = 1 THEN (
-          SELECT strain_species_strain_mat
-          FROM public.lots
-          WHERE nocopk = p_grain_lot_ids[1]
-          LIMIT 1
-        )
-        ELSE initcap(v_output_species_label) || ' Mixed Strain'
-      END,
+      v_output_species_strain_mat,
+      v_output_vendor_name_mat,
       v_ts,
       'Bulk_Created',
       NULLIF(p_note, '')
