@@ -654,12 +654,12 @@ BEGIN
 
   v_source_item_category := lower(COALESCE(v_source_item_category, ''));
   v_is_liquid_source := v_source_item_category IN ('lc_syringe','lc_flask');
-  v_is_solid_source := v_source_item_category IN ('plate','grain');
+  v_is_solid_source := v_source_item_category IN ('plate','agar_plate','grain');
   v_is_untracked_source := v_source_item_category = 'untracked_source';
 
   IF NOT (v_is_liquid_source OR v_is_solid_source OR v_is_untracked_source) THEN
     UPDATE public.lots
-      SET ui_error = format('Inoculate validation: Source must be lc_syringe, lc_flask, plate, grain, or untracked_source (got "%s").', v_source_item_category),
+      SET ui_error = format('Inoculate validation: Source must be lc_syringe, lc_flask, plate, agar_plate, grain, or untracked_source (got "%s").', v_source_item_category),
           ui_error_at = now()
     WHERE nocopk = p_source_lot_id;
     RETURN 0;
