@@ -6,7 +6,7 @@
 --   * normalize operator values consistently
 --   * auto-create personnel_review_subjects rows for authenticated Appsmith users
 --   * require no changes to 001-004 base schema files
---   * work automatically for inserts/updates to events, lots, sterilization_runs
+--   * work automatically for inserts/updates to events, lots, products, sterilization_runs
 
 SET client_min_messages TO WARNING;
 
@@ -183,6 +183,64 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.mp_rewrite_operator_aliases_for_subject(p_subject_id bigint)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_email text;
+  v_aliases text[];
+BEGIN
+  IF pg_trigger_depth() > 0 THEN
+    RETURN;
+  END IF;
+
+  SELECT
+    public.mp_operator_identity_email(s.appsmith_email),
+    ARRAY(
+      SELECT DISTINCT public.mp_normalize_operator_identity(alias_value)
+      FROM unnest(ARRAY[
+        s.appsmith_name,
+        s.full_name,
+        split_part(s.appsmith_email, '@', 1)
+      ]) AS alias_value
+      WHERE public.mp_normalize_operator_identity(alias_value) IS NOT NULL
+    )
+    INTO v_email, v_aliases
+  FROM public.personnel_review_subjects s
+  WHERE s.nocopk = p_subject_id;
+
+  IF v_email IS NULL OR v_aliases IS NULL OR array_length(v_aliases, 1) IS NULL THEN
+    RETURN;
+  END IF;
+
+  UPDATE public.events
+  SET operator = v_email
+  WHERE public.mp_operator_identity_email(operator) IS NULL
+    AND public.mp_normalize_operator_identity(operator) = ANY(v_aliases);
+
+  UPDATE public.lots
+  SET operator = v_email
+  WHERE public.mp_operator_identity_email(operator) IS NULL
+    AND public.mp_normalize_operator_identity(operator) = ANY(v_aliases);
+
+  UPDATE public.products
+  SET operator = v_email
+  WHERE public.mp_operator_identity_email(operator) IS NULL
+    AND public.mp_normalize_operator_identity(operator) = ANY(v_aliases);
+
+  UPDATE public.sterilization_runs
+  SET operator = v_email
+  WHERE public.mp_operator_identity_email(operator) IS NULL
+    AND public.mp_normalize_operator_identity(operator) = ANY(v_aliases);
+
+  UPDATE public.personnel_review_entries
+  SET entered_by = v_email
+  WHERE public.mp_operator_identity_email(entered_by) IS NULL
+    AND public.mp_normalize_operator_identity(entered_by) = ANY(v_aliases);
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.mp_ensure_personnel_subject(
   p_operator text,
   p_role_title text DEFAULT 'Operator',
@@ -222,6 +280,8 @@ BEGIN
         can_login = true,
         nc_updated_at = now()
       WHERE s.nocopk = v_id;
+
+      PERFORM public.mp_rewrite_operator_aliases_for_subject(v_id);
       RETURN v_id;
     END IF;
 
@@ -245,6 +305,8 @@ BEGIN
         can_login = true,
         nc_updated_at = now()
       WHERE s.nocopk = v_id;
+
+      PERFORM public.mp_rewrite_operator_aliases_for_subject(v_id);
       RETURN v_id;
     END IF;
 
@@ -373,6 +435,17 @@ BEGIN
     DROP TRIGGER IF EXISTS trg_touch_operator_identity_lots ON public.lots;
     CREATE TRIGGER trg_touch_operator_identity_lots
     BEFORE INSERT OR UPDATE OF operator ON public.lots
+    FOR EACH ROW
+    EXECUTE FUNCTION public.mp_touch_operator_identity();
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'products' AND column_name = 'operator'
+  ) THEN
+    DROP TRIGGER IF EXISTS trg_touch_operator_identity_products ON public.products;
+    CREATE TRIGGER trg_touch_operator_identity_products
+    BEFORE INSERT OR UPDATE OF operator ON public.products
     FOR EACH ROW
     EXECUTE FUNCTION public.mp_touch_operator_identity();
   END IF;

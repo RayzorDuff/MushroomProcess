@@ -36,6 +36,8 @@ FROM (
   UNION
   SELECT operator AS operator_value FROM public.lots WHERE operator IS NOT NULL
   UNION
+  SELECT operator AS operator_value FROM public.products WHERE operator IS NOT NULL
+  UNION
   SELECT operator AS operator_value FROM public.sterilization_runs WHERE operator IS NOT NULL
 ) src
 WHERE public.mp_normalize_operator_identity(src.operator_value) IS NOT NULL
@@ -64,6 +66,10 @@ UPDATE public.lots
 SET operator = public.mp_normalize_operator_identity(operator)
 WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
 
+UPDATE public.products
+SET operator = public.mp_normalize_operator_identity(operator)
+WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
+
 UPDATE public.sterilization_runs
 SET operator = public.mp_normalize_operator_identity(operator)
 WHERE operator IS DISTINCT FROM public.mp_normalize_operator_identity(operator);
@@ -73,6 +79,19 @@ SET
   entered_by = public.mp_normalize_operator_identity(e.entered_by),
   entered_by_subject_id = public.mp_current_operator_subject(public.mp_normalize_operator_identity(e.entered_by))
 WHERE e.entered_by IS NOT NULL;
+
+DO $$
+DECLARE
+  v_subject_id bigint;
+BEGIN
+  FOR v_subject_id IN
+    SELECT s.nocopk
+    FROM public.personnel_review_subjects s
+    WHERE public.mp_operator_identity_email(s.appsmith_email) IS NOT NULL
+  LOOP
+    PERFORM public.mp_rewrite_operator_aliases_for_subject(v_subject_id);
+  END LOOP;
+END $$;
 
 CREATE OR REPLACE FUNCTION public.mp_personnel_review_entry_insert(
   p_subject_id bigint,
