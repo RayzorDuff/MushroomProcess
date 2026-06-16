@@ -171,6 +171,10 @@ BEGIN
     RAISE EXCEPTION 'End time cannot be before start time.';
   END IF;
 
+  IF p_sterilized_location_id IS NOT NULL AND p_sterilized_location_id <= 0 THEN
+    RAISE EXCEPTION 'Sterilized storage location must be a valid location nocopk.';
+  END IF;
+
   UPDATE "public"."sterilization_runs" sr
   SET
     "end_time" = v_end,
@@ -199,6 +203,18 @@ BEGIN
       LIMIT 1
     )
   );
+
+  IF v_sterilized_location_id IS NULL THEN
+    RAISE EXCEPTION 'Sterilized storage location is required and no default New Lots location was found.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.locations l
+    WHERE l.nocopk = v_sterilized_location_id
+  ) THEN
+    RAISE EXCEPTION 'Sterilized storage location not found for nocopk: %', v_sterilized_location_id;
+  END IF;
 
   lots_created := 0;
 
@@ -235,9 +251,7 @@ BEGIN
     PERFORM public.mp_link_lot_item(v_lot_id, v_run."planned_item_id");
     PERFORM public.mp_link_lot_recipe(v_lot_id, v_run."planned_recipe_id");
     
-    IF v_sterilized_location_id IS NOT NULL THEN
-      PERFORM public.mp_lot_set_location(v_lot_id, v_sterilized_location_id);
-    END IF;
+    PERFORM public.mp_lot_set_location(v_lot_id, v_sterilized_location_id);
 
     lots_created := lots_created + 1;
 
