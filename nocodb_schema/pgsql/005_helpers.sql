@@ -40,6 +40,35 @@ BEGIN
 END;
 $$;
 
+-- Link an event to a product (Airtable "linked record" equivalent).
+CREATE OR REPLACE FUNCTION public.mp_events_link_product(
+  p_event_id bigint,
+  p_product_id bigint
+)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  BEGIN
+    INSERT INTO "public"."_m2m_products_events_events" ("products_id","events_id")
+    VALUES (p_product_id, p_event_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+
+  BEGIN
+    INSERT INTO "public"."_m2m_events_products_product_id" ("events_id","products_id")
+    VALUES (p_event_id, p_product_id)
+    ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN unique_violation THEN
+    NULL;
+  EXCEPTION WHEN undefined_table THEN
+    NULL;
+  END;
+END;
+$$;
+
 -- Convenience helper: insert + link to lot (optional)
 CREATE OR REPLACE FUNCTION public.mp_events_insert_and_link_lot(
   p_lot_id       bigint,

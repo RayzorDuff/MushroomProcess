@@ -2212,6 +2212,12 @@ DECLARE
   v_package_item_category text;
   v_package_item_name text;
   v_source_product_ids_json text;
+  v_origin_lot_ids bigint[];
+  v_origin_lot_id bigint;
+  v_origin_lot_ids_json text;
+  v_strain_id bigint;
+  v_strain_count integer;
+  v_use_by date;
 BEGIN
   IF p_source_product_ids IS NULL OR array_length(p_source_product_ids,1) IS NULL THEN
     RAISE EXCEPTION 'At least one source product required';
@@ -2249,6 +2255,55 @@ BEGIN
 
   v_source_product_ids_json := to_jsonb(p_source_product_ids)::text;
 
+  SELECT COALESCE(array_agg(DISTINCT lot_id ORDER BY lot_id), ARRAY[]::bigint[])
+  INTO v_origin_lot_ids
+  FROM (
+    SELECT m.lots_id AS lot_id
+    FROM public._m2m_products_lots_origin_lots m
+    WHERE m.products_id = ANY(p_source_product_ids)
+    UNION
+    SELECT l.nocopk AS lot_id
+    FROM public.products p
+    JOIN LATERAL jsonb_array_elements_text(
+      CASE
+        WHEN COALESCE(NULLIF(p.origin_lot_ids_json, ''), '[]') ~ '^[[:space:]]*\['
+          THEN COALESCE(NULLIF(p.origin_lot_ids_json, ''), '[]')::jsonb
+        ELSE '[]'::jsonb
+      END
+    ) AS origin_lot_id_text(value) ON true
+    JOIN public.lots l
+      ON l.lot_id = origin_lot_id_text.value
+      OR l.airtable_id = origin_lot_id_text.value
+      OR l.nocopk::text = origin_lot_id_text.value
+    WHERE p.nocopk = ANY(p_source_product_ids)
+  ) origin_lots
+  WHERE lot_id IS NOT NULL;
+
+  SELECT count(DISTINCT source_strain_id), min(source_strain_id)
+  INTO v_strain_count, v_strain_id
+  FROM (
+    SELECT p.strain_id AS source_strain_id
+    FROM public.products p
+    WHERE p.nocopk = ANY(p_source_product_ids)
+      AND p.strain_id IS NOT NULL
+    UNION
+    SELECT l.strain_id AS source_strain_id
+    FROM public.lots l
+    WHERE l.nocopk = ANY(v_origin_lot_ids)
+      AND l.strain_id IS NOT NULL
+  ) source_strains;
+
+  IF COALESCE(v_strain_count, 0) > 1 THEN
+    RAISE EXCEPTION 'Selected source products contain multiple strains; package one strain at a time.';
+  END IF;
+
+  SELECT COALESCE(jsonb_agg(COALESCE(NULLIF(btrim(l.lot_id), ''), l.nocopk::text) ORDER BY l.nocopk), '[]'::jsonb)::text
+  INTO v_origin_lot_ids_json
+  FROM public.lots l
+  WHERE l.nocopk = ANY(v_origin_lot_ids);
+
+  v_use_by := COALESCE(p_use_by, (v_pack_date + interval '2 years')::date);
+
   -- Create one package product per requested package. Each package can be linked
   -- to one or more source tray products, allowing multiple harvest trays to make
   -- up a single package or package run.
@@ -2266,6 +2321,8 @@ BEGIN
       package_size_g,
       package_count,
       storage_location_id,
+      origin_lot_ids_json,
+      strain_id,
       notes
     )
     VALUES(
@@ -2276,11 +2333,13 @@ BEGIN
       p_package_size_g / 28.349523125,
       NULL,
       v_pack_date,
-      p_use_by,
+      v_use_by,
       p_package_item_id,
       p_package_size_g,
       1,
       v_loc_id,
+      COALESCE(v_origin_lot_ids_json, '[]'),
+      v_strain_id,
       NULLIF(p_notes, '')
     )
     RETURNING nocopk INTO v_new_product_id;
@@ -2316,6 +2375,21 @@ BEGIN
       ON CONFLICT DO NOTHING;
     END LOOP;
 
+    FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
+      INSERT INTO public._m2m_products_lots_origin_lots(products_id, lots_id)
+      VALUES (v_new_product_id, v_origin_lot_id)
+      ON CONFLICT DO NOTHING;
+    END LOOP;
+
+    IF v_strain_id IS NOT NULL THEN
+      BEGIN
+        INSERT INTO public._m2m_products_strains_strain_id(products_id, strains_id)
+        VALUES (v_new_product_id, v_strain_id)
+        ON CONFLICT DO NOTHING;
+      EXCEPTION WHEN undefined_table THEN NULL;
+      END;
+    END IF;
+
     -- Set product location through the helper as well, so canonical FK and
     -- compatibility link tables stay synchronized in older schemas.
     BEGIN
@@ -2326,20 +2400,24 @@ BEGIN
     -- Event
     BEGIN
       v_event_id := public.mp_events_insert(
-        'Package Freeze Dried'::text,
-        COALESCE(p_operator,'')::text,
-        COALESCE(p_station,'Products')::text,
-        v_pack_date::timestamp,
-        jsonb_build_object(
+        p_lot_id => NULL::bigint,
+        p_product_id => v_new_product_id,
+        p_type => 'Package Freeze Dried'::text,
+        p_timestamp => v_pack_date::timestamp,
+        p_operator => COALESCE(p_operator,'')::text,
+        p_station => COALESCE(p_station,'Products')::text,
+        p_fields_json => jsonb_build_object(
           'source_product_ids', p_source_product_ids,
           'package_product_id', v_new_product_id,
+          'origin_lot_ids', COALESCE(v_origin_lot_ids, ARRAY[]::bigint[]),
+          'strain_id', v_strain_id,
           'package_index', v_counter - 1,
           'package_size_g', p_package_size_g,
           'package_count', v_requested_count,
           'total_required_weight_g', v_required_weight_g,
           'selected_source_weight_g', v_total_source_weight_g,
           'pack_date', v_pack_date,
-          'use_by', p_use_by,
+          'use_by', v_use_by,
           'notes', p_notes
         )
       );
@@ -2348,6 +2426,9 @@ BEGIN
         PERFORM public.mp_events_link_product(v_event_id, v_new_product_id);
         FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
           PERFORM public.mp_events_link_product(v_event_id, v_src_id);
+        END LOOP;
+        FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
+          PERFORM public.mp_events_link_lot(v_event_id, v_origin_lot_id);
         END LOOP;
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
