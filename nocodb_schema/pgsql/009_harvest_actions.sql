@@ -59,6 +59,7 @@ DECLARE
   v_frozen_loc_id bigint;
   v_created_product_nocopks bigint[] := ARRAY[]::bigint[];
   v_created_product_ids text[] := ARRAY[]::text[];
+  v_product_id bigint;
   v_item_name text;
   v_item_category text;
   v_loc_id bigint;
@@ -277,11 +278,13 @@ BEGIN
 
   BEGIN
     v_event_id := public.mp_events_insert(
-      'Harvest',
-      COALESCE(p_operator, ''),
-      COALESCE(NULLIF(btrim(p_station), ''), 'Harvest'),
-      v_ts,
-      jsonb_build_object(
+      p_lot_id => p_block_lot_id,
+      p_product_id => NULL::bigint,
+      p_type => 'Harvest',
+      p_timestamp => v_ts,
+      p_operator => COALESCE(p_operator, ''),
+      p_station => COALESCE(NULLIF(btrim(p_station), ''), 'Harvest'),
+      p_fields_json => jsonb_build_object(
         'source_lot_id', p_block_lot_id,
         'harvest_weight_g', p_harvest_weight_g,
         'flush_no', p_flush_no,
@@ -300,6 +303,9 @@ BEGIN
     );
 
     PERFORM public.mp_events_link_lot(v_event_id, p_block_lot_id);
+    FOREACH v_product_id IN ARRAY v_created_product_nocopks LOOP
+      PERFORM public.mp_events_link_product(v_event_id, v_product_id);
+    END LOOP;
   EXCEPTION WHEN undefined_function THEN NULL;
   END;
 
