@@ -48,9 +48,9 @@
         0
       ],
       "credentials": {
-        "airtableTokenApi": {
-          "id": "vgt8hbjfh9CbsaQA",
-          "name": "Airtable Personal Access Token account"
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
         }
       }
     },
