@@ -589,6 +589,10 @@ DECLARE
   v_source_species_strain_mat text;
   v_source_remaining_ml numeric;
   v_source_notes text;
+  v_source_created_at timestamp without time zone;
+  v_source_sterilized_at timestamp without time zone;
+  v_source_received_date date;
+  v_source_available_at timestamp without time zone;
 
   v_inoc_time timestamp without time zone;
 
@@ -648,6 +652,9 @@ BEGIN
     l.strain_species_strain_mat,
     l.remaining_volume_ml,
     l.notes,
+    l.created_at,
+    l.sterilized_at,
+    l.received_date,
     i.category,
     i.name
   INTO
@@ -659,6 +666,9 @@ BEGIN
     v_source_species_strain_mat,
     v_source_remaining_ml,
     v_source_notes,
+    v_source_created_at,
+    v_source_sterilized_at,
+    v_source_received_date,
     v_source_item_category,
     v_source_item_name
   FROM public.lots l
@@ -677,6 +687,28 @@ BEGIN
   v_is_liquid_source := v_source_item_category IN ('lc_syringe','lc_flask');
   v_is_solid_source := v_source_item_category IN ('plate','agar_plate','grain');
   v_is_untracked_source := v_source_item_category = 'untracked_source';
+
+  SELECT max(source_date)
+    INTO v_source_available_at
+  FROM (
+    VALUES
+      (v_source_created_at),
+      (v_source_sterilized_at),
+      (v_source_received_date::timestamp without time zone)
+  ) AS source_dates(source_date)
+  WHERE source_date IS NOT NULL;
+
+  IF v_source_available_at IS NOT NULL AND v_inoc_time < v_source_available_at THEN
+    UPDATE public.lots
+      SET ui_error = format(
+            'Inoculate validation: Inoculation time %s cannot be before source lot availability time %s.',
+            v_inoc_time,
+            v_source_available_at
+          ),
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
 
   IF NOT (v_is_liquid_source OR v_is_solid_source OR v_is_untracked_source) THEN
     UPDATE public.lots
