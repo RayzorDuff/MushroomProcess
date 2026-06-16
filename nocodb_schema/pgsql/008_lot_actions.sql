@@ -1721,6 +1721,7 @@ DECLARE
   );
   v_i integer;
   v_use_by date;
+  v_source_available_at timestamp without time zone;
   v_created_plate_ids text[] := ARRAY[]::text[];
   v_created_plate_nocopks bigint[] := ARRAY[]::bigint[];
 BEGIN
@@ -1736,6 +1737,21 @@ BEGIN
   END IF;
   IF lower(COALESCE(v_src.status, '')) IN ('consumed', 'retired', 'expired', 'compost', 'composted') THEN
     RAISE EXCEPTION 'Source agar flask is already unavailable with status %', v_src.status;
+  END IF;
+
+  SELECT max(source_date)
+    INTO v_source_available_at
+  FROM (
+    VALUES
+      (v_src.created_at::timestamp without time zone),
+      (v_src.sterilized_at::timestamp without time zone),
+      (v_src.received_date::timestamp without time zone)
+  ) AS source_dates(source_date)
+  WHERE source_date IS NOT NULL;
+
+  IF v_source_available_at IS NOT NULL AND v_ts < v_source_available_at THEN
+    RAISE EXCEPTION 'Pour date % cannot be before source agar flask availability date %',
+      v_ts, v_source_available_at;
   END IF;
 
   SELECT nocopk, name, category INTO v_plate_item
