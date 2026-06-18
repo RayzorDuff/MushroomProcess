@@ -237,7 +237,7 @@ For Mac:
 
    Mac:
    ```bash
-   airtable-export --schema --ndjson --yaml --json export $AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
+   airtable-export --schema --ndjson --yaml --json --key $AIRTABLE_KEY  export $AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
    ```
 
    Also dump Airtable table metadata:

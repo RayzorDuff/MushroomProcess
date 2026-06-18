@@ -23,22 +23,20 @@
   - recBShGQGSE4qpNID
   - rech6IJdPJWsC0dG2
   products:
-  - recTRdszQPLijVH6d
-  - recxuGPCvOd9iNc8a
-  - reccdRtAk75HR1ECm
-  - recd1mQ1UAex9S0Kw
-  - recUHPxYfTPBakTsy
   - recM9RPSWQwyTXIUA
   - recuymh26EjePVGCM
   - recTEifwyWYroBRh4
+  - recnJsa4x61Nnctts
+  - recuFkYzv9SMhaXKE
+  - recNqytaYSqobYBMR
+  - rec33PzqBO8ecfajT
+  - recywDdY7eCfrxKL7
+  - recPv6BJaawchpEit
   species_strain: Bronze Reishi
   strain_id: STR-BronzeReishi
 - active: true
   airtable_createdTime: '2025-12-12T17:44:11.000Z'
   airtable_id: rec91mqZG1AZdhopu
-  ecommerce:
-  - recknjqnio5ZJJEhN
-  - recoHmg53g3QMEKSP
   regulated: true
   species_strain: Hillbilly
   strain_id: STR-Hillbilly
@@ -66,18 +64,12 @@
   - recr1rvouT9jQsJrg
   - recubhnQdNB05fgNv
   products:
-  - recEeLLotVZJRTgnS
-  - rec2uPGtEsJLYqFeO
-  - reciX1Qa9bFCJ0aJr
-  - recWNpyWz76sVJIM8
-  - recTHuSBvE37xXwzm
-  - recsw2KeS6bFyDD3d
-  - rec8BW2fk334ocsfW
-  - recGKdMxSa8xicpsi
   - recORM34wVTAz5z1i
   - recJMPe2rZctkqaS9
   - recF6KGXdwltsOGLZ
   - recqLG7t2R8R9r1hG
+  - receO2H9ZP9wo6vKV
+  - recUoJPO09b5lt2FA
   species_strain: Pearl Oyster
   strain_id: STR-PearlOyster
 - active: true
@@ -111,8 +103,6 @@
 - active: true
   airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recFnCOoLSfmoATeP
-  ecommerce:
-  - recsjtPJtMwZQY12U
   regulated: true
   species_strain: Golden Teacher
   strain_id: STR-GoldenTeacher
@@ -125,7 +115,6 @@
   - recYTzvlqNTXHvawc
   - reclJCTL9lY03ye28
   products:
-  - recHmPXVrimoPRgzF
   - rec0Tpu1Nx9XNrUt7
   species_strain: Branched Oyster
   strain_id: STR-BranchedOyster
@@ -169,11 +158,6 @@
   - recrq4Q4GXjh1lhJv
   - recsV7dwpD1t51wJo
   products:
-  - recKLVbUA8j56RU0y
-  - recN79YZ0M5yzpyEM
-  - rectL5C2iP73AwnsK
-  - recstM0FHwiYiPN2s
-  - recYJz8GHq1oSpGhh
   - recP1YosbdEM28hV7
   - recEaY7ZkT1pcTFYC
   - rec4dlvocUVyAOXRH
@@ -182,6 +166,8 @@
   - recMT8mqlHOAV7SN4
   - recsMHkBRzFL7rUaV
   - rec7av2XvqRHbtavK
+  - recT1oslzubnlxUef
+  - recPUXNTPt19Ryqyf
   species_strain: Chestnut
   strain_id: STR-Chestnut
 - active: true
@@ -193,19 +179,7 @@
   - recAzjpFOyz2waprM
   - recPAdHniCfUGw3Kw
   - recKdymWp3LucG6ya
-  lots:
-  - recUnhrTIXUGHxcVW
-  - recyORG1D60Ang6qv
-  - recWKzq1OghcSXNl6
-  - reczX8tImXa5SH8Oz
-  - recxfCn6CtcdnICRV
-  - recJNY2EifD2wVHm8
   products:
-  - recDFj5MPq2TjHe7y
-  - recvC6cSyo5hKeJHB
-  - recnu2wvutMZQ0lpA
-  - recA3daGyay91rLwn
-  - recD3qvdQ8bbhEWvj
   - rec09EmiMwGZp1yDy
   - recxuAC9eLsSV6DTx
   - recCzMeOnsafLPbJ6
@@ -250,21 +224,8 @@
   - rec6oHBYB2tJoCRWV
   - recyKXNWcvve4pweO
   lots:
-  - rec6L32vzvxkWkTLA
-  - recdEYY9oRCEaX9h9
-  - recY4HfOKcEdgjIJO
-  - recyi6MphXdElEQ8G
-  - recLdmxlgaxQAFgjd
-  - recbcFPZylSXs4EgI
   - rec1mfUCKWdZXJYeU
   products:
-  - rec6xPnhqjRCLQMLF
-  - recDv7vcX44kkp73W
-  - recnq4PJ83tazh1O1
-  - recUK3C1kZLM1Xg74
-  - recFRpGh3dXJYnirW
-  - recoqfyNbBCrmx14S
-  - recDaCIeWIunekG0X
   - recMH5G3sHFDAQcgb
   - recyp6NMS8uM10wPr
   - rec15YRMRXuEY3kd7
@@ -284,8 +245,6 @@
 - active: true
   airtable_createdTime: '2025-09-16T01:30:40.000Z'
   airtable_id: recmu5LgteQ6xVWwG
-  ecommerce:
-  - recjNWleDDgh8BGMt
   regulated: true
   species_strain: Penis Envy
   strain_id: STR-PE
@@ -305,31 +264,19 @@
   - recJf2BclIGA4npJO
   - reciqKMhNt9vrKelh
   lots:
-  - recoYQgxzuSr0I5kY
-  - recV82OHyOGrx2iyZ
-  - recV0fkHpiBJFFmol
-  - rec7OxTbl1Jw4agFi
-  - rec2alzkr2OS9LKEs
-  - recvHjMNzXE1oNtQG
   - recfyskUzH5JuKLen
   - recvyxpWHDZNxXktn
   - recxSBBfXoHgZQbeT
   - recDmtKc314E0h8zS
   products:
-  - reciuzCgRKqLKz2Sz
-  - recIP5KqopLSxrKuD
-  - recQbEZEdlDvr3Qln
-  - rec6EGQRxavmphfVn
-  - recmCmwILxGJnoWnY
-  - rec1f89N0qnUBpeOh
-  - recgjFroFXD7LXwAL
-  - rec6YWDrsfz4wa1YC
   - recu6bMNq7ogLGryh
   - rec1gB5Y0OEoSXtX6
   - recXu4uEgLeFhyEBA
   - recuscfDV0o29AgxJ
   - recx9LiEFcYl9iPpo
   - rec1kf5lP1RpB8EmQ
+  - recGqkYnY9YXMW6N6
+  - recyHg6ax6gBOGSPC
   species_strain: Blue Oyster
   strain_id: STR-BlueOyster
 - active: true
@@ -341,18 +288,12 @@
 - active: true
   airtable_createdTime: '2025-09-23T00:49:47.000Z'
   airtable_id: recw292ouRGk021S6
-  ecommerce:
-  - recJ8MTjH4mlJReXt
-  - recWat8trCGE6FIbx
   regulated: true
   species_strain: B Plus (B Positive)
   strain_id: STR-BPlus
 - active: true
   airtable_createdTime: '2025-12-12T17:43:05.000Z'
   airtable_id: recwa4hnchhLcvKQX
-  ecommerce:
-  - recMfy4toCHnjQesK
-  - recQuB3gSveV1OAQw
   regulated: true
   species_strain: Bluey Vuitton
   strain_id: STR-BlueyVuitton
@@ -378,17 +319,18 @@
   - reclCvNJMD8FJfL1i
   - recvxQFjUCzGNanq5
   products:
-  - rec0veuzkwo5GbmsK
-  - recQClATvtkjrRcPO
-  - rec7OQOSExJiPCzow
-  - recYjzY7zM3Le4vkH
-  - rec7Q5rW9QD8906Av
   - recY5WQPNLrN1QOTY
   - recYcHmPFEg6IehFP
   - recFJKajJbRLExOMh
   - rec3SQAxlVfclr34v
   - rec1f0TJvkd2XvpiN
   - rec96mFnPPs7OxGHX
+  - recjTLojAVq7HYs7X
+  - recLsg8EwKwUQnTOR
+  - rectcfyyczUWWQIJL
+  - recjAovSBiylPuCCv
+  - recupbqIz5zeAlffI
+  - rec5J0fB7IBmpDHOB
   species_strain: Red Reishi
   strain_id: STR-RedReishi
 - active: true

@@ -22,6 +22,7 @@
         },
         "tax": 0.46,
         "shipping": 9.25,
+        "handlingFee": 0,
         "quantityInStock": 2,
         "name": "Pink Oyster Grow Kit",
         "nameTranslated": {
@@ -42,6 +43,7 @@
             "total": 0.46,
             "taxOnDiscountedSubtotal": 0.46,
             "taxOnShipping": 0,
+            "taxOnHandlingFee": 0,
             "includeInPrice": false,
             "sourceTaxRateId": 0,
             "sourceTaxRateType": "AUTO",

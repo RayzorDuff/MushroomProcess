@@ -25,6 +25,8 @@
   - recWi2mg0oo9QtFFx
   planned_unit_size: 500
   pressure_mode: Closed
+  print_queue:
+  - rece4eiahYKpCtc3a
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-SUB-CORDYCEPS-B
@@ -56,7 +58,7 @@
   - recNiOOqOrHbHmzWm
   name (from planned_recipe):
   - Wild Bird Seed Blend
-  operator: Robert Weber <bobbyweber13@gmail.com>
+Operator 1 <operator1.email.address@mybusiness.com>
   override_end_time: '2026-04-24T07:30:00.000Z'
   planned_count: 54
   planned_item:
@@ -69,6 +71,8 @@
   - rec9ayZPHs9K5WS4K
   planned_unit_size: 2
   pressure_mode: Closed
+  print_queue:
+  - recdreFU1uc9gXL5v
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-GRAIN-WBS
@@ -90,7 +94,7 @@
   - receXyX0xRj94sHQo
   name (from planned_recipe):
   - Masters Mix 75/25
-  operator: Robert Weber <bobbyweber13@gmail.com>
+Operator 1 <operator1.email.address@mybusiness.com>
   planned_count: 5
   planned_item:
   - recXSlo6zHhTvnhZe
@@ -102,6 +106,8 @@
   - recdzi4MMq717DjmU
   planned_unit_size: 7.5
   pressure_mode: Closed
+  print_queue:
+  - recpLaTLx6d5rANlG
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-SUB-MM75
@@ -134,6 +140,8 @@
   - recdzi4MMq717DjmU
   planned_unit_size: 7.5
   pressure_mode: Closed
+  print_queue:
+  - recCquAAGYS6wCAS1
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-SUB-MM75
@@ -179,6 +187,8 @@
   - rec3KC4fKWLKAvUSc
   planned_unit_size: 2.5
   pressure_mode: Open
+  print_queue:
+  - recdSryfWpGmLm4mf
   process_type: Pasteurize
   recipe_id (from planned_recipe):
   - REC-SUB-CVG-V2
@@ -227,6 +237,8 @@
   - recdzi4MMq717DjmU
   planned_unit_size: 2.5
   pressure_mode: Closed
+  print_queue:
+  - recNwCtxZFh0Sp7yB
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-SUB-MM75
@@ -242,55 +254,19 @@
   good_count: 55
   lots:
   - recpyoMscyvYIHr1i
-  - recBVAv49VufvI265
-  - recVLVCKgLHm34tud
   - recwe7NjcQV0gR2Pe
   - recvovrAA0mOVsWSF
-  - recgBr6zxu8BUBaYB
-  - recUl9OYA3j8H1vDY
-  - recilI8JFnygdX9rn
-  - recTyCLAEdFanc695
   - recoMnoCnqoiyOWxE
   - rectrJMfA9sYddT3s
-  - recGkJruFOFc7WP55
-  - rec2jXQOkWf1GH2Ou
-  - recD6fUcJCdySGaD1
-  - recLxfzXn4GKLCA6Z
-  - recAvOv1LrIkaV9ye
   - recm4aVHlbHuHSjOy
   - reckhPRgdLf9aoeDs
   - recmHotH3ZmsQ0bmb
-  - recVEkAv3d3qrak3K
   - recz0aTu61I9GUXDP
-  - recAiDcCIpqlnYbR8
-  - receHWhFohgQvf3Oo
-  - recLgCgWOA0iK2nTp
-  - recHqA7c9aEoLLBlF
   - rectiyuoziWwdcVnp
   - recqLMWPvTT4sgKgn
-  - recclDGjv4z3B5bWr
-  - recbS1o4UDdP8ZN1P
-  - recUoAVFNvhZkfD6B
-  - rec14MNnlhuDvE2TY
-  - recgAB155jydT0p3t
-  - recWQvpP9NC2TYTjR
-  - recBvJHYzQCW97v3s
-  - recGTIV32NvVWgFWj
-  - rec4BDgXz6lreRc6b
-  - rec1FmLyooTIlyPtK
-  - rechyqcWnCLXCG074
   - recsHHh3LrQE1oq7L
   - recm7xuUoTBpD5Jhg
-  - recCInvjtrVRj7m3y
-  - recY8zLI2ISqbAIGF
-  - recf4k39rFLPDP23o
   - recpxC1yDCvcXuozn
-  - recLM6RyuLyKRpPKQ
-  - rec4S7KSVyQ86jWvN
-  - recbuh1S07dywq406
-  - recHRTjuMdkC4OKR5
-  - recEUwOZGOROMJT4m
-  - reccWS68ZEoiLw9ql
   - recnit1zd11kzpWFu
   - recYxO1hew8XvwllH
   - recoOuXzylqA7OsBY
@@ -298,7 +274,7 @@
   - recypnaXHXCeTSJyV
   name (from planned_recipe):
   - Wild Bird Seed Blend
-  operator: Robert Weber <bobbyweber13@gmail.com>
+Operator 1 <operator1.email.address@mybusiness.com>
   planned_count: 55
   planned_item:
   - recwdBny04rzSGGrO
@@ -310,6 +286,8 @@
   - rec9ayZPHs9K5WS4K
   planned_unit_size: 2
   pressure_mode: Closed
+  print_queue:
+  - rece55Y5Db1ySZ6iu
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-GRAIN-WBS
@@ -343,6 +321,8 @@
   - recwC8OXLVVl9Tv7C
   planned_unit_size: 500
   pressure_mode: Closed
+  print_queue:
+  - recpwSjjp5x8JXJ7n
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-SUB-CORDYCEPS-A
@@ -374,7 +354,7 @@
   - recrMH17yDNn5ss2b
   name (from planned_recipe):
   - CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
-  operator: Robert Weber <bobbyweber13@gmail.com>
+Operator 1 <operator1.email.address@mybusiness.com>
   planned_count: 15
   planned_item:
   - recJgSj2nMQhhMQm3
@@ -386,12 +366,94 @@
   - rec3KC4fKWLKAvUSc
   planned_unit_size: 5
   pressure_mode: Closed
+  print_queue:
+  - recvB9OXzYYEZ2ryb
   process_type: Pasteurize
   recipe_id (from planned_recipe):
   - REC-SUB-CVG-V2
   start_time: '2026-05-23T18:52:00.000Z'
   steri_run_id: RUN-260525-i2lj
   target_temp_c: 74
+- airtable_createdTime: '2026-06-15T16:52:52.000Z'
+  airtable_id: reckkAU2IsJQACD2X
+  default_unit_size (from planned_item):
+  - 2lb
+  destroyed_count: 0
+  end_time: '2026-06-15T16:51:00.000Z'
+  good_count: 49
+  lots:
+  - recYzX9StSx6mBAFW
+  - recb9RqSMSDn0u4yX
+  - recSLVWNUGT7WBO84
+  - reckCHukFli6qC7k1
+  - recojnsaBCokDaYHE
+  - reckyhMPQqyTr01QY
+  - recX902iBxTkrkqnJ
+  - recTdtwLo8Msk7ahC
+  - recUpUMZX90wXzMhx
+  - rec4oLI79L9qNB68Z
+  - reczwfulxLLtmebyL
+  - recKhtUUrmcFvQQ80
+  - recKrk9ibdKjBoUsI
+  - rec6mm1yfRZV0Jqvx
+  - recUX1QIUlhokWpq4
+  - recZveGev49KRYxJc
+  - recDO1ruyZ5shDVss
+  - recjmQ6o5mMj1j5HT
+  - recltKTZAYYi8ZNah
+  - rec9yiBRxlKBdMiGH
+  - recQL1ba8bpOBG5hp
+  - recBEUiMv5eUCTaB2
+  - recTCNIK9Yo3hovk4
+  - recMk624t2UdwEOLI
+  - reclWVizrtEad5KWo
+  - recmEHYvKiwEBlOND
+  - recQrKnDoXaXzauZP
+  - recQPzYNkzfXRQeUk
+  - recVw4JQHpPp2eA3m
+  - rec9EerbKzs9DhNXW
+  - recVOPcWL1YW7PM88
+  - recJXWWwar8l9BvYp
+  - reczdxZTmPxwPOKne
+  - recs0tBnIc1u0qCB0
+  - recB1gDpfWRofdCyo
+  - recJ5nNtOEQ5bUFH2
+  - recBEe3LS4QiH5C7j
+  - recypeTkZohfpKkSe
+  - recl8VVMisVezhGMf
+  - recRb0vUXAp6XnoaL
+  - recf3lihSPXKCR8ul
+  - recqMNUgmuxJEtc95
+  - recjhbP4JCObDhf9a
+  - recVXZFzKKBMswEVx
+  - rec2grEmnDMXTp5dk
+  - recjTIARzcX2gD1wk
+  - rec4rc5rjKCi7NDUv
+  - rec9L06DeDQ6IuaOT
+  - rec0ZbNh7jik9qini
+  name (from planned_recipe):
+  - Wild Bird Seed Blend
+Operator 1 <operator1.email.address@mybusiness.com>
+  override_end_time: '2026-06-15T16:51:00.000Z'
+  planned_count: 49
+  planned_item:
+  - recwdBny04rzSGGrO
+  planned_item_id:
+  - GRAIN-WBS-2
+  planned_item_name:
+  - Wild Bird Seed
+  planned_recipe:
+  - rec9ayZPHs9K5WS4K
+  planned_unit_size: 1.75
+  pressure_mode: Closed
+  print_queue:
+  - reczxbkmQw2yicUXF
+  process_type: Sterilize
+  recipe_id (from planned_recipe):
+  - REC-GRAIN-WBS
+  start_time: '2026-06-14T16:52:00.000Z'
+  steri_run_id: RUN-260615-CD2X
+  target_temp_c: 121
 - airtable_createdTime: '2026-04-22T12:28:15.000Z'
   airtable_id: recswN3XMcVEeXbvP
   default_unit_size (from planned_item):
@@ -421,6 +483,8 @@
   - rec3KC4fKWLKAvUSc
   planned_unit_size: 5
   pressure_mode: Open
+  print_queue:
+  - recnETQ1wW8TAtFXF
   process_type: Pasteurize
   recipe_id (from planned_recipe):
   - REC-SUB-CVG-V2

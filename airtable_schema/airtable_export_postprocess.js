@@ -34,6 +34,7 @@ require('./load_env');
  */
 
 const fs = require("fs");
+const path = require("path");
 
 // Feature toggles
 // Defaults preserve existing behavior (both steps enabled).
@@ -56,6 +57,11 @@ const POSTPROCESS_REWRITE_BRANDING_STRINGS =
   typeof global.envBool === 'function'
     ? global.envBool('POSTPROCESS_REWRITE_BRANDING_STRINGS', true)
     : (process.env.POSTPROCESS_REWRITE_BRANDING_STRINGS || 'true').toString().toLowerCase() === 'true';
+
+const POSTPROCESS_REWRITE_EXPORT_DATA_FILES =
+  typeof global.envBool === 'function'
+    ? global.envBool('POSTPROCESS_REWRITE_EXPORT_DATA_FILES', true)
+    : (process.env.POSTPROCESS_REWRITE_EXPORT_DATA_FILES || 'true').toString().toLowerCase() === 'true';
 
 function readJson(path) {
   const raw = fs.readFileSync(path, "utf8");
@@ -84,6 +90,12 @@ const OPERATOR_EMAIL_DOMAIN = (process.env.POSTPROCESS_OPERATOR_EMAIL_DOMAIN || 
   .trim()
   .replace(/^@+/, '') || 'mybusiness.com';
 
+const SAFE_EMAIL_DOMAINS = new Set([
+  OPERATOR_EMAIL_DOMAIN.toLowerCase(),
+  'mybusiness.com',
+  'regulatedbusiness.com',
+]);
+
 const BRANDING_REPLACEMENTS = [
   [/Rooted\s+Psyche\s+Church/gi, COMPANY.regulatedBusinessName],
   [/Rooted\s+Psyche/gi, COMPANY.regulatedBusinessName],
@@ -95,8 +107,15 @@ const BRANDING_REPLACEMENTS = [
   [/\bdanks\.net\b/gi, 'mybusiness.com'],
   [/\bsales@mybusiness\.com\b/gi, 'contact@mybusiness.com'],
   [/\bsales@danks\.net\b/gi, 'contact@mybusiness.com'],
+  [/1726\s+Goldenvue\s+Drive\s*\\nJohnstown,\s*CO\s*80534\s*\\nhttps?:\/\/(?:www\.)?mybusiness\.com\/?\s*\\n970-587-3294\s*\\ncontact@mybusiness\.com/gi, COMPANY.myBusinessAddressAndContact],
+  [/1726\s+Goldenvue\s+Drive\s*\\nJohnstown,\s*CO\s*80534\s*\\nhttps?:\/\/(?:www\.)?mybusiness\.com\/?\s*\\n970-587-3294\s*\\n[^\\n\s]+@[^\\n\s]+/gi, COMPANY.myBusinessAddressAndContact],
+  [/1726\s+Goldenvue\s+Drive\s*\\nJohnstown,\s*CO\s*80534\s*\\nhttps?:\/\/(?:www\.)?danks\.store\/?\s*\\n970-587-3294\s*\\n(?:sales@danks\.net|contact@mybusiness\.com)/gi, COMPANY.myBusinessAddressAndContact],
   [/1726\s+Goldenvue\s+Drive\s*\nJohnstown,\s*CO\s*80534\s*\nhttps?:\/\/(?:www\.)?mybusiness\.com\/?\s*\n970-587-3294\s*\ncontact@mybusiness\.com/gi, COMPANY.myBusinessAddressAndContact],
+  [/1726\s+Goldenvue\s+Drive\s*\nJohnstown,\s*CO\s*80534\s*\nhttps?:\/\/(?:www\.)?mybusiness\.com\/?\s*\n970-587-3294\s*\n[^\n\s]+@[^\n\s]+/gi, COMPANY.myBusinessAddressAndContact],
   [/1726\s+Goldenvue\s+Drive\s*\nJohnstown,\s*CO\s*80534\s*\nhttps?:\/\/(?:www\.)?danks\.store\/?\s*\n970-587-3294\s*\n(?:sales@danks\.net|contact@mybusiness\.com)/gi, COMPANY.myBusinessAddressAndContact],
+  [/1726\s+Goldenvue\s+Drive/gi, 'MyBusinessStreetAddress'],
+  [/Johnstown,\s*CO\s*80534/gi, 'MyBusinessCityStateZip'],
+  [/\b970[-.\s]?587[-.\s]?3294\b/g, 'MyBusinessPhone'],
 ];
 
 function replaceBrandingInString(value) {
@@ -104,6 +123,7 @@ function replaceBrandingInString(value) {
   for (const [pattern, replacement] of BRANDING_REPLACEMENTS) {
     out = out.replace(pattern, replacement);
   }
+  out = out.replaceAll('970-587-3294', 'MyBusinessPhone');
   return out;
 }
 
@@ -113,6 +133,9 @@ function createOperatorEmailObfuscator() {
 
   function replacementFor(email) {
     const normalized = String(email).trim().toLowerCase();
+    const domain = normalized.split('@').pop();
+    if (/^operator\d+\.email\.address@/.test(normalized)) return email;
+    if (SAFE_EMAIL_DOMAINS.has(domain)) return email;
     if (!emailMap.has(normalized)) {
       emailMap.set(normalized, `operator${emailMap.size + 1}.email.address@${OPERATOR_EMAIL_DOMAIN}`);
     }
@@ -126,6 +149,12 @@ function createOperatorEmailObfuscator() {
   return { obfuscateString, emailMap };
 }
 
+function replaceOperatorDisplayNamesInString(value) {
+  return value.replace(/[^<>\r\n"]+<\s*(operator(\d+)\.email\.address@[^<>\s]+)\s*>/gi, (_match, email, n) => {
+    return `Operator ${n} <${email}>`;
+  });
+}
+
 function rewriteStringsDeep(value, transformString) {
   if (typeof value === 'string') return transformString(value);
   if (Array.isArray(value)) return value.map((x) => rewriteStringsDeep(x, transformString));
@@ -135,6 +164,47 @@ function rewriteStringsDeep(value, transformString) {
     }
   }
   return value;
+}
+
+function makeExportTextTransformer(obfuscator) {
+  return function transformExportString(value) {
+    let out = value;
+    if (POSTPROCESS_REWRITE_BRANDING_STRINGS) out = replaceBrandingInString(out);
+    if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
+      out = obfuscator.obfuscateString(out);
+      out = replaceOperatorDisplayNamesInString(out);
+    }
+    if (POSTPROCESS_REWRITE_BRANDING_STRINGS) out = replaceBrandingInString(out);
+    return out;
+  };
+}
+
+function shouldRewriteExportFile(filePath, schemaInPath) {
+  const base = path.basename(filePath);
+  const ext = path.extname(filePath).toLowerCase();
+  if (!['.json', '.ndjson', '.yml', '.yaml'].includes(ext)) return false;
+  if (base.endsWith('.bak') || base.endsWith('.bakn')) return false;
+  if (path.resolve(filePath) === path.resolve(schemaInPath)) return false;
+  return true;
+}
+
+function rewriteExportDataFiles(exportDir, schemaInPath, transformString) {
+  if (!exportDir || !fs.existsSync(exportDir)) return { scanned: 0, changed: 0 };
+  let scanned = 0;
+  let changed = 0;
+  for (const entry of fs.readdirSync(exportDir, { withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    const filePath = path.join(exportDir, entry.name);
+    if (!shouldRewriteExportFile(filePath, schemaInPath)) continue;
+    scanned += 1;
+    const before = fs.readFileSync(filePath, 'utf8');
+    const after = transformString(before);
+    if (after !== before) {
+      fs.writeFileSync(filePath, after, 'utf8');
+      changed += 1;
+    }
+  }
+  return { scanned, changed };
 }
 
 function getFieldIdByName(table, fieldName) {
@@ -284,18 +354,18 @@ function main() {
     rewriteCompanyFormulasLots(schema);
   }
   
-  let obfuscatedOperatorEmailCount = 0;
-  if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
-    const obfuscator = createOperatorEmailObfuscator();
-    rewriteStringsDeep(schema, obfuscator.obfuscateString);
-    obfuscatedOperatorEmailCount = obfuscator.emailMap.size;
+  const obfuscator = createOperatorEmailObfuscator();
+  const transformExportString = makeExportTextTransformer(obfuscator);
+  rewriteStringsDeep(schema, transformExportString);
+
+  writeJson(outPath, schema);
+
+  let exportRewriteStats = { scanned: 0, changed: 0 };
+  if (POSTPROCESS_REWRITE_EXPORT_DATA_FILES) {
+    exportRewriteStats = rewriteExportDataFiles(path.dirname(outPath), inPath, transformExportString);
   }
 
-  if (POSTPROCESS_REWRITE_BRANDING_STRINGS) {
-    rewriteStringsDeep(schema, replaceBrandingInString);
-  }
-  
-  writeJson(outPath, schema);
+  const obfuscatedOperatorEmailCount = obfuscator.emailMap.size;
   console.log(`Wrote ${outPath}`);
   if (POSTPROCESS_REMOVE_EXTRA_FIELDS) {
     console.log(`Removed ${removed} " From: " fields`);
@@ -305,6 +375,11 @@ function main() {
 
   if (!POSTPROCESS_REWRITE_COMPANY) {
     console.log('Skipped company formula rewrites (POSTPROCESS_REWRITE_COMPANY=false)');
+  }
+  if (POSTPROCESS_REWRITE_EXPORT_DATA_FILES) {
+    console.log(`Rewrote branding/contact strings in ${exportRewriteStats.changed}/${exportRewriteStats.scanned} export data file(s)`);
+  } else {
+    console.log('Skipped export data file rewrites (POSTPROCESS_REWRITE_EXPORT_DATA_FILES=false)');
   }
   if (POSTPROCESS_OBFUSCATE_OPERATOR_EMAILS) {
     console.log(`Obfuscated ${obfuscatedOperatorEmailCount} distinct email address(es)`);

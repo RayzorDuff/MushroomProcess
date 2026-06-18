@@ -66,24 +66,6 @@
   category: grain
   ingredients: Wild Bird Seed
   lots:
-  - rec6L32vzvxkWkTLA
-  - recdEYY9oRCEaX9h9
-  - recY4HfOKcEdgjIJO
-  - recyi6MphXdElEQ8G
-  - recLdmxlgaxQAFgjd
-  - recbcFPZylSXs4EgI
-  - recUnhrTIXUGHxcVW
-  - recyORG1D60Ang6qv
-  - recWKzq1OghcSXNl6
-  - reczX8tImXa5SH8Oz
-  - recxfCn6CtcdnICRV
-  - recJNY2EifD2wVHm8
-  - recoYQgxzuSr0I5kY
-  - recV82OHyOGrx2iyZ
-  - recV0fkHpiBJFFmol
-  - rec7OxTbl1Jw4agFi
-  - rec2alzkr2OS9LKEs
-  - recvHjMNzXE1oNtQG
   - rec1mfUCKWdZXJYeU
   - rech0qZ2yxBuRp6PG
   - rec80Q0dlUG89Rajn
@@ -124,65 +106,79 @@
   - recrq4Q4GXjh1lhJv
   - recsV7dwpD1t51wJo
   - recpyoMscyvYIHr1i
-  - recBVAv49VufvI265
-  - recVLVCKgLHm34tud
   - recwe7NjcQV0gR2Pe
   - recvovrAA0mOVsWSF
-  - recgBr6zxu8BUBaYB
-  - recUl9OYA3j8H1vDY
-  - recilI8JFnygdX9rn
-  - recTyCLAEdFanc695
   - recoMnoCnqoiyOWxE
   - rectrJMfA9sYddT3s
-  - recGkJruFOFc7WP55
-  - rec2jXQOkWf1GH2Ou
-  - recD6fUcJCdySGaD1
-  - recLxfzXn4GKLCA6Z
-  - recAvOv1LrIkaV9ye
   - recm4aVHlbHuHSjOy
   - reckhPRgdLf9aoeDs
   - recmHotH3ZmsQ0bmb
-  - recVEkAv3d3qrak3K
   - recz0aTu61I9GUXDP
-  - recAiDcCIpqlnYbR8
-  - receHWhFohgQvf3Oo
-  - recLgCgWOA0iK2nTp
-  - recHqA7c9aEoLLBlF
   - rectiyuoziWwdcVnp
   - recqLMWPvTT4sgKgn
-  - recclDGjv4z3B5bWr
-  - recbS1o4UDdP8ZN1P
-  - recUoAVFNvhZkfD6B
-  - rec14MNnlhuDvE2TY
-  - recgAB155jydT0p3t
-  - recWQvpP9NC2TYTjR
-  - recBvJHYzQCW97v3s
-  - recGTIV32NvVWgFWj
-  - rec4BDgXz6lreRc6b
-  - rec1FmLyooTIlyPtK
-  - rechyqcWnCLXCG074
   - recsHHh3LrQE1oq7L
   - recm7xuUoTBpD5Jhg
-  - recCInvjtrVRj7m3y
-  - recY8zLI2ISqbAIGF
-  - recf4k39rFLPDP23o
   - recpxC1yDCvcXuozn
-  - recLM6RyuLyKRpPKQ
-  - rec4S7KSVyQ86jWvN
-  - recbuh1S07dywq406
-  - recHRTjuMdkC4OKR5
-  - recEUwOZGOROMJT4m
-  - reccWS68ZEoiLw9ql
   - recnit1zd11kzpWFu
   - recYxO1hew8XvwllH
   - recoOuXzylqA7OsBY
   - recQCw2tD2D8dThGJ
   - recypnaXHXCeTSJyV
+  - recYzX9StSx6mBAFW
+  - recb9RqSMSDn0u4yX
+  - recSLVWNUGT7WBO84
+  - reckCHukFli6qC7k1
+  - recojnsaBCokDaYHE
+  - reckyhMPQqyTr01QY
+  - recX902iBxTkrkqnJ
+  - recTdtwLo8Msk7ahC
+  - recUpUMZX90wXzMhx
+  - rec4oLI79L9qNB68Z
+  - reczwfulxLLtmebyL
+  - recKhtUUrmcFvQQ80
+  - recKrk9ibdKjBoUsI
+  - rec6mm1yfRZV0Jqvx
+  - recUX1QIUlhokWpq4
+  - recZveGev49KRYxJc
+  - recDO1ruyZ5shDVss
+  - recjmQ6o5mMj1j5HT
+  - recltKTZAYYi8ZNah
+  - rec9yiBRxlKBdMiGH
+  - recQL1ba8bpOBG5hp
+  - recBEUiMv5eUCTaB2
+  - recTCNIK9Yo3hovk4
+  - recMk624t2UdwEOLI
+  - reclWVizrtEad5KWo
+  - recmEHYvKiwEBlOND
+  - recQrKnDoXaXzauZP
+  - recQPzYNkzfXRQeUk
+  - recVw4JQHpPp2eA3m
+  - rec9EerbKzs9DhNXW
+  - recVOPcWL1YW7PM88
+  - recJXWWwar8l9BvYp
+  - reczdxZTmPxwPOKne
+  - recs0tBnIc1u0qCB0
+  - recB1gDpfWRofdCyo
+  - recJ5nNtOEQ5bUFH2
+  - recBEe3LS4QiH5C7j
+  - recypeTkZohfpKkSe
+  - recl8VVMisVezhGMf
+  - recRb0vUXAp6XnoaL
+  - recf3lihSPXKCR8ul
+  - recqMNUgmuxJEtc95
+  - recjhbP4JCObDhf9a
+  - recVXZFzKKBMswEVx
+  - rec2grEmnDMXTp5dk
+  - recjTIARzcX2gD1wk
+  - rec4rc5rjKCi7NDUv
+  - rec9L06DeDQ6IuaOT
+  - rec0ZbNh7jik9qini
   name: Wild Bird Seed Blend
   recipe_id: REC-GRAIN-WBS
   sterilization_runs:
   - recCSZRx6w0VbzoXm
   - recT7cCdNjTLducvq
+  - reckkAU2IsJQACD2X
 - airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recB4eowfedv0edip
   category: grain
@@ -317,15 +313,6 @@
   airtable_id: recz4tdr6wtSL6WHY
   category: casing
   ingredients: Pre-moistened peat moss; Vermiculite; CaCO3; Perilite; Gypsum
-  lots:
-  - recMPbvQjXqntAF2K
-  - recpIpknvzMyX9XUL
-  - rec625XR3HDNSbo6k
-  - recdYyZTipBAVcK4T
-  - recMJxSK6MXMdQUeL
-  - recsZ00YXxe1QAivK
-  - rec6DYC2BQpVso10d
-  - recIO06iB4H4fsS88
   name: Peat Moss Casing Layer
   notes: Moving to pre-moistened to save the step of sifting dry peat
   recipe_id: REC-CASING-PEAT-V3

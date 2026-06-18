@@ -17,6 +17,7 @@ rec3DqozSZW2O8rw8,#493677939 – [DEMO] Test order,SCWXX,493677939,,SHIPPED,2024
     },
     ""tax"": 0.46,
     ""shipping"": 9.25,
+    ""handlingFee"": 0,
     ""quantityInStock"": 2,
     ""name"": ""Pink Oyster Grow Kit"",
     ""nameTranslated"": {
@@ -37,6 +38,7 @@ rec3DqozSZW2O8rw8,#493677939 – [DEMO] Test order,SCWXX,493677939,,SHIPPED,2024
         ""total"": 0.46,
         ""taxOnDiscountedSubtotal"": 0.46,
         ""taxOnShipping"": 0,
+        ""taxOnHandlingFee"": 0,
         ""includeInPrice"": false,
         ""sourceTaxRateId"": 0,
         ""sourceTaxRateType"": ""AUTO"",

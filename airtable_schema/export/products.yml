@@ -7,27 +7,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-1yDy
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -36,21 +30,17 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-VHm8"]'
-  origin_lots:
-  - recJNY2EifD2wVHm8
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - reccyKmeAtvMAFfLz
   product_id: PROD-260428-1yDy
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
 - airtable_createdTime: '2026-04-26T23:27:16.000Z'
   airtable_id: rec0Tpu1Nx9XNrUt7
@@ -59,13 +49,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260426-rUt7
   label_packaged_prod: 'Packaged: 2026-04-25'
   label_subtitle_prod: "177.86 g \u2022 Branched Oyster"
@@ -78,53 +68,15 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-26'
+  print_queue:
+  - recpKB9nylqFv0zUH
   product_id: PROD-260426-rUt7
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Branched Oyster
   strain_id:
   - recHQHphF8J6rBHPE
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:15:49.000Z'
-  airtable_id: rec0veuzkwo5GbmsK
-  ecommerce:
-  - recXc27A6fUIR0bJT
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-bmsK
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Red Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["rec1Ws73byXLpi68F"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-bmsK
-  public_link: https://danks.store/
-  species_strain:
-  - Red Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recxZKdhM1v5Wh51M
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T18:36:25.000Z'
   airtable_id: rec0z4mc3P08m5b4R
   item_category:
@@ -132,13 +84,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-5b4R
   label_inoc_prod:
   - null
@@ -159,11 +111,13 @@
   origin_lots:
   - rec05Odpc7B4xEZtd
   pack_date: '2026-04-28'
+  print_queue:
+  - rechJ12h6A6Uq5pPK
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-5b4R
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -177,32 +131,28 @@
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-3kd7
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -211,21 +161,18 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-EQ8G"]'
-  origin_lots:
-  - recyi6MphXdElEQ8G
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recLnaZpNSCQ1m2Sn
   product_id: PROD-260428-3kd7
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
 - airtable_createdTime: '2026-05-05T19:36:19.000Z'
   airtable_id: rec1f0TJvkd2XvpiN
@@ -234,13 +181,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-vpiN
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "95.08 g \u2022 Red Reishi"
@@ -253,45 +200,14 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recVyum0QlZcUBvDR
   product_id: PROD-260505-vpiN
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
   - recxZKdhM1v5Wh51M
-  tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:30:00.000Z'
-  airtable_id: rec1f89N0qnUBpeOh
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-peOh
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "92.34 g \u2022 Blue Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 92.34
-  origin_lot_ids_json: '["rec46PMelcPebCDCQ"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-peOh
-  public_link: https://danks.store/
-  species_strain:
-  - Blue Oyster
-  strain_id:
-  - recszNf2WlZjSQqyL
   tray_state: freezer_tray
 - airtable_createdTime: '2026-05-02T17:12:53.000Z'
   airtable_id: rec1gB5Y0OEoSXtX6
@@ -300,21 +216,15 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-XtX6
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-05-01'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-06'
   label_subtitle_prod: "109.05 g \u2022 Blue Oyster"
   label_title_prod: Fresh Tray
   name:
@@ -322,22 +232,18 @@
   name_mat: Fresh Tray
   net_weight_g: 109.05
   origin_lot_ids_json: '["recoYQgxzuSr0I5kY"]'
-  origin_lots:
-  - recoYQgxzuSr0I5kY
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - recQvpHV5C1VOQ3ba
   product_id: PROD-260502-XtX6
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
   tray_state: fresh_tray
-  unit_lbs:
-  - 1.67 lb
-  unit_size:
-  - 1.6666666666666667
 - airtable_createdTime: '2026-05-05T18:38:29.000Z'
   airtable_id: rec1kf5lP1RpB8EmQ
   item_category:
@@ -345,21 +251,15 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-8EmQ
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-05-04'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-06'
   label_subtitle_prod: "127.41 g \u2022 Blue Oyster"
   label_title_prod: Freezer Tray
   name:
@@ -367,62 +267,101 @@
   name_mat: Freezer Tray
   net_weight_g: 127.41
   origin_lot_ids_json: '["rec7OxTbl1Jw4agFi"]'
-  origin_lots:
-  - rec7OxTbl1Jw4agFi
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recGXfAPttb7bxNZD
   product_id: PROD-260505-8EmQ
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
   tray_state: freezer_tray
-  unit_lbs:
-  - 1.67 lb
-  unit_size:
-  - 1.6666666666666667
-- airtable_createdTime: '2026-04-15T20:14:01.000Z'
-  airtable_id: rec2uPGtEsJLYqFeO
-  ecommerce:
-  - recWM8HPA1fsICgCL
-  ecwid_price (from ecommerce):
-  - 9.95
+- airtable_createdTime: '2026-06-05T19:30:20.000Z'
+  airtable_id: rec1oPXxZMjaWscYG
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-qFeO
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Pearl Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-scYG
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recWjEtSaoTxOJ9ql"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-oq7L"]'
+  origin_lots:
+  - recsHHh3LrQE1oq7L
+  pack_date: '2026-06-05'
+  print_queue:
+  - rec5fyBzQR2YAFjQy
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-scYG
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-14T20:46:37.000Z'
+  airtable_id: rec33PzqBO8ecfajT
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-fajT
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "75.94 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 75.94
+  origin_lot_ids_json: '["recZBLsiYstYmydo8"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-qFeO
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - recokzszChXhRvOf9
+  product_id: PROD-260614-fajT
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Pearl Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Bronze Reishi
   strain_id:
-  - recAJwZGQuVlEUFpb
-  use_by: '2026-07-15'
+  - rec7lLl0rRBhkwO6H
+  tray_state: freezer_tray
 - airtable_createdTime: '2026-05-05T19:34:23.000Z'
   airtable_id: rec3SQAxlVfclr34v
   item_category:
@@ -430,13 +369,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-r34v
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "165.63 g \u2022 Red Reishi"
@@ -449,8 +388,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recx9tWuNv9YrD7AW
   product_id: PROD-260505-r34v
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
@@ -463,13 +404,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260509-OXRH
   label_packaged_prod: 'Packaged: 2026-05-08'
   label_subtitle_prod: "294.75 g \u2022 Chestnut"
@@ -482,85 +423,131 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-09'
+  print_queue:
+  - reck82KT2vY4dBd2s
   product_id: PROD-260509-OXRH
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:27:31.000Z'
-  airtable_id: rec6EGQRxavmphfVn
+- airtable_createdTime: '2026-06-05T19:29:57.000Z'
+  airtable_id: rec59yhQegq7TfaWK
   ecommerce:
-  - recJf2BclIGA4npJO
+  - recIo7Q8Si74dzuDk
   ecwid_price (from ecommerce):
-  - 9.95
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-hfVn
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Blue Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-faWK
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recHYgcwZGN4o7fBE"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-Hr1i"]'
+  origin_lots:
+  - recpyoMscyvYIHr1i
+  pack_date: '2026-06-05'
+  print_queue:
+  - reclMe07Cavzkq2nR
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-faWK
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-14T21:06:08.000Z'
+  airtable_id: rec5J0fB7IBmpDHOB
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-DHOB
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "118.61 g \u2022 Red Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 118.61
+  origin_lot_ids_json: '["recr9236mt5jjyAZc"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-hfVn
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - recyFkt01c5gjg38t
+  product_id: PROD-260614-DHOB
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Blue Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Red Reishi
   strain_id:
-  - recszNf2WlZjSQqyL
-  use_by: '2026-07-15'
+  - recxZKdhM1v5Wh51M
+  tray_state: freezer_tray
 - airtable_createdTime: '2026-04-28T20:32:47.000Z'
   airtable_id: rec6Xb4VqTywVmbPp
   ecommerce:
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-mbPp
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -569,168 +556,19 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-jIJO"]'
-  origin_lots:
-  - recY4HfOKcEdgjIJO
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recDBJA7I1xWLWqYZ
   product_id: PROD-260428-mbPp
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T20:34:19.000Z'
-  airtable_id: rec6YWDrsfz4wa1YC
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-a1YC
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "68.95 g \u2022 Blue Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 68.95
-  origin_lot_ids_json: '["recs6Rr6dP16TspQl"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-a1YC
-  public_link: https://danks.store/
-  species_strain:
-  - Blue Oyster
-  strain_id:
-  - recszNf2WlZjSQqyL
-  tray_state: freezer_tray
-- airtable_createdTime: '2026-04-02T16:38:55.000Z'
-  airtable_id: rec6xPnhqjRCLQMLF
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260402-QMLF
-  label_packaged_prod: 'Packaged: 2026-04-01'
-  label_subtitle_prod: "94.34 g \u2022 Lion\u2019s Mane"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 94.34
-  origin_lot_ids_json: '["recMtSQI7fMdBtGsK"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-02'
-  product_id: PROD-260402-QMLF
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  strain_id:
-  - reckNIjMtUO20q0f9
-  tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:15:49.000Z'
-  airtable_id: rec7OQOSExJiPCzow
-  ecommerce:
-  - recXc27A6fUIR0bJT
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-Czow
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Red Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["rec1Ws73byXLpi68F"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-Czow
-  public_link: https://danks.store/
-  species_strain:
-  - Red Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recxZKdhM1v5Wh51M
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T20:15:49.000Z'
-  airtable_id: rec7Q5rW9QD8906Av
-  ecommerce:
-  - recXc27A6fUIR0bJT
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-06Av
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Red Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["rec1Ws73byXLpi68F"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-06Av
-  public_link: https://danks.store/
-  species_strain:
-  - Red Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recxZKdhM1v5Wh51M
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T20:36:33.000Z'
   airtable_id: rec7VthJr9xQ7K7xW
   ecommerce:
@@ -740,27 +578,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-K7xW
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -769,21 +601,17 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-XNl6"]'
-  origin_lots:
-  - recWKzq1OghcSXNl6
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recpcFRVDtVyZ4BzY
   product_id: PROD-260428-K7xW
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
 - airtable_createdTime: '2026-05-23T00:12:43.000Z'
   airtable_id: rec7av2XvqRHbtavK
@@ -792,13 +620,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260523-tavK
   label_packaged_prod: 'Packaged: 2026-05-22'
   label_subtitle_prod: "209.02 g \u2022 Chestnut"
@@ -811,8 +639,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-23'
+  print_queue:
+  - rec6B21X30jNJ3FQt
   product_id: PROD-260523-tavK
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
@@ -824,18 +654,20 @@
   - rec02VOqyUOnHMPzQ
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recJgSj2nMQhhMQm3
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-oLU8
   label_inoc_prod:
   - null
@@ -856,49 +688,19 @@
   origin_lots:
   - recP28SZes0LccG8h
   pack_date: '2026-04-28'
+  print_queue:
+  - recWjQPG9m1aDxrig
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-oLU8
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
   unit_lbs:
   - 5 lb
   unit_size:
   - 5
   use_by: '2026-07-28'
-- airtable_createdTime: '2026-04-15T20:28:38.000Z'
-  airtable_id: rec8BW2fk334ocsfW
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-csfW
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "152.14 g \u2022 Pearl Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 152.14
-  origin_lot_ids_json: '["recZs07ldlAixJqUB"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-csfW
-  public_link: https://danks.store/
-  species_strain:
-  - Pearl Oyster
-  strain_id:
-  - recAJwZGQuVlEUFpb
-  tray_state: freezer_tray
 - airtable_createdTime: '2026-05-09T12:36:12.000Z'
   airtable_id: rec8zPYKgZsX2D7ip
   item_category:
@@ -906,13 +708,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260509-D7ip
   label_packaged_prod: 'Packaged: 2026-05-08'
   label_subtitle_prod: "294.75 g \u2022 Chestnut"
@@ -925,13 +727,68 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-09'
+  print_queue:
+  - recBBWu7DTNbKhYKZ
   product_id: PROD-260509-D7ip
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: freezer_tray
+- airtable_createdTime: '2026-06-05T19:33:50.000Z'
+  airtable_id: rec925z04eLSM4FeN
+  ecommerce:
+  - recIo7Q8Si74dzuDk
+  ecwid_price (from ecommerce):
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-4FeN
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-sWSF"]'
+  origin_lots:
+  - recvovrAA0mOVsWSF
+  pack_date: '2026-06-05'
+  print_queue:
+  - recpHzJN0z66jLsDd
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-4FeN
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-05-05T19:37:22.000Z'
   airtable_id: rec96mFnPPs7OxGHX
   item_category:
@@ -939,13 +796,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-xGHX
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "122.14 g \u2022 Red Reishi"
@@ -958,53 +815,68 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recJL6fCa2WuO3E14
   product_id: PROD-260505-xGHX
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
   - recxZKdhM1v5Wh51M
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:49:42.000Z'
-  airtable_id: recA3daGyay91rLwn
+- airtable_createdTime: '2026-06-05T19:45:14.000Z'
+  airtable_id: rec9ZRsdSgoBabKn0
   ecommerce:
-  - recPAdHniCfUGw3Kw
+  - rec02VOqyUOnHMPzQ
   ecwid_price (from ecommerce):
-  - 9.95
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - substrate
+  item_category_mat: substrate
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recJgSj2nMQhhMQm3
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-rLwn
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Turkey Tail"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recYZffDz54KavAyJ"]'
-  origin_strain_regulated:
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-bKn0
+  label_inoc_prod:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-rLwn
-  public_link: https://danks.store/
-  species_strain:
-  - Turkey Tail
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recWQlBg26y23ZRWT
-  use_by: '2026-07-15'
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Pasteurized: 2026-05-25'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "5 lb \u2022 Pasteurized"
+  label_title_prod: Coco Verm Gypsum Substrate
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Coco Verm Gypsum
+  name_mat: Coco Verm Gypsum
+  net_weight_g: 2267.96
+  net_weight_oz: 80
+  origin_lot_ids_json: '["LOT-260525-aWgY"]'
+  origin_lots:
+  - reciaGUcYWidRaWgY
+  pack_date: '2026-06-05'
+  print_queue:
+  - recTHGDyBp4xSYuiC
+  process_type:
+  - Pasteurize
+  process_type_mat: Pasteurize
+  product_id: PROD-260605-bKn0
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
+  unit_lbs:
+  - 5 lb
+  unit_size:
+  - 5
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-05-05T18:41:29.000Z'
   airtable_id: recBeAOkGPx4euq8y
   item_category:
@@ -1012,13 +884,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-uq8y
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "93.66 g \u2022 Lion\u2019s Mane"
@@ -1031,8 +903,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recCeArZQsIYu3fzo
   product_id: PROD-260505-uq8y
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
@@ -1047,27 +921,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-PbJ6
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -1076,175 +944,18 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-ICRV"]'
-  origin_lots:
-  - recxfCn6CtcdnICRV
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recDAdSqbsJk7WciX
   product_id: PROD-260428-PbJ6
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T19:49:42.000Z'
-  airtable_id: recD3qvdQ8bbhEWvj
-  ecommerce:
-  - recPAdHniCfUGw3Kw
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-EWvj
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Turkey Tail"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recYZffDz54KavAyJ"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-EWvj
-  public_link: https://danks.store/
-  species_strain:
-  - Turkey Tail
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recWQlBg26y23ZRWT
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:49:42.000Z'
-  airtable_id: recDFj5MPq2TjHe7y
-  ecommerce:
-  - recPAdHniCfUGw3Kw
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-He7y
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Turkey Tail"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recYZffDz54KavAyJ"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-He7y
-  public_link: https://danks.store/
-  species_strain:
-  - Turkey Tail
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recWQlBg26y23ZRWT
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:39:20.000Z'
-  airtable_id: recDaCIeWIunekG0X
-  ecommerce:
-  - recPDPRthx23dASQy
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-kG0X
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Lion\u2019s Mane"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recaW8ljuwclLkxeN"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-kG0X
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - reckNIjMtUO20q0f9
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-02T16:40:11.000Z'
-  airtable_id: recDv7vcX44kkp73W
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260402-p73W
-  label_packaged_prod: 'Packaged: 2026-04-01'
-  label_subtitle_prod: "236.69 g \u2022 Lion\u2019s Mane"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 236.69
-  origin_lot_ids_json: '["recJj9y4KrEDR2ANN"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-02'
-  product_id: PROD-260402-p73W
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  strain_id:
-  - reckNIjMtUO20q0f9
-  tray_state: freezer_tray
 - airtable_createdTime: '2026-05-02T17:07:32.000Z'
   airtable_id: recEaY7ZkT1pcTFYC
   item_category:
@@ -1252,13 +963,13 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-TFYC
   label_packaged_prod: 'Packaged: 2026-05-01'
   label_subtitle_prod: "250 g \u2022 Chestnut"
@@ -1271,46 +982,15 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - recOQbr9NLG7RkJus
   product_id: PROD-260502-TFYC
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: fresh_tray
-- airtable_createdTime: '2026-04-02T16:42:43.000Z'
-  airtable_id: recEeLLotVZJRTgnS
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260402-TgnS
-  label_packaged_prod: 'Packaged: 2026-04-01'
-  label_subtitle_prod: "225.22 g \u2022 Pearl Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 225.22
-  origin_lot_ids_json: '["recZs07ldlAixJqUB"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-02'
-  product_id: PROD-260402-TgnS
-  public_link: https://danks.store/
-  species_strain:
-  - Pearl Oyster
-  strain_id:
-  - recAJwZGQuVlEUFpb
-  tray_state: freezer_tray
 - airtable_createdTime: '2026-04-28T18:36:47.000Z'
   airtable_id: recElcAiCQ1YX0PEn
   item_category:
@@ -1318,13 +998,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-0PEn
   label_inoc_prod:
   - null
@@ -1345,11 +1025,13 @@
   origin_lots:
   - rec80tLwY29WhPBqm
   pack_date: '2026-04-28'
+  print_queue:
+  - rec26IMcgkMOPk3T2
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-0PEn
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -1364,13 +1046,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260424-OGLZ
   label_packaged_prod: 'Packaged: 2026-04-23'
   label_subtitle_prod: "161.84 g \u2022 Pearl Oyster"
@@ -1383,8 +1065,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-24'
+  print_queue:
+  - rec7jDUnlPljLMzQg
   product_id: PROD-260424-OGLZ
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Pearl Oyster
   strain_id:
@@ -1397,13 +1081,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-xOMh
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "126.55 g \u2022 Red Reishi"
@@ -1416,86 +1100,129 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recVo7z5F3vtG3duh
   product_id: PROD-260505-xOMh
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
   - recxZKdhM1v5Wh51M
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:39:20.000Z'
-  airtable_id: recFRpGh3dXJYnirW
+- airtable_createdTime: '2026-06-05T19:28:29.000Z'
+  airtable_id: recGEFSNpQgZWBpsD
   ecommerce:
-  - recPDPRthx23dASQy
+  - recIo7Q8Si74dzuDk
   ecwid_price (from ecommerce):
-  - 9.95
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-nirW
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Lion\u2019s Mane"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-BpsD
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recaW8ljuwclLkxeN"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-SjOy"]'
+  origin_lots:
+  - recm4aVHlbHuHSjOy
+  pack_date: '2026-06-05'
+  print_queue:
+  - recrl3ypYcTMGsKOG
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-BpsD
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-04T15:59:19.000Z'
+  airtable_id: recGqkYnY9YXMW6N6
+  ecommerce:
+  - recF3He1PR1Bo9voi
+  ecwid_price (from ecommerce):
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980
+  item_category:
+  - fruiting_block
+  item_category_mat: fruiting_block
+  item_id:
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-W6N6
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-14'
+  label_subtitle_prod: "3 lb \u2022 Blue Oyster"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-13'
+  name:
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260514-Xktn"]'
+  origin_lots:
+  - recvyxpWHDZNxXktn
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-nirW
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recASXewZCTwtmAsA
+  product_id: PROD-260604-W6N6
+  public_link:
+  - https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980
   species_strain:
-  - "Lion\u2019s Mane"
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Blue Oyster
   strain_id:
-  - reckNIjMtUO20q0f9
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T20:28:38.000Z'
-  airtable_id: recGKdMxSa8xicpsi
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-cpsi
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "152.14 g \u2022 Pearl Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 152.14
-  origin_lot_ids_json: '["recZs07ldlAixJqUB"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-cpsi
-  public_link: https://danks.store/
-  species_strain:
-  - Pearl Oyster
-  strain_id:
-  - recAJwZGQuVlEUFpb
-  tray_state: freezer_tray
+  - recszNf2WlZjSQqyL
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-14'
 - airtable_createdTime: '2026-05-02T17:33:21.000Z'
   airtable_id: recHhHNkZgRqF5iXU
   item_category:
@@ -1503,13 +1230,13 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-5iXU
   label_packaged_prod: 'Packaged: 2026-05-01'
   label_subtitle_prod: "336.78 g \u2022 Lion\u2019s Mane"
@@ -1522,86 +1249,15 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - recnOcyF4FGhebfha
   product_id: PROD-260502-5iXU
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
   tray_state: fresh_tray
-- airtable_createdTime: '2026-04-15T20:23:29.000Z'
-  airtable_id: recHmPXVrimoPRgzF
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-RgzF
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "126.55 g \u2022 Branched Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 126.55
-  origin_lot_ids_json: '["rec51STE33B5G5ROu"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-RgzF
-  public_link: https://danks.store/
-  species_strain:
-  - Branched Oyster
-  strain_id:
-  - recHQHphF8J6rBHPE
-  tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:27:31.000Z'
-  airtable_id: recIP5KqopLSxrKuD
-  ecommerce:
-  - recJf2BclIGA4npJO
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-rKuD
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Blue Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recHYgcwZGN4o7fBE"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-rKuD
-  public_link: https://danks.store/
-  species_strain:
-  - Blue Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recszNf2WlZjSQqyL
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T20:36:25.000Z'
   airtable_id: recJBF3fmtJpX8c0r
   ecommerce:
@@ -1611,27 +1267,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-8c0r
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -1640,21 +1290,17 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-H8Oz"]'
-  origin_lots:
-  - reczX8tImXa5SH8Oz
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - rec3Ct4nkon6kOZ4D
   product_id: PROD-260428-8c0r
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
 - airtable_createdTime: '2026-04-24T19:08:22.000Z'
   airtable_id: recJMPe2rZctkqaS9
@@ -1663,13 +1309,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260424-qaS9
   label_packaged_prod: 'Packaged: 2026-04-23'
   label_subtitle_prod: "155.47 g \u2022 Pearl Oyster"
@@ -1682,53 +1328,230 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-24'
+  print_queue:
+  - recZ2t74EajzadWEM
   product_id: PROD-260424-qaS9
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Pearl Oyster
   strain_id:
   - recAJwZGQuVlEUFpb
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:02:37.000Z'
-  airtable_id: recKLVbUA8j56RU0y
+- airtable_createdTime: '2026-06-05T19:33:34.000Z'
+  airtable_id: recK1rokdg3mbIsE1
   ecommerce:
-  - reczeBH1sg4jNkwOt
+  - recIo7Q8Si74dzuDk
   ecwid_price (from ecommerce):
-  - 9.95
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-RU0y
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Chestnut"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-IsE1
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recA4ggWy3FhQSoUl"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-cVnp"]'
+  origin_lots:
+  - rectiyuoziWwdcVnp
+  pack_date: '2026-06-05'
+  print_queue:
+  - rec9HUlXfX7cKhk0p
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-IsE1
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-05T19:30:14.000Z'
+  airtable_id: recKkqMzDGGnczJmA
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-zJmA
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-gKgn"]'
+  origin_lots:
+  - recqLMWPvTT4sgKgn
+  pack_date: '2026-06-05'
+  print_queue:
+  - recBRyp85GKSkycDb
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-zJmA
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-05T19:28:37.000Z'
+  airtable_id: recL1wSEWHp4rJg9d
+  ecommerce:
+  - recIo7Q8Si74dzuDk
+  ecwid_price (from ecommerce):
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-Jg9d
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-5Jhg"]'
+  origin_lots:
+  - recm7xuUoTBpD5Jhg
+  pack_date: '2026-06-05'
+  print_queue:
+  - recBAL071iKJSKGRR
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-Jg9d
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-04T15:39:15.000Z'
+  airtable_id: recLsg8EwKwUQnTOR
+  ecommerce:
+  - rec3ArssudPfyLSlL
+  ecwid_price (from ecommerce):
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670
+  item_category:
+  - fruiting_block
+  item_category_mat: fruiting_block
+  item_id:
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-nTOR
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-14'
+  label_subtitle_prod: "3.13 lb \u2022 Red Reishi"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-13'
+  name:
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1417.48
+  net_weight_oz: 50
+  origin_lot_ids_json: '["LOT-260514-iMg3"]'
+  origin_lots:
+  - recciEYi9p1bEiMg3
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-RU0y
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recbL9IYeleyafLQ6
+  product_id: PROD-260604-nTOR
+  public_link:
+  - https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670
   species_strain:
-  - Chestnut
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Red Reishi
   strain_id:
-  - recV9ephQ5NJProZu
-  use_by: '2026-07-15'
+  - recxZKdhM1v5Wh51M
+  unit_lbs:
+  - 3.13 lb
+  unit_size:
+  - 3.125
+  use_by: '2026-08-14'
 - airtable_createdTime: '2026-04-28T18:36:31.000Z'
   airtable_id: recLzr5v6uE9J5Lvv
   item_category:
@@ -1736,13 +1559,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-5Lvv
   label_inoc_prod:
   - null
@@ -1763,11 +1586,13 @@
   origin_lots:
   - rec3QEHNQTBrHyUij
   pack_date: '2026-04-28'
+  print_queue:
+  - recRFmjvgm7BPWW5d
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-5Lvv
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -1782,13 +1607,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260419-XIUA
   label_packaged_prod: 'Packaged: 2026-04-18'
   label_subtitle_prod: "229.38 g \u2022 Bronze Reishi"
@@ -1801,8 +1626,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-19'
+  print_queue:
+  - recpJEHPtUuCIbrbi
   product_id: PROD-260419-XIUA
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Bronze Reishi
   strain_id:
@@ -1815,13 +1642,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260426-Qcgb
   label_packaged_prod: 'Packaged: 2026-04-25'
   label_subtitle_prod: "290.42 g \u2022 Lion\u2019s Mane"
@@ -1834,8 +1661,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-26'
+  print_queue:
+  - rec1lHNKHyXpkSPIu
   product_id: PROD-260426-Qcgb
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
@@ -1848,13 +1677,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260523-7SN4
   label_packaged_prod: 'Packaged: 2026-05-22'
   label_subtitle_prod: "159.5 g \u2022 Chestnut"
@@ -1867,53 +1696,98 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-23'
+  print_queue:
+  - recYDlOPATh8u1eyu
   product_id: PROD-260523-7SN4
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:02:37.000Z'
-  airtable_id: recN79YZ0M5yzpyEM
-  ecommerce:
-  - reczeBH1sg4jNkwOt
-  ecwid_price (from ecommerce):
-  - 9.95
+- airtable_createdTime: '2026-06-05T19:33:43.000Z'
+  airtable_id: recNJhUXO0e8JygpL
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-pyEM
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Chestnut"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-ygpL
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recA4ggWy3FhQSoUl"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-dT3s"]'
+  origin_lots:
+  - rectrJMfA9sYddT3s
+  pack_date: '2026-06-05'
+  print_queue:
+  - recg4JgkFA66tL4ZW
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-ygpL
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-14T20:46:21.000Z'
+  airtable_id: recNqytaYSqobYBMR
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-YBMR
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "85.42 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 85.42
+  origin_lot_ids_json: '["recHSBX0g2LbXoQKl"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-pyEM
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - recVqzwmrpLEiIuNz
+  product_id: PROD-260614-YBMR
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Chestnut
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Bronze Reishi
   strain_id:
-  - recV9ephQ5NJProZu
-  use_by: '2026-07-15'
+  - rec7lLl0rRBhkwO6H
+  tray_state: freezer_tray
 - airtable_createdTime: '2026-04-24T19:08:22.000Z'
   airtable_id: recORM34wVTAz5z1i
   item_category:
@@ -1921,13 +1795,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260424-5z1i
   label_packaged_prod: 'Packaged: 2026-04-23'
   label_subtitle_prod: "155.47 g \u2022 Pearl Oyster"
@@ -1940,8 +1814,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-24'
+  print_queue:
+  - recf2pm84LVkWDy9h
   product_id: PROD-260424-5z1i
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Pearl Oyster
   strain_id:
@@ -1954,13 +1830,13 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-8hV7
   label_packaged_prod: 'Packaged: 2026-05-01'
   label_subtitle_prod: "250 g \u2022 Chestnut"
@@ -1973,93 +1849,154 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - rec3wCmQwkwUnPH7r
   product_id: PROD-260502-8hV7
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: fresh_tray
-- airtable_createdTime: '2026-04-15T20:15:49.000Z'
-  airtable_id: recQClATvtkjrRcPO
+- airtable_createdTime: '2026-06-04T15:38:51.000Z'
+  airtable_id: recPUXNTPt19Ryqyf
   ecommerce:
-  - recXc27A6fUIR0bJT
-  ecwid_price (from ecommerce):
-  - 9.95
+  - recJ0Sy8OEkHjYlns
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - fruiting_block
+  item_category_mat: fruiting_block
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-RcPO
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Red Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-yqyf
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-16'
+  label_subtitle_prod: "3 lb \u2022 Chestnut"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-15'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["rec1Ws73byXLpi68F"]'
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260516-fYlc"]'
+  origin_lots:
+  - recx4iEsjflXkfYlc
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-RcPO
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recz1lgpi9b4r9UHy
+  product_id: PROD-260604-yqyf
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Red Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Chestnut
   strain_id:
-  - recxZKdhM1v5Wh51M
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:27:31.000Z'
-  airtable_id: recQbEZEdlDvr3Qln
-  ecommerce:
-  - recJf2BclIGA4npJO
-  ecwid_price (from ecommerce):
-  - 9.95
+  - recV9ephQ5NJProZu
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-16'
+- airtable_createdTime: '2026-06-14T21:01:47.000Z'
+  airtable_id: recPv6BJaawchpEit
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - freezer_tray
+  item_category_mat: freezer_tray
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-3Qln
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Blue Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-pEit
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "133.62 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recHYgcwZGN4o7fBE"]'
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 133.62
+  origin_lot_ids_json: '["recs4gwhBUyFKdekW"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-3Qln
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - recj7t7SrPaB6WPEH
+  product_id: PROD-260614-pEit
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Blue Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Bronze Reishi
   strain_id:
-  - recszNf2WlZjSQqyL
-  use_by: '2026-07-15'
+  - rec7lLl0rRBhkwO6H
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-05T19:28:20.000Z'
+  airtable_id: recQwkTNRzIvERSlt
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-RSlt
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-oeDs"]'
+  origin_lots:
+  - reckhPRgdLf9aoeDs
+  pack_date: '2026-06-05'
+  print_queue:
+  - recmkywoL8QC0UQen
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-RSlt
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-04-28T18:36:34.000Z'
   airtable_id: recR3AxV8psTpWtZ9
   item_category:
@@ -2067,13 +2004,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-WtZ9
   label_inoc_prod:
   - null
@@ -2094,11 +2031,13 @@
   origin_lots:
   - rec5CVObIhkWk8zAM
   pack_date: '2026-04-28'
+  print_queue:
+  - rec70vkdIRYKP52mg
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-WtZ9
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -2113,13 +2052,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-S11v
   label_inoc_prod:
   - null
@@ -2140,11 +2079,13 @@
   origin_lots:
   - rec80Q0dlUG89Rajn
   pack_date: '2026-04-28'
+  print_queue:
+  - recZvs2cDveLgbkSk
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-S11v
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -2152,6 +2093,62 @@
   unit_size:
   - 2
   use_by: '2026-07-28'
+- airtable_createdTime: '2026-06-04T15:38:39.000Z'
+  airtable_id: recT1oslzubnlxUef
+  ecommerce:
+  - recJ0Sy8OEkHjYlns
+  item_category:
+  - fruiting_block
+  item_category_mat: fruiting_block
+  item_id:
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-xUef
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-16'
+  label_subtitle_prod: "3 lb \u2022 Chestnut"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-15'
+  name:
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260516-PWA6"]'
+  origin_lots:
+  - recTc21kOdqurPWA6
+  origin_strain_regulated:
+  - null
+  pack_date: '2026-06-04'
+  print_queue:
+  - recFeljDu0LEAsHSU
+  product_id: PROD-260604-xUef
+  public_link: https://www.mybusiness.com/
+  species_strain:
+  - Chestnut
+  strain_id:
+  - recV9ephQ5NJProZu
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-16'
 - airtable_createdTime: '2026-04-26T23:22:51.000Z'
   airtable_id: recTEifwyWYroBRh4
   item_category:
@@ -2159,13 +2156,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260426-BRh4
   label_packaged_prod: 'Packaged: 2026-04-25'
   label_subtitle_prod: "110.48 g \u2022 Bronze Reishi"
@@ -2178,205 +2175,97 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-26'
+  print_queue:
+  - recW5We6c46Bv8mhk
   product_id: PROD-260426-BRh4
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Bronze Reishi
   strain_id:
   - rec7lLl0rRBhkwO6H
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:14:01.000Z'
-  airtable_id: recTHuSBvE37xXwzm
-  ecommerce:
-  - recWM8HPA1fsICgCL
-  ecwid_price (from ecommerce):
-  - 9.95
+- airtable_createdTime: '2026-06-04T15:21:31.000Z'
+  airtable_id: recUoJPO09b5lt2FA
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - fruiting_block
+  item_category_mat: fruiting_block
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-Xwzm
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Pearl Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-t2FA
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-16'
+  label_subtitle_prod: "3 lb \u2022 Pearl Oyster"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-15'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recWjEtSaoTxOJ9ql"]'
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260516-4UOG"]'
+  origin_lots:
+  - recRi7HbiA11M4UOG
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-Xwzm
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recL6L5o6430Vu3Xz
+  product_id: PROD-260604-t2FA
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Pearl Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
   strain_id:
   - recAJwZGQuVlEUFpb
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:12:02.000Z'
-  airtable_id: recTRdszQPLijVH6d
-  ecommerce:
-  - recwj3JB9j8Dff7fd
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-VH6d
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Bronze Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["reciaWCZX1huqggxW"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-VH6d
-  public_link: https://danks.store/
-  species_strain:
-  - Bronze Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - rec7lLl0rRBhkwO6H
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:12:02.000Z'
-  airtable_id: recUHPxYfTPBakTsy
-  ecommerce:
-  - recwj3JB9j8Dff7fd
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-kTsy
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Bronze Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["reciaWCZX1huqggxW"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-kTsy
-  public_link: https://danks.store/
-  species_strain:
-  - Bronze Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - rec7lLl0rRBhkwO6H
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:39:20.000Z'
-  airtable_id: recUK3C1kZLM1Xg74
-  ecommerce:
-  - recPDPRthx23dASQy
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-Xg74
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Lion\u2019s Mane"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recaW8ljuwclLkxeN"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-Xg74
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - reckNIjMtUO20q0f9
-  use_by: '2026-07-15'
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-16'
 - airtable_createdTime: '2026-04-28T20:32:54.000Z'
   airtable_id: recWJ03sOkTBI5ovV
   ecommerce:
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-5ovV
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -2385,62 +2274,19 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-Fgjd"]'
-  origin_lots:
-  - recLdmxlgaxQAFgjd
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - rec8PqmP4PKpheHEq
   product_id: PROD-260428-5ovV
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T20:14:01.000Z'
-  airtable_id: recWNpyWz76sVJIM8
-  ecommerce:
-  - recWM8HPA1fsICgCL
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-JIM8
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Pearl Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recWjEtSaoTxOJ9ql"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-JIM8
-  public_link: https://danks.store/
-  species_strain:
-  - Pearl Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recAJwZGQuVlEUFpb
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-05-02T17:19:00.000Z'
   airtable_id: recXu4uEgLeFhyEBA
   item_category:
@@ -2448,21 +2294,15 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-yEBA
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-05-01'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-06'
   label_subtitle_prod: "204.58 g \u2022 Blue Oyster"
   label_title_prod: Fresh Tray
   name:
@@ -2470,22 +2310,18 @@
   name_mat: Fresh Tray
   net_weight_g: 204.58
   origin_lot_ids_json: '["rec2alzkr2OS9LKEs"]'
-  origin_lots:
-  - rec2alzkr2OS9LKEs
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - recyTlRU5GHeR0dB9
   product_id: PROD-260502-yEBA
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
   tray_state: fresh_tray
-  unit_lbs:
-  - 1.67 lb
-  unit_size:
-  - 1.6666666666666667
 - airtable_createdTime: '2026-05-09T12:39:01.000Z'
   airtable_id: recY40O4IhRC653RE
   item_category:
@@ -2493,13 +2329,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260509-53RE
   label_packaged_prod: 'Packaged: 2026-05-08'
   label_subtitle_prod: "262.9 g \u2022 Lion\u2019s Mane"
@@ -2512,8 +2348,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-09'
+  print_queue:
+  - recuraeo2fXphvLBg
   product_id: PROD-260509-53RE
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
@@ -2526,13 +2364,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260419-QOTY
   label_packaged_prod: 'Packaged: 2026-04-18'
   label_subtitle_prod: "106.83 g \u2022 Red Reishi"
@@ -2545,8 +2383,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-19'
+  print_queue:
+  - recHKqwwZ3njs3SQb
   product_id: PROD-260419-QOTY
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
@@ -2558,32 +2398,28 @@
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-h601
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -2592,62 +2428,19 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-4EgI"]'
-  origin_lots:
-  - recbcFPZylSXs4EgI
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - reciEXFXKkrFcexVb
   product_id: PROD-260428-h601
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T20:02:37.000Z'
-  airtable_id: recYJz8GHq1oSpGhh
-  ecommerce:
-  - reczeBH1sg4jNkwOt
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-pGhh
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Chestnut"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recA4ggWy3FhQSoUl"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-pGhh
-  public_link: https://danks.store/
-  species_strain:
-  - Chestnut
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recV9ephQ5NJProZu
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-19T19:55:01.000Z'
   airtable_id: recYcHmPFEg6IehFP
   item_category:
@@ -2655,13 +2448,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260419-ehFP
   label_packaged_prod: 'Packaged: 2026-04-18'
   label_subtitle_prod: "134.49 g \u2022 Red Reishi"
@@ -2674,133 +2467,69 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-19'
+  print_queue:
+  - recrja400ccPuGIcX
   product_id: PROD-260419-ehFP
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Red Reishi
   strain_id:
   - recxZKdhM1v5Wh51M
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:15:49.000Z'
-  airtable_id: recYjzY7zM3Le4vkH
-  ecommerce:
-  - recXc27A6fUIR0bJT
-  ecwid_price (from ecommerce):
-  - 9.95
+- airtable_createdTime: '2026-06-04T15:21:00.000Z'
+  airtable_id: receO2H9ZP9wo6vKV
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - fruiting_block
+  item_category_mat: fruiting_block
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-4vkH
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Red Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-6vKV
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-16'
+  label_subtitle_prod: "3 lb \u2022 Pearl Oyster"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-15'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["rec1Ws73byXLpi68F"]'
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260516-fgNv"]'
+  origin_lots:
+  - recubhnQdNB05fgNv
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-4vkH
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recKIQ55HqSQqpWUF
+  product_id: PROD-260604-6vKV
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Red Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Pearl Oyster
   strain_id:
-  - recxZKdhM1v5Wh51M
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:12:02.000Z'
-  airtable_id: reccdRtAk75HR1ECm
-  ecommerce:
-  - recwj3JB9j8Dff7fd
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-1ECm
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Bronze Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["reciaWCZX1huqggxW"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-1ECm
-  public_link: https://danks.store/
-  species_strain:
-  - Bronze Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - rec7lLl0rRBhkwO6H
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:12:02.000Z'
-  airtable_id: recd1mQ1UAex9S0Kw
-  ecommerce:
-  - recwj3JB9j8Dff7fd
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-S0Kw
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Bronze Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["reciaWCZX1huqggxW"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-S0Kw
-  public_link: https://danks.store/
-  species_strain:
-  - Bronze Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - rec7lLl0rRBhkwO6H
-  use_by: '2026-07-15'
+  - recAJwZGQuVlEUFpb
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-16'
 - airtable_createdTime: '2026-05-02T17:26:39.000Z'
   airtable_id: receOxu1Et6xXVIQC
   item_category:
@@ -2808,13 +2537,13 @@
   item_category_mat: fresh_tray
   item_id:
   - recSjLjtQ57lT91YI
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260502-VIQC
   label_packaged_prod: 'Packaged: 2026-05-01'
   label_subtitle_prod: "67 g \u2022 Lion\u2019s Mane"
@@ -2827,13 +2556,68 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-02'
+  print_queue:
+  - rec1qVuW36jU2L7UW
   product_id: PROD-260502-VIQC
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
   tray_state: fresh_tray
+- airtable_createdTime: '2026-06-05T19:29:32.000Z'
+  airtable_id: recf0lKNp6lNdrwcQ
+  ecommerce:
+  - recIo7Q8Si74dzuDk
+  ecwid_price (from ecommerce):
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-rwcQ
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-0bmb"]'
+  origin_lots:
+  - recmHotH3ZmsQ0bmb
+  pack_date: '2026-06-05'
+  print_queue:
+  - recOsdBjySKOpuL9I
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-rwcQ
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-04-28T20:36:39.000Z'
   airtable_id: recgL9mjgREad0NyR
   ecommerce:
@@ -2843,27 +2627,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-0NyR
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -2872,73 +2650,38 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-g6qv"]'
-  origin_lots:
-  - recyORG1D60Ang6qv
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - rechdBduuFPWgW5c4
   product_id: PROD-260428-0NyR
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T20:32:53.000Z'
-  airtable_id: recgjFroFXD7LXwAL
-  item_category:
-  - freezer_tray
-  item_category_mat: freezer_tray
-  item_id:
-  - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-XwAL
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "67.39 g \u2022 Blue Oyster"
-  label_title_prod: Freezer Tray
-  name:
-  - Freezer Tray
-  name_mat: Freezer Tray
-  net_weight_g: 67.39
-  origin_lot_ids_json: '["recg1bgudx8P6LNRd"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-XwAL
-  public_link: https://danks.store/
-  species_strain:
-  - Blue Oyster
-  strain_id:
-  - recszNf2WlZjSQqyL
-  tray_state: freezer_tray
 - airtable_createdTime: '2026-04-28T18:47:56.000Z'
   airtable_id: reciHJkMDRL14f3zU
   ecommerce:
   - rec02VOqyUOnHMPzQ
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recJgSj2nMQhhMQm3
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-f3zU
   label_inoc_prod:
   - null
@@ -2959,11 +2702,14 @@
   origin_lots:
   - recf78QHDAJVibt2m
   pack_date: '2026-04-28'
+  print_queue:
+  - recqtwtxFJgKu8OCH
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-f3zU
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
   unit_lbs:
   - 5 lb
   unit_size:
@@ -2975,32 +2721,28 @@
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-Pk70
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -3009,102 +2751,115 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-kTLA"]'
-  origin_lots:
-  - rec6L32vzvxkWkTLA
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recKZ1XC6QoFZWSvQ
   product_id: PROD-260428-Pk70
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T20:14:01.000Z'
-  airtable_id: reciX1Qa9bFCJ0aJr
-  ecommerce:
-  - recWM8HPA1fsICgCL
-  ecwid_price (from ecommerce):
-  - 9.95
+- airtable_createdTime: '2026-06-14T21:04:06.000Z'
+  airtable_id: recjAovSBiylPuCCv
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - freezer_tray
+  item_category_mat: freezer_tray
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-0aJr
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Pearl Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-uCCv
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "100.86 g \u2022 Red Reishi"
+  label_title_prod: Freezer Tray
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recWjEtSaoTxOJ9ql"]'
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 100.86
+  origin_lot_ids_json: '["reckgVV744mHVy1th"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-0aJr
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - recxG9ehJCJYTWpE7
+  product_id: PROD-260614-uCCv
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Pearl Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Red Reishi
   strain_id:
-  - recAJwZGQuVlEUFpb
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:27:31.000Z'
-  airtable_id: reciuzCgRKqLKz2Sz
+  - recxZKdhM1v5Wh51M
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-04T15:39:00.000Z'
+  airtable_id: recjTLojAVq7HYs7X
   ecommerce:
-  - recJf2BclIGA4npJO
+  - rec3ArssudPfyLSlL
   ecwid_price (from ecommerce):
-  - 9.95
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - fruiting_block
+  item_category_mat: fruiting_block
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-z2Sz
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Blue Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-Ys7X
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-14'
+  label_subtitle_prod: "3.13 lb \u2022 Red Reishi"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-13'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recHYgcwZGN4o7fBE"]'
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1417.48
+  net_weight_oz: 50
+  origin_lot_ids_json: '["LOT-260514-a8cV"]'
+  origin_lots:
+  - recJVKklz8pXfa8cV
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-z2Sz
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recCJhoRMglvGh1H2
+  product_id: PROD-260604-Ys7X
+  public_link:
+  - https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670
   species_strain:
-  - Blue Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Red Reishi
   strain_id:
-  - recszNf2WlZjSQqyL
-  use_by: '2026-07-15'
+  - recxZKdhM1v5Wh51M
+  unit_lbs:
+  - 3.13 lb
+  unit_size:
+  - 3.125
+  use_by: '2026-08-14'
 - airtable_createdTime: '2026-04-28T18:36:28.000Z'
   airtable_id: reclKLhMl85Uk1yD5
   item_category:
@@ -3112,13 +2867,13 @@
   item_category_mat: grain
   item_id:
   - recwdBny04rzSGGrO
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-1yD5
   label_inoc_prod:
   - null
@@ -3139,11 +2894,13 @@
   origin_lots:
   - rec26j5zhA8ZVMXGb
   pack_date: '2026-04-28'
+  print_queue:
+  - recmwSuJzPmaKPiox
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-1yD5
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -3151,46 +2908,94 @@
   unit_size:
   - 2
   use_by: '2026-07-28'
-- airtable_createdTime: '2026-04-15T19:27:31.000Z'
-  airtable_id: recmCmwILxGJnoWnY
+- airtable_createdTime: '2026-06-05T19:29:50.000Z'
+  airtable_id: reclsDHBRXt1qHNN7
   ecommerce:
-  - recJf2BclIGA4npJO
+  - recIo7Q8Si74dzuDk
   ecwid_price (from ecommerce):
-  - 9.95
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - grain
+  item_category_mat: grain
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-oWnY
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Blue Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-HNN7
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recHYgcwZGN4o7fBE"]'
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-uozn"]'
+  origin_lots:
+  - recpxC1yDCvcXuozn
+  pack_date: '2026-06-05'
+  print_queue:
+  - recqASemD3OhsjjYB
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-HNN7
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
+- airtable_createdTime: '2026-06-14T20:41:49.000Z'
+  airtable_id: recnJsa4x61Nnctts
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-ctts
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "239.43 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 239.43
+  origin_lot_ids_json: '["recqV2YP2xN7ZMpaY"]'
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-oWnY
-  public_link: https://danks.store/
+  pack_date: '2026-06-14'
+  print_queue:
+  - rec3Apbnp3txbFr8g
+  product_id: PROD-260614-ctts
+  public_link: https://www.mybusiness.com/
   species_strain:
-  - Blue Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Bronze Reishi
   strain_id:
-  - recszNf2WlZjSQqyL
-  use_by: '2026-07-15'
+  - rec7lLl0rRBhkwO6H
+  tray_state: freezer_tray
 - airtable_createdTime: '2026-05-05T18:50:02.000Z'
   airtable_id: recnWBFRzilW1bEDU
   item_category:
@@ -3198,13 +3003,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-bEDU
   label_packaged_prod: 'Packaged: 2026-05-04'
   label_subtitle_prod: "159.67 g \u2022 Lion\u2019s Mane"
@@ -3217,93 +3022,15 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recM2Dk7r7WbbrSJT
   product_id: PROD-260505-bEDU
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:39:20.000Z'
-  airtable_id: recnq4PJ83tazh1O1
-  ecommerce:
-  - recPDPRthx23dASQy
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-h1O1
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Lion\u2019s Mane"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recaW8ljuwclLkxeN"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-h1O1
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - reckNIjMtUO20q0f9
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T19:49:42.000Z'
-  airtable_id: recnu2wvutMZQ0lpA
-  ecommerce:
-  - recPAdHniCfUGw3Kw
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-0lpA
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Turkey Tail"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recYZffDz54KavAyJ"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-0lpA
-  public_link: https://danks.store/
-  species_strain:
-  - Turkey Tail
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recWQlBg26y23ZRWT
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T18:48:04.000Z'
   airtable_id: recoZ59clMAaE25Mn
   item_category:
@@ -3311,13 +3038,13 @@
   item_category_mat: substrate
   item_id:
   - recJgSj2nMQhhMQm3
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-25Mn
   label_inoc_prod:
   - null
@@ -3338,11 +3065,13 @@
   origin_lots:
   - rect9v6eCh9hP1Rlv
   pack_date: '2026-04-28'
+  print_queue:
+  - recp4vUL4JdjvxYuL
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-25Mn
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -3350,64 +3079,26 @@
   unit_size:
   - 5
   use_by: '2026-07-28'
-- airtable_createdTime: '2026-04-15T19:39:20.000Z'
-  airtable_id: recoqfyNbBCrmx14S
-  ecommerce:
-  - recPDPRthx23dASQy
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-x14S
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Lion\u2019s Mane"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recaW8ljuwclLkxeN"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-x14S
-  public_link: https://danks.store/
-  species_strain:
-  - "Lion\u2019s Mane"
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - reckNIjMtUO20q0f9
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T18:42:26.000Z'
   airtable_id: recp1dwmRwCZceaUJ
   ecommerce:
   - recVcvY7l7e4nk4Vt
   ecwid_price (from ecommerce):
   - 9.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recXSlo6zHhTvnhZe
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-eaUJ
   label_packaged_prod: 'Packaged: 2026-04-27'
   label_title_prod: Masters Mix 75/25 Substrate
@@ -3419,28 +3110,81 @@
   net_weight_oz: 120
   origin_lot_ids_json: '["LOT-260117-ZDxo"]'
   pack_date: '2026-04-28'
+  print_queue:
+  - recOcq3CoQyXYpdKx
   process_type_mat: Sterilize
   product_id: PROD-260428-eaUJ
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   use_by: '2026-07-28'
+- airtable_createdTime: '2026-06-05T19:45:00.000Z'
+  airtable_id: recp2LWMQnEdN6GXU
+  item_category:
+  - substrate
+  item_category_mat: substrate
+  item_id:
+  - recJgSj2nMQhhMQm3
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-6GXU
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Pasteurized: 2026-05-25'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "5 lb \u2022 Pasteurized"
+  label_title_prod: Coco Verm Gypsum Substrate
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Coco Verm Gypsum
+  name_mat: Coco Verm Gypsum
+  net_weight_g: 2267.96
+  net_weight_oz: 80
+  origin_lot_ids_json: '["LOT-260525-rJnS"]'
+  origin_lots:
+  - recA5hUFz1FetrJnS
+  pack_date: '2026-06-05'
+  print_queue:
+  - recX1ilH6OSauielY
+  process_type:
+  - Pasteurize
+  process_type_mat: Pasteurize
+  product_id: PROD-260605-6GXU
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
+  unit_lbs:
+  - 5 lb
+  unit_size:
+  - 5
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-04-28T18:42:36.000Z'
   airtable_id: recpRxMcjQozvTGuC
   ecommerce:
   - recVcvY7l7e4nk4Vt
   ecwid_price (from ecommerce):
   - 9.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recXSlo6zHhTvnhZe
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-TGuC
   label_packaged_prod: 'Packaged: 2026-04-27'
   label_title_prod: Masters Mix 75/25 Substrate
@@ -3452,9 +3196,12 @@
   net_weight_oz: 120
   origin_lot_ids_json: '["LOT-260117-T9kb"]'
   pack_date: '2026-04-28'
+  print_queue:
+  - rec7YMueGRageOaEp
   process_type_mat: Sterilize
   product_id: PROD-260428-TGuC
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   use_by: '2026-07-28'
 - airtable_createdTime: '2026-04-28T18:47:59.000Z'
   airtable_id: recpgsqD7lYKk2P27
@@ -3463,13 +3210,13 @@
   item_category_mat: substrate
   item_id:
   - recJgSj2nMQhhMQm3
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-2P27
   label_inoc_prod:
   - null
@@ -3490,11 +3237,13 @@
   origin_lots:
   - recfbfYDnPBFZZhO4
   pack_date: '2026-04-28'
+  print_queue:
+  - recMnfBWXY6qc3wT4
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-2P27
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   storage_location:
   - recwRFW2aHlJivoX3
   unit_lbs:
@@ -3502,6 +3251,59 @@
   unit_size:
   - 5
   use_by: '2026-07-28'
+- airtable_createdTime: '2026-06-05T19:29:43.000Z'
+  airtable_id: recq7NZzhtLJTPLuS
+  ecommerce:
+  - recIo7Q8Si74dzuDk
+  ecwid_price (from ecommerce):
+  - 7.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  item_category:
+  - grain
+  item_category_mat: grain
+  item_id:
+  - recwdBny04rzSGGrO
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-PLuS
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Sterilized: 2026-05-23'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "2 lb \u2022 Sterilized"
+  label_title_prod: Wild Bird Seed Grain
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Wild Bird Seed
+  name_mat: Wild Bird Seed
+  net_weight_g: 907.18
+  net_weight_oz: 32
+  origin_lot_ids_json: '["LOT-260523-OWxE"]'
+  origin_lots:
+  - recoMnoCnqoiyOWxE
+  pack_date: '2026-06-05'
+  print_queue:
+  - recIdbJTEQz1lEJ3F
+  process_type:
+  - Sterilize
+  process_type_mat: Sterilize
+  product_id: PROD-260605-PLuS
+  public_link:
+  - https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072
+  unit_lbs:
+  - 2 lb
+  unit_size:
+  - 2
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-04-24T19:12:44.000Z'
   airtable_id: recqLG7t2R8R9r1hG
   item_category:
@@ -3509,13 +3311,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260424-r1hG
   label_packaged_prod: 'Packaged: 2026-04-23'
   label_subtitle_prod: "161.84 g \u2022 Pearl Oyster"
@@ -3528,8 +3330,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-24'
+  print_queue:
+  - recSZcYaEYPGqEHri
   product_id: PROD-260424-r1hG
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Pearl Oyster
   strain_id:
@@ -3541,32 +3345,28 @@
   - recyKXNWcvve4pweO
   ecwid_price (from ecommerce):
   - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   item_category:
   - fruiting_block
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-mN4Q
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Lion\u2019s Mane"
+  label_subtitle_prod: " Lion\u2019s Mane"
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -3575,40 +3375,92 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-X9h9"]'
-  origin_lots:
-  - recdEYY9oRCEaX9h9
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recA2Wjfno9jEB4Mc
   product_id: PROD-260428-mN4Q
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
+- airtable_createdTime: '2026-06-05T19:45:07.000Z'
+  airtable_id: recrcbnUjgvBCJge5
+  ecommerce:
+  - rec02VOqyUOnHMPzQ
+  ecwid_price (from ecommerce):
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
+  item_category:
+  - substrate
+  item_category_mat: substrate
+  item_id:
+  - recJgSj2nMQhhMQm3
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260605-Jge5
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-04'
+  label_proc_prod:
+  - 'Pasteurized: 2026-05-25'
+  label_spawned_prod:
+  - null
+  label_subtitle_prod: "5 lb \u2022 Pasteurized"
+  label_title_prod: Coco Verm Gypsum Substrate
+  label_useby_prod: 'Use by: 2026-09-04'
+  name:
+  - Coco Verm Gypsum
+  name_mat: Coco Verm Gypsum
+  net_weight_g: 2267.96
+  net_weight_oz: 80
+  origin_lot_ids_json: '["LOT-260525-vvi2"]'
+  origin_lots:
+  - rechupBWHW7wvvvi2
+  pack_date: '2026-06-05'
+  print_queue:
+  - recqZ1D02BmOm0NxR
+  process_type:
+  - Pasteurize
+  process_type_mat: Pasteurize
+  product_id: PROD-260605-Jge5
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877
+  unit_lbs:
+  - 5 lb
+  unit_size:
+  - 5
+  use_by: '2026-09-05'
 - airtable_createdTime: '2026-04-28T18:42:32.000Z'
   airtable_id: recsAuNjAZvZLbZtM
   ecommerce:
   - recVcvY7l7e4nk4Vt
   ecwid_price (from ecommerce):
   - 9.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recXSlo6zHhTvnhZe
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-bZtM
   label_packaged_prod: 'Packaged: 2026-04-27'
   label_title_prod: Masters Mix 75/25 Substrate
@@ -3620,9 +3472,12 @@
   net_weight_oz: 120
   origin_lot_ids_json: '["LOT-260117-cEYd"]'
   pack_date: '2026-04-28'
+  print_queue:
+  - recqRZl87IMrvKtEU
   process_type_mat: Sterilize
   product_id: PROD-260428-bZtM
-  public_link: https://danks.store/
+  public_link:
+  - https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795
   storage_location:
   - recmsz1EhK9NRKLYr
   use_by: '2026-07-28'
@@ -3633,13 +3488,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260523-rUaV
   label_packaged_prod: 'Packaged: 2026-05-22'
   label_subtitle_prod: "209.02 g \u2022 Chestnut"
@@ -3652,133 +3507,15 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-23'
+  print_queue:
+  - recXTSB3XOcLKZqMq
   product_id: PROD-260523-rUaV
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T20:02:37.000Z'
-  airtable_id: recstM0FHwiYiPN2s
-  ecommerce:
-  - reczeBH1sg4jNkwOt
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-PN2s
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Chestnut"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recA4ggWy3FhQSoUl"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-PN2s
-  public_link: https://danks.store/
-  species_strain:
-  - Chestnut
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recV9ephQ5NJProZu
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T20:14:01.000Z'
-  airtable_id: recsw2KeS6bFyDD3d
-  ecommerce:
-  - recWM8HPA1fsICgCL
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-DD3d
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Pearl Oyster"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recWjEtSaoTxOJ9ql"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-DD3d
-  public_link: https://danks.store/
-  species_strain:
-  - Pearl Oyster
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recAJwZGQuVlEUFpb
-  use_by: '2026-07-15'
-- airtable_createdTime: '2026-04-15T20:02:37.000Z'
-  airtable_id: rectL5C2iP73AwnsK
-  ecommerce:
-  - reczeBH1sg4jNkwOt
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-wnsK
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Chestnut"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recA4ggWy3FhQSoUl"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-wnsK
-  public_link: https://danks.store/
-  species_strain:
-  - Chestnut
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recV9ephQ5NJProZu
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-05-23T00:00:56.000Z'
   airtable_id: rectZjRrRCGffot4v
   item_category:
@@ -3786,13 +3523,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260523-ot4v
   label_packaged_prod: 'Packaged: 2026-05-22'
   label_subtitle_prod: "159.5 g \u2022 Chestnut"
@@ -3805,12 +3542,49 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-23'
+  print_queue:
+  - rec3CBNPYW3MeMSad
   product_id: PROD-260523-ot4v
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Chestnut
   strain_id:
   - recV9ephQ5NJProZu
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-14T21:03:15.000Z'
+  airtable_id: rectcfyyczUWWQIJL
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-QIJL
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "133.95 g \u2022 Red Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 133.95
+  origin_lot_ids_json: '["rec7f8nVIdC7NsnlO"]'
+  origin_strain_regulated:
+  - null
+  pack_date: '2026-06-14'
+  print_queue:
+  - recvK6UH1SP67RdLK
+  product_id: PROD-260614-QIJL
+  public_link: https://www.mybusiness.com/
+  species_strain:
+  - Red Reishi
+  strain_id:
+  - recxZKdhM1v5Wh51M
   tray_state: freezer_tray
 - airtable_createdTime: '2026-05-09T12:46:57.000Z'
   airtable_id: rectizILUJ6mU2qDm
@@ -3819,13 +3593,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260509-2qDm
   label_packaged_prod: 'Packaged: 2026-05-08'
   label_subtitle_prod: "135.1 g \u2022 Lion\u2019s Mane"
@@ -3838,8 +3612,10 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-05-09'
+  print_queue:
+  - recOogp1lgFBU86kU
   product_id: PROD-260509-2qDm
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
@@ -3852,13 +3628,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260424-Gryh
   label_packaged_prod: 'Packaged: 2026-04-23'
   label_subtitle_prod: "67.38 g \u2022 Blue Oyster"
@@ -3871,12 +3647,84 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-24'
+  print_queue:
+  - rec4aWwpkbhcfFsCc
   product_id: PROD-260424-Gryh
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-14T20:43:33.000Z'
+  airtable_id: recuFkYzv9SMhaXKE
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-aXKE
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "155.79 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 155.79
+  origin_lot_ids_json: '["rec0muhkbeeEr9KX7"]'
+  origin_strain_regulated:
+  - null
+  pack_date: '2026-06-14'
+  print_queue:
+  - recowvNh7DfIv4LuB
+  product_id: PROD-260614-aXKE
+  public_link: https://www.mybusiness.com/
+  species_strain:
+  - Bronze Reishi
+  strain_id:
+  - rec7lLl0rRBhkwO6H
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-14T21:05:12.000Z'
+  airtable_id: recupbqIz5zeAlffI
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-lffI
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "125.48 g \u2022 Red Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 125.48
+  origin_lot_ids_json: '["recInm0ognmr4N0NX"]'
+  origin_strain_regulated:
+  - null
+  pack_date: '2026-06-14'
+  print_queue:
+  - recr25dc2HJH49rG8
+  product_id: PROD-260614-lffI
+  public_link: https://www.mybusiness.com/
+  species_strain:
+  - Red Reishi
+  strain_id:
+  - recxZKdhM1v5Wh51M
   tray_state: freezer_tray
 - airtable_createdTime: '2026-05-05T18:23:47.000Z'
   airtable_id: recuscfDV0o29AgxJ
@@ -3885,21 +3733,15 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-AgxJ
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-05-04'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-06'
   label_subtitle_prod: "160.84 g \u2022 Blue Oyster"
   label_title_prod: Freezer Tray
   name:
@@ -3907,22 +3749,18 @@
   name_mat: Freezer Tray
   net_weight_g: 160.84
   origin_lot_ids_json: '["recV82OHyOGrx2iyZ"]'
-  origin_lots:
-  - recV82OHyOGrx2iyZ
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - recqDzarRp3yavz95
   product_id: PROD-260505-AgxJ
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
   tray_state: freezer_tray
-  unit_lbs:
-  - 1.67 lb
-  unit_size:
-  - 1.6666666666666667
 - airtable_createdTime: '2026-04-19T19:59:43.000Z'
   airtable_id: recuymh26EjePVGCM
   item_category:
@@ -3930,13 +3768,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260419-VGCM
   label_packaged_prod: 'Packaged: 2026-04-18'
   label_subtitle_prod: "226.32 g \u2022 Bronze Reishi"
@@ -3949,71 +3787,29 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-19'
+  print_queue:
+  - rec674QAp1WF7e6qM
   product_id: PROD-260419-VGCM
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Bronze Reishi
   strain_id:
   - rec7lLl0rRBhkwO6H
   tray_state: freezer_tray
-- airtable_createdTime: '2026-04-15T19:49:42.000Z'
-  airtable_id: recvC6cSyo5hKeJHB
-  ecommerce:
-  - recPAdHniCfUGw3Kw
-  ecwid_price (from ecommerce):
-  - 9.95
-  item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
-  item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
-  label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-eJHB
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Turkey Tail"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
-  name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["recYZffDz54KavAyJ"]'
-  origin_strain_regulated:
-  - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-eJHB
-  public_link: https://danks.store/
-  species_strain:
-  - Turkey Tail
-  storage_location:
-  - recJxAz3OdFSxvs0l
-  strain_id:
-  - recWQlBg26y23ZRWT
-  use_by: '2026-07-15'
 - airtable_createdTime: '2026-04-28T18:51:38.000Z'
   airtable_id: recx5tWJKGmTIu0bX
-  ecommerce:
-  - rec02VOqyUOnHMPzQ
-  ecwid_price (from ecommerce):
-  - 14.95
   item_category:
   - substrate
   item_category_mat: substrate
   item_id:
   - recJgSj2nMQhhMQm3
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260428-u0bX
   label_inoc_prod:
   - null
@@ -4034,11 +3830,15 @@
   origin_lots:
   - rec1MGWuyG1bG08aA
   pack_date: '2026-04-28'
+  print_queue:
+  - recwWPvSyItiSSDkB
   process_type:
   - Sterilize
   process_type_mat: Sterilize
   product_id: PROD-260428-u0bX
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
+  storage_location:
+  - recwRFW2aHlJivoX3
   unit_lbs:
   - 5 lb
   unit_size:
@@ -4051,21 +3851,15 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260505-iPpo
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-05-04'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-06'
   label_subtitle_prod: "139.92 g \u2022 Blue Oyster"
   label_title_prod: Freezer Tray
   name:
@@ -4073,22 +3867,18 @@
   name_mat: Freezer Tray
   net_weight_g: 139.92
   origin_lot_ids_json: '["recV0fkHpiBJFFmol"]'
-  origin_lots:
-  - recV0fkHpiBJFFmol
   origin_strain_regulated:
   - null
   pack_date: '2026-05-05'
+  print_queue:
+  - rec5CdyYOQOnhO1K5
   product_id: PROD-260505-iPpo
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Blue Oyster
   strain_id:
   - recszNf2WlZjSQqyL
   tray_state: freezer_tray
-  unit_lbs:
-  - 1.67 lb
-  unit_size:
-  - 1.6666666666666667
 - airtable_createdTime: '2026-04-28T20:36:13.000Z'
   airtable_id: recxuAC9eLsSV6DTx
   ecommerce:
@@ -4098,27 +3888,21 @@
   item_category_mat: fruiting_block
   item_id:
   - recU9tdgUerFEM9oJ
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_companyinfo_prod: Dank Mushrooms offers delivery and shipment of fresh gourmet
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
     and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
     kits and mycology supplies.
   label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
     product is not intended for human consumption.
   label_footer_prod: PROD-260428-6DTx
-  label_inoc_prod:
-  - null
   label_packaged_prod: 'Packaged: 2026-04-27'
-  label_proc_prod:
-  - null
-  label_spawned_prod:
-  - 'Spawned: 2026-04-02'
-  label_subtitle_prod: "2.83 lb \u2022 Turkey Tail"
+  label_subtitle_prod: ' Turkey Tail'
   label_title_prod: Small Masters Mix 75/25
   label_useby_prod: 'Use by: 2026-07-01'
   name:
@@ -4127,62 +3911,79 @@
   net_weight_g: 1285.18
   net_weight_oz: 45.33
   origin_lot_ids_json: '["LOT-260402-xcVW"]'
-  origin_lots:
-  - recUnhrTIXUGHxcVW
   origin_strain_regulated:
   - null
   pack_date: '2026-04-28'
+  print_queue:
+  - recckAgKshtD9xXqK
   product_id: PROD-260428-6DTx
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - Turkey Tail
   strain_id:
   - recWQlBg26y23ZRWT
-  unit_lbs:
-  - 2.83 lb
-  unit_size:
-  - 2.8333333333333335
   use_by: '2026-07-02'
-- airtable_createdTime: '2026-04-15T19:12:02.000Z'
-  airtable_id: recxuGPCvOd9iNc8a
+- airtable_createdTime: '2026-06-04T15:59:30.000Z'
+  airtable_id: recyHg6ax6gBOGSPC
   ecommerce:
-  - recwj3JB9j8Dff7fd
+  - recF3He1PR1Bo9voi
   ecwid_price (from ecommerce):
-  - 9.95
+  - 14.95
+  ecwid_url (from ecommerce):
+  - https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980
   item_category:
-  - lc_syringe
-  item_category_mat: lc_syringe
+  - fruiting_block
+  item_category_mat: fruiting_block
   item_id:
-  - recBobuevQac9j1wL
-  label_company_prod: Dank Mushrooms
+  - recU9tdgUerFEM9oJ
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
-  label_footer_prod: PROD-260415-Nc8a
-  label_packaged_prod: 'Packaged: 2026-04-14'
-  label_subtitle_prod: "10 mL \u2022 Bronze Reishi"
-  label_title_prod: Liquid Culture Syringe
-  label_useby_prod: 'Use by: 2026-07-14'
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_companyinfo_prod: My Business offers delivery and shipment of fresh gourmet
+    and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow
+    kits and mycology supplies.
+  label_cottage_prod: This product contains ingredients designed for mushroom cultivation.  This
+    product is not intended for human consumption.
+  label_footer_prod: PROD-260604-GSPC
+  label_inoc_prod:
+  - null
+  label_packaged_prod: 'Packaged: 2026-06-03'
+  label_proc_prod:
+  - null
+  label_spawned_prod:
+  - 'Spawned: 2026-05-14'
+  label_subtitle_prod: "3 lb \u2022 Blue Oyster"
+  label_title_prod: Small Masters Mix 75/25
+  label_useby_prod: 'Use by: 2026-08-13'
   name:
-  - Liquid Culture Syringe
-  name_mat: Liquid Culture Syringe
-  net_volume_ml: 10
-  origin_lot_ids_json: '["reciaWCZX1huqggxW"]'
+  - Small Masters Mix 75/25
+  name_mat: Small Masters Mix 75/25
+  net_weight_g: 1360.78
+  net_weight_oz: 48
+  origin_lot_ids_json: '["LOT-260514-KLen"]'
+  origin_lots:
+  - recfyskUzH5JuKLen
   origin_strain_regulated:
   - null
-  pack_date: '2026-04-15'
-  product_id: PROD-260415-Nc8a
-  public_link: https://danks.store/
+  pack_date: '2026-06-04'
+  print_queue:
+  - recls5p3S3VI7NYRd
+  product_id: PROD-260604-GSPC
+  public_link:
+  - https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980
   species_strain:
-  - Bronze Reishi
-  storage_location:
-  - recJxAz3OdFSxvs0l
+  - Blue Oyster
   strain_id:
-  - rec7lLl0rRBhkwO6H
-  use_by: '2026-07-15'
+  - recszNf2WlZjSQqyL
+  unit_lbs:
+  - 3 lb
+  unit_size:
+  - 3
+  use_by: '2026-08-14'
 - airtable_createdTime: '2026-04-26T23:32:23.000Z'
   airtable_id: recyp6NMS8uM10wPr
   item_category:
@@ -4190,13 +3991,13 @@
   item_category_mat: freezer_tray
   item_id:
   - recfe2XhEw2mDbQIw
-  label_company_prod: Dank Mushrooms
+  label_company_prod: My Business
   label_companyaddress_prod: |-
-    1726 Goldenvue Drive
-    Johnstown, CO 80534
-    https://www.danks.store
-    970-587-3294
-    sales@danks.net
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
   label_footer_prod: PROD-260426-0wPr
   label_packaged_prod: 'Packaged: 2026-04-25'
   label_subtitle_prod: "260.93 g \u2022 Lion\u2019s Mane"
@@ -4209,10 +4010,47 @@
   origin_strain_regulated:
   - null
   pack_date: '2026-04-26'
+  print_queue:
+  - recZwAJlqo0ZnwULH
   product_id: PROD-260426-0wPr
-  public_link: https://danks.store/
+  public_link: https://www.mybusiness.com/
   species_strain:
   - "Lion\u2019s Mane"
   strain_id:
   - reckNIjMtUO20q0f9
+  tray_state: freezer_tray
+- airtable_createdTime: '2026-06-14T21:00:05.000Z'
+  airtable_id: recywDdY7eCfrxKL7
+  item_category:
+  - freezer_tray
+  item_category_mat: freezer_tray
+  item_id:
+  - recfe2XhEw2mDbQIw
+  label_company_prod: My Business
+  label_companyaddress_prod: |-
+    MyBusinessStreetAddress
+    MyBusinessCityStateZip
+    https://www.mybusiness.com/
+    MyBusinessPhone
+    contact@mybusiness.com
+  label_footer_prod: PROD-260614-xKL7
+  label_packaged_prod: 'Packaged: 2026-06-13'
+  label_subtitle_prod: "113.35 g \u2022 Bronze Reishi"
+  label_title_prod: Freezer Tray
+  name:
+  - Freezer Tray
+  name_mat: Freezer Tray
+  net_weight_g: 113.35
+  origin_lot_ids_json: '["recPC5g8giZxWEbFz"]'
+  origin_strain_regulated:
+  - null
+  pack_date: '2026-06-14'
+  print_queue:
+  - recFB0uHrBLucUU63
+  product_id: PROD-260614-xKL7
+  public_link: https://www.mybusiness.com/
+  species_strain:
+  - Bronze Reishi
+  strain_id:
+  - rec7lLl0rRBhkwO6H
   tray_state: freezer_tray
