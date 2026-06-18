@@ -61,10 +61,9 @@ BEGIN
     INSERT INTO "public"."_m2m_events_products_product_id" ("events_id","products_id")
     VALUES (p_event_id, p_product_id)
     ON CONFLICT DO NOTHING;
-  EXCEPTION WHEN unique_violation THEN
-    NULL;
-  EXCEPTION WHEN undefined_table THEN
-    NULL;
+  EXCEPTION
+    WHEN unique_violation OR undefined_table THEN
+      NULL;
   END;
 END;
 $$;
