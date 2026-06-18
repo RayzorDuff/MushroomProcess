@@ -1,3 +1,198 @@
+## [v1.1.0-RC4] - 2026-06-18
+
+_This release is the next release candidate for validating the Appsmith/Postgres implementation against the Airtable production baseline. It focuses on RC3 test findings and parity tickets: import/sanitization fixes, Appsmith deployment/runtime fixes, fulfillment reconciliation behavior, lab/sterilizer/harvest/spawn validation, product lifecycle events, freeze-dried package lineage, and print-routing correctness._
+
+---
+
+## Release-candidate focus
+
+- Continued the row-by-row parity test cycle after `v1.1.0-RC3`.
+- Incorporated RC3 test results and updated the test matrix for the RC4 candidate.
+- Refreshed Airtable schema/export artifacts for RC4 testing.
+- Added and corrected Appsmith/Postgres behavior for the next round of parity validation.
+
+---
+
+## Import, schema, and sanitization fixes
+
+- Updated Airtable schema/export artifacts in preparation for RC4 testing.
+- Repaired email obfuscation / postprocess behavior:
+  - normalized only operator import columns that should become operator identities (`lots.operator`, `products.operator`, `sterilization_runs.operator`),
+  - converted `User Name <email@domain>`-style values to email values during import,
+  - supported legacy first-name operator values where the updated schema choices contain full `Name <email>` choices,
+  - recursively obfuscated emails and lingering organization/domain strings without hardcoded operator definitions,
+  - fixed the placeholder typo `MyBuinessAddressAndContact` → `MyBusinessAddressAndContact`.
+- Added / updated NocoDB API v3 support.
+- Fixed `005_helpers.sql` import syntax so PL/pgSQL exception handling uses a single `EXCEPTION` block with multiple `WHEN` cases.
+
+---
+
+## Appsmith deployment/runtime hardening
+
+- Fixed deployed Appsmith modal-submit issues caused by unusual `fullyQualifiedName` values on Products-page queries:
+  - `qPackageFreezeDried`
+  - `qRetireTrayProducts`
+  - `qMoveProductsToFreezeDryer`
+- Fixed Lab - Spawn to Bulk refresh behavior after submit:
+  - `LotsSpawnToBulk.spawnSelected()` no longer calls the broad `LotsSpawnToBulk.refresh()`,
+  - refresh is limited to the table/source/species queries required after submit,
+  - avoids mixing `qSpawnToBulkLocations.run()` and `qSpawnToBulkLocations.data` in the same reactive dependency path.
+- Improved Appsmith display of backend validation errors for inoculation workflows.
+- Added LC remaining volume to the Inoculate source table so operators can see available LC before submitting.
+
+---
+
+## Sterilizer parity
+
+- Added Sterilizer IN notes support:
+  - `sterilization_runs.notes` is imported / stored,
+  - optional notes are saved when creating a sterilizer run,
+  - notes are included in the `SterilizerRunCreated` event payload when present,
+  - Appsmith Sterilizer IN includes a Notes input and submit wiring.
+- Required a valid Sterilizer OUT storage location before completion.
+- Defaulted the Sterilizer OUT Appsmith storage-location selector to **New Lots** by `nocopk`.
+- Prevented zero-valued location IDs from reaching lot creation.
+- Added destroyed-unit context to Sterilizer OUT events:
+  - run number,
+  - process type,
+  - planned item,
+  - planned recipe,
+  - planned unit context,
+  - destroyed count / sequence.
+- Preserved the sterilizer `process_type` display value in event metadata so Sterilize/Pasteurize values remain aligned with `sterilization_runs` and lots.
+
+---
+
+## Inoculation and lab workflow parity
+
+- Validated inoculation override dates against source material availability:
+  - source availability is computed from created, sterilized, and received dates,
+  - inoculation overrides before the source exists / is available are rejected,
+  - validation errors are surfaced through the source lot `ui_error`.
+- Fixed agar plate source handling:
+  - colonized agar plates are allowed as non-liquid inoculation sources,
+  - agar flasks remain excluded from the generic inoculation workflow,
+  - LC volume is required only for LC flask / LC syringe sources,
+  - stale LC volume state is cleared when the source context changes.
+- Added Airtable-parity fields to `Inoculated` event payloads:
+  - operator,
+  - target lot ID,
+  - source display / Airtable identifiers,
+  - native `nocopk` identifiers.
+- Validated pour dates against the source agar flask:
+  - source availability is computed from created, sterilized, and received dates,
+  - pour timestamps before source material exists / is sterilized are rejected.
+- Fixed null-safe Airtable formula concatenation so blank `vendor_batch` no longer blanks received syringe label subtitles.
+
+---
+
+## Spawn to Bulk parity
+
+- Fixed Spawn to Bulk override-date behavior by passing the Appsmith override spawn date into `mp_lots_spawn_to_bulk`.
+- Populated created bulk lots with source species, strain, and vendor metadata so `Bulk_Created` labels have meaningful subtitle content.
+- Added optional `fruiting_goal` support:
+  - persisted on spawned fruiting block lots,
+  - included in `SpawnedToBulk` event metadata,
+  - added to the Lab Spawn to Bulk Appsmith selection flow,
+  - preserves existing Lots-modal behavior when no goal is selected.
+
+---
+
+## Harvest parity
+
+- Fixed Harvest Appsmith form state behavior:
+  - prevents duplicate harvest submits while `qHarvestLot` is running,
+  - resets harvest submit state when opening the Harvest action,
+  - aligns required fields with harvest SQL validation,
+  - defaults fresh harvest tray count to one.
+- Fixed Harvest event linkage:
+  - Harvest event arguments are mapped by name,
+  - Harvest events link to each created tray product,
+  - Harvest events still link to the source fruiting lot.
+
+---
+
+## Transition / fully-colonized parity
+
+- Required a destination location for Fully Colonized transitions.
+- Defaulted Fully Colonized transitions to **Dark Room** in Appsmith.
+- Updated SQL transition behavior to set lot location during Fully Colonized.
+- Added destination location fields to the `FullyColonized` event payload.
+
+---
+
+## Products, trays, and package-freeze-dried parity
+
+- Added product-linked lifecycle events for tray actions:
+  - Move to Freeze Dryer,
+  - Spoil Tray,
+  - Compost Tray,
+  - Retire Tray.
+- Product lifecycle events now capture previous and new tray state/location in `fields_json`.
+- Fixed freeze-dried product lineage and package events:
+  - strain and origin-lot lineage are populated when creating freeze-dried packaged products from freezer trays,
+  - package runs reject mixed-strain source trays,
+  - default use-by dates are applied,
+  - package events link to created products, source trays, and origin lots.
+- Added product event linking helper support.
+- Fixed tray print-target formula generation so `fresh_tray` and `freezer_tray` print-queue rows route to the **TRAYS** daemon instead of the standard product daemon.
+
+---
+
+## Fulfillment and reconciliation parity
+
+- Updated Fulfillment PGSQL product search terminal filters:
+  - excludes `Consumed`, `Compost`, and `Expired` product locations from available-inventory search.
+- Kept completed fulfillment orders visible for reconciliation / review.
+- Added completion flags from the n8n list API.
+- Disabled Appsmith assignment/reconciliation actions when fulfillment rows are complete.
+- Fixed PGSQL n8n workflow credentials for Clover reconciliation and daily reconciliation reporting so Postgres nodes use Postgres credentials rather than copied Airtable credentials.
+- Fixed the Daily Reconciliation Report PGSQL timezone window:
+  - report-day UTC boundaries are computed from `REPORT_TIMEZONE`,
+  - Postgres `order_date` queries now match the Airtable daily report’s local-day behavior.
+
+---
+
+## Operator identity and personnel-review support
+
+- Backfilled operator aliases to Appsmith email identities.
+- Included `products.operator` in operator identity normalization.
+- Backfilled historical name-only operator values to known Appsmith email identities where personnel subject mappings exist.
+
+---
+
+## Issue references and parity coverage
+
+This release includes changes connected to the following tracked parity / test issues and follow-ups:
+
+- `#15` tray print target formula generation.
+- `#16` sterilizer process-type event display.
+- `#22` inoculated event metadata parity.
+- `#26` operator identity normalization/backfill.
+- `#37` Fulfillment / reconciliation PGSQL workflow parity.
+- `#45` received syringe label subtitle behavior with blank vendor batch.
+- `#46` Sterilizer IN notes.
+- `#47` Sterilizer OUT destroyed event context.
+- `#48` Lab Agar pour-date validation.
+- `#49` Inoculate validation error visibility.
+- `#50` Inoculation override-date validation.
+- `#51` LC remaining volume display in Inoculate.
+- `#52` Spawn to Bulk override-date behavior.
+- `#53` Bulk-created label subtitle content.
+- `#54` Spawn to Bulk fruiting goal support.
+- `#55` Fully Colonized destination/location behavior.
+- `#56` Harvest form-state parity.
+- `#58` Sterilizer OUT required/default storage location.
+- `#59` Inoculate grain/agar source volume handling and stale state.
+- `#61`–`#65` freeze-dried packaging lineage/events/use-by/product lifecycle events.
+- `#67` completed fulfillment order visibility for reconciliation.
+
+---
+
+## Summary
+
+`v1.1.0-RC4` is a broad parity-hardening release. It improves import and sanitization behavior, fixes deployed Appsmith runtime issues, adds missing validation and metadata across Sterilizer, Inoculate, Pour Plates, Spawn to Bulk, Harvest, Fully Colonized transitions, Products, Package Freeze Dried, Fulfillment, and reconciliation workflows, and prepares the system for another row-by-row Appsmith/Postgres parity test pass.
+
 ## [v1.1.0-RC3] - 2026-05-30
 
 _This release is the next release candidate for validating the Appsmith/Postgres implementation against the Airtable production baseline. It is focused on RC2 test-pass cleanup: standalone workflow pages, Appsmith modal hardening, duplicate-submit guards, tighter row-parity validation for lab/harvest/spawn workflows, and preservation of imported Airtable identifiers in generated Postgres views._
