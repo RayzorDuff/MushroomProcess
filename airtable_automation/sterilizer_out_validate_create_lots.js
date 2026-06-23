@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2026-05-17.1
+ * Version: 2026-06-23.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -27,6 +27,10 @@ const runsTbl   = base.getTable('sterilization_runs');
 const itemsTbl  = base.getTable('items');
 const lotsTbl   = base.getTable('lots');
 const eventsTbl = base.getTable('events');
+let itemRecipeComponentsTbl = null;
+let lotRecipeComponentsTbl = null;
+try { itemRecipeComponentsTbl = base.getTable('item_recipe_components'); } catch (_) {}
+try { lotRecipeComponentsTbl = base.getTable('lot_recipe_components'); } catch (_) {}
 
 /* ---------- helpers ---------- */
 function hasField(tbl, name){ try { tbl.getField(name); return true; } catch { return false; } }
@@ -40,6 +44,27 @@ function fieldType(tbl, name){ try { return tbl.getField(name).type; } catch { r
 function isLinkField(tbl, name){ return fieldType(tbl, name) === 'multipleRecordLinks'; }
 function num(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
 function asStr(rec, f){ try { return rec.getCellValueAsString(f) || ''; } catch { return ''; } }
+function linkIds(rec, f){ try { return (rec.getCellValue(f) || []).map(x => x.id).filter(Boolean); } catch { return []; } }
+function firstLinkId(rec, f){ return linkIds(rec, f)[0] || null; }
+function checkboxTrue(rec, f){ try { const v = rec.getCellValue(f); return v === true || v === 1 || v === 'true'; } catch { return false; } }
+function nearlyEqual(a, b){ return Math.abs(Number(a) - Number(b)) < 0.000001; }
+async function createRecordsInBatches(tbl, records){
+  if (!tbl || !records.length) return [];
+  const ids = [];
+  for (let i = 0; i < records.length; i += 50) {
+    ids.push(...await tbl.createRecordsAsync(records.slice(i, i + 50)));
+  }
+  return ids;
+}
+function componentRoleForCategory(category){
+  const c = String(category || '').toLowerCase();
+  if (c === 'grain') return 'grain';
+  if (c === 'substrate' || c === 'cordyceps_substrate' || c === 'all_in_one_bag') return 'substrate';
+  if (c === 'agar_flask' || c === 'plate') return 'agar';
+  if (c === 'lc_flask' || c === 'lc_syringe') return 'lc';
+  if (c === 'casing') return 'casing';
+  return 'primary';
+}
 /* Only return an {id} if option exists (no typecast in automations) */
 function selectChoiceIdFor(table, fieldName, label) {
   if (!label) return null;
@@ -110,6 +135,7 @@ if (errs.length) {
 /* ---------- resolve process type (pasteurize vs sterilize) ---------- */
 const itemRec = await itemsTbl.selectRecordAsync(plannedItem.id);
 const itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
+const itemComponentMode = (itemRec?.getCellValueAsString('component_mode') || '').toLowerCase();
 const processTypeRaw = asStr(run, 'process_type').toLowerCase();
 const targetTempC    = num(run.getCellValue('target_temp_c'));
 const pressureMode   = asStr(run, 'pressure_mode').toLowerCase();
@@ -134,6 +160,82 @@ const evtSterilized      = (evtTypeField.options?.choices || []).find(c => c.nam
 const evtDestroyed       = (evtTypeField.options?.choices || []).find(c => c.name === 'Destroyed');
 
 const linkRunOnLot = isLinkField(lotsTbl, 'steri_run_id'); // link field in your schema
+
+if (itemComponentMode === 'single_recipe' && !plannedRecipe) {
+  await safeUpdate(runsTbl, run.id, {
+    ui_error: 'planned_recipe is required for single_recipe items such as Spawn Bag, substrate bags, LC flasks, agar flasks, and plates.',
+    ui_error_at: new Date().toISOString(),
+    action: null
+  });
+  throw new Error('Sterilizer OUT validation failed. planned_recipe is required for single_recipe item.');
+}
+
+async function getPlannedItemComponents() {
+  if (!itemRecipeComponentsTbl || !plannedItem) return [];
+  const fields = ['active', 'item_id', 'recipe_id', 'component_role', 'unit_size_lb', 'default_weight_lb', 'default_percent', 'sort_order'];
+  const availableFields = fields.filter(f => hasField(itemRecipeComponentsTbl, f));
+  const q = await itemRecipeComponentsTbl.selectRecordsAsync({ fields: availableFields });
+  return q.records
+    .filter(r => !hasField(itemRecipeComponentsTbl, 'active') || checkboxTrue(r, 'active'))
+    .filter(r => linkIds(r, 'item_id').includes(plannedItem.id))
+    .filter(r => {
+      const componentUnitSize = hasField(itemRecipeComponentsTbl, 'unit_size_lb') ? num(r.getCellValue('unit_size_lb')) : null;
+      return !Number.isFinite(componentUnitSize) || nearlyEqual(componentUnitSize, unitSize);
+    })
+    .sort((a, b) => (num(a.getCellValue('sort_order')) || 0) - (num(b.getCellValue('sort_order')) || 0));
+}
+
+async function createLotRecipeComponentsForSterilizedLots(lotIds) {
+  if (!lotRecipeComponentsTbl || !lotIds.length) return;
+
+  const creates = [];
+
+  if (itemComponentMode === 'multi_recipe') {
+    const components = await getPlannedItemComponents();
+    for (const lotId of lotIds) {
+      for (const c of components) {
+        const recipeId = firstLinkId(c, 'recipe_id');
+        if (!recipeId) continue;
+        const defaultWeight = hasField(itemRecipeComponentsTbl, 'default_weight_lb') ? num(c.getCellValue('default_weight_lb')) : null;
+        const fields = {
+          lot_id: [{ id: lotId }],
+          item_id: [{ id: plannedItem.id }],
+          recipe_id: [{ id: recipeId }],
+          source_item_recipe_component: [{ id: c.id }],
+          component_role: { name: asStr(c, 'component_role') || componentRoleForCategory(itemCategory) },
+          sort_order: num(c.getCellValue('sort_order')) || undefined,
+          notes: 'Created from multi_recipe item component plan on sterilization run ' + (runNo || run.id)
+        };
+        if (Number.isFinite(defaultWeight)) fields.component_weight_lb = defaultWeight;
+        const percent = hasField(itemRecipeComponentsTbl, 'default_percent') ? num(c.getCellValue('default_percent')) : null;
+        if (Number.isFinite(percent)) fields.component_percent = percent;
+        creates.push({ fields });
+      }
+    }
+  } else if (plannedRecipe) {
+    let matchingComponentId = null;
+    if (itemRecipeComponentsTbl) {
+      const components = await getPlannedItemComponents();
+      const match = components.find(c => firstLinkId(c, 'recipe_id') === plannedRecipe.id);
+      if (match) matchingComponentId = match.id;
+    }
+    for (const lotId of lotIds) {
+      const fields = {
+        lot_id: [{ id: lotId }],
+        item_id: [{ id: plannedItem.id }],
+        recipe_id: [{ id: plannedRecipe.id }],
+        component_role: { name: componentRoleForCategory(itemCategory) },
+        component_weight_lb: unitSize,
+        sort_order: 1,
+        notes: 'Created from sterilization run planned_recipe'
+      };
+      if (matchingComponentId) fields.source_item_recipe_component = [{ id: matchingComponentId }];
+      creates.push({ fields });
+    }
+  }
+
+  await createRecordsInBatches(lotRecipeComponentsTbl, creates);
+}
 
 /* ---------- create lots ---------- */
 const creates = [];
@@ -186,6 +288,8 @@ for (let i = 0; i < creates.length; i += 50) {
   const ids = await lotsTbl.createRecordsAsync(creates.slice(i, i + 50));
   createdLotIds.push(...ids);
 }
+
+await createLotRecipeComponentsForSterilizedLots(createdLotIds);
 
 /* ---------- events for new lots ---------- */
 if (createdLotIds.length) {

@@ -232,12 +232,12 @@ For Mac:
 
    Windows:
    ```bash
-   airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
+   airtable-export --schema --ndjson --yaml --json export $Env:AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders item_recipe_components lot_recipe_components
    ```
 
    Mac:
    ```bash
-   airtable-export --schema --ndjson --yaml --json --key $AIRTABLE_KEY  export $AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders
+   airtable-export --schema --ndjson --yaml --json --key $AIRTABLE_KEY  export $AIRTABLE_BASE strains recipes products lots items events locations sterilization_runs print_queue ecommerce ecommerce_orders item_recipe_components lot_recipe_components
    ```
 
    Also dump Airtable table metadata:

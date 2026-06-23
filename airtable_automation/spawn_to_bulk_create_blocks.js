@@ -1,6 +1,6 @@
 /**
  * Script: spawn_to_bulk_create_blocks.js
- * Version: 2026-01-28.1
+ * Version: 2026-06-23.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -50,6 +50,8 @@ const LARGE_THRESHOLD_LB = 5; // >= 5 lb → “LG”, else “SM”
 const lotsTbl   = base.getTable('lots');
 const itemsTbl  = base.getTable('items');
 const eventsTbl = base.getTable('events');
+let lotRecipeComponentsTbl = null;
+try { lotRecipeComponentsTbl = base.getTable('lot_recipe_components'); } catch (_) {}
 
 function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
 function num(val) {
@@ -60,6 +62,15 @@ function num(val) {
 }
 function getStr(rec, field) { try { return (rec.getCellValueAsString(field) || '').trim(); } catch { return ''; } }
 function getLinkIds(rec, field) { try { return (rec.getCellValue(field) || []).map(x => x.id); } catch { return []; } }
+function firstLinkId(rec, field) { return getLinkIds(rec, field)[0] || null; }
+async function createRecordsInBatches(tbl, records) {
+  if (!tbl || !records.length) return [];
+  const ids = [];
+  for (let i = 0; i < records.length; i += 50) {
+    ids.push(...await tbl.createRecordsAsync(records.slice(i, i + 50)));
+  }
+  return ids;
+}
 
 // For singleSelect fields, Airtable accepts {name:"Option"}; for text fields, must be string.
 function coerceValueForField(table, fieldName, valueStr) {
@@ -153,6 +164,64 @@ async function getSingleSelectOptionIdByName(table, fieldName, desiredName) {
   } catch {
     return null;
   }
+}
+
+function componentRecipeIds(inputLots) {
+  const out = [];
+  for (const r of inputLots) {
+    const recipeId = firstLinkId(r, 'recipe_id');
+    const unitSize = num(r.getCellValue('unit_size')) || 0;
+    if (recipeId && unitSize > 0) out.push({ recipeId, unitSize });
+  }
+  return out;
+}
+
+function substrateComponentsForOutput(subRecs, outputIndex, outCount) {
+  if (subRecs.length === outCount) {
+    return componentRecipeIds([subRecs[outputIndex]]);
+  }
+  return componentRecipeIds(subRecs).map(c => ({ ...c, unitSize: c.unitSize / outCount }));
+}
+
+function grainComponentsForOutput(grainRecs, outCount) {
+  return componentRecipeIds(grainRecs).map(c => ({ ...c, unitSize: c.unitSize / outCount }));
+}
+
+async function createLotRecipeComponentsForSpawnedLots(createdIds, outputItemIds, grainRecs, subRecs, outCount) {
+  if (!lotRecipeComponentsTbl || !createdIds.length) return;
+
+  const creates = [];
+  for (let idx = 0; idx < createdIds.length; idx++) {
+    const lotId = createdIds[idx];
+    const itemId = outputItemIds[idx];
+    let sort = 1;
+
+    for (const c of grainComponentsForOutput(grainRecs, outCount)) {
+      creates.push({ fields: {
+        lot_id: [{ id: lotId }],
+        item_id: [{ id: itemId }],
+        recipe_id: [{ id: c.recipeId }],
+        component_role: { name: 'grain' },
+        component_weight_lb: c.unitSize,
+        sort_order: sort++,
+        notes: 'Derived from Spawn to Bulk grain input'
+      }});
+    }
+
+    for (const c of substrateComponentsForOutput(subRecs, idx, outCount)) {
+      creates.push({ fields: {
+        lot_id: [{ id: lotId }],
+        item_id: [{ id: itemId }],
+        recipe_id: [{ id: c.recipeId }],
+        component_role: { name: 'substrate' },
+        component_weight_lb: c.unitSize,
+        sort_order: sort++,
+        notes: 'Derived from Spawn to Bulk substrate input'
+      }});
+    }
+  }
+
+  await createRecordsInBatches(lotRecipeComponentsTbl, creates);
 }
 
 async function main() {
@@ -273,6 +342,7 @@ async function main() {
   const parentIds = [...grainIds, ...subIds];
   const createBatch = [];
   const chosenItemCodes = [];
+  const chosenItemRecordIds = [];
   for (let i = 0; i < outCount; i++) {
     const itemCode = pickFbItemCode({ substrateSig: substrateTag, perOutputSizeLb: perOutputUnits[i] });
     chosenItemCodes.push(itemCode);
@@ -281,6 +351,7 @@ async function main() {
       await setUiError(staging.id, `Could not resolve items.item_id "${itemCode}" (or fallback "${FB_FALLBACK}").`);
       return;
     }
+    chosenItemRecordIds.push(itemRecId);
 
     const fields = {};
     if (statusFieldPayload) fields.status = statusFieldPayload;
@@ -343,6 +414,8 @@ async function main() {
     const ids = await lotsTbl.createRecordsAsync(createBatch.slice(i, i + 50));
     createdIds.push(...ids);
   }
+
+  await createLotRecipeComponentsForSpawnedLots(createdIds, chosenItemRecordIds, grainRecs, subRecs, outCount);
 
   // SpawnedToBulk events per created lot
   if (spawnedToBulkEvtId && hasField(eventsTbl, 'lot_id')) {
