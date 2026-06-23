@@ -1,6 +1,6 @@
 /**
  * Script: sterilizer_out_validate_create_lots.js
- * Version: 2026-06-23.2
+ * Version: 2026-06-23.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -44,6 +44,7 @@ function fieldType(tbl, name){ try { return tbl.getField(name).type; } catch { r
 function isLinkField(tbl, name){ return fieldType(tbl, name) === 'multipleRecordLinks'; }
 function num(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
 function asStr(rec, f){ try { return rec.getCellValueAsString(f) || ''; } catch { return ''; } }
+function normStr(v){ return String(v || '').trim(); }
 function linkIds(rec, f){ try { return (rec.getCellValue(f) || []).map(x => x.id).filter(Boolean); } catch { return []; } }
 function firstLinkId(rec, f){ return linkIds(rec, f)[0] || null; }
 function checkboxTrue(rec, f){ try { const v = rec.getCellValue(f); return v === true || v === 1 || v === 'true'; } catch { return false; } }
@@ -98,6 +99,9 @@ const operatorName   = asStr(run, 'operator');     // for Events (text)
 const operatorSS     = selectChoiceIdFor(lotsTbl, 'operator', operatorName); // for Lots (single-select)
 
 const runNo          = asStr(run, 'steri_run_id'); // display/reference
+const plannedComponentSet = hasField(runsTbl, 'planned_component_set')
+  ? normStr(asStr(run, 'planned_component_set'))
+  : ''; // used for multi_recipe items such as AIO-BAG
 
 /* --- normalize timestamps --- */
 let startRaw = run.getCellValue('start_time');
@@ -135,7 +139,7 @@ if (errs.length) {
 /* ---------- resolve process type (pasteurize vs sterilize) ---------- */
 const itemRec = await itemsTbl.selectRecordAsync(plannedItem.id);
 const itemCategory = (itemRec?.getCellValueAsString('category') || '').toLowerCase();
-const itemComponentMode = (itemRec?.getCellValueAsString('component_mode') || '').toLowerCase();
+const itemComponentMode = normStr(itemRec?.getCellValueAsString('component_mode')).toLowerCase();
 const processTypeRaw = asStr(run, 'process_type').toLowerCase();
 const targetTempC    = num(run.getCellValue('target_temp_c'));
 const pressureMode   = asStr(run, 'pressure_mode').toLowerCase();
@@ -170,9 +174,10 @@ if (itemComponentMode === 'single_recipe' && !plannedRecipe) {
   throw new Error('Sterilizer OUT validation failed. planned_recipe is required for single_recipe item.');
 }
 
-async function getPlannedItemComponents() {
+async function getPlannedItemComponents(options = {}) {
+  const { applyComponentSet = false } = options;
   if (!itemRecipeComponentsTbl || !plannedItem) return [];
-  const fields = ['active', 'item_id', 'recipe_id', 'component_role', 'unit_size_lb', 'default_weight_lb', 'default_percent', 'sort_order'];
+  const fields = ['active', 'item_id', 'recipe_id', 'component_role', 'component_set', 'unit_size_lb', 'default_weight_lb', 'default_percent', 'sort_order'];
   const availableFields = fields.filter(f => hasField(itemRecipeComponentsTbl, f));
   const q = await itemRecipeComponentsTbl.selectRecordsAsync({ fields: availableFields });
   return q.records
@@ -182,8 +187,43 @@ async function getPlannedItemComponents() {
       const componentUnitSize = hasField(itemRecipeComponentsTbl, 'unit_size_lb') ? num(r.getCellValue('unit_size_lb')) : null;
       return !Number.isFinite(componentUnitSize) || nearlyEqual(componentUnitSize, unitSize);
     })
+    .filter(r => {
+      if (!applyComponentSet || !hasField(itemRecipeComponentsTbl, 'component_set')) return true;
+      const rowSet = normStr(asStr(r, 'component_set'));
+      return !rowSet || rowSet === plannedComponentSet;
+    })
     .sort((a, b) => (num(a.getCellValue('sort_order')) || 0) - (num(b.getCellValue('sort_order')) || 0));
 }
+
+async function validateMultiRecipeComponentSet() {
+  if (itemComponentMode !== 'multi_recipe' || !itemRecipeComponentsTbl || !plannedItem) return;
+
+  const candidates = await getPlannedItemComponents({ applyComponentSet: false });
+  const sets = [...new Set(candidates
+    .map(r => hasField(itemRecipeComponentsTbl, 'component_set') ? normStr(asStr(r, 'component_set')) : '')
+    .filter(Boolean))];
+
+  if (sets.length > 1 && !plannedComponentSet) {
+    await safeUpdate(runsTbl, run.id, {
+      ui_error: 'planned_component_set is required for this multi_recipe item/size. Available component sets: ' + sets.join(', '),
+      ui_error_at: new Date().toISOString(),
+      action: null
+    });
+    throw new Error('Sterilizer OUT validation failed. planned_component_set is required for multi_recipe item.');
+  }
+
+  if (plannedComponentSet && sets.length && !sets.includes(plannedComponentSet)) {
+    await safeUpdate(runsTbl, run.id, {
+      ui_error: 'planned_component_set ' + plannedComponentSet + ' does not match active item_recipe_components for this item/size. Available component sets: ' + sets.join(', '),
+      ui_error_at: new Date().toISOString(),
+      action: null
+    });
+    throw new Error('Sterilizer OUT validation failed. planned_component_set does not match active item_recipe_components.');
+  }
+}
+
+
+await validateMultiRecipeComponentSet();
 
 async function createLotRecipeComponentsForSterilizedLots(lotIds) {
   if (!lotRecipeComponentsTbl || !lotIds.length) return;
@@ -191,7 +231,7 @@ async function createLotRecipeComponentsForSterilizedLots(lotIds) {
   const creates = [];
 
   if (itemComponentMode === 'multi_recipe') {
-    const components = await getPlannedItemComponents();
+    const components = await getPlannedItemComponents({ applyComponentSet: true });
     for (const lotId of lotIds) {
       for (const c of components) {
         const recipeId = firstLinkId(c, 'recipe_id');
@@ -202,7 +242,7 @@ async function createLotRecipeComponentsForSterilizedLots(lotIds) {
           item_id: [{ id: plannedItem.id }],
           recipe_id: [{ id: recipeId }],
           source_item_recipe_component: [{ id: c.id }],
-          component_role: { name: asStr(c, 'component_role') || componentRoleForCategory(itemCategory) },
+          component_role: { name: normStr(asStr(c, 'component_role')) || componentRoleForCategory(itemCategory) },
           sort_order: num(c.getCellValue('sort_order')) || undefined,
           notes: 'Created from multi_recipe item component plan on sterilization run ' + (runNo || run.id)
         };
@@ -305,7 +345,8 @@ if (createdLotIds.length) {
         run_id: run.id,
         run_no: runNo || null,
         process_type: proc,
-        unit_size: unitSize
+        unit_size: unitSize,
+        component_set: plannedComponentSet || null
       })
     }
   }));
@@ -324,7 +365,7 @@ if (destroyedCount > 0 && evtDestroyed) {
         station: 'Sterilizer OUT',
         operator: operatorName || 'system',
         timestamp: tsDate,
-        fields_json: JSON.stringify({ run_id: run.id, run_no: runNo || null, process_type: proc })
+        fields_json: JSON.stringify({ run_id: run.id, run_no: runNo || null, process_type: proc, component_set: plannedComponentSet || null })
       }
     });
   }
