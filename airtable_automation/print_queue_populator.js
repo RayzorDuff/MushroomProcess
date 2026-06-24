@@ -1,6 +1,6 @@
 /**
  * Script: print_queue_populator.js
- * Version: 2026-05-11.1
+ * Version: 2026-06-23.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -96,6 +96,8 @@ let labelType = null;
 if (eventType === 'Inoculated' || eventType === 'LCInoculate' || eventType === 'InoculateFlask' || eventType === 'PlateInoculate') {
   if (itemCategory === 'grain') {
     labelType = 'Grain_Inoculated';
+  } else if (itemCategory === 'all_in_one_bag') {
+    labelType = 'All_In_One_Inoculated';
   } else if (itemCategory === 'plate') {
     labelType = 'Plate_Inoculated';
   } else if (itemCategory === 'lc_flask') {
