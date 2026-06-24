@@ -1,6 +1,6 @@
 /**
  * Script: inoculate_multiple.js
- * Version: 2026-05-11.2
+ * Version: 2026-06-23.1
  * =============================================================================
  *  Batch inoculation starting from a SOURCE lot.
  *
@@ -205,10 +205,10 @@
       const targetItem = await itemsTbl.selectRecordAsync(itemLink.id);
       const targetCategory = (targetItem?.getCellValueAsString('category') || '').toLowerCase();
 
-      if (!['grain', 'lc_flask', 'plate', 'cordyceps_substrate'].includes(targetCategory)) {
+      if (!['grain', 'lc_flask', 'plate', 'cordyceps_substrate', 'all_in_one_bag'].includes(targetCategory)) {
         await updateSourceError(
           `Target lot ${targetLot.getCellValueAsString ? targetLot.getCellValueAsString('lot_id') : targetLot.id} must be ` +
-          `grain, lc_flask, plate, or cordyceps_substrate (got "${targetCategory || 'none'}").`
+          `grain, lc_flask, plate, cordyceps_substrate, or all_in_one_bag (got "${targetCategory || 'none'}").`
         );
         continue;
       }
@@ -278,8 +278,8 @@
           d.setMonth(d.getMonth() + 6);
           lotUseBy = d;
         }
-      } else if (['grain', 'cordyceps_substrate'].includes(targetCategory)) {
-        // Grain spawn or cordyceps_substrate: 3 months from inoculation
+      } else if (['grain', 'cordyceps_substrate', 'all_in_one_bag'].includes(targetCategory)) {
+        // Grain spawn, all-in-one bags, or cordyceps_substrate: 3 months from inoculation
         const d = new Date(inocTime);
         if (!Number.isNaN(d.getTime())) {
           d.setMonth(d.getMonth() + 3);

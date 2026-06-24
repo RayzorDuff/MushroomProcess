@@ -1,6 +1,6 @@
 /**
  * Script: dark_room_actions.js
- * Version: 2026-05-18.2
+ * Version: 2026-06-23.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -229,8 +229,9 @@ try {
   }
 
   if (action === 'ApplyCasing') {
-    if (itemCategory !== 'fruiting_block') {
-      await failWithUI('Apply Casing is only allowed on fruiting blocks (item.category = fruiting_block).');
+    const casingTargetCategories = ['fruiting_block', 'all_in_one_bag'];
+    if (!casingTargetCategories.includes(itemCategory)) {
+      await failWithUI('Apply Casing is only allowed on fruiting blocks or all-in-one bags (item.category = fruiting_block or all_in_one_bag).');
     }
 
     const casingLink = lot.getCellValue('casing_lot_id')?.[0] || null;
