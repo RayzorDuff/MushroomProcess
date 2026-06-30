@@ -340,15 +340,26 @@ The script:
   - Generates a label PDF (optionally embedding `logo.png` and a QR code).
 
 - For print jobs where `source_kind = "product"`:
-  - The daemon always prints the normal label (the same 4×2 product label as before).
+  - The daemon normally prints the standard 4×2 product label.
   - If `label_companyinfo_prod (from product_id)` is present (non-blank), the daemon prints a **second 4×2 label** immediately after the first.
+  - If `print_queue.label_type = "Product_Package_Sample"`, the daemon instead prints a **single dense 4×2 sample/package label** and does **not** print the second product-info label.
 
-- The second label includes any of the following fields that are defined:
+- The second product-info label includes any of the following fields that are defined:
   - `label_companyaddress_prod (from product_id)`
   - `label_companyinfo_prod (from product_id)`
   - `label_disclaimer_prod (from product_id)`
   - `label_cottage_prod (from product_id)`
-  
+
+- The `Product_Package_Sample` label includes these product fields on one label:
+  - `label_company_prod` / `label_company_prod (from product_id)`
+  - `label_title_prod` / `label_title_prod (from product_id)`
+  - `label_subtitle_prod` / `label_subtitle_prod (from product_id)`
+  - `label_footer_prod` / `label_footer_prod (from product_id)`
+  - `label_packaged_prod` / `label_packaged_prod (from product_id)`
+  - `label_useby_prod` / `label_useby_prod (from product_id)`
+  - `label_disclaimer_prod` / `label_disclaimer_prod (from product_id)`
+  - public link QR, unless disabled with `SAMPLE_INCLUDE_QR=false`
+
 - Syringe labels for `lc_syringe` and `lc_syringe_purchased` items now print as two cuttable mini-label panels on a single 4×2 label for both lot and product jobs.
 
 Leave this process running in a console, or convert it to a Windows service (see below).

@@ -383,6 +383,17 @@ const MARGIN_PT = safeNum(process.env.MARGIN_PT, 8);
 const LOGO_W_PT = safeNum(process.env.LOGO_WIDTH_PT, 140);
 const QR_SIZE_PT = safeNum(process.env.QR_SIZE_PT, 90);
 
+// Product_Package_Sample labels are dense 4x2 labels that keep product identity,
+// package/use-by dates, and the product disclaimer on one physical label.
+const SAMPLE_LOGO_W_PT = safeNum(process.env.SAMPLE_LOGO_WIDTH_PT, Math.min(70, LOGO_W_PT));
+const SAMPLE_QR_SIZE_PT = safeNum(process.env.SAMPLE_QR_SIZE_PT, 34);
+const SAMPLE_INCLUDE_QR = String(process.env.SAMPLE_INCLUDE_QR || 'true').toLowerCase() !== 'false';
+const SAMPLE_LOGO_TEXT_GAP_PT = safeNum(process.env.SAMPLE_LOGO_TEXT_GAP_PT, 2);
+const SAMPLE_COMPANY_INFO_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_INFO_MAX_FONT, 5.2);
+const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 10.5);
+const SAMPLE_SUBTITLE_MAX_FONT = safeNum(process.env.SAMPLE_SUBTITLE_MAX_FONT, 7.5);
+const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 5.8);
+
 const DRAW_BORDER = String(process.env.DRAW_PAGE_BORDER || 'false').toLowerCase() === 'true';
 
 const USE_SUMATRA = IS_WINDOWS && String(process.env.USE_SUMATRA || 'false').toLowerCase() === 'true';
@@ -645,30 +656,44 @@ function gatherFields(rec) {
   const itemCategory = detectItemCategory(rec);
 
   if (sourceKind === 'product') {
+    const labelType = toFlat(f.label_type || f.Label_Type || f['label_type']) || '';
+    const packaged = pick(f, [
+      'label_packaged_prod',
+      'label_packaged_prod (from product_id)',
+    ]);
+    const useBy = pick(f, [
+      'label_useby_prod',
+      'label_useby_prod (from product_id)',
+    ]);
+
     return {
       kind: 'product',
+      labelType,
+      isPackageSampleLabel: String(labelType).trim().toLowerCase() === 'product_package_sample',
       itemCategory,
       isSyringeLabel: isSyringeCategory(itemCategory),
-      company: pick(f, ['label_company_prod (from product_id)']) || '',
-      title: pick(f, ['label_title_prod (from product_id)']),
-      subtitle: pick(f, ['label_subtitle_prod (from product_id)']),
-      footer: pick(f, ['label_footer_prod (from product_id)']),
+      company: pick(f, ['label_company_prod', 'label_company_prod (from product_id)']) || '',
+      title: pick(f, ['label_title_prod', 'label_title_prod (from product_id)']),
+      subtitle: pick(f, ['label_subtitle_prod', 'label_subtitle_prod (from product_id)']),
+      footer: pick(f, ['label_footer_prod', 'label_footer_prod (from product_id)']),
+      packaged,
+      useBy,
       qr: pick(f, [
         'public_link (from product_id)',
         'public_link (from lot_id)',
         'public_link',
       ]),
       // product-only blocks
-      companyAddr: pick(f, ['label_companyaddress_prod (from product_id)']),
-      companyInfo: pick(f, ['label_companyinfo_prod (from product_id)']),
-      disclaimer: pick(f, ['label_disclaimer_prod (from product_id)']),
-      cottage: pick(f, ['label_cottage_prod (from product_id)']),
+      companyAddr: pick(f, ['label_companyaddress_prod', 'label_companyaddress_prod (from product_id)']),
+      companyInfo: pick(f, ['label_companyinfo_prod', 'label_companyinfo_prod (from product_id)']),
+      disclaimer: pick(f, ['label_disclaimer_prod', 'label_disclaimer_prod (from product_id)']),
+      cottage: pick(f, ['label_cottage_prod', 'label_cottage_prod (from product_id)']),
       extras: [
-        pick(f, ['label_proc_prod (from product_id)']),
-        pick(f, ['label_inoc_prod (from product_id)']),
-        pick(f, ['label_spawned_prod (from product_id)']),
-        pick(f, ['label_packaged_prod (from product_id)']),
-        pick(f, ['label_useby_prod (from product_id)']),
+        pick(f, ['label_proc_prod', 'label_proc_prod (from product_id)']),
+        pick(f, ['label_inoc_prod', 'label_inoc_prod (from product_id)']),
+        pick(f, ['label_spawned_prod', 'label_spawned_prod (from product_id)']),
+        packaged,
+        useBy,
       ].filter(Boolean),
     };
   }
@@ -730,6 +755,39 @@ function selectLogoPath(company) {
 
 /* ---------- Text helpers (robust multi-line with auto-shrink) ---------- */
 
+function normalizeLabelText(text) {
+  if (text == null) return '';
+  return String(text)
+    // Airtable formulas sometimes contain literal backslash sequences instead of actual CR/LF.
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\n')
+    // Also normalize real CR/LF variants.
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Trim trailing spaces on each line, but preserve intentional blank lines.
+    .split('\n')
+    .map(line => line.replace(/[ \t]+$/g, ''))
+    .join('\n')
+    .trim();
+}
+
+function imageHeightForWidth(doc, imagePath, width) {
+  try {
+    const img = doc.openImage(imagePath);
+    if (img && img.width && img.height && width) {
+      return width * (img.height / img.width);
+    }
+  } catch {}
+  return width * 0.35;
+}
+
+function drawImageWithMeasuredHeight(doc, imagePath, x, y, width) {
+  const h = imageHeightForWidth(doc, imagePath, width);
+  doc.image(imagePath, x, y, { width });
+  return y + h;
+}
+
 // Measure how tall text would be at fontName+fontSize within width
 function measureTextHeight(doc, text, width, fontName, fontSize, opts = {}) {
   // NOTE: doc._font is an internal font object; passing it to doc.font(...)
@@ -766,8 +824,8 @@ function drawBlock(
     maxHeight = null,
   } = {}
 ) {
-  if (!text) return y;
-  const txt = String(text);
+  const txt = normalizeLabelText(text);
+  if (!txt) return y;
 
   // choose size to fit
   let size = maxFont;
@@ -1054,6 +1112,186 @@ async function renderLabelPDF(outPath, rec) {
       PAGE_H - M - QR_SIZE_PT,
       { width: QR_SIZE_PT, height: QR_SIZE_PT }
     );
+  }
+
+  doc.end();
+
+  await new Promise((res, rej) => {
+    stream.on('finish', res);
+    stream.on('error', rej);
+  });
+}
+
+
+function drawLabelDivider(doc, y, x1 = M, x2 = PAGE_W - M) {
+  doc.save();
+  doc.lineWidth(0.4).moveTo(x1, y).lineTo(x2, y).stroke();
+  doc.restore();
+}
+
+/* ---------- Render one-piece product package sample label ---------- */
+async function renderProductPackageSampleLabelPDF(outPath, rec) {
+  const L = gatherFields(rec);
+  if (L.kind !== 'product') return;
+
+  const company = L.company || '';
+  const title = L.title || '';
+  const subtitle = normalizeLabelText(L.subtitle || '');
+  const footer = normalizeLabelText(L.footer || '');
+  const packaged = normalizeLabelText(L.packaged || '');
+  const useBy = normalizeLabelText(L.useBy || '');
+  const companyInfo = normalizeLabelText(L.companyInfo || '');
+  const disclaimer = normalizeLabelText(L.disclaimer || '');
+  const qrUrl = L.qr || '';
+
+  const doc = new PDFDocument({
+    size: [PAGE_W, PAGE_H],
+    margins: { top: M, left: M, right: M, bottom: M },
+  });
+
+  const stream = fs.createWriteStream(outPath);
+  doc.pipe(stream);
+
+  if (DRAW_BORDER) {
+    doc.save();
+    doc.lineWidth(0.7).rect(0.5, 0.5, PAGE_W - 1, PAGE_H - 1).stroke();
+    doc.restore();
+  }
+
+  const contentWidth = PAGE_W - 2 * M;
+  const contentBottom = PAGE_H - M;
+  let y = M;
+
+  // Compact top row: logo/company on left, optional small QR on right.
+  const qrSize = SAMPLE_INCLUDE_QR && qrUrl ? Math.max(0, Math.min(SAMPLE_QR_SIZE_PT, 46)) : 0;
+  const qrGap = qrSize ? 5 : 0;
+  const qrX = PAGE_W - M - qrSize;
+  const topRightGuard = qrSize ? qrSize + qrGap : 0;
+  const textRight = PAGE_W - M - topRightGuard;
+  const textWidth = Math.max(80, textRight - M);
+
+  const { path: logoPath } = selectLogoPath(company);
+  if (logoPath) {
+    try {
+      const logoW = Math.min(SAMPLE_LOGO_W_PT, Math.max(42, textWidth * 0.42));
+      y = drawImageWithMeasuredHeight(doc, logoPath, M, y, logoW) + SAMPLE_LOGO_TEXT_GAP_PT;
+    } catch {
+      // ignore logo errors; company text still prints below
+    }
+  }
+
+  if (company) {
+    y = drawBlock(doc, company, M, y, textWidth, 'Helvetica-Bold', {
+      maxFont: 8.5,
+      minFont: 4,
+      lineGap: 0.5,
+      paragraphGap: 0,
+      maxHeight: 13,
+    });
+  }
+
+  if (qrSize) {
+    try {
+      const qrPng = await QRCode.toDataURL(qrUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 0,
+        scale: 4,
+      });
+      const qrBuf = Buffer.from(qrPng.split(',')[1], 'base64');
+      doc.image(qrBuf, qrX, M, { width: qrSize, height: qrSize });
+    } catch (e) {
+      log.warn('Sample label QR render failed', { err: e?.message || String(e) });
+    }
+  }
+
+  const metaLines = [packaged, useBy].filter(Boolean);
+  const metaText = metaLines.join('   |   ');
+
+  // Reserve the lower label bands, but do not let them cause identity lines to disappear.
+  // The previous layout used `y < mainBottom` guards; when the logo/company/title
+  // consumed the upper band, subtitle and package/use-by were skipped entirely.
+  const disclaimerReserve = disclaimer ? Math.floor(PAGE_H * 0.31) : 0;
+  const companyInfoReserve = companyInfo ? 12 : 0;
+  const footerReserve = footer ? 8 : 0;
+  const mainBottom = contentBottom - disclaimerReserve - companyInfoReserve - footerReserve - 2;
+
+  if (title) {
+    y = drawBlock(doc, title, M, y, textWidth, 'Helvetica-Bold', {
+      maxFont: SAMPLE_TITLE_MAX_FONT,
+      minFont: 4.5,
+      lineGap: 0.25,
+      paragraphGap: 0,
+      maxHeight: Math.max(11, mainBottom - y),
+    });
+  }
+
+  // Always attempt to draw subtitle and package metadata. If the upper band is tight,
+  // drawBlock() will shrink them rather than silently omitting them.
+  if (subtitle) {
+    y = drawBlock(
+      doc,
+      subtitle,
+      M,
+      y,
+      textWidth,
+      'Helvetica-Bold',
+      {
+        maxFont: SAMPLE_SUBTITLE_MAX_FONT,
+        minFont: 3.8,
+        lineGap: 0.2,
+        paragraphGap: 0,
+        maxHeight: Math.max(7, mainBottom - y),
+      }
+    );
+  } else if (String(L.labelType || '').trim().toLowerCase() === 'product_package_sample') {
+    log.debug('Product_Package_Sample label has no subtitle field value', {
+      queue_id: rec.id,
+      available_label_subtitle_keys: Object.keys(rec.fields || {}).filter(k => k.toLowerCase().includes('subtitle')),
+    });
+  }
+
+  if (metaText) {
+    y = drawBlock(doc, metaText, M, y, contentWidth, 'Helvetica-Bold', {
+      maxFont: SAMPLE_META_MAX_FONT,
+      minFont: 3.8,
+      lineGap: 0.2,
+      paragraphGap: 0,
+      maxHeight: Math.max(7, mainBottom - y),
+    });
+  }
+
+  if (companyInfo) {
+    const companyInfoY = Math.max(y + 1, contentBottom - disclaimerReserve - companyInfoReserve - footerReserve);
+    y = drawBlock(doc, companyInfo, M, companyInfoY, contentWidth, 'Helvetica-Oblique', {
+      maxFont: SAMPLE_COMPANY_INFO_MAX_FONT,
+      minFont: 3.5,
+      lineGap: 0.25,
+      paragraphGap: 0,
+      maxHeight: companyInfoReserve,
+    });
+  }
+
+  // Disclaimer is intentionally on the same label. It uses the remaining lower band and auto-shrinks.
+  if (disclaimer) {
+    const disclaimerY = Math.max(y + 2, contentBottom - disclaimerReserve - footerReserve);
+    drawLabelDivider(doc, disclaimerY - 1);
+    const disclaimerH = Math.max(14, contentBottom - disclaimerY - footerReserve);
+    drawBlock(doc, disclaimer, M, disclaimerY + 2, contentWidth, 'Helvetica-Bold', {
+      maxFont: 5.6,
+      minFont: 3.5,
+      lineGap: 0.25,
+      paragraphGap: 1,
+      maxHeight: disclaimerH,
+    });
+  }
+
+  if (footer) {
+    drawBlock(doc, footer, M, PAGE_H - M - 8, contentWidth, 'Helvetica-Bold', {
+      maxFont: 5.5,
+      minFont: 3.5,
+      lineGap: 0.25,
+      maxHeight: 8,
+    });
   }
 
   doc.end();
@@ -1792,6 +2030,8 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     const gathered = gatherFields(rec);
     if (gathered.isSyringeLabel) {
       await renderSplitSyringeLabelPDF(out, rec);
+    } else if (gathered.isPackageSampleLabel) {
+      await renderProductPackageSampleLabelPDF(out, rec);
     } else {
       await renderLabelPDF(out, rec);
     }
@@ -1811,6 +2051,7 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     if (
       gathered.kind === 'product' &&
       !gathered.isSyringeLabel &&
+      !gathered.isPackageSampleLabel &&
       String(gathered.companyInfo || '').trim()
     ) {
       // small driver delay between two prints, just like between jobs

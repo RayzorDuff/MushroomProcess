@@ -1,6 +1,6 @@
 /**
  * Script: print_queue_populator_products.js
- * Version: 2025-12-15.2
+ * Version: 2026-06-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -93,7 +93,11 @@ try {
   //const isPack = (itemCategory === 'freezedriedmushrooms' || itemCategory === 'fresh_mushrooms');
   //if (!isPack) {console.log('found no freezedried');return;}
   
-  const labelType = 'Product_Package';
+  const isSample = (hasField(productsTbl, 'package_class')
+    && (prod.getCellValueAsString('package_class') || '').trim().toLowerCase() === 'sample')
+    || (hasField(productsTbl, 'is_sample') && !!prod.getCellValue('is_sample'));
+
+  const labelType = isSample ? 'Product_Package_Sample' : 'Product_Package';
   
   const dup = await findQueuedDuplicateByProduct(prod.id, labelType);
   if (dup) {console.log('found Duplicate');return;}

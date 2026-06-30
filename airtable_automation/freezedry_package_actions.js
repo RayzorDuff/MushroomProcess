@@ -1,6 +1,6 @@
 /**
  * Script: freezedry_package_actions.js
- * Version: 2025-12-28.2
+ * Version: 2026-06-29.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -51,19 +51,42 @@ try {
   const packageItemCategory= (src.getCellValueAsString('package_item_category') || '').toLowerCase(); // lookup from items.category
   const trayState          = (src.getCellValueAsString(traystateFieldName) || '').toLowerCase();
   const sizeG              = Number(src.getCellValue('package_size_g') ?? NaN);
+  const packageSizeChoice  = hasField(productsTbl, 'package_size') ? (src.getCellValueAsString('package_size') || '').trim() : '';
   const count              = Number(src.getCellValue('package_count') ?? NaN);
   const useBy              = src.getCellValue('use_by');
+
+  // Optional sample/package classification fields.  Airtable may use either a
+  // single select products.package_class = Retail/Sample or a checkbox
+  // products.is_sample.  Support both so the automation remains compatible
+  // during schema migration.
+  const packageClass = hasField(productsTbl, 'package_class')
+    ? (src.getCellValueAsString('package_class') || 'Retail').trim()
+    : (hasField(productsTbl, 'is_sample') && src.getCellValue('is_sample') ? 'Sample' : 'Retail');
+  const isSample = packageClass.toLowerCase() === 'sample'
+    || (hasField(productsTbl, 'is_sample') && !!src.getCellValue('is_sample'));
+
   // storage_location is a link to locations (prefers single), so Airtable returns an array of linked records
   const loc                = (src.getCellValue(storageFieldName) || [])[0] || null;
   // Validate
   const errs = [];
   if (trayState !== 'freezer_tray') errs.push(`Packaging requires ${traystateFieldName} = freezer_tray.`);
   if (!packageItem) errs.push('Select package_item (retail SKU).');
-  if (packageItemCategory !== 'freezedriedmushrooms') errs.push('package_item must have category "freezedriedmushrooms".');
-  if (!Number.isFinite(sizeG) || sizeG <= 0) errs.push('Set package_size_g to a positive number.');
+  const freezeDriedCategories = new Set(['freezedriedmushrooms', 'freeze_dried_mushrooms', 'freeze_dried_capsules']);
+  if (!freezeDriedCategories.has(packageItemCategory)) {
+    errs.push('package_item must be a freeze-dried retail item.');
+  }
+  if (!Number.isFinite(sizeG) || sizeG <= 0) errs.push('Select a package size.');
   if (!Number.isFinite(count) || count < 1) errs.push('Set package_count to 1 or more.');
   
   function hasField(tbl, name) { try { tbl.getField(name); return true; } catch { return false; } }
+  function isWritableField(tbl, name) {
+    try {
+      const t = tbl.getField(name).type;
+      return !['formula', 'rollup', 'multipleLookupValues', 'createdTime', 'lastModifiedTime', 'autoNumber', 'button', 'count'].includes(t);
+    } catch {
+      return false;
+    }
+  }
 
   async function buildStrainIdMap() {
     const map = new Map();
@@ -232,6 +255,26 @@ try {
   const itemRec = await itemsTbl.selectRecordAsync(packageItem.id);
   if (!itemRec) throw new Error(`package_item record not found: ${packageItem.id}`);
 
+  const packageItemCode = (itemRec.getCellValueAsString('item_id') || '').trim().toUpperCase();
+  const packageItemName = (itemRec.getCellValueAsString('name') || '').trim().toLowerCase();
+  const isCapsuleItem = packageItemCode.includes('CAPSULE') || packageItemName.includes('capsule');
+  const isDriedMushroomItem = packageItemCode.includes('DRIED') || packageItemName.includes('mushroom');
+  function approxEq(a, b) { return Math.abs(Number(a) - Number(b)) < 0.01; }
+  if (isCapsuleItem && ![1, 5, 10].some(v => approxEq(sizeG, v))) {
+    errs.push('Freeze-dried capsules must use package size 1 g, 5 g, or 10 g.');
+  }
+  if (!isCapsuleItem && isDriedMushroomItem && ![1, 5, 28.349523125].some(v => approxEq(sizeG, v))) {
+    errs.push('Freeze-dried mushrooms must use package size 1 g, 5 g, or 1 oz.');
+  }
+  if (errs.length) {
+    await productsTbl.updateRecordAsync(src.id, {
+      ui_error: errs.join(' '),
+      ui_error_at: new Date().toISOString(),
+      action: null
+    });
+    throw new Error('PackageFreezeDried validation failed.');
+  }
+
   // Strain: set products.strain_id directly during migration away from lookup
   const strainIdMap = hasField(productsTbl, 'strain_id') ? await buildStrainIdMap() : new Map();
   const strainLinksForPackage = hasField(productsTbl, 'strain_id') ? await resolveStrainLinksFromOriginLotIds(origins, strainIdMap) : [];
@@ -251,6 +294,11 @@ try {
     // storage_location is a linked record to locations. Default to "Products Storage" if not set on source tray.
     const packagedLocationId = (loc && loc.id) ? loc.id : defaultProductsStorageRecId;
     f[storageFieldName] = [{ id: packagedLocationId }];
+
+    if (packageSizeChoice && isWritableField(productsTbl, 'package_size')) f.package_size = coerceValueForField(productsTbl, 'package_size', packageSizeChoice);
+    if (isWritableField(productsTbl, 'package_size_g')) f.package_size_g = sizeG;
+    if (isWritableField(productsTbl, 'package_class')) f.package_class = coerceValueForField(productsTbl, 'package_class', isSample ? 'Sample' : 'Retail');
+    if (isWritableField(productsTbl, 'is_sample')) f.is_sample = isSample;
 
   
     if (hasField(productsTbl, 'name_mat')) {
@@ -283,7 +331,9 @@ try {
             from_product_id: src.id,
             package_item_id: packageItem.id,
             package_size_g: sizeG,
-            package_count: count
+            package_count: count,
+            package_class: isSample ? 'Sample' : 'Retail',
+            is_sample: isSample
           })
         };
         if (tsWritable) f.timestamp = nowIso;
