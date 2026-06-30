@@ -88,6 +88,79 @@ try {
     }
   }
 
+  function uniqIds(values) {
+    const out = [];
+    const seen = new Set();
+    for (const v of (values || [])) {
+      const id = String(v || '').trim();
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        out.push(id);
+      }
+    }
+    return out;
+  }
+
+  async function buildLotIdResolver() {
+    const validRecordIds = new Set();
+    const recordIdByDisplayLotId = new Map();
+    const displayLotIdByRecordId = new Map();
+
+    const q = hasField(lotsTbl, 'lot_id')
+      ? await lotsTbl.selectRecordsAsync({ fields: ['lot_id'] })
+      : await lotsTbl.selectRecordsAsync();
+
+    for (const r of q.records) {
+      validRecordIds.add(r.id);
+      const displayLotId = hasField(lotsTbl, 'lot_id')
+        ? (r.getCellValueAsString('lot_id') || '').trim()
+        : '';
+      if (displayLotId) {
+        recordIdByDisplayLotId.set(displayLotId, r.id);
+        displayLotIdByRecordId.set(r.id, displayLotId);
+      } else {
+        displayLotIdByRecordId.set(r.id, r.id);
+      }
+    }
+
+    return {
+      resolve(rawValue) {
+        const raw = String(rawValue || '').trim();
+        if (!raw) return null;
+        if (validRecordIds.has(raw)) return raw;
+        return recordIdByDisplayLotId.get(raw) || null;
+      },
+      displayFor(recordId) {
+        return displayLotIdByRecordId.get(recordId) || recordId;
+      }
+    };
+  }
+
+  function productLabel(prod) {
+    if (!prod) return '(unknown product)';
+    return prod.name || prod.id;
+  }
+
+  function parseJsonArrayCell(record, fieldName) {
+    try {
+      const raw = record.getCellValueAsString(fieldName) || '';
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function getNetWeightG(prod) {
+    const n = Number(prod?.getCellValue('net_weight_g') ?? NaN);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function formatG(n) {
+    return Math.round(Number(n) * 100) / 100;
+  }
+
   async function buildStrainIdMap() {
     const map = new Map();
     if (!strainsTbl) return map;
@@ -202,6 +275,18 @@ try {
     }
   }
   
+  // Preflight weight so Airtable does not partially package more grams than the selected tray(s) contain.
+  const sourceWeightG = [src, ...extraTrayRecords].reduce((sum, prod) => sum + getNetWeightG(prod), 0);
+  const requiredWeightG = sizeG * count;
+  if (
+    Number.isFinite(requiredWeightG) &&
+    requiredWeightG > 0 &&
+    sourceWeightG > 0 &&
+    requiredWeightG - sourceWeightG > 0.01
+  ) {
+    errs.push(`Package count/size requires ${formatG(requiredWeightG)} g but selected source tray weight is ${formatG(sourceWeightG)} g.`);
+  }
+
   if (errs.length) {
     await productsTbl.updateRecordAsync(src.id, {
       ui_error: errs.join(' '),
@@ -211,8 +296,7 @@ try {
     throw new Error('PackageFreezeDried validation failed.');
   }
   
-  // Clear previous errors
-  await productsTbl.updateRecordAsync(src.id, { ui_error: null, ui_error_at: null });
+  // Do not clear errors or mutate the source tray until all preflight validation passes.
   
   // Compute use_by (2 years default)
   function addYearsDate(d, years) { const x = new Date(d); x.setFullYear(x.getFullYear() + years); return x; }
@@ -221,37 +305,56 @@ try {
   // Airtable date fields accept Date objects; keep existing value if present
   const finalUseBy = useBy || addYearsDate(now, 2);
   
-  // Gather origins from the primary tray plus any additional trays
+  // Gather origin lot Airtable record IDs from the primary tray plus any additional trays.
+  // origin_lot_ids_json may contain display IDs such as LOT-260..., so resolve those
+  // to actual Airtable lots record IDs before writing the products.origin_lots link field.
+  const lotIdResolver = await buildLotIdResolver();
   let origins = [];
-  
-  function addOriginsFromProduct(prod) {
-    if (!prod) return;
-  
-    const links = prod.getCellValue('origin_lots') || [];
-    if (links.length) {
-      for (const o of links) {
-        if (o && o.id && !origins.includes(o.id)) origins.push(o.id);
-      }
-    } else {
-      try {
-        const j = JSON.parse(prod.getCellValueAsString('origin_lot_ids_json') || '[]');
-        if (Array.isArray(j)) {
-          for (const id of j) {
-            if (id && !origins.includes(id)) origins.push(id);
-          }
-        }
-      } catch {}
+  let originLotIdsForJson = [];
+
+  function addOriginRecordId(rawValue, context) {
+    const raw = String(rawValue || '').trim();
+    if (!raw) return;
+    const resolved = lotIdResolver.resolve(raw);
+    if (!resolved) {
+      errs.push(`Could not resolve origin lot "${raw}" from ${context}.`);
+      return;
+    }
+    if (!origins.includes(resolved)) {
+      origins.push(resolved);
+      originLotIdsForJson.push(lotIdResolver.displayFor(resolved));
     }
   }
-  
+
+  function addOriginsFromProduct(prod) {
+    if (!prod) return;
+
+    const context = productLabel(prod);
+    const links = prod.getCellValue('origin_lots') || [];
+    if (links.length) {
+      for (const o of links) addOriginRecordId(o?.id, `origin_lots on ${context}`);
+      return;
+    }
+
+    for (const id of parseJsonArrayCell(prod, 'origin_lot_ids_json')) {
+      addOriginRecordId(id, `origin_lot_ids_json on ${context}`);
+    }
+  }
+
   // Always include the current tray record
   addOriginsFromProduct(src);
-  
+
   // Optionally merge in any additional trays linked via merge_tray_products
   for (const rec of extraTrayRecords) {
     addOriginsFromProduct(rec);
   }
-  
+
+  origins = uniqIds(origins);
+  originLotIdsForJson = uniqIds(originLotIdsForJson);
+  if (!origins.length) {
+    errs.push('No valid origin lots found on selected freezer tray product(s).');
+  }
+
   const itemRec = await itemsTbl.selectRecordAsync(packageItem.id);
   if (!itemRec) throw new Error(`package_item record not found: ${packageItem.id}`);
 
@@ -275,6 +378,9 @@ try {
     throw new Error('PackageFreezeDried validation failed.');
   }
 
+  // Clear previous errors only after all preflight validation passes.
+  await productsTbl.updateRecordAsync(src.id, { ui_error: null, ui_error_at: null });
+
   // Strain: set products.strain_id directly during migration away from lookup
   const strainIdMap = hasField(productsTbl, 'strain_id') ? await buildStrainIdMap() : new Map();
   const strainLinksForPackage = hasField(productsTbl, 'strain_id') ? await resolveStrainLinksFromOriginLotIds(origins, strainIdMap) : [];
@@ -284,7 +390,7 @@ try {
   for (let i = 0; i < count; i++) {
     const f = {
       item_id: [{ id: packageItem.id }],
-      origin_lot_ids_json: JSON.stringify(origins),
+      origin_lot_ids_json: JSON.stringify(originLotIdsForJson),
       origin_lots: origins.map(id => ({ id })),
       net_weight_g: sizeG,
       pack_date: nowIso,
