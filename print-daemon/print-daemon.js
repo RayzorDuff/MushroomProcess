@@ -389,10 +389,10 @@ const SAMPLE_LOGO_W_PT = safeNum(process.env.SAMPLE_LOGO_WIDTH_PT, Math.min(70, 
 const SAMPLE_QR_SIZE_PT = safeNum(process.env.SAMPLE_QR_SIZE_PT, 34);
 const SAMPLE_INCLUDE_QR = String(process.env.SAMPLE_INCLUDE_QR || 'true').toLowerCase() !== 'false';
 const SAMPLE_LOGO_TEXT_GAP_PT = safeNum(process.env.SAMPLE_LOGO_TEXT_GAP_PT, 2);
-const SAMPLE_COMPANY_INFO_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_INFO_MAX_FONT, 5.2);
-const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 10.5);
+const SAMPLE_COMPANY_INFO_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_INFO_MAX_FONT, 7);
+const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 7.5);
 const SAMPLE_SUBTITLE_MAX_FONT = safeNum(process.env.SAMPLE_SUBTITLE_MAX_FONT, 7.5);
-const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 5.8);
+const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 7);
 
 const DRAW_BORDER = String(process.env.DRAW_PAGE_BORDER || 'false').toLowerCase() === 'true';
 
@@ -1210,7 +1210,7 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
   // Reserve the lower label bands, but do not let them cause identity lines to disappear.
   // The previous layout used `y < mainBottom` guards; when the logo/company/title
   // consumed the upper band, subtitle and package/use-by were skipped entirely.
-  const disclaimerReserve = disclaimer ? Math.floor(PAGE_H * 0.31) : 0;
+  const disclaimerReserve = disclaimer ? Math.floor(PAGE_H * 0.5) : 0;
   const companyInfoReserve = companyInfo ? 12 : 0;
   const footerReserve = footer ? 8 : 0;
   const mainBottom = contentBottom - disclaimerReserve - companyInfoReserve - footerReserve - 2;
@@ -1277,7 +1277,7 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
     drawLabelDivider(doc, disclaimerY - 1);
     const disclaimerH = Math.max(14, contentBottom - disclaimerY - footerReserve);
     drawBlock(doc, disclaimer, M, disclaimerY + 2, contentWidth, 'Helvetica-Bold', {
-      maxFont: 5.6,
+      maxFont: SAMPLE_META_MAX_FONT,
       minFont: 3.5,
       lineGap: 0.25,
       paragraphGap: 1,
