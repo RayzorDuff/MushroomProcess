@@ -2,9 +2,9 @@
 require('./load_env');
 /**
  * airtable_export_postprocess.js
- * Version: 2026-05-31.2
+ * Version: 2026-07-11.1
  * =============================================================================
- *  Copyright � 2025 Dank Mushrooms, LLC
+ *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -280,6 +280,8 @@ function rewriteCompanyFormulasProducts(schema) {
 
     const itemCategoryMatId = getFieldIdByName(table, "item_category_mat") || getFieldIdByName(table, "item_category");
     const originRegulatedId = getFieldIdByName(table, "origin_strain_regulated");
+    const packageClassId = getFieldIdByName(table, "package_class");
+    const companyAddressBaseId = getFieldIdByName(table, "label_companyaddress_base_prod");
 
     if (!itemCategoryMatId || !originRegulatedId) {
       console.warn(
@@ -315,12 +317,44 @@ function rewriteCompanyFormulasProducts(schema) {
       `IF({${originRegulatedId}}, \r\n  IF(OR(\r\n    ${orRetailCats}\r\n  ), "${COMPANY.regulatedBusinessName}", \r\n  "${COMPANY.myBusinessName}"),\r\n"${COMPANY.myBusinessName}")`
     );
 
-    // products.label_companyaddress_prod
+    // products.label_companyaddress_base_prod
     setFormulaByFieldName(
       table,
-      "label_companyaddress_prod",
-      `IF({${originRegulatedId}}, \r\n  IF(OR(\r\n    ${orRetailCats}\r\n  ), "${COMPANY.regulatedBusinessAddressAndContact}", \r\n  "${COMPANY.myBusinessAddressAndContact}"),\r\n"${COMPANY.myBusinessAddressAndContact}")`
+      "label_companyaddress_base_prod",
+      `IF(
+  AND(
+    {${originRegulatedId}},
+    OR(
+      ${orRetailCats}
+    )
+  ),
+  "${COMPANY.regulatedBusinessAddressAndContact}",
+  "${COMPANY.myBusinessAddressAndContact}"
+)`
     );
+
+    // products.label_companyaddress_prod
+    // Samples use one inline contact line; all other products retain multiline content.
+    if (packageClassId && companyAddressBaseId) {
+      setFormulaByFieldName(
+        table,
+        "label_companyaddress_prod",
+        `IF(
+  {${packageClassId}} = "Sample",
+  SUBSTITUTE(
+    {${companyAddressBaseId}},
+    "\n",
+    " • "
+  ),
+  {${companyAddressBaseId}}
+)`
+      );
+    } else {
+      console.warn(
+        `WARN: products table missing package_class and/or label_companyaddress_base_prod. ` +
+          `Skipping label_companyaddress_prod formula rewrite.`
+      );
+    }
     
     // products.label_companyinfo_prod
     // Replace offering text only; preserve conditional structure.
