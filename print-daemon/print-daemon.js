@@ -395,6 +395,11 @@ const SAMPLE_COTTAGE_MAX_FONT = safeNum(process.env.SAMPLE_COTTAGE_MAX_FONT, 6);
 const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 7.5);
 const SAMPLE_SUBTITLE_MAX_FONT = safeNum(process.env.SAMPLE_SUBTITLE_MAX_FONT, 7.5);
 const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 7);
+const SAMPLE_DISCLAIMER_MAX_FONT = safeNum(process.env.SAMPLE_DISCLAIMER_MAX_FONT, 6.5);
+const SAMPLE_LOWER_MIN_FONT = safeNum(process.env.SAMPLE_LOWER_MIN_FONT, 3.75);
+const SAMPLE_FOOTER_MAX_FONT = safeNum(process.env.SAMPLE_FOOTER_MAX_FONT, 7);
+const SAMPLE_FOOTER_MIN_FONT = safeNum(process.env.SAMPLE_FOOTER_MIN_FONT, 5);
+const SAMPLE_FOOTER_RESERVE_PT = safeNum(process.env.SAMPLE_FOOTER_RESERVE_PT, 11);
 
 const DRAW_BORDER = String(process.env.DRAW_PAGE_BORDER || 'false').toLowerCase() === 'true';
 
@@ -1220,7 +1225,7 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
   // - unregulated samples: company information + address + cottage-food statement.
   // The blocks share one auto-shrinking band so the sample remains a single 4x2 label.
   const lowerReserve = lowerBlocks.length ? Math.floor(PAGE_H * 0.54) : 0;
-  const footerReserve = footer ? 8 : 0;
+  const footerReserve = footer ? SAMPLE_FOOTER_RESERVE_PT : 0;
   const mainBottom = contentBottom - lowerReserve - footerReserve - 2;
 
   if (title) {
@@ -1274,34 +1279,78 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
     const lowerHeight = Math.max(14, contentBottom - lowerY - footerReserve - 1);
     let lowerCursor = lowerY + 2;
     const blockGap = 1;
-    const availablePerBlock = Math.max(7, (lowerHeight - blockGap * (lowerBlocks.length - 1)) / lowerBlocks.length);
 
-    for (let i = 0; i < lowerBlocks.length; i++) {
-      const text = lowerBlocks[i];
+    // Allocate lower-band height according to how much text each block actually needs.
+    // Equal slices made the long regulated disclaimer shrink dramatically while short
+    // gourmet blocks retained much larger type. Proportional allocation lets the
+    // disclaimer use the otherwise-empty space without making short blocks oversized.
+    const blockSpecs = lowerBlocks.map((text) => {
       const isAddressBlock = !isRegulatedSample && text === companyAddr;
       const isCottageBlock = !isRegulatedSample && text === cottage;
-      const fontName = isAddressBlock ? 'Helvetica' : (isRegulatedSample ? 'Helvetica-Bold' : 'Helvetica-Oblique');
+      const isDisclaimerBlock = isRegulatedSample && text === disclaimer;
+      const fontName = isAddressBlock
+        ? 'Helvetica'
+        : (isRegulatedSample ? 'Helvetica-Bold' : 'Helvetica-Oblique');
       const maxFont = isAddressBlock
         ? SAMPLE_COMPANY_ADDRESS_MAX_FONT
-        : (isCottageBlock ? SAMPLE_COTTAGE_MAX_FONT : SAMPLE_COMPANY_INFO_MAX_FONT);
-
-      lowerCursor = drawBlock(doc, text, M, lowerCursor, contentWidth, fontName, {
-        maxFont,
-        minFont: 3.25,
+        : (isCottageBlock
+            ? SAMPLE_COTTAGE_MAX_FONT
+            : (isDisclaimerBlock ? SAMPLE_DISCLAIMER_MAX_FONT : SAMPLE_COMPANY_INFO_MAX_FONT));
+      const desiredHeight = measureTextHeight(doc, text, contentWidth, fontName, maxFont, {
         lineGap: 0.2,
         paragraphGap: 0.5,
-        maxHeight: availablePerBlock,
+      });
+      const minimumHeight = measureTextHeight(doc, text, contentWidth, fontName, SAMPLE_LOWER_MIN_FONT, {
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+      });
+      return { text, fontName, maxFont, desiredHeight, minimumHeight };
+    });
+
+    const usableHeight = Math.max(7, lowerHeight - blockGap * (blockSpecs.length - 1));
+    const desiredTotal = blockSpecs.reduce((sum, spec) => sum + spec.desiredHeight, 0);
+    const minimumTotal = blockSpecs.reduce((sum, spec) => sum + spec.minimumHeight, 0);
+
+    for (let i = 0; i < blockSpecs.length; i++) {
+      const spec = blockSpecs[i];
+      let allocatedHeight;
+
+      if (desiredTotal <= usableHeight) {
+        allocatedHeight = spec.desiredHeight;
+      } else if (minimumTotal >= usableHeight) {
+        allocatedHeight = usableHeight * (spec.minimumHeight / minimumTotal);
+      } else {
+        const flexibleHeight = usableHeight - minimumTotal;
+        const extraNeedTotal = Math.max(0.001, desiredTotal - minimumTotal);
+        const extraNeed = Math.max(0, spec.desiredHeight - spec.minimumHeight);
+        allocatedHeight = spec.minimumHeight + flexibleHeight * (extraNeed / extraNeedTotal);
+      }
+
+      lowerCursor = drawBlock(doc, spec.text, M, lowerCursor, contentWidth, spec.fontName, {
+        maxFont: spec.maxFont,
+        minFont: SAMPLE_LOWER_MIN_FONT,
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+        maxHeight: Math.max(6, allocatedHeight),
       });
     }
   }
 
   if (footer) {
-    drawBlock(doc, footer, M, PAGE_H - M - 8, contentWidth, 'Helvetica-Bold', {
-      maxFont: 5.5,
-      minFont: 3.5,
-      lineGap: 0.25,
-      maxHeight: 8,
-    });
+    drawBlock(
+      doc,
+      footer,
+      M,
+      PAGE_H - M - SAMPLE_FOOTER_RESERVE_PT,
+      contentWidth,
+      'Helvetica-Bold',
+      {
+        maxFont: SAMPLE_FOOTER_MAX_FONT,
+        minFont: SAMPLE_FOOTER_MIN_FONT,
+        lineGap: 0.25,
+        maxHeight: SAMPLE_FOOTER_RESERVE_PT,
+      }
+    );
   }
 
   doc.end();
