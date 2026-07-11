@@ -390,6 +390,8 @@ const SAMPLE_QR_SIZE_PT = safeNum(process.env.SAMPLE_QR_SIZE_PT, 34);
 const SAMPLE_INCLUDE_QR = String(process.env.SAMPLE_INCLUDE_QR || 'true').toLowerCase() !== 'false';
 const SAMPLE_LOGO_TEXT_GAP_PT = safeNum(process.env.SAMPLE_LOGO_TEXT_GAP_PT, 2);
 const SAMPLE_COMPANY_INFO_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_INFO_MAX_FONT, 7);
+const SAMPLE_COMPANY_ADDRESS_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_ADDRESS_MAX_FONT, 6);
+const SAMPLE_COTTAGE_MAX_FONT = safeNum(process.env.SAMPLE_COTTAGE_MAX_FONT, 6);
 const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 7.5);
 const SAMPLE_SUBTITLE_MAX_FONT = safeNum(process.env.SAMPLE_SUBTITLE_MAX_FONT, 7.5);
 const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 7);
@@ -1141,7 +1143,13 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
   const packaged = normalizeLabelText(L.packaged || '');
   const useBy = normalizeLabelText(L.useBy || '');
   const companyInfo = normalizeLabelText(L.companyInfo || '');
+  const companyAddr = normalizeLabelText(L.companyAddr || '');
+  const cottage = normalizeLabelText(L.cottage || '');
   const disclaimer = normalizeLabelText(L.disclaimer || '');
+  const isRegulatedSample = Boolean(disclaimer);
+  const lowerBlocks = isRegulatedSample
+    ? [companyInfo, disclaimer].filter(Boolean)
+    : [companyInfo, companyAddr, cottage].filter(Boolean);
   const qrUrl = L.qr || '';
 
   const doc = new PDFDocument({
@@ -1207,13 +1215,13 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
   const metaLines = [packaged, useBy].filter(Boolean);
   const metaText = metaLines.join('   |   ');
 
-  // Reserve the lower label bands, but do not let them cause identity lines to disappear.
-  // The previous layout used `y < mainBottom` guards; when the logo/company/title
-  // consumed the upper band, subtitle and package/use-by were skipped entirely.
-  const disclaimerReserve = disclaimer ? Math.floor(PAGE_H * 0.5) : 0;
-  const companyInfoReserve = companyInfo ? 12 : 0;
+  // Reserve a lower information band for either:
+  // - regulated samples: responsibility statement + regulated disclaimer, or
+  // - unregulated samples: company information + address + cottage-food statement.
+  // The blocks share one auto-shrinking band so the sample remains a single 4x2 label.
+  const lowerReserve = lowerBlocks.length ? Math.floor(PAGE_H * 0.54) : 0;
   const footerReserve = footer ? 8 : 0;
-  const mainBottom = contentBottom - disclaimerReserve - companyInfoReserve - footerReserve - 2;
+  const mainBottom = contentBottom - lowerReserve - footerReserve - 2;
 
   if (title) {
     y = drawBlock(doc, title, M, y, textWidth, 'Helvetica-Bold', {
@@ -1260,29 +1268,31 @@ async function renderProductPackageSampleLabelPDF(outPath, rec) {
     });
   }
 
-  if (companyInfo) {
-    const companyInfoY = Math.max(y + 1, contentBottom - disclaimerReserve - companyInfoReserve - footerReserve);
-    y = drawBlock(doc, companyInfo, M, companyInfoY, contentWidth, 'Helvetica-Oblique', {
-      maxFont: SAMPLE_COMPANY_INFO_MAX_FONT,
-      minFont: 3.5,
-      lineGap: 0.25,
-      paragraphGap: 0,
-      maxHeight: companyInfoReserve,
-    });
-  }
+  if (lowerBlocks.length) {
+    const lowerY = Math.max(y + 2, contentBottom - lowerReserve - footerReserve);
+    drawLabelDivider(doc, lowerY - 1);
+    const lowerHeight = Math.max(14, contentBottom - lowerY - footerReserve - 1);
+    let lowerCursor = lowerY + 2;
+    const blockGap = 1;
+    const availablePerBlock = Math.max(7, (lowerHeight - blockGap * (lowerBlocks.length - 1)) / lowerBlocks.length);
 
-  // Disclaimer is intentionally on the same label. It uses the remaining lower band and auto-shrinks.
-  if (disclaimer) {
-    const disclaimerY = Math.max(y + 2, contentBottom - disclaimerReserve - footerReserve);
-    drawLabelDivider(doc, disclaimerY - 1);
-    const disclaimerH = Math.max(14, contentBottom - disclaimerY - footerReserve);
-    drawBlock(doc, disclaimer, M, disclaimerY + 2, contentWidth, 'Helvetica-Bold', {
-      maxFont: SAMPLE_META_MAX_FONT,
-      minFont: 3.5,
-      lineGap: 0.25,
-      paragraphGap: 1,
-      maxHeight: disclaimerH,
-    });
+    for (let i = 0; i < lowerBlocks.length; i++) {
+      const text = lowerBlocks[i];
+      const isAddressBlock = !isRegulatedSample && text === companyAddr;
+      const isCottageBlock = !isRegulatedSample && text === cottage;
+      const fontName = isAddressBlock ? 'Helvetica' : (isRegulatedSample ? 'Helvetica-Bold' : 'Helvetica-Oblique');
+      const maxFont = isAddressBlock
+        ? SAMPLE_COMPANY_ADDRESS_MAX_FONT
+        : (isCottageBlock ? SAMPLE_COTTAGE_MAX_FONT : SAMPLE_COMPANY_INFO_MAX_FONT);
+
+      lowerCursor = drawBlock(doc, text, M, lowerCursor, contentWidth, fontName, {
+        maxFont,
+        minFont: 3.25,
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+        maxHeight: availablePerBlock,
+      });
+    }
   }
 
   if (footer) {
