@@ -31,7 +31,7 @@ function loadLocalDotEnv(envPath = path.join(__dirname, '.env')) {
 loadLocalDotEnv();
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-07-12.1
+ * Version: 2026-07-12.2
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -89,6 +89,7 @@ loadLocalDotEnv();
  *   AIRTABLE_EXPORT_DIR=./export     (optional; directory with per-table JSON exports)
  *   CREATE_VIEWS=true              (default true)
  *   BIGINT_PKS=true                 (default true; creates nocopk BIGSERIAL PK and stores airtable_id)
+ *   ALLOW_DUPLICATE_BUSINESS_IDS=false (forensic override only; generated load will still fail)
  */
 
 function envBool(name, defVal) {
@@ -106,6 +107,7 @@ const POSTGRES_SCHEMA = (process.env.POSTGRES_SCHEMA || 'public').toString();
 const POSTGRES_OUT_DIR = process.env.POSTGRES_OUT_DIR || './pg_out';
 const CREATE_VIEWS = envBool('CREATE_VIEWS', true);
 const BIGINT_PKS = envBool('BIGINT_PKS', true);
+const ALLOW_DUPLICATE_BUSINESS_IDS = envBool('ALLOW_DUPLICATE_BUSINESS_IDS', false);
 
 // Handling of Airtable link fields that are effectively 1:1 (options.prefersSingleRecordLink).
 // - keep: generate _m2m_* junction tables + one-way FK->junction sync triggers (default)
@@ -309,6 +311,74 @@ function findTableFile(dir, tableName) {
   return candidates.find(p => fs.existsSync(p)) || '';
 }
 
+function validateBusinessIdUniqueness(exportTables, exportDir) {
+  if (!exportDir || !fs.existsSync(exportDir)) return;
+
+  const duplicates = [];
+  for (const table of exportTables || []) {
+    const fields = table.fields || [];
+    const firstPhysicalField = fields.find(f =>
+      !isComputedType(f.type) &&
+      f.type !== 'button' &&
+      f.type !== 'multipleRecordLinks' &&
+      f.type !== 'singleRecordLink'
+    ) || null;
+
+    // Mirror the unique-constraint rules used by 001_tables.sql:
+    // materialized Airtable autogen IDs are unique, and the first physical
+    // Airtable text field is unique when its column name ends in _id.
+    const idFields = fields.filter(f => {
+      if (autogenIdSpec(f, table.name)) return true;
+      return f === firstPhysicalField &&
+        pgTypeForField(f) === 'text' &&
+        /_id$/.test(slug(f.name));
+    });
+    if (!idFields.length) continue;
+
+    const fp = findTableFile(exportDir, table.name);
+    if (!fp) continue;
+    const data = readJson(fp);
+    const rows = Array.isArray(data) ? data : (data.records || data.rows || []);
+    if (!Array.isArray(rows)) continue;
+
+    for (const field of idFields) {
+      const seen = new Map();
+      for (const row of rows) {
+        const fieldsObj = (row.fields && typeof row.fields === 'object') ? row.fields : row;
+        const rawValue = fieldsObj[field.name];
+        if (rawValue === null || rawValue === undefined || String(rawValue).trim() === '') continue;
+
+        const value = String(rawValue).trim();
+        const recordId = row.id || row.airtable_id || row.recordId || '(unknown Airtable record)';
+        if (!seen.has(value)) seen.set(value, []);
+        seen.get(value).push(String(recordId));
+      }
+
+      for (const [value, recordIds] of seen.entries()) {
+        if (recordIds.length > 1) {
+          duplicates.push({ table: table.name, field: field.name, value, recordIds });
+        }
+      }
+    }
+  }
+
+  if (!duplicates.length) return;
+
+  const detail = duplicates.map(d =>
+    `  - ${d.table}.${d.field} = ${JSON.stringify(d.value)} (${d.recordIds.join(', ')})`
+  ).join('\n');
+  const message =
+    `Duplicate Airtable business IDs would violate Postgres unique constraints:\n${detail}`;
+
+  if (ALLOW_DUPLICATE_BUSINESS_IDS) {
+    console.warn('[WARN]', message);
+    console.warn('[WARN] Continuing only because ALLOW_DUPLICATE_BUSINESS_IDS=true. The generated load will fail until the Airtable source is corrected.');
+    return;
+  }
+
+  die(`${message}\nFix the Airtable source and export again. The generator will not choose or merge duplicate records.`);
+}
+
 function writeCsv(csvDir, relName, cols, rows) {
   const csvPath = path.join(csvDir, `${relName}.csv`);
   const esc = (v) => {
@@ -352,19 +422,94 @@ function splitTopLevelArgs(s) {
   return args;
 }
 
-function convertStringLiterals(expr) {
-  // Airtable uses "double quotes" for strings; Postgres uses single quotes.
-  // This is naive but works for your dump where strings are in double quotes.
-  // We avoid touching already single-quoted strings.
-  let out = '';
-  let inS=false, inD=false;
-  for (let i=0;i<expr.length;i++) {
-    const ch=expr[i];
-    const prev=expr[i-1];
-    if (ch==="'" && !inD && prev!=="\\") { inS=!inS; out+=ch; continue; }
-    if (ch=='"' && !inS && prev!=="\\") { inD=!inD; out += (inD ? "'" : "'"); continue; }
-    out+=ch;
+function airtableStringToSqlExpr(raw) {
+  // Airtable formulas use double-quoted strings and encode line breaks as
+  // backslash escapes (for example "NOTICE\\n...").  Emit ordinary SQL
+  // literals with apostrophes escaped, and express control characters through
+  // chr(...) concatenation.  This avoids both malformed SQL from text such as
+  // "Colorado's" and psql treating a leaked \n sequence as a meta-command.
+  const parts = [];
+  let text = '';
+
+  const flushText = () => {
+    if (text || parts.length === 0) parts.push(literalText(text));
+    text = '';
+  };
+
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (ch !== '\\' || i + 1 >= raw.length) {
+      text += ch;
+      continue;
+    }
+
+    const next = raw[i + 1];
+    const controlCode = next === 'n' ? 10 : next === 'r' ? 13 : next === 't' ? 9 : null;
+    if (controlCode !== null) {
+      flushText();
+      parts.push(`chr(${controlCode})`);
+      i++;
+      continue;
+    }
+
+    // Airtable/JSON-style escaped quote or slash inside a double-quoted string.
+    if (next === '"' || next === '\\') {
+      text += next;
+      i++;
+      continue;
+    }
+
+    // Preserve unknown escapes literally rather than changing their meaning.
+    text += ch + next;
+    i++;
   }
+
+  flushText();
+  return parts.length === 1 ? parts[0] : `(${parts.join(' || ')})`;
+}
+
+function convertStringLiterals(expr) {
+  // Convert Airtable double-quoted string literals to safe SQL expressions,
+  // while leaving existing single-quoted arguments (for example 'YYMMDD')
+  // unchanged.
+  let out = '';
+  let inSingle = false;
+
+  for (let i = 0; i < expr.length; i++) {
+    const ch = expr[i];
+    const prev = expr[i - 1];
+
+    if (ch === "'" && prev !== '\\') {
+      inSingle = !inSingle;
+      out += ch;
+      continue;
+    }
+
+    if (ch !== '"' || inSingle || prev === '\\') {
+      out += ch;
+      continue;
+    }
+
+    let raw = '';
+    let closed = false;
+    for (i = i + 1; i < expr.length; i++) {
+      const inner = expr[i];
+      if (inner === '"' && expr[i - 1] !== '\\') {
+        closed = true;
+        break;
+      }
+      raw += inner;
+    }
+
+    if (!closed) {
+      // Keep malformed input visible so later validation can fail loudly.
+      out += '"' + raw;
+      break;
+    }
+
+    out += airtableStringToSqlExpr(raw);
+  }
+
   return out;
 }
 
@@ -550,7 +695,7 @@ function compileFormulaExpr(raw, ctx) {
   }
 
   const notes = [];
-  const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'SEARCH', 'FIND', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
+  const AIRTABLE_FUNCS = new Set(['IF', 'AND', 'OR', 'NOT', 'SEARCH', 'FIND', 'LOWER', 'UPPER', 'LEN', 'LEFT', 'RIGHT', 'MID', 'ROUND', 'VALUE', 'SUM', 'CONCAT', 'CONCATENATE', 'YEAR', 'MONTH', 'DAY', 'ISBLANK', 'ISNOTBLANK', 'DATETIME_FORMAT', 'CREATED_TIME', 'LAST_MODIFIED_TIME', 'RECORD_ID', 'SET_TIMEZONE', 'DATEADD', 'REGEX_REPLACE', 'SUBSTITUTE', 'ARRAYSLICE', 'ARRAYSPLICE', 'ARRAYJOIN', 'SWITCH']);
 
   
   function squashRedundantCasts(expr) {
@@ -830,6 +975,10 @@ function compileFormulaExpr(raw, ctx) {
       return `regexp_replace((${args[0]})::text, (${args[1]})::text, (${args[2]})::text, (${flags})::text)`;
     }
 
+    if (fn === 'SUBSTITUTE' && args.length===3) {
+      return `replace((${args[0]})::text, (${args[1]})::text, (${args[2]})::text)`;
+    }
+
     if ((fn === 'ARRAYSLICE' || fn === 'ARRAYSLICE') && args.length>=3) {
       // Airtable ARRAYSPLICE(arr, start, count) start is 0-based
       const arr = args[0];
@@ -898,7 +1047,7 @@ function compileFormulaExpr(raw, ctx) {
     'ISBLANK','ISNOTBLANK','BLANK',
     'DATETIME_FORMAT','CREATED_TIME','LAST_MODIFIED_TIME','RECORD_ID',
     'SET_TIMEZONE','DATEADD',
-    'REGEX_REPLACE','ARRAYSLICE','ARRAYJOIN',
+    'REGEX_REPLACE','SUBSTITUTE','ARRAYSLICE','ARRAYJOIN',
     'SWITCH'
   ]);
 
@@ -1063,6 +1212,10 @@ function main() {
   // Use tablesDump for computed + primary if available; otherwise fall back to export schema
   const schema = tablesDump || exportSchema;
   const tables = schema.tables || [];
+
+  // Fail before writing migration artifacts when Airtable business identifiers
+  // cannot satisfy the unique constraints generated for materialized formula IDs.
+  validateBusinessIdUniqueness(exportTables, AIRTABLE_EXPORT_DIR);
 
   ensureDir(POSTGRES_OUT_DIR);
 
