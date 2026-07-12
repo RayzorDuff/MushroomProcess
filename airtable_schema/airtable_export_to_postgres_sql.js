@@ -1,9 +1,37 @@
 #!/usr/bin/env node
-require('./load_env');
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
+
+// This generator only needs local environment variables.  Do not require the
+// shared NocoDB API helper here because that helper imports axios, which makes
+// an otherwise offline artifact generation step depend on an installed HTTP
+// client package.
+function loadLocalDotEnv(envPath = path.join(__dirname, '.env')) {
+  if (!fs.existsSync(envPath)) return;
+  const raw = fs.readFileSync(envPath, 'utf8');
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq < 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (!key || Object.prototype.hasOwnProperty.call(process.env, key)) continue;
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    } else {
+      value = value.replace(/\s+#.*$/, '').trim();
+    }
+    process.env[key] = value;
+  }
+}
+
+loadLocalDotEnv();
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-05-31.1
+ * Version: 2026-07-12.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -41,7 +69,7 @@ const crypto = require('crypto');
  * Notes:
  *  - We avoid relying on NocoDB meta APIs entirely.
  *  - multipleRecordLinks are exported into junction tables (CSV) and resolved by airtable_id -> nocopk during load.
- *  - singleRecordLink loading is NOT implemented yet (needs mapping logic similar to junctions); we currently skip.
+ *  - single-record links and prefersSingleRecordLink fields are loaded into canonical scalar FK columns.
  *  - rollup aggregation formula is not present in airtable-export output, so rollups are emitted as array_agg with TODO.
  * Usage:
  *   node airtable_export_to_postgres_sql.js
@@ -62,9 +90,6 @@ const crypto = require('crypto');
  *   CREATE_VIEWS=true              (default true)
  *   BIGINT_PKS=true                 (default true; creates nocopk BIGSERIAL PK and stores airtable_id)
  */
-
-const fs = require('fs');
-const path = require('path');
 
 function envBool(name, defVal) {
   const v = (process.env[name] ?? '').toString().trim();
@@ -372,12 +397,40 @@ function compileFormulaExpr(raw, ctx) {
   // branches and will error if we attempt array operations on scalar columns.
   // Airtable lookup/rollup fields are arrays; everything else is treated as scalar.
   const __arrayCols = new Set();
+  const __booleanCols = new Set();
   if (ctx && ctx.fieldById && ctx.fieldIdToCol) {
     for (const [fid, f] of ctx.fieldById.entries()) {
       const col = ctx.fieldIdToCol.get(fid);
       if (!col || !f) continue;
       if (f.type === 'multipleLookupValues' || f.type === 'rollup') __arrayCols.add(col);
+      if (f.type === 'checkbox') __booleanCols.add(col);
     }
+  }
+
+  // A prefers-single Airtable link is stored as a scalar FK in Postgres, but
+  // Airtable still exposes it to formulas as a one-element array.  Preserve
+  // the scalar SQL expression behind an opaque token while formula functions
+  // are compiled so ARRAYJOIN/CONCAT can handle it without casting text to
+  // text[], which raises "malformed array literal" at view creation time.
+  const __scalarLinkTokens = new Map();
+  let __scalarLinkTokenSeq = 0;
+
+  function makeScalarLinkToken(sql) {
+    const token = `__MP_SCALAR_LINK_${__scalarLinkTokenSeq++}__`;
+    __scalarLinkTokens.set(token, sql);
+    return token;
+  }
+
+  function scalarLinkSql(expr) {
+    return __scalarLinkTokens.get(String(expr || '').trim()) || null;
+  }
+
+  function restoreScalarLinkTokens(sql) {
+    let out = String(sql || '');
+    for (const [token, tokenSql] of __scalarLinkTokens.entries()) {
+      out = out.replaceAll(token, `(${tokenSql})`);
+    }
+    return out;
   }
 
   function compileSingleLinkDisplay(linkField, ctx) {
@@ -450,7 +503,7 @@ function compileFormulaExpr(raw, ctx) {
 
     // Single-record link display behavior
     if (f && f.type === 'multipleRecordLinks' && f.options && f.options.prefersSingleRecordLink) {
-      return compileSingleLinkDisplay(f, ctx);
+      return makeScalarLinkToken(compileSingleLinkDisplay(f, ctx));
     }
 
     // If a formula references another formula field in the SAME table, we cannot safely
@@ -525,6 +578,8 @@ function compileFormulaExpr(raw, ctx) {
 
   function truthy(x) {
     const s = x.trim();
+    const scalarLink = scalarLinkSql(s);
+    if (scalarLink) return `NULLIF((${scalarLink})::text,'') IS NOT NULL`;
     // Airtable treats blank/empty as false for IF conditions.
     // If condition is a bare field reference, compile to ISNOTBLANK style.
     // For lookup/rollup arrays, treat empty array as blank (cardinality = 0).
@@ -532,6 +587,7 @@ function compileFormulaExpr(raw, ctx) {
     if (m) {
       const col = m[2];
       if (__arrayCols && __arrayCols.has(col)) return `COALESCE(cardinality(${s}),0) > 0`;
+      if (__booleanCols && __booleanCols.has(col)) return `COALESCE(${s}, FALSE)`;
       return `NULLIF(${s}::text,'') IS NOT NULL`;
     }
     return s;
@@ -724,7 +780,12 @@ function compileFormulaExpr(raw, ctx) {
     if (fn === 'SUM') return '(' + args.map(a=>`COALESCE(${ensureCast(a,'numeric')},0)`).join(' + ') + ')';
     if (fn === 'CONCAT' || fn === 'CONCATENATE') {
       // If single arg looks like array, turn into array_to_string; otherwise concat as text.
-      if (args.length===1) return `array_to_string((${args[0]})::text[], '')`;
+      if (args.length===1) {
+        const scalarLink = scalarLinkSql(args[0]);
+        if (scalarLink) return `COALESCE((${scalarLink})::text, '')`;
+        if (isArrayExpr(args[0])) return `array_to_string((${args[0]})::text[], '')`;
+        return `COALESCE((${args[0]})::text, '')`;
+      }
       return '(' + args.map(a=>`(${a})::text`).join('||') + ')';
     }
 
@@ -780,6 +841,8 @@ function compileFormulaExpr(raw, ctx) {
 
     if (fn === 'ARRAYJOIN' && (args.length===1 || args.length===2)) {
       const delim = args.length===2 ? args[1] : `''`;
+      const scalarLink = scalarLinkSql(args[0]);
+      if (scalarLink) return `COALESCE((${scalarLink})::text, '')`;
       return `array_to_string((${args[0]})::text[], (${delim})::text)`;
     }
 
@@ -943,6 +1006,7 @@ function compileFormulaExpr(raw, ctx) {
   if (notes && notes.length) {
     return { sql: 'NULL', notes };
   }
+  compiled = restoreScalarLinkTokens(compiled);
   compiled = squashRedundantCasts(compiled);
   // After all Airtable function expansion, coerce known array-typed column refs
   // in string-concatenation contexts to scalar text to avoid Postgres array
@@ -1736,6 +1800,10 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
   // 100_load.sql + csv/*.csv (host-run \copy)
   if (AIRTABLE_EXPORT_DIR && fs.existsSync(AIRTABLE_EXPORT_DIR)) {
     const csvDir = path.join(POSTGRES_OUT_DIR, 'csv');
+    // CSV artifacts are entirely generated. Remove the previous directory so
+    // renamed/deleted Airtable link fields cannot leave stale relationship
+    // files in a migration patch.
+    fs.rmSync(csvDir, { recursive: true, force: true });
     ensureDir(csvDir);
 
     const loadSql = [];
