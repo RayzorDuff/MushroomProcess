@@ -78,8 +78,8 @@ BEGIN
   WHERE nocopk = p_block_lot_id;
 
   IF NOT FOUND THEN RAISE EXCEPTION 'Fruiting block lot not found: %', p_block_lot_id; END IF;
-  IF COALESCE(v_block.item_category_mat, '') NOT IN ('fruiting_block','cordyceps_substrate') THEN
-    RAISE EXCEPTION 'Source lot must be fruiting_block or cordyceps_substrate, got %', v_block.item_category_mat;
+  IF COALESCE(v_block.item_category_mat, '') NOT IN ('fruiting_block','cordyceps_substrate','all_in_one_bag') THEN
+    RAISE EXCEPTION 'Source lot must be fruiting_block, cordyceps_substrate, or all_in_one_bag, got %', v_block.item_category_mat;
   END IF;
 
   IF p_harvest_item_id IS NOT NULL THEN

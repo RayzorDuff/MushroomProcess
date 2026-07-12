@@ -479,6 +479,8 @@ DECLARE
   v_ts timestamp without time zone;
   v_fields jsonb;
   v_counter integer := 0;
+  v_item_category text;
+  v_lot_display_id text;
 BEGIN
   IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
     RETURN 0;
@@ -488,6 +490,17 @@ BEGIN
   v_station := COALESCE(NULLIF(btrim(p_station), ''), 'Dark Room');
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
+    SELECT
+      lower(COALESCE(NULLIF(btrim(l.item_category_mat), ''), NULLIF(btrim(i.category), ''), '')),
+      COALESCE(NULLIF(btrim(l.lot_id), ''), v_lot_id::text)
+    INTO v_item_category, v_lot_display_id
+    FROM public.lots l
+    LEFT JOIN public.items i ON i.nocopk = l.item_id
+    WHERE l.nocopk = v_lot_id;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Lot not found: %', v_lot_id;
+    END IF;
 
     -- log one event per selected action
     FOREACH v_action IN ARRAY COALESCE(p_actions, ARRAY[]::text[]) LOOP
@@ -511,6 +524,12 @@ BEGIN
       );
 
       IF v_action = 'ApplyCasing' THEN
+        IF v_item_category NOT IN ('fruiting_block', 'all_in_one_bag') THEN
+          RAISE EXCEPTION 'ApplyCasing requires fruiting_block or all_in_one_bag; lot % has category %',
+            v_lot_display_id,
+            COALESCE(NULLIF(v_item_category, ''), '(blank)');
+        END IF;
+
         v_fields := v_fields || jsonb_build_object(
           'casing_lot_id', NULL,
           'casing_item_id', NULL
@@ -810,10 +829,11 @@ BEGIN
       'grain',
       'lc_flask',
       'plate',
-      'cordyceps_substrate'
+      'cordyceps_substrate',
+      'all_in_one_bag'
     ) THEN
       UPDATE public.lots
-        SET ui_error = format('Inoculate validation: Target lot %s must be grain, lc_flask, plate, or cordyceps_substrate (got "%s").', v_target_id, v_target_item_category),
+        SET ui_error = format('Inoculate validation: Target lot %s must be grain, lc_flask, plate, cordyceps_substrate, or all_in_one_bag (got "%s").', v_target_id, v_target_item_category),
             ui_error_at = now()
       WHERE nocopk = p_source_lot_id;
       CONTINUE;
@@ -821,6 +841,7 @@ BEGIN
     
     v_label_type := CASE 
         WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'grain' THEN 'Grain_Inoculated'
+        WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'all_in_one_bag' THEN 'All_In_One_Inoculated'
         WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'plate' THEN 'Plate_Inoculated'
         WHEN v_target_item_category IS NOT NULL AND btrim(v_target_item_category) = 'cordyceps_substrate' THEN 'Cordyceps_Substrate_Inoculated'
         ELSE 'LC_Flask_Inoculated'
@@ -864,7 +885,7 @@ BEGIN
       notes = CASE WHEN v_is_untracked_source THEN v_source_notes ELSE notes END,
       use_by = CASE
         WHEN v_target_item_category IN ('lc_flask','agar_flask','plate','agar_plate') THEN (v_inoc_time + interval '6 months')::date
-        WHEN v_target_item_category IN ('grain', 'cordyceps_substrate') THEN (v_inoc_time + interval '3 months')::date
+        WHEN v_target_item_category IN ('grain', 'cordyceps_substrate', 'all_in_one_bag') THEN (v_inoc_time + interval '3 months')::date
         ELSE use_by
       END,
       ui_error = NULL,
