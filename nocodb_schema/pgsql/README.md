@@ -16,8 +16,9 @@ Workflow:
 
 1. Backup current database
 2. Drop and recreate database
-3. Import schema/function SQL files through Docker
+3. Import pre-load schema/function SQL files through Docker
 4. Import `100_load.sql` from the host with `psql`
+5. Import post-load integration/backfill SQL through Docker
 
 ---
 
@@ -37,8 +38,9 @@ Because of that, `100_load.sql` should **not** be run with the same `docker exec
 
 The simplest approach for this project is:
 
-- run all non-`100_load.sql` files through `docker exec`
+- run pre-load `0xx` SQL files through `docker exec`
 - run `100_load.sql` locally from the host with `psql` against the mapped Postgres port
+- run post-load integration/backfill SQL such as `124_*` through `docker exec` only after the data load commits
 
 ---
 
@@ -163,14 +165,15 @@ sudo docker exec \
   -c "CREATE DATABASE \"$MP_BRIDGE_DB_NAME\";"
 ```
 
-### 6. Import All SQL Files Except `100_load.sql` Through Docker
+### 6. Import Pre-Load SQL Files Through Docker
 
-Run from the `MushroomProcess` repo root:
+Run from the `MushroomProcess` repo root. Only import the `0xx` files at this stage; `100_load.sql` and post-load files such as `124_*` must run later in their documented order.
 
 ```bash
 cd /path/to/MushroomProcess
+set -e
 
-for f in $(ls -1 nocodb_schema/pgsql/*.sql | sort | grep -v '/100_load\.sql$'); do
+for f in nocodb_schema/pgsql/0*.sql; do
   echo "Importing $f"
   sudo docker exec -i \
     -e PGPASSWORD="$MP_BRIDGE_DB_PASSWORD" \
@@ -182,7 +185,7 @@ for f in $(ls -1 nocodb_schema/pgsql/*.sql | sort | grep -v '/100_load\.sql$'); 
 done
 ```
 
-If your shell’s `grep` pattern does not match as expected, this explicit loop is fine too:
+The explicit equivalent is:
 
 ```bash
 cd /path/to/MushroomProcess
@@ -200,8 +203,7 @@ for f in \
   nocodb_schema/pgsql/010_spawn_to_bulk.sql \
   nocodb_schema/pgsql/021_personnel_reviews.sql \
   nocodb_schema/pgsql/022_personnel_reviews_seeds.sql \
-  nocodb_schema/pgsql/023_operator_identity.sql \
-  nocodb_schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
+  nocodb_schema/pgsql/023_operator_identity.sql
 do
   echo "Importing $f"
   sudo docker exec -i \
@@ -244,7 +246,23 @@ Why this works:
 - those CSV files exist under this directory on the host
 - Postgres is exposed by RootedOps on port `5434`
 
-### 8. Verify Import
+### 8. Import Post-Load Integration and Backfill SQL
+
+Run post-load files only after `100_load.sql` commits successfully. These scripts depend on imported rows and may silently update zero rows if run too early.
+
+```bash
+cd /path/to/MushroomProcess
+
+sudo docker exec -i \
+  -e PGPASSWORD="$MP_BRIDGE_DB_PASSWORD" \
+  mushroomprocess-bridge-postgres \
+  psql -v ON_ERROR_STOP=1 \
+    -U "$MP_BRIDGE_DB_USER" \
+    -d "$MP_BRIDGE_DB_NAME" \
+  < nocodb_schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
+```
+
+### 9. Verify Import
 
 ```bash
 sudo docker exec \
@@ -319,9 +337,10 @@ After regenerating schema from Airtable export:
 2. Start RootedOps Postgres
 3. Back up current bridge DB
 4. Drop/recreate bridge DB
-5. Import schema SQL through Docker
+5. Import pre-load `0xx` SQL through Docker
 6. Import `100_load.sql` from the host with `psql`
-7. Verify schema and seed data loaded correctly
+7. Import post-load `124_*` integration/backfill SQL
+8. Verify schema and seed data loaded correctly
 
 
 ## Notes on action helpers

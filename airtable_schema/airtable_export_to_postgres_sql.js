@@ -31,7 +31,7 @@ function loadLocalDotEnv(envPath = path.join(__dirname, '.env')) {
 loadLocalDotEnv();
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-07-12.2
+ * Version: 2026-07-12.3
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -132,6 +132,13 @@ function pgSafeName(prefix, name, maxLen = 63) {
   // prefix is typically 'fk'/'ix'/'uq'/'trg'/'fn' etc.
   const base = `${prefix}_${name}`;
   return pgSafeIdent(base, maxLen);
+}
+
+function pgTempRawName(baseName) {
+  // PostgreSQL silently truncates identifiers longer than 63 bytes. A long
+  // junction name plus "__raw" can otherwise truncate back to the permanent
+  // junction table name, causing the temporary staging table to shadow it.
+  return pgSafeIdent(`${baseName}__raw`);
 }
 
 function literalText(s) { return "'" + String(s).replace(/'/g, "''") + "'"; }
@@ -543,12 +550,14 @@ function compileFormulaExpr(raw, ctx) {
   // Airtable lookup/rollup fields are arrays; everything else is treated as scalar.
   const __arrayCols = new Set();
   const __booleanCols = new Set();
+  const __numericCols = new Set();
   if (ctx && ctx.fieldById && ctx.fieldIdToCol) {
     for (const [fid, f] of ctx.fieldById.entries()) {
       const col = ctx.fieldIdToCol.get(fid);
       if (!col || !f) continue;
       if (f.type === 'multipleLookupValues' || f.type === 'rollup') __arrayCols.add(col);
       if (f.type === 'checkbox') __booleanCols.add(col);
+      if (['number','currency','percent','count','duration','rating','autoNumber'].includes(f.type)) __numericCols.add(col);
     }
   }
 
@@ -721,6 +730,50 @@ function compileFormulaExpr(raw, ctx) {
     return e;
   }
 
+  function stripOuterParens(value) {
+    let s = String(value || '').trim();
+    for (;;) {
+      if (!s.startsWith('(') || !s.endsWith(')')) return s;
+      let depth = 0;
+      let inS = false;
+      let wrapsWhole = true;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (ch === "'" && s[i - 1] !== "\\") inS = !inS;
+        if (inS) continue;
+        if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        if (depth === 0 && i < s.length - 1) {
+          wrapsWhole = false;
+          break;
+        }
+      }
+      if (!wrapsWhole) return s;
+      s = s.slice(1, -1).trim();
+    }
+  }
+
+  function isBlankResultExpr(value) {
+    const s = stripOuterParens(value);
+    return s === "''" || /^NULL$/i.test(s);
+  }
+
+  function isNumericResultExpr(value) {
+    const s = stripOuterParens(value);
+    if (s.includes('||')) return false;
+    if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s)) return true;
+    if (/::\s*(?:smallint|integer|bigint|int|numeric|decimal|real|double precision)\s*$/i.test(s)) return true;
+    if (/^(?:"?round"?|sum)\s*\(.*\)$/i.test(s)) return true;
+    const m = /^(base|btbl|comp)\."([^"]+)"$/.exec(s);
+    return !!(m && __numericCols.has(m[2]));
+  }
+
+  function harmonizeBlankNumericResults(values) {
+    const nonBlank = values.filter(v => !isBlankResultExpr(v));
+    if (!nonBlank.length || !nonBlank.every(isNumericResultExpr)) return values;
+    return values.map(v => isBlankResultExpr(v) ? 'NULL' : v);
+  }
+
   function truthy(x) {
     const s = x.trim();
     const scalarLink = scalarLinkSql(s);
@@ -734,6 +787,10 @@ function compileFormulaExpr(raw, ctx) {
       if (__arrayCols && __arrayCols.has(col)) return `COALESCE(cardinality(${s}),0) > 0`;
       if (__booleanCols && __booleanCols.has(col)) return `COALESCE(${s}, FALSE)`;
       return `NULLIF(${s}::text,'') IS NOT NULL`;
+    }
+    const unwrapped = stripOuterParens(s);
+    if (/^CASE\b/i.test(unwrapped) || isNumericResultExpr(unwrapped)) {
+      return `COALESCE((${s})::text, '') NOT IN ('', '0', 'false')`;
     }
     return s;
   }
@@ -881,6 +938,7 @@ function compileFormulaExpr(raw, ctx) {
       const cond=args[0];
       let tVal=args[1];
       let fVal=(args.length===3?args[2]:'NULL');
+      [tVal, fVal] = harmonizeBlankNumericResults([tVal, fVal]);
 
       // Airtable often mixes computed arrays (lookup/rollup) with scalar text in IF().
       // Postgres requires CASE branches to resolve to a single type. If we detect a
@@ -1014,9 +1072,11 @@ function compileFormulaExpr(raw, ctx) {
 
       // Similar to IF(): if any result branch is an array-typed column and others are scalar,
       // scalarize array column refs to text to keep CASE type resolution valid.
-      const resultExprs = [];
+      let resultExprs = [];
       for (let i=0;i<lim;i+=2) resultExprs.push(pairs[i+1]);
       resultExprs.push(defaultExpr);
+      resultExprs = harmonizeBlankNumericResults(resultExprs);
+      defaultExpr = resultExprs[resultExprs.length - 1];
 
       const anyArr = resultExprs.some(isArrayExpr);
       const anyScalar = resultExprs.some(e => !isArrayExpr(e));
@@ -1024,7 +1084,7 @@ function compileFormulaExpr(raw, ctx) {
 
       let out = `CASE`;
       for (let i=0;i<lim;i+=2) {
-        let res = pairs[i+1];
+        let res = resultExprs[i / 2];
         if (mixed && isArrayExpr(res)) res = scalarizeArrayExprToText(res);
         out += ` WHEN (${switchExpr}) = (${pairs[i]}) THEN (${res})`;
       }
@@ -2036,7 +2096,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         if (!other) continue;
 
         const b = slug(other.name);
-        const rawName = `${a}__${slug(f.name) || 'link'}__raw`;
+        const rawName = pgTempRawName(`${a}__${slug(f.name) || 'link'}`);
         const cols = ['a_airtable_id', 'b_airtable_id'];
         const fkColNameBase = slug(f.name) || 'link';
         const fkColName = fkColNameBase.endsWith('_id') ? fkColNameBase : `${fkColNameBase}_id`;
@@ -2085,7 +2145,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
 
         const linkFieldSlug = slug(f.name) || 'link';
         const jn = m2mJoinName(a, linkFieldSlug, b);
-        const rawName = `${jn}__raw`;
+        const rawName = pgTempRawName(jn);
         const cols = ['a_airtable_id', 'b_airtable_id'];
         const aCol = `${a}_id`;
         const bCol = (a === b) ? `${b}1_id` : `${b}_id`;
