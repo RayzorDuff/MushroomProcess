@@ -340,3 +340,83 @@ BEGIN
   PERFORM public.mp_lot_set_location(p_lot_id, v_loc_id);
 END;
 $$;
+
+-- Link a lot recipe component back to each parent record. Canonical single-link
+-- columns on lot_recipe_components are maintained by generated triggers; these
+-- inverse Airtable/NocoDB link tables must also be populated for parent views.
+CREATE OR REPLACE FUNCTION public.mp_link_lot_recipe_component(
+  p_lot_recipe_component_id bigint,
+  p_lot_id bigint,
+  p_item_id bigint,
+  p_recipe_id bigint,
+  p_source_item_recipe_component_id bigint DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF p_lot_recipe_component_id IS NULL THEN
+    RETURN;
+  END IF;
+
+  IF p_lot_id IS NOT NULL THEN
+    BEGIN
+      INSERT INTO public._m2m_lots_lot_recipe_components_lot_recipe_components
+        (lots_id, lot_recipe_components_id)
+      SELECT p_lot_id, p_lot_recipe_component_id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM public._m2m_lots_lot_recipe_components_lot_recipe_components j
+        WHERE j.lots_id = p_lot_id
+          AND j.lot_recipe_components_id = p_lot_recipe_component_id
+      );
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+  END IF;
+
+  IF p_item_id IS NOT NULL THEN
+    BEGIN
+      INSERT INTO public._m2m_items_lot_recipe_components_lot_recipe_components
+        (items_id, lot_recipe_components_id)
+      SELECT p_item_id, p_lot_recipe_component_id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM public._m2m_items_lot_recipe_components_lot_recipe_components j
+        WHERE j.items_id = p_item_id
+          AND j.lot_recipe_components_id = p_lot_recipe_component_id
+      );
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+  END IF;
+
+  IF p_recipe_id IS NOT NULL THEN
+    BEGIN
+      INSERT INTO public._m2m_recipes_lot_recipe_components_lot_recipe_components
+        (recipes_id, lot_recipe_components_id)
+      SELECT p_recipe_id, p_lot_recipe_component_id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM public._m2m_recipes_lot_recipe_components_lot_recipe_components j
+        WHERE j.recipes_id = p_recipe_id
+          AND j.lot_recipe_components_id = p_lot_recipe_component_id
+      );
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+  END IF;
+
+  IF p_source_item_recipe_component_id IS NOT NULL THEN
+    BEGIN
+      INSERT INTO public._m2m_item_recipe_components_lot_recipe_components_lo_40a5397268
+        (item_recipe_components_id, lot_recipe_components_id)
+      SELECT p_source_item_recipe_component_id, p_lot_recipe_component_id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM public._m2m_item_recipe_components_lot_recipe_components_lo_40a5397268 j
+        WHERE j.item_recipe_components_id = p_source_item_recipe_component_id
+          AND j.lot_recipe_components_id = p_lot_recipe_component_id
+      );
+    EXCEPTION WHEN undefined_table THEN NULL;
+    END;
+  END IF;
+END;
+$$;
