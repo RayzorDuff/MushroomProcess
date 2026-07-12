@@ -70,7 +70,7 @@ BEGIN
     p_planned_count => 1,
     p_planned_unit_size => 1.5,
     p_process_type => 'Sterilize',
-    p_start_time => clock_timestamp() - interval '1 hour',
+    p_start_time => clock_timestamp()::timestamp without time zone - interval '1 hour',
     p_operator => 'RC5 smoke test',
     p_planned_component_set => NULL
   );
@@ -81,7 +81,7 @@ BEGIN
     1,
     0,
     'RC5 smoke test',
-    clock_timestamp(),
+    clock_timestamp()::timestamp without time zone,
     v_location_id
   );
 
@@ -132,7 +132,7 @@ BEGIN
     p_planned_count => 1,
     p_planned_unit_size => 5,
     p_process_type => 'Sterilize',
-    p_start_time => clock_timestamp() - interval '1 hour',
+    p_start_time => clock_timestamp()::timestamp without time zone - interval '1 hour',
     p_operator => 'RC5 smoke test',
     p_planned_component_set => NULL
   );
@@ -151,7 +151,7 @@ BEGIN
     1,
     0,
     'RC5 smoke test',
-    clock_timestamp(),
+    clock_timestamp()::timestamp without time zone,
     v_location_id
   );
 
@@ -204,7 +204,7 @@ BEGIN
       p_planned_count => 1,
       p_planned_unit_size => 5,
       p_process_type => 'Sterilize',
-      p_start_time => clock_timestamp(),
+      p_start_time => clock_timestamp()::timestamp without time zone,
       p_operator => 'RC5 smoke test',
       p_planned_component_set => NULL
     );
