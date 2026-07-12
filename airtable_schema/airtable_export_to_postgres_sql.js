@@ -1792,7 +1792,7 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
       // unless the lot category is one of the pound-based lot types.
       if (slug(tableObj.name) === 'lots' && outColSlug === 'unit_lbs' && physicalCols.has('item_category_mat')) {
         sql = `(CASE WHEN lower(COALESCE(${qualifier}.${ident('item_category_mat')}::text, '')) IN ` +
-              `('casing','fruiting_block','grain','substrate') THEN (${sql}) ELSE '' END)`;
+              `('all_in_one_bag','casing','fruiting_block','grain','substrate') THEN (${sql}) ELSE '' END)`;
       }
 
       compiledFormulaMemo.set(key, sql);

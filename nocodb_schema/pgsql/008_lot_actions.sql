@@ -1185,7 +1185,7 @@ BEGIN
     v_is_tray := lower(COALESCE(v_item_category_mat,'')) IN ('fresh_tray','freezer_tray');
 
     v_is_volume_based := lower(COALESCE(v_item_category_mat,'')) IN ('lc_syringe','lc_flask','agar_flask','cordyceps_substrate','agar_plate','plate');
-    v_is_lb_based := lower(COALESCE(v_item_category_mat,'')) IN ('casing','fruiting_block','substrate','grain');
+    v_is_lb_based := lower(COALESCE(v_item_category_mat,'')) IN ('all_in_one_bag','casing','fruiting_block','substrate','grain');
     v_is_g_based := lower(COALESCE(v_item_category_mat,'')) IN ('freezedriedmushrooms','fresh_tray','freezer_tray','plate');
 
     -- Compute use_by: freeze-dried = +2y from pack_date; else +3mo from spawned_at/inoculated_at/today
