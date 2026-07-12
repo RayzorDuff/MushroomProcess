@@ -206,13 +206,18 @@
   airtable_createdTime: '2025-09-22T20:27:30.000Z'
   airtable_id: recDCpU62u25fRPHJ
   category: casing
+  component_mode: single_recipe
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
+  item_component_summary: 'casing: REC-CASING-PEAT-V3'
   item_id: CASING-PEAT
+  item_recipe_components:
+  - recCp3BFu8nwy6N03
   items:
   - recDE6YsuLDtIJfb4
   - rec6FP6bEHB1jQbt5
   name: Peat Moss
+  size_source: lot_unit_size
 - airtable_createdTime: '2025-09-22T20:28:08.000Z'
   airtable_id: recDE6YsuLDtIJfb4
   category: casing
@@ -775,17 +780,6 @@
   name: Organic Wheat/Millet
   replaced_by_item_id:
   - rec8OlixLGGGw3dLn
-- active: true
-  airtable_createdTime: '2026-06-23T11:51:27.000Z'
-  airtable_id: rect6EGJ4IyCIZnSR
-  category: casing
-  component_mode: single_recipe
-  item_component_summary: 'casing: REC-CASING-PEAT-V3'
-  item_id: CASING-PEAT
-  item_recipe_components:
-  - recCp3BFu8nwy6N03
-  name: Peat
-  size_source: lot_unit_size
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recuX0iZcaztbUtcm
