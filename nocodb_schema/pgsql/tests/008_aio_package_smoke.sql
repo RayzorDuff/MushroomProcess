@@ -165,8 +165,7 @@ BEGIN
   WHERE nocopk = v_product_id;
 
   IF NULLIF(btrim(v_title), '') IS NULL
-     OR position('5 lb' IN COALESCE(v_subtitle, '')) = 0
-     OR position('Sterilized' IN COALESCE(v_subtitle, '')) = 0 THEN
+     OR COALESCE(v_subtitle, '') !~ '^5(\.0+)? lb[[:space:]]*•[[:space:]]*Sterilized$' THEN
     RAISE EXCEPTION 'AIO product label fields are incorrect: title %, subtitle %', v_title, v_subtitle;
   END IF;
 
