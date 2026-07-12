@@ -1,0 +1,141 @@
+airtable_id,lot_recipe_component_id,component_role,component_weight_lb,component_percent,sort_order,notes
+rec0wJ83oVWc0twCz,LRC-260624-twCz,grain,1.5,,1,Created from sterilization run planned_recipe
+rec1roKZnrWPSbpFf,LRC-260630-bpFf,grain,0.8333333333333334,,1,Derived from Spawn to Bulk grain input
+rec1tKIJmPecBQRBh,LRC-260630-QRBh,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+rec4LuVZvX4RA5Taj,LRC-260624-5Taj,grain,1.5,,1,Created from sterilization run planned_recipe
+rec4a4oBK6wt82Url,LRC-260630-2Url,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+rec4etvHjmG1Nz3pC,LRC-260629-z3pC,substrate,5,,1,Created from sterilization run planned_recipe
+rec4nauZxFQh9f5Q5,LRC-260624-f5Q5,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+rec5CHLGwhY7jLY68,LRC-260709-LY68,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+rec5JOJwp8cTwA6Ke,LRC-260709-A6Ke,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+rec5bHgCZljm8vmRL,LRC-260624-vmRL,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+rec5lRY8fXlPcqXeR,LRC-260630-qXeR,grain,0.8333333333333334,,1,Derived from Spawn to Bulk grain input
+rec63ieruYKfmafDb,LRC-260624-afDb,grain,1.5,,1,Created from sterilization run planned_recipe
+rec77TdgbqmodSZ6S,LRC-260706-SZ6S,grain,1,,1,Derived from Spawn to Bulk grain input
+rec7lKIi1U60BZRoO,LRC-260630-ZRoO,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+rec7qTElK5SxmdVmn,LRC-260624-dVmn,grain,1.5,,1,Created from sterilization run planned_recipe
+rec8Pbh01xK3fQ44E,LRC-260624-Q44E,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+rec8ayTuCMuchCpZd,LRC-260623-CpZd,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+rec9xyAZ06ONGdocv,LRC-260709-docv,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recBYLKvyTV7gBqbl,LRC-260624-Bqbl,grain,1.5,,1,Created from sterilization run planned_recipe
+recBrogSybtGk10wy,LRC-260629-10wy,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recCCLpahWHgpik23,LRC-260624-ik23,grain,1.5,,1,Created from sterilization run planned_recipe
+recCMtc21sH8BrKEm,LRC-260624-rKEm,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recCu9iKZc1W7ESfE,LRC-260624-ESfE,grain,1.5,,1,Created from sterilization run planned_recipe
+recDalIur4R5AqSPf,LRC-260709-qSPf,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recDhfWH3RYwBSHn2,LRC-260624-SHn2,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recE4QNm5bzYjHEVO,LRC-260629-HEVO,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv
+recE5rLveTnyW9KXx,LRC-260624-9KXx,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recEDpoHGYbdhdIXZ,LRC-260709-dIXZ,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recEwH3oXGYsMLMDh,LRC-260624-LMDh,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recFZbcfyA1nrErbm,LRC-260706-Erbm,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+recFiBx7uyPoupde1,LRC-260624-pde1,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recHGNY1XJBDcfvYv,LRC-260709-fvYv,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recHyawbyToSpmIBR,LRC-260706-mIBR,grain,1,,1,Derived from Spawn to Bulk grain input
+recIRHskhnOpNH1GN,LRC-260706-H1GN,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+recJBDrZL88fIIaR9,LRC-260630-IaR9,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recJS2tkHV7WOHQMp,LRC-260624-HQMp,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recJfXLGFWUqmh0ta,LRC-260623-h0ta,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recKI60Fu2FTqVCC7,LRC-260624-VCC7,grain,1.5,,1,Created from sterilization run planned_recipe
+recKkMpIfHoMjXgXW,LRC-260629-XgXW,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recL7vHX64Ma7rbrO,LRC-260624-rbrO,grain,1.5,,1,Created from sterilization run planned_recipe
+recLeS3f3SLbci0Wb,LRC-260630-i0Wb,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recLiTppVYTPeIOea,LRC-260629-IOea,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recMH4MvsU4daxzJ9,LRC-260629-xzJ9,substrate,5,,1,Created from sterilization run planned_recipe
+recMHVA5QDjiQVdwd,LRC-260630-Vdwd,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recN6kkHh4J5KKVIm,LRC-260630-KVIm,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recO3CHMBJLzrdoZG,LRC-260623-doZG,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recOHj0TjZVSEOpV4,LRC-260630-OpV4,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recOVOKBdfTwQ6LEe,LRC-260623-6LEe,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recP88QeLI75sdEev,LRC-260709-dEev,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recPU6MUCdVYO6eqQ,LRC-260623-6eqQ,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recPkbnMUVIappS9O,LRC-260629-pS9O,substrate,5,,1,Created from sterilization run planned_recipe
+recQ84jsGoZa8SvAg,LRC-260623-SvAg,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recQONtZmx0voRzID,LRC-260624-RzID,grain,1.5,,1,Created from sterilization run planned_recipe
+recS5SQxgPMJXzyue,LRC-260709-zyue,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recS5wyqwYPnHnb0c,LRC-260624-nb0c,grain,1.5,,1,Created from sterilization run planned_recipe
+recSCZoiKosWmYPby,LRC-260623-YPby,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recSmoxI9gbfBw2D6,LRC-260624-w2D6,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recTV0Mfp47Gy7uRP,LRC-260629-7uRP,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recTrvcPL5m6Et8us,LRC-260709-t8us,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recUGW0DGXNtgnXkO,LRC-260630-nXkO,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recUIMOCvn68i2iW0,LRC-260629-2iW0,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recUbu3XzQAonA2kS,LRC-260630-A2kS,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recUxuGQ9Px3R8knd,LRC-260624-8knd,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recWLoMvtSuCfiLom,LRC-260624-iLom,grain,1.5,,1,Created from sterilization run planned_recipe
+recWdRF3fsNpRGVqA,LRC-260709-GVqA,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recWtsVmcCr7RJO9R,LRC-260629-JO9R,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recX7oFQM7EwjOJ0e,LRC-260630-OJ0e,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recXBJz75yekcmuUR,LRC-260630-muUR,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recXZGiKSqMsB03cE,LRC-260706-03cE,grain,1,,1,Derived from Spawn to Bulk grain input
+recXpuO573TIWbxpI,LRC-260624-bxpI,grain,1.5,,1,Created from sterilization run planned_recipe
+recY10LgDVv7o7yiL,LRC-260623-7yiL,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recYB0Yw9WwOToAvi,LRC-260706-oAvi,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+recYYj4WGPC56HGLB,LRC-260624-HGLB,grain,1.5,,1,Created from sterilization run planned_recipe
+recYZZuOTQ2Lhiicr,LRC-260624-iicr,grain,1.5,,1,Created from sterilization run planned_recipe
+recZYHgqFA6KzEtwr,LRC-260630-Etwr,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recZbKdDZv0dHEiTW,LRC-260706-EiTW,grain,1,,1,Derived from Spawn to Bulk grain input
+recaNSaPcrJKUj1Ie,LRC-260624-j1Ie,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recaY7lHB1SA7H6aY,LRC-260624-H6aY,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recaxtauFr5popUfG,LRC-260629-pUfG,substrate,5,,1,Created from sterilization run planned_recipe
+recb95gsqdRNmobFo,LRC-260624-obFo,grain,1.5,,1,Created from sterilization run planned_recipe
+recbmUHffjlExxumN,LRC-260623-xumN,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recbo5rypDkfAgkyO,LRC-260709-gkyO,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recc7QzvwglQezB4Q,LRC-260629-zB4Q,substrate,5,,1,Created from sterilization run planned_recipe
+reccEhuFOM8nIBHwY,LRC-260709-BHwY,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+reccO5sMq8MBvoYlb,LRC-260624-oYlb,grain,1.5,,1,Created from sterilization run planned_recipe
+reccfFDHbkBTz7E2f,LRC-260709-7E2f,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recclYqYoCIs698QE,LRC-260623-98QE,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+reccrJYUweCt1grOg,LRC-260629-grOg,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+reccxnFAhDXosQ3a2,LRC-260629-Q3a2,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recd8MshvO8JWdi07,LRC-260630-di07,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recdSLeTDLnkBJxKF,LRC-260629-JxKF,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recdXDhJs3MU9XXCL,LRC-260709-XXCL,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recdbsfzSPZ8z5thC,LRC-260623-5thC,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+receI3staomyMcBBf,LRC-260624-cBBf,grain,1.5,,1,Created from sterilization run planned_recipe
+receccR5lDSttvXEn,LRC-260709-vXEn,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recegvPOYLXcPgdND,LRC-260624-gdND,grain,1.5,,1,Created from sterilization run planned_recipe
+receyg7EysjvIbO3D,LRC-260624-bO3D,grain,1.5,,1,Created from sterilization run planned_recipe
+recf5PEvrYoxVTjg7,LRC-260624-Tjg7,grain,1.5,,1,Created from sterilization run planned_recipe
+recf6eDgYzB6eo9lJ,LRC-260629-o9lJ,substrate,5,,1,Created from sterilization run planned_recipe
+recgmFfARXq40GIQF,LRC-260709-GIQF,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+reciJ7FJx30hZP5wb,LRC-260709-P5wb,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+reciiernNCslW9dmX,LRC-260624-9dmX,grain,1.5,,1,Created from sterilization run planned_recipe
+reciyBmntpGslROCj,LRC-260630-ROCj,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recjgzIJX5osIN6fG,LRC-260624-N6fG,grain,1.5,,1,Created from sterilization run planned_recipe
+recjstvHehGsTCaaY,LRC-260709-CaaY,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recjy9DtunZeuFwi2,LRC-260630-Fwi2,grain,0.8333333333333334,,1,Derived from Spawn to Bulk grain input
+reck5Pfx9hjpGI1LH,LRC-260709-I1LH,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+reckOPSPhjW28EM3P,LRC-260630-EM3P,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recl0NGJ4uGY4x6ay,LRC-260630-x6ay,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recldoHdglkE9n9fm,LRC-260709-n9fm,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+reclfdqIBgWp1oztX,LRC-260709-oztX,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recmk5KG4rf95J06x,LRC-260624-J06x,grain,1.5,,1,Created from sterilization run planned_recipe
+recmqqvdFUXGIk5SZ,LRC-260624-k5SZ,grain,1.5,,1,Created from sterilization run planned_recipe
+recnQE462Iq2qPQj6,LRC-260624-PQj6,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recnZSrRhDYL8ok6e,LRC-260630-ok6e,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recnnWEv17C5He4Zm,LRC-260630-e4Zm,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recpAzBb9YnezlZq0,LRC-260709-lZq0,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recpZ7GIgdx31J4O6,LRC-260709-J4O6,substrate,2.5,,2,Derived from Spawn to Bulk substrate input
+recplm2qKISqPAMR0,LRC-260629-AMR0,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv
+recpoJmhgh1Ih4oz9,LRC-260624-4oz9,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recpooGEgfiJCHciV,LRC-260629-HciV,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recqHksLFZD4cAbd7,LRC-260624-Abd7,grain,1.5,,1,Created from sterilization run planned_recipe
+recqiijQw7N4i6kQc,LRC-260629-6kQc,grain,2,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv
+recqwiIe4INOhrQDK,LRC-260706-rQDK,grain,1,,1,Derived from Spawn to Bulk grain input
+recr5014Z3WmF6Hg5,LRC-260706-6Hg5,grain,1,,1,Derived from Spawn to Bulk grain input
+recs7ygisKe3y53aX,LRC-260709-53aX,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recsy6wNXb3kjjCtK,LRC-260706-jCtK,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+rectvGnAU9pu7Fe4g,LRC-260706-Fe4g,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+recuL1WcRZPI9MFPy,LRC-260629-MFPy,substrate,1.5,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT
+recun9qWpRQ3OMIVk,LRC-260624-MIVk,grain,1.5,,1,Created from sterilization run planned_recipe
+recut9Dav9ZkvYcOO,LRC-260630-YcOO,grain,0.6666666666666666,,1,Derived from Spawn to Bulk grain input
+recveA7zA99i2Ajq3,LRC-260624-Ajq3,grain,1.5,,1,Created from sterilization run planned_recipe
+recxQ7Bz8fWgRIRFB,LRC-260624-IRFB,grain,1.5,,1,Created from sterilization run planned_recipe
+recxTpogyMoFLMZS4,LRC-260706-MZS4,substrate,7.5,,2,Derived from Spawn to Bulk substrate input
+recy34UKjoXFxhSqf,LRC-260623-hSqf,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recyAkrJ6BR0dPfWZ,LRC-260630-PfWZ,substrate,1.6666666666666667,,2,Derived from Spawn to Bulk substrate input
+recyG9CpQckiio0o4,LRC-260624-o0o4,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260623-kun8
+recynVYKsZ55Hv7gU,LRC-260629-v7gU,substrate,3,0,2,Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv
+recz615J5i3isKNPG,LRC-260624-KNPG,grain,1.5,,1,Created from sterilization run planned_recipe
+reczaPv3SlUKOp0KJ,LRC-260629-p0KJ,grain,1.5,0,1,Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT

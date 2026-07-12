@@ -1,48 +1,56 @@
 airtable_id,name,status,ecwid_sku,sync_to_ecwid,notes,ecwid_category,ecwid_price,ecwid_stock,ecwid_url,ecwid_image,ecwid_upc
-rec02VOqyUOnHMPzQ,5lb Pasteurized Coco Coir,Pasteurized,,true,,,14.95,8,https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877,,
+rec02VOqyUOnHMPzQ,5lb Pasteurized Coco Coir,Pasteurized,E1SNHBC4QANF6,true,,160277251,14.95,20,https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877,,6865787502208
 rec17gjJmfd3cMjb3,Pearl Oyster Agar Plate,FullyColonized,,true,,,,,,,
 rec1l48bgP4oen0dg,Large 7.5lb Bronze Reishi Fruiting Block,FullyColonized,,true,,,,,,,
 rec30vSjSeQwmruux,Pink Oyster Agar Plate,FullyColonized,,true,,,,,,,
-rec3ArssudPfyLSlL,Small 2.5lb Red Reishi Fruiting Block,FullyColonized,,true,,,14.95,3,https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670,,
+rec3ArssudPfyLSlL,Small 2.5lb Red Reishi Fruiting Block,FullyColonized,7G9L2K4X1V8N3,true,,160277251,14.95,4,https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670,,6865787501805
 rec3J4vzaxiqLFwGy,Black Pearl King Oyster Agar Plate,FullyColonized,,true,,,,,,,
-rec3dwVTZ2HA22RjN,2lb Sterilized Organic Wheat Millet,Sterilized,,true,,,9.95,0,https://www.mybusiness.com/products/2lb-Organic-Millet-Grain-Spawn-Bag-Sterilized-p711335071,,
+rec3dwVTZ2HA22RjN,2lb Sterilized Organic Wheat Millet,Sterilized,NW8KQV90K4AWG,true,,160277251,9.95,0,https://www.mybusiness.com/products/2lb-Organic-Millet-Grain-Spawn-Bag-Sterilized-p711335071,,6.865787502055E12
 rec5ER9xAiFAEnSK2,Lion's Mane 2lb Colonized WBS Grain Spawn Bag,FullyColonized,,true,,,,,,,
-rec5XW9o8RaPGPb5i,Freeze Dried Blue Oyster,,,true,,,9.95,20,https://www.mybusiness.com/products/Freeze-Dried-Blue-Oyster-Mushrooms-p711334880,,
+rec5XW9o8RaPGPb5i,Freeze Dried Blue Oyster,,E3ZY47P9K64TT,true,,160254004,9.95,20,https://www.mybusiness.com/products/Freeze-Dried-Blue-Oyster-Mushrooms-p711334880,,6865787502024
 rec6oHBYB2tJoCRWV,Lion's Mane 2lb 2lb Colonized OWM Grain Spawn Bag,FullyColonized,,true,,,,,,,
-rec7U4A2SSRKwD3SC,Freeze Dried Lion's Mane,,,true,,,9.95,29,https://www.mybusiness.com/products/Freeze-Dried-Lions-Mane-Mushrooms-p711335076,,
+rec7U4A2SSRKwD3SC,Freeze Dried Lion's Mane,,1KYKS1H0R71DP,true,,160254004,9.95,29,https://www.mybusiness.com/products/Freeze-Dried-Lions-Mane-Mushrooms-p711335076,,6865787502017
 rec8ZVHZLmbi2tNLH,Chestnut Agar Plate,FullyColonized,,true,,,,,,,
 recAzjpFOyz2waprM,Small 2.5lb Turkey Tail Fruiting Block,FullyColonized,,true,,,,,,,
 recBfOBojQZlUKsIW,Large 7.5lb Branched Oyster Fruiting Block,FullyColonized,,true,,,,,,,
-recF3He1PR1Bo9voi,Small 2.5lb Blue Oyster Fruiting Block,FullyColonized,,true,,,14.95,4,https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980,,
-recIo7Q8Si74dzuDk,2lb Sterilized Wild Bird Seed,Sterilized,,true,,,7.95,64,https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072,,
+recF3He1PR1Bo9voi,Small 2.5lb Blue Oyster Fruiting Block,FullyColonized,M5P9B1D6Q8R2S,true,,160277251,14.95,4,https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980,,6865787500020
+recIo7Q8Si74dzuDk,2lb Sterilized Wild Bird Seed,Sterilized,R6DCKT5XES9VJ,true,,,7.95,53,https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072,,6.865787502055E12
 recJ0Sy8OEkHjYlns,Small 2.5lb Chestnut Fruiting Block,FullyColonized,,true,,,,,,,
-recJf2BclIGA4npJO,Blue Oyster Liquid Culture Syringe,,,true,,,9.95,6,https://www.mybusiness.com/products/Blue-Oyster-Liquid-Culture-Syringe-p610274742,,
+recJ8MTjH4mlJReXt,BPlus Liquid Culture Syringe,,,true,,,,,,,
+recJf2BclIGA4npJO,Blue Oyster Liquid Culture Syringe,,cdbd6f64-2637-488c-b9fc-0a5a47bb7322,true,,160277251,9.95,6,https://www.mybusiness.com/products/Blue-Oyster-Liquid-Culture-Syringe-p610274742,,6865787500037
 recJyn2tt8HX8fIxi,Large 7.5lb Turkey Tail Fruiting Block,FullyColonized,,true,,,,,,,
 recKdymWp3LucG6ya,Turkey Tail Agar Plate,FullyColonized,,true,,,,,,,
-recPAdHniCfUGw3Kw,Turkey Tail Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Turkey-Tail-Liquid-Culture-Syringe-p711335074,,
-recPDPRthx23dASQy,Lions Mane Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Lions-Mane-Liquid-Culture-Syringe-p610274451,,
+recMfy4toCHnjQesK,Bluey Vatton Liquid Culture Syringe,,,true,,,,,,,
+recPAdHniCfUGw3Kw,Turkey Tail Liquid Culture Syringe,,0KTM8VBSEHN9W,true,,,9.95,5,https://www.mybusiness.com/products/Turkey-Tail-Liquid-Culture-Syringe-p711335074,,6865787502215
+recPDPRthx23dASQy,Lions Mane Liquid Culture Syringe,,78deea9b-c56b-45d3-8fb4-36596c902002,true,,160277251,9.95,5,https://www.mybusiness.com/products/Lions-Mane-Liquid-Culture-Syringe-p610274451,,6865787501553
 recQnYKAQQqDrEnm2,Large 7.5lb Lion's Mane Fruiting Block,FullyColonized,,true,,,,,,,
+recQuB3gSveV1OAQw,Bluey Vatton Agar Plate,FullyColonized,,true,,,,,,,
 recRYm0k8IbIlR1ny,Large 7.5lb Chestnut Fruiting Block,FullyColonized,,true,,,,,,,
 recSfoHsMwRY6Wrg9,Chestnut 2lb Colonized WBS Grain Spawn Bag,FullyColonized,,true,,,,,,,
-recT6P7uEB8P0nyYw,Freeze Dried Chestnut,,,true,,,9.95,9,https://www.mybusiness.com/products/Freeze-Dried-Chestnut-Mushrooms-p829845573,,
+recT6P7uEB8P0nyYw,Freeze Dried Chestnut,,N5L2W9K4C7JQ6,true,,160254004,9.95,9,https://www.mybusiness.com/products/Freeze-Dried-Chestnut-Mushrooms-p829845573,,6865787502048
 recTcgbMrzxMv9Iwq,Red Reishi Agar Plate,FullyColonized,,true,,,,,,,
-recVcvY7l7e4nk4Vt,7.5lb Sterilized 75/25 Masters Mix,Sterilized,,true,,,9.95,12,https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795,,
-recWM8HPA1fsICgCL,Pearl Oyster Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Pearl-Oyster-Liquid-Culture-Syringe-p610277365,,
-recWdvTkDFYpLWygR,Freeze Dried Turkey Tail,,,true,,,9.95,9,https://www.mybusiness.com/products/Freeze-Dried-Turkey-Tail-Mushrooms-p711335797,,
-recWyQtfuAL3pUM7l,Freeze Dried Red Reishi,,,true,,,9.95,0,https://www.mybusiness.com/products/Freeze-Dried-Red-Reishi-Mushrooms-p711335798,,
+recVcvY7l7e4nk4Vt,7.5lb Sterilized 75/25 Masters Mix,Sterilized,7VX24W4Z0CAYJ,true,,160277251,9.95,12,https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795,,6.865787502079E12
+recWM8HPA1fsICgCL,Pearl Oyster Liquid Culture Syringe,,f60786ed-dbb9-484f-8542-0f90c2bd5b73,true,,160277251,9.95,5,https://www.mybusiness.com/products/Pearl-Oyster-Liquid-Culture-Syringe-p610277365,,6865787501577
+recWat8trCGE6FIbx,BPlus Agar Plate,FullyColonized,,true,,,,,,,
+recWdvTkDFYpLWygR,Freeze Dried Turkey Tail,,PVVVDXGGZD3S4,true,,160254004,9.95,9,https://www.mybusiness.com/products/Freeze-Dried-Turkey-Tail-Mushrooms-p711335797,,6865787502048
+recWyQtfuAL3pUM7l,Freeze Dried Red Reishi,,7ZWWZSR0R2D5A,true,,160254004,9.95,0,https://www.mybusiness.com/products/Freeze-Dried-Red-Reishi-Mushrooms-p711335798,,6865787502000
 recXRvKLhWYAArICp,Large 7.5 lb Red Reishi Fruiting Block,FullyColonized,,true,,,,,,,
-recXc27A6fUIR0bJT,Red Reishi Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Red-Reishi-Liquid-Culture-Syringe-p610276199,,
-recXsvzkxihvq5OEO,Freeze Dried Bronze Reishi,,,true,,,9.95,2,https://www.mybusiness.com/products/Freeze-Dried-Bronze-Reishi-Mushrooms-p828374469,,
-recYTzvlqNTXHvawc,Small 2.5lb Branched Oyster Fruiting Block,FullyColonized,,true,,,14.95,0,https://www.mybusiness.com/products/Branched-Oyster-Grow-Kit-Ready-to-Grow-p753212607,,
+recXc27A6fUIR0bJT,Red Reishi Liquid Culture Syringe,,8e69307a-cb75-484d-a3dd-0ff758adb094,true,,160277251,9.95,5,https://www.mybusiness.com/products/Red-Reishi-Liquid-Culture-Syringe-p610276199,,6865787501812
+recXsvzkxihvq5OEO,Freeze Dried Bronze Reishi,,K7M9P2R4V8XB1,true,,160254004,9.95,2,https://www.mybusiness.com/products/Freeze-Dried-Bronze-Reishi-Mushrooms-p828374469,,6865787502000
+recYTzvlqNTXHvawc,Small 2.5lb Branched Oyster Fruiting Block,FullyColonized,WF3B148HVX8TR,true,,160277251,14.95,0,https://www.mybusiness.com/products/Branched-Oyster-Grow-Kit-Ready-to-Grow-p753212607,,6865787500020
 recZEZytfi8v46PnB,Lion's Mane Agar Plate,FullyColonized,,true,,,,,,,
 recdU8DY3zKQ9o3MF,Bronze Reishi Agar Plate,FullyColonized,,true,,,,,,,
-recgTNdPtGsE6oyvi,2.5lb Sterilized 75/25 Masters Mix,Sterilized,,true,,,7.95,5,https://www.mybusiness.com/products/2-5lb-Masters-Mix-Substrate-Bag-Sterilized-p711333863,,
-recgstukGWwQwhOBI,Small 2.5lb Bronze Reishi Fruiting Block,FullyColonized,,true,,,14.95,0,https://www.mybusiness.com/products/Bronze-Reishi-Grow-Kit-Ready-to-Grow-p610274979,,
+recgTNdPtGsE6oyvi,2.5lb Sterilized 75/25 Masters Mix,Sterilized,T5N92Z1CQ2NTM,true,,,7.95,5,https://www.mybusiness.com/products/2-5lb-Masters-Mix-Substrate-Bag-Sterilized-p711333863,,6.865787502062E12
+recgstukGWwQwhOBI,Small 2.5lb Bronze Reishi Fruiting Block,FullyColonized,W4Z7C9F2H5J1K,true,,160277251,14.95,0,https://www.mybusiness.com/products/Bronze-Reishi-Grow-Kit-Ready-to-Grow-p610274979,,6865787500044
 reci0PAX15UT6HasR,Large 7.5lb Blue Oyster Fruiting Block,FullyColonized,,true,,,,,,,
 reciqKMhNt9vrKelh,Blue Oyster Agar Plate,FullyColonized,,true,,,,,,,
+recjNWleDDgh8BGMt,Penis Envy Agar Plate,FullyColonized,,true,,,,,,,
+recknjqnio5ZJJEhN,Hillbilly Liquid Culture Syringe,,,true,,,,,,,
 reclJCTL9lY03ye28,Branched Oyster Agar Plate,FullyColonized,,true,,,,,,,
-recmq8dsmN1EMusGQ,Freeze Dried Branched Oyster,,,true,,,9.95,8,https://www.mybusiness.com/products/Freeze-Dried-Branched-Oyster-Mushrooms-p828374466,,
+recmq8dsmN1EMusGQ,Freeze Dried Branched Oyster,,9H2L5P7K4M1R8,true,,160254004,9.95,8,https://www.mybusiness.com/products/Freeze-Dried-Branched-Oyster-Mushrooms-p828374466,,6865787502024
+recoHmg53g3QMEKSP,Hillbilly Agar Plate,FullyColonized,,true,,,,,,,
+recsjtPJtMwZQY12U,Golden Teacher Agar Plate,FullyColonized,,true,,,,,,,
 recwcDAQy89XAYJ2d,2lb Sterilized Oats,Sterilized,,true,,,,,,,
-recwj3JB9j8Dff7fd,Bronze Reishi Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Bronze-Reishi-Liquid-Culture-Syringe-p610277364,,
-recyKXNWcvve4pweO,Small 2.5lb Lion's Mane Fruiting Block,FullyColonized,,true,,,14.95,6,https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912,,
-reczeBH1sg4jNkwOt,Chestnut Liquid Culture Syringe,,,true,,,9.95,5,https://www.mybusiness.com/products/Chestnut-Liquid-Culture-Syringe-p711334876,,
+recwj3JB9j8Dff7fd,Bronze Reishi Liquid Culture Syringe,,ea1d0ac5-ef1b-476d-995c-1db3ec0b438d,true,,160277251,9.95,5,https://www.mybusiness.com/products/Bronze-Reishi-Liquid-Culture-Syringe-p610277364,,6865787500051
+recyKXNWcvve4pweO,Small 2.5lb Lion's Mane Fruiting Block,FullyColonized,7K9P2W4M5X1R3,true,,160277251,14.95,0,https://www.mybusiness.com/products/Lions-Mane-Grow-Kit-Ready-to-Grow-p610276912,,6865787501546
+reczeBH1sg4jNkwOt,Chestnut Liquid Culture Syringe,,P4QPQ6RQ4ARV4,true,,,9.95,5,https://www.mybusiness.com/products/Chestnut-Liquid-Culture-Syringe-p711334876,,6865787502239

@@ -45,6 +45,35 @@
           "name": "regulated"
         },
         {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selG0gWhwq5K9UyMj",
+                "name": "Gourmet",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sels0o8xnhjERLCF2",
+                "name": "Functional",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel9CXGeHY0CMkI4i",
+                "name": "Gourmet/Functional",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selXzhr9Kz8vVrdWl",
+                "name": "Sacrament",
+                "color": "greenLight2"
+              }
+            ]
+          },
+          "id": "fldamii5f5RqRqKWr",
+          "name": "product_use"
+        },
+        {
           "type": "multipleRecordLinks",
           "options": {
             "linkedTableId": "tblhBJqzL8mXqYw8j",
@@ -70,6 +99,904 @@
       "views": [
         {
           "id": "viwDiAfRA7grcT7F7",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl2QYDX1lLDyrpcm",
+      "name": "locations",
+      "primaryFieldId": "fldChlYtgIcySosgb",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldChlYtgIcySosgb",
+          "name": "name"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldFVRqxUHWsKRrxt",
+          "name": "active"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldT7EuiwzQTFBQUx",
+          "name": "type"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldvnqNSGpw95NG4e",
+          "name": "notes"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldh0oOpMwoRWeK7B"
+          },
+          "id": "fldFTzw0BIq2l6fjX",
+          "name": "lots"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldY5DwAvYBzLdY0m"
+          },
+          "id": "fldtuwdjrqvR4K5g5",
+          "name": "products"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw6oUpPyvnH05bUq",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblMB3eUSqLq5Tujy",
+      "name": "items",
+      "primaryFieldId": "fldD1WqVwiPCYBNV9",
+      "fields": [
+        {
+          "type": "multilineText",
+          "id": "fldD1WqVwiPCYBNV9",
+          "name": "item_id"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fld6t026xzqgmnpMm",
+          "name": "active"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selNFNM6mT3BEJcQj",
+                "name": "Organic Wheat/Millet",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selpcJnOWR1l8o3IS",
+                "name": "Wild Bird Seed",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selaZ425HAlHE51LN",
+                "name": "Oats",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selEarzPlvCfhOsUV",
+                "name": "Coco Verm Gypsum",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selEBUceW8Kgo6qpn",
+                "name": "Cordyceps A",
+                "color": "tealBright"
+              },
+              {
+                "id": "selvWEuPqriWew2ZO",
+                "name": "Cordyceps B",
+                "color": "greenBright"
+              },
+              {
+                "id": "selkx4dJ0X4teqqRs",
+                "name": "Masters Mix 50/50",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selNyrCoYL3I29LDA",
+                "name": "Masters Mix 75/25",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selVUsbQg6H9XRiRo",
+                "name": "Liquid Culture Flask",
+                "color": "redLight2"
+              },
+              {
+                "id": "selF9zmbMKHxwzxy9",
+                "name": "Liquid Culture Syringe",
+                "color": "pinkLight2"
+              },
+              {
+                "id": "selT5vbrbtESCFe4d",
+                "name": "Fruiting Block",
+                "color": "purpleLight2"
+              },
+              {
+                "id": "selihZwZ7eGOidDuZ",
+                "name": "Freeze-Dried Mushrooms (1 oz)",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selP2dElMMdtEHsQB",
+                "name": "Freeze-Dried Mushrooms (5 g)",
+                "color": "blueLight1"
+              },
+              {
+                "id": "selmOdBkKZgRuG9qa",
+                "name": "Freeze-Dried Capsules (5g)",
+                "color": "blueBright"
+              },
+              {
+                "id": "seluLMLnPuQL7cTjD",
+                "name": "Freeze-Dried Capsules (10g)",
+                "color": "cyanBright"
+              },
+              {
+                "id": "selsrXRNcv0HjhQ48",
+                "name": "Freezer Tray",
+                "color": "cyanLight1"
+              },
+              {
+                "id": "selmfn2gH1ytiH5Zs",
+                "name": "Freeze-Dry Batch",
+                "color": "tealLight1"
+              },
+              {
+                "id": "selnw7bkBwFTkivpF",
+                "name": "Fresh Tray",
+                "color": "greenLight1"
+              },
+              {
+                "id": "selTkfkwEugBOspGY",
+                "name": "Large CVG",
+                "color": "yellowLight1"
+              },
+              {
+                "id": "selZg0SYGseCOBjBW",
+                "name": "Small CVG",
+                "color": "orangeLight1"
+              },
+              {
+                "id": "selv3MuXeGWFoHT7n",
+                "name": "Large Masters Mix 75/25",
+                "color": "redLight1"
+              },
+              {
+                "id": "seldolf23uALj20Pg",
+                "name": "Small Masters Mix 75/25",
+                "color": "pinkLight1"
+              },
+              {
+                "id": "seluR4qRevdTlgcSl",
+                "name": "Large Masters Mix 50/50",
+                "color": "purpleLight1"
+              },
+              {
+                "id": "selVisf4ZlBTKNPdx",
+                "name": "Small Masters Mix 50/50",
+                "color": "grayLight1"
+              },
+              {
+                "id": "sel0mkKWSqRfKVvCx",
+                "name": "Peat Moss",
+                "color": "pinkDark1"
+              },
+              {
+                "id": "seloGO7be4KeDJtTe",
+                "name": "Agar Flask",
+                "color": "pinkBright"
+              },
+              {
+                "id": "selOEATpiFFellbj9",
+                "name": "Agar Plate 90x15mm",
+                "color": "orangeBright"
+              },
+              {
+                "id": "selhOsGMgvy13DWdp",
+                "name": "Untracked Source",
+                "color": "grayBright"
+              },
+              {
+                "id": "sel5JR1kOHaeVV9aX",
+                "name": "Spawn Bag",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selC0Kg48VIVbi7oC",
+                "name": "Hardwood Substrate Bag",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selL784G5SJxr5K1Q",
+                "name": "CVG Substrate Bag",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selAbsmphYr1xRRAE",
+                "name": "All-in-One Bag",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selelVvyJqt6fM4RX",
+                "name": "Hardwood Fruiting Bag",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "seloN864RgN1U744e",
+                "name": "CVG Fruiting Bag",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selvjNKp271fEKyk3",
+                "name": "CVG Fruiting Tub",
+                "color": "redLight2"
+              },
+              {
+                "id": "selyjWa3pMHYzIx2D",
+                "name": "Cordyceps Container",
+                "color": "pinkLight2"
+              },
+              {
+                "id": "sel5YT1vhQf0dXj2S",
+                "name": "Peat",
+                "color": "blueLight2"
+              },
+              {
+                "id": "seleAL812PhRcrVWf",
+                "name": "Freeze Dried Mushrooms",
+                "color": "yellowDark1"
+              },
+              {
+                "id": "selZzTLlGdUmySsrh",
+                "name": "Freeze Dried Capsules",
+                "color": "purpleBright"
+              }
+            ]
+          },
+          "id": "fldSX1TaYMtvWWQf6",
+          "name": "name"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selSWiV0fm2Fgxb2j",
+                "name": "grain",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selTwLxwj1IdikUUl",
+                "name": "substrate",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selSIFrDT5l9VhwRZ",
+                "name": "cordyceps_substrate",
+                "color": "blueLight1"
+              },
+              {
+                "id": "selokiOjAWQvWtArM",
+                "name": "lc_flask",
+                "color": "tealLight2"
+              },
+              {
+                "id": "sellpmH7xgsOoBe3p",
+                "name": "lc_syringe",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selCS4YNhgfWM7z1k",
+                "name": "fruiting_block",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selUAOQfQuCIF6j0f",
+                "name": "freezedriedmushrooms",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selMyc7nmbZyw5jZ9",
+                "name": "freezer_tray",
+                "color": "redLight2"
+              },
+              {
+                "id": "selRKlXLQz2h8Fos7",
+                "name": "fd_batch",
+                "color": "pinkLight2"
+              },
+              {
+                "id": "sel1Jr28EYCo445Ru",
+                "name": "fresh_tray",
+                "color": "purpleLight2"
+              },
+              {
+                "id": "selMTjCdC47bsbtrP",
+                "name": "empty_tray",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selNxx5b4S0tl5yPZ",
+                "name": "casing",
+                "color": "yellowLight1"
+              },
+              {
+                "id": "selqFu2lFk3VTgkbM",
+                "name": "agar_flask",
+                "color": "pinkLight1"
+              },
+              {
+                "id": "selph3FcnuUpNr1aL",
+                "name": "plate",
+                "color": "pinkBright"
+              },
+              {
+                "id": "selAQIwgql1UIreAY",
+                "name": "untracked_source",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel18poCuS7AWG9X2",
+                "name": "all_in_one_bag",
+                "color": "cyanLight1"
+              },
+              {
+                "id": "selyXDCIJIpPO7X9S",
+                "name": "cordyceps_container",
+                "color": "tealLight1"
+              }
+            ]
+          },
+          "id": "fldt5ruXK95m2Uv1M",
+          "name": "category"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldjrCY3zCDbt0xcS",
+          "name": "default_unit_size_lb"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fld4yBjW2wzNDfWS9",
+          "name": "default_unit_size_ml"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldDJgpwkTevPUcqC",
+          "name": "default_unit_size_oz"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fld1hOWJuc5tXmds5",
+          "name": "default_unit_size_g"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selpCb0y19RZBN8GR",
+                "name": "2lb",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selwMkA2m7FKhvWjR",
+                "name": "2.5lb",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selxTl2UzJDdjaPEx",
+                "name": "5lb",
+                "color": "tealLight2"
+              },
+              {
+                "id": "sel09M2jmB4bg8oH5",
+                "name": "7.5lb",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selSvWZyniY95umLt",
+                "name": "1oz",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selp8pnYcFMRnlNs7",
+                "name": "5g",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "seltBOPirmDorREkL",
+                "name": "10g",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selC7MfaopXMozR4b",
+                "name": "n/a",
+                "color": "redLight2"
+              },
+              {
+                "id": "selY5P7MDgiYzTdsv",
+                "name": "300ml",
+                "color": "pinkLight2"
+              },
+              {
+                "id": "seleOV2PF8cWLAySM",
+                "name": "10ml",
+                "color": "purpleLight2"
+              },
+              {
+                "id": "selan7hU4xjjyOTQL",
+                "name": "1lb",
+                "color": "cyanDark1"
+              },
+              {
+                "id": "sel8Rll5fXKH85BRg",
+                "name": "500ml",
+                "color": "cyanBright"
+              },
+              {
+                "id": "seletuEfIUCL9SN81",
+                "name": "20ml",
+                "color": "greenDark1"
+              }
+            ]
+          },
+          "id": "fldk7w4YcP7kKExEZ",
+          "name": "default_unit_size"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldxNWzIvDNGH8VMT"
+          },
+          "id": "fldE5FVlxBIbaTbC9",
+          "name": "lots"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblexT4KCfiMdc3bn",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld09E2A2TKlzt5lH"
+          },
+          "id": "fldwRwCUiRyxvx9Ad",
+          "name": "sterilization_runs"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldKYyRcX207DbKAh"
+          },
+          "id": "fldEafh2zstrM4VaE",
+          "name": "lots 2"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldIWQMVz3yNuoWyd"
+          },
+          "id": "fldJcyNzp7VjLwWx7",
+          "name": "products"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld1qNcAhoqnqA2Bq"
+          },
+          "id": "fldm83pLRGxW7aFJg",
+          "name": "lots 4"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldP4Z6zvyPoVHTdC"
+          },
+          "id": "fldXBYfxu9u1YZp9p",
+          "name": "products 2"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblhBJqzL8mXqYw8j",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld7UmdsUlfZPgC20"
+          },
+          "id": "fldpSqnJkI7TzW4HQ",
+          "name": "ecommerce"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldp4tAqEbT88oN2I"
+          },
+          "id": "fldo7oJZz0xaxAKGA",
+          "name": "replaced_by_item_id"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldo7oJZz0xaxAKGA"
+          },
+          "id": "fldp4tAqEbT88oN2I",
+          "name": "items"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldRB8UTFA73m2D0K",
+          "name": "deprecated_reason"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selRRfkrDEg9e3B7Z",
+                "name": "none",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selyUGa5KpxqlHSSb",
+                "name": "single_recipe",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel6MZO5GL4DSjnLB",
+                "name": "multi_recipe",
+                "color": "tealLight2"
+              }
+            ]
+          },
+          "id": "fldqvAPpuJN96mLyJ",
+          "name": "component_mode"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selRY3Aep0AohNOsd",
+                "name": "lot_unit_size",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selvBmRxCRN4w01U8",
+                "name": "item_default",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selIj6mRjgJR1JohT",
+                "name": "component_sum",
+                "color": "tealLight2"
+              }
+            ]
+          },
+          "id": "fld4o6ujHVfVEmqrW",
+          "name": "size_source"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldvbAyLDNsJiiMNn",
+          "name": "sort_order"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblHTFC2ATRdkdgVf",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldhC9mW2NTLtohnm"
+          },
+          "id": "fld7t7VSCqdynDfpv",
+          "name": "item_recipe_components"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblBLP3cwe6FAwBBq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldbkLGZACD1zwPgv"
+          },
+          "id": "fldG4xyE8Q1lMkxA2",
+          "name": "lot_recipe_components"
+        },
+        {
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fld7t7VSCqdynDfpv",
+            "fieldIdInLinkedTable": "fldr9KuEWSRSZahQ2",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldh4AsGIRRYnlz8X",
+          "name": "item_component_summary"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw5P3kN4wqS8pr3p",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblHTFC2ATRdkdgVf",
+      "name": "item_recipe_components",
+      "description": "Defines detailed item components for recipes with role, sizing, and linking.",
+      "primaryFieldId": "fldParraRFzRQ6Bq1",
+      "fields": [
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "\"IRC-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldParraRFzRQ6Bq1",
+          "name": "component_id"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "thumbsUp",
+            "color": "greenBright"
+          },
+          "id": "fldPnh6L51VYTjz8p",
+          "name": "active"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld7t7VSCqdynDfpv"
+          },
+          "id": "fldhC9mW2NTLtohnm",
+          "name": "item_id"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selHZFs9cD5qpFQaD",
+                "name": "WBS_CVG_V2",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selhrra7hrcKrpnKf",
+                "name": "WBS_CVG_RIZ1",
+                "color": "greenLight2"
+              }
+            ]
+          },
+          "id": "flda8b76tdbEOa5UQ",
+          "name": "component_set"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblm263EWB0vsucXc",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld9WH2qiUDKdHl3G"
+          },
+          "id": "fldl2u50XOEFJiGLj",
+          "name": "recipe_id"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel7hJ8ZQtQ6ZLws2",
+                "name": "primary",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selmSq7WaGLHmYE6w",
+                "name": "grain",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel041pYRYFfPKnzv",
+                "name": "substrate",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selDmE62tAV8I3ZiP",
+                "name": "agar",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selP2Ai096ShX3LiH",
+                "name": "lc",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selvHtshvejK62EdS",
+                "name": "casing",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selvjXVW6xKlRlz7m",
+                "name": "supplement",
+                "color": "redLight2"
+              },
+              {
+                "id": "selBoiwZrbppNuMOr",
+                "name": "other",
+                "color": "pinkLight2"
+              }
+            ]
+          },
+          "id": "fldJeqcGDJDU1wZWc",
+          "name": "component_role"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldlnIb1fbflxbYM0",
+          "name": "unit_size_lb"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldrlToZTYOuEHrer",
+          "name": "default_weight_lb"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fld6I8CKa02CYWQqF",
+          "name": "default_percent"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldQ2LifJIoYIDVvC",
+          "name": "sort_order"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldiqqjvntd4lwtjR",
+          "name": "notes"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblBLP3cwe6FAwBBq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldKr2M0VIimb3DiH"
+          },
+          "id": "fldy2p4NH8oJcSlIt",
+          "name": "lot_recipe_components"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldJeqcGDJDU1wZWc}, {fldJeqcGDJDU1wZWc} & \": \", \"\") &\nARRAYJOIN({fldl2u50XOEFJiGLj}) &\nIF({fldlnIb1fbflxbYM0}, \" @ \" & {fldlnIb1fbflxbYM0} & \" lb unit\", \"\") &\nIF({fldrlToZTYOuEHrer}, \" — \" & {fldrlToZTYOuEHrer} & \" lb\", \"\")",
+            "referencedFieldIds": [
+              "fldJeqcGDJDU1wZWc",
+              "fldl2u50XOEFJiGLj",
+              "fldlnIb1fbflxbYM0",
+              "fldrlToZTYOuEHrer"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldwhwUROOYTQTHcX",
+          "name": "component_display"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n  {fldPnh6L51VYTjz8p},\n  IF({flda8b76tdbEOa5UQ}, {flda8b76tdbEOa5UQ} & \" — \", \"\") & {fldwhwUROOYTQTHcX},\n  BLANK()\n)",
+            "referencedFieldIds": [
+              "fldPnh6L51VYTjz8p",
+              "flda8b76tdbEOa5UQ",
+              "fldwhwUROOYTQTHcX"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldr9KuEWSRSZahQ2",
+          "name": "component_display_active"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwR6JYn7TU8CICjz",
           "name": "Grid view",
           "type": "grid"
         }
@@ -169,6 +1096,28 @@
           },
           "id": "fldiRbqdGnQcuAsMV",
           "name": "sterilization_runs"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblHTFC2ATRdkdgVf",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldl2u50XOEFJiGLj"
+          },
+          "id": "fld9WH2qiUDKdHl3G",
+          "name": "item_recipe_components"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblBLP3cwe6FAwBBq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldZjFTJk9OrISndP"
+          },
+          "id": "fldFodZT2miWYRdov",
+          "name": "lot_recipe_components"
         }
       ],
       "views": [
@@ -180,819 +1129,664 @@
       ]
     },
     {
-      "id": "tbl51zhGGDuaL2Sm4",
-      "name": "products",
-      "primaryFieldId": "fldgzDEo51u33bNf3",
+      "id": "tblBLP3cwe6FAwBBq",
+      "name": "lot_recipe_components",
+      "description": "Tracks actual item components used per lot, capturing detailed batch ingredient data.",
+      "primaryFieldId": "fldOYqD9gBqXfdZe8",
       "fields": [
         {
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "\"PROD-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
+            "formula": "\"LRC-\" & DATETIME_FORMAT(CREATED_TIME(), 'YYMMDD') & \"-\" & RIGHT(RECORD_ID(), 4)",
             "referencedFieldIds": [],
             "result": {
               "type": "singleLineText"
             }
           },
-          "id": "fldgzDEo51u33bNf3",
-          "name": "product_id"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblMB3eUSqLq5Tujy",
-            "isReversed": false,
-            "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fldJcyNzp7VjLwWx7"
-          },
-          "id": "fldIWQMVz3yNuoWyd",
-          "name": "item_id"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldIWQMVz3yNuoWyd",
-            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selNFNM6mT3BEJcQj",
-                    "name": "Organic Wheat/Millet",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selpcJnOWR1l8o3IS",
-                    "name": "Wild Bird Seed",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selaZ425HAlHE51LN",
-                    "name": "Oats",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "selEarzPlvCfhOsUV",
-                    "name": "Coco Verm Gypsum",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selEBUceW8Kgo6qpn",
-                    "name": "Cordyceps A",
-                    "color": "tealBright"
-                  },
-                  {
-                    "id": "selvWEuPqriWew2ZO",
-                    "name": "Cordyceps B",
-                    "color": "greenBright"
-                  },
-                  {
-                    "id": "selkx4dJ0X4teqqRs",
-                    "name": "Masters Mix 50/50",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selNyrCoYL3I29LDA",
-                    "name": "Masters Mix 75/25",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "selVUsbQg6H9XRiRo",
-                    "name": "Liquid Culture Flask",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selF9zmbMKHxwzxy9",
-                    "name": "Liquid Culture Syringe",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "selT5vbrbtESCFe4d",
-                    "name": "Fruiting Block",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selihZwZ7eGOidDuZ",
-                    "name": "Freeze-Dried Mushrooms (1 oz)",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selP2dElMMdtEHsQB",
-                    "name": "Freeze-Dried Mushrooms (5 g)",
-                    "color": "blueLight1"
-                  },
-                  {
-                    "id": "selmOdBkKZgRuG9qa",
-                    "name": "Freeze-Dried Capsules (5g)",
-                    "color": "blueBright"
-                  },
-                  {
-                    "id": "seluLMLnPuQL7cTjD",
-                    "name": "Freeze-Dried Capsules (10g)",
-                    "color": "cyanBright"
-                  },
-                  {
-                    "id": "selsrXRNcv0HjhQ48",
-                    "name": "Freezer Tray",
-                    "color": "cyanLight1"
-                  },
-                  {
-                    "id": "selmfn2gH1ytiH5Zs",
-                    "name": "Freeze-Dry Batch",
-                    "color": "tealLight1"
-                  },
-                  {
-                    "id": "selnw7bkBwFTkivpF",
-                    "name": "Fresh Tray",
-                    "color": "greenLight1"
-                  },
-                  {
-                    "id": "selTkfkwEugBOspGY",
-                    "name": "Large CVG",
-                    "color": "yellowLight1"
-                  },
-                  {
-                    "id": "selZg0SYGseCOBjBW",
-                    "name": "Small CVG",
-                    "color": "orangeLight1"
-                  },
-                  {
-                    "id": "selv3MuXeGWFoHT7n",
-                    "name": "Large Masters Mix 75/25",
-                    "color": "redLight1"
-                  },
-                  {
-                    "id": "seldolf23uALj20Pg",
-                    "name": "Small Masters Mix 75/25",
-                    "color": "pinkLight1"
-                  },
-                  {
-                    "id": "seluR4qRevdTlgcSl",
-                    "name": "Large Masters Mix 50/50",
-                    "color": "purpleLight1"
-                  },
-                  {
-                    "id": "selVisf4ZlBTKNPdx",
-                    "name": "Small Masters Mix 50/50",
-                    "color": "grayLight1"
-                  },
-                  {
-                    "id": "sel0mkKWSqRfKVvCx",
-                    "name": "Peat Moss",
-                    "color": "pinkDark1"
-                  },
-                  {
-                    "id": "seloGO7be4KeDJtTe",
-                    "name": "Agar Flask",
-                    "color": "pinkBright"
-                  },
-                  {
-                    "id": "selOEATpiFFellbj9",
-                    "name": "Agar Plate 90x15mm",
-                    "color": "orangeBright"
-                  },
-                  {
-                    "id": "selhOsGMgvy13DWdp",
-                    "name": "Untracked Source",
-                    "color": "grayBright"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fld9UNkz7HeovZ2df",
-          "name": "name"
-        },
-        {
-          "type": "singleLineText",
-          "id": "fldl45lXo0Jr4kQpf",
-          "name": "name_mat"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldIWQMVz3yNuoWyd",
-            "fieldIdInLinkedTable": "fldt5ruXK95m2Uv1M",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selSWiV0fm2Fgxb2j",
-                    "name": "grain",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selTwLxwj1IdikUUl",
-                    "name": "substrate",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selSIFrDT5l9VhwRZ",
-                    "name": "cordyceps_substrate",
-                    "color": "blueLight1"
-                  },
-                  {
-                    "id": "selokiOjAWQvWtArM",
-                    "name": "lc_flask",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "sellpmH7xgsOoBe3p",
-                    "name": "lc_syringe",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selCS4YNhgfWM7z1k",
-                    "name": "fruiting_block",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selUAOQfQuCIF6j0f",
-                    "name": "freezedriedmushrooms",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "selMyc7nmbZyw5jZ9",
-                    "name": "freezer_tray",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selRKlXLQz2h8Fos7",
-                    "name": "fd_batch",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "sel1Jr28EYCo445Ru",
-                    "name": "fresh_tray",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selMTjCdC47bsbtrP",
-                    "name": "empty_tray",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selNxx5b4S0tl5yPZ",
-                    "name": "casing",
-                    "color": "yellowLight1"
-                  },
-                  {
-                    "id": "selqFu2lFk3VTgkbM",
-                    "name": "agar_flask",
-                    "color": "pinkLight1"
-                  },
-                  {
-                    "id": "selph3FcnuUpNr1aL",
-                    "name": "plate",
-                    "color": "pinkBright"
-                  },
-                  {
-                    "id": "selAQIwgql1UIreAY",
-                    "name": "untracked_source",
-                    "color": "blueLight2"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fldELkpWppI7EegBB",
-          "name": "item_category"
-        },
-        {
-          "type": "singleLineText",
-          "id": "fldxEMPeLKGwRCK2M",
-          "name": "item_category_mat"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fld4otBJtSaXoaCa4",
-          "name": "net_weight_g"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldB3JFAjk5EV78X2",
-          "name": "net_weight_oz"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldqmbHWvrKsoiq65",
-          "name": "net_volume_ml"
-        },
-        {
-          "type": "date",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            }
-          },
-          "id": "fld251nNKCw2rkLy3",
-          "name": "pack_date"
-        },
-        {
-          "type": "date",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            }
-          },
-          "id": "fldm8L9e3hArmcIOf",
-          "name": "use_by"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF(\r\n  OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)",
-            "referencedFieldIds": [
-              "fldYnQ0r2CAvasnQu",
-              "fldxEMPeLKGwRCK2M",
-              "fldIC7hRmODZ0X3p0"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldd1njLVghnzCL7z",
-          "name": "public_link"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblMB3eUSqLq5Tujy",
-            "isReversed": false,
-            "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fldXBYfxu9u1YZp9p"
-          },
-          "id": "fldP4Z6zvyPoVHTdC",
-          "name": "package_item"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldP4Z6zvyPoVHTdC",
-            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selNFNM6mT3BEJcQj",
-                    "name": "Organic Wheat/Millet",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selpcJnOWR1l8o3IS",
-                    "name": "Wild Bird Seed",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selaZ425HAlHE51LN",
-                    "name": "Oats",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "selEarzPlvCfhOsUV",
-                    "name": "Coco Verm Gypsum",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selEBUceW8Kgo6qpn",
-                    "name": "Cordyceps A",
-                    "color": "tealBright"
-                  },
-                  {
-                    "id": "selvWEuPqriWew2ZO",
-                    "name": "Cordyceps B",
-                    "color": "greenBright"
-                  },
-                  {
-                    "id": "selkx4dJ0X4teqqRs",
-                    "name": "Masters Mix 50/50",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selNyrCoYL3I29LDA",
-                    "name": "Masters Mix 75/25",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "selVUsbQg6H9XRiRo",
-                    "name": "Liquid Culture Flask",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selF9zmbMKHxwzxy9",
-                    "name": "Liquid Culture Syringe",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "selT5vbrbtESCFe4d",
-                    "name": "Fruiting Block",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selihZwZ7eGOidDuZ",
-                    "name": "Freeze-Dried Mushrooms (1 oz)",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selP2dElMMdtEHsQB",
-                    "name": "Freeze-Dried Mushrooms (5 g)",
-                    "color": "blueLight1"
-                  },
-                  {
-                    "id": "selmOdBkKZgRuG9qa",
-                    "name": "Freeze-Dried Capsules (5g)",
-                    "color": "blueBright"
-                  },
-                  {
-                    "id": "seluLMLnPuQL7cTjD",
-                    "name": "Freeze-Dried Capsules (10g)",
-                    "color": "cyanBright"
-                  },
-                  {
-                    "id": "selsrXRNcv0HjhQ48",
-                    "name": "Freezer Tray",
-                    "color": "cyanLight1"
-                  },
-                  {
-                    "id": "selmfn2gH1ytiH5Zs",
-                    "name": "Freeze-Dry Batch",
-                    "color": "tealLight1"
-                  },
-                  {
-                    "id": "selnw7bkBwFTkivpF",
-                    "name": "Fresh Tray",
-                    "color": "greenLight1"
-                  },
-                  {
-                    "id": "selTkfkwEugBOspGY",
-                    "name": "Large CVG",
-                    "color": "yellowLight1"
-                  },
-                  {
-                    "id": "selZg0SYGseCOBjBW",
-                    "name": "Small CVG",
-                    "color": "orangeLight1"
-                  },
-                  {
-                    "id": "selv3MuXeGWFoHT7n",
-                    "name": "Large Masters Mix 75/25",
-                    "color": "redLight1"
-                  },
-                  {
-                    "id": "seldolf23uALj20Pg",
-                    "name": "Small Masters Mix 75/25",
-                    "color": "pinkLight1"
-                  },
-                  {
-                    "id": "seluR4qRevdTlgcSl",
-                    "name": "Large Masters Mix 50/50",
-                    "color": "purpleLight1"
-                  },
-                  {
-                    "id": "selVisf4ZlBTKNPdx",
-                    "name": "Small Masters Mix 50/50",
-                    "color": "grayLight1"
-                  },
-                  {
-                    "id": "sel0mkKWSqRfKVvCx",
-                    "name": "Peat Moss",
-                    "color": "pinkDark1"
-                  },
-                  {
-                    "id": "seloGO7be4KeDJtTe",
-                    "name": "Agar Flask",
-                    "color": "pinkBright"
-                  },
-                  {
-                    "id": "selOEATpiFFellbj9",
-                    "name": "Agar Plate 90x15mm",
-                    "color": "orangeBright"
-                  },
-                  {
-                    "id": "selhOsGMgvy13DWdp",
-                    "name": "Untracked Source",
-                    "color": "grayBright"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fldevTMm9ZJ7MR9id",
-          "name": "name (from package_item)"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldP4Z6zvyPoVHTdC",
-            "fieldIdInLinkedTable": "fldt5ruXK95m2Uv1M",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selSWiV0fm2Fgxb2j",
-                    "name": "grain",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selTwLxwj1IdikUUl",
-                    "name": "substrate",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selSIFrDT5l9VhwRZ",
-                    "name": "cordyceps_substrate",
-                    "color": "blueLight1"
-                  },
-                  {
-                    "id": "selokiOjAWQvWtArM",
-                    "name": "lc_flask",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "sellpmH7xgsOoBe3p",
-                    "name": "lc_syringe",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selCS4YNhgfWM7z1k",
-                    "name": "fruiting_block",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selUAOQfQuCIF6j0f",
-                    "name": "freezedriedmushrooms",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "selMyc7nmbZyw5jZ9",
-                    "name": "freezer_tray",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selRKlXLQz2h8Fos7",
-                    "name": "fd_batch",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "sel1Jr28EYCo445Ru",
-                    "name": "fresh_tray",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selMTjCdC47bsbtrP",
-                    "name": "empty_tray",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selNxx5b4S0tl5yPZ",
-                    "name": "casing",
-                    "color": "yellowLight1"
-                  },
-                  {
-                    "id": "selqFu2lFk3VTgkbM",
-                    "name": "agar_flask",
-                    "color": "pinkLight1"
-                  },
-                  {
-                    "id": "selph3FcnuUpNr1aL",
-                    "name": "plate",
-                    "color": "pinkBright"
-                  },
-                  {
-                    "id": "selAQIwgql1UIreAY",
-                    "name": "untracked_source",
-                    "color": "blueLight2"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fldgAZF6DMYacvMEo",
-          "name": "package_item_category"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fld8k2F3ce0fx7yCq",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldmasAoE3hLznq9h",
-          "name": "unit_lbs"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldPTVqPGEOa6aubh",
-            "result": {
-              "type": "number",
-              "options": {
-                "precision": 2
-              }
-            }
-          },
-          "id": "fld9C9D8M5WM00MEz",
-          "name": "unit_size"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fld3kzM8siqsRjT2I",
-          "name": "package_size_g"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 0
-          },
-          "id": "fldYXUj9iS4BBMLSY",
-          "name": "package_count"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl2QYDX1lLDyrpcm",
-            "isReversed": false,
-            "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fldtuwdjrqvR4K5g5"
-          },
-          "id": "fldY5DwAvYBzLdY0m",
-          "name": "storage_location"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selbHRILxI14gjJA9",
-                "name": "FreezeDry",
-                "color": "blueLight2"
-              },
-              {
-                "id": "selna7jUfa0CpNwyD",
-                "name": "PackageFreezeDried",
-                "color": "cyanLight2"
-              }
-            ]
-          },
-          "id": "fld36urTHG3KUwV7w",
-          "name": "action"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl51zhGGDuaL2Sm4",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldvVExZjY7NPsLc6"
-          },
-          "id": "fldBO53sbKJROLDZs",
-          "name": "merge_tray_products"
-        },
-        {
-          "type": "multilineText",
-          "id": "fldYzm8YZpYgYMXcH",
-          "name": "origin_lot_ids_json"
+          "id": "fldOYqD9gBqXfdZe8",
+          "name": "lot_recipe_component_id"
         },
         {
           "type": "multipleRecordLinks",
           "options": {
             "linkedTableId": "tblL2oACeE9P92BRA",
             "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldZ8sIC8TQHkmB6V"
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldIZqe3VBKP1sYAN"
           },
-          "id": "fldZKlmLflBlJOIri",
-          "name": "origin_lots"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldmx5RDnELMNEUEm",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldzea0ooNE7mFCRk",
-          "name": "label_inoc_prod"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldf3uvlIcTsLLtxf",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld1EmffiN0t7JdIk",
-          "name": "label_spawned_prod"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldGS78ngOyMeSkBD",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "flduOFUKBBlUIQdlW",
-          "name": "label_proc_prod"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldZKlmLflBlJOIri",
-            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldCaAC0GQ4HQdkRw",
-          "name": "process_type"
-        },
-        {
-          "type": "singleLineText",
-          "id": "fldSVENsQQ2fL8HA1",
-          "name": "process_type_mat"
+          "id": "fldVolht8lh0HRmfK",
+          "name": "lot_id"
         },
         {
           "type": "multipleRecordLinks",
           "options": {
-            "linkedTableId": "tblbx0LJNAs8NE4xd",
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
             "isReversed": false,
             "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fld2E0hIBgudxjzX9"
+            "inverseLinkFieldId": "fldG4xyE8Q1lMkxA2"
           },
-          "id": "flda0L76dXoFvneR7",
-          "name": "strain_id"
+          "id": "fldbkLGZACD1zwPgv",
+          "name": "item_id"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblm263EWB0vsucXc",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldFodZT2miWYRdov"
+          },
+          "id": "fldZjFTJk9OrISndP",
+          "name": "recipe_id"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblHTFC2ATRdkdgVf",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldy2p4NH8oJcSlIt"
+          },
+          "id": "fldKr2M0VIimb3DiH",
+          "name": "source_item_recipe_component"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selBL8XN8P9YxlGph",
+                "name": "primary",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selEBKLFaa4bcimEo",
+                "name": "grain",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selhfSMjCD0X4I6uw",
+                "name": "substrate",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selV55yJHugI53Pbs",
+                "name": "agar",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selS5NTM59rnwlM2G",
+                "name": "lc",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selogtdWjsBpBbBiD",
+                "name": "casing",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "selc4ZIbFfdmzrq62",
+                "name": "supplement",
+                "color": "redLight2"
+              },
+              {
+                "id": "selQrePgCxJkSjEYF",
+                "name": "other",
+                "color": "pinkLight2"
+              }
+            ]
+          },
+          "id": "fld6Lb7S4vMcQ4v6b",
+          "name": "component_role"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldyFbshs2UdcQOBG",
+          "name": "component_weight_lb"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "flde2wVZ267IIT1Zj",
+          "name": "component_percent"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldrGLig776jd7IbA",
+          "name": "sort_order"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld4ihXkRp9oDOUC8",
+          "name": "notes"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fld6Lb7S4vMcQ4v6b}, {fld6Lb7S4vMcQ4v6b} & \": \", \"\") &\nARRAYJOIN({fldZjFTJk9OrISndP}) &\nIF({fldyFbshs2UdcQOBG}, \" — \" & {fldyFbshs2UdcQOBG} & \" lb\", \"\") &\nIF({flde2wVZ267IIT1Zj}, \" — \" & {flde2wVZ267IIT1Zj} & \"%\", \"\")",
+            "referencedFieldIds": [
+              "fld6Lb7S4vMcQ4v6b",
+              "fldZjFTJk9OrISndP",
+              "fldyFbshs2UdcQOBG",
+              "flde2wVZ267IIT1Zj"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld6Ll3oAGINdMDom",
+          "name": "lot_component_display"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwqTrDEZ8ZYp4vQf",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblexT4KCfiMdc3bn",
+      "name": "sterilization_runs",
+      "primaryFieldId": "fld7nCKo8igererm8",
+      "fields": [
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "\"RUN-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld7nCKo8igererm8",
+          "name": "steri_run_id"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldwRwCUiRyxvx9Ad"
+          },
+          "id": "fld09E2A2TKlzt5lH",
+          "name": "planned_item"
         },
         {
           "type": "multipleLookupValues",
           "options": {
             "isValid": true,
-            "recordLinkFieldId": "flda0L76dXoFvneR7",
-            "fieldIdInLinkedTable": "fldD0EgJs9l6OVC78",
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fldqvAPpuJN96mLyJ",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selRRfkrDEg9e3B7Z",
+                    "name": "none",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selyUGa5KpxqlHSSb",
+                    "name": "single_recipe",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "sel6MZO5GL4DSjnLB",
+                    "name": "multi_recipe",
+                    "color": "tealLight2"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fld5lDWlAa89P4qwx",
+          "name": "component_mode (from planned_item)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fldk7w4YcP7kKExEZ",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selpCb0y19RZBN8GR",
+                    "name": "2lb",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selwMkA2m7FKhvWjR",
+                    "name": "2.5lb",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selxTl2UzJDdjaPEx",
+                    "name": "5lb",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "sel09M2jmB4bg8oH5",
+                    "name": "7.5lb",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selSvWZyniY95umLt",
+                    "name": "1oz",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selp8pnYcFMRnlNs7",
+                    "name": "5g",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "seltBOPirmDorREkL",
+                    "name": "10g",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selC7MfaopXMozR4b",
+                    "name": "n/a",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selY5P7MDgiYzTdsv",
+                    "name": "300ml",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "seleOV2PF8cWLAySM",
+                    "name": "10ml",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selan7hU4xjjyOTQL",
+                    "name": "1lb",
+                    "color": "cyanDark1"
+                  },
+                  {
+                    "id": "sel8Rll5fXKH85BRg",
+                    "name": "500ml",
+                    "color": "cyanBright"
+                  },
+                  {
+                    "id": "seletuEfIUCL9SN81",
+                    "name": "20ml",
+                    "color": "greenDark1"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fldGfSZNnKXJr9pfN",
+          "name": "default_unit_size (from planned_item)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fldD1WqVwiPCYBNV9",
             "result": {
               "type": "multilineText"
             }
           },
-          "id": "fld0vFWc649maA7Vj",
-          "name": "species_strain"
+          "id": "fld1oVFVVeM1T0FLF",
+          "name": "planned_item_id"
         },
         {
           "type": "multipleLookupValues",
           "options": {
             "isValid": true,
-            "recordLinkFieldId": "flda0L76dXoFvneR7",
-            "fieldIdInLinkedTable": "flddfCW96yf23sj7K",
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
             "result": {
-              "type": "checkbox",
+              "type": "singleSelect",
               "options": {
-                "icon": "check",
-                "color": "greenBright"
+                "choices": [
+                  {
+                    "id": "selNFNM6mT3BEJcQj",
+                    "name": "Organic Wheat/Millet",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selpcJnOWR1l8o3IS",
+                    "name": "Wild Bird Seed",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selaZ425HAlHE51LN",
+                    "name": "Oats",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selEarzPlvCfhOsUV",
+                    "name": "Coco Verm Gypsum",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
+                  },
+                  {
+                    "id": "selkx4dJ0X4teqqRs",
+                    "name": "Masters Mix 50/50",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selNyrCoYL3I29LDA",
+                    "name": "Masters Mix 75/25",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selVUsbQg6H9XRiRo",
+                    "name": "Liquid Culture Flask",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selF9zmbMKHxwzxy9",
+                    "name": "Liquid Culture Syringe",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "selT5vbrbtESCFe4d",
+                    "name": "Fruiting Block",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selihZwZ7eGOidDuZ",
+                    "name": "Freeze-Dried Mushrooms (1 oz)",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selP2dElMMdtEHsQB",
+                    "name": "Freeze-Dried Mushrooms (5 g)",
+                    "color": "blueLight1"
+                  },
+                  {
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)",
+                    "color": "blueBright"
+                  },
+                  {
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)",
+                    "color": "cyanBright"
+                  },
+                  {
+                    "id": "selsrXRNcv0HjhQ48",
+                    "name": "Freezer Tray",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selmfn2gH1ytiH5Zs",
+                    "name": "Freeze-Dry Batch",
+                    "color": "tealLight1"
+                  },
+                  {
+                    "id": "selnw7bkBwFTkivpF",
+                    "name": "Fresh Tray",
+                    "color": "greenLight1"
+                  },
+                  {
+                    "id": "selTkfkwEugBOspGY",
+                    "name": "Large CVG",
+                    "color": "yellowLight1"
+                  },
+                  {
+                    "id": "selZg0SYGseCOBjBW",
+                    "name": "Small CVG",
+                    "color": "orangeLight1"
+                  },
+                  {
+                    "id": "selv3MuXeGWFoHT7n",
+                    "name": "Large Masters Mix 75/25",
+                    "color": "redLight1"
+                  },
+                  {
+                    "id": "seldolf23uALj20Pg",
+                    "name": "Small Masters Mix 75/25",
+                    "color": "pinkLight1"
+                  },
+                  {
+                    "id": "seluR4qRevdTlgcSl",
+                    "name": "Large Masters Mix 50/50",
+                    "color": "purpleLight1"
+                  },
+                  {
+                    "id": "selVisf4ZlBTKNPdx",
+                    "name": "Small Masters Mix 50/50",
+                    "color": "grayLight1"
+                  },
+                  {
+                    "id": "sel0mkKWSqRfKVvCx",
+                    "name": "Peat Moss",
+                    "color": "pinkDark1"
+                  },
+                  {
+                    "id": "seloGO7be4KeDJtTe",
+                    "name": "Agar Flask",
+                    "color": "pinkBright"
+                  },
+                  {
+                    "id": "selOEATpiFFellbj9",
+                    "name": "Agar Plate 90x15mm",
+                    "color": "orangeBright"
+                  },
+                  {
+                    "id": "selhOsGMgvy13DWdp",
+                    "name": "Untracked Source",
+                    "color": "grayBright"
+                  },
+                  {
+                    "id": "sel5JR1kOHaeVV9aX",
+                    "name": "Spawn Bag",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selC0Kg48VIVbi7oC",
+                    "name": "Hardwood Substrate Bag",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selL784G5SJxr5K1Q",
+                    "name": "CVG Substrate Bag",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selAbsmphYr1xRRAE",
+                    "name": "All-in-One Bag",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selelVvyJqt6fM4RX",
+                    "name": "Hardwood Fruiting Bag",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "seloN864RgN1U744e",
+                    "name": "CVG Fruiting Bag",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selvjNKp271fEKyk3",
+                    "name": "CVG Fruiting Tub",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selyjWa3pMHYzIx2D",
+                    "name": "Cordyceps Container",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel5YT1vhQf0dXj2S",
+                    "name": "Peat",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "seleAL812PhRcrVWf",
+                    "name": "Freeze Dried Mushrooms",
+                    "color": "yellowDark1"
+                  },
+                  {
+                    "id": "selZzTLlGdUmySsrh",
+                    "name": "Freeze Dried Capsules",
+                    "color": "purpleBright"
+                  }
+                ]
               }
             }
           },
-          "id": "fldIC7hRmODZ0X3p0",
-          "name": "origin_strain_regulated"
+          "id": "fldmTOKO5vMpB0spX",
+          "name": "planned_item_name"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldCHFuBJcFwgK5f7",
+          "name": "start_time"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldDnlisydghAqL2B",
+          "name": "end_time"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selMcwKPzoYHIVPiw",
+                "name": "Operator 1 <operator1.email.address@mybusiness.com>",
+                "color": "redLight2"
+              },
+              {
+                "id": "sel3jt3Y70acIGJRf",
+                "name": "Operator 2 <operator2.email.address@mybusiness.com>",
+                "color": "blueLight2"
+              }
+            ]
+          },
+          "id": "fld3ZAIkekO9apGRr",
+          "name": "operator"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblm263EWB0vsucXc",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldiRbqdGnQcuAsMV"
+          },
+          "id": "fldTMzyf6ZSBfFF4k",
+          "name": "planned_recipe"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldTMzyf6ZSBfFF4k",
+            "fieldIdInLinkedTable": "fldndRjoqegdNTCvB",
+            "result": {
+              "type": "multilineText"
+            }
+          },
+          "id": "fldJY36C2eDNpLuUD",
+          "name": "recipe_id (from planned_recipe)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldTMzyf6ZSBfFF4k",
+            "fieldIdInLinkedTable": "fldWEKB2VJ3H8fkxU",
+            "result": {
+              "type": "multilineText"
+            }
+          },
+          "id": "fldXPRwquxaJiAlwD",
+          "name": "name (from planned_recipe)"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldDtxqEtdYXj2irI",
+          "name": "planned_count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldsjT5Bx3CCYbiOi",
+          "name": "good_count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldPpy1KhQdDEDntC",
+          "name": "destroyed_count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldN3FzkHFrlRm8KM",
+          "name": "planned_unit_size"
         },
         {
           "type": "multilineText",
-          "id": "fldVYSqCwH06lfVvq",
+          "id": "fldOIZWWJX5AvthrX",
           "name": "ui_error"
         },
         {
@@ -1008,7 +1802,7 @@
             },
             "timeZone": "client"
           },
-          "id": "fldMTyuyGsXocWh5Q",
+          "id": "fldrSJpkhhe0aWScW",
           "name": "ui_error_at"
         },
         {
@@ -1016,293 +1810,62 @@
           "options": {
             "choices": [
               {
-                "id": "selD9PlM0kNCGmcbR",
-                "name": "fresh_tray",
+                "id": "selfceGzJIhPmLGMT",
+                "name": "Sterilize",
                 "color": "blueLight2"
               },
               {
-                "id": "sel1LvjHngzh1pP4Z",
-                "name": "freezer_tray",
+                "id": "selfY7EHC5aLiD7UR",
+                "name": "Pasteurize",
                 "color": "cyanLight2"
               },
               {
-                "id": "selDIENPWVCn1WihS",
-                "name": "empty_tray",
+                "id": "seljqQep6LW34vf6S",
+                "name": "Abandoned",
                 "color": "tealLight2"
               }
             ]
           },
-          "id": "fldHS9MTuuHEqP5z6",
-          "name": "tray_state"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"Regulated Business\", \r\n  \"My Business\"),\r\n\"My Business\")",
-            "referencedFieldIds": [
-              "fldIC7hRmODZ0X3p0",
-              "fldxEMPeLKGwRCK2M"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldaL52TEAxGFC82t",
-          "name": "label_company_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"RegulatedBusinessAddressAndContact\", \r\n  \"MyBusinessAddressAndContact\"),\r\n\"MyBusinessAddressAndContact\")",
-            "referencedFieldIds": [
-              "fldIC7hRmODZ0X3p0",
-              "fldxEMPeLKGwRCK2M"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldg5EftGwMNxsvTV",
-          "name": "label_companyaddress_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fruitingblock\"\r\n  ), \"\", \r\n  \"Disclaimer: Psilocybin is classified as a Schedule I controlled substance by the U.S. Drug Enforcement Administration (DEA). Unauthorized cultivation, possession, or distribution of psilocybin-containing mushrooms is illegal in most states. It is the responsibility of the buyer to research and comply with all local, state, and federal laws regarding mushroom cultivation. Please consult your local laws carefully before any attempt to grow mushrooms, as penalties for non-compliance can be significant.\"),\r\n\"\")",
-            "referencedFieldIds": [
-              "fldIC7hRmODZ0X3p0",
-              "fldxEMPeLKGwRCK2M"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldGTtEvHqgc1mtN8",
-          "name": "label_disclaimer_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"MyBusinessOffering\",\"\")\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fruiting_block\"\r\n  ), \"MyBusinessOffering\",\"\")\r\n)",
-            "referencedFieldIds": [
-              "fldIC7hRmODZ0X3p0",
-              "fldxEMPeLKGwRCK2M"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldbYsRjHg1jGj8je",
-          "name": "label_companyinfo_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\r\n   IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n)",
-            "referencedFieldIds": [
-              "fldIC7hRmODZ0X3p0",
-              "fldxEMPeLKGwRCK2M"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldFCJLIvGu2qVbeZ",
-          "name": "label_cottage_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",               {fldl45lXo0Jr4kQpf} & \" Grain\",\r\n  \"substrate\",           {fldl45lXo0Jr4kQpf} & \" Substrate\",\r\n  \"fruiting_block\",      {fldl45lXo0Jr4kQpf},\r\n  \"lc_syringe\",          {fldl45lXo0Jr4kQpf},\r\n  \"freezedriedmushrooms\",{fldl45lXo0Jr4kQpf},\r\n  \"freezer_tray\",        {fldl45lXo0Jr4kQpf},\r\n  \"fresh_tray\",          {fldl45lXo0Jr4kQpf},\r\n  \"fresh_mushrooms\",     {fldl45lXo0Jr4kQpf},\r\n  \"\"\r\n)",
-            "referencedFieldIds": [
-              "fldxEMPeLKGwRCK2M",
-              "fldl45lXo0Jr4kQpf"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldBnCTkqhW0JDDd9",
-          "name": "label_title_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")\r\n",
-            "referencedFieldIds": [
-              "fldxEMPeLKGwRCK2M",
-              "fldmasAoE3hLznq9h",
-              "fldSVENsQQ2fL8HA1",
-              "fld0vFWc649maA7Vj",
-              "fldqmbHWvrKsoiq65",
-              "fld3kzM8siqsRjT2I",
-              "fld4otBJtSaXoaCa4"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldzfOifL6FVKrVed",
-          "name": "label_subtitle_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "{fldgzDEo51u33bNf3}",
-            "referencedFieldIds": [
-              "fldgzDEo51u33bNf3"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld5uqXwMBcpYtI2f",
-          "name": "label_footer_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF({fld251nNKCw2rkLy3},\r\n  \"Packaged: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fld251nNKCw2rkLy3}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n\"\") ",
-            "referencedFieldIds": [
-              "fld251nNKCw2rkLy3"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld49niSzrBb78Ff4",
-          "name": "label_packaged_prod"
-        },
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "IF(\r\n  {fldm8L9e3hArmcIOf},\r\n  \"Use by: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fldm8L9e3hArmcIOf}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
-            "referencedFieldIds": [
-              "fldm8L9e3hArmcIOf"
-            ],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fldO99YbSV5seK1Ae",
-          "name": "label_useby_prod"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl3sLXGbpqiaeaHI",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldkr3OaVmeFwKfNn"
-          },
-          "id": "flds7jOnpbF2S0s2p",
-          "name": "print_queue"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblhBJqzL8mXqYw8j",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldk7eLtmpyyxNPnt"
-          },
-          "id": "fldA9jVI9wdPTPitN",
-          "name": "ecommerce"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblWXZlk8KB29P312",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldBeiYxWJWevTntu"
-          },
-          "id": "fldf4gzsAkPDkWIEx",
-          "name": "ecommerce_orders"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblSFVpaC8X07Xyvn",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldrPNBJbRahOoryi"
-          },
-          "id": "fldazcqL0L0HfNdYf",
-          "name": "events"
-        },
-        {
-          "type": "multilineText",
-          "id": "fldx3RqIx1OG0egZd",
-          "name": "notes"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
-            "fieldIdInLinkedTable": "fldFUbyQ5vcX3wci8",
-            "result": {
-              "type": "url"
-            }
-          },
-          "id": "fldYnQ0r2CAvasnQu",
-          "name": "ecwid_url (from ecommerce)"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
-            "fieldIdInLinkedTable": "fldM7Zh3go5VV1rOM",
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld8LD4yN5QwmttL3",
-          "name": "ecwid_upc (from ecommerce)"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
-            "fieldIdInLinkedTable": "fldmuweHn1q3XMK3u",
-            "result": {
-              "type": "number",
-              "options": {
-                "precision": 2
-              }
-            }
-          },
-          "id": "fldwkcbXyZ8ENrT9A",
-          "name": "ecwid_price (from ecommerce)"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 0
-          },
-          "id": "fldUoL6sglFxXIpVe",
-          "name": "harvest_flush_no"
+          "id": "fld7VwphbSCFdlsiz",
+          "name": "process_type"
         },
         {
           "type": "number",
           "options": {
             "precision": 2
           },
-          "id": "fldkMBjudwIbsMIXo",
-          "name": "harvest_weight_g"
+          "id": "fldgbROFXUKSRkDu1",
+          "name": "target_temp_c"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selZw0pg42yGKvQK7",
+                "name": "Open",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selBJd1O0mZyexsmF",
+                "name": "Closed",
+                "color": "cyanLight2"
+              }
+            ]
+          },
+          "id": "fldOA7qORSRtEpoy4",
+          "name": "pressure_mode"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldWQpUbiM0DIprJw"
+          },
+          "id": "fldOQZGMLCuYyAEKr",
+          "name": "lots"
         },
         {
           "type": "dateTime",
@@ -1317,72 +1880,108 @@
             },
             "timeZone": "client"
           },
-          "id": "fldOuogBJnarDSCvr",
-          "name": "harvested_at"
+          "id": "fld0od531ALO3HA3W",
+          "name": "override_end_time"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl3sLXGbpqiaeaHI",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldZ8oLCXsNgqnbZy"
+          },
+          "id": "fldYfZN0vDlT7rzLW",
+          "name": "print_queue"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fld7t7VSCqdynDfpv",
+            "result": {
+              "type": "multipleRecordLinks",
+              "options": {
+                "isReversed": false,
+                "prefersSingleRecordLink": false
+              }
+            }
+          },
+          "id": "fldoqXNuzuUUFoQqo",
+          "name": "planned_item_recipe_components"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n  ARRAYJOIN({fld5lDWlAa89P4qwx}) = \"single_recipe\",\n  \"Select exactly one Recipe / Primary Recipe for this item.\",\n  IF(\n    ARRAYJOIN({fld5lDWlAa89P4qwx}) = \"multi_recipe\",\n    \"Recipe components are defined by the item and size.\",\n    \"\"\n  )\n)",
+            "referencedFieldIds": [
+              "fld5lDWlAa89P4qwx"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld28NWa67hzDkK4t",
+          "name": "planned_recipe_instruction"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
+            "fieldIdInLinkedTable": "fldh4AsGIRRYnlz8X",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldxv9WKm4LPmcHFC",
+          "name": "planned_item_recipe_options"
         },
         {
           "type": "singleSelect",
           "options": {
             "choices": [
               {
-                "id": "seljDM6b1ROjnHKnP",
-                "name": "Operator 1 <operator1.email.address@mybusiness.com>",
+                "id": "selkAQxVsN1CYq8Qu",
+                "name": "WBS_CVG_V2",
                 "color": "blueLight2"
               },
               {
-                "id": "sel2nT8TuD1uyDpjL",
-                "name": "Operator 2 <operator2.email.address@mybusiness.com>",
+                "id": "selnTYWBf867k7J2G",
+                "name": "OWM_CVG_V2",
                 "color": "cyanLight2"
+              },
+              {
+                "id": "selpklrm4KZoP0dRz",
+                "name": "OATS_CVG_V2",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selmGgTMJ7j2geZXb",
+                "name": "WBS_CVG_RIZ2",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selBoJ6rUJe155htp",
+                "name": "WBS_CVG_RIZ1",
+                "color": "yellowLight2"
               }
             ]
           },
-          "id": "fld4kSwt7eCk5KMOY",
-          "name": "operator"
+          "id": "fldjC70l85MkSI8oa",
+          "name": "planned_component_set"
         }
       ],
       "views": [
         {
-          "id": "viwpy514tPsCmTCQy",
+          "id": "viw7Hl1YUDg795NG4",
           "name": "Grid view",
           "type": "grid"
         },
         {
-          "id": "viw7fwcselxr7YBjP",
-          "name": "Active Products",
-          "type": "grid"
-        },
-        {
-          "id": "viwUL4gsb8bAIROHp",
-          "name": "Active Regulated Business",
-          "type": "grid"
-        },
-        {
-          "id": "viwhoJqbiMuiTFISl",
-          "name": "Active Regulated Business Packages",
-          "type": "grid"
-        },
-        {
-          "id": "viwcx0xtA7pRoyigo",
-          "name": "All Regulated Business",
-          "type": "grid"
-        },
-        {
-          "id": "viw7biTItVlMH4rz9",
-          "name": "LC Syringes",
-          "type": "grid"
-        },
-        {
-          "id": "viwnRgqnpYSuPUMv7",
-          "name": "All Regulated",
-          "type": "grid"
-        },
-        {
-          "id": "viwpy8hM2zV5vRFmw",
-          "name": "Expired Products in Inventory",
-          "type": "grid"
-        },
-        {
-          "id": "viwQuxy9pk9BGfv7T",
+          "id": "viwLpnlvWM3rp57Sk",
           "name": "Not Recent",
           "type": "grid"
         }
@@ -1566,6 +2165,61 @@
                     "id": "selhOsGMgvy13DWdp",
                     "name": "Untracked Source",
                     "color": "grayBright"
+                  },
+                  {
+                    "id": "sel5JR1kOHaeVV9aX",
+                    "name": "Spawn Bag",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selC0Kg48VIVbi7oC",
+                    "name": "Hardwood Substrate Bag",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selL784G5SJxr5K1Q",
+                    "name": "CVG Substrate Bag",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selAbsmphYr1xRRAE",
+                    "name": "All-in-One Bag",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selelVvyJqt6fM4RX",
+                    "name": "Hardwood Fruiting Bag",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "seloN864RgN1U744e",
+                    "name": "CVG Fruiting Bag",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selvjNKp271fEKyk3",
+                    "name": "CVG Fruiting Tub",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selyjWa3pMHYzIx2D",
+                    "name": "Cordyceps Container",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel5YT1vhQf0dXj2S",
+                    "name": "Peat",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "seleAL812PhRcrVWf",
+                    "name": "Freeze Dried Mushrooms",
+                    "color": "yellowDark1"
+                  },
+                  {
+                    "id": "selZzTLlGdUmySsrh",
+                    "name": "Freeze Dried Capsules",
+                    "color": "purpleBright"
                   }
                 ]
               }
@@ -2068,6 +2722,16 @@
                     "id": "selAQIwgql1UIreAY",
                     "name": "untracked_source",
                     "color": "blueLight2"
+                  },
+                  {
+                    "id": "sel18poCuS7AWG9X2",
+                    "name": "all_in_one_bag",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selyXDCIJIpPO7X9S",
+                    "name": "cordyceps_container",
+                    "color": "tealLight1"
                   }
                 ]
               }
@@ -2463,6 +3127,16 @@
                     "id": "selAQIwgql1UIreAY",
                     "name": "untracked_source",
                     "color": "blueLight2"
+                  },
+                  {
+                    "id": "sel18poCuS7AWG9X2",
+                    "name": "all_in_one_bag",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selyXDCIJIpPO7X9S",
+                    "name": "cordyceps_container",
+                    "color": "tealLight1"
                   }
                 ]
               }
@@ -2645,6 +3319,11 @@
                 "id": "selAl4Csmq08r6n9s",
                 "name": "LC_Syringe_Received",
                 "color": "yellowLight2"
+              },
+              {
+                "id": "selh7m98dB06SGLd5",
+                "name": "All_In_One_Inoculated",
+                "color": "redLight2"
               }
             ]
           },
@@ -2655,7 +3334,7 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Cordyceps_Substrate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",    \r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\", \"Grain: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"All_In_One_Inoculated\", \"All-in-One: \" & {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Flask_Inoculated\", \"Liquid Culture — Flask\",\r\n  \"Cordyceps_Substrate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",    \r\n  \"Plate_Inoculated\", {fldyTUBk7GuOEPJ9t} & \"\",  \r\n  \"Bulk_Created\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n  \"LC_Syringe_Received\", {fldyTUBk7GuOEPJ9t} & \"\",\r\n\"\")",
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldyTUBk7GuOEPJ9t"
@@ -2671,12 +3350,13 @@
           "type": "formula",
           "options": {
             "isValid": true,
-            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Cordyceps_Substrate_Inoculated\",\r\n    IF(AND({fldPTVqPGEOa6aubh}, {fld26lj7zLFP2Hpvj}), ROUND({fld26lj7zLFP2Hpvj} - {fldPTVqPGEOa6aubh}, 2) & \" ml Inoc • \", \"\") & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
+            "formula": "SWITCH(\r\n  {fldWYfrlLWuKStK70},\r\n  \"Grain_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"All_In_One_Inoculated\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {flds4WfcvaxlHNUle} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Cordyceps_Substrate_Inoculated\",\r\n    IF(AND({fldPTVqPGEOa6aubh}, {fld26lj7zLFP2Hpvj}), ROUND({fld26lj7zLFP2Hpvj} - {fldPTVqPGEOa6aubh}, 2) & \" ml Inoc • \", \"\") & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"Plate_Inoculated\",\r\n    IF({fldsaZpCoA5zvj5mL}, {fldsaZpCoA5zvj5mL}, {fldkVMtxjtdRDo6pp}) & \"\",\r\n  \"LC_Flask_Inoculated\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n  \"LC_Syringe_Received\",\r\n    IF({fldIs56WzEt6UFLfT}, {fldIs56WzEt6UFLfT} & \" ml • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldmvugXRhoPenPoK} & \" \" & {fldAcRp5Fpqalhkx4} & \"\",\r\n  \"Bulk_Created\",\r\n    IF({fldPTVqPGEOa6aubh}, ROUND({fldPTVqPGEOa6aubh},2) & \" lb • \", \"\") & {fldsaZpCoA5zvj5mL} & \" \" & {fldEpaj8Bs2wnorzq} & \"\",\r\n\"\")",
             "referencedFieldIds": [
               "fldWYfrlLWuKStK70",
               "fldPTVqPGEOa6aubh",
               "fldsaZpCoA5zvj5mL",
               "fldEpaj8Bs2wnorzq",
+              "flds4WfcvaxlHNUle",
               "fld26lj7zLFP2Hpvj",
               "fldkVMtxjtdRDo6pp",
               "fldIs56WzEt6UFLfT",
@@ -3090,6 +3770,31 @@
           "name": "retired_at"
         },
         {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblBLP3cwe6FAwBBq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldVolht8lh0HRmfK"
+          },
+          "id": "fldIZqe3VBKP1sYAN",
+          "name": "lot_recipe_components"
+        },
+        {
+          "type": "rollup",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldIZqe3VBKP1sYAN",
+            "fieldIdInLinkedTable": "fld6Ll3oAGINdMDom",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld3LLItLmjxq1yBO",
+          "name": "lot_component_summary"
+        },
+        {
           "type": "dateTime",
           "options": {
             "dateFormat": {
@@ -3207,428 +3912,1275 @@
       ]
     },
     {
-      "id": "tblMB3eUSqLq5Tujy",
-      "name": "items",
-      "primaryFieldId": "fldD1WqVwiPCYBNV9",
+      "id": "tbl51zhGGDuaL2Sm4",
+      "name": "products",
+      "primaryFieldId": "fldgzDEo51u33bNf3",
       "fields": [
         {
-          "type": "multilineText",
-          "id": "fldD1WqVwiPCYBNV9",
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "\"PROD-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
+            "referencedFieldIds": [],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldgzDEo51u33bNf3",
+          "name": "product_id"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldJcyNzp7VjLwWx7"
+          },
+          "id": "fldIWQMVz3yNuoWyd",
           "name": "item_id"
         },
         {
-          "type": "checkbox",
+          "type": "multipleLookupValues",
           "options": {
-            "icon": "check",
-            "color": "greenBright"
-          },
-          "id": "fld6t026xzqgmnpMm",
-          "name": "active"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selNFNM6mT3BEJcQj",
-                "name": "Organic Wheat/Millet",
-                "color": "blueLight2"
-              },
-              {
-                "id": "selpcJnOWR1l8o3IS",
-                "name": "Wild Bird Seed",
-                "color": "cyanLight2"
-              },
-              {
-                "id": "selaZ425HAlHE51LN",
-                "name": "Oats",
-                "color": "tealLight2"
-              },
-              {
-                "id": "selEarzPlvCfhOsUV",
-                "name": "Coco Verm Gypsum",
-                "color": "greenLight2"
-              },
-              {
-                "id": "selEBUceW8Kgo6qpn",
-                "name": "Cordyceps A",
-                "color": "tealBright"
-              },
-              {
-                "id": "selvWEuPqriWew2ZO",
-                "name": "Cordyceps B",
-                "color": "greenBright"
-              },
-              {
-                "id": "selkx4dJ0X4teqqRs",
-                "name": "Masters Mix 50/50",
-                "color": "yellowLight2"
-              },
-              {
-                "id": "selNyrCoYL3I29LDA",
-                "name": "Masters Mix 75/25",
-                "color": "orangeLight2"
-              },
-              {
-                "id": "selVUsbQg6H9XRiRo",
-                "name": "Liquid Culture Flask",
-                "color": "redLight2"
-              },
-              {
-                "id": "selF9zmbMKHxwzxy9",
-                "name": "Liquid Culture Syringe",
-                "color": "pinkLight2"
-              },
-              {
-                "id": "selT5vbrbtESCFe4d",
-                "name": "Fruiting Block",
-                "color": "purpleLight2"
-              },
-              {
-                "id": "selihZwZ7eGOidDuZ",
-                "name": "Freeze-Dried Mushrooms (1 oz)",
-                "color": "grayLight2"
-              },
-              {
-                "id": "selP2dElMMdtEHsQB",
-                "name": "Freeze-Dried Mushrooms (5 g)",
-                "color": "blueLight1"
-              },
-              {
-                "id": "selmOdBkKZgRuG9qa",
-                "name": "Freeze-Dried Capsules (5g)",
-                "color": "blueBright"
-              },
-              {
-                "id": "seluLMLnPuQL7cTjD",
-                "name": "Freeze-Dried Capsules (10g)",
-                "color": "cyanBright"
-              },
-              {
-                "id": "selsrXRNcv0HjhQ48",
-                "name": "Freezer Tray",
-                "color": "cyanLight1"
-              },
-              {
-                "id": "selmfn2gH1ytiH5Zs",
-                "name": "Freeze-Dry Batch",
-                "color": "tealLight1"
-              },
-              {
-                "id": "selnw7bkBwFTkivpF",
-                "name": "Fresh Tray",
-                "color": "greenLight1"
-              },
-              {
-                "id": "selTkfkwEugBOspGY",
-                "name": "Large CVG",
-                "color": "yellowLight1"
-              },
-              {
-                "id": "selZg0SYGseCOBjBW",
-                "name": "Small CVG",
-                "color": "orangeLight1"
-              },
-              {
-                "id": "selv3MuXeGWFoHT7n",
-                "name": "Large Masters Mix 75/25",
-                "color": "redLight1"
-              },
-              {
-                "id": "seldolf23uALj20Pg",
-                "name": "Small Masters Mix 75/25",
-                "color": "pinkLight1"
-              },
-              {
-                "id": "seluR4qRevdTlgcSl",
-                "name": "Large Masters Mix 50/50",
-                "color": "purpleLight1"
-              },
-              {
-                "id": "selVisf4ZlBTKNPdx",
-                "name": "Small Masters Mix 50/50",
-                "color": "grayLight1"
-              },
-              {
-                "id": "sel0mkKWSqRfKVvCx",
-                "name": "Peat Moss",
-                "color": "pinkDark1"
-              },
-              {
-                "id": "seloGO7be4KeDJtTe",
-                "name": "Agar Flask",
-                "color": "pinkBright"
-              },
-              {
-                "id": "selOEATpiFFellbj9",
-                "name": "Agar Plate 90x15mm",
-                "color": "orangeBright"
-              },
-              {
-                "id": "selhOsGMgvy13DWdp",
-                "name": "Untracked Source",
-                "color": "grayBright"
+            "isValid": true,
+            "recordLinkFieldId": "fldIWQMVz3yNuoWyd",
+            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selNFNM6mT3BEJcQj",
+                    "name": "Organic Wheat/Millet",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selpcJnOWR1l8o3IS",
+                    "name": "Wild Bird Seed",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selaZ425HAlHE51LN",
+                    "name": "Oats",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selEarzPlvCfhOsUV",
+                    "name": "Coco Verm Gypsum",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
+                  },
+                  {
+                    "id": "selkx4dJ0X4teqqRs",
+                    "name": "Masters Mix 50/50",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selNyrCoYL3I29LDA",
+                    "name": "Masters Mix 75/25",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selVUsbQg6H9XRiRo",
+                    "name": "Liquid Culture Flask",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selF9zmbMKHxwzxy9",
+                    "name": "Liquid Culture Syringe",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "selT5vbrbtESCFe4d",
+                    "name": "Fruiting Block",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selihZwZ7eGOidDuZ",
+                    "name": "Freeze-Dried Mushrooms (1 oz)",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selP2dElMMdtEHsQB",
+                    "name": "Freeze-Dried Mushrooms (5 g)",
+                    "color": "blueLight1"
+                  },
+                  {
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)",
+                    "color": "blueBright"
+                  },
+                  {
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)",
+                    "color": "cyanBright"
+                  },
+                  {
+                    "id": "selsrXRNcv0HjhQ48",
+                    "name": "Freezer Tray",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selmfn2gH1ytiH5Zs",
+                    "name": "Freeze-Dry Batch",
+                    "color": "tealLight1"
+                  },
+                  {
+                    "id": "selnw7bkBwFTkivpF",
+                    "name": "Fresh Tray",
+                    "color": "greenLight1"
+                  },
+                  {
+                    "id": "selTkfkwEugBOspGY",
+                    "name": "Large CVG",
+                    "color": "yellowLight1"
+                  },
+                  {
+                    "id": "selZg0SYGseCOBjBW",
+                    "name": "Small CVG",
+                    "color": "orangeLight1"
+                  },
+                  {
+                    "id": "selv3MuXeGWFoHT7n",
+                    "name": "Large Masters Mix 75/25",
+                    "color": "redLight1"
+                  },
+                  {
+                    "id": "seldolf23uALj20Pg",
+                    "name": "Small Masters Mix 75/25",
+                    "color": "pinkLight1"
+                  },
+                  {
+                    "id": "seluR4qRevdTlgcSl",
+                    "name": "Large Masters Mix 50/50",
+                    "color": "purpleLight1"
+                  },
+                  {
+                    "id": "selVisf4ZlBTKNPdx",
+                    "name": "Small Masters Mix 50/50",
+                    "color": "grayLight1"
+                  },
+                  {
+                    "id": "sel0mkKWSqRfKVvCx",
+                    "name": "Peat Moss",
+                    "color": "pinkDark1"
+                  },
+                  {
+                    "id": "seloGO7be4KeDJtTe",
+                    "name": "Agar Flask",
+                    "color": "pinkBright"
+                  },
+                  {
+                    "id": "selOEATpiFFellbj9",
+                    "name": "Agar Plate 90x15mm",
+                    "color": "orangeBright"
+                  },
+                  {
+                    "id": "selhOsGMgvy13DWdp",
+                    "name": "Untracked Source",
+                    "color": "grayBright"
+                  },
+                  {
+                    "id": "sel5JR1kOHaeVV9aX",
+                    "name": "Spawn Bag",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selC0Kg48VIVbi7oC",
+                    "name": "Hardwood Substrate Bag",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selL784G5SJxr5K1Q",
+                    "name": "CVG Substrate Bag",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selAbsmphYr1xRRAE",
+                    "name": "All-in-One Bag",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selelVvyJqt6fM4RX",
+                    "name": "Hardwood Fruiting Bag",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "seloN864RgN1U744e",
+                    "name": "CVG Fruiting Bag",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selvjNKp271fEKyk3",
+                    "name": "CVG Fruiting Tub",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selyjWa3pMHYzIx2D",
+                    "name": "Cordyceps Container",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel5YT1vhQf0dXj2S",
+                    "name": "Peat",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "seleAL812PhRcrVWf",
+                    "name": "Freeze Dried Mushrooms",
+                    "color": "yellowDark1"
+                  },
+                  {
+                    "id": "selZzTLlGdUmySsrh",
+                    "name": "Freeze Dried Capsules",
+                    "color": "purpleBright"
+                  }
+                ]
               }
-            ]
+            }
           },
-          "id": "fldSX1TaYMtvWWQf6",
+          "id": "fld9UNkz7HeovZ2df",
           "name": "name"
         },
         {
+          "type": "singleLineText",
+          "id": "fldl45lXo0Jr4kQpf",
+          "name": "name_mat"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldIWQMVz3yNuoWyd",
+            "fieldIdInLinkedTable": "fldt5ruXK95m2Uv1M",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selSWiV0fm2Fgxb2j",
+                    "name": "grain",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selTwLxwj1IdikUUl",
+                    "name": "substrate",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
+                  },
+                  {
+                    "id": "selokiOjAWQvWtArM",
+                    "name": "lc_flask",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "sellpmH7xgsOoBe3p",
+                    "name": "lc_syringe",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selCS4YNhgfWM7z1k",
+                    "name": "fruiting_block",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selUAOQfQuCIF6j0f",
+                    "name": "freezedriedmushrooms",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selMyc7nmbZyw5jZ9",
+                    "name": "freezer_tray",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selRKlXLQz2h8Fos7",
+                    "name": "fd_batch",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel1Jr28EYCo445Ru",
+                    "name": "fresh_tray",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selMTjCdC47bsbtrP",
+                    "name": "empty_tray",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selNxx5b4S0tl5yPZ",
+                    "name": "casing",
+                    "color": "yellowLight1"
+                  },
+                  {
+                    "id": "selqFu2lFk3VTgkbM",
+                    "name": "agar_flask",
+                    "color": "pinkLight1"
+                  },
+                  {
+                    "id": "selph3FcnuUpNr1aL",
+                    "name": "plate",
+                    "color": "pinkBright"
+                  },
+                  {
+                    "id": "selAQIwgql1UIreAY",
+                    "name": "untracked_source",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "sel18poCuS7AWG9X2",
+                    "name": "all_in_one_bag",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selyXDCIJIpPO7X9S",
+                    "name": "cordyceps_container",
+                    "color": "tealLight1"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fldELkpWppI7EegBB",
+          "name": "item_category"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldxEMPeLKGwRCK2M",
+          "name": "item_category_mat"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fld4otBJtSaXoaCa4",
+          "name": "net_weight_g"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldB3JFAjk5EV78X2",
+          "name": "net_weight_oz"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldqmbHWvrKsoiq65",
+          "name": "net_volume_ml"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld251nNKCw2rkLy3",
+          "name": "pack_date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldm8L9e3hArmcIOf",
+          "name": "use_by"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\r\n  OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ),\r\n  IF({fldIC7hRmODZ0X3p0}, \"https://www.regulatedbusiness.com/\", \"https://www.mybusiness.com/\"),\r\n  \"https://www.mybusiness.com/\"\r\n)",
+            "referencedFieldIds": [
+              "fldYnQ0r2CAvasnQu",
+              "fldxEMPeLKGwRCK2M",
+              "fldIC7hRmODZ0X3p0"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldd1njLVghnzCL7z",
+          "name": "public_link"
+        },
+        {
           "type": "singleSelect",
           "options": {
             "choices": [
               {
-                "id": "selSWiV0fm2Fgxb2j",
-                "name": "grain",
+                "id": "sel7I1TQhuCoHgQHh",
+                "name": "Retail",
                 "color": "blueLight2"
               },
               {
-                "id": "selTwLxwj1IdikUUl",
-                "name": "substrate",
+                "id": "sel538PmRmTjy3KD1",
+                "name": "Sample",
+                "color": "cyanLight2"
+              }
+            ]
+          },
+          "id": "fldbpzcOUZIXlS8kl",
+          "name": "package_class"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblMB3eUSqLq5Tujy",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldXBYfxu9u1YZp9p"
+          },
+          "id": "fldP4Z6zvyPoVHTdC",
+          "name": "package_item"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldP4Z6zvyPoVHTdC",
+            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selNFNM6mT3BEJcQj",
+                    "name": "Organic Wheat/Millet",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selpcJnOWR1l8o3IS",
+                    "name": "Wild Bird Seed",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selaZ425HAlHE51LN",
+                    "name": "Oats",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selEarzPlvCfhOsUV",
+                    "name": "Coco Verm Gypsum",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selEBUceW8Kgo6qpn",
+                    "name": "Cordyceps A",
+                    "color": "tealBright"
+                  },
+                  {
+                    "id": "selvWEuPqriWew2ZO",
+                    "name": "Cordyceps B",
+                    "color": "greenBright"
+                  },
+                  {
+                    "id": "selkx4dJ0X4teqqRs",
+                    "name": "Masters Mix 50/50",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selNyrCoYL3I29LDA",
+                    "name": "Masters Mix 75/25",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selVUsbQg6H9XRiRo",
+                    "name": "Liquid Culture Flask",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selF9zmbMKHxwzxy9",
+                    "name": "Liquid Culture Syringe",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "selT5vbrbtESCFe4d",
+                    "name": "Fruiting Block",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selihZwZ7eGOidDuZ",
+                    "name": "Freeze-Dried Mushrooms (1 oz)",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selP2dElMMdtEHsQB",
+                    "name": "Freeze-Dried Mushrooms (5 g)",
+                    "color": "blueLight1"
+                  },
+                  {
+                    "id": "selmOdBkKZgRuG9qa",
+                    "name": "Freeze-Dried Capsules (5g)",
+                    "color": "blueBright"
+                  },
+                  {
+                    "id": "seluLMLnPuQL7cTjD",
+                    "name": "Freeze-Dried Capsules (10g)",
+                    "color": "cyanBright"
+                  },
+                  {
+                    "id": "selsrXRNcv0HjhQ48",
+                    "name": "Freezer Tray",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selmfn2gH1ytiH5Zs",
+                    "name": "Freeze-Dry Batch",
+                    "color": "tealLight1"
+                  },
+                  {
+                    "id": "selnw7bkBwFTkivpF",
+                    "name": "Fresh Tray",
+                    "color": "greenLight1"
+                  },
+                  {
+                    "id": "selTkfkwEugBOspGY",
+                    "name": "Large CVG",
+                    "color": "yellowLight1"
+                  },
+                  {
+                    "id": "selZg0SYGseCOBjBW",
+                    "name": "Small CVG",
+                    "color": "orangeLight1"
+                  },
+                  {
+                    "id": "selv3MuXeGWFoHT7n",
+                    "name": "Large Masters Mix 75/25",
+                    "color": "redLight1"
+                  },
+                  {
+                    "id": "seldolf23uALj20Pg",
+                    "name": "Small Masters Mix 75/25",
+                    "color": "pinkLight1"
+                  },
+                  {
+                    "id": "seluR4qRevdTlgcSl",
+                    "name": "Large Masters Mix 50/50",
+                    "color": "purpleLight1"
+                  },
+                  {
+                    "id": "selVisf4ZlBTKNPdx",
+                    "name": "Small Masters Mix 50/50",
+                    "color": "grayLight1"
+                  },
+                  {
+                    "id": "sel0mkKWSqRfKVvCx",
+                    "name": "Peat Moss",
+                    "color": "pinkDark1"
+                  },
+                  {
+                    "id": "seloGO7be4KeDJtTe",
+                    "name": "Agar Flask",
+                    "color": "pinkBright"
+                  },
+                  {
+                    "id": "selOEATpiFFellbj9",
+                    "name": "Agar Plate 90x15mm",
+                    "color": "orangeBright"
+                  },
+                  {
+                    "id": "selhOsGMgvy13DWdp",
+                    "name": "Untracked Source",
+                    "color": "grayBright"
+                  },
+                  {
+                    "id": "sel5JR1kOHaeVV9aX",
+                    "name": "Spawn Bag",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selC0Kg48VIVbi7oC",
+                    "name": "Hardwood Substrate Bag",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selL784G5SJxr5K1Q",
+                    "name": "CVG Substrate Bag",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selAbsmphYr1xRRAE",
+                    "name": "All-in-One Bag",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selelVvyJqt6fM4RX",
+                    "name": "Hardwood Fruiting Bag",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "seloN864RgN1U744e",
+                    "name": "CVG Fruiting Bag",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selvjNKp271fEKyk3",
+                    "name": "CVG Fruiting Tub",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selyjWa3pMHYzIx2D",
+                    "name": "Cordyceps Container",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel5YT1vhQf0dXj2S",
+                    "name": "Peat",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "seleAL812PhRcrVWf",
+                    "name": "Freeze Dried Mushrooms",
+                    "color": "yellowDark1"
+                  },
+                  {
+                    "id": "selZzTLlGdUmySsrh",
+                    "name": "Freeze Dried Capsules",
+                    "color": "purpleBright"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fldevTMm9ZJ7MR9id",
+          "name": "name (from package_item)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldP4Z6zvyPoVHTdC",
+            "fieldIdInLinkedTable": "fldt5ruXK95m2Uv1M",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selSWiV0fm2Fgxb2j",
+                    "name": "grain",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "selTwLxwj1IdikUUl",
+                    "name": "substrate",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "selSIFrDT5l9VhwRZ",
+                    "name": "cordyceps_substrate",
+                    "color": "blueLight1"
+                  },
+                  {
+                    "id": "selokiOjAWQvWtArM",
+                    "name": "lc_flask",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "sellpmH7xgsOoBe3p",
+                    "name": "lc_syringe",
+                    "color": "greenLight2"
+                  },
+                  {
+                    "id": "selCS4YNhgfWM7z1k",
+                    "name": "fruiting_block",
+                    "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selUAOQfQuCIF6j0f",
+                    "name": "freezedriedmushrooms",
+                    "color": "orangeLight2"
+                  },
+                  {
+                    "id": "selMyc7nmbZyw5jZ9",
+                    "name": "freezer_tray",
+                    "color": "redLight2"
+                  },
+                  {
+                    "id": "selRKlXLQz2h8Fos7",
+                    "name": "fd_batch",
+                    "color": "pinkLight2"
+                  },
+                  {
+                    "id": "sel1Jr28EYCo445Ru",
+                    "name": "fresh_tray",
+                    "color": "purpleLight2"
+                  },
+                  {
+                    "id": "selMTjCdC47bsbtrP",
+                    "name": "empty_tray",
+                    "color": "grayLight2"
+                  },
+                  {
+                    "id": "selNxx5b4S0tl5yPZ",
+                    "name": "casing",
+                    "color": "yellowLight1"
+                  },
+                  {
+                    "id": "selqFu2lFk3VTgkbM",
+                    "name": "agar_flask",
+                    "color": "pinkLight1"
+                  },
+                  {
+                    "id": "selph3FcnuUpNr1aL",
+                    "name": "plate",
+                    "color": "pinkBright"
+                  },
+                  {
+                    "id": "selAQIwgql1UIreAY",
+                    "name": "untracked_source",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "sel18poCuS7AWG9X2",
+                    "name": "all_in_one_bag",
+                    "color": "cyanLight1"
+                  },
+                  {
+                    "id": "selyXDCIJIpPO7X9S",
+                    "name": "cordyceps_container",
+                    "color": "tealLight1"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fldgAZF6DMYacvMEo",
+          "name": "package_item_category"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fld8k2F3ce0fx7yCq",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldmasAoE3hLznq9h",
+          "name": "unit_lbs"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fldPTVqPGEOa6aubh",
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 2
+              }
+            }
+          },
+          "id": "fld9C9D8M5WM00MEz",
+          "name": "unit_size"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel9MHn6vSXHlEd1I",
+                "name": "1 g",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selwQliH2bnle8WKs",
+                "name": "5 g",
                 "color": "cyanLight2"
               },
               {
-                "id": "selSIFrDT5l9VhwRZ",
-                "name": "cordyceps_substrate",
-                "color": "blueLight1"
-              },
-              {
-                "id": "selokiOjAWQvWtArM",
-                "name": "lc_flask",
+                "id": "sel4WCG9MM0ixC1GY",
+                "name": "10 g",
                 "color": "tealLight2"
               },
               {
-                "id": "sellpmH7xgsOoBe3p",
-                "name": "lc_syringe",
+                "id": "sel5EPbPm0NuZNh8y",
+                "name": "1 oz",
                 "color": "greenLight2"
+              }
+            ]
+          },
+          "id": "fldpgnBqIJdI7BI0m",
+          "name": "package_size"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "SWITCH(\n  {fldpgnBqIJdI7BI0m},\n  \"1 g\", 1,\n  \"5 g\", 5,\n  \"10 g\", 10,\n  \"1 oz\", 28.349523125,\n  BLANK()\n)",
+            "referencedFieldIds": [
+              "fldpgnBqIJdI7BI0m"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld3kzM8siqsRjT2I",
+          "name": "package_size_g"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldYXUj9iS4BBMLSY",
+          "name": "package_count"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl2QYDX1lLDyrpcm",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldtuwdjrqvR4K5g5"
+          },
+          "id": "fldY5DwAvYBzLdY0m",
+          "name": "storage_location"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selbHRILxI14gjJA9",
+                "name": "FreezeDry",
+                "color": "blueLight2"
               },
               {
-                "id": "selCS4YNhgfWM7z1k",
-                "name": "fruiting_block",
-                "color": "yellowLight2"
-              },
+                "id": "selna7jUfa0CpNwyD",
+                "name": "PackageFreezeDried",
+                "color": "cyanLight2"
+              }
+            ]
+          },
+          "id": "fld36urTHG3KUwV7w",
+          "name": "action"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl51zhGGDuaL2Sm4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldvVExZjY7NPsLc6"
+          },
+          "id": "fldBO53sbKJROLDZs",
+          "name": "merge_tray_products"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldYzm8YZpYgYMXcH",
+          "name": "origin_lot_ids_json"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblL2oACeE9P92BRA",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldZ8sIC8TQHkmB6V"
+          },
+          "id": "fldZKlmLflBlJOIri",
+          "name": "origin_lots"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fldmx5RDnELMNEUEm",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldzea0ooNE7mFCRk",
+          "name": "label_inoc_prod"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fldf3uvlIcTsLLtxf",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld1EmffiN0t7JdIk",
+          "name": "label_spawned_prod"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fldGS78ngOyMeSkBD",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "flduOFUKBBlUIQdlW",
+          "name": "label_proc_prod"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldZKlmLflBlJOIri",
+            "fieldIdInLinkedTable": "fldqaL8xvhMmM2kSD",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldCaAC0GQ4HQdkRw",
+          "name": "process_type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldSVENsQQ2fL8HA1",
+          "name": "process_type_mat"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblbx0LJNAs8NE4xd",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld2E0hIBgudxjzX9"
+          },
+          "id": "flda0L76dXoFvneR7",
+          "name": "strain_id"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "flda0L76dXoFvneR7",
+            "fieldIdInLinkedTable": "fldD0EgJs9l6OVC78",
+            "result": {
+              "type": "multilineText"
+            }
+          },
+          "id": "fld0vFWc649maA7Vj",
+          "name": "species_strain"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "flda0L76dXoFvneR7",
+            "fieldIdInLinkedTable": "flddfCW96yf23sj7K",
+            "result": {
+              "type": "checkbox",
+              "options": {
+                "icon": "check",
+                "color": "greenBright"
+              }
+            }
+          },
+          "id": "fldIC7hRmODZ0X3p0",
+          "name": "origin_strain_regulated"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "flda0L76dXoFvneR7",
+            "fieldIdInLinkedTable": "fldamii5f5RqRqKWr",
+            "result": {
+              "type": "singleSelect",
+              "options": {
+                "choices": [
+                  {
+                    "id": "selG0gWhwq5K9UyMj",
+                    "name": "Gourmet",
+                    "color": "blueLight2"
+                  },
+                  {
+                    "id": "sels0o8xnhjERLCF2",
+                    "name": "Functional",
+                    "color": "cyanLight2"
+                  },
+                  {
+                    "id": "sel9CXGeHY0CMkI4i",
+                    "name": "Gourmet/Functional",
+                    "color": "tealLight2"
+                  },
+                  {
+                    "id": "selXzhr9Kz8vVrdWl",
+                    "name": "Sacrament",
+                    "color": "greenLight2"
+                  }
+                ]
+              }
+            }
+          },
+          "id": "fldZZi2vuqznCdW13",
+          "name": "origin_strain_product_use"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldVYSqCwH06lfVvq",
+          "name": "ui_error"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldMTyuyGsXocWh5Q",
+          "name": "ui_error_at"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
               {
-                "id": "selUAOQfQuCIF6j0f",
-                "name": "freezedriedmushrooms",
-                "color": "orangeLight2"
-              },
-              {
-                "id": "selMyc7nmbZyw5jZ9",
-                "name": "freezer_tray",
-                "color": "redLight2"
-              },
-              {
-                "id": "selRKlXLQz2h8Fos7",
-                "name": "fd_batch",
-                "color": "pinkLight2"
-              },
-              {
-                "id": "sel1Jr28EYCo445Ru",
+                "id": "selD9PlM0kNCGmcbR",
                 "name": "fresh_tray",
-                "color": "purpleLight2"
-              },
-              {
-                "id": "selMTjCdC47bsbtrP",
-                "name": "empty_tray",
-                "color": "grayLight2"
-              },
-              {
-                "id": "selNxx5b4S0tl5yPZ",
-                "name": "casing",
-                "color": "yellowLight1"
-              },
-              {
-                "id": "selqFu2lFk3VTgkbM",
-                "name": "agar_flask",
-                "color": "pinkLight1"
-              },
-              {
-                "id": "selph3FcnuUpNr1aL",
-                "name": "plate",
-                "color": "pinkBright"
-              },
-              {
-                "id": "selAQIwgql1UIreAY",
-                "name": "untracked_source",
-                "color": "blueLight2"
-              }
-            ]
-          },
-          "id": "fldt5ruXK95m2Uv1M",
-          "name": "category"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldjrCY3zCDbt0xcS",
-          "name": "default_unit_size_lb"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fld4yBjW2wzNDfWS9",
-          "name": "default_unit_size_ml"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldDJgpwkTevPUcqC",
-          "name": "default_unit_size_oz"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fld1hOWJuc5tXmds5",
-          "name": "default_unit_size_g"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selpCb0y19RZBN8GR",
-                "name": "2lb",
                 "color": "blueLight2"
               },
               {
-                "id": "selwMkA2m7FKhvWjR",
-                "name": "2.5lb",
+                "id": "sel1LvjHngzh1pP4Z",
+                "name": "freezer_tray",
                 "color": "cyanLight2"
               },
               {
-                "id": "selxTl2UzJDdjaPEx",
-                "name": "5lb",
+                "id": "selDIENPWVCn1WihS",
+                "name": "empty_tray",
                 "color": "tealLight2"
-              },
-              {
-                "id": "sel09M2jmB4bg8oH5",
-                "name": "7.5lb",
-                "color": "greenLight2"
-              },
-              {
-                "id": "selSvWZyniY95umLt",
-                "name": "1oz",
-                "color": "yellowLight2"
-              },
-              {
-                "id": "selp8pnYcFMRnlNs7",
-                "name": "5g",
-                "color": "orangeLight2"
-              },
-              {
-                "id": "seltBOPirmDorREkL",
-                "name": "10g",
-                "color": "grayLight2"
-              },
-              {
-                "id": "selC7MfaopXMozR4b",
-                "name": "n/a",
-                "color": "redLight2"
-              },
-              {
-                "id": "selY5P7MDgiYzTdsv",
-                "name": "300ml",
-                "color": "pinkLight2"
-              },
-              {
-                "id": "seleOV2PF8cWLAySM",
-                "name": "10ml",
-                "color": "purpleLight2"
-              },
-              {
-                "id": "selan7hU4xjjyOTQL",
-                "name": "1lb",
-                "color": "cyanDark1"
-              },
-              {
-                "id": "sel8Rll5fXKH85BRg",
-                "name": "500ml",
-                "color": "cyanBright"
-              },
-              {
-                "id": "seletuEfIUCL9SN81",
-                "name": "20ml",
-                "color": "greenDark1"
               }
             ]
           },
-          "id": "fldk7w4YcP7kKExEZ",
-          "name": "default_unit_size"
+          "id": "fldHS9MTuuHEqP5z6",
+          "name": "tray_state"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"Regulated Business\", \r\n  \"My Business\"),\r\n\"My Business\")",
+            "referencedFieldIds": [
+              "fldIC7hRmODZ0X3p0",
+              "fldxEMPeLKGwRCK2M"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldaL52TEAxGFC82t",
+          "name": "label_company_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n  AND(\n    {fldIC7hRmODZ0X3p0},\n    OR(\n      {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\n    )\n  ),\n  \"RegulatedBusinessAddressAndContact\",\n  \"MyBusinessAddressAndContact\"\n)",
+            "referencedFieldIds": [
+              "fldIC7hRmODZ0X3p0",
+              "fldxEMPeLKGwRCK2M"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldwGvqvWjgFNxP5p",
+          "name": "label_companyaddress_base_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\n  {fldbpzcOUZIXlS8kl} = \"Sample\",\n  SUBSTITUTE(\n    {fldwGvqvWjgFNxP5p},\n    \"\n\",\n    \" • \"\n  ),\n  {fldwGvqvWjgFNxP5p}\n)",
+            "referencedFieldIds": [
+              "fldbpzcOUZIXlS8kl",
+              "fldwGvqvWjgFNxP5p"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldg5EftGwMNxsvTV",
+          "name": "label_companyaddress_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\r\n  {fldIC7hRmODZ0X3p0},\r\n  SWITCH(\r\n    {fldxEMPeLKGwRCK2M},\r\n\r\n    \"fresh_mushrooms\", \"\",\r\n    \"freezer_tray\", \"\",\r\n    \"fresh_tray\", \"\",\r\n\r\n    \"fruiting_block\",\r\n    \"Disclaimer: Psilocybin is classified as a Schedule I controlled substance by the U.S. Drug Enforcement Administration (DEA). Unauthorized cultivation, possession, or distribution of psilocybin-containing mushrooms is illegal in most states. It is the responsibility of the buyer to research and comply with all local, state, and federal laws regarding mushroom cultivation. Please consult your local laws carefully before any attempt to grow mushrooms, as penalties for non-compliance can be significant.\",\r\n\r\n    \"freezedriedmushrooms\",\r\n    IF(\r\n      {fldbpzcOUZIXlS8kl} = \"Sample\",\r\n      \"NOTICE\\nPsilocybin remains a Schedule I controlled substance under U.S. federal law. Under Colorado's Natural Medicine Health Act, adults age 21+ may lawfully receive and possess natural medicine in certain circumstances, including uncompensated gifting.\\n\\nBy opening this package, I acknowledge that I am 21+, will use this sacrament responsibly and intentionally, understand Regulated Business provides no medical or mental health treatment, have no contraindicated condition or have consulted a healthcare professional, and accept full responsibility for my possession and use.\",\r\n      \"\"\r\n    ),\r\n\r\n    \"\"\r\n  ),\r\n  \"\"\r\n)",
+            "referencedFieldIds": [
+              "fldIC7hRmODZ0X3p0",
+              "fldxEMPeLKGwRCK2M",
+              "fldbpzcOUZIXlS8kl"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldGTtEvHqgc1mtN8",
+          "name": "label_disclaimer_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"MyBusinessOffering\",\"\")\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fruiting_block\"\r\n  ), \"MyBusinessOffering\",\"\")\r\n)",
+            "referencedFieldIds": [
+              "fldbpzcOUZIXlS8kl",
+              "fldxEMPeLKGwRCK2M",
+              "fldZZi2vuqznCdW13",
+              "fldIC7hRmODZ0X3p0"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldbYsRjHg1jGj8je",
+          "name": "label_companyinfo_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fldIC7hRmODZ0X3p0}, \r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"freezer_tray\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_tray\"\r\n  ), \"\",\r\n  IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n  ), IF(OR(\r\n    {fldxEMPeLKGwRCK2M} = \"freezedriedmushrooms\",\r\n    {fldxEMPeLKGwRCK2M} = \"fresh_mushrooms\"\r\n  ), \"This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.\",\r\n   IF({fldxEMPeLKGwRCK2M} = \"fruiting_block\", \"This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.\",\"\")\r\n  )\r\n)",
+            "referencedFieldIds": [
+              "fldIC7hRmODZ0X3p0",
+              "fldxEMPeLKGwRCK2M"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldFCJLIvGu2qVbeZ",
+          "name": "label_cottage_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",               {fldl45lXo0Jr4kQpf} & \" Grain\",\r\n  \"substrate\",           {fldl45lXo0Jr4kQpf} & \" Substrate\",\r\n  \"all_in_one_bag\",      {fldl45lXo0Jr4kQpf},\r\n  \"fruiting_block\",      {fldl45lXo0Jr4kQpf},\r\n  \"lc_syringe\",          {fldl45lXo0Jr4kQpf},\r\n  \"freezedriedmushrooms\",{fldl45lXo0Jr4kQpf},\r\n  \"freezer_tray\",        {fldl45lXo0Jr4kQpf},\r\n  \"fresh_tray\",          {fldl45lXo0Jr4kQpf},\r\n  \"fresh_mushrooms\",     {fldl45lXo0Jr4kQpf},\r\n  \"\"\r\n)",
+            "referencedFieldIds": [
+              "fldxEMPeLKGwRCK2M",
+              "fldl45lXo0Jr4kQpf"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldBnCTkqhW0JDDd9",
+          "name": "label_title_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "SWITCH(\r\n  {fldxEMPeLKGwRCK2M},\r\n  \"grain\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),       \r\n  \"substrate\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),\r\n  \"all_in_one_bag\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \" & \r\n  IF(SEARCH(\"pasteurize\", LOWER({fldSVENsQQ2fL8HA1})), \"Pasteurized\", \"Sterilized\")\r\n    ,\"\"),\r\n  \"fruiting_block\",\r\n    IF({fldmasAoE3hLznq9h}, {fldmasAoE3hLznq9h} & \" • \",\" \") & {fld0vFWc649maA7Vj} & \"\",\r\n  \"lc_syringe\",\r\n    IF({fldqmbHWvrKsoiq65}, ROUND({fldqmbHWvrKsoiq65},2) & \" mL • \", \"\")  & {fld0vFWc649maA7Vj}  & \"\",\r\n  \"freezedriedmushrooms\",\r\n    IF({fldpgnBqIJdI7BI0m}, {fldpgnBqIJdI7BI0m} & \" \", IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\")) & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"freezer_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_tray\",\r\n    IF({fld4otBJtSaXoaCa4}, ROUND({fld4otBJtSaXoaCa4},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n  \"fresh_mushrooms\",\r\n  IF({fld3kzM8siqsRjT2I}, ROUND({fld3kzM8siqsRjT2I},2) & \" g • \", \"\") & {fld0vFWc649maA7Vj} &  \"\", \r\n\"\")",
+            "referencedFieldIds": [
+              "fldxEMPeLKGwRCK2M",
+              "fldmasAoE3hLznq9h",
+              "fldSVENsQQ2fL8HA1",
+              "fld0vFWc649maA7Vj",
+              "fldqmbHWvrKsoiq65",
+              "fldpgnBqIJdI7BI0m",
+              "fld4otBJtSaXoaCa4",
+              "fld3kzM8siqsRjT2I"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldzfOifL6FVKrVed",
+          "name": "label_subtitle_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "{fldgzDEo51u33bNf3}",
+            "referencedFieldIds": [
+              "fldgzDEo51u33bNf3"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld5uqXwMBcpYtI2f",
+          "name": "label_footer_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF({fld251nNKCw2rkLy3},\r\n  \"Packaged: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fld251nNKCw2rkLy3}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n\"\") ",
+            "referencedFieldIds": [
+              "fld251nNKCw2rkLy3"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld49niSzrBb78Ff4",
+          "name": "label_packaged_prod"
+        },
+        {
+          "type": "formula",
+          "options": {
+            "isValid": true,
+            "formula": "IF(\r\n  {fldm8L9e3hArmcIOf},\r\n  \"Use by: \" &\r\n  DATETIME_FORMAT(SET_TIMEZONE({fldm8L9e3hArmcIOf}, \"America/Denver\"), \"YYYY-MM-DD\"),\r\n  BLANK()\r\n)",
+            "referencedFieldIds": [
+              "fldm8L9e3hArmcIOf"
+            ],
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fldO99YbSV5seK1Ae",
+          "name": "label_useby_prod"
         },
         {
           "type": "multipleRecordLinks",
           "options": {
-            "linkedTableId": "tblL2oACeE9P92BRA",
+            "linkedTableId": "tbl3sLXGbpqiaeaHI",
             "isReversed": false,
             "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldxNWzIvDNGH8VMT"
+            "inverseLinkFieldId": "fldkr3OaVmeFwKfNn"
           },
-          "id": "fldE5FVlxBIbaTbC9",
-          "name": "lots"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblexT4KCfiMdc3bn",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fld09E2A2TKlzt5lH"
-          },
-          "id": "fldwRwCUiRyxvx9Ad",
-          "name": "sterilization_runs"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblL2oACeE9P92BRA",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldKYyRcX207DbKAh"
-          },
-          "id": "fldEafh2zstrM4VaE",
-          "name": "lots 2"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl51zhGGDuaL2Sm4",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldIWQMVz3yNuoWyd"
-          },
-          "id": "fldJcyNzp7VjLwWx7",
-          "name": "products"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblL2oACeE9P92BRA",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fld1qNcAhoqnqA2Bq"
-          },
-          "id": "fldm83pLRGxW7aFJg",
-          "name": "lots 4"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl51zhGGDuaL2Sm4",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldP4Z6zvyPoVHTdC"
-          },
-          "id": "fldXBYfxu9u1YZp9p",
-          "name": "products 2"
+          "id": "flds7jOnpbF2S0s2p",
+          "name": "print_queue"
         },
         {
           "type": "multipleRecordLinks",
@@ -3636,16 +5188,176 @@
             "linkedTableId": "tblhBJqzL8mXqYw8j",
             "isReversed": false,
             "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fld7UmdsUlfZPgC20"
+            "inverseLinkFieldId": "fldk7eLtmpyyxNPnt"
           },
-          "id": "fldpSqnJkI7TzW4HQ",
+          "id": "fldA9jVI9wdPTPitN",
           "name": "ecommerce"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblWXZlk8KB29P312",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldBeiYxWJWevTntu"
+          },
+          "id": "fldf4gzsAkPDkWIEx",
+          "name": "ecommerce_orders"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblSFVpaC8X07Xyvn",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldrPNBJbRahOoryi"
+          },
+          "id": "fldazcqL0L0HfNdYf",
+          "name": "events"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldx3RqIx1OG0egZd",
+          "name": "notes"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldFUbyQ5vcX3wci8",
+            "result": {
+              "type": "url"
+            }
+          },
+          "id": "fldYnQ0r2CAvasnQu",
+          "name": "ecwid_url (from ecommerce)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldM7Zh3go5VV1rOM",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "fld8LD4yN5QwmttL3",
+          "name": "ecwid_upc (from ecommerce)"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "fldA9jVI9wdPTPitN",
+            "fieldIdInLinkedTable": "fldmuweHn1q3XMK3u",
+            "result": {
+              "type": "number",
+              "options": {
+                "precision": 2
+              }
+            }
+          },
+          "id": "fldwkcbXyZ8ENrT9A",
+          "name": "ecwid_price (from ecommerce)"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldUoL6sglFxXIpVe",
+          "name": "harvest_flush_no"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldkMBjudwIbsMIXo",
+          "name": "harvest_weight_g"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "12hour",
+              "format": "h:mma"
+            },
+            "timeZone": "client"
+          },
+          "id": "fldOuogBJnarDSCvr",
+          "name": "harvested_at"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "seljDM6b1ROjnHKnP",
+                "name": "Operator 1 <operator1.email.address@mybusiness.com>",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel2nT8TuD1uyDpjL",
+                "name": "Operator 2 <operator2.email.address@mybusiness.com>",
+                "color": "cyanLight2"
+              }
+            ]
+          },
+          "id": "fld4kSwt7eCk5KMOY",
+          "name": "operator"
         }
       ],
       "views": [
         {
-          "id": "viw5P3kN4wqS8pr3p",
+          "id": "viwpy514tPsCmTCQy",
           "name": "Grid view",
+          "type": "grid"
+        },
+        {
+          "id": "viw7fwcselxr7YBjP",
+          "name": "Active Products",
+          "type": "grid"
+        },
+        {
+          "id": "viwUL4gsb8bAIROHp",
+          "name": "Active Regulated Business",
+          "type": "grid"
+        },
+        {
+          "id": "viwhoJqbiMuiTFISl",
+          "name": "Active Regulated Business Packages",
+          "type": "grid"
+        },
+        {
+          "id": "viwcx0xtA7pRoyigo",
+          "name": "All Regulated Business",
+          "type": "grid"
+        },
+        {
+          "id": "viw7biTItVlMH4rz9",
+          "name": "LC Syringes",
+          "type": "grid"
+        },
+        {
+          "id": "viwnRgqnpYSuPUMv7",
+          "name": "All Regulated",
+          "type": "grid"
+        },
+        {
+          "id": "viwpy8hM2zV5vRFmw",
+          "name": "Expired Products in Inventory",
+          "type": "grid"
+        },
+        {
+          "id": "viwQuxy9pk9BGfv7T",
+          "name": "Not Recent",
           "type": "grid"
         }
       ]
@@ -4115,591 +5827,6 @@
       ]
     },
     {
-      "id": "tbl2QYDX1lLDyrpcm",
-      "name": "locations",
-      "primaryFieldId": "fldChlYtgIcySosgb",
-      "fields": [
-        {
-          "type": "singleLineText",
-          "id": "fldChlYtgIcySosgb",
-          "name": "name"
-        },
-        {
-          "type": "checkbox",
-          "options": {
-            "icon": "check",
-            "color": "greenBright"
-          },
-          "id": "fldFVRqxUHWsKRrxt",
-          "name": "active"
-        },
-        {
-          "type": "singleLineText",
-          "id": "fldT7EuiwzQTFBQUx",
-          "name": "type"
-        },
-        {
-          "type": "multilineText",
-          "id": "fldvnqNSGpw95NG4e",
-          "name": "notes"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblL2oACeE9P92BRA",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldh0oOpMwoRWeK7B"
-          },
-          "id": "fldFTzw0BIq2l6fjX",
-          "name": "lots"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl51zhGGDuaL2Sm4",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldY5DwAvYBzLdY0m"
-          },
-          "id": "fldtuwdjrqvR4K5g5",
-          "name": "products"
-        }
-      ],
-      "views": [
-        {
-          "id": "viw6oUpPyvnH05bUq",
-          "name": "Grid view",
-          "type": "grid"
-        }
-      ]
-    },
-    {
-      "id": "tblexT4KCfiMdc3bn",
-      "name": "sterilization_runs",
-      "primaryFieldId": "fld7nCKo8igererm8",
-      "fields": [
-        {
-          "type": "formula",
-          "options": {
-            "isValid": true,
-            "formula": "\"RUN-\" & DATETIME_FORMAT(CREATED_TIME(),'YYMMDD') & \"-\" & RIGHT(RECORD_ID(),4)",
-            "referencedFieldIds": [],
-            "result": {
-              "type": "singleLineText"
-            }
-          },
-          "id": "fld7nCKo8igererm8",
-          "name": "steri_run_id"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblMB3eUSqLq5Tujy",
-            "isReversed": false,
-            "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fldwRwCUiRyxvx9Ad"
-          },
-          "id": "fld09E2A2TKlzt5lH",
-          "name": "planned_item"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
-            "fieldIdInLinkedTable": "fldk7w4YcP7kKExEZ",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selpCb0y19RZBN8GR",
-                    "name": "2lb",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selwMkA2m7FKhvWjR",
-                    "name": "2.5lb",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selxTl2UzJDdjaPEx",
-                    "name": "5lb",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "sel09M2jmB4bg8oH5",
-                    "name": "7.5lb",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selSvWZyniY95umLt",
-                    "name": "1oz",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selp8pnYcFMRnlNs7",
-                    "name": "5g",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "seltBOPirmDorREkL",
-                    "name": "10g",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selC7MfaopXMozR4b",
-                    "name": "n/a",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selY5P7MDgiYzTdsv",
-                    "name": "300ml",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "seleOV2PF8cWLAySM",
-                    "name": "10ml",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selan7hU4xjjyOTQL",
-                    "name": "1lb",
-                    "color": "cyanDark1"
-                  },
-                  {
-                    "id": "sel8Rll5fXKH85BRg",
-                    "name": "500ml",
-                    "color": "cyanBright"
-                  },
-                  {
-                    "id": "seletuEfIUCL9SN81",
-                    "name": "20ml",
-                    "color": "greenDark1"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fldGfSZNnKXJr9pfN",
-          "name": "default_unit_size (from planned_item)"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
-            "fieldIdInLinkedTable": "fldD1WqVwiPCYBNV9",
-            "result": {
-              "type": "multilineText"
-            }
-          },
-          "id": "fld1oVFVVeM1T0FLF",
-          "name": "planned_item_id"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fld09E2A2TKlzt5lH",
-            "fieldIdInLinkedTable": "fldSX1TaYMtvWWQf6",
-            "result": {
-              "type": "singleSelect",
-              "options": {
-                "choices": [
-                  {
-                    "id": "selNFNM6mT3BEJcQj",
-                    "name": "Organic Wheat/Millet",
-                    "color": "blueLight2"
-                  },
-                  {
-                    "id": "selpcJnOWR1l8o3IS",
-                    "name": "Wild Bird Seed",
-                    "color": "cyanLight2"
-                  },
-                  {
-                    "id": "selaZ425HAlHE51LN",
-                    "name": "Oats",
-                    "color": "tealLight2"
-                  },
-                  {
-                    "id": "selEarzPlvCfhOsUV",
-                    "name": "Coco Verm Gypsum",
-                    "color": "greenLight2"
-                  },
-                  {
-                    "id": "selEBUceW8Kgo6qpn",
-                    "name": "Cordyceps A",
-                    "color": "tealBright"
-                  },
-                  {
-                    "id": "selvWEuPqriWew2ZO",
-                    "name": "Cordyceps B",
-                    "color": "greenBright"
-                  },
-                  {
-                    "id": "selkx4dJ0X4teqqRs",
-                    "name": "Masters Mix 50/50",
-                    "color": "yellowLight2"
-                  },
-                  {
-                    "id": "selNyrCoYL3I29LDA",
-                    "name": "Masters Mix 75/25",
-                    "color": "orangeLight2"
-                  },
-                  {
-                    "id": "selVUsbQg6H9XRiRo",
-                    "name": "Liquid Culture Flask",
-                    "color": "redLight2"
-                  },
-                  {
-                    "id": "selF9zmbMKHxwzxy9",
-                    "name": "Liquid Culture Syringe",
-                    "color": "pinkLight2"
-                  },
-                  {
-                    "id": "selT5vbrbtESCFe4d",
-                    "name": "Fruiting Block",
-                    "color": "purpleLight2"
-                  },
-                  {
-                    "id": "selihZwZ7eGOidDuZ",
-                    "name": "Freeze-Dried Mushrooms (1 oz)",
-                    "color": "grayLight2"
-                  },
-                  {
-                    "id": "selP2dElMMdtEHsQB",
-                    "name": "Freeze-Dried Mushrooms (5 g)",
-                    "color": "blueLight1"
-                  },
-                  {
-                    "id": "selmOdBkKZgRuG9qa",
-                    "name": "Freeze-Dried Capsules (5g)",
-                    "color": "blueBright"
-                  },
-                  {
-                    "id": "seluLMLnPuQL7cTjD",
-                    "name": "Freeze-Dried Capsules (10g)",
-                    "color": "cyanBright"
-                  },
-                  {
-                    "id": "selsrXRNcv0HjhQ48",
-                    "name": "Freezer Tray",
-                    "color": "cyanLight1"
-                  },
-                  {
-                    "id": "selmfn2gH1ytiH5Zs",
-                    "name": "Freeze-Dry Batch",
-                    "color": "tealLight1"
-                  },
-                  {
-                    "id": "selnw7bkBwFTkivpF",
-                    "name": "Fresh Tray",
-                    "color": "greenLight1"
-                  },
-                  {
-                    "id": "selTkfkwEugBOspGY",
-                    "name": "Large CVG",
-                    "color": "yellowLight1"
-                  },
-                  {
-                    "id": "selZg0SYGseCOBjBW",
-                    "name": "Small CVG",
-                    "color": "orangeLight1"
-                  },
-                  {
-                    "id": "selv3MuXeGWFoHT7n",
-                    "name": "Large Masters Mix 75/25",
-                    "color": "redLight1"
-                  },
-                  {
-                    "id": "seldolf23uALj20Pg",
-                    "name": "Small Masters Mix 75/25",
-                    "color": "pinkLight1"
-                  },
-                  {
-                    "id": "seluR4qRevdTlgcSl",
-                    "name": "Large Masters Mix 50/50",
-                    "color": "purpleLight1"
-                  },
-                  {
-                    "id": "selVisf4ZlBTKNPdx",
-                    "name": "Small Masters Mix 50/50",
-                    "color": "grayLight1"
-                  },
-                  {
-                    "id": "sel0mkKWSqRfKVvCx",
-                    "name": "Peat Moss",
-                    "color": "pinkDark1"
-                  },
-                  {
-                    "id": "seloGO7be4KeDJtTe",
-                    "name": "Agar Flask",
-                    "color": "pinkBright"
-                  },
-                  {
-                    "id": "selOEATpiFFellbj9",
-                    "name": "Agar Plate 90x15mm",
-                    "color": "orangeBright"
-                  },
-                  {
-                    "id": "selhOsGMgvy13DWdp",
-                    "name": "Untracked Source",
-                    "color": "grayBright"
-                  }
-                ]
-              }
-            }
-          },
-          "id": "fldmTOKO5vMpB0spX",
-          "name": "planned_item_name"
-        },
-        {
-          "type": "dateTime",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            },
-            "timeFormat": {
-              "name": "12hour",
-              "format": "h:mma"
-            },
-            "timeZone": "client"
-          },
-          "id": "fldCHFuBJcFwgK5f7",
-          "name": "start_time"
-        },
-        {
-          "type": "dateTime",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            },
-            "timeFormat": {
-              "name": "12hour",
-              "format": "h:mma"
-            },
-            "timeZone": "client"
-          },
-          "id": "fldDnlisydghAqL2B",
-          "name": "end_time"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selMcwKPzoYHIVPiw",
-                "name": "Operator 1 <operator1.email.address@mybusiness.com>",
-                "color": "redLight2"
-              },
-              {
-                "id": "sel3jt3Y70acIGJRf",
-                "name": "Operator 2 <operator2.email.address@mybusiness.com>",
-                "color": "blueLight2"
-              }
-            ]
-          },
-          "id": "fld3ZAIkekO9apGRr",
-          "name": "operator"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblm263EWB0vsucXc",
-            "isReversed": false,
-            "prefersSingleRecordLink": true,
-            "inverseLinkFieldId": "fldiRbqdGnQcuAsMV"
-          },
-          "id": "fldTMzyf6ZSBfFF4k",
-          "name": "planned_recipe"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldTMzyf6ZSBfFF4k",
-            "fieldIdInLinkedTable": "fldndRjoqegdNTCvB",
-            "result": {
-              "type": "multilineText"
-            }
-          },
-          "id": "fldJY36C2eDNpLuUD",
-          "name": "recipe_id (from planned_recipe)"
-        },
-        {
-          "type": "multipleLookupValues",
-          "options": {
-            "isValid": true,
-            "recordLinkFieldId": "fldTMzyf6ZSBfFF4k",
-            "fieldIdInLinkedTable": "fldWEKB2VJ3H8fkxU",
-            "result": {
-              "type": "multilineText"
-            }
-          },
-          "id": "fldXPRwquxaJiAlwD",
-          "name": "name (from planned_recipe)"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 0
-          },
-          "id": "fldDtxqEtdYXj2irI",
-          "name": "planned_count"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 0
-          },
-          "id": "fldsjT5Bx3CCYbiOi",
-          "name": "good_count"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 0
-          },
-          "id": "fldPpy1KhQdDEDntC",
-          "name": "destroyed_count"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldN3FzkHFrlRm8KM",
-          "name": "planned_unit_size"
-        },
-        {
-          "type": "multilineText",
-          "id": "fldOIZWWJX5AvthrX",
-          "name": "ui_error"
-        },
-        {
-          "type": "dateTime",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            },
-            "timeFormat": {
-              "name": "12hour",
-              "format": "h:mma"
-            },
-            "timeZone": "client"
-          },
-          "id": "fldrSJpkhhe0aWScW",
-          "name": "ui_error_at"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selfceGzJIhPmLGMT",
-                "name": "Sterilize",
-                "color": "blueLight2"
-              },
-              {
-                "id": "selfY7EHC5aLiD7UR",
-                "name": "Pasteurize",
-                "color": "cyanLight2"
-              },
-              {
-                "id": "seljqQep6LW34vf6S",
-                "name": "Abandoned",
-                "color": "tealLight2"
-              }
-            ]
-          },
-          "id": "fld7VwphbSCFdlsiz",
-          "name": "process_type"
-        },
-        {
-          "type": "number",
-          "options": {
-            "precision": 2
-          },
-          "id": "fldgbROFXUKSRkDu1",
-          "name": "target_temp_c"
-        },
-        {
-          "type": "singleSelect",
-          "options": {
-            "choices": [
-              {
-                "id": "selZw0pg42yGKvQK7",
-                "name": "Open",
-                "color": "blueLight2"
-              },
-              {
-                "id": "selBJd1O0mZyexsmF",
-                "name": "Closed",
-                "color": "cyanLight2"
-              }
-            ]
-          },
-          "id": "fldOA7qORSRtEpoy4",
-          "name": "pressure_mode"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tblL2oACeE9P92BRA",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldWQpUbiM0DIprJw"
-          },
-          "id": "fldOQZGMLCuYyAEKr",
-          "name": "lots"
-        },
-        {
-          "type": "dateTime",
-          "options": {
-            "dateFormat": {
-              "name": "local",
-              "format": "l"
-            },
-            "timeFormat": {
-              "name": "12hour",
-              "format": "h:mma"
-            },
-            "timeZone": "client"
-          },
-          "id": "fld0od531ALO3HA3W",
-          "name": "override_end_time"
-        },
-        {
-          "type": "multipleRecordLinks",
-          "options": {
-            "linkedTableId": "tbl3sLXGbpqiaeaHI",
-            "isReversed": false,
-            "prefersSingleRecordLink": false,
-            "inverseLinkFieldId": "fldZ8oLCXsNgqnbZy"
-          },
-          "id": "fldYfZN0vDlT7rzLW",
-          "name": "print_queue"
-        }
-      ],
-      "views": [
-        {
-          "id": "viw7Hl1YUDg795NG4",
-          "name": "Grid view",
-          "type": "grid"
-        },
-        {
-          "id": "viwLpnlvWM3rp57Sk",
-          "name": "Not Recent",
-          "type": "grid"
-        }
-      ]
-    },
-    {
       "id": "tbl3sLXGbpqiaeaHI",
       "name": "print_queue",
       "primaryFieldId": "fldczHB6DuZtVJdt1",
@@ -4900,6 +6027,16 @@
                 "id": "seloxCJ7OhVOceq8t",
                 "name": "Sterilizer_Sheet",
                 "color": "pinkLight2"
+              },
+              {
+                "id": "selD50EHBe2pkSUBK",
+                "name": "All_In_One_Inoculated",
+                "color": "purpleLight2"
+              },
+              {
+                "id": "selohO7E5Pg3L1s1r",
+                "name": "Product_Package_Sample",
+                "color": "grayLight2"
               }
             ]
           },
@@ -5111,6 +6248,11 @@
                     "id": "selAl4Csmq08r6n9s",
                     "name": "LC_Syringe_Received",
                     "color": "yellowLight2"
+                  },
+                  {
+                    "id": "selh7m98dB06SGLd5",
+                    "name": "All_In_One_Inoculated",
+                    "color": "redLight2"
                   }
                 ]
               }

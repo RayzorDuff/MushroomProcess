@@ -1,83 +1,116 @@
-- airtable_createdTime: '2026-05-12T02:12:41.000Z'
-  airtable_id: rec0NcLKQYHfN0M5j
-  default_unit_size (from planned_item):
-  - 500ml
+- airtable_createdTime: '2026-06-29T20:50:46.000Z'
+  airtable_id: rec4kjzQCltjUHSCv
+  component_mode (from planned_item):
+  - multi_recipe
   destroyed_count: 0
-  end_time: '2026-05-12T15:21:55.005Z'
-  good_count: 6
+  end_time: '2026-06-29T20:52:43.485Z'
+  good_count: 2
   lots:
-  - rec34tNtceOfWaihk
-  - recxqesjPcoVamnSv
-  - recZpMQRv6kkccQ13
-  - rec1H2qUGTb4p5cqY
-  - rec689aaANUwqwWxr
-  - recwOLDrnD1q6kGdW
+  - recHg7kSIq1b9s5QP
+  - recwmGz1GAmOCamct
   name (from planned_recipe):
-  - Liquid Assisted Broth Rice Formula
-  planned_count: 6
+  - CVG (Coir+CaCO3+Gypsum+VegCompostA+VegCompostB+Vermiculite
+Operator 2 <operator2.email.address@mybusiness.com>
+  planned_component_set: WBS_CVG_RIZ1
+  planned_count: 2
   planned_item:
-  - reck37LYwv7KPri6w
+  - recEmMfAJEVRuCOXf
   planned_item_id:
-  - FB-CORDYCEPS-B-500
+  - AIO-BAG
   planned_item_name:
-  - Cordyceps B
+  - All-in-One Bag
+  planned_item_recipe_components:
+  - recVgaSAr6FP7Gjk5
+  - recCl6NU5hqNXDzxR
+  - rec33JZCIIVQVdjra
+  - recwGWGpMX2iPlzxV
+  - recOvV84vHOMfPH0o
+  - recdePPIzqm5LaHOu
+  planned_item_recipe_options:
+  - "WBS_CVG_RIZ1 \u2014 grain: REC-GRAIN-WBS @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 substrate: REC-SUB-CVG-RIZ-V1 @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 grain: REC-GRAIN-WBS @ 5 lb unit \u2014 2 lb\nWBS_CVG_RIZ1 \u2014 substrate:\
+    \ REC-SUB-CVG-RIZ-V1 @ 5 lb unit \u2014 3 lb"
   planned_recipe:
-  - recWi2mg0oo9QtFFx
-  planned_unit_size: 500
+  - recpFhRjhqhXi52yY
+  planned_recipe_instruction: Recipe components are defined by the item and size.
+  planned_unit_size: 5
   pressure_mode: Closed
   print_queue:
-  - rece4eiahYKpCtc3a
+  - recuKFLxY99cQlfc7
   process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-SUB-CORDYCEPS-B
-  start_time: '2026-05-11T21:00:00.000Z'
-  steri_run_id: RUN-260512-0M5j
+  - REC-SUB-CVG-RIZ-V1
+  start_time: '2026-06-27T20:50:00.000Z'
+  steri_run_id: RUN-260629-HSCv
   target_temp_c: 121
-- airtable_createdTime: '2026-04-24T20:22:37.000Z'
-  airtable_id: recCSZRx6w0VbzoXm
-  default_unit_size (from planned_item):
-  - 2lb
+- airtable_createdTime: '2026-06-23T21:45:02.000Z'
+  airtable_id: rec8b9gwQ65FYFTYo
+  component_mode (from planned_item):
+  - single_recipe
   destroyed_count: 0
-  end_time: '2026-04-24T07:30:00.000Z'
-  good_count: 54
+  end_time: '2026-06-24T22:04:27.843Z'
+  good_count: 30
   lots:
-  - rec1mfUCKWdZXJYeU
-  - rech0qZ2yxBuRp6PG
-  - rec80Q0dlUG89Rajn
-  - rec80tLwY29WhPBqm
-  - rec26j5zhA8ZVMXGb
-  - rec3QEHNQTBrHyUij
-  - rec05Odpc7B4xEZtd
-  - recSIXV7577HSR0HF
-  - rec6klKRz7Dgosefa
-  - recfGPOZJ9R0N6QWZ
-  - rec5CVObIhkWk8zAM
-  - rec47jWqe7R9FrdfO
-  - recuK7ak06yzEx8wc
-  - recbq71hCdjx29Aj6
-  - recNiOOqOrHbHmzWm
+  - recPuIpwjVXZLMpoj
+  - recYOXjQcjfSd8yfT
+  - rectE7mt9vWSfZClZ
+  - recs21cwu1w5dUWmr
+  - recijQzkVe5DZHpQi
+  - recmkqC16Aej4wpnD
+  - recdPAu9xkT4DD4GH
+  - recwWVBG1KSZBpmvS
+  - recMYXLsY6O8DTZLQ
+  - recr7BMwqTOF8K1qb
+  - recEzw36CoJblPJXI
+  - reclHuRPSeJZthVez
+  - recZE49Mte1TG2CXC
+  - recKxxfzpa3mMcn0V
+  - rec7z6nOIDrst4LAY
+  - recNNzT8FZIc94UDu
+  - recRVieeEy7V1A2oH
+  - rec3BAAJeezGfrTT0
+  - recssNwyBDvQG99rA
+  - recHAOR5eDiAccMlT
+  - recoxC4qr1yAqZStR
+  - recjIytqd4c21Qbw9
+  - recbYw9MqT0gM8tfr
+  - recBQ1BCwvv19mmQl
+  - receOrZTxhMBhkRDH
+  - rec4OBP6yslXcGRI4
+  - recW3crthW54d7ECk
+  - recBXsoAmyR34PeAt
+  - recUFG8B3wbTal8EG
+  - recUNebjseeNPKaYQ
   name (from planned_recipe):
   - Wild Bird Seed Blend
-Operator 1 <operator1.email.address@mybusiness.com>
-  override_end_time: '2026-04-24T07:30:00.000Z'
-  planned_count: 54
+Operator 2 <operator2.email.address@mybusiness.com>
+  planned_count: 30
   planned_item:
-  - recwdBny04rzSGGrO
+  - rec8OlixLGGGw3dLn
   planned_item_id:
-  - GRAIN-WBS-2
+  - GRAIN-BAG
   planned_item_name:
-  - Wild Bird Seed
+  - Spawn Bag
+  planned_item_recipe_components:
+  - recQGhJ3w0UOTnJZo
+  - recct2FvwlN4mcu1S
+  - recTp1b96JvCOQbWT
+  planned_item_recipe_options:
+  - 'grain: REC-GRAIN-WBS'
   planned_recipe:
   - rec9ayZPHs9K5WS4K
-  planned_unit_size: 2
+  planned_recipe_instruction: Select exactly one Recipe / Primary Recipe for this
+    item.
+  planned_unit_size: 1.5
   pressure_mode: Closed
   print_queue:
-  - recdreFU1uc9gXL5v
+  - recbvATOFG47RiTLB
   process_type: Sterilize
   recipe_id (from planned_recipe):
   - REC-GRAIN-WBS
-  start_time: '2026-04-22T21:30:00.000Z'
-  steri_run_id: RUN-260424-zoXm
+  start_time: '2026-06-22T21:44:00.000Z'
+  steri_run_id: RUN-260623-FTYo
   target_temp_c: 121
 - airtable_createdTime: '2026-05-19T18:34:52.000Z'
   airtable_id: recCzwiynOzb8UQbk
@@ -102,6 +135,8 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - SUB-MM75-7_5
   planned_item_name:
   - Masters Mix 75/25
+  planned_item_recipe_options:
+  - null
   planned_recipe:
   - recdzi4MMq717DjmU
   planned_unit_size: 7.5
@@ -114,137 +149,55 @@ Operator 1 <operator1.email.address@mybusiness.com>
   start_time: '2026-05-15T18:34:00.000Z'
   steri_run_id: RUN-260519-UQbk
   target_temp_c: 121
-- airtable_createdTime: '2026-05-05T22:23:32.000Z'
-  airtable_id: recGGBddzBqYNmguh
+- airtable_createdTime: '2026-06-22T16:35:13.000Z'
+  airtable_id: recPbl4pQNxvxqso0
   default_unit_size (from planned_item):
-  - 7.5lb
+  - 5lb
   destroyed_count: 0
-  end_time: '2026-05-05T22:23:00.000Z'
-  good_count: 4
+  end_time: '2026-06-22T16:35:00.000Z'
+  good_count: 16
   lots:
-  - rechQQL5EDBWzMDPZ
-  - recnRHteTCMhCvAwX
-  - recNy9QSQ9gujHYUd
-  - recMJl07J6vDuBjY8
-  name (from planned_recipe):
-  - Masters Mix 75/25
-  override_end_time: '2026-05-05T22:23:00.000Z'
-  planned_count: 4
-  planned_item:
-  - recXSlo6zHhTvnhZe
-  planned_item_id:
-  - SUB-MM75-7_5
-  planned_item_name:
-  - Masters Mix 75/25
-  planned_recipe:
-  - recdzi4MMq717DjmU
-  planned_unit_size: 7.5
-  pressure_mode: Closed
-  print_queue:
-  - recCquAAGYS6wCAS1
-  process_type: Sterilize
-  recipe_id (from planned_recipe):
-  - REC-SUB-MM75
-  start_time: '2026-05-05T22:23:00.000Z'
-  steri_run_id: RUN-260505-mguh
-  target_temp_c: 121
-- airtable_createdTime: '2026-04-22T12:27:12.000Z'
-  airtable_id: recKxVLX61XaTp3xU
-  default_unit_size (from planned_item):
-  - 2.5lb
-  destroyed_count: 0
-  end_time: '2026-04-22T12:28:52.942Z'
-  good_count: 18
-  lots:
-  - recsSVjSB0VdvdEWS
-  - recuFykChVpuCZrMq
-  - recSyt4fdN3skhaZi
-  - recbts1INAJgT81m9
-  - recVmJ4C36kVJSSSS
-  - recrkyWbwznqR7VCl
-  - recQOaFteyKXFffBQ
-  - recemSvu9sx45u6uG
-  - recGxrJfMbJ98LMeC
-  - recDqCiReiIn3ax7G
-  - recSxIEFkkN75oHht
-  - rec5JiIAhwDu2Ix1Y
-  - recPfFbkyrTFAeto6
-  - reczd82ubv793TMBD
-  - rec70jzPud70QaYU0
-  - rec1X28ao4DRCf2e4
-  - recLfz2MTnUpwMa6m
-  - recdOwo3Jb2RxBaPA
+  - reczBt4qkCVUzyXla
+  - reclJv5WnLdEsEkEF
+  - recnaMGtmYOcZJtml
+  - rect3WMyehEvuYEk6
+  - recoXPUytDKoh4noG
+  - rec0b4jgMlayBlkCI
+  - rec25ehrQ6COisbWp
+  - recpQqa2K7brAzXGL
+  - recQ48QM2SOxGr5q6
+  - recxta7XZu0p6M8zi
+  - recTAIrKrJWH6SHP7
+  - recswwnXiU7APOdEf
+  - recHY0lhyfXCMAWdV
+  - recBNpxd36PTxrmAM
+  - recMyorV9vFyHTgce
+  - recbGOSbpL74ctE1g
   name (from planned_recipe):
   - CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
-  planned_count: 18
+Operator 1 <operator1.email.address@mybusiness.com>
+  override_end_time: '2026-06-22T16:35:00.000Z'
+  planned_count: 16
   planned_item:
-  - recgoe5aWJ1C3uuUN
+  - recJgSj2nMQhhMQm3
   planned_item_id:
-  - SUB-CVG-2_5
+  - SUB-CVG-5
   planned_item_name:
   - Coco Verm Gypsum
+  planned_item_recipe_options:
+  - null
   planned_recipe:
   - rec3KC4fKWLKAvUSc
-  planned_unit_size: 2.5
-  pressure_mode: Open
+  planned_unit_size: 5
+  pressure_mode: Closed
   print_queue:
-  - recdSryfWpGmLm4mf
+  - rec4O4wBqtjjs88PZ
   process_type: Pasteurize
   recipe_id (from planned_recipe):
   - REC-SUB-CVG-V2
-  start_time: '2026-04-20T12:27:00.000Z'
-  steri_run_id: RUN-260422-p3xU
+  start_time: '2026-06-19T16:35:00.000Z'
+  steri_run_id: RUN-260622-qso0
   target_temp_c: 74
-- airtable_createdTime: '2026-05-05T22:21:51.000Z'
-  airtable_id: recNmAs6kOzTAInt8
-  default_unit_size (from planned_item):
-  - 2.5lb
-  destroyed_count: 9
-  end_time: '2026-05-05T22:22:14.543Z'
-  good_count: 21
-  lots:
-  - recJz8yt01j49RSHr
-  - recTpUSLyilzSM2al
-  - recf9jzuiq6eQ6Erq
-  - rec5BdDEQYlvMjLLa
-  - recAAC2kv0zNKzRKP
-  - reccpxS1qoNaA7LZS
-  - recNDYavtetW88UqV
-  - rectV8TtEqO3K2xYB
-  - recFA07XISHru06Wa
-  - recCFIoJHnO8pa5cp
-  - recMWmMAomB9DcFaY
-  - recYWNToc4VtBYeKF
-  - receKsMVYjaL62j1M
-  - reciU4mkgIJc6FKss
-  - recOttOwiJVMomq3g
-  - rec7WBWmi2WlMyQRo
-  - recmFku57yRtfqkub
-  - receL0vTHMoY5B30M
-  - recp7KLAsLcPgLVDJ
-  - rec4Kk7Q2HUYPy3U5
-  - recRyRmIGEwRoGpFf
-  name (from planned_recipe):
-  - Masters Mix 75/25
-  planned_count: 30
-  planned_item:
-  - recaOtqLL80xSaYLT
-  planned_item_id:
-  - SUB-MM75-2_5
-  planned_item_name:
-  - Masters Mix 75/25
-  planned_recipe:
-  - recdzi4MMq717DjmU
-  planned_unit_size: 2.5
-  pressure_mode: Closed
-  print_queue:
-  - recNwCtxZFh0Sp7yB
-  process_type: Sterilize
-  recipe_id (from planned_recipe):
-  - REC-SUB-MM75
-  start_time: '2026-05-05T22:21:00.000Z'
-  steri_run_id: RUN-260505-Int8
-  target_temp_c: 121
 - airtable_createdTime: '2026-05-23T19:07:08.000Z'
   airtable_id: recT7cCdNjTLducvq
   default_unit_size (from planned_item):
@@ -282,6 +235,8 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - GRAIN-WBS-2
   planned_item_name:
   - Wild Bird Seed
+  planned_item_recipe_options:
+  - null
   planned_recipe:
   - rec9ayZPHs9K5WS4K
   planned_unit_size: 2
@@ -294,40 +249,53 @@ Operator 1 <operator1.email.address@mybusiness.com>
   start_time: '2026-05-20T19:06:00.000Z'
   steri_run_id: RUN-260523-ucvq
   target_temp_c: 121
-- airtable_createdTime: '2026-05-12T02:12:19.000Z'
-  airtable_id: recWAbeni0r7lEmMj
-  default_unit_size (from planned_item):
-  - 500ml
+- airtable_createdTime: '2026-06-23T21:44:36.000Z'
+  airtable_id: receqE6oTONWjkun8
+  component_mode (from planned_item):
+  - multi_recipe
   destroyed_count: 0
-  end_time: '2026-05-13T16:47:37.020Z'
-  good_count: 6
+  end_time: '2026-06-24T22:15:41.781Z'
+  good_count: 8
   lots:
-  - rec34emtMzGgC51ad
-  - recAu1w9QrpnQ3tzc
-  - rec7XlTO3zMS3qM7i
-  - rec1D4BqvDwCASibG
-  - reco0ji1b2KjEthzB
-  - recLZDYpCTXGEHtdu
+  - recmwyu7eoHkHxenB
+  - reco0FveBXo4HxXWz
+  - reccAUeoNlKQOlJib
+  - recO5KoRn7EFWyznB
   name (from planned_recipe):
-  - Cordyceps Soy Peptone Formula
-  planned_count: 6
+  - CVG (Coir+CaCO3+Gypsum+VegCompostA+VegCompostB+Vermiculite
+Operator 2 <operator2.email.address@mybusiness.com>
+  planned_component_set: WBS_CVG_RIZ1
+  planned_count: 8
   planned_item:
-  - recji2ItsnGzAI2ej
+  - recEmMfAJEVRuCOXf
   planned_item_id:
-  - FB-CORDYCEPS-A-500
+  - AIO-BAG
   planned_item_name:
-  - Cordyceps A
+  - All-in-One Bag
+  planned_item_recipe_components:
+  - recVgaSAr6FP7Gjk5
+  - recCl6NU5hqNXDzxR
+  - rec33JZCIIVQVdjra
+  - recwGWGpMX2iPlzxV
+  - recOvV84vHOMfPH0o
+  - recdePPIzqm5LaHOu
+  planned_item_recipe_options:
+  - "WBS_CVG_RIZ1 \u2014 grain: REC-GRAIN-WBS @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 substrate: REC-SUB-CVG-RIZ-V1 @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 grain: REC-GRAIN-WBS @ 5 lb unit \u2014 2 lb\nWBS_CVG_RIZ1 \u2014 substrate:\
+    \ REC-SUB-CVG-RIZ-V1 @ 5 lb unit \u2014 3 lb"
   planned_recipe:
-  - recwC8OXLVVl9Tv7C
-  planned_unit_size: 500
+  - recpFhRjhqhXi52yY
+  planned_recipe_instruction: Recipe components are defined by the item and size.
+  planned_unit_size: 5
   pressure_mode: Closed
   print_queue:
-  - recpwSjjp5x8JXJ7n
+  - recQEiXEGlpn8fPIW
   process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-SUB-CORDYCEPS-A
-  start_time: '2026-05-11T21:00:00.000Z'
-  steri_run_id: RUN-260512-EmMj
+  - REC-SUB-CVG-RIZ-V1
+  start_time: '2026-06-22T21:44:00.000Z'
+  steri_run_id: RUN-260623-kun8
   target_temp_c: 121
 - airtable_createdTime: '2026-05-25T18:52:44.000Z'
   airtable_id: recgRAjPX8HKei2lj
@@ -362,6 +330,8 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - SUB-CVG-5
   planned_item_name:
   - Coco Verm Gypsum
+  planned_item_recipe_options:
+  - null
   planned_recipe:
   - rec3KC4fKWLKAvUSc
   planned_unit_size: 5
@@ -385,14 +355,10 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - recYzX9StSx6mBAFW
   - recb9RqSMSDn0u4yX
   - recSLVWNUGT7WBO84
-  - reckCHukFli6qC7k1
   - recojnsaBCokDaYHE
-  - reckyhMPQqyTr01QY
-  - recX902iBxTkrkqnJ
   - recTdtwLo8Msk7ahC
   - recUpUMZX90wXzMhx
   - rec4oLI79L9qNB68Z
-  - reczwfulxLLtmebyL
   - recKhtUUrmcFvQQ80
   - recKrk9ibdKjBoUsI
   - rec6mm1yfRZV0Jqvx
@@ -442,6 +408,8 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - GRAIN-WBS-2
   planned_item_name:
   - Wild Bird Seed
+  planned_item_recipe_options:
+  - null
   planned_recipe:
   - rec9ayZPHs9K5WS4K
   planned_unit_size: 1.75
@@ -454,40 +422,91 @@ Operator 1 <operator1.email.address@mybusiness.com>
   start_time: '2026-06-14T16:52:00.000Z'
   steri_run_id: RUN-260615-CD2X
   target_temp_c: 121
-- airtable_createdTime: '2026-04-22T12:28:15.000Z'
-  airtable_id: recswN3XMcVEeXbvP
-  default_unit_size (from planned_item):
-  - 5lb
+- airtable_createdTime: '2026-06-29T20:51:41.000Z'
+  airtable_id: recmOfj55C1iwlLVT
+  component_mode (from planned_item):
+  - multi_recipe
   destroyed_count: 0
-  end_time: '2026-04-22T12:29:05.101Z'
-  good_count: 8
+  end_time: '2026-06-29T20:52:53.810Z'
+  good_count: 6
   lots:
-  - recfbfYDnPBFZZhO4
-  - rec1MGWuyG1bG08aA
-  - reclrahfJlM1s4q79
-  - recsJCoALrwVWC5J7
-  - recqbm3Ixcwx2z7LC
-  - recf78QHDAJVibt2m
-  - rect9v6eCh9hP1Rlv
-  - recP28SZes0LccG8h
+  - recknDQhWmXDxvhWT
+  - recJXkwdqOWh7DQO2
   name (from planned_recipe):
-  - CVG (Coir+CaCO3+Gypsum+Castings+Vermiculite)
-  planned_count: 8
+  - CVG (Coir+CaCO3+Gypsum+VegCompostA+VegCompostB+Vermiculite
+Operator 2 <operator2.email.address@mybusiness.com>
+  planned_component_set: WBS_CVG_RIZ1
+  planned_count: 6
   planned_item:
-  - recJgSj2nMQhhMQm3
+  - recEmMfAJEVRuCOXf
   planned_item_id:
-  - SUB-CVG-5
+  - AIO-BAG
   planned_item_name:
-  - Coco Verm Gypsum
+  - All-in-One Bag
+  planned_item_recipe_components:
+  - recVgaSAr6FP7Gjk5
+  - recCl6NU5hqNXDzxR
+  - rec33JZCIIVQVdjra
+  - recwGWGpMX2iPlzxV
+  - recOvV84vHOMfPH0o
+  - recdePPIzqm5LaHOu
+  planned_item_recipe_options:
+  - "WBS_CVG_RIZ1 \u2014 grain: REC-GRAIN-WBS @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 substrate: REC-SUB-CVG-RIZ-V1 @ 3 lb unit \u2014 1.5 lb\nWBS_CVG_RIZ1\
+    \ \u2014 grain: REC-GRAIN-WBS @ 5 lb unit \u2014 2 lb\nWBS_CVG_RIZ1 \u2014 substrate:\
+    \ REC-SUB-CVG-RIZ-V1 @ 5 lb unit \u2014 3 lb"
   planned_recipe:
-  - rec3KC4fKWLKAvUSc
-  planned_unit_size: 5
-  pressure_mode: Open
+  - recpFhRjhqhXi52yY
+  planned_recipe_instruction: Recipe components are defined by the item and size.
+  planned_unit_size: 3
+  pressure_mode: Closed
   print_queue:
-  - recnETQ1wW8TAtFXF
-  process_type: Pasteurize
+  - recrm6xjhI0refyIr
+  process_type: Sterilize
   recipe_id (from planned_recipe):
-  - REC-SUB-CVG-V2
-  start_time: '2026-04-20T12:28:00.000Z'
-  steri_run_id: RUN-260422-XbvP
-  target_temp_c: 74
+  - REC-SUB-CVG-RIZ-V1
+  start_time: '2026-06-27T20:51:00.000Z'
+  steri_run_id: RUN-260629-lLVT
+  target_temp_c: 121
+- airtable_createdTime: '2026-06-29T20:52:27.000Z'
+  airtable_id: recwjKJcMtXVRXJNz
+  component_mode (from planned_item):
+  - single_recipe
+  destroyed_count: 0
+  end_time: '2026-06-29T20:53:00.000Z'
+  good_count: 6
+  lots:
+  - recrPxDkS8LbnxHjS
+  - recXS1mY68g97ljFW
+  - recArAEsTvuIqOP2L
+  - recGJ6ZVsuDPmH6U3
+  - recVVV3KkUP9F8tzR
+  - recAAEjZeL3m5X9hB
+  name (from planned_recipe):
+  - CVG (Coir+CaCO3+Gypsum+VegCompostA+VegCompostB+Vermiculite
+  override_end_time: '2026-06-29T20:53:00.000Z'
+  planned_count: 6
+  planned_item:
+  - rec9SrjULya0yqlOU
+  planned_item_id:
+  - SUB-CVG-BAG
+  planned_item_name:
+  - CVG Substrate Bag
+  planned_item_recipe_components:
+  - recrl51dkaMNQJGvI
+  planned_item_recipe_options:
+  - 'substrate: REC-SUB-CVG-V2'
+  planned_recipe:
+  - recpFhRjhqhXi52yY
+  planned_recipe_instruction: Select exactly one Recipe / Primary Recipe for this
+    item.
+  planned_unit_size: 5
+  pressure_mode: Closed
+  print_queue:
+  - rec02CSyWtJIjjZig
+  process_type: Sterilize
+  recipe_id (from planned_recipe):
+  - REC-SUB-CVG-RIZ-V1
+  start_time: '2026-06-27T20:52:00.000Z'
+  steri_run_id: RUN-260629-XJNz
+  target_temp_c: 121

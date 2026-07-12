@@ -6,92 +6,99 @@ This document maps all tables and their fields as defined in the current Airtabl
 
 ## ✅ `strains`
 
-| Field          | Type      |
-| -------------- | --------- |
-| strain_id      | long text |
-| active         | checkbox  |
-| species_strain | long text |
-| lots           | link/id   |
-| regulated      | checkbox  |
-| ecommerce      | link/id   |
-| products       | link/id   |
+| Field          | Type          |
+| -------------- | ------------- |
+| strain_id      | long text     |
+| active         | checkbox      |
+| species_strain | long text     |
+| lots           | link/id       |
+| regulated      | checkbox      |
+| product_use    | single select |
+| ecommerce      | link/id       |
+| products       | link/id       |
 ---
 
 ## ✅ `recipes`
 
-| Field              | Type          |
-| ------------------ | ------------- |
-| recipe_id          | long text     |
-| active             | checkbox      |
-| name               | long text     |
-| category           | single select |
-| ingredients        | long text     |
-| notes              | long text     |
-| lots               | link/id       |
-| sterilization_runs | link/id       |
+| Field                  | Type          |
+| ---------------------- | ------------- |
+| recipe_id              | long text     |
+| active                 | checkbox      |
+| name                   | long text     |
+| category               | single select |
+| ingredients            | long text     |
+| notes                  | long text     |
+| lots                   | link/id       |
+| sterilization_runs     | link/id       |
+| item_recipe_components | link/id       |
+| lot_recipe_components  | link/id       |
 ---
 
 ## ✅ `products`
 
-| Field                        | Type          |
-| ---------------------------- | ------------- |
-| product_id                   | formula       |
-| item_id                      | link/id       |
-| name                         | lookup        |
-| name_mat                     | single line   |
-| item_category                | lookup        |
-| item_category_mat            | single line   |
-| net_weight_g                 | number        |
-| net_weight_oz                | number        |
-| net_volume_ml                | number        |
-| pack_date                    | date          |
-| use_by                       | date          |
-| public_link                  | formula       |
-| package_item                 | link/id       |
-| name (from package_item)     | lookup        |
-| package_item_category        | lookup        |
-| unit_lbs                     | lookup        |
-| unit_size                    | lookup        |
-| package_size_g               | number        |
-| package_count                | number        |
-| storage_location             | link/id       |
-| action                       | single select |
-| merge_tray_products          | link/id       |
-| origin_lot_ids_json          | long text     |
-| origin_lots                  | link/id       |
-| label_inoc_prod              | lookup        |
-| label_spawned_prod           | lookup        |
-| label_proc_prod              | lookup        |
-| process_type                 | lookup        |
-| process_type_mat             | single line   |
-| strain_id                    | link/id       |
-| species_strain               | lookup        |
-| origin_strain_regulated      | lookup        |
-| ui_error                     | long text     |
-| ui_error_at                  | date/time     |
-| tray_state                   | single select |
-| label_company_prod           | formula       |
-| label_companyaddress_prod    | formula       |
-| label_disclaimer_prod        | formula       |
-| label_companyinfo_prod       | formula       |
-| label_cottage_prod           | formula       |
-| label_title_prod             | formula       |
-| label_subtitle_prod          | formula       |
-| label_footer_prod            | formula       |
-| label_packaged_prod          | formula       |
-| label_useby_prod             | formula       |
-| print_queue                  | link/id       |
-| ecommerce                    | link/id       |
-| ecommerce_orders             | link/id       |
-| events                       | link/id       |
-| notes                        | long text     |
-| ecwid_url (from ecommerce)   | lookup        |
-| ecwid_upc (from ecommerce)   | lookup        |
-| ecwid_price (from ecommerce) | lookup        |
-| harvest_flush_no             | number        |
-| harvest_weight_g             | number        |
-| harvested_at                 | date/time     |
-| operator                     | single select |
+| Field                          | Type          |
+| ------------------------------ | ------------- |
+| product_id                     | formula       |
+| item_id                        | link/id       |
+| name                           | lookup        |
+| name_mat                       | single line   |
+| item_category                  | lookup        |
+| item_category_mat              | single line   |
+| net_weight_g                   | number        |
+| net_weight_oz                  | number        |
+| net_volume_ml                  | number        |
+| pack_date                      | date          |
+| use_by                         | date          |
+| public_link                    | formula       |
+| package_class                  | single select |
+| package_item                   | link/id       |
+| name (from package_item)       | lookup        |
+| package_item_category          | lookup        |
+| unit_lbs                       | lookup        |
+| unit_size                      | lookup        |
+| package_size                   | single select |
+| package_size_g                 | formula       |
+| package_count                  | number        |
+| storage_location               | link/id       |
+| action                         | single select |
+| merge_tray_products            | link/id       |
+| origin_lot_ids_json            | long text     |
+| origin_lots                    | link/id       |
+| label_inoc_prod                | lookup        |
+| label_spawned_prod             | lookup        |
+| label_proc_prod                | lookup        |
+| process_type                   | lookup        |
+| process_type_mat               | single line   |
+| strain_id                      | link/id       |
+| species_strain                 | lookup        |
+| origin_strain_regulated        | lookup        |
+| origin_strain_product_use      | lookup        |
+| ui_error                       | long text     |
+| ui_error_at                    | date/time     |
+| tray_state                     | single select |
+| label_company_prod             | formula       |
+| label_companyaddress_base_prod | formula       |
+| label_companyaddress_prod      | formula       |
+| label_disclaimer_prod          | formula       |
+| label_companyinfo_prod         | formula       |
+| label_cottage_prod             | formula       |
+| label_title_prod               | formula       |
+| label_subtitle_prod            | formula       |
+| label_footer_prod              | formula       |
+| label_packaged_prod            | formula       |
+| label_useby_prod               | formula       |
+| print_queue                    | link/id       |
+| ecommerce                      | link/id       |
+| ecommerce_orders               | link/id       |
+| events                         | link/id       |
+| notes                          | long text     |
+| ecwid_url (from ecommerce)     | lookup        |
+| ecwid_upc (from ecommerce)     | lookup        |
+| ecwid_price (from ecommerce)   | lookup        |
+| harvest_flush_no               | number        |
+| harvest_weight_g               | number        |
+| harvested_at                   | date/time     |
+| operator                       | single select |
 ---
 
 ## ✅ `lots`
@@ -192,6 +199,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 | parent_lot_id                            | link/id       |
 | ecommerce                                | link/id       |
 | retired_at                               | date/time     |
+| lot_recipe_components                    | link/id       |
+| lot_component_summary                    | rollup        |
 | beganfruiting_at                         | date/time     |
 | firstharvested_at                        | date/time     |
 | lastharvested_at                         | date/time     |
@@ -199,24 +208,33 @@ This document maps all tables and their fields as defined in the current Airtabl
 
 ## ✅ `items`
 
-| Field                | Type          |
-| -------------------- | ------------- |
-| item_id              | long text     |
-| active               | checkbox      |
-| name                 | single select |
-| category             | single select |
-| default_unit_size_lb | number        |
-| default_unit_size_ml | number        |
-| default_unit_size_oz | number        |
-| default_unit_size_g  | number        |
-| default_unit_size    | single select |
-| lots                 | link/id       |
-| sterilization_runs   | link/id       |
-| lots 2               | link/id       |
-| products             | link/id       |
-| lots 4               | link/id       |
-| products 2           | link/id       |
-| ecommerce            | link/id       |
+| Field                  | Type          |
+| ---------------------- | ------------- |
+| item_id                | long text     |
+| active                 | checkbox      |
+| name                   | single select |
+| category               | single select |
+| default_unit_size_lb   | number        |
+| default_unit_size_ml   | number        |
+| default_unit_size_oz   | number        |
+| default_unit_size_g    | number        |
+| default_unit_size      | single select |
+| lots                   | link/id       |
+| sterilization_runs     | link/id       |
+| lots 2                 | link/id       |
+| products               | link/id       |
+| lots 4                 | link/id       |
+| products 2             | link/id       |
+| ecommerce              | link/id       |
+| replaced_by_item_id    | link/id       |
+| items                  | link/id       |
+| deprecated_reason      | long text     |
+| component_mode         | single select |
+| size_source            | single select |
+| sort_order             | number        |
+| item_recipe_components | link/id       |
+| lot_recipe_components  | link/id       |
+| item_component_summary | rollup        |
 ---
 
 ## ✅ `events`
@@ -259,6 +277,7 @@ This document maps all tables and their fields as defined in the current Airtabl
 | ------------------------------------- | ------------- |
 | steri_run_id                          | formula       |
 | planned_item                          | link/id       |
+| component_mode (from planned_item)    | lookup        |
 | default_unit_size (from planned_item) | lookup        |
 | planned_item_id                       | lookup        |
 | planned_item_name                     | lookup        |
@@ -280,6 +299,10 @@ This document maps all tables and their fields as defined in the current Airtabl
 | lots                                  | link/id       |
 | override_end_time                     | date/time     |
 | print_queue                           | link/id       |
+| planned_item_recipe_components        | lookup        |
+| planned_recipe_instruction            | formula       |
+| planned_item_recipe_options           | lookup        |
+| planned_component_set                 | single select |
 ---
 
 ## ✅ `print_queue`
@@ -389,4 +412,41 @@ This document maps all tables and their fields as defined in the current Airtabl
 | last_webhook_at              | date/time     |
 | products_report              | rollup        |
 | product_ids_report           | rollup        |
+---
+
+## ✅ `item_recipe_components`
+
+| Field                    | Type          |
+| ------------------------ | ------------- |
+| component_id             | formula       |
+| active                   | checkbox      |
+| item_id                  | link/id       |
+| component_set            | single select |
+| recipe_id                | link/id       |
+| component_role           | single select |
+| unit_size_lb             | number        |
+| default_weight_lb        | number        |
+| default_percent          | number        |
+| sort_order               | number        |
+| notes                    | long text     |
+| lot_recipe_components    | link/id       |
+| component_display        | formula       |
+| component_display_active | formula       |
+---
+
+## ✅ `lot_recipe_components`
+
+| Field                        | Type          |
+| ---------------------------- | ------------- |
+| lot_recipe_component_id      | formula       |
+| lot_id                       | link/id       |
+| item_id                      | link/id       |
+| recipe_id                    | link/id       |
+| source_item_recipe_component | link/id       |
+| component_role               | single select |
+| component_weight_lb          | number        |
+| component_percent            | number        |
+| sort_order                   | number        |
+| notes                        | long text     |
+| lot_component_display        | formula       |
 ---

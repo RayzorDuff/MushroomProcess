@@ -3,8 +3,148 @@
   category: casing
   default_unit_size: 1lb
   default_unit_size_lb: 1
+  deprecated_reason: All casing consolidated into CASING-PEAT
   item_id: CASING-PEAT-1
   name: Peat Moss
+  replaced_by_item_id:
+  - recDCpU62u25fRPHJ
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: rec8OlixLGGGw3dLn
+  category: grain
+  component_mode: single_recipe
+  item_component_summary: 'grain: REC-GRAIN-WBS'
+  item_id: GRAIN-BAG
+  item_recipe_components:
+  - recQGhJ3w0UOTnJZo
+  - recct2FvwlN4mcu1S
+  - recTp1b96JvCOQbWT
+  items:
+  - recM75qospUCh1DQ3
+  - rect5ScMzcq9NLMEL
+  - recwdBny04rzSGGrO
+  - recElBASw3SYIGDqy
+  - recocMHgTLuGMcxPf
+  - recpYVnapHjPrNXA8
+  lot_recipe_components:
+  - recL7vHX64Ma7rbrO
+  - recf5PEvrYoxVTjg7
+  - recjgzIJX5osIN6fG
+  - reccO5sMq8MBvoYlb
+  - receyg7EysjvIbO3D
+  - rec7qTElK5SxmdVmn
+  - recz615J5i3isKNPG
+  - recCCLpahWHgpik23
+  - receI3staomyMcBBf
+  - recS5wyqwYPnHnb0c
+  - recmqqvdFUXGIk5SZ
+  - recYZZuOTQ2Lhiicr
+  - recb95gsqdRNmobFo
+  - rec4LuVZvX4RA5Taj
+  - rec63ieruYKfmafDb
+  - recqHksLFZD4cAbd7
+  - recCu9iKZc1W7ESfE
+  - recWLoMvtSuCfiLom
+  - recun9qWpRQ3OMIVk
+  - recQONtZmx0voRzID
+  - recKI60Fu2FTqVCC7
+  - recxQ7Bz8fWgRIRFB
+  - rec0wJ83oVWc0twCz
+  - recveA7zA99i2Ajq3
+  - recmk5KG4rf95J06x
+  - recegvPOYLXcPgdND
+  - reciiernNCslW9dmX
+  - recXpuO573TIWbxpI
+  - recBYLKvyTV7gBqbl
+  - recYYj4WGPC56HGLB
+  lots:
+  - recPuIpwjVXZLMpoj
+  - recYOXjQcjfSd8yfT
+  - rectE7mt9vWSfZClZ
+  - recs21cwu1w5dUWmr
+  - recijQzkVe5DZHpQi
+  - recmkqC16Aej4wpnD
+  - recdPAu9xkT4DD4GH
+  - recwWVBG1KSZBpmvS
+  - recMYXLsY6O8DTZLQ
+  - recr7BMwqTOF8K1qb
+  - recEzw36CoJblPJXI
+  - reclHuRPSeJZthVez
+  - recZE49Mte1TG2CXC
+  - recKxxfzpa3mMcn0V
+  - rec7z6nOIDrst4LAY
+  - recNNzT8FZIc94UDu
+  - recRVieeEy7V1A2oH
+  - rec3BAAJeezGfrTT0
+  - recssNwyBDvQG99rA
+  - recHAOR5eDiAccMlT
+  - recoxC4qr1yAqZStR
+  - recjIytqd4c21Qbw9
+  - recbYw9MqT0gM8tfr
+  - recBQ1BCwvv19mmQl
+  - receOrZTxhMBhkRDH
+  - rec4OBP6yslXcGRI4
+  - recW3crthW54d7ECk
+  - recBXsoAmyR34PeAt
+  - recUFG8B3wbTal8EG
+  - recUNebjseeNPKaYQ
+  name: Spawn Bag
+  size_source: lot_unit_size
+  sterilization_runs:
+  - rec8b9gwQ65FYFTYo
+- active: true
+  airtable_createdTime: '2026-06-29T15:22:59.000Z'
+  airtable_id: rec9NyWf6GffWxDzt
+  category: freezedriedmushrooms
+  item_id: MUSH-DRIED
+  items:
+  - reczPINTjlieWiqX3
+  - recCyFfJJ5MzZOiEM
+  name: Freeze Dried Mushrooms
+  products:
+  - recQvGbKnJFR2Xaui
+  - reczEQHhDkTCjNAJa
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: rec9SrjULya0yqlOU
+  category: substrate
+  component_mode: single_recipe
+  item_component_summary: 'substrate: REC-SUB-CVG-V2'
+  item_id: SUB-CVG-BAG
+  item_recipe_components:
+  - recrl51dkaMNQJGvI
+  items:
+  - recgoe5aWJ1C3uuUN
+  - recJgSj2nMQhhMQm3
+  lot_recipe_components:
+  - recc7QzvwglQezB4Q
+  - recaxtauFr5popUfG
+  - recPkbnMUVIappS9O
+  - recMH4MvsU4daxzJ9
+  - recf6eDgYzB6eo9lJ
+  - rec4etvHjmG1Nz3pC
+  lots:
+  - recrPxDkS8LbnxHjS
+  - recXS1mY68g97ljFW
+  - recArAEsTvuIqOP2L
+  - recGJ6ZVsuDPmH6U3
+  - recVVV3KkUP9F8tzR
+  - recAAEjZeL3m5X9hB
+  name: CVG Substrate Bag
+  size_source: lot_unit_size
+  sterilization_runs:
+  - recwjKJcMtXVRXJNz
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: rec9yrPn73esJVEwT
+  category: fruiting_block
+  component_mode: multi_recipe
+  item_id: FB-CVG-TUB
+  items:
+  - recDTTJaGgqSo7DiB
+  - recdgi69xDmdtrOcT
+  name: CVG Fruiting Tub
+  size_source: lot_unit_size
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recAzMuAKDIeWmfq5
@@ -13,12 +153,36 @@
   item_id: FB-GENERIC
   name: Fruiting Block
 - active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: recBfYmeTPor27WFM
+  category: substrate
+  component_mode: single_recipe
+  item_component_summary: |-
+    substrate: REC-SUB-MM50
+    substrate: REC-SUB-MM75
+  item_id: SUB-HW-BAG
+  item_recipe_components:
+  - recya9920WDq2Ytp9
+  - recz70cia2kV7Du9I
+  items:
+  - receXRijyzqS7AQW6
+  - recDiXlgHpqQb5f3C
+  - recsvdSl40elBx6oe
+  - recaOtqLL80xSaYLT
+  - recIacitcbK72MxNM
+  - recXSlo6zHhTvnhZe
+  name: Hardwood Substrate Bag
+  size_source: lot_unit_size
+- active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recBobuevQac9j1wL
   category: lc_syringe
   default_unit_size: 10ml
   default_unit_size_ml: 10
   ecommerce:
+  - recMfy4toCHnjQesK
+  - recknjqnio5ZJJEhN
+  - recJ8MTjH4mlJReXt
   - reczeBH1sg4jNkwOt
   - recXc27A6fUIR0bJT
   - recwj3JB9j8Dff7fd
@@ -26,37 +190,45 @@
   - recJf2BclIGA4npJO
   - recPAdHniCfUGw3Kw
   - recWM8HPA1fsICgCL
-  item_id: LC-SYRINGE-10
+  item_id: LC-SYRINGE
   name: Liquid Culture Syringe
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recCyFfJJ5MzZOiEM
   category: freezedriedmushrooms
   default_unit_size: 5g
   default_unit_size_g: 5
+  deprecated_reason: Replaced by MUSH-DRIED
   item_id: MUSH-DRIED-5G
   name: Freeze-Dried Mushrooms (5 g)
+  replaced_by_item_id:
+  - rec9NyWf6GffWxDzt
 - active: true
   airtable_createdTime: '2025-09-22T20:27:30.000Z'
   airtable_id: recDCpU62u25fRPHJ
   category: casing
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
-  item_id: CASING-PEAT-2_5
+  item_id: CASING-PEAT
+  items:
+  - recDE6YsuLDtIJfb4
+  - rec6FP6bEHB1jQbt5
   name: Peat Moss
 - airtable_createdTime: '2025-09-22T20:28:08.000Z'
   airtable_id: recDE6YsuLDtIJfb4
   category: casing
   default_unit_size: 5lb
   default_unit_size_lb: 5
+  deprecated_reason: All casing consolidated into CASING-PEAT
   item_id: CASING-PEAT-5
   name: Peat Moss
-- active: true
-  airtable_createdTime: '2025-09-21T20:08:39.000Z'
+  replaced_by_item_id:
+  - recDCpU62u25fRPHJ
+- airtable_createdTime: '2025-09-21T20:08:39.000Z'
   airtable_id: recDO7zTvQ1KaQksg
   category: fruiting_block
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
+  deprecated_reason: Replaced by FB-HW-BAG
   ecommerce:
   - recXRvKLhWYAArICp
   - recQnYKAQQqDrEnm2
@@ -66,6 +238,19 @@
   - reci0PAX15UT6HasR
   - recBfOBojQZlUKsIW
   item_id: FB-MM75-LG
+  lot_recipe_components:
+  - recHyawbyToSpmIBR
+  - recsy6wNXb3kjjCtK
+  - recZbKdDZv0dHEiTW
+  - recYB0Yw9WwOToAvi
+  - recXZGiKSqMsB03cE
+  - recIRHskhnOpNH1GN
+  - recqwiIe4INOhrQDK
+  - recxTpogyMoFLMZS4
+  - recr5014Z3WmF6Hg5
+  - rectvGnAU9pu7Fe4g
+  - rec77TdgbqmodSZ6S
+  - recFZbcfyA1nrErbm
   lots:
   - recFcOoOyzaTIPoAX
   - recesxUAkb8ra5bJ9
@@ -75,59 +260,195 @@
   - recvxQFjUCzGNanq5
   - recBShGQGSE4qpNID
   - rech6IJdPJWsC0dG2
+  - recjPqp2UH3yKRg4n
+  - recrKZhNqV5NjsbJT
+  - recA1cEC9hIc7MXzp
+  - recxU7Sp5qlyHd5Ce
+  - rec6Fc3fiYmEnlQzd
+  - recs0nGpAMQcsHhW4
   name: Large Masters Mix 75/25
-- active: true
-  airtable_createdTime: '2025-09-21T20:08:29.000Z'
+  replaced_by_item_id:
+  - recncxFlbKGzK0OlK
+- airtable_createdTime: '2025-09-21T20:08:29.000Z'
   airtable_id: recDTTJaGgqSo7DiB
   category: fruiting_block
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
+  deprecated_reason: Replaced by FB-CVG-TUB
   item_id: FB-COCO-SM
+  lot_recipe_components:
+  - recQ84jsGoZa8SvAg
+  - recSCZoiKosWmYPby
+  - recO3CHMBJLzrdoZG
+  - recPU6MUCdVYO6eqQ
+  - recdbsfzSPZ8z5thC
+  - recOVOKBdfTwQ6LEe
+  - rec8ayTuCMuchCpZd
+  - recclYqYoCIs698QE
+  - recY10LgDVv7o7yiL
+  - recy34UKjoXFxhSqf
+  - recbmUHffjlExxumN
+  - recJfXLGFWUqmh0ta
+  - recut9Dav9ZkvYcOO
+  - recnZSrRhDYL8ok6e
+  - recN6kkHh4J5KKVIm
+  - recUbu3XzQAonA2kS
+  - recMHVA5QDjiQVdwd
+  - recyAkrJ6BR0dPfWZ
+  - recX7oFQM7EwjOJ0e
+  - recJBDrZL88fIIaR9
+  - reckOPSPhjW28EM3P
+  - recl0NGJ4uGY4x6ay
+  - recXBJz75yekcmuUR
+  - recLeS3f3SLbci0Wb
+  - rec1roKZnrWPSbpFf
+  - recd8MshvO8JWdi07
+  - recjy9DtunZeuFwi2
+  - rec7lKIi1U60BZRoO
+  - rec5lRY8fXlPcqXeR
+  - recUGW0DGXNtgnXkO
+  - recnnWEv17C5He4Zm
+  - rec1tKIJmPecBQRBh
+  - rec4a4oBK6wt82Url
+  - recZYHgqFA6KzEtwr
+  - recOHj0TjZVSEOpV4
+  - reciyBmntpGslROCj
+  - recs7ygisKe3y53aX
+  - recDalIur4R5AqSPf
+  - recS5SQxgPMJXzyue
+  - reccfFDHbkBTz7E2f
+  - reciJ7FJx30hZP5wb
+  - recEDpoHGYbdhdIXZ
+  - reclfdqIBgWp1oztX
+  - recdXDhJs3MU9XXCL
+  - recbo5rypDkfAgkyO
+  - recP88QeLI75sdEev
+  - rec9xyAZ06ONGdocv
+  - reccEhuFOM8nIBHwY
+  - recpAzBb9YnezlZq0
+  - rec5CHLGwhY7jLY68
+  - recgmFfARXq40GIQF
+  - recpZ7GIgdx31J4O6
+  - recjstvHehGsTCaaY
+  - recldoHdglkE9n9fm
+  - receccR5lDSttvXEn
+  - recWdRF3fsNpRGVqA
+  - recTrvcPL5m6Et8us
+  - reck5Pfx9hjpGI1LH
+  - recHGNY1XJBDcfvYv
+  - rec5JOJwp8cTwA6Ke
   name: Small CVG
+  replaced_by_item_id:
+  - rec9yrPn73esJVEwT
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recDiXlgHpqQb5f3C
   category: substrate
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by SUB-HW-BAG
   item_id: SUB-MM50-5
   name: Masters Mix 50/50
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recElBASw3SYIGDqy
   category: grain
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by GRAIN-BAG
   item_id: GRAIN-WBS-5
   name: Wild Bird Seed
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: recEmMfAJEVRuCOXf
+  category: all_in_one_bag
+  component_mode: multi_recipe
+  item_component_summary: "WBS_CVG_RIZ1 \u2014 grain: REC-GRAIN-WBS @ 3 lb unit \u2014\
+    \ 1.5 lb\nWBS_CVG_RIZ1 \u2014 substrate: REC-SUB-CVG-RIZ-V1 @ 3 lb unit \u2014\
+    \ 1.5 lb\nWBS_CVG_RIZ1 \u2014 grain: REC-GRAIN-WBS @ 5 lb unit \u2014 2 lb\nWBS_CVG_RIZ1\
+    \ \u2014 substrate: REC-SUB-CVG-RIZ-V1 @ 5 lb unit \u2014 3 lb"
+  item_id: AIO-BAG
+  item_recipe_components:
+  - recVgaSAr6FP7Gjk5
+  - recCl6NU5hqNXDzxR
+  - rec33JZCIIVQVdjra
+  - recwGWGpMX2iPlzxV
+  - recOvV84vHOMfPH0o
+  - recdePPIzqm5LaHOu
+  lot_recipe_components:
+  - recE5rLveTnyW9KXx
+  - recJS2tkHV7WOHQMp
+  - rec5bHgCZljm8vmRL
+  - recDhfWH3RYwBSHn2
+  - recCMtc21sH8BrKEm
+  - recaY7lHB1SA7H6aY
+  - recSmoxI9gbfBw2D6
+  - recpoJmhgh1Ih4oz9
+  - rec4nauZxFQh9f5Q5
+  - recFiBx7uyPoupde1
+  - recnQE462Iq2qPQj6
+  - recyG9CpQckiio0o4
+  - rec8Pbh01xK3fQ44E
+  - recEwH3oXGYsMLMDh
+  - recUxuGQ9Px3R8knd
+  - recaNSaPcrJKUj1Ie
+  - recqiijQw7N4i6kQc
+  - recynVYKsZ55Hv7gU
+  - recplm2qKISqPAMR0
+  - recE4QNm5bzYjHEVO
+  - reccrJYUweCt1grOg
+  - recuL1WcRZPI9MFPy
+  - recdSLeTDLnkBJxKF
+  - recBrogSybtGk10wy
+  - recUIMOCvn68i2iW0
+  - recpooGEgfiJCHciV
+  - recLiTppVYTPeIOea
+  - recTV0Mfp47Gy7uRP
+  - reczaPv3SlUKOp0KJ
+  - reccxnFAhDXosQ3a2
+  - recKkMpIfHoMjXgXW
+  - recWtsVmcCr7RJO9R
+  lots:
+  - recmwyu7eoHkHxenB
+  - reco0FveBXo4HxXWz
+  - reccAUeoNlKQOlJib
+  - recO5KoRn7EFWyznB
+  - recHg7kSIq1b9s5QP
+  - recwmGz1GAmOCamct
+  - recknDQhWmXDxvhWT
+  - recJXkwdqOWh7DQO2
+  name: All-in-One Bag
+  size_source: component_sum
+  sterilization_runs:
+  - receqE6oTONWjkun8
+  - rec4kjzQCltjUHSCv
+  - recmOfj55C1iwlLVT
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recIacitcbK72MxNM
   category: substrate
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by SUB-HW-BAG
   item_id: SUB-MM75-5
   name: Masters Mix 75/25
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recJgSj2nMQhhMQm3
   category: substrate
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by SUB-CVG-BAG
   ecommerce:
   - rec02VOqyUOnHMPzQ
   item_id: SUB-CVG-5
   lots:
-  - recfbfYDnPBFZZhO4
-  - rec1MGWuyG1bG08aA
-  - reclrahfJlM1s4q79
-  - recsJCoALrwVWC5J7
-  - recqbm3Ixcwx2z7LC
-  - recf78QHDAJVibt2m
-  - rect9v6eCh9hP1Rlv
-  - recP28SZes0LccG8h
   - recA5hUFz1FetrJnS
   - recrntJHWnUkJrBSj
   - recieeYRLAxwYee43
@@ -143,31 +464,54 @@
   - recq1yPnG1f0YeI3r
   - rechupBWHW7wvvvi2
   - recrMH17yDNn5ss2b
+  - reczBt4qkCVUzyXla
+  - reclJv5WnLdEsEkEF
+  - recnaMGtmYOcZJtml
+  - rect3WMyehEvuYEk6
+  - recoXPUytDKoh4noG
+  - rec0b4jgMlayBlkCI
+  - rec25ehrQ6COisbWp
+  - recpQqa2K7brAzXGL
+  - recQ48QM2SOxGr5q6
+  - recxta7XZu0p6M8zi
+  - recTAIrKrJWH6SHP7
+  - recswwnXiU7APOdEf
+  - recHY0lhyfXCMAWdV
+  - recBNpxd36PTxrmAM
+  - recMyorV9vFyHTgce
+  - recbGOSbpL74ctE1g
   name: Coco Verm Gypsum
   products:
-  - reciHJkMDRL14f3zU
-  - recpgsqD7lYKk2P27
-  - recoZ59clMAaE25Mn
-  - rec7jAIFvXo8EoLU8
-  - recx5tWJKGmTIu0bX
   - recp2LWMQnEdN6GXU
   - recrcbnUjgvBCJge5
   - rec9ZRsdSgoBabKn0
+  replaced_by_item_id:
+  - rec9SrjULya0yqlOU
   sterilization_runs:
-  - recswN3XMcVEeXbvP
   - recgRAjPX8HKei2lj
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  - recPbl4pQNxvxqso0
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recM75qospUCh1DQ3
   category: grain
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  deprecated_reason: Replaced by GRAIN-BAG
   ecommerce:
   - rec3dwVTZ2HA22RjN
   - rec6oHBYB2tJoCRWV
   item_id: GRAIN-OWM-2
   name: Organic Wheat/Millet
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: recOovYid721LoTsk
+  category: fruiting_block
+  component_mode: multi_recipe
+  item_id: FB-CVG-BAG
+  name: CVG Fruiting Bag
+  size_source: lot_unit_size
 - active: true
   airtable_createdTime: '2025-10-27T01:03:20.000Z'
   airtable_id: recQdTiiT2VLuJOMJ
@@ -184,35 +528,39 @@
   - rec30vSjSeQwmruux
   - rec3J4vzaxiqLFwGy
   - recZEZytfi8v46PnB
+  - recjNWleDDgh8BGMt
+  - recsjtPJtMwZQY12U
+  - recWat8trCGE6FIbx
+  - recoHmg53g3QMEKSP
+  - recQuB3gSveV1OAQw
   - rec8ZVHZLmbi2tNLH
+  item_component_summary: 'agar: REC-AGAR-STD'
   item_id: AGAR-PLATE
+  item_recipe_components:
+  - recwnKHoxJxt0tffZ
   name: Agar Plate 90x15mm
 - airtable_createdTime: '2025-09-21T20:09:16.000Z'
   airtable_id: recSWCNLKZ2oUGdwc
   category: fruiting_block
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
+  deprecated_reason: Replaced by FB-HW-BAG
   item_id: FB-MM50-SM
   name: Small Masters Mix 50/50
+  replaced_by_item_id:
+  - recncxFlbKGzK0OlK
 - active: true
   airtable_createdTime: '2025-09-20T19:56:52.000Z'
   airtable_id: recSjLjtQ57lT91YI
   category: fresh_tray
   item_id: TRAY-FRESH
   name: Fresh Tray
-  products:
-  - recP1YosbdEM28hV7
-  - recEaY7ZkT1pcTFYC
-  - rec1gB5Y0OEoSXtX6
-  - recXu4uEgLeFhyEBA
-  - receOxu1Et6xXVIQC
-  - recHhHNkZgRqF5iXU
-- active: true
-  airtable_createdTime: '2025-09-21T20:09:00.000Z'
+- airtable_createdTime: '2025-09-21T20:09:00.000Z'
   airtable_id: recU9tdgUerFEM9oJ
   category: fruiting_block
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
+  deprecated_reason: Replaced by FB-HW-BAG
   ecommerce:
   - recyKXNWcvve4pweO
   - recJ0Sy8OEkHjYlns
@@ -241,18 +589,6 @@
   - recsV7dwpD1t51wJo
   name: Small Masters Mix 75/25
   products:
-  - rec15YRMRXuEY3kd7
-  - rec6Xb4VqTywVmbPp
-  - recWJ03sOkTBI5ovV
-  - recqN9YzBVJzWmN4Q
-  - recY6zO4xYL37h601
-  - reciVuIeSLzbhPk70
-  - rec09EmiMwGZp1yDy
-  - recxuAC9eLsSV6DTx
-  - recCzMeOnsafLPbJ6
-  - recJBF3fmtJpX8c0r
-  - rec7VthJr9xQ7K7xW
-  - recgL9mjgREad0NyR
   - receO2H9ZP9wo6vKV
   - recUoJPO09b5lt2FA
   - recT1oslzubnlxUef
@@ -261,126 +597,100 @@
   - recLsg8EwKwUQnTOR
   - recGqkYnY9YXMW6N6
   - recyHg6ax6gBOGSPC
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  - rec8paGVXgvj9j5eR
+  - recE1xLJwUxlex8B9
+  - recYMxahNa4HLXKEV
+  - recbJot2InHP4cMlF
+  - recRx4pQuNAbBSBSC
+  - rec6x0ZDrIsMOpa6m
+  - recSnxSkQ7KnfCbrC
+  replaced_by_item_id:
+  - recncxFlbKGzK0OlK
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recXSlo6zHhTvnhZe
   category: substrate
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
   default_unit_size_oz: 120
+  deprecated_reason: Replaced by SUB-HW-BAG
   ecommerce:
   - recVcvY7l7e4nk4Vt
   item_id: SUB-MM75-7_5
   lots:
-  - rechQQL5EDBWzMDPZ
-  - recnRHteTCMhCvAwX
-  - recNy9QSQ9gujHYUd
-  - recMJl07J6vDuBjY8
   - rec147K0RiZBNkLe2
   - recLxbYolvrzsPB1s
   - recBA0b4p7yCmn03H
   - rec4QF0LSv1qIKWqg
   - receXyX0xRj94sHQo
   name: Masters Mix 75/25
-  products:
-  - recp1dwmRwCZceaUJ
-  - recsAuNjAZvZLbZtM
-  - recpRxMcjQozvTGuC
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
   sterilization_runs:
-  - recGGBddzBqYNmguh
   - recCzwiynOzb8UQbk
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recaOtqLL80xSaYLT
   category: substrate
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
+  deprecated_reason: Replaced by SUB-HW-BAG
   ecommerce:
   - recgTNdPtGsE6oyvi
   item_id: SUB-MM75-2_5
-  lots:
-  - recJz8yt01j49RSHr
-  - recTpUSLyilzSM2al
-  - recf9jzuiq6eQ6Erq
-  - rec5BdDEQYlvMjLLa
-  - recAAC2kv0zNKzRKP
-  - reccpxS1qoNaA7LZS
-  - recNDYavtetW88UqV
-  - rectV8TtEqO3K2xYB
-  - recFA07XISHru06Wa
-  - recCFIoJHnO8pa5cp
-  - recMWmMAomB9DcFaY
-  - recYWNToc4VtBYeKF
-  - receKsMVYjaL62j1M
-  - reciU4mkgIJc6FKss
-  - recOttOwiJVMomq3g
-  - rec7WBWmi2WlMyQRo
-  - recmFku57yRtfqkub
-  - receL0vTHMoY5B30M
-  - recp7KLAsLcPgLVDJ
-  - rec4Kk7Q2HUYPy3U5
-  - recRyRmIGEwRoGpFf
   name: Masters Mix 75/25
-  sterilization_runs:
-  - recNmAs6kOzTAInt8
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
 - active: true
   airtable_createdTime: '2025-10-27T00:03:31.000Z'
   airtable_id: reccntFuiyUAopZsM
   category: agar_flask
   default_unit_size: 500ml
   default_unit_size_ml: 500
-  item_id: AGAR-FLASK-500
+  item_component_summary: 'agar: REC-AGAR-STD'
+  item_id: AGAR-FLASK
+  item_recipe_components:
+  - recjauxJUndsdOuNK
   name: Agar Flask
-- active: true
-  airtable_createdTime: '2025-09-21T20:07:36.000Z'
+- airtable_createdTime: '2025-09-21T20:07:36.000Z'
   airtable_id: recdgi69xDmdtrOcT
   category: fruiting_block
   default_unit_size: 5lb
   default_unit_size_lb: 5
+  deprecated_reason: Replaced by FB-CVG-TUB
   item_id: FB-COCO-LG
   name: Large CVG
+  replaced_by_item_id:
+  - rec9yrPn73esJVEwT
+- active: true
+  airtable_createdTime: '2026-06-29T15:23:40.000Z'
+  airtable_id: receQ22YfqWl5Ccnx
+  category: freezedriedmushrooms
+  item_id: MUSH-CAPSULES
+  items:
+  - reczcbGKqE8pbnZTq
+  - reco9BMkARA7lB08c
+  name: Freeze Dried Capsules
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: receXRijyzqS7AQW6
   category: substrate
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
+  deprecated_reason: Replaced by SUB-HW-BAG
   item_id: SUB-MM50-2_5
   name: Masters Mix 50/50
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recfe2XhEw2mDbQIw
   category: freezer_tray
   item_id: TRAY-FREEZE
+  lots 4:
+  - recFcOoOyzaTIPoAX
+  - recesxUAkb8ra5bJ9
   name: Freezer Tray
   products:
-  - recY5WQPNLrN1QOTY
-  - recYcHmPFEg6IehFP
-  - recM9RPSWQwyTXIUA
-  - recuymh26EjePVGCM
-  - recu6bMNq7ogLGryh
-  - recORM34wVTAz5z1i
-  - recJMPe2rZctkqaS9
-  - recF6KGXdwltsOGLZ
-  - recqLG7t2R8R9r1hG
-  - recTEifwyWYroBRh4
-  - recMH5G3sHFDAQcgb
-  - rec0Tpu1Nx9XNrUt7
-  - recyp6NMS8uM10wPr
-  - recuscfDV0o29AgxJ
-  - recx9LiEFcYl9iPpo
-  - rec1kf5lP1RpB8EmQ
-  - recBeAOkGPx4euq8y
-  - recnWBFRzilW1bEDU
-  - recFJKajJbRLExOMh
-  - rec3SQAxlVfclr34v
-  - rec1f0TJvkd2XvpiN
-  - rec96mFnPPs7OxGHX
-  - rec4dlvocUVyAOXRH
-  - rec8zPYKgZsX2D7ip
-  - recY40O4IhRC653RE
-  - rectizILUJ6mU2qDm
   - rectZjRrRCGffot4v
   - recMT8mqlHOAV7SN4
   - recsMHkBRzFL7rUaV
@@ -395,42 +705,29 @@
   - recjAovSBiylPuCCv
   - recupbqIz5zeAlffI
   - rec5J0fB7IBmpDHOB
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  - recFDoIZDHjX267R0
+  - rec75BIQxk9ymlmWO
+  - recTLY354eI9hPN28
+  - recjZFeeA1mChINe0
+  - recdis5Epwl9QZclz
+  - recUOXiqzawcKQFyP
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recgoe5aWJ1C3uuUN
   category: substrate
   default_unit_size: 2.5lb
   default_unit_size_lb: 2.5
   default_unit_size_oz: 40
+  deprecated_reason: Replaced by SUB-CVG-BAG
   item_id: SUB-CVG-2_5
-  lots:
-  - recsSVjSB0VdvdEWS
-  - recuFykChVpuCZrMq
-  - recSyt4fdN3skhaZi
-  - recbts1INAJgT81m9
-  - recVmJ4C36kVJSSSS
-  - recrkyWbwznqR7VCl
-  - recQOaFteyKXFffBQ
-  - recemSvu9sx45u6uG
-  - recGxrJfMbJ98LMeC
-  - recDqCiReiIn3ax7G
-  - recSxIEFkkN75oHht
-  - rec5JiIAhwDu2Ix1Y
-  - recPfFbkyrTFAeto6
-  - reczd82ubv793TMBD
-  - rec70jzPud70QaYU0
-  - rec1X28ao4DRCf2e4
-  - recLfz2MTnUpwMa6m
-  - recdOwo3Jb2RxBaPA
   name: Coco Verm Gypsum
-  sterilization_runs:
-  - recKxVLX61XaTp3xU
-- active: true
-  airtable_createdTime: '2026-05-11T22:40:58.000Z'
+  replaced_by_item_id:
+  - rec9SrjULya0yqlOU
+- airtable_createdTime: '2026-05-11T22:40:58.000Z'
   airtable_id: recji2ItsnGzAI2ej
   category: cordyceps_substrate
   default_unit_size: 500ml
   default_unit_size_ml: 500
+  deprecated_reason: Replaced by CORDYCEPS-CONTAINER
   item_id: FB-CORDYCEPS-A-500
   lots:
   - rec34emtMzGgC51ad
@@ -440,14 +737,14 @@
   - reco0ji1b2KjEthzB
   - recLZDYpCTXGEHtdu
   name: Cordyceps A
-  sterilization_runs:
-  - recWAbeni0r7lEmMj
-- active: true
-  airtable_createdTime: '2026-05-11T23:44:00.000Z'
+  replaced_by_item_id:
+  - recoclBQHZzK8GzQx
+- airtable_createdTime: '2026-05-11T23:44:00.000Z'
   airtable_id: reck37LYwv7KPri6w
   category: cordyceps_substrate
   default_unit_size: 500ml
   default_unit_size_ml: 500
+  deprecated_reason: Replaced by CORDYCEPS-CONTAINER
   item_id: FB-CORDYCEPS-B-500
   lots:
   - rec34tNtceOfWaihk
@@ -457,93 +754,139 @@
   - rec689aaANUwqwWxr
   - recwOLDrnD1q6kGdW
   name: Cordyceps B
-  sterilization_runs:
-  - rec0NcLKQYHfN0M5j
+  replaced_by_item_id:
+  - recoclBQHZzK8GzQx
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: recncxFlbKGzK0OlK
+  category: fruiting_block
+  component_mode: multi_recipe
+  item_id: FB-HW-BAG
+  items:
+  - recSWCNLKZ2oUGdwc
+  - recrNPmqwDp55AF9c
+  - recU9tdgUerFEM9oJ
+  - recDO7zTvQ1KaQksg
+  name: Hardwood Fruiting Bag
+  size_source: lot_unit_size
 - airtable_createdTime: '2025-12-29T20:25:44.000Z'
   airtable_id: reco9BMkARA7lB08c
   category: freezedriedmushrooms
   default_unit_size: 10g
   default_unit_size_g: 10
+  deprecated_reason: Replaced by MUSH-CAPSULES
   item_id: MUSH-CAPSULES-10G
   name: Freeze-Dried Capsules (10g)
+  replaced_by_item_id:
+  - receQ22YfqWl5Ccnx
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recocMHgTLuGMcxPf
   category: grain
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  deprecated_reason: Replaced by GRAIN-BAG
   ecommerce:
   - recwcDAQy89XAYJ2d
   item_id: GRAIN-OATS-2
   name: Oats
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
+- active: true
+  airtable_createdTime: '2026-06-23T11:50:42.000Z'
+  airtable_id: recoclBQHZzK8GzQx
+  category: cordyceps_container
+  component_mode: single_recipe
+  item_component_summary: |-
+    substrate: REC-SUB-CORDYCEPS-A
+    substrate: REC-SUB-CORDYCEPS-B
+  item_id: CORDYCEPS-CONTAINER
+  item_recipe_components:
+  - recyZCWibn87uq0S6
+  - recxnDcW69OSnJBwI
+  items:
+  - recji2ItsnGzAI2ej
+  - reck37LYwv7KPri6w
+  name: Cordyceps Container
+  size_source: lot_unit_size
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recpYVnapHjPrNXA8
   category: grain
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by GRAIN-BAG
   item_id: GRAIN-OATS-5
   name: Oats
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
 - airtable_createdTime: '2025-09-21T20:09:10.000Z'
   airtable_id: recrNPmqwDp55AF9c
   category: fruiting_block
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
+  deprecated_reason: Replaced by FB-HW-BAG
   item_id: FB-MM50-LG
   name: Large Masters Mix 50/50
+  replaced_by_item_id:
+  - recncxFlbKGzK0OlK
 - airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recsvdSl40elBx6oe
   category: substrate
   default_unit_size: 7.5lb
   default_unit_size_lb: 7.5
   default_unit_size_oz: 120
+  deprecated_reason: Replaced by SUB-HW-BAG
   item_id: SUB-MM50-7_5
   name: Masters Mix 50/50
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+  replaced_by_item_id:
+  - recBfYmeTPor27WFM
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: rect5ScMzcq9NLMEL
   category: grain
   default_unit_size: 5lb
   default_unit_size_lb: 5
   default_unit_size_oz: 80
+  deprecated_reason: Replaced by GRAIN-BAG
   item_id: GRAIN-OWM-5
   name: Organic Wheat/Millet
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
+- active: true
+  airtable_createdTime: '2026-06-23T11:51:27.000Z'
+  airtable_id: rect6EGJ4IyCIZnSR
+  category: casing
+  component_mode: single_recipe
+  item_component_summary: 'casing: REC-CASING-PEAT-V3'
+  item_id: CASING-PEAT
+  item_recipe_components:
+  - recCp3BFu8nwy6N03
+  name: Peat
+  size_source: lot_unit_size
 - active: true
   airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recuX0iZcaztbUtcm
   category: lc_flask
   default_unit_size: 300ml
   default_unit_size_ml: 300
-  item_id: LC-FLASK-300
+  item_component_summary: 'lc: REC-LC-STD'
+  item_id: LC-FLASK
+  item_recipe_components:
+  - rec2LRYDi4BzZgalp
   name: Liquid Culture Flask
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: recwdBny04rzSGGrO
   category: grain
   default_unit_size: 2lb
   default_unit_size_lb: 2
   default_unit_size_oz: 32
+  deprecated_reason: Replaced by GRAIN-BAG
   ecommerce:
   - recIo7Q8Si74dzuDk
   - recSfoHsMwRY6Wrg9
   - rec5ER9xAiFAEnSK2
   item_id: GRAIN-WBS-2
   lots:
-  - rec1mfUCKWdZXJYeU
-  - rech0qZ2yxBuRp6PG
-  - rec80Q0dlUG89Rajn
-  - rec80tLwY29WhPBqm
-  - rec26j5zhA8ZVMXGb
-  - rec3QEHNQTBrHyUij
-  - rec05Odpc7B4xEZtd
-  - recSIXV7577HSR0HF
-  - rec6klKRz7Dgosefa
-  - recfGPOZJ9R0N6QWZ
-  - rec5CVObIhkWk8zAM
-  - rec47jWqe7R9FrdfO
-  - recuK7ak06yzEx8wc
-  - recbq71hCdjx29Aj6
-  - recNiOOqOrHbHmzWm
   - recpyoMscyvYIHr1i
   - recwe7NjcQV0gR2Pe
   - recvovrAA0mOVsWSF
@@ -566,14 +909,10 @@
   - recYzX9StSx6mBAFW
   - recb9RqSMSDn0u4yX
   - recSLVWNUGT7WBO84
-  - reckCHukFli6qC7k1
   - recojnsaBCokDaYHE
-  - reckyhMPQqyTr01QY
-  - recX902iBxTkrkqnJ
   - recTdtwLo8Msk7ahC
   - recUpUMZX90wXzMhx
   - rec4oLI79L9qNB68Z
-  - reczwfulxLLtmebyL
   - recKhtUUrmcFvQQ80
   - recKrk9ibdKjBoUsI
   - rec6mm1yfRZV0Jqvx
@@ -614,12 +953,6 @@
   - rec0ZbNh7jik9qini
   name: Wild Bird Seed
   products:
-  - rec0z4mc3P08m5b4R
-  - reclKLhMl85Uk1yD5
-  - recLzr5v6uE9J5Lvv
-  - recR3AxV8psTpWtZ9
-  - recSTpW1sT7ElS11v
-  - recElcAiCQ1YX0PEn
   - recQwkTNRzIvERSlt
   - recGEFSNpQgZWBpsD
   - recL1wSEWHp4rJg9d
@@ -632,8 +965,13 @@
   - recK1rokdg3mbIsE1
   - recNJhUXO0e8JygpL
   - rec925z04eLSM4FeN
+  - recTTRlf7SC9uK7pd
+  - recxlrwiIKh5CAA94
+  - recukVj1EnayRntpy
+  - recoGL6MiTf9KiwJS
+  replaced_by_item_id:
+  - rec8OlixLGGGw3dLn
   sterilization_runs:
-  - recCSZRx6w0VbzoXm
   - recT7cCdNjTLducvq
   - reckkAU2IsJQACD2X
 - active: true
@@ -648,12 +986,12 @@
   category: untracked_source
   item_id: UNTRACKED-SOURCE
   name: Untracked Source
-- active: true
-  airtable_createdTime: '2025-09-16T01:32:48.000Z'
+- airtable_createdTime: '2025-09-16T01:32:48.000Z'
   airtable_id: reczPINTjlieWiqX3
   category: freezedriedmushrooms
   default_unit_size: 1oz
   default_unit_size_oz: 1
+  deprecated_reason: Replaced by MUSH-DRIED
   ecommerce:
   - rec7U4A2SSRKwD3SC
   - recWyQtfuAL3pUM7l
@@ -664,11 +1002,15 @@
   - rec5XW9o8RaPGPb5i
   item_id: MUSH-DRIED-1OZ
   name: Freeze-Dried Mushrooms (1 oz)
-- active: true
-  airtable_createdTime: '2025-12-29T20:25:24.000Z'
+  replaced_by_item_id:
+  - rec9NyWf6GffWxDzt
+- airtable_createdTime: '2025-12-29T20:25:24.000Z'
   airtable_id: reczcbGKqE8pbnZTq
   category: freezedriedmushrooms
   default_unit_size: 5g
   default_unit_size_g: 5
+  deprecated_reason: Replaced by MUSH-CAPSULES
   item_id: MUSH-CAPSULES-5G
   name: Freeze-Dried Capsules (5g)
+  replaced_by_item_id:
+  - receQ22YfqWl5Ccnx

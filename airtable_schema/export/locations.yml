@@ -27,6 +27,18 @@
   airtable_createdTime: '2025-09-21T00:53:37.000Z'
   airtable_id: rec8wChW6yuYDl51g
   name: Products Storage
+  products:
+  - recQvGbKnJFR2Xaui
+  - reczEQHhDkTCjNAJa
+- active: true
+  airtable_createdTime: '2026-01-15T22:47:24.000Z'
+  airtable_id: rec9McmhMFumVHNbW
+  name: Family Miscellaneous
+- active: true
+  airtable_createdTime: '2026-06-19T21:52:02.000Z'
+  airtable_id: recCfIDuc9I58EsEp
+  name: Regulated Business G
+  notes: Lanterns Way
 - active: true
   airtable_createdTime: '2026-04-26T16:25:06.000Z'
   airtable_id: recGharn8L0NjbD1P
@@ -44,9 +56,6 @@
   airtable_createdTime: '2025-09-22T21:58:11.000Z'
   airtable_id: recJxAz3OdFSxvs0l
   lots:
-  - rec1mfUCKWdZXJYeU
-  - recNiOOqOrHbHmzWm
-  - recbq71hCdjx29Aj6
   - recr1rvouT9jQsJrg
   - recubhnQdNB05fgNv
   - rec04533gFaZRodNe
@@ -55,12 +64,10 @@
   - recfyskUzH5JuKLen
   - recvyxpWHDZNxXktn
   - recxSBBfXoHgZQbeT
-  - recfGPOZJ9R0N6QWZ
-  - recuK7ak06yzEx8wc
-  - rec47jWqe7R9FrdfO
-  - recSIXV7577HSR0HF
-  - rec6klKRz7Dgosefa
   - recVsy0u54gksu1m6
+  - recrq4Q4GXjh1lhJv
+  - recsV7dwpD1t51wJo
+  - recMAGHvFxICI7LDh
   name: Fridge
 - active: true
   airtable_createdTime: '2025-09-21T00:53:24.000Z'
@@ -93,7 +100,16 @@
   airtable_id: recmsz1EhK9NRKLYr
   name: Compost
   products:
-  - recsAuNjAZvZLbZtM
+  - rec59yhQegq7TfaWK
+  - recf0lKNp6lNdrwcQ
+  - recK1rokdg3mbIsE1
+  - rec925z04eLSM4FeN
+  - reclsDHBRXt1qHNN7
+  - recq7NZzhtLJTPLuS
+  - recGEFSNpQgZWBpsD
+- airtable_createdTime: '2026-07-05T13:59:46.000Z'
+  airtable_id: recpG42legny7oNA8
+  name: Samples
 - active: true
   airtable_createdTime: '2026-02-19T16:17:12.000Z'
   airtable_id: recqXlka6ueVBOWIc
@@ -115,19 +131,10 @@
   airtable_id: recwRFW2aHlJivoX3
   name: Shipped
   products:
-  - recR3AxV8psTpWtZ9
-  - recpgsqD7lYKk2P27
-  - reclKLhMl85Uk1yD5
-  - recElcAiCQ1YX0PEn
-  - rec0z4mc3P08m5b4R
-  - recLzr5v6uE9J5Lvv
-  - recSTpW1sT7ElS11v
-  - recoZ59clMAaE25Mn
   - recNJhUXO0e8JygpL
   - recQwkTNRzIvERSlt
   - recKkqMzDGGnczJmA
   - rec1oPXxZMjaWscYG
-  - recx5tWJKGmTIu0bX
   - recp2LWMQnEdN6GXU
 - active: true
   airtable_createdTime: '2026-04-25T22:29:10.000Z'
