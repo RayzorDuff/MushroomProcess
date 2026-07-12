@@ -1248,7 +1248,9 @@ BEGIN
       END IF;
     END IF;
 
-    -- Create Product
+    -- Create Product. package_size_g is now a computed vc_products field
+    -- derived from the retail package_size selector. Basic lot productization
+    -- records the full source weight in net_weight_g/net_weight_oz instead.
     INSERT INTO public.products (
       item_id,
       name_mat,
@@ -1258,7 +1260,6 @@ BEGIN
       net_volume_ml,
       pack_date,
       use_by,
-      package_size_g,
       package_count,
       origin_lot_ids_json,
       strain_id,
@@ -1273,7 +1274,6 @@ BEGIN
       v_net_volume_ml,
       v_pack_date,
       v_use_by,
-      p_package_size_g,
       p_package_count,
       to_jsonb(ARRAY[COALESCE(NULLIF(btrim(l.lot_id),''), l.nocopk::text)])::text,
       l.strain_id,

@@ -106,7 +106,7 @@ BEGIN
     net_weight_g,
     net_weight_oz,
     package_count,
-    package_size_g,
+    package_size,
     process_type_mat
   INTO v_product
   FROM public.products
@@ -116,7 +116,7 @@ BEGIN
      OR abs(v_product.net_weight_g - round(5 * c_lb_to_g, 2)) > 0.01
      OR abs(v_product.net_weight_oz - 80) > 0.01
      OR v_product.package_count <> 1
-     OR abs(v_product.package_size_g - round(5 * c_lb_to_g, 2)) > 0.01
+     OR NULLIF(btrim(v_product.package_size), '') IS NOT NULL
      OR lower(COALESCE(v_product.process_type_mat, '')) <> 'sterilize' THEN
     RAISE EXCEPTION 'AIO packaged product fields are incorrect: %', row_to_json(v_product);
   END IF;
