@@ -609,7 +609,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  sql: {\n    str(value) {\n      if (\n        value === undefined ||\n        value === null ||\n        String(value).trim() === \"\"\n      ) {\n        return \"NULL\";\n      }\n\n      return \"'\" + String(value).trim().replace(/'/g, \"''\") + \"'\";\n    },\n\n    bool(value) {\n      return value ? \"TRUE\" : \"FALSE\";\n    },\n\n    arrBigint(values) {\n      const ids = (Array.isArray(values) ? values : [])\n        .map(Number)\n        .filter(Number.isFinite)\n        .map(Math.trunc);\n\n      if (!ids.length) {\n        return \"ARRAY[]::bigint[]\";\n      }\n\n      return `ARRAY[${[...new Set(ids)].join(\",\")} ]::bigint[]`;\n    }\n  },\n\n  currentOperator() {\n    const email = String(appsmith.user?.email || \"\")\n      .trim()\n      .toLowerCase();\n\n    const name = String(appsmith.user?.name || \"\").trim();\n\n    return email || name || \"system\";\n  },\n\n  selectedRows() {\n    return Array.isArray(tblPrintQueue.selectedRows)\n      ? tblPrintQueue.selectedRows\n      : [];\n  },\n\n  selectedIds() {\n    return this.selectedRows()\n      .map(row => Number(row.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  normalizedStatus(row) {\n    return String(row?.print_status || \"\").trim().toLowerCase();\n  },\n\n  hasPrintingSelection() {\n    return this.selectedRows().some(\n      row => this.normalizedStatus(row) === \"printing\"\n    );\n  },\n\n  canRequeueSelected() {\n    const rows = this.selectedRows();\n\n    if (!rows.length || this.hasPrintingSelection()) {\n      return false;\n    }\n\n    return rows.every(row =>\n      [\"printed\", \"error\"].includes(this.normalizedStatus(row))\n    );\n  },\n\n  canApplyStatus() {\n    const rows = this.selectedRows();\n    const newStatus = String(\n      selPQNewStatus.selectedOptionValue || \"\"\n    ).trim();\n\n    if (!rows.length || this.hasPrintingSelection() || !newStatus) {\n      return false;\n    }\n\n    if (\n      newStatus === \"Error\" &&\n      !String(inpPQStatusReason.text || \"\").trim()\n    ) {\n      return false;\n    }\n\n    return true;\n  },\n\n  async refresh() {\n    await resetWidget(\"tblPrintQueue\", true);\n    return qPrintQueue.run();\n  },\n\n  async clearFilters() {\n    await resetWidget(\"selPQStatus\", true);\n    await resetWidget(\"selPQTarget\", true);\n    await resetWidget(\"selPQSourceKind\", true);\n    await resetWidget(\"selPQLabelType\", true);\n    await resetWidget(\"inpPQClaimedBy\", true);\n    await resetWidget(\"chkPQErrorsOnly\", true);\n    await resetWidget(\"inpPQSearch\", true);\n    await resetWidget(\"dpPQCreatedFrom\", true);\n    await resetWidget(\"dpPQCreatedTo\", true);\n\n    return this.refresh();\n  },\n\n  async runStatusUpdate(newStatus, clearError) {\n    const ids = this.selectedIds();\n\n    if (!ids.length) {\n      showAlert(\"Select at least one print job.\", \"warning\");\n      return null;\n    }\n\n    if (this.hasPrintingSelection()) {\n      showAlert(\n        \"A job currently marked Printing cannot be changed or requeued.\",\n        \"error\"\n      );\n      return null;\n    }\n\n    const result = await qPQSetStatus.run({\n      print_queue_ids: ids,\n      new_status: newStatus,\n      clear_error: clearError === true,\n      reason: String(inpPQStatusReason.text || \"\").trim(),\n      operator: this.currentOperator()\n    });\n\n    const updatedCount = Number(\n      result?.[0]?.updated_count ??\n      result?.updated_count ??\n      0\n    );\n\n    showAlert(\n      `${updatedCount} print job(s) changed to ${newStatus}.`,\n      \"success\"\n    );\n\n    await resetWidget(\"selPQNewStatus\", true);\n    await resetWidget(\"inpPQStatusReason\", true);\n    await resetWidget(\"tblPrintQueue\", true);\n\n    await qPrintQueue.run();\n\n    return result;\n  },\n\n  async requeueSelected() {\n    if (!this.canRequeueSelected()) {\n      showAlert(\n        \"Select only Printed or Error jobs. Printing jobs cannot be requeued.\",\n        \"warning\"\n      );\n      return null;\n    }\n\n    return this.runStatusUpdate(\n      \"Queued\",\n      chkPQClearError.isChecked\n    );\n  },\n\n  async applySelectedStatus() {\n    if (!this.canApplyStatus()) {\n      showAlert(\n        \"Select one or more inactive jobs and choose a valid status. A reason is required when marking Error.\",\n        \"warning\"\n      );\n      return null;\n    }\n\n    return this.runStatusUpdate(\n      selPQNewStatus.selectedOptionValue,\n      selPQNewStatus.selectedOptionValue === \"Printed\"\n    );\n  }\n};",
+        "body": "export default {\n  sql: {\n    str(value) {\n      if (\n        value === undefined ||\n        value === null ||\n        String(value).trim() === \"\"\n      ) {\n        return \"NULL\";\n      }\n\n      return \"'\" + String(value).trim().replace(/'/g, \"''\") + \"'\";\n    },\n\n    bool(value) {\n      return value ? \"TRUE\" : \"FALSE\";\n    },\n\n    arrBigint(values) {\n      const ids = (Array.isArray(values) ? values : [])\n        .map(Number)\n        .filter(Number.isFinite)\n        .map(Math.trunc);\n\n      if (!ids.length) {\n        return \"ARRAY[]::bigint[]\";\n      }\n\n      return `ARRAY[${[...new Set(ids)].join(\",\")}]::bigint[]`;\n    }\n  },\n\n  currentOperator() {\n    const email = String(appsmith.user?.email || \"\")\n      .trim()\n      .toLowerCase();\n    const name = String(appsmith.user?.name || \"\").trim();\n    return email || name || \"system\";\n  },\n\n  selectedRows() {\n    return Array.isArray(tblPrintQueue.selectedRows)\n      ? tblPrintQueue.selectedRows\n      : [];\n  },\n\n  selectedIds() {\n    return [...new Set(\n      this.selectedRows()\n        .map(row => Number(row.nocopk))\n        .filter(Number.isFinite)\n        .map(Math.trunc)\n    )];\n  },\n\n  normalizedStatus(row) {\n    return String(row?.print_status || \"\").trim().toLowerCase();\n  },\n\n  hasPrintingSelection() {\n    return this.selectedRows().some(\n      row => this.normalizedStatus(row) === \"printing\"\n    );\n  },\n\n  canRequeueSelected() {\n    const rows = this.selectedRows();\n    if (!rows.length || this.hasPrintingSelection()) {\n      return false;\n    }\n\n    return rows.every(row =>\n      [\"printed\", \"error\"].includes(this.normalizedStatus(row))\n    );\n  },\n\n  canApplyStatus() {\n    const rows = this.selectedRows();\n    const newStatus = String(selPQNewStatus.selectedOptionValue || \"\").trim();\n\n    if (!rows.length || this.hasPrintingSelection() || !newStatus) {\n      return false;\n    }\n\n    if (\n      newStatus === \"Error\" &&\n      !String(inpPQStatusReason.text || \"\").trim()\n    ) {\n      return false;\n    }\n\n    return [\"Printed\", \"Error\"].includes(newStatus);\n  },\n\n  async refresh() {\n    await Promise.allSettled([\n      resetWidget(\"selPQNewStatus\", true),\n      resetWidget(\"inpPQStatusReason\", true),\n      resetWidget(\"tblPrintQueue\", true)\n    ]);\n    return qPrintQueue.run();\n  },\n\n  async clearFilters() {\n    await Promise.allSettled([\n      resetWidget(\"selPQStatus\", true),\n      resetWidget(\"selPQTarget\", true),\n      resetWidget(\"selPQSourceKind\", true),\n      resetWidget(\"selPQLabelType\", true),\n      resetWidget(\"inpPQClaimedBy\", true),\n      resetWidget(\"chkPQErrorsOnly\", true),\n      resetWidget(\"inpPQSearch\", true),\n      resetWidget(\"dpPQCreatedFrom\", true),\n      resetWidget(\"dpPQCreatedTo\", true)\n    ]);\n\n    return this.refresh();\n  },\n\n  async runStatusUpdate(newStatus, clearError) {\n    const ids = this.selectedIds();\n    if (!ids.length) {\n      showAlert(\"Select at least one print job.\", \"warning\");\n      return null;\n    }\n\n    if (this.hasPrintingSelection()) {\n      showAlert(\n        \"A job currently marked Printing cannot be changed or requeued.\",\n        \"error\"\n      );\n      return null;\n    }\n\n    try {\n      const result = await qPQSetStatus.run({\n        print_queue_ids: ids,\n        new_status: newStatus,\n        clear_error: clearError === true,\n        reason: String(inpPQStatusReason.text || \"\").trim(),\n        operator: this.currentOperator()\n      });\n\n      const updatedCount = Number(\n        result?.[0]?.updated_count ??\n        qPQSetStatus.data?.[0]?.updated_count ??\n        0\n      );\n\n      showAlert(\n        `${updatedCount} print job(s) changed to ${newStatus}.`,\n        \"success\"\n      );\n\n      await Promise.allSettled([\n        resetWidget(\"selPQNewStatus\", true),\n        resetWidget(\"inpPQStatusReason\", true),\n        resetWidget(\"tblPrintQueue\", true)\n      ]);\n      await qPrintQueue.run();\n      return result;\n    } catch (error) {\n      showAlert(error?.message || String(error), \"error\");\n      return null;\n    }\n  },\n\n  async requeueSelected() {\n    if (!this.canRequeueSelected()) {\n      showAlert(\n        \"Select only Printed or Error jobs. Printing jobs cannot be requeued.\",\n        \"warning\"\n      );\n      return null;\n    }\n\n    return this.runStatusUpdate(\"Queued\", chkPQClearError.isChecked);\n  },\n\n  async applySelectedStatus() {\n    if (!this.canApplyStatus()) {\n      showAlert(\n        \"Select one or more inactive jobs and choose Printed or Error. A reason is required for Error.\",\n        \"warning\"\n      );\n      return null;\n    }\n\n    return this.runStatusUpdate(\n      selPQNewStatus.selectedOptionValue,\n      selPQNewStatus.selectedOptionValue === \"Printed\"\n    );\n  }\n};",
         "name": "PrintQueuePage",
         "pageId": "Print Queue",
         "pluginId": "js-plugin",
@@ -618,7 +618,7 @@
         "variables": [
           {
             "name": "sql",
-            "value": "{\n  str(value) {\n    if (value === undefined || value === null || String(value).trim() === \"\") {\n      return \"NULL\";\n    }\n    return \"'\" + String(value).trim().replace(/'/g, \"''\") + \"'\";\n  },\n  bool(value) {\n    return value ? \"TRUE\" : \"FALSE\";\n  },\n  arrBigint(values) {\n    const ids = (Array.isArray(values) ? values : []).map(Number).filter(Number.isFinite).map(Math.trunc);\n    if (!ids.length) {\n      return \"ARRAY[]::bigint[]\";\n    }\n    return `ARRAY[${[...new Set(ids)].join(\",\")} ]::bigint[]`;\n  }\n}"
+            "value": "{\n  str(value) {\n    if (value === undefined || value === null || String(value).trim() === \"\") {\n      return \"NULL\";\n    }\n    return \"'\" + String(value).trim().replace(/'/g, \"''\") + \"'\";\n  },\n  bool(value) {\n    return value ? \"TRUE\" : \"FALSE\";\n  },\n  arrBigint(values) {\n    const ids = (Array.isArray(values) ? values : [])\n      .map(Number)\n      .filter(Number.isFinite)\n      .map(Math.trunc);\n    if (!ids.length) {\n      return \"ARRAY[]::bigint[]\";\n    }\n    return `ARRAY[${[...new Set(ids)].join(\",\")}]::bigint[]`;\n  }\n}"
           }
         ]
       }
@@ -39102,7 +39102,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const rows = PrintQueuePage.selectedRows();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection()) {\n    return false;\n  }\n  return rows.every(row => [\"printed\", \"error\"].includes(PrintQueuePage.normalizedStatus(row)));\n}",
+          "body": "function () {\n  const rows = PrintQueuePage.selectedRows();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection()) {\n    return false;\n  }\n\n  return rows.every(row =>\n    [\"printed\", \"error\"].includes(PrintQueuePage.normalizedStatus(row))\n  );\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39131,7 +39131,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const rows = PrintQueuePage.selectedRows();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection()) {\n    return false;\n  }\n  return rows.every(row => [\"printed\", \"error\"].includes(PrintQueuePage.normalizedStatus(row)));\n}"
+          "function () {\n  const rows = PrintQueuePage.selectedRows();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection()) {\n    return false;\n  }\n\n  return rows.every(row =>\n    [\"printed\", \"error\"].includes(PrintQueuePage.normalizedStatus(row))\n  );\n}"
         ],
         "messages": [],
         "name": "canRequeueSelected",
@@ -39166,7 +39166,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function (newStatus, clearError) {\n  const ids = PrintQueuePage.selectedIds();\n  if (!ids.length) {\n    showAlert(\"Select at least one print job.\", \"warning\");\n    return null;\n  }\n  if (PrintQueuePage.hasPrintingSelection()) {\n    showAlert(\"A job currently marked Printing cannot be changed or requeued.\", \"error\");\n    return null;\n  }\n  const result = await qPQSetStatus.run({\n    print_queue_ids: ids,\n    new_status: newStatus,\n    clear_error: clearError === true,\n    reason: String(inpPQStatusReason.text || \"\").trim(),\n    operator: PrintQueuePage.currentOperator()\n  });\n  const updatedCount = Number(result?.[0]?.updated_count ?? result?.updated_count ?? 0);\n  showAlert(`${updatedCount} print job(s) changed to ${newStatus}.`, \"success\");\n  await resetWidget(\"selPQNewStatus\", true);\n  await resetWidget(\"inpPQStatusReason\", true);\n  await resetWidget(\"tblPrintQueue\", true);\n  await qPrintQueue.run();\n  return result;\n}",
+          "body": "async function (newStatus, clearError) {\n  const ids = PrintQueuePage.selectedIds();\n  if (!ids.length) {\n    showAlert(\"Select at least one print job.\", \"warning\");\n    return null;\n  }\n\n  if (PrintQueuePage.hasPrintingSelection()) {\n    showAlert(\n      \"A job currently marked Printing cannot be changed or requeued.\",\n      \"error\"\n    );\n    return null;\n  }\n\n  try {\n    const result = await qPQSetStatus.run({\n      print_queue_ids: ids,\n      new_status: newStatus,\n      clear_error: clearError === true,\n      reason: String(inpPQStatusReason.text || \"\").trim(),\n      operator: PrintQueuePage.currentOperator()\n    });\n\n    const updatedCount = Number(\n      result?.[0]?.updated_count ??\n      qPQSetStatus.data?.[0]?.updated_count ??\n      0\n    );\n\n    showAlert(\n      `${updatedCount} print job(s) changed to ${newStatus}.`,\n      \"success\"\n    );\n\n    await Promise.allSettled([\n      resetWidget(\"selPQNewStatus\", true),\n      resetWidget(\"inpPQStatusReason\", true),\n      resetWidget(\"tblPrintQueue\", true)\n    ]);\n    await qPrintQueue.run();\n    return result;\n  } catch (error) {\n    showAlert(error?.message || String(error), \"error\");\n    return null;\n  }\n}",
           "encodeParamsToggle": true,
           "jsArguments": [
             {
@@ -39202,7 +39202,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function (newStatus, clearError) {\n  const ids = PrintQueuePage.selectedIds();\n  if (!ids.length) {\n    showAlert(\"Select at least one print job.\", \"warning\");\n    return null;\n  }\n  if (PrintQueuePage.hasPrintingSelection()) {\n    showAlert(\"A job currently marked Printing cannot be changed or requeued.\", \"error\");\n    return null;\n  }\n  const result = await qPQSetStatus.run({\n    print_queue_ids: ids,\n    new_status: newStatus,\n    clear_error: clearError === true,\n    reason: String(inpPQStatusReason.text || \"\").trim(),\n    operator: PrintQueuePage.currentOperator()\n  });\n  const updatedCount = Number(result?.[0]?.updated_count ?? result?.updated_count ?? 0);\n  showAlert(`${updatedCount} print job(s) changed to ${newStatus}.`, \"success\");\n  await resetWidget(\"selPQNewStatus\", true);\n  await resetWidget(\"inpPQStatusReason\", true);\n  await resetWidget(\"tblPrintQueue\", true);\n  await qPrintQueue.run();\n  return result;\n}"
+          "async function (newStatus, clearError) {\n  const ids = PrintQueuePage.selectedIds();\n  if (!ids.length) {\n    showAlert(\"Select at least one print job.\", \"warning\");\n    return null;\n  }\n\n  if (PrintQueuePage.hasPrintingSelection()) {\n    showAlert(\n      \"A job currently marked Printing cannot be changed or requeued.\",\n      \"error\"\n    );\n    return null;\n  }\n\n  try {\n    const result = await qPQSetStatus.run({\n      print_queue_ids: ids,\n      new_status: newStatus,\n      clear_error: clearError === true,\n      reason: String(inpPQStatusReason.text || \"\").trim(),\n      operator: PrintQueuePage.currentOperator()\n    });\n\n    const updatedCount = Number(\n      result?.[0]?.updated_count ??\n      qPQSetStatus.data?.[0]?.updated_count ??\n      0\n    );\n\n    showAlert(\n      `${updatedCount} print job(s) changed to ${newStatus}.`,\n      \"success\"\n    );\n\n    await Promise.allSettled([\n      resetWidget(\"selPQNewStatus\", true),\n      resetWidget(\"inpPQStatusReason\", true),\n      resetWidget(\"tblPrintQueue\", true)\n    ]);\n    await qPrintQueue.run();\n    return result;\n  } catch (error) {\n    showAlert(error?.message || String(error), \"error\");\n    return null;\n  }\n}"
         ],
         "messages": [],
         "name": "runStatusUpdate",
@@ -39237,7 +39237,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await resetWidget(\"selPQStatus\", true);\n  await resetWidget(\"selPQTarget\", true);\n  await resetWidget(\"selPQSourceKind\", true);\n  await resetWidget(\"selPQLabelType\", true);\n  await resetWidget(\"inpPQClaimedBy\", true);\n  await resetWidget(\"chkPQErrorsOnly\", true);\n  await resetWidget(\"inpPQSearch\", true);\n  await resetWidget(\"dpPQCreatedFrom\", true);\n  await resetWidget(\"dpPQCreatedTo\", true);\n  return PrintQueuePage.refresh();\n}",
+          "body": "async function () {\n  await Promise.allSettled([\n    resetWidget(\"selPQStatus\", true),\n    resetWidget(\"selPQTarget\", true),\n    resetWidget(\"selPQSourceKind\", true),\n    resetWidget(\"selPQLabelType\", true),\n    resetWidget(\"inpPQClaimedBy\", true),\n    resetWidget(\"chkPQErrorsOnly\", true),\n    resetWidget(\"inpPQSearch\", true),\n    resetWidget(\"dpPQCreatedFrom\", true),\n    resetWidget(\"dpPQCreatedTo\", true)\n  ]);\n\n  return PrintQueuePage.refresh();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39266,7 +39266,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await resetWidget(\"selPQStatus\", true);\n  await resetWidget(\"selPQTarget\", true);\n  await resetWidget(\"selPQSourceKind\", true);\n  await resetWidget(\"selPQLabelType\", true);\n  await resetWidget(\"inpPQClaimedBy\", true);\n  await resetWidget(\"chkPQErrorsOnly\", true);\n  await resetWidget(\"inpPQSearch\", true);\n  await resetWidget(\"dpPQCreatedFrom\", true);\n  await resetWidget(\"dpPQCreatedTo\", true);\n  return PrintQueuePage.refresh();\n}"
+          "async function () {\n  await Promise.allSettled([\n    resetWidget(\"selPQStatus\", true),\n    resetWidget(\"selPQTarget\", true),\n    resetWidget(\"selPQSourceKind\", true),\n    resetWidget(\"selPQLabelType\", true),\n    resetWidget(\"inpPQClaimedBy\", true),\n    resetWidget(\"chkPQErrorsOnly\", true),\n    resetWidget(\"inpPQSearch\", true),\n    resetWidget(\"dpPQCreatedFrom\", true),\n    resetWidget(\"dpPQCreatedTo\", true)\n  ]);\n\n  return PrintQueuePage.refresh();\n}"
         ],
         "messages": [],
         "name": "clearFilters",
@@ -39301,7 +39301,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return Array.isArray(tblPrintQueue.selectedRows) ? tblPrintQueue.selectedRows : [];\n}",
+          "body": "function () {\n  return Array.isArray(tblPrintQueue.selectedRows)\n    ? tblPrintQueue.selectedRows\n    : [];\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39330,7 +39330,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return Array.isArray(tblPrintQueue.selectedRows) ? tblPrintQueue.selectedRows : [];\n}"
+          "function () {\n  return Array.isArray(tblPrintQueue.selectedRows)\n    ? tblPrintQueue.selectedRows\n    : [];\n}"
         ],
         "messages": [],
         "name": "selectedRows",
@@ -39365,7 +39365,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  await resetWidget(\"tblPrintQueue\", true);\n  return qPrintQueue.run();\n}",
+          "body": "async function () {\n  await Promise.allSettled([\n    resetWidget(\"selPQNewStatus\", true),\n    resetWidget(\"inpPQStatusReason\", true),\n    resetWidget(\"tblPrintQueue\", true)\n  ]);\n  return qPrintQueue.run();\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39394,7 +39394,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  await resetWidget(\"tblPrintQueue\", true);\n  return qPrintQueue.run();\n}"
+          "async function () {\n  await Promise.allSettled([\n    resetWidget(\"selPQNewStatus\", true),\n    resetWidget(\"inpPQStatusReason\", true),\n    resetWidget(\"tblPrintQueue\", true)\n  ]);\n  return qPrintQueue.run();\n}"
         ],
         "messages": [],
         "name": "refresh",
@@ -39497,7 +39497,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!PrintQueuePage.canApplyStatus()) {\n    showAlert(\"Select one or more inactive jobs and choose a valid status. A reason is required when marking Error.\", \"warning\");\n    return null;\n  }\n  return PrintQueuePage.runStatusUpdate(selPQNewStatus.selectedOptionValue, selPQNewStatus.selectedOptionValue === \"Printed\");\n}",
+          "body": "async function () {\n  if (!PrintQueuePage.canApplyStatus()) {\n    showAlert(\n      \"Select one or more inactive jobs and choose Printed or Error. A reason is required for Error.\",\n      \"warning\"\n    );\n    return null;\n  }\n\n  return PrintQueuePage.runStatusUpdate(\n    selPQNewStatus.selectedOptionValue,\n    selPQNewStatus.selectedOptionValue === \"Printed\"\n  );\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39526,7 +39526,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!PrintQueuePage.canApplyStatus()) {\n    showAlert(\"Select one or more inactive jobs and choose a valid status. A reason is required when marking Error.\", \"warning\");\n    return null;\n  }\n  return PrintQueuePage.runStatusUpdate(selPQNewStatus.selectedOptionValue, selPQNewStatus.selectedOptionValue === \"Printed\");\n}"
+          "async function () {\n  if (!PrintQueuePage.canApplyStatus()) {\n    showAlert(\n      \"Select one or more inactive jobs and choose Printed or Error. A reason is required for Error.\",\n      \"warning\"\n    );\n    return null;\n  }\n\n  return PrintQueuePage.runStatusUpdate(\n    selPQNewStatus.selectedOptionValue,\n    selPQNewStatus.selectedOptionValue === \"Printed\"\n  );\n}"
         ],
         "messages": [],
         "name": "applySelectedStatus",
@@ -39561,7 +39561,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  const rows = PrintQueuePage.selectedRows();\n  const newStatus = String(selPQNewStatus.selectedOptionValue || \"\").trim();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection() || !newStatus) {\n    return false;\n  }\n  if (newStatus === \"Error\" && !String(inpPQStatusReason.text || \"\").trim()) {\n    return false;\n  }\n  return true;\n}",
+          "body": "function () {\n  const rows = PrintQueuePage.selectedRows();\n  const newStatus = String(selPQNewStatus.selectedOptionValue || \"\").trim();\n\n  if (!rows.length || PrintQueuePage.hasPrintingSelection() || !newStatus) {\n    return false;\n  }\n\n  if (\n    newStatus === \"Error\" &&\n    !String(inpPQStatusReason.text || \"\").trim()\n  ) {\n    return false;\n  }\n\n  return [\"Printed\", \"Error\"].includes(newStatus);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39590,7 +39590,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  const rows = PrintQueuePage.selectedRows();\n  const newStatus = String(selPQNewStatus.selectedOptionValue || \"\").trim();\n  if (!rows.length || PrintQueuePage.hasPrintingSelection() || !newStatus) {\n    return false;\n  }\n  if (newStatus === \"Error\" && !String(inpPQStatusReason.text || \"\").trim()) {\n    return false;\n  }\n  return true;\n}"
+          "function () {\n  const rows = PrintQueuePage.selectedRows();\n  const newStatus = String(selPQNewStatus.selectedOptionValue || \"\").trim();\n\n  if (!rows.length || PrintQueuePage.hasPrintingSelection() || !newStatus) {\n    return false;\n  }\n\n  if (\n    newStatus === \"Error\" &&\n    !String(inpPQStatusReason.text || \"\").trim()\n  ) {\n    return false;\n  }\n\n  return [\"Printed\", \"Error\"].includes(newStatus);\n}"
         ],
         "messages": [],
         "name": "canApplyStatus",
@@ -39625,7 +39625,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return PrintQueuePage.selectedRows().map(row => Number(row.nocopk)).filter(Number.isFinite);\n}",
+          "body": "function () {\n  return [...new Set(\n    PrintQueuePage.selectedRows()\n      .map(row => Number(row.nocopk))\n      .filter(Number.isFinite)\n      .map(Math.trunc)\n  )];\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39654,7 +39654,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return PrintQueuePage.selectedRows().map(row => Number(row.nocopk)).filter(Number.isFinite);\n}"
+          "function () {\n  return [...new Set(\n    PrintQueuePage.selectedRows()\n      .map(row => Number(row.nocopk))\n      .filter(Number.isFinite)\n      .map(Math.trunc)\n  )];\n}"
         ],
         "messages": [],
         "name": "selectedIds",
@@ -39753,7 +39753,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function () {\n  return PrintQueuePage.selectedRows().some(row => PrintQueuePage.normalizedStatus(row) === \"printing\");\n}",
+          "body": "function () {\n  return PrintQueuePage.selectedRows().some(\n    row => PrintQueuePage.normalizedStatus(row) === \"printing\"\n  );\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39782,7 +39782,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "function () {\n  return PrintQueuePage.selectedRows().some(row => PrintQueuePage.normalizedStatus(row) === \"printing\");\n}"
+          "function () {\n  return PrintQueuePage.selectedRows().some(\n    row => PrintQueuePage.normalizedStatus(row) === \"printing\"\n  );\n}"
         ],
         "messages": [],
         "name": "hasPrintingSelection",
@@ -39817,7 +39817,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "async function () {\n  if (!PrintQueuePage.canRequeueSelected()) {\n    showAlert(\"Select only Printed or Error jobs. Printing jobs cannot be requeued.\", \"warning\");\n    return null;\n  }\n  return PrintQueuePage.runStatusUpdate(\"Queued\", chkPQClearError.isChecked);\n}",
+          "body": "async function () {\n  if (!PrintQueuePage.canRequeueSelected()) {\n    showAlert(\n      \"Select only Printed or Error jobs. Printing jobs cannot be requeued.\",\n      \"warning\"\n    );\n    return null;\n  }\n\n  return PrintQueuePage.runStatusUpdate(\"Queued\", chkPQClearError.isChecked);\n}",
           "encodeParamsToggle": true,
           "jsArguments": [],
           "paginationType": "NONE",
@@ -39846,7 +39846,7 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "async function () {\n  if (!PrintQueuePage.canRequeueSelected()) {\n    showAlert(\"Select only Printed or Error jobs. Printing jobs cannot be requeued.\", \"warning\");\n    return null;\n  }\n  return PrintQueuePage.runStatusUpdate(\"Queued\", chkPQClearError.isChecked);\n}"
+          "async function () {\n  if (!PrintQueuePage.canRequeueSelected()) {\n    showAlert(\n      \"Select only Printed or Error jobs. Printing jobs cannot be requeued.\",\n      \"warning\"\n    );\n    return null;\n  }\n\n  return PrintQueuePage.runStatusUpdate(\"Queued\", chkPQClearError.isChecked);\n}"
         ],
         "messages": [],
         "name": "requeueSelected",
@@ -39881,7 +39881,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT DISTINCT\n  label_type AS label,\n  label_type AS value\nFROM public.vc_print_queue\nWHERE NULLIF(BTRIM(label_type), '') IS NOT NULL\nORDER BY label_type;",
+          "body": "SELECT DISTINCT\n  label_type AS name,\n  label_type AS code\nFROM public.vc_print_queue\nWHERE NULLIF(BTRIM(label_type), '') IS NOT NULL\nORDER BY label_type;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -39942,7 +39942,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT\n  v.nocopk,\n  v.print_id,\n  v.source_kind,\n  v.print_status,\n  v.label_type,\n  v.print_target,\n\n  v.lot_id,\n  l.lot_id AS lot_ref,\n\n  v.product_id,\n  p.product_id AS product_ref,\n\n  v.run_id,\n  sr.steri_run_id AS run_ref,\n\n  v.created_at,\n  v.claimed_by,\n  v.claimed_at,\n  v.printed_by,\n  v.printed_at,\n  v.error_msg,\n  v.pdf_path\n\nFROM public.vc_print_queue v\n\nLEFT JOIN public.lots l\n  ON l.nocopk = v.lot_id\n\nLEFT JOIN public.products p\n  ON p.nocopk = v.product_id\n\nLEFT JOIN public.sterilization_runs sr\n  ON sr.nocopk = v.run_id\n\nWHERE\n  (\n    {{ PrintQueuePage.sql.bool(\n      selPQStatus.selectedOptionValue === \"ALL\"\n    ) }}\n    OR v.print_status =\n      {{ PrintQueuePage.sql.str(selPQStatus.selectedOptionValue) }}\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      selPQTarget.selectedOptionValue === \"ALL\"\n    ) }}\n    OR v.print_target =\n      {{ PrintQueuePage.sql.str(selPQTarget.selectedOptionValue) }}\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      selPQSourceKind.selectedOptionValue === \"ALL\"\n    ) }}\n    OR v.source_kind =\n      {{ PrintQueuePage.sql.str(selPQSourceKind.selectedOptionValue) }}\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      selPQLabelType.selectedOptionValue === \"ALL\"\n    ) }}\n    OR v.label_type =\n      {{ PrintQueuePage.sql.str(selPQLabelType.selectedOptionValue) }}\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      !String(inpPQClaimedBy.text || \"\").trim()\n    ) }}\n    OR COALESCE(v.claimed_by, '') ILIKE\n      '%' ||\n      {{ PrintQueuePage.sql.str(inpPQClaimedBy.text) }}\n      || '%'\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      !chkPQErrorsOnly.isChecked\n    ) }}\n    OR v.print_status = 'Error'\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      !dpPQCreatedFrom.selectedDate\n    ) }}\n    OR v.created_at >=\n      {{ PrintQueuePage.sql.str(\n        dpPQCreatedFrom.selectedDate || \"\"\n      ) }}::timestamp\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      !dpPQCreatedTo.selectedDate\n    ) }}\n    OR v.created_at <\n      (\n        {{ PrintQueuePage.sql.str(\n          dpPQCreatedTo.selectedDate || \"\"\n        ) }}::date\n        + INTERVAL '1 day'\n      )\n  )\n\n  AND (\n    {{ PrintQueuePage.sql.bool(\n      !String(inpPQSearch.text || \"\").trim()\n    ) }}\n    OR CONCAT_WS(\n      ' ',\n      v.print_id,\n      v.print_status,\n      v.print_target,\n      v.source_kind,\n      v.label_type,\n      l.lot_id,\n      p.product_id,\n      sr.steri_run_id,\n      v.claimed_by,\n      v.printed_by,\n      v.error_msg,\n      v.pdf_path\n    ) ILIKE\n      '%' ||\n      {{ PrintQueuePage.sql.str(inpPQSearch.text) }}\n      || '%'\n  )\n\nORDER BY\n  v.created_at DESC,\n  v.nocopk DESC\n\nLIMIT 500;",
+          "body": "SELECT\n  v.nocopk,\n  v.print_id,\n  v.source_kind,\n  v.print_status,\n  v.label_type,\n  v.print_target,\n  v.lot_id,\n  l.lot_id AS lot_ref,\n  v.product_id,\n  p.product_id AS product_ref,\n  v.run_id,\n  sr.steri_run_id AS run_ref,\n  v.created_at,\n  v.claimed_by,\n  v.claimed_at,\n  v.printed_by,\n  v.printed_at,\n  v.error_msg,\n  v.pdf_path\nFROM public.vc_print_queue v\nLEFT JOIN public.lots l ON l.nocopk = v.lot_id\nLEFT JOIN public.products p ON p.nocopk = v.product_id\nLEFT JOIN public.sterilization_runs sr ON sr.nocopk = v.run_id\nWHERE\n  (\n    {{ PrintQueuePage.sql.bool(String(selPQStatus.selectedOptionValue || \"ALL\") === \"ALL\") }}\n    OR v.print_status = {{ PrintQueuePage.sql.str(selPQStatus.selectedOptionValue || \"ALL\") }}\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(String(selPQTarget.selectedOptionValue || \"ALL\") === \"ALL\") }}\n    OR v.print_target = {{ PrintQueuePage.sql.str(selPQTarget.selectedOptionValue || \"ALL\") }}\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(String(selPQSourceKind.selectedOptionValue || \"ALL\") === \"ALL\") }}\n    OR v.source_kind = {{ PrintQueuePage.sql.str(selPQSourceKind.selectedOptionValue || \"ALL\") }}\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(String(selPQLabelType.selectedOptionValue || \"ALL\") === \"ALL\") }}\n    OR v.label_type = {{ PrintQueuePage.sql.str(selPQLabelType.selectedOptionValue || \"ALL\") }}\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(!String(inpPQClaimedBy.text || \"\").trim()) }}\n    OR COALESCE(v.claimed_by, '') ILIKE '%' || {{ PrintQueuePage.sql.str(inpPQClaimedBy.text) }} || '%'\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(!chkPQErrorsOnly.isChecked) }}\n    OR v.print_status = 'Error'\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(!dpPQCreatedFrom.selectedDate) }}\n    OR v.created_at >= {{ PrintQueuePage.sql.str(dpPQCreatedFrom.selectedDate || \"\") }}::date\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(!dpPQCreatedTo.selectedDate) }}\n    OR v.created_at < ({{ PrintQueuePage.sql.str(dpPQCreatedTo.selectedDate || \"\") }}::date + INTERVAL '1 day')\n  )\n  AND (\n    {{ PrintQueuePage.sql.bool(!String(inpPQSearch.text || \"\").trim()) }}\n    OR CONCAT_WS(\n      ' ',\n      v.print_id,\n      v.print_status,\n      v.print_target,\n      v.source_kind,\n      v.label_type,\n      l.lot_id,\n      p.product_id,\n      sr.steri_run_id,\n      v.claimed_by,\n      v.printed_by,\n      v.error_msg,\n      v.pdf_path\n    ) ILIKE '%' || {{ PrintQueuePage.sql.str(inpPQSearch.text) }} || '%'\n  )\nORDER BY v.created_at DESC NULLS LAST, v.nocopk DESC\nLIMIT 500;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -39974,23 +39974,23 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          " PrintQueuePage.sql.str(\n          dpPQCreatedTo.selectedDate || \"\"\n        ) ",
-          " PrintQueuePage.sql.str(selPQStatus.selectedOptionValue) ",
-          " PrintQueuePage.sql.str(selPQTarget.selectedOptionValue) ",
-          " PrintQueuePage.sql.bool(\n      selPQLabelType.selectedOptionValue === \"ALL\"\n    ) ",
-          " PrintQueuePage.sql.bool(\n      !String(inpPQClaimedBy.text || \"\").trim()\n    ) ",
-          " PrintQueuePage.sql.str(selPQSourceKind.selectedOptionValue) ",
-          " PrintQueuePage.sql.bool(\n      !chkPQErrorsOnly.isChecked\n    ) ",
-          " PrintQueuePage.sql.str(inpPQSearch.text) ",
+          " PrintQueuePage.sql.bool(String(selPQStatus.selectedOptionValue || \"ALL\") === \"ALL\") ",
+          " PrintQueuePage.sql.str(selPQStatus.selectedOptionValue || \"ALL\") ",
+          " PrintQueuePage.sql.bool(String(selPQTarget.selectedOptionValue || \"ALL\") === \"ALL\") ",
+          " PrintQueuePage.sql.str(selPQTarget.selectedOptionValue || \"ALL\") ",
+          " PrintQueuePage.sql.bool(String(selPQSourceKind.selectedOptionValue || \"ALL\") === \"ALL\") ",
+          " PrintQueuePage.sql.str(selPQSourceKind.selectedOptionValue || \"ALL\") ",
+          " PrintQueuePage.sql.bool(String(selPQLabelType.selectedOptionValue || \"ALL\") === \"ALL\") ",
+          " PrintQueuePage.sql.str(selPQLabelType.selectedOptionValue || \"ALL\") ",
+          " PrintQueuePage.sql.bool(!String(inpPQClaimedBy.text || \"\").trim()) ",
           " PrintQueuePage.sql.str(inpPQClaimedBy.text) ",
-          " PrintQueuePage.sql.str(\n        dpPQCreatedFrom.selectedDate || \"\"\n      ) ",
-          " PrintQueuePage.sql.bool(\n      !dpPQCreatedTo.selectedDate\n    ) ",
-          " PrintQueuePage.sql.bool(\n      selPQSourceKind.selectedOptionValue === \"ALL\"\n    ) ",
-          " PrintQueuePage.sql.str(selPQLabelType.selectedOptionValue) ",
-          " PrintQueuePage.sql.bool(\n      selPQStatus.selectedOptionValue === \"ALL\"\n    ) ",
-          " PrintQueuePage.sql.bool(\n      selPQTarget.selectedOptionValue === \"ALL\"\n    ) ",
-          " PrintQueuePage.sql.bool(\n      !String(inpPQSearch.text || \"\").trim()\n    ) ",
-          " PrintQueuePage.sql.bool(\n      !dpPQCreatedFrom.selectedDate\n    ) "
+          " PrintQueuePage.sql.bool(!chkPQErrorsOnly.isChecked) ",
+          " PrintQueuePage.sql.bool(!dpPQCreatedFrom.selectedDate) ",
+          " PrintQueuePage.sql.str(dpPQCreatedFrom.selectedDate || \"\") ",
+          " PrintQueuePage.sql.bool(!dpPQCreatedTo.selectedDate) ",
+          " PrintQueuePage.sql.str(dpPQCreatedTo.selectedDate || \"\") ",
+          " PrintQueuePage.sql.bool(!String(inpPQSearch.text || \"\").trim()) ",
+          " PrintQueuePage.sql.str(inpPQSearch.text) "
         ],
         "messages": [],
         "name": "qPrintQueue",
@@ -89275,7 +89275,7 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 1200,
+              "bottomRow": 112,
               "canExtend": true,
               "children": [
                 {
@@ -89307,7 +89307,7 @@
                   "minWidth": 450,
                   "mobileBottomRow": 5,
                   "mobileLeftColumn": 0,
-                  "mobileRightColumn": 16,
+                  "mobileRightColumn": 28,
                   "mobileTopRow": 1,
                   "needsErrorInfo": false,
                   "overflow": "NONE",
@@ -89316,7 +89316,7 @@
                   "parentRowSpace": 10,
                   "renderMode": "CANVAS",
                   "responsiveBehavior": "fill",
-                  "rightColumn": 16,
+                  "rightColumn": 28,
                   "shouldTruncate": false,
                   "text": "Print Queue",
                   "textAlign": "LEFT",
@@ -89331,7 +89331,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 11,
+                  "bottomRow": 5,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -89342,11 +89342,17 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
                     }
                   ],
                   "dynamicPropertyPathList": [
                     {
                       "key": "onClick"
+                    },
+                    {
+                      "key": "isLoading"
                     }
                   ],
                   "dynamicTriggerPathList": [
@@ -89356,15 +89362,15 @@
                   ],
                   "isDefaultClickDisabled": true,
                   "isDisabled": false,
-                  "isLoading": false,
+                  "isLoading": "{{ qPrintQueue.isLoading }}",
                   "isVisible": true,
                   "key": "lke7seazfr",
-                  "leftColumn": 27,
+                  "leftColumn": 52,
                   "minWidth": 120,
-                  "mobileBottomRow": 11,
-                  "mobileLeftColumn": 27,
-                  "mobileRightColumn": 43,
-                  "mobileTopRow": 7,
+                  "mobileBottomRow": 5,
+                  "mobileLeftColumn": 52,
+                  "mobileRightColumn": 64,
+                  "mobileTopRow": 1,
                   "needsErrorInfo": false,
                   "onClick": "{{ PrintQueuePage.refresh() }}",
                   "parentColumnSpace": 14.1875,
@@ -89375,9 +89381,9 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 43,
+                  "rightColumn": 64,
                   "text": "Refresh",
-                  "topRow": 7,
+                  "topRow": 1,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "dw0niwtbah",
@@ -89389,7 +89395,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": "1",
-                  "bottomRow": 48,
+                  "bottomRow": 31,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "children": [
                     {
@@ -89404,7 +89410,7 @@
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 7,
                           "boxShadow": "none",
-                          "defaultOptionValue": "GREEN",
+                          "defaultOptionValue": "ALL",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -89417,18 +89423,25 @@
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
-                          "isFilterable": true,
+                          "isFilterable": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "ak1zfvw7ya",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
-                          "labelText": "Status filter",
+                          "labelText": "Status",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
                           "leftColumn": 0,
@@ -89437,7 +89450,7 @@
                           "minWidth": 450,
                           "mobileBottomRow": 7,
                           "mobileLeftColumn": 0,
-                          "mobileRightColumn": 19,
+                          "mobileRightColumn": 12,
                           "mobileTopRow": 0,
                           "needsErrorInfo": false,
                           "optionLabel": "name",
@@ -89448,14 +89461,15 @@
                           "placeholderText": "Select option",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 19,
+                          "rightColumn": 12,
                           "serverSideFiltering": false,
-                          "sourceData": "[\n  {\n    \"name\": \"Blue\",\n    \"code\": \"BLUE\"\n  },\n  {\n    \"name\": \"Green\",\n    \"code\": \"GREEN\"\n  },\n  {\n    \"name\": \"Red\",\n    \"code\": \"RED\"\n  }\n]",
+                          "sourceData": "[\n  {\n    \"name\": \"All\",\n    \"code\": \"ALL\"\n  },\n  {\n    \"name\": \"Queued\",\n    \"code\": \"Queued\"\n  },\n  {\n    \"name\": \"Printing\",\n    \"code\": \"Printing\"\n  },\n  {\n    \"name\": \"Printed\",\n    \"code\": \"Printed\"\n  },\n  {\n    \"name\": \"Error\",\n    \"code\": \"Error\"\n  }\n]",
                           "topRow": 0,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "rh85ovnfgd",
-                          "widgetName": "selPQStatus"
+                          "widgetName": "selPQStatus",
+                          "onOptionChange": "{{ PrintQueuePage.refresh() }}"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -89463,7 +89477,7 @@
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 7,
                           "boxShadow": "none",
-                          "defaultOptionValue": "GREEN",
+                          "defaultOptionValue": "ALL",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -89476,27 +89490,34 @@
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
-                          "isFilterable": true,
+                          "isFilterable": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "ak1zfvw7ya",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
-                          "labelText": "Printer/target filter",
+                          "labelText": "Printer / Target",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 23,
+                          "leftColumn": 13,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
                           "mobileBottomRow": 7,
-                          "mobileLeftColumn": 23,
-                          "mobileRightColumn": 43,
+                          "mobileLeftColumn": 13,
+                          "mobileRightColumn": 25,
                           "mobileTopRow": 0,
                           "needsErrorInfo": false,
                           "optionLabel": "name",
@@ -89507,14 +89528,15 @@
                           "placeholderText": "Select option",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 43,
+                          "rightColumn": 25,
                           "serverSideFiltering": false,
-                          "sourceData": "[\n  {\n    \"name\": \"Blue\",\n    \"code\": \"BLUE\"\n  },\n  {\n    \"name\": \"Green\",\n    \"code\": \"GREEN\"\n  },\n  {\n    \"name\": \"Red\",\n    \"code\": \"RED\"\n  }\n]",
+                          "sourceData": "[\n  {\n    \"name\": \"All\",\n    \"code\": \"ALL\"\n  },\n  {\n    \"name\": \"Zebra / standard labels\",\n    \"code\": \"ZEBRA\"\n  },\n  {\n    \"name\": \"Tray printer\",\n    \"code\": \"TRAYS\"\n  }\n]",
                           "topRow": 0,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "lq2th36i6t",
-                          "widgetName": "selPQTarget"
+                          "widgetName": "selPQTarget",
+                          "onOptionChange": "{{ PrintQueuePage.refresh() }}"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -89522,7 +89544,7 @@
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                           "bottomRow": 7,
                           "boxShadow": "none",
-                          "defaultOptionValue": "GREEN",
+                          "defaultOptionValue": "ALL",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -89535,27 +89557,34 @@
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
-                          "isFilterable": true,
+                          "isFilterable": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "ak1zfvw7ya",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
-                          "labelText": "Source filter",
+                          "labelText": "Source",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 43,
+                          "leftColumn": 26,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
                           "mobileBottomRow": 7,
-                          "mobileLeftColumn": 43,
-                          "mobileRightColumn": 63,
+                          "mobileLeftColumn": 26,
+                          "mobileRightColumn": 38,
                           "mobileTopRow": 0,
                           "needsErrorInfo": false,
                           "optionLabel": "name",
@@ -89566,37 +89595,48 @@
                           "placeholderText": "Select option",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 63,
+                          "rightColumn": 38,
                           "serverSideFiltering": false,
-                          "sourceData": "[\n  {\n    \"name\": \"Blue\",\n    \"code\": \"BLUE\"\n  },\n  {\n    \"name\": \"Green\",\n    \"code\": \"GREEN\"\n  },\n  {\n    \"name\": \"Red\",\n    \"code\": \"RED\"\n  }\n]",
+                          "sourceData": "[\n  {\n    \"name\": \"All\",\n    \"code\": \"ALL\"\n  },\n  {\n    \"name\": \"Lot\",\n    \"code\": \"lot\"\n  },\n  {\n    \"name\": \"Product\",\n    \"code\": \"product\"\n  },\n  {\n    \"name\": \"Sterilizer sheet\",\n    \"code\": \"steri_sheet\"\n  }\n]",
                           "topRow": 0,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "9o86wnqbi8",
-                          "widgetName": "selPQSourceKind"
+                          "widgetName": "selPQSourceKind",
+                          "onOptionChange": "{{ PrintQueuePage.refresh() }}"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 15,
+                          "bottomRow": 7,
                           "boxShadow": "none",
-                          "defaultOptionValue": "GREEN",
+                          "defaultOptionValue": "ALL",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "sourceData"
                             }
                           ],
                           "dynamicHeight": "FIXED",
                           "dynamicPropertyPathList": [
                             {
                               "key": "sourceData"
+                            },
+                            {
+                              "key": "onOptionChange"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onOptionChange"
+                            }
+                          ],
                           "isDisabled": false,
                           "isFilterable": true,
                           "isLoading": false,
@@ -89605,34 +89645,35 @@
                           "key": "ak1zfvw7ya",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
-                          "labelText": "Label type",
+                          "labelText": "Label Type",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 0,
+                          "leftColumn": 39,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 15,
-                          "mobileLeftColumn": 0,
-                          "mobileRightColumn": 19,
-                          "mobileTopRow": 8,
+                          "mobileBottomRow": 7,
+                          "mobileLeftColumn": 39,
+                          "mobileRightColumn": 51,
+                          "mobileTopRow": 0,
                           "needsErrorInfo": false,
                           "optionLabel": "name",
                           "optionValue": "code",
                           "parentColumnSpace": 5.0078125,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
-                          "placeholderText": "Select option",
+                          "placeholderText": "Select label type",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 19,
+                          "rightColumn": 51,
                           "serverSideFiltering": false,
-                          "sourceData": "[\n  {\n    \"name\": \"Blue\",\n    \"code\": \"BLUE\"\n  },\n  {\n    \"name\": \"Green\",\n    \"code\": \"GREEN\"\n  },\n  {\n    \"name\": \"Red\",\n    \"code\": \"RED\"\n  }\n]",
-                          "topRow": 8,
+                          "sourceData": "{{ [{ name: \"All\", code: \"ALL\" }, ...(qPQLabelTypes.data || [])] }}",
+                          "topRow": 0,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "e0kd2w9fow",
-                          "widgetName": "selPQLabelType"
+                          "widgetName": "selPQLabelType",
+                          "onOptionChange": "{{ PrintQueuePage.refresh() }}"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -89651,7 +89692,11 @@
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onSubmit"
+                            }
+                          ],
                           "iconAlign": "left",
                           "inputType": "TEXT",
                           "isDisabled": false,
@@ -89659,42 +89704,49 @@
                           "isRequired": false,
                           "isVisible": true,
                           "key": "7wd4ycvpml",
-                          "label": "Daemon/claimed-by",
+                          "label": "Daemon / Claimed By",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
                           "labelStyle": "",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 22,
+                          "leftColumn": 0,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
                           "mobileBottomRow": 15,
-                          "mobileLeftColumn": 22,
-                          "mobileRightColumn": 42,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 16,
                           "mobileTopRow": 8,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
-                          "resetOnSubmit": true,
+                          "resetOnSubmit": false,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 42,
+                          "rightColumn": 16,
                           "showStepArrows": false,
                           "topRow": 8,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "ba72dirfl8",
-                          "widgetName": "inpPQClaimedBy"
+                          "widgetName": "inpPQClaimedBy",
+                          "placeholderText": "trays_mac, zebra_mac…",
+                          "onSubmit": "{{ PrintQueuePage.refresh() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onSubmit"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "alignWidget": "LEFT",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 13,
-                          "defaultCheckedState": true,
+                          "bottomRow": 6,
+                          "defaultCheckedState": false,
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -89704,7 +89756,11 @@
                             }
                           ],
                           "dynamicHeight": "AUTO_HEIGHT",
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onCheckChange"
+                            }
+                          ],
                           "isDisabled": false,
                           "isLoading": false,
                           "isRequired": false,
@@ -89712,35 +89768,41 @@
                           "key": "b3nn82ehzz",
                           "label": "Errors only",
                           "labelPosition": "Left",
-                          "leftColumn": 47,
+                          "leftColumn": 52,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 13,
-                          "mobileLeftColumn": 47,
-                          "mobileRightColumn": 59,
-                          "mobileTopRow": 9,
+                          "mobileBottomRow": 6,
+                          "mobileLeftColumn": 52,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 1,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 21,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 6,
+                          "originalTopRow": 1,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 59,
-                          "topRow": 9,
+                          "rightColumn": 64,
+                          "topRow": 1,
                           "type": "CHECKBOX_WIDGET",
                           "version": 1,
                           "widgetId": "dv5kp7na2a",
-                          "widgetName": "chkPQErrorsOnly"
+                          "widgetName": "chkPQErrorsOnly",
+                          "onCheckChange": "{{ PrintQueuePage.refresh() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onCheckChange"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 28,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -89752,7 +89814,11 @@
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onSubmit"
+                            }
+                          ],
                           "iconAlign": "left",
                           "inputType": "TEXT",
                           "isDisabled": false,
@@ -89760,154 +89826,193 @@
                           "isRequired": false,
                           "isVisible": true,
                           "key": "7wd4ycvpml",
-                          "label": "General search",
+                          "label": "Search",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
                           "labelStyle": "",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 0,
+                          "leftColumn": 17,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 28,
-                          "mobileLeftColumn": 0,
-                          "mobileRightColumn": 7,
-                          "mobileTopRow": 21,
+                          "mobileBottomRow": 15,
+                          "mobileLeftColumn": 17,
+                          "mobileRightColumn": 39,
+                          "mobileTopRow": 8,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 13.875,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
-                          "resetOnSubmit": true,
+                          "resetOnSubmit": false,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 6,
+                          "rightColumn": 39,
                           "showStepArrows": false,
-                          "topRow": 21,
+                          "topRow": 8,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "nzgmx34i3d",
-                          "widgetName": "inpPQSearch"
+                          "widgetName": "inpPQSearch",
+                          "placeholderText": "Print ID, lot, product, run, daemon, error…",
+                          "onSubmit": "{{ PrintQueuePage.refresh() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onSubmit"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 28,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "closeOnSelection": true,
-                          "dateFormat": "YYYY-MM-DD HH:mm",
+                          "dateFormat": "YYYY-MM-DD",
                           "datePickerType": "DATE_PICKER",
-                          "defaultDate": "2026-07-13T05:00:25.203Z",
+                          "defaultDate": "",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "defaultDate"
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onDateSelected"
+                            }
+                          ],
                           "firstDayOfWeek": 0,
                           "isDisabled": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "gul1vuf9a0",
-                          "label": "Created from",
+                          "label": "Created From",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 6,
+                          "leftColumn": 40,
                           "maxDate": "2121-12-31T18:29:00.000Z",
                           "maxDynamicHeight": 9000,
                           "minDate": "1920-12-31T18:30:00.000Z",
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 28,
-                          "mobileLeftColumn": 7,
-                          "mobileRightColumn": 27,
-                          "mobileTopRow": 21,
+                          "mobileBottomRow": 15,
+                          "mobileLeftColumn": 40,
+                          "mobileRightColumn": 51,
+                          "mobileTopRow": 8,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 13.875,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 26,
+                          "rightColumn": 51,
                           "shortcuts": false,
                           "timePrecision": "minute",
-                          "topRow": 21,
+                          "topRow": 8,
                           "type": "DATE_PICKER_WIDGET2",
                           "version": 2,
                           "widgetId": "7zvj6emz0j",
-                          "widgetName": "dpPQCreatedFrom"
+                          "widgetName": "dpPQCreatedFrom",
+                          "onDateSelected": "{{ PrintQueuePage.refresh() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onDateSelected"
+                            },
+                            {
+                              "key": "defaultDate"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 26,
+                          "bottomRow": 15,
                           "boxShadow": "none",
                           "closeOnSelection": true,
-                          "dateFormat": "YYYY-MM-DD HH:mm",
+                          "dateFormat": "YYYY-MM-DD",
                           "datePickerType": "DATE_PICKER",
-                          "defaultDate": "2026-07-13T05:00:25.203Z",
+                          "defaultDate": "",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "defaultDate"
                             }
                           ],
                           "dynamicHeight": "FIXED",
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onDateSelected"
+                            }
+                          ],
                           "firstDayOfWeek": 0,
                           "isDisabled": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "gul1vuf9a0",
-                          "label": "Created through",
+                          "label": "Created Through",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 26,
+                          "leftColumn": 52,
                           "maxDate": "2121-12-31T18:29:00.000Z",
                           "maxDynamicHeight": 9000,
                           "minDate": "1920-12-31T18:30:00.000Z",
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 26,
-                          "mobileLeftColumn": 26,
-                          "mobileRightColumn": 46,
-                          "mobileTopRow": 19,
+                          "mobileBottomRow": 15,
+                          "mobileLeftColumn": 52,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 8,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 13.875,
                           "parentId": "erwzoxlv9r",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 46,
+                          "rightColumn": 64,
                           "shortcuts": false,
                           "timePrecision": "minute",
-                          "topRow": 19,
+                          "topRow": 8,
                           "type": "DATE_PICKER_WIDGET2",
                           "version": 2,
                           "widgetId": "swigrom64s",
-                          "widgetName": "dpPQCreatedTo"
+                          "widgetName": "dpPQCreatedTo",
+                          "onDateSelected": "{{ PrintQueuePage.refresh() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onDateSelected"
+                            },
+                            {
+                              "key": "defaultDate"
+                            }
+                          ]
                         },
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 26,
+                          "bottomRow": 21,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                          "buttonVariant": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
                           "disabledWhenInvalid": false,
                           "dynamicBindingPathList": [
                             {
@@ -89915,20 +90020,27 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isLoading"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
                           "isDisabled": false,
-                          "isLoading": false,
+                          "isLoading": "{{ qPrintQueue.isLoading }}",
                           "isVisible": true,
                           "key": "lke7seazfr",
-                          "leftColumn": 48,
+                          "leftColumn": 52,
                           "minWidth": 120,
-                          "mobileBottomRow": 26,
-                          "mobileLeftColumn": 48,
+                          "mobileBottomRow": 21,
+                          "mobileLeftColumn": 52,
                           "mobileRightColumn": 64,
-                          "mobileTopRow": 22,
+                          "mobileTopRow": 17,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 13.875,
                           "parentId": "erwzoxlv9r",
@@ -89939,12 +90051,21 @@
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
                           "rightColumn": 64,
-                          "text": "Clear filters",
-                          "topRow": 22,
+                          "text": "Clear Filters",
+                          "topRow": 17,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "pg5hn8ee57",
-                          "widgetName": "btnPQClearFilters"
+                          "widgetName": "btnPQClearFilters",
+                          "onClick": "{{ PrintQueuePage.clearFilters() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isLoading"
+                            }
+                          ]
                         }
                       ],
                       "containerStyle": "none",
@@ -90004,13 +90125,13 @@
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 10,
                   "minWidth": 450,
-                  "mobileBottomRow": 28,
+                  "mobileBottomRow": 31,
                   "mobileLeftColumn": 0,
-                  "mobileRightColumn": 24,
-                  "mobileTopRow": 18,
+                  "mobileRightColumn": 64,
+                  "mobileTopRow": 6,
                   "needsErrorInfo": false,
-                  "originalBottomRow": 48,
-                  "originalTopRow": 18,
+                  "originalBottomRow": 31,
+                  "originalTopRow": 6,
                   "parentColumnSpace": 14.1875,
                   "parentId": "0",
                   "parentRowSpace": 10,
@@ -90018,7 +90139,7 @@
                   "responsiveBehavior": "fill",
                   "rightColumn": 64,
                   "shouldScrollContents": true,
-                  "topRow": 18,
+                  "topRow": 6,
                   "type": "CONTAINER_WIDGET",
                   "version": 1,
                   "widgetId": "n8joi1q0nf",
@@ -90030,7 +90151,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": "1",
-                  "bottomRow": 78,
+                  "bottomRow": 82,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "cachedTableData": {},
                   "canFreezeColumn": true,
@@ -90063,7 +90184,7 @@
                   "customIsLoading": false,
                   "customIsLoadingValue": "",
                   "defaultPageSize": 0,
-                  "defaultSelectedRowIndex": 0,
+                  "defaultSelectedRowIndex": "",
                   "defaultSelectedRowIndices": "",
                   "delimiter": ",",
                   "dynamicBindingPathList": [
@@ -90078,6 +90199,63 @@
                     },
                     {
                       "key": "tableData"
+                    },
+                    {
+                      "key": "primaryColumns.nocopk.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.print_id.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.print_status.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.print_target.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.source_kind.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.label_type.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.lot_id.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.lot_ref.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.product_id.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.product_ref.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.run_id.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.run_ref.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.created_at.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.claimed_by.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.claimed_at.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.printed_by.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.printed_at.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.error_msg.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.pdf_path.computedValue"
                     }
                   ],
                   "dynamicPropertyPathList": [
@@ -90095,38 +90273,689 @@
                   "isSortable": true,
                   "isVisible": true,
                   "isVisibleDownload": true,
-                  "isVisibleFilters": false,
+                  "isVisibleFilters": true,
                   "isVisiblePagination": true,
                   "isVisibleSearch": true,
                   "key": "z2geq33yqd",
                   "label": "Data",
                   "leftColumn": 0,
                   "minWidth": 450,
-                  "mobileBottomRow": 78,
+                  "mobileBottomRow": 82,
                   "mobileLeftColumn": 0,
-                  "mobileRightColumn": 29,
-                  "mobileTopRow": 50,
+                  "mobileRightColumn": 64,
+                  "mobileTopRow": 33,
                   "multiRowSelection": true,
                   "needsErrorInfo": false,
-                  "originalBottomRow": 78,
-                  "originalTopRow": 50,
+                  "originalBottomRow": 82,
+                  "originalTopRow": 33,
                   "parentColumnSpace": 14.1875,
                   "parentId": "0",
                   "parentRowSpace": 10,
-                  "primaryColumns": {},
+                  "primaryColumns": {
+                    "nocopk": {
+                      "alias": "nocopk",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "number",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"nocopk\"])) : nocopk })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "nocopk",
+                      "index": 0,
+                      "isCellEditable": false,
+                      "isCellVisible": false,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": false,
+                      "label": "nocopk",
+                      "notation": "standard",
+                      "originalId": "nocopk",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "print_id": {
+                      "alias": "print_id",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"print_id\"])) : print_id })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "print_id",
+                      "index": 1,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Print ID",
+                      "notation": "standard",
+                      "originalId": "print_id",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 170
+                    },
+                    "print_status": {
+                      "alias": "print_status",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"print_status\"])) : print_status })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "print_status",
+                      "index": 2,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Status",
+                      "notation": "standard",
+                      "originalId": "print_status",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 105
+                    },
+                    "print_target": {
+                      "alias": "print_target",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"print_target\"])) : print_target })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "print_target",
+                      "index": 3,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Target",
+                      "notation": "standard",
+                      "originalId": "print_target",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "source_kind": {
+                      "alias": "source_kind",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"source_kind\"])) : source_kind })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "source_kind",
+                      "index": 4,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Source",
+                      "notation": "standard",
+                      "originalId": "source_kind",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "label_type": {
+                      "alias": "label_type",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"label_type\"])) : label_type })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "label_type",
+                      "index": 5,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Label Type",
+                      "notation": "standard",
+                      "originalId": "label_type",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 190
+                    },
+                    "lot_id": {
+                      "alias": "lot_id",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "number",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"lot_id\"])) : lot_id })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "lot_id",
+                      "index": 6,
+                      "isCellEditable": false,
+                      "isCellVisible": false,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": false,
+                      "label": "lot_id",
+                      "notation": "standard",
+                      "originalId": "lot_id",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "lot_ref": {
+                      "alias": "lot_ref",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"lot_ref\"])) : lot_ref })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "lot_ref",
+                      "index": 7,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Lot",
+                      "notation": "standard",
+                      "originalId": "lot_ref",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150
+                    },
+                    "product_id": {
+                      "alias": "product_id",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "number",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"product_id\"])) : product_id })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "product_id",
+                      "index": 8,
+                      "isCellEditable": false,
+                      "isCellVisible": false,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": false,
+                      "label": "product_id",
+                      "notation": "standard",
+                      "originalId": "product_id",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "product_ref": {
+                      "alias": "product_ref",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"product_ref\"])) : product_ref })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "product_ref",
+                      "index": 9,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Product",
+                      "notation": "standard",
+                      "originalId": "product_ref",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 170
+                    },
+                    "run_id": {
+                      "alias": "run_id",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "number",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"run_id\"])) : run_id })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "run_id",
+                      "index": 10,
+                      "isCellEditable": false,
+                      "isCellVisible": false,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": false,
+                      "label": "run_id",
+                      "notation": "standard",
+                      "originalId": "run_id",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 100
+                    },
+                    "run_ref": {
+                      "alias": "run_ref",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"run_ref\"])) : run_ref })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "run_ref",
+                      "index": 11,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Sterilizer Run",
+                      "notation": "standard",
+                      "originalId": "run_ref",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150
+                    },
+                    "created_at": {
+                      "alias": "created_at",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "date",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"created_at\"])) : created_at })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "created_at",
+                      "index": 12,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Created",
+                      "notation": "standard",
+                      "originalId": "created_at",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150,
+                      "outputFormat": "YYYY-MM-DD HH:mm"
+                    },
+                    "claimed_by": {
+                      "alias": "claimed_by",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"claimed_by\"])) : claimed_by })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "claimed_by",
+                      "index": 13,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Claimed By",
+                      "notation": "standard",
+                      "originalId": "claimed_by",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150
+                    },
+                    "claimed_at": {
+                      "alias": "claimed_at",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "date",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"claimed_at\"])) : claimed_at })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "claimed_at",
+                      "index": 14,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Claimed At",
+                      "notation": "standard",
+                      "originalId": "claimed_at",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150,
+                      "outputFormat": "YYYY-MM-DD HH:mm"
+                    },
+                    "printed_by": {
+                      "alias": "printed_by",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"printed_by\"])) : printed_by })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "printed_by",
+                      "index": 15,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Printed By",
+                      "notation": "standard",
+                      "originalId": "printed_by",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150
+                    },
+                    "printed_at": {
+                      "alias": "printed_at",
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "date",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"printed_at\"])) : printed_at })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "printed_at",
+                      "index": 16,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Printed At",
+                      "notation": "standard",
+                      "originalId": "printed_at",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 150,
+                      "outputFormat": "YYYY-MM-DD HH:mm"
+                    },
+                    "error_msg": {
+                      "alias": "error_msg",
+                      "allowCellWrapping": true,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"error_msg\"])) : error_msg })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "error_msg",
+                      "index": 17,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "Error",
+                      "notation": "standard",
+                      "originalId": "error_msg",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 280
+                    },
+                    "pdf_path": {
+                      "alias": "pdf_path",
+                      "allowCellWrapping": true,
+                      "allowSameOptionsInNewRow": true,
+                      "cellBackground": "",
+                      "columnType": "text",
+                      "computedValue": "{{(() => { const tableData = tblPrintQueue.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"pdf_path\"])) : pdf_path })()}}",
+                      "currencyCode": "USD",
+                      "decimals": 0,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "fontStyle": "",
+                      "horizontalAlignment": "LEFT",
+                      "id": "pdf_path",
+                      "index": 18,
+                      "isCellEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "isDisabled": false,
+                      "isDiscardVisible": true,
+                      "isEditable": false,
+                      "isSaveVisible": true,
+                      "isVisible": true,
+                      "label": "PDF Path",
+                      "notation": "standard",
+                      "originalId": "pdf_path",
+                      "sticky": "",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "thousandSeparator": true,
+                      "validation": {},
+                      "verticalAlignment": "CENTER",
+                      "width": 280
+                    }
+                  },
                   "renderMode": "CANVAS",
                   "responsiveBehavior": "fill",
-                  "rightColumn": 29,
+                  "rightColumn": 64,
                   "searchKey": "",
-                  "tableData": " {{ qPrintQueue.data || [] }}",
+                  "tableData": "{{ qPrintQueue.data || [] }}",
                   "textSize": "0.875rem",
-                  "topRow": 50,
+                  "topRow": 33,
                   "totalRecordsCount": 0,
                   "type": "TABLE_WIDGET_V2",
                   "version": 2,
                   "verticalAlignment": "CENTER",
                   "widgetId": "rszlg6ydw7",
-                  "widgetName": "tblPrintQueue"
+                  "widgetName": "tblPrintQueue",
+                  "pageSize": 25
                 },
                 {
                   "animateLoading": true,
@@ -90134,7 +90963,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": "1",
-                  "bottomRow": 120,
+                  "bottomRow": 106,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "children": [
                     {
@@ -90156,6 +90985,9 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "text"
                             }
                           ],
                           "dynamicHeight": "AUTO_HEIGHT",
@@ -90166,16 +90998,16 @@
                           "isLoading": false,
                           "isVisible": true,
                           "key": "kx54jd0qis",
-                          "leftColumn": 3,
+                          "leftColumn": 0,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 4,
-                          "mobileLeftColumn": 3,
-                          "mobileRightColumn": 19,
+                          "mobileBottomRow": 7,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 20,
                           "mobileTopRow": 0,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 4,
+                          "originalBottomRow": 7,
                           "originalTopRow": 0,
                           "overflow": "NONE",
                           "parentColumnSpace": 5.0078125,
@@ -90183,9 +91015,9 @@
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 19,
+                          "rightColumn": 20,
                           "shouldTruncate": false,
-                          "text": "Selected job summary",
+                          "text": "{{(() => {\n  const rows = Array.isArray(tblPrintQueue.selectedRows) ? tblPrintQueue.selectedRows : [];\n  if (!rows.length) return \"Select one or more print jobs.\";\n  const counts = rows.reduce((acc, row) => {\n    const status = String(row?.print_status || \"Unknown\").trim() || \"Unknown\";\n    acc[status] = (acc[status] || 0) + 1;\n    return acc;\n  }, {});\n  const statusSummary = Object.entries(counts)\n    .map(([status, count]) => `${status}: ${count}`)\n    .join(\" • \");\n  const warning = rows.some(row => String(row?.print_status || \"\").trim().toLowerCase() === \"printing\")\n    ? \" • Active Printing job selected; changes are blocked.\"\n    : \"\";\n  return `${rows.length} job(s) selected • ${statusSummary}${warning}`;\n})()}}",
                           "textAlign": "LEFT",
                           "textColor": "#231F20",
                           "topRow": 0,
@@ -90193,14 +91025,19 @@
                           "type": "TEXT_WIDGET",
                           "version": 1,
                           "widgetId": "4u0e76znkb",
-                          "widgetName": "txtPQSelection"
+                          "widgetName": "txtPQSelection",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "text"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "alignWidget": "LEFT",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 31,
+                          "bottomRow": 6,
                           "defaultCheckedState": true,
                           "dynamicBindingPathList": [
                             {
@@ -90217,26 +91054,26 @@
                           "isRequired": false,
                           "isVisible": true,
                           "key": "b3nn82ehzz",
-                          "label": "Clear error when requeueing",
+                          "label": "Clear existing error",
                           "labelPosition": "Left",
-                          "leftColumn": 22,
+                          "leftColumn": 20,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 4,
-                          "mobileLeftColumn": 22,
+                          "mobileBottomRow": 6,
+                          "mobileLeftColumn": 20,
                           "mobileRightColumn": 34,
-                          "mobileTopRow": 0,
+                          "mobileTopRow": 1,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 8,
-                          "originalTopRow": 0,
+                          "originalBottomRow": 6,
+                          "originalTopRow": 1,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "59zpjn9hb9",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
                           "rightColumn": 34,
-                          "topRow": 0,
+                          "topRow": 1,
                           "type": "CHECKBOX_WIDGET",
                           "version": 1,
                           "widgetId": "b21bhy020r",
@@ -90245,7 +91082,7 @@
                         {
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 4,
+                          "bottomRow": 6,
                           "boxShadow": "none",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "buttonVariant": "PRIMARY",
@@ -90256,20 +91093,30 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isLoading"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
-                          "isLoading": false,
+                          "isDisabled": "{{ !PrintQueuePage.canRequeueSelected() }}",
+                          "isLoading": "{{ qPQSetStatus.isLoading }}",
                           "isVisible": true,
                           "key": "lke7seazfr",
-                          "leftColumn": 42,
+                          "leftColumn": 34,
                           "minWidth": 120,
-                          "mobileBottomRow": 4,
-                          "mobileLeftColumn": 42,
-                          "mobileRightColumn": 58,
-                          "mobileTopRow": 0,
+                          "mobileBottomRow": 6,
+                          "mobileLeftColumn": 34,
+                          "mobileRightColumn": 48,
+                          "mobileTopRow": 1,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "59zpjn9hb9",
@@ -90279,21 +91126,33 @@
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 58,
-                          "text": "Requeue Printed/Error jobs",
-                          "topRow": 0,
+                          "rightColumn": 48,
+                          "text": "Requeue Selected",
+                          "topRow": 1,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "nl8gdazcw8",
-                          "widgetName": "btnPQRequeue"
+                          "widgetName": "btnPQRequeue",
+                          "onClick": "{{ PrintQueuePage.requeueSelected() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isLoading"
+                            }
+                          ]
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                           "animateLoading": true,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 16,
+                          "bottomRow": 7,
                           "boxShadow": "none",
-                          "defaultOptionValue": "GREEN",
+                          "defaultOptionValue": "",
                           "dynamicBindingPathList": [
                             {
                               "key": "accentColor"
@@ -90310,37 +91169,37 @@
                           ],
                           "dynamicTriggerPathList": [],
                           "isDisabled": false,
-                          "isFilterable": true,
+                          "isFilterable": false,
                           "isLoading": false,
                           "isRequired": false,
                           "isVisible": true,
                           "key": "ak1zfvw7ya",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
-                          "labelText": "Manual status",
+                          "labelText": "Manual Status",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 1,
+                          "leftColumn": 49,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 16,
-                          "mobileLeftColumn": 1,
-                          "mobileRightColumn": 21,
-                          "mobileTopRow": 9,
+                          "mobileBottomRow": 7,
+                          "mobileLeftColumn": 49,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
                           "needsErrorInfo": false,
                           "optionLabel": "name",
                           "optionValue": "code",
                           "parentColumnSpace": 5.0078125,
                           "parentId": "59zpjn9hb9",
                           "parentRowSpace": 10,
-                          "placeholderText": "Select option",
+                          "placeholderText": "Choose status",
                           "renderMode": "CANVAS",
                           "responsiveBehavior": "fill",
-                          "rightColumn": 21,
+                          "rightColumn": 64,
                           "serverSideFiltering": false,
-                          "sourceData": "[\n  {\n    \"name\": \"Blue\",\n    \"code\": \"BLUE\"\n  },\n  {\n    \"name\": \"Green\",\n    \"code\": \"GREEN\"\n  },\n  {\n    \"name\": \"Red\",\n    \"code\": \"RED\"\n  }\n]",
-                          "topRow": 9,
+                          "sourceData": "[\n  {\n    \"name\": \"Mark Printed\",\n    \"code\": \"Printed\"\n  },\n  {\n    \"name\": \"Mark Error\",\n    \"code\": \"Error\"\n  }\n]",
+                          "topRow": 0,
                           "type": "SELECT_WIDGET",
                           "version": 1,
                           "widgetId": "kk93lgli77",
@@ -90351,7 +91210,7 @@
                           "animateLoading": true,
                           "autoFocus": false,
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "bottomRow": 39,
+                          "bottomRow": 18,
                           "boxShadow": "none",
                           "defaultText": "",
                           "dynamicBindingPathList": [
@@ -90360,47 +91219,56 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isRequired"
                             }
                           ],
                           "dynamicHeight": "FIXED",
                           "dynamicTriggerPathList": [],
                           "iconAlign": "left",
-                          "inputType": "TEXT",
+                          "inputType": "MULTI_LINE_TEXT",
                           "isDisabled": false,
                           "isLoading": false,
-                          "isRequired": false,
+                          "isRequired": "{{ selPQNewStatus.selectedOptionValue === \"Error\" }}",
                           "isVisible": true,
                           "key": "7wd4ycvpml",
-                          "label": "Reason/audit note",
+                          "label": "Reason / Operator Note",
                           "labelAlignment": "left",
                           "labelPosition": "Top",
                           "labelStyle": "",
                           "labelTextSize": "0.875rem",
                           "labelWidth": 5,
-                          "leftColumn": 24,
+                          "leftColumn": 0,
                           "maxDynamicHeight": 9000,
                           "minDynamicHeight": 4,
                           "minWidth": 450,
-                          "mobileBottomRow": 16,
-                          "mobileLeftColumn": 24,
-                          "mobileRightColumn": 44,
-                          "mobileTopRow": 9,
+                          "mobileBottomRow": 18,
+                          "mobileLeftColumn": 0,
+                          "mobileRightColumn": 48,
+                          "mobileTopRow": 8,
                           "needsErrorInfo": false,
-                          "originalBottomRow": 16,
-                          "originalTopRow": 9,
+                          "originalBottomRow": 18,
+                          "originalTopRow": 8,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "59zpjn9hb9",
                           "parentRowSpace": 10,
                           "renderMode": "CANVAS",
-                          "resetOnSubmit": true,
+                          "resetOnSubmit": false,
                           "responsiveBehavior": "fill",
-                          "rightColumn": 44,
+                          "rightColumn": 48,
                           "showStepArrows": false,
-                          "topRow": 32,
+                          "topRow": 8,
                           "type": "INPUT_WIDGET_V2",
                           "version": 2,
                           "widgetId": "tz1k9fsyc2",
-                          "widgetName": "inpPQStatusReason"
+                          "widgetName": "inpPQStatusReason",
+                          "placeholderText": "Why is this job being requeued or changed?",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "isRequired"
+                            }
+                          ]
                         },
                         {
                           "animateLoading": true,
@@ -90416,20 +91284,30 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isLoading"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
-                          "isLoading": false,
+                          "isDisabled": "{{ !PrintQueuePage.canApplyStatus() }}",
+                          "isLoading": "{{ qPQSetStatus.isLoading }}",
                           "isVisible": true,
                           "key": "lke7seazfr",
-                          "leftColumn": 47,
+                          "leftColumn": 50,
                           "minWidth": 120,
                           "mobileBottomRow": 15,
-                          "mobileLeftColumn": 47,
-                          "mobileRightColumn": 63,
-                          "mobileTopRow": 11,
+                          "mobileLeftColumn": 50,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 10,
                           "needsErrorInfo": false,
                           "parentColumnSpace": 5.0078125,
                           "parentId": "59zpjn9hb9",
@@ -90439,13 +91317,25 @@
                           "renderMode": "CANVAS",
                           "resetFormOnClick": false,
                           "responsiveBehavior": "hug",
-                          "rightColumn": 63,
-                          "text": "Apply manual status",
-                          "topRow": 11,
+                          "rightColumn": 64,
+                          "text": "Apply Status",
+                          "topRow": 10,
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "8umxfu626s",
-                          "widgetName": "btnPQApplyStatus"
+                          "widgetName": "btnPQApplyStatus",
+                          "onClick": "{{ PrintQueuePage.applySelectedStatus() }}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isLoading"
+                            }
+                          ]
                         }
                       ],
                       "containerStyle": "none",
@@ -90501,25 +91391,25 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "g5xdj8g3h5",
-                  "leftColumn": 2,
+                  "leftColumn": 0,
                   "maxDynamicHeight": 9000,
                   "minDynamicHeight": 10,
                   "minWidth": 450,
-                  "mobileBottomRow": 89,
-                  "mobileLeftColumn": 2,
-                  "mobileRightColumn": 26,
-                  "mobileTopRow": 79,
+                  "mobileBottomRow": 106,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 64,
+                  "mobileTopRow": 84,
                   "needsErrorInfo": false,
-                  "originalBottomRow": 97,
-                  "originalTopRow": 79,
+                  "originalBottomRow": 106,
+                  "originalTopRow": 84,
                   "parentColumnSpace": 14.1875,
                   "parentId": "0",
                   "parentRowSpace": 10,
                   "renderMode": "CANVAS",
                   "responsiveBehavior": "fill",
-                  "rightColumn": 26,
+                  "rightColumn": 64,
                   "shouldScrollContents": true,
-                  "topRow": 79,
+                  "topRow": 84,
                   "type": "CONTAINER_WIDGET",
                   "version": 1,
                   "widgetId": "o1b258sem7",
