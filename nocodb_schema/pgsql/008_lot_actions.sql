@@ -2778,35 +2778,33 @@ BEGIN
       EXCEPTION WHEN undefined_function THEN NULL;
       END;
 
-      BEGIN
-        v_event_id := public.mp_events_insert(
-          p_lot_id => NULL::bigint,
-          p_product_id => v_product_id,
-          p_type => 'MovedToFreezeDryer'::text,
-          p_timestamp => now(),
-          p_operator => COALESCE(p_operator, '')::text,
-          p_station => COALESCE(p_station, 'Products')::text,
-          p_fields_json => jsonb_build_object(
-            'action', 'Move to Freeze Dryer',
-            'workflow', 'mp_products_move_to_freeze_dryer',
-            'product_id', v_product_id,
-            'previous_tray_state', v_prev_tray_state,
-            'new_tray_state', 'freeze_drying',
-            'previous_storage_location_id', v_prev_location_id,
-            'previous_storage_location', v_prev_location_name,
-            'new_storage_location_id', p_freeze_dryer_location_id,
-            'new_storage_location', v_new_location_name,
-            'operator', p_operator,
-            'notes', p_notes
-          )
-        );
+      -- Product lifecycle events are required audit records. Use an explicit
+      -- timestamp-without-time-zone value so function resolution cannot fail,
+      -- and do not suppress event or relationship failures after the product
+      -- mutation has succeeded.
+      v_event_id := public.mp_events_insert(
+        p_lot_id => NULL::bigint,
+        p_product_id => v_product_id,
+        p_type => 'MovedToFreezeDryer'::text,
+        p_timestamp => clock_timestamp()::timestamp without time zone,
+        p_operator => COALESCE(p_operator, '')::text,
+        p_station => COALESCE(p_station, 'Products')::text,
+        p_fields_json => jsonb_build_object(
+          'action', 'Move to Freeze Dryer',
+          'workflow', 'mp_products_move_to_freeze_dryer',
+          'product_id', v_product_id,
+          'previous_tray_state', v_prev_tray_state,
+          'new_tray_state', 'freeze_drying',
+          'previous_storage_location_id', v_prev_location_id,
+          'previous_storage_location', v_prev_location_name,
+          'new_storage_location_id', p_freeze_dryer_location_id,
+          'new_storage_location', v_new_location_name,
+          'operator', p_operator,
+          'notes', p_notes
+        )
+      );
 
-        BEGIN
-          PERFORM public.mp_events_link_product(v_event_id, v_product_id);
-        EXCEPTION WHEN undefined_function THEN NULL;
-        END;
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
+      PERFORM public.mp_events_link_product(v_event_id, v_product_id);
 
       v_count := v_count + 1;
     END IF;
@@ -2927,36 +2925,34 @@ BEGIN
         END;
       END IF;
 
-      BEGIN
-        v_event_id := public.mp_events_insert(
-          p_lot_id => NULL::bigint,
-          p_product_id => v_product_id,
-          p_type => v_event_type,
-          p_timestamp => now(),
-          p_operator => COALESCE(p_operator, '')::text,
-          p_station => COALESCE(p_station, 'Products')::text,
-          p_fields_json => jsonb_build_object(
-            'action', 'Retire Tray Product',
-            'workflow', 'mp_products_retire_trays',
-            'product_id', v_product_id,
-            'reason', v_state,
-            'previous_tray_state', v_prev_tray_state,
-            'new_tray_state', v_state,
-            'previous_storage_location_id', v_prev_location_id,
-            'previous_storage_location', v_prev_location_name,
-            'new_storage_location_id', v_target_location_id,
-            'new_storage_location', v_target_location_resolved_name,
-            'operator', p_operator,
-            'notes', p_notes
-          )
-        );
+      -- Product lifecycle events are required audit records. Use an explicit
+      -- timestamp-without-time-zone value so function resolution cannot fail,
+      -- and do not suppress event or relationship failures after the product
+      -- mutation has succeeded.
+      v_event_id := public.mp_events_insert(
+        p_lot_id => NULL::bigint,
+        p_product_id => v_product_id,
+        p_type => v_event_type,
+        p_timestamp => clock_timestamp()::timestamp without time zone,
+        p_operator => COALESCE(p_operator, '')::text,
+        p_station => COALESCE(p_station, 'Products')::text,
+        p_fields_json => jsonb_build_object(
+          'action', 'Retire Tray Product',
+          'workflow', 'mp_products_retire_trays',
+          'product_id', v_product_id,
+          'reason', v_state,
+          'previous_tray_state', v_prev_tray_state,
+          'new_tray_state', v_state,
+          'previous_storage_location_id', v_prev_location_id,
+          'previous_storage_location', v_prev_location_name,
+          'new_storage_location_id', v_target_location_id,
+          'new_storage_location', v_target_location_resolved_name,
+          'operator', p_operator,
+          'notes', p_notes
+        )
+      );
 
-        BEGIN
-          PERFORM public.mp_events_link_product(v_event_id, v_product_id);
-        EXCEPTION WHEN undefined_function THEN NULL;
-        END;
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
+      PERFORM public.mp_events_link_product(v_event_id, v_product_id);
 
       v_count := v_count + 1;
     END IF;
