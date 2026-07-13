@@ -19,6 +19,11 @@ DECLARE
   v_event_id bigint;
   v_count integer;
   v_bad_size_rejected boolean := false;
+  v_default_source_product_id bigint;
+  v_default_created_product_id bigint;
+  v_default_count integer;
+  v_default_use_by date := (current_date + interval '2 years')::date;
+  v_default_label_useby text;
   v_event_fields jsonb;
   v_product record;
 BEGIN
@@ -326,6 +331,89 @@ BEGIN
     RAISE EXCEPTION 'Product_Package print jobs were not created for every package.';
   END IF;
 
+  INSERT INTO public.products (
+    product_id,
+    item_id,
+    name_mat,
+    item_category_mat,
+    net_weight_g,
+    net_weight_oz,
+    pack_date,
+    storage_location_id,
+    origin_lot_ids_json,
+    process_type_mat,
+    strain_id,
+    tray_state,
+    notes
+  )
+  VALUES (
+    'PROD-RC5-FD-DEFAULT-USEBY-SRC',
+    v_tray_item_id,
+    'Freezer Tray',
+    'freezer_tray',
+    5,
+    5 / 28.349523125,
+    current_date,
+    v_storage_id,
+    '["LOT-RC5-FD-PACKAGE"]',
+    'Sterilize',
+    v_strain_id,
+    'Frozen',
+    'Rollback-only default use-by source tray'
+  )
+  RETURNING nocopk INTO v_default_source_product_id;
+
+  INSERT INTO public._m2m_products_lots_origin_lots(products_id, lots_id)
+  VALUES (v_default_source_product_id, v_origin_lot_id)
+  ON CONFLICT DO NOTHING;
+
+  PERFORM public.mp_product_set_storage_location(
+    v_default_source_product_id,
+    v_storage_id
+  );
+
+  v_default_count := public.mp_products_package_freeze_dried_basic(
+    p_source_product_ids => ARRAY[v_default_source_product_id]::bigint[],
+    p_package_item_id => v_package_item_id,
+    p_package_size_g => 5,
+    p_package_count => 1,
+    p_storage_location_id => v_storage_id,
+    p_use_by => NULL,
+    p_operator => 'RC5 default use-by smoke test',
+    p_station => 'Products',
+    p_pack_date => current_date,
+    p_notes => 'Rollback-only default use-by smoke test',
+    p_package_class => 'Retail'
+  );
+
+  IF v_default_count <> 1 THEN
+    RAISE EXCEPTION 'Expected one default-use-by package, got %.', v_default_count;
+  END IF;
+
+  SELECT p.nocopk, vp.label_useby_prod
+  INTO v_default_created_product_id, v_default_label_useby
+  FROM public.products p
+  JOIN public.vc_products vp ON vp.nocopk = p.nocopk
+  WHERE p.notes = 'Rollback-only default use-by smoke test'
+  ORDER BY p.nocopk DESC
+  LIMIT 1;
+
+  IF v_default_created_product_id IS NULL THEN
+    RAISE EXCEPTION 'Default-use-by freeze-dried product was not created.';
+  END IF;
+
+  IF (
+    SELECT p.use_by
+    FROM public.products p
+    WHERE p.nocopk = v_default_created_product_id
+  ) <> v_default_use_by THEN
+    RAISE EXCEPTION 'Blank use-by did not default to two years after pack date.';
+  END IF;
+
+  IF v_default_label_useby <> 'Use by: ' || to_char(v_default_use_by, 'YYYY-MM-DD') THEN
+    RAISE EXCEPTION 'Default use-by label text is incorrect: %', v_default_label_useby;
+  END IF;
+
   BEGIN
     PERFORM public.mp_products_package_freeze_dried_basic(
       p_source_product_ids => v_source_product_ids,
@@ -352,7 +440,7 @@ BEGIN
     RAISE EXCEPTION 'Unsupported freeze-dried package size was not rejected.';
   END IF;
 
-  RAISE NOTICE 'Freeze-dried package, source consumption, refresh, lineage, event, and print smoke tests passed.';
+  RAISE NOTICE 'Freeze-dried package, source consumption, use-by default/override, lineage, event, and print smoke tests passed.';
 END;
 $$;
 
