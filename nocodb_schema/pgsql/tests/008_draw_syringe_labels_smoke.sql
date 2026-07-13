@@ -112,7 +112,7 @@ BEGIN
   FROM public.vc_lots
   WHERE nocopk = v_drawn_lot_id;
 
-  IF v_title <> 'Liquid Culture Syringe' THEN
+  IF v_title <> 'RC5 LC Syringe' THEN
     RAISE EXCEPTION 'Drawn syringe title is incorrect: %', v_title;
   END IF;
 
