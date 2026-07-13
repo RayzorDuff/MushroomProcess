@@ -1063,8 +1063,39 @@ BEGIN
 END;
 $$;
 
--- 5) PACKAGE (basic): for each selected lot, create a product and link it as an origin lot, then enqueue a print job.
---    Focused on Packaging Grain/Substrate/Block (other packaging types can be added later).
+-- 5) PACKAGE (basic): create one independent product for each selected lot,
+--    link each product to its origin lot, consume each source lot, and enqueue
+--    one print job per product. All selected lots are validated before mutation.
+CREATE OR REPLACE FUNCTION public.mp_lot_packageable_weight_g(
+  p_lot_id bigint
+)
+RETURNS numeric
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT round((
+    CASE
+      WHEN l.harvest_weight_g IS NOT NULL AND l.harvest_weight_g::numeric > 0
+        THEN l.harvest_weight_g::numeric
+      WHEN lower(COALESCE(NULLIF(btrim(l.item_category_mat), ''), NULLIF(btrim(i.category), ''), ''))
+           IN ('all_in_one_bag', 'casing', 'fruiting_block', 'grain', 'substrate')
+           AND l.unit_size IS NOT NULL
+           AND l.unit_size::numeric > 0
+        THEN l.unit_size::numeric * 453.59237
+      WHEN i.default_unit_size_g IS NOT NULL AND i.default_unit_size_g::numeric > 0
+        THEN i.default_unit_size_g::numeric
+      WHEN i.default_unit_size_oz IS NOT NULL AND i.default_unit_size_oz::numeric > 0
+        THEN i.default_unit_size_oz::numeric * 28.349523125
+      WHEN i.default_unit_size_lb IS NOT NULL AND i.default_unit_size_lb::numeric > 0
+        THEN i.default_unit_size_lb::numeric * 453.59237
+      ELSE NULL
+    END
+  )::numeric, 2)
+  FROM public.lots l
+  LEFT JOIN public.items i ON i.nocopk = l.item_id
+  WHERE l.nocopk = p_lot_id;
+$$;
+
 CREATE OR REPLACE FUNCTION public.mp_lots_package_basic(
   p_lot_ids   bigint[],
   p_package_count numeric DEFAULT 1,
@@ -1084,43 +1115,48 @@ DECLARE
   v_event_id bigint;
   v_fields jsonb;
   v_counter integer := 0;
+  v_input_count integer;
 
   v_item_id bigint;
   v_name_mat text;
   v_item_category_mat text;
   v_item_category text;
   v_item_name text;
-
   v_lot_id_text text;
   v_lot_unit_size numeric;
-  v_item_default_lb numeric;
-  v_item_default_g numeric;
-  v_item_default_oz numeric;
   v_net_g numeric;
   v_net_oz numeric;
-  v_net_volume_ml numeric;
-  v_is_volume_based boolean;
-  v_is_lb_based boolean;
-  v_is_g_based boolean;
-
   v_pack_date date;
   v_use_by date;
   v_storage_location_id bigint;
   v_storage_location_name text;
-  v_is_freeze_dried boolean;
-  v_is_tray boolean;
   v_spawned_at timestamp without time zone;
   v_inoculated_at timestamp without time zone;
+  v_status text;
+  v_ts timestamp without time zone := COALESCE(p_timestamp, now()::timestamp without time zone);
 
-  -- constants
-  c_lb_to_g constant numeric := 453.59237;
   c_oz_to_g constant numeric := 28.349523125;
 BEGIN
-  IF p_lot_ids IS NULL OR array_length(p_lot_ids, 1) IS NULL THEN
+  IF p_lot_ids IS NULL OR cardinality(p_lot_ids) = 0 THEN
     RETURN 0;
   END IF;
 
-  v_pack_date := now()::date;
+  IF p_package_count IS NULL OR p_package_count <> 1 THEN
+    RAISE EXCEPTION 'Package Lots creates exactly one independent product per selected lot.';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM unnest(p_lot_ids) AS x(id) WHERE id IS NULL) THEN
+    RAISE EXCEPTION 'Package lot IDs cannot contain NULL values.';
+  END IF;
+
+  SELECT count(DISTINCT id) INTO v_input_count
+  FROM unnest(p_lot_ids) AS x(id);
+
+  IF v_input_count <> cardinality(p_lot_ids) THEN
+    RAISE EXCEPTION 'Package lot IDs must be unique.';
+  END IF;
+
+  v_pack_date := v_ts::date;
   v_storage_location_id := COALESCE(
     p_storage_location_id,
     (
@@ -1134,23 +1170,67 @@ BEGIN
 
   SELECT l.name INTO v_storage_location_name
   FROM public.locations l
-  WHERE l.nocopk = v_storage_location_id;
+  WHERE l.nocopk = v_storage_location_id
+    AND COALESCE(l.active, false);
+
+  IF v_storage_location_id IS NULL OR v_storage_location_name IS NULL THEN
+    RAISE EXCEPTION 'An active product storage location is required.';
+  END IF;
+
+  -- Validate and lock the complete selection before creating any product,
+  -- consuming any lot, inserting any event, or enqueueing any label.
+  FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
+    SELECT
+      l.item_id,
+      l.lot_id,
+      COALESCE(NULLIF(btrim(l.item_category_mat), ''), NULLIF(btrim(i.category), ''), ''),
+      l.status,
+      public.mp_lot_packageable_weight_g(l.nocopk)
+    INTO
+      v_item_id,
+      v_lot_id_text,
+      v_item_category_mat,
+      v_status,
+      v_net_g
+    FROM public.lots l
+    LEFT JOIN public.items i ON i.nocopk = l.item_id
+    WHERE l.nocopk = v_lot_id
+    FOR UPDATE OF l;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Selected lot was not found: %', v_lot_id;
+    END IF;
+
+    IF v_item_id IS NULL THEN
+      RAISE EXCEPTION 'Lot % requires an item before packaging.', COALESCE(v_lot_id_text, v_lot_id::text);
+    END IF;
+
+    IF lower(v_item_category_mat) NOT IN ('grain', 'substrate', 'casing', 'fruiting_block', 'all_in_one_bag') THEN
+      RAISE EXCEPTION 'Lot % has non-packageable category %.', COALESCE(v_lot_id_text, v_lot_id::text), COALESCE(v_item_category_mat, '(blank)');
+    END IF;
+
+    IF regexp_replace(lower(COALESCE(v_status, '')), '[^a-z0-9]', '', 'g') IN
+       ('retired', 'consumed', 'compost', 'composted', 'expired', 'deleted', 'spoiled') THEN
+      RAISE EXCEPTION 'Lot % is not active for packaging (status %).', COALESCE(v_lot_id_text, v_lot_id::text), COALESCE(v_status, '(blank)');
+    END IF;
+
+    IF v_net_g IS NULL OR v_net_g <= 0 THEN
+      RAISE EXCEPTION 'Lot % does not have a packageable weight. Set lot unit_size or an item default unit size.', COALESCE(v_lot_id_text, v_lot_id::text);
+    END IF;
+  END LOOP;
 
   FOREACH v_lot_id IN ARRAY p_lot_ids LOOP
-    -- Load lot + item context
     SELECT
       l.item_id,
       l.item_name_mat,
-      l.item_category_mat,
+      COALESCE(NULLIF(btrim(l.item_category_mat), ''), NULLIF(btrim(i.category), ''), ''),
       l.lot_id,
       l.unit_size,
       l.spawned_at,
       l.inoculated_at,
       i.name,
       i.category,
-      i.default_unit_size_lb,
-      i.default_unit_size_g,
-      i.default_unit_size_oz
+      public.mp_lot_packageable_weight_g(l.nocopk)
     INTO
       v_item_id,
       v_name_mat,
@@ -1161,96 +1241,19 @@ BEGIN
       v_inoculated_at,
       v_item_name,
       v_item_category,
-      v_item_default_lb,
-      v_item_default_g,
-      v_item_default_oz
+      v_net_g
     FROM public.lots l
     LEFT JOIN public.items i ON i.nocopk = l.item_id
     WHERE l.nocopk = v_lot_id;
 
-    IF v_item_id IS NULL THEN
-      UPDATE public.lots
-      SET ui_error = 'Validation: item_id is required on lot before productizing.', ui_error_at = now()
-      WHERE nocopk = v_lot_id;
-      CONTINUE;
-    END IF;
-
-    -- Derive category (package_kind equivalent) from Lot/Item category
-    v_item_category_mat := COALESCE(NULLIF(btrim(v_item_category_mat), ''), NULLIF(btrim(v_item_category), ''), NULL);
     v_item_name := COALESCE(v_item_name, v_name_mat, '');
+    v_net_oz := round(v_net_g / c_oz_to_g, 2);
+    v_use_by := COALESCE(
+      (v_spawned_at + interval '3 months')::date,
+      (v_inoculated_at + interval '3 months')::date,
+      (v_pack_date + interval '3 months')::date
+    );
 
-    v_is_freeze_dried := (lower(COALESCE(v_item_category_mat,'')) = 'freezedriedmushrooms')
-                         OR (position('freeze dried' in lower(COALESCE(v_item_name,''))) > 0);
-
-    v_is_tray := lower(COALESCE(v_item_category_mat,'')) IN ('fresh_tray','freezer_tray');
-
-    v_is_volume_based := lower(COALESCE(v_item_category_mat,'')) IN ('lc_syringe','lc_flask','agar_flask','cordyceps_substrate','agar_plate','plate');
-    v_is_lb_based := lower(COALESCE(v_item_category_mat,'')) IN ('all_in_one_bag','casing','fruiting_block','substrate','grain');
-    v_is_g_based := lower(COALESCE(v_item_category_mat,'')) IN ('freezedriedmushrooms','fresh_tray','freezer_tray','plate');
-
-    -- Compute use_by: freeze-dried = +2y from pack_date; else +3mo from spawned_at/inoculated_at/today
-    IF v_is_freeze_dried THEN
-      v_use_by := (v_pack_date + interval '2 years')::date;
-    ELSE
-      v_use_by := (
-        COALESCE(
-          (v_spawned_at + interval '3 months')::date,
-          (v_inoculated_at + interval '3 months')::date,
-          (v_pack_date + interval '3 months')::date
-        )
-      );
-    END IF;
-
-    -- Compute package measures by category
-    v_net_g := NULL;
-    v_net_oz := NULL;
-    v_net_volume_ml := NULL;
-
-    IF v_is_volume_based THEN
-      -- Volume-based products: preserve mL only; leave weight fields empty
-      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
-        v_net_volume_ml := round(v_lot_unit_size, 2);
-      END IF;
-
-    ELSIF v_is_g_based THEN
-      -- Freeze dried unit_size is in grams
-      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
-        v_net_g  := round(v_lot_unit_size, 2);
-        v_net_oz := round(v_lot_unit_size / c_oz_to_g, 2);
-      ELSIF v_item_default_g IS NOT NULL AND v_item_default_g > 0 THEN
-        v_net_g  := round(v_item_default_g, 2);
-        v_net_oz := round(v_item_default_g / c_oz_to_g, 2);
-      END IF;
-
-    ELSIF v_is_lb_based THEN
-      -- Existing pound-based conversion for block/substrate/grain/casing
-      IF v_lot_unit_size IS NOT NULL AND v_lot_unit_size > 0 THEN
-        v_net_g  := round(v_lot_unit_size * c_lb_to_g, 2);
-        v_net_oz := round(v_lot_unit_size * 16, 2);
-      ELSE
-        IF v_item_default_g IS NOT NULL AND v_item_default_g > 0 THEN
-          v_net_g  := round(v_item_default_g, 2);
-          v_net_oz := round(v_item_default_g / c_oz_to_g, 2);
-        ELSIF v_item_default_oz IS NOT NULL AND v_item_default_oz > 0 THEN
-          v_net_g  := round(v_item_default_oz * c_oz_to_g, 2);
-          v_net_oz := round(v_item_default_oz, 2);
-        ELSIF v_item_default_lb IS NOT NULL AND v_item_default_lb > 0 THEN
-          v_net_g  := round(v_item_default_lb * c_lb_to_g, 2);
-          v_net_oz := round(v_item_default_lb * 16, 2);
-        END IF;
-      END IF;
-
-      IF v_net_g IS NULL OR v_net_oz IS NULL THEN
-        UPDATE public.lots
-        SET ui_error = 'Validation: Unable to determine net weight for pound-based packaging. Provide lots.unit_size (lbs) or item default size (lb/g/oz).',
-            ui_error_at = now()
-        WHERE nocopk = v_lot_id;
-      END IF;
-    END IF;
-
-    -- Create Product. package_size_g is now a computed vc_products field
-    -- derived from the retail package_size selector. Basic lot productization
-    -- records the full source weight in net_weight_g/net_weight_oz instead.
     INSERT INTO public.products (
       item_id,
       name_mat,
@@ -1271,31 +1274,30 @@ BEGIN
       v_item_category_mat,
       v_net_g,
       v_net_oz,
-      v_net_volume_ml,
+      NULL::numeric,
       v_pack_date,
       v_use_by,
-      p_package_count,
+      1,
       to_jsonb(ARRAY[COALESCE(NULLIF(btrim(l.lot_id),''), l.nocopk::text)])::text,
       l.strain_id,
-      p_note
+      NULLIF(btrim(COALESCE(p_note, '')), '')
     FROM public.lots l
     WHERE l.nocopk = v_lot_id
     RETURNING nocopk INTO v_product_id;
 
-    -- Materialize products.process_type_mat if the column exists
     IF EXISTS (
       SELECT 1
       FROM information_schema.columns
       WHERE table_schema = 'public'
-        AND table_name   = 'products'
-        AND column_name  = 'process_type_mat'
+        AND table_name = 'products'
+        AND column_name = 'process_type_mat'
     ) THEN
       IF EXISTS (
         SELECT 1
         FROM information_schema.columns
         WHERE table_schema = 'public'
-          AND table_name   = 'lots'
-          AND column_name  = 'process_type_mat'
+          AND table_name = 'lots'
+          AND column_name = 'process_type_mat'
       ) THEN
         UPDATE public.products p
         SET process_type_mat = (
@@ -1308,8 +1310,8 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE table_schema = 'public'
-          AND table_name   = 'lots'
-          AND column_name  = 'process_type'
+          AND table_name = 'lots'
+          AND column_name = 'process_type'
       ) THEN
         UPDATE public.products p
         SET process_type_mat = (
@@ -1321,22 +1323,12 @@ BEGIN
       END IF;
     END IF;
 
+    PERFORM public.mp_product_set_storage_location(v_product_id, v_storage_location_id);
 
-    -- Set product storage location (user-selected)
-    BEGIN
-      PERFORM public.mp_product_set_storage_location(v_product_id, v_storage_location_id);
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    INSERT INTO public._m2m_products_lots_origin_lots (products_id, lots_id)
+    VALUES (v_product_id, v_lot_id)
+    ON CONFLICT DO NOTHING;
 
-    -- Link product <-> origin lot
-    BEGIN
-      INSERT INTO public._m2m_products_lots_origin_lots (products_id, lots_id)
-      VALUES (v_product_id, v_lot_id)
-      ON CONFLICT DO NOTHING;
-    EXCEPTION WHEN undefined_table THEN NULL;
-    END;
-
-    -- Mark source lot as Consumed (status + location)
     UPDATE public.lots
     SET
       status = 'Consumed',
@@ -1344,56 +1336,45 @@ BEGIN
       ui_error_at = NULL
     WHERE nocopk = v_lot_id;
 
-    BEGIN
-      PERFORM public.mp_lot_set_location_by_name(v_lot_id, 'Consumed');
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    PERFORM public.mp_lot_set_location_by_name(v_lot_id, 'Consumed');
 
-    -- Event for packaging (includes derived weights/use_by and consumption)
     v_fields := jsonb_build_object(
-      'action','Package',
+      'action', 'Package',
+      'source_lot_id', v_lot_id_text,
       'derived_item_category', v_item_category_mat,
       'net_weight_g', v_net_g,
       'net_weight_oz', v_net_oz,
       'pack_date', v_pack_date,
       'use_by', v_use_by,
-      'package_count', p_package_count,
-      'package_size_g', p_package_size_g,
+      'package_count', 1,
+      'package_size_g', v_net_g,
+      'legacy_requested_package_size_g', p_package_size_g,
       'product_storage_location_id', v_storage_location_id,
       'product_storage_location', v_storage_location_name,
       'source_lot_status', 'Consumed',
       'source_lot_location', 'Consumed',
-      'note', p_note
+      'note', NULLIF(btrim(COALESCE(p_note, '')), '')
     );
-    BEGIN
-      v_event_id := public.mp_events_insert(
-        v_lot_id::bigint,
-        v_product_id::bigint,
-        'Package'::text,
-        COALESCE(p_timestamp, now())::timestamp,
-        p_operator::text,
-        p_station::text,
-        v_fields::jsonb
-      );
-      BEGIN
-        PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
 
-    -- Print job
-    BEGIN
-      PERFORM public.mp_print_queue_enqueue(
-        'product'::text,
-        'Product_Package'::text,
-        v_lot_id,
-        v_product_id,
-        NULL::bigint,
-        'Queued'::text
-      );
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    v_event_id := public.mp_events_insert(
+      v_lot_id::bigint,
+      v_product_id::bigint,
+      'Package'::text,
+      v_ts,
+      p_operator::text,
+      p_station::text,
+      v_fields::jsonb
+    );
+    PERFORM public.mp_events_link_lot(v_event_id, v_lot_id);
+
+    PERFORM public.mp_print_queue_enqueue(
+      'product'::text,
+      'Product_Package'::text,
+      v_lot_id,
+      v_product_id,
+      NULL::bigint,
+      'Queued'::text
+    );
 
     v_counter := v_counter + 1;
   END LOOP;
@@ -1401,7 +1382,6 @@ BEGIN
   RETURN v_counter;
 END;
 $$;
-
 
 -- DRAW SYRINGES: create lc_syringe lots from a single lc_flask lot, decrement source remaining_volume_ml, events + print jobs
 
