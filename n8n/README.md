@@ -169,10 +169,13 @@ When a product is assigned:
 
 ##### `/fulfillment/orders/list`
 Returns:
-- orders needing product assignment
+- fulfillment-ready orders needing product assignment
+- fully assigned market orders that still need reconciliation
+- completed orders for audit/history when no order-date filter is supplied
 - supports:
-  - farmers market (reconciled)
+  - farmers market orders
   - website orders (paid)
+  - optional review inclusion for unassigned pending/needs-review market orders
 
 ##### `/fulfillment/order/detail`
 Returns:

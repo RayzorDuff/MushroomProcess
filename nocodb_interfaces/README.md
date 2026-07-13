@@ -132,7 +132,9 @@ The Fulfillment interface is responsible for assigning exact inventory products 
 5. Assign exact inventory products.
 6. Assigned products automatically transition to `Shipped`.
 
-Orders disappear from the fulfillment queue once all required products are linked.
+Orders remain visible after all required products are linked so reconciliation and historical review can continue. Product-assignment controls are disabled for completed assignments, and reconciliation controls are disabled after reconciliation is complete.
+
+The Order Date filter is blank by default. Selecting a date limits the order table to that calendar date; clearing the date restores the all-date view.
 
 ###### Market Order Handling
 
@@ -150,10 +152,12 @@ clover_reconciliation_status = reconciled
 clover_reconciliation_status IN ('pending', 'needs_review')
 ```
 
-Visible only when:
+Unassigned reviewable orders are visible when:
 ```text
 Include Reconciliation Review = enabled
 ```
+
+A fully assigned order that still needs reconciliation remains visible even when this option is disabled.
 
 ### Accounted Orders
 
