@@ -1,3 +1,200 @@
+## [v1.1.0-RC5] - 2026-07-13
+
+_This release is the feature-completion candidate for the Appsmith/Postgres implementation. It builds on the RC4 parity pass by adding recipe-component tracking, complete all-in-one lifecycle support, freeze-dried sample packaging and labeling, audited print-queue management, and another round of fixes across Products, Harvest, Inoculate, Fulfillment, packaging, and label generation._
+
+---
+
+## Release-candidate scope and validation
+
+- Completed and halted the RC4 test matrix after identifying the remaining feature-completion work targeted by RC5.
+- Refreshed the Airtable schema, generated Postgres SQL, computed views, load files, and Appsmith export for the RC5 test candidate.
+- Added an RC5 release gate to the packaging smoke-test suite.
+- Expanded repeatable validation coverage for:
+  - sterilizer recipe-component creation,
+  - all-in-one lifecycle and packaging,
+  - liquid and solid inoculation source modes,
+  - multi-lot packaging,
+  - freeze-dried packaging,
+  - drawn-syringe labels,
+  - mixed harvest outputs,
+  - product tray lifecycle actions,
+  - print-queue actions,
+  - fulfillment order visibility.
+- Added a documented test procedure for validating the n8n workflows used by the Appsmith/Postgres implementation.
+
+---
+
+## Recipe-component migration and lot composition
+
+- Added `item_recipe_components` and `lot_recipe_components` to the Airtable schema and generated Postgres model.
+- Added Airtable automation support for creating lot recipe-component rows.
+- Added Sterilizer OUT component-set matching so the correct component set is selected from the planned item, recipe, process type, and unit size.
+- Updated Postgres Sterilizer OUT logic to create recipe-component rows for generated lots.
+- Added component-mode smoke testing for generated sterilizer lots.
+- Corrected generated relationship and migration artifacts for recipe components.
+- Removed invalid exported `lot_recipe_components` rows that did not reference a lot.
+- Removed a duplicate `CASING_PEAT` item from the source schema and regenerated the migration artifacts.
+- Hardened generated imports with stricter ID validation, text-formula compilation fixes, relationship cleanup, and safer load behavior.
+
+---
+
+## All-in-one lifecycle support
+
+- Added full all-in-one bag lifecycle support across Airtable, Postgres, Appsmith, labels, and tests.
+- All-in-one bags can now:
+  - be created from matched recipe-component sets during Sterilizer OUT,
+  - be inoculated directly,
+  - receive casing,
+  - move through the applicable lot lifecycle,
+  - be packaged/productized through the Appsmith interface.
+- Added all-in-one label handling to the print queue and print daemon.
+- Added Appsmith workflow support for all-in-one lifecycle operations.
+- Fixed Appsmith component selection so complete component sets are selected rather than partial matches.
+- Added all-in-one package/productize support and aligned created products with the current Products schema.
+- Added all-in-one lifecycle and package smoke tests, including support for formatted pound values in generated labels.
+
+---
+
+## Freeze-dried packaging redesign
+
+- Redesigned the freeze-dried packaging workflow in Appsmith and Postgres.
+- Reworked the modal state so package item, package size, package class, source trays, quantity, and summary remain synchronized.
+- Added a package-size selector backed by supported package sizes rather than free-form entry.
+- Wired the package-size selector into the Postgres packaging action.
+- Source freezer trays are consumed after successful packaging.
+- Products refresh after package completion.
+- Default package use-by dates are applied when no override is provided.
+- Origin-lot resolution failures now produce explicit validation errors rather than failing silently.
+- Package actions retain source lineage, package class, strain context, and package event links.
+- Multi-lot packaging now packages each selected lot independently instead of treating all selected lots as one combined source.
+- Added smoke testing for multiple-lot packaging and freeze-dried package behavior.
+
+---
+
+## Sample packaging and labels
+
+- Added schema, automation, Appsmith, and print-daemon support for freeze-dried **Sample** packages.
+- Sample packaging supports the configured package sizes, including 1 g, 5 g, and 1 oz where defined by item/package configuration.
+- `package_class = Sample` is carried into created products.
+- Sample packaging is not restricted only to regulated strains.
+- Added sample-specific label fields and materialized schema output.
+- Updated company-address handling to use the product label company-address base field.
+- Improved sample label readability:
+  - enlarged disclaimer text,
+  - moved sample font-size controls into `.env.example`,
+  - resized lower-label content for better readability.
+- Added regulated and non-regulated sample-label handling in the print daemon.
+- Kept label configuration externally adjustable through print-daemon environment settings.
+
+---
+
+## Draw Syringes label parity
+
+- Populated generated syringe lot label fields during Draw Syringes.
+- Corrected title/subtitle content for drawn LC syringe labels.
+- Added a dedicated drawn-syringe label smoke test.
+- Preserved the selected syringe item and source-lot context in generated lots and print jobs.
+
+---
+
+## Products and tray lifecycle parity
+
+- Finished tray lifecycle event auditing for:
+  - move to freeze dryer,
+  - retire,
+  - spoil,
+  - compost.
+- Tray actions now require the expected lifecycle audit events.
+- Updated Products-page UI behavior around tray actions and refreshed state.
+- Added repeatable product tray-action smoke tests.
+- Continued alignment of tray locations, terminal states, event links, and UI result handling.
+
+---
+
+## Harvest and Inoculate hardening
+
+- Fixed standalone Harvest state so state resets by selected lot.
+- Preserved the selected Harvest lot during table row events and refreshes.
+- Added mixed fresh/freezer harvest-output smoke testing.
+- Cleared stale Inoculate source and target state when the source mode or selection changes.
+- Added smoke coverage for both liquid and solid inoculation source modes.
+- Continued enforcing the different volume/eligibility rules for LC and solid sources.
+
+---
+
+## Fulfillment reconciliation visibility
+
+- Kept completed fulfillment orders visible when they still require reconciliation or review.
+- Added smoke testing for fulfillment order visibility.
+- Updated the PGSQL and Airtable Fulfillment API workflows consistently.
+
+---
+
+## Audited print-queue management
+
+- Added a new Appsmith **Print Queue** page.
+- Added Postgres helper functions in `011_print_queue_actions.sql`.
+- The page provides audited queue-management actions for operators, including controlled retry/cancel/reset-style queue operations supported by the backend.
+- Organized the print-queue widgets and page JavaScript into maintainable sections.
+- Added print-queue action smoke tests.
+- Updated the print daemon and documentation for the expanded queue data and label behavior.
+
+---
+
+## Appsmith improvements
+
+- Refreshed the Appsmith project after RC4 testing.
+- Added or completed Appsmith UI support for:
+  - all-in-one lifecycle actions,
+  - all-in-one packaging/productization,
+  - redesigned freeze-dried packaging,
+  - package-size selection,
+  - audited print-queue management.
+- Corrected Sterilizer IN success reporting so the created sterilizer-run identifier is displayed.
+- Continued tightening page refresh behavior, modal state, selection handling, and workflow summaries.
+
+---
+
+## Schema, formulas, and generated import fixes
+
+- Updated the Airtable schema with:
+  - recipe-component tables,
+  - sample-label fields,
+  - package-related fields,
+  - all-in-one support fields.
+- Improved the Airtable-to-Postgres generator:
+  - validates imported IDs,
+  - compiles Airtable text formulas more safely,
+  - generates updated link and computed-view definitions,
+  - handles recipe-component relationships,
+  - produces hardened SQL imports and load files.
+- Refreshed the field map and generated exports for the RC5 schema.
+
+---
+
+## Issues addressed or materially advanced
+
+This release includes work associated with the following RC5 parity and feature-completion issues:
+
+- `#36` Harvest tray creation / tray behavior.
+- `#37` Fulfillment and reconciliation parity.
+- `#56` Harvest defaults, stale state, and single-lot behavior.
+- `#59` Inoculation source-mode and stale-state handling.
+- `#60` Drawn LC syringe label title/subtitle behavior.
+- `#61`–`#65` freeze-dried package lineage, events, use-by behavior, tray consumption, and product lifecycle events.
+- `#66` all-in-one workflow support.
+- `#67` completed fulfillment order visibility.
+- `#68` freeze-dried sample packaging and labeling.
+- `#69` package summary and independent multi-lot packaging behavior.
+- `#70` Products tray-action auditing, refresh, and operator feedback.
+- Recipe-component and all-in-one changes also advance the remaining parity work related to Spawn to Bulk, treatments, and generated-lot composition.
+
+---
+
+## Summary
+
+`v1.1.0-RC5` is the feature-completion release candidate for the Appsmith/Postgres migration. It adds recipe-component tracking, complete all-in-one workflows, sample packaging and labels, a redesigned freeze-dried packaging flow, independent multi-lot packaging, audited print-queue management, and expanded smoke-test coverage. It also resolves another set of RC4 findings across Products, Harvest, Inoculate, Fulfillment, labeling, imports, and generated Postgres schema behavior.
+
 ## [v1.1.0-RC4] - 2026-06-18
 
 _This release is the next release candidate for validating the Appsmith/Postgres implementation against the Airtable production baseline. It focuses on RC3 test findings and parity tickets: import/sanitization fixes, Appsmith deployment/runtime fixes, fulfillment reconciliation behavior, lab/sterilizer/harvest/spawn validation, product lifecycle events, freeze-dried package lineage, and print-routing correctness._
