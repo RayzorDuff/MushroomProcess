@@ -2283,7 +2283,12 @@ END;
 $$;
 
 
--- PACKAGE FREEZE DRIED (basic): create packaged product(s) from selected freeze tray products, link via merge_tray_products, events + print jobs
+-- PACKAGE FREEZE DRIED: create packaged products from selected freezer trays,
+-- preserve source-product/origin-lot lineage, log one operation event, and queue labels.
+DROP FUNCTION IF EXISTS public.mp_products_package_freeze_dried_basic(
+  bigint[], bigint, numeric, numeric, bigint, date, text, text, date, text
+);
+
 CREATE OR REPLACE FUNCTION public.mp_products_package_freeze_dried_basic(
   p_source_product_ids bigint[],
   p_package_item_id bigint,
@@ -2294,7 +2299,8 @@ CREATE OR REPLACE FUNCTION public.mp_products_package_freeze_dried_basic(
   p_operator text,
   p_station text DEFAULT 'Products',
   p_pack_date date DEFAULT NULL,
-  p_notes text DEFAULT NULL
+  p_notes text DEFAULT NULL,
+  p_package_class text DEFAULT 'Retail'
 )
 RETURNS integer
 LANGUAGE plpgsql
@@ -2312,18 +2318,28 @@ DECLARE
     )
   );
   v_src_id bigint;
-  v_new_product_id bigint;
+  v_created_product_id bigint;
+  v_first_created_product_id bigint;
   v_event_id bigint;
   v_counter integer := 0;
   v_requested_count integer;
+  v_selected_source_count integer;
+  v_invalid_source_count integer;
   v_total_source_weight_g numeric;
   v_required_weight_g numeric;
+  v_normalized_package_size_g numeric;
+  v_package_size text;
+  v_package_class text;
   v_package_item_category text;
   v_package_item_name text;
-  v_source_product_ids_json text;
+  v_package_item_business_id text;
+  v_source_product_business_ids text[];
+  v_created_product_ids bigint[] := ARRAY[]::bigint[];
+  v_created_product_business_ids text[];
   v_origin_lot_ids bigint[];
   v_origin_lot_id bigint;
   v_origin_lot_ids_json text;
+  v_origin_lot_business_ids text[];
   v_strain_id bigint;
   v_strain_count integer;
   v_use_by date;
@@ -2331,38 +2347,95 @@ BEGIN
   IF p_source_product_ids IS NULL OR array_length(p_source_product_ids,1) IS NULL THEN
     RAISE EXCEPTION 'At least one source product required';
   END IF;
-  IF p_package_item_id IS NULL THEN RAISE EXCEPTION 'Package item required'; END IF;
-  IF p_package_size_g IS NULL OR p_package_size_g <= 0 THEN RAISE EXCEPTION 'package_size_g must be > 0'; END IF;
-  IF p_package_count IS NULL OR p_package_count <= 0 THEN RAISE EXCEPTION 'package_count must be > 0'; END IF;
-  IF v_loc_id IS NULL THEN RAISE EXCEPTION 'Storage location is required'; END IF;
+  IF p_package_item_id IS NULL THEN
+    RAISE EXCEPTION 'Package item required';
+  END IF;
+  IF p_package_size_g IS NULL OR p_package_size_g <= 0 THEN
+    RAISE EXCEPTION 'Package size must be greater than zero';
+  END IF;
+  IF p_package_count IS NULL OR p_package_count <= 0 THEN
+    RAISE EXCEPTION 'Package count must be greater than zero';
+  END IF;
+  IF v_loc_id IS NULL THEN
+    RAISE EXCEPTION 'Storage location is required';
+  END IF;
 
   v_requested_count := p_package_count::integer;
   IF v_requested_count::numeric <> p_package_count THEN
-    RAISE EXCEPTION 'package_count must be a whole number';
+    RAISE EXCEPTION 'Package count must be a whole number';
   END IF;
 
-  SELECT i.category, i.name
-  INTO v_package_item_category, v_package_item_name
+  v_package_class := CASE lower(btrim(COALESCE(p_package_class, 'Retail')))
+    WHEN 'retail' THEN 'Retail'
+    WHEN 'sample' THEN 'Sample'
+    ELSE NULL
+  END;
+  IF v_package_class IS NULL THEN
+    RAISE EXCEPTION 'Package class must be Retail or Sample';
+  END IF;
+
+  -- Normalize the supported schema choices. The base products table stores the
+  -- human-readable selector value; vc_products derives package_size_g from it.
+  IF abs(p_package_size_g - 1) <= 0.01 THEN
+    v_normalized_package_size_g := 1;
+    v_package_size := '1 g';
+  ELSIF abs(p_package_size_g - 5) <= 0.01 THEN
+    v_normalized_package_size_g := 5;
+    v_package_size := '5 g';
+  ELSIF abs(p_package_size_g - 10) <= 0.01 THEN
+    v_normalized_package_size_g := 10;
+    v_package_size := '10 g';
+  ELSIF abs(p_package_size_g - 28.349523125) <= 0.02 THEN
+    v_normalized_package_size_g := 28.349523125;
+    v_package_size := '1 oz';
+  ELSE
+    RAISE EXCEPTION 'Unsupported package size: % g. Use 1 g, 5 g, 10 g, or 1 oz (28.35 g).', p_package_size_g;
+  END IF;
+
+  SELECT i.category, i.name, i.item_id
+  INTO v_package_item_category, v_package_item_name, v_package_item_business_id
   FROM public.items i
-  WHERE i.nocopk = p_package_item_id;
+  WHERE i.nocopk = p_package_item_id
+    AND COALESCE(i.active, true);
 
   IF v_package_item_category IS NULL THEN
-    RAISE EXCEPTION 'Package item not found: %', p_package_item_id;
+    RAISE EXCEPTION 'Active package item not found: %', p_package_item_id;
   END IF;
 
-  SELECT COALESCE(sum(p.net_weight_g), 0)
-  INTO v_total_source_weight_g
+  IF lower(COALESCE(v_package_item_category, '')) NOT IN (
+    'freezedriedmushrooms',
+    'freeze_dried',
+    'freeze_dried_packaged'
+  ) THEN
+    RAISE EXCEPTION 'Selected package item is not a freeze-dried product item: %', v_package_item_business_id;
+  END IF;
+
+  SELECT
+    count(*),
+    count(*) FILTER (WHERE lower(COALESCE(p.item_category_mat, '')) <> 'freezer_tray'),
+    COALESCE(sum(p.net_weight_g), 0),
+    COALESCE(array_agg(p.product_id ORDER BY p.nocopk), ARRAY[]::text[])
+  INTO
+    v_selected_source_count,
+    v_invalid_source_count,
+    v_total_source_weight_g,
+    v_source_product_business_ids
   FROM public.products p
   WHERE p.nocopk = ANY(p_source_product_ids);
 
-  v_required_weight_g := p_package_size_g * v_requested_count;
-
-  IF v_total_source_weight_g < v_required_weight_g THEN
-    RAISE EXCEPTION 'Selected source products have % g available, but % g is required for % package(s) of % g.',
-      v_total_source_weight_g, v_required_weight_g, v_requested_count, p_package_size_g;
+  IF v_selected_source_count <> array_length(p_source_product_ids, 1) THEN
+    RAISE EXCEPTION 'One or more selected source products are missing or duplicated';
+  END IF;
+  IF v_invalid_source_count > 0 THEN
+    RAISE EXCEPTION 'Package Freeze Dried accepts freezer tray products only';
   END IF;
 
-  v_source_product_ids_json := to_jsonb(p_source_product_ids)::text;
+  v_required_weight_g := v_normalized_package_size_g * v_requested_count;
+  IF v_total_source_weight_g < v_required_weight_g THEN
+    RAISE EXCEPTION 'Selected source products have % g available, but % g is required for % package(s) of %.',
+      v_total_source_weight_g, v_required_weight_g, v_requested_count, v_package_size;
+  END IF;
+
 
   SELECT COALESCE(array_agg(DISTINCT lot_id ORDER BY lot_id), ARRAY[]::bigint[])
   INTO v_origin_lot_ids
@@ -2406,16 +2479,17 @@ BEGIN
     RAISE EXCEPTION 'Selected source products contain multiple strains; package one strain at a time.';
   END IF;
 
-  SELECT COALESCE(jsonb_agg(COALESCE(NULLIF(btrim(l.lot_id), ''), l.nocopk::text) ORDER BY l.nocopk), '[]'::jsonb)::text
-  INTO v_origin_lot_ids_json
+  SELECT
+    COALESCE(jsonb_agg(COALESCE(NULLIF(btrim(l.lot_id), ''), l.nocopk::text) ORDER BY l.nocopk), '[]'::jsonb)::text,
+    COALESCE(array_agg(COALESCE(NULLIF(btrim(l.lot_id), ''), l.nocopk::text) ORDER BY l.nocopk), ARRAY[]::text[])
+  INTO v_origin_lot_ids_json, v_origin_lot_business_ids
   FROM public.lots l
   WHERE l.nocopk = ANY(v_origin_lot_ids);
 
   v_use_by := COALESCE(p_use_by, (v_pack_date + interval '2 years')::date);
 
-  -- Create one package product per requested package. Each package can be linked
-  -- to one or more source tray products, allowing multiple harvest trays to make
-  -- up a single package or package run.
+  -- Create one product per physical package and retain the canonical item while
+  -- storing package size and class explicitly on each product.
   FOR v_counter IN 1..v_requested_count LOOP
     INSERT INTO public.products(
       item_id,
@@ -2426,8 +2500,9 @@ BEGIN
       net_volume_ml,
       pack_date,
       use_by,
+      package_class,
       package_item_id,
-      package_size_g,
+      package_size,
       package_count,
       storage_location_id,
       origin_lot_ids_json,
@@ -2437,30 +2512,34 @@ BEGIN
     VALUES(
       p_package_item_id,
       v_package_item_name,
-      COALESCE(NULLIF(v_package_item_category, ''), 'freeze_dried_packaged'),
-      p_package_size_g,
-      p_package_size_g / 28.349523125,
+      COALESCE(NULLIF(v_package_item_category, ''), 'freezedriedmushrooms'),
+      v_normalized_package_size_g,
+      v_normalized_package_size_g / 28.349523125,
       NULL,
       v_pack_date,
       v_use_by,
+      v_package_class,
       p_package_item_id,
-      p_package_size_g,
+      v_package_size,
       1,
       v_loc_id,
       COALESCE(v_origin_lot_ids_json, '[]'),
       v_strain_id,
       NULLIF(p_notes, '')
     )
-    RETURNING nocopk INTO v_new_product_id;
+    RETURNING nocopk INTO v_created_product_id;
+
+    v_created_product_ids := array_append(v_created_product_ids, v_created_product_id);
+    v_first_created_product_id := COALESCE(v_first_created_product_id, v_created_product_id);
 
     -- Materialize products.process_type_mat if the column exists. For merged
-    -- source trays, prefer the single shared source process type when present.
+    -- source trays, retain the single shared source process type when present.
     IF EXISTS (
       SELECT 1
       FROM information_schema.columns
       WHERE table_schema = 'public'
-        AND table_name   = 'products'
-        AND column_name  = 'process_type_mat'
+        AND table_name = 'products'
+        AND column_name = 'process_type_mat'
     ) THEN
       BEGIN
         UPDATE public.products p
@@ -2472,90 +2551,88 @@ BEGIN
           FROM public.products psrc
           WHERE psrc.nocopk = ANY(p_source_product_ids)
         )
-        WHERE p.nocopk = v_new_product_id;
+        WHERE p.nocopk = v_created_product_id;
       EXCEPTION WHEN undefined_column THEN NULL;
       END;
     END IF;
 
-    -- Link all selected source tray products to the new packaged product.
     FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
       INSERT INTO public._m2m_products_products_merge_tray_products(products_id, products1_id)
-      VALUES (v_new_product_id, v_src_id)
+      VALUES (v_created_product_id, v_src_id)
       ON CONFLICT DO NOTHING;
     END LOOP;
 
     FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
       INSERT INTO public._m2m_products_lots_origin_lots(products_id, lots_id)
-      VALUES (v_new_product_id, v_origin_lot_id)
+      VALUES (v_created_product_id, v_origin_lot_id)
       ON CONFLICT DO NOTHING;
     END LOOP;
 
     IF v_strain_id IS NOT NULL THEN
       BEGIN
         INSERT INTO public._m2m_products_strains_strain_id(products_id, strains_id)
-        VALUES (v_new_product_id, v_strain_id)
+        VALUES (v_created_product_id, v_strain_id)
         ON CONFLICT DO NOTHING;
       EXCEPTION WHEN undefined_table THEN NULL;
       END;
     END IF;
 
-    -- Set product location through the helper as well, so canonical FK and
-    -- compatibility link tables stay synchronized in older schemas.
-    BEGIN
-      PERFORM public.mp_product_set_storage_location(v_new_product_id, v_loc_id);
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+    PERFORM public.mp_product_set_storage_location(v_created_product_id, v_loc_id);
 
-    -- Event
-    BEGIN
-      v_event_id := public.mp_events_insert(
-        p_lot_id => NULL::bigint,
-        p_product_id => v_new_product_id,
-        p_type => 'Package Freeze Dried'::text,
-        p_timestamp => v_pack_date::timestamp,
-        p_operator => COALESCE(p_operator,'')::text,
-        p_station => COALESCE(p_station,'Products')::text,
-        p_fields_json => jsonb_build_object(
-          'source_product_ids', p_source_product_ids,
-          'package_product_id', v_new_product_id,
-          'origin_lot_ids', COALESCE(v_origin_lot_ids, ARRAY[]::bigint[]),
-          'strain_id', v_strain_id,
-          'package_index', v_counter - 1,
-          'package_size_g', p_package_size_g,
-          'package_count', v_requested_count,
-          'total_required_weight_g', v_required_weight_g,
-          'selected_source_weight_g', v_total_source_weight_g,
-          'pack_date', v_pack_date,
-          'use_by', v_use_by,
-          'notes', p_notes
-        )
-      );
+    PERFORM public.mp_print_queue_enqueue(
+      'product'::text,
+      'Product_Package'::text,
+      NULL::bigint,
+      v_created_product_id,
+      NULL::bigint,
+      'Queued'::text
+    );
+  END LOOP;
 
-      BEGIN
-        PERFORM public.mp_events_link_product(v_event_id, v_new_product_id);
-        FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
-          PERFORM public.mp_events_link_product(v_event_id, v_src_id);
-        END LOOP;
-        FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
-          PERFORM public.mp_events_link_lot(v_event_id, v_origin_lot_id);
-        END LOOP;
-      EXCEPTION WHEN undefined_function THEN NULL;
-      END;
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+  SELECT COALESCE(array_agg(p.product_id ORDER BY p.nocopk), ARRAY[]::text[])
+  INTO v_created_product_business_ids
+  FROM public.products p
+  WHERE p.nocopk = ANY(v_created_product_ids);
 
-    -- Print job
-    BEGIN
-      PERFORM public.mp_print_queue_enqueue(
-        'product'::text,
-        'Product_Package'::text,
-        NULL::bigint,
-        v_new_product_id,
-        NULL::bigint,
-        'Queued'::text
-      );
-    EXCEPTION WHEN undefined_function THEN NULL;
-    END;
+  -- One event represents the packaging operation and links all inputs, outputs,
+  -- and inherited origin lots.
+  v_event_id := public.mp_events_insert(
+    p_lot_id => NULL::bigint,
+    p_product_id => v_first_created_product_id,
+    p_type => 'Package Freeze Dried'::text,
+    p_timestamp => v_pack_date::timestamp,
+    p_operator => COALESCE(p_operator, '')::text,
+    p_station => COALESCE(p_station, 'Products')::text,
+    p_fields_json => jsonb_build_object(
+      'source_product_ids', p_source_product_ids,
+      'source_product_business_ids', v_source_product_business_ids,
+      'created_product_ids', v_created_product_ids,
+      'created_product_business_ids', v_created_product_business_ids,
+      'origin_lot_ids', COALESCE(v_origin_lot_ids, ARRAY[]::bigint[]),
+      'origin_lot_business_ids', COALESCE(v_origin_lot_business_ids, ARRAY[]::text[]),
+      'strain_id', v_strain_id,
+      'package_item_id', p_package_item_id,
+      'package_item_business_id', v_package_item_business_id,
+      'package_class', v_package_class,
+      'package_size', v_package_size,
+      'package_size_g', v_normalized_package_size_g,
+      'package_count', v_requested_count,
+      'total_packaged_weight_g', v_required_weight_g,
+      'selected_source_weight_g', v_total_source_weight_g,
+      'pack_date', v_pack_date,
+      'use_by', v_use_by,
+      'notes', p_notes
+    )
+  );
+
+  FOREACH v_created_product_id IN ARRAY v_created_product_ids LOOP
+    PERFORM public.mp_events_link_product(v_event_id, v_created_product_id);
+  END LOOP;
+  FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
+    PERFORM public.mp_events_link_product(v_event_id, v_src_id);
+  END LOOP;
+  FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
+    PERFORM public.mp_events_link_lot(v_event_id, v_origin_lot_id);
   END LOOP;
 
   RETURN v_requested_count;

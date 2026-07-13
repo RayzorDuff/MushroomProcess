@@ -36532,9 +36532,6 @@
                             },
                             {
                               "key": "borderRadius"
-                            },
-                            {
-                              "key": "defaultText"
                             }
                           ],
                           "leftColumn": 0,
@@ -36542,10 +36539,10 @@
                           "labelPosition": "Top",
                           "labelStyle": "",
                           "inputType": "NUMBER",
-                          "isDisabled": true,
+                          "isDisabled": false,
                           "key": "4ebc629ov3",
                           "labelTextSize": "0.875rem",
-                          "isRequired": false,
+                          "isRequired": true,
                           "rightColumn": 17,
                           "dynamicHeight": "FIXED",
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -36553,7 +36550,7 @@
                           "showStepArrows": false,
                           "minWidth": 450,
                           "isVisible": true,
-                          "label": "Package Size from Item (g)",
+                          "label": "Package Size (g): 1, 5, 10, or 28.35",
                           "version": 2,
                           "parentId": "1e2zvi3n36",
                           "isLoading": false,
@@ -36566,7 +36563,7 @@
                           "maxDynamicHeight": 9000,
                           "shouldAllowAutofill": false,
                           "iconAlign": "left",
-                          "defaultText": "{{\n  ProductsPage.freezeDriedPackageItemSizeG() || \"\"\n}}",
+                          "defaultText": "5",
                           "minDynamicHeight": 4
                         },
                         {
@@ -36600,7 +36597,7 @@
                           "isDisabled": false,
                           "key": "4ebc629ov3",
                           "labelTextSize": "0.875rem",
-                          "isRequired": false,
+                          "isRequired": true,
                           "rightColumn": 30,
                           "dynamicHeight": "FIXED",
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -36621,7 +36618,7 @@
                           "maxDynamicHeight": 9000,
                           "shouldAllowAutofill": false,
                           "iconAlign": "left",
-                          "defaultText": "",
+                          "defaultText": "1",
                           "minDynamicHeight": 4
                         },
                         {
@@ -36937,7 +36934,7 @@
                             }
                           ],
                           "bottomRow": 15,
-                          "labelText": "Package Item",
+                          "labelText": "Package Item / Class",
                           "topRow": 8,
                           "parentRowSpace": 10,
                           "labelWidth": 5,
@@ -36971,9 +36968,9 @@
                           ],
                           "leftColumn": 30,
                           "labelPosition": "Top",
-                          "placeholderText": "Select package item",
+                          "placeholderText": "Select package item and class",
                           "isDisabled": "{{ !(qFreezeDriedPackageItems.data || []).length }}",
-                          "sourceData": "{{ (qFreezeDriedPackageItems.data || []).map(i => ({ label: i.label || `${i.name || i.item_id || i.nocopk}`, value: i.nocopk })) }}",
+                          "sourceData": "{{ ProductsPage.freezeDriedPackageItemOptions() }}",
                           "key": "z0iydu4cku",
                           "labelTextSize": "0.875rem",
                           "isRequired": true,
@@ -39731,9 +39728,6 @@
                             },
                             {
                               "key": "borderRadius"
-                            },
-                            {
-                              "key": "defaultText"
                             }
                           ],
                           "leftColumn": 0,
@@ -39741,10 +39735,10 @@
                           "labelPosition": "Top",
                           "labelStyle": "",
                           "inputType": "NUMBER",
-                          "isDisabled": true,
+                          "isDisabled": false,
                           "key": "4ebc629ov3",
                           "labelTextSize": "0.875rem",
-                          "isRequired": false,
+                          "isRequired": true,
                           "rightColumn": 17,
                           "dynamicHeight": "FIXED",
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -39752,7 +39746,7 @@
                           "showStepArrows": false,
                           "minWidth": 450,
                           "isVisible": true,
-                          "label": "Package Size from Item (g)",
+                          "label": "Package Size (g): 1, 5, 10, or 28.35",
                           "version": 2,
                           "parentId": "1e2zvi3n36",
                           "isLoading": false,
@@ -39765,7 +39759,7 @@
                           "maxDynamicHeight": 9000,
                           "shouldAllowAutofill": false,
                           "iconAlign": "left",
-                          "defaultText": "{{\n  ProductsPage.freezeDriedPackageItemSizeG() || \"\"\n}}",
+                          "defaultText": "5",
                           "minDynamicHeight": 4
                         },
                         {
@@ -39799,7 +39793,7 @@
                           "isDisabled": false,
                           "key": "4ebc629ov3",
                           "labelTextSize": "0.875rem",
-                          "isRequired": false,
+                          "isRequired": true,
                           "rightColumn": 30,
                           "dynamicHeight": "FIXED",
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -39820,7 +39814,7 @@
                           "maxDynamicHeight": 9000,
                           "shouldAllowAutofill": false,
                           "iconAlign": "left",
-                          "defaultText": "",
+                          "defaultText": "1",
                           "minDynamicHeight": 4
                         },
                         {
@@ -40136,7 +40130,7 @@
                             }
                           ],
                           "bottomRow": 15,
-                          "labelText": "Package Item",
+                          "labelText": "Package Item / Class",
                           "topRow": 8,
                           "parentRowSpace": 10,
                           "labelWidth": 5,
@@ -40170,9 +40164,9 @@
                           ],
                           "leftColumn": 30,
                           "labelPosition": "Top",
-                          "placeholderText": "Select package item",
+                          "placeholderText": "Select package item and class",
                           "isDisabled": "{{ !(qFreezeDriedPackageItems.data || []).length }}",
-                          "sourceData": "{{ (qFreezeDriedPackageItems.data || []).map(i => ({ label: i.label || `${i.name || i.item_id || i.nocopk}`, value: i.nocopk })) }}",
+                          "sourceData": "{{ ProductsPage.freezeDriedPackageItemOptions() }}",
                           "key": "z0iydu4cku",
                           "labelTextSize": "0.875rem",
                           "isRequired": true,
@@ -117158,7 +117152,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  if (!ProductsPage.canPackageFreezeDried()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", false);\n  const rows = tblProducts.selectedRows || [];\n  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n    return;\n  }\n  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n    return;\n  }\n  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n  inpPkgFDCount.setValue(inpPkgFDCount.text || \"1\");\n  inpPkgFDNotes.setValue(\"\");\n  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n  if (defaultPackageItemId) {\n    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n    await ProductsPage.onFreezeDriedPackageItemChanged();\n  } else {\n    await selPkgFDPackageItem.setSelectedOption(\"\");\n    await inpPkgFDSizeG.setValue(\"\");\n    showAlert(\"No active freeze-dried package item was found. Add an item with category freezedriedmushrooms.\", \"warning\");\n  }\n  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n  if (defaultLocationId) {\n    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selPkgFDLocation.setSelectedOption(\"\");\n    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n  }\n  await showModal(modalPackageFreezeDried.name);\n}",
+          "body": "async function () {\n  if (!ProductsPage.canPackageFreezeDried()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", false);\n  const rows = tblProducts.selectedRows || [];\n  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n    return;\n  }\n  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n    return;\n  }\n\n  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n  await inpPkgFDCount.setValue(\"1\");\n  await inpPkgFDSizeG.setValue(\"5\");\n  await inpPkgFDNotes.setValue(\"\");\n  await dpPkgFDUseBy.setValue(null);\n\n  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n  if (defaultPackageItemId) {\n    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n  } else {\n    await selPkgFDPackageItem.setSelectedOption(\"\");\n    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n  }\n\n  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n  if (defaultLocationId) {\n    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selPkgFDLocation.setSelectedOption(\"\");\n    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n  }\n\n  await showModal(modalPackageFreezeDried.name);\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -117199,7 +117193,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  if (!ProductsPage.canPackageFreezeDried()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", false);\n  const rows = tblProducts.selectedRows || [];\n  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n    return;\n  }\n  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n    return;\n  }\n  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n  inpPkgFDCount.setValue(inpPkgFDCount.text || \"1\");\n  inpPkgFDNotes.setValue(\"\");\n  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n  if (defaultPackageItemId) {\n    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n    await ProductsPage.onFreezeDriedPackageItemChanged();\n  } else {\n    await selPkgFDPackageItem.setSelectedOption(\"\");\n    await inpPkgFDSizeG.setValue(\"\");\n    showAlert(\"No active freeze-dried package item was found. Add an item with category freezedriedmushrooms.\", \"warning\");\n  }\n  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n  if (defaultLocationId) {\n    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selPkgFDLocation.setSelectedOption(\"\");\n    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n  }\n  await showModal(modalPackageFreezeDried.name);\n}",
+          "body": "async function () {\n  if (!ProductsPage.canPackageFreezeDried()) {\n    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", false);\n  const rows = tblProducts.selectedRows || [];\n  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n    return;\n  }\n  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n    return;\n  }\n\n  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n  await inpPkgFDCount.setValue(\"1\");\n  await inpPkgFDSizeG.setValue(\"5\");\n  await inpPkgFDNotes.setValue(\"\");\n  await dpPkgFDUseBy.setValue(null);\n\n  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n  if (defaultPackageItemId) {\n    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n  } else {\n    await selPkgFDPackageItem.setSelectedOption(\"\");\n    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n  }\n\n  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n  if (defaultLocationId) {\n    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n  } else {\n    await selPkgFDLocation.setSelectedOption(\"\");\n    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n  }\n\n  await showModal(modalPackageFreezeDried.name);\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -117336,7 +117330,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  const selected = selPkgFDPackageItem.selectedOptionValue;\n  return (qFreezeDriedPackageItems.data || []).find(i => String(i.nocopk) === String(selected)) || null;\n}",
+          "body": "function () {\n  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n  return (qFreezeDriedPackageItems.data || []).find(i => String(i.option_value || \"\") === selected) || null;\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -117377,7 +117371,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  const selected = selPkgFDPackageItem.selectedOptionValue;\n  return (qFreezeDriedPackageItems.data || []).find(i => String(i.nocopk) === String(selected)) || null;\n}",
+          "body": "function () {\n  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n  return (qFreezeDriedPackageItems.data || []).find(i => String(i.option_value || \"\") === selected) || null;\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -117425,7 +117419,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  const opts = ProductsPage.freezeDriedPackageItemOptions();\n  return opts[0]?.value || \"\";\n}",
+          "body": "function () {\n  const opts = ProductsPage.freezeDriedPackageItemOptions();\n  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n    || opts.find(o => o.package_class === \"Retail\")\n    || opts[0];\n  return preferred?.value || \"\";\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -117466,7 +117460,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  const opts = ProductsPage.freezeDriedPackageItemOptions();\n  return opts[0]?.value || \"\";\n}",
+          "body": "function () {\n  const opts = ProductsPage.freezeDriedPackageItemOptions();\n  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n    || opts.find(o => o.package_class === \"Retail\")\n    || opts[0];\n  return preferred?.value || \"\";\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -118048,7 +118042,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return;\n  }\n  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", true);\n  try {\n    const res = await qPackageFreezeDried.run();\n    showAlert(\"Packaged freeze dried product(s) created.\", \"success\");\n    closeModal(modalPackageFreezeDried.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_package_fd_submitting\", false);\n  }\n}",
+          "body": "async function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return;\n  }\n\n  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  if (!normalizedSizeG) {\n    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n    return;\n  }\n\n  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n    return;\n  }\n\n  await storeValue(\"products_package_fd_submitting\", true);\n  try {\n    const requestedCount = Number(inpPkgFDCount.text);\n    const res = await qPackageFreezeDried.run();\n    showAlert(\n      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n      \"success\"\n    );\n    closeModal(modalPackageFreezeDried.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_package_fd_submitting\", false);\n  }\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -118089,7 +118083,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return;\n  }\n  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n    return;\n  }\n  await storeValue(\"products_package_fd_submitting\", true);\n  try {\n    const res = await qPackageFreezeDried.run();\n    showAlert(\"Packaged freeze dried product(s) created.\", \"success\");\n    closeModal(modalPackageFreezeDried.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_package_fd_submitting\", false);\n  }\n}",
+          "body": "async function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return;\n  }\n\n  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  if (!normalizedSizeG) {\n    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n    return;\n  }\n\n  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n    return;\n  }\n\n  await storeValue(\"products_package_fd_submitting\", true);\n  try {\n    const requestedCount = Number(inpPkgFDCount.text);\n    const res = await qPackageFreezeDried.run();\n    showAlert(\n      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n      \"success\"\n    );\n    closeModal(modalPackageFreezeDried.name);\n    await ProductsPage.refresh();\n    return res;\n  } catch (e) {\n    showAlert(e?.message || String(e), \"error\");\n    return null;\n  } finally {\n    await storeValue(\"products_package_fd_submitting\", false);\n  }\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -118404,7 +118398,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return false;\n  }\n  const count = Number(inpPkgFDCount.text);\n  const sizeG = Number(inpPkgFDSizeG.text);\n  const rows = tblProducts.selectedRows || [];\n  const selectedPackageItemId = selPkgFDPackageItem.selectedOptionValue;\n  const validPackageItemIds = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n  const requiredWeightG = count * sizeG;\n  return ProductsPage.canPackageFreezeDried() && Number.isFinite(count) && count > 0 && Number.isFinite(sizeG) && sizeG > 0 && selectedWeightG >= requiredWeightG && !!selectedPackageItemId && validPackageItemIds.includes(String(selectedPackageItemId)) && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}",
+          "body": "function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return false;\n  }\n  const count = Number(inpPkgFDCount.text);\n  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  const rows = tblProducts.selectedRows || [];\n  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n  const requiredWeightG = count * Number(sizeG || 0);\n\n  return ProductsPage.canPackageFreezeDried()\n    && Number.isInteger(count)\n    && count > 0\n    && !!sizeG\n    && selectedWeightG >= requiredWeightG\n    && !!selectedPackageItem\n    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n    && validOptionValues.includes(selectedOptionValue)\n    && !!selectedLocationId\n    && validLocationIds.includes(String(selectedLocationId));\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -118445,7 +118439,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return false;\n  }\n  const count = Number(inpPkgFDCount.text);\n  const sizeG = Number(inpPkgFDSizeG.text);\n  const rows = tblProducts.selectedRows || [];\n  const selectedPackageItemId = selPkgFDPackageItem.selectedOptionValue;\n  const validPackageItemIds = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n  const requiredWeightG = count * sizeG;\n  return ProductsPage.canPackageFreezeDried() && Number.isFinite(count) && count > 0 && Number.isFinite(sizeG) && sizeG > 0 && selectedWeightG >= requiredWeightG && !!selectedPackageItemId && validPackageItemIds.includes(String(selectedPackageItemId)) && !!selectedLocationId && validLocationIds.includes(String(selectedLocationId));\n}",
+          "body": "function () {\n  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n    return false;\n  }\n  const count = Number(inpPkgFDCount.text);\n  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  const rows = tblProducts.selectedRows || [];\n  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n  const requiredWeightG = count * Number(sizeG || 0);\n\n  return ProductsPage.canPackageFreezeDried()\n    && Number.isInteger(count)\n    && count > 0\n    && !!sizeG\n    && selectedWeightG >= requiredWeightG\n    && !!selectedPackageItem\n    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n    && validOptionValues.includes(selectedOptionValue)\n    && !!selectedLocationId\n    && validLocationIds.includes(String(selectedLocationId));\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -118857,7 +118851,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function (item = ProductsPage.selectedFreezeDriedPackageItem()) {\n  if (!item) return \"\";\n  const sizeG = Number(item.default_unit_size_g);\n  if (Number.isFinite(sizeG) && sizeG > 0) {\n    return sizeG;\n  }\n  const sizeOz = Number(item.default_unit_size_oz);\n  if (Number.isFinite(sizeOz) && sizeOz > 0) {\n    return +(sizeOz * 28.349523125).toFixed(2);\n  }\n  return \"\";\n}",
+          "body": "function (value = inpPkgFDSizeG.text) {\n  const sizeG = Number(value);\n  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n  return null;\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [
             {
@@ -118904,7 +118898,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function (item = ProductsPage.selectedFreezeDriedPackageItem()) {\n  if (!item) return \"\";\n  const sizeG = Number(item.default_unit_size_g);\n  if (Number.isFinite(sizeG) && sizeG > 0) {\n    return sizeG;\n  }\n  const sizeOz = Number(item.default_unit_size_oz);\n  if (Number.isFinite(sizeOz) && sizeOz > 0) {\n    return +(sizeOz * 28.349523125).toFixed(2);\n  }\n  return \"\";\n}",
+          "body": "function (value = inpPkgFDSizeG.text) {\n  const sizeG = Number(value);\n  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n  return null;\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [
             {
@@ -119136,7 +119130,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  if (sizeG) {\n    await inpPkgFDSizeG.setValue(String(sizeG));\n  } else {\n    await inpPkgFDSizeG.setValue(\"\");\n    showAlert(\"Selected package item does not have default_unit_size_g or default_unit_size_oz.\", \"warning\");\n  }\n}",
+          "body": "async function () {\n  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n    await inpPkgFDSizeG.setValue(\"5\");\n  }\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -119177,7 +119171,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async function () {\n  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n  if (sizeG) {\n    await inpPkgFDSizeG.setValue(String(sizeG));\n  } else {\n    await inpPkgFDSizeG.setValue(\"\");\n    showAlert(\"Selected package item does not have default_unit_size_g or default_unit_size_oz.\", \"warning\");\n  }\n}",
+          "body": "async function () {\n  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n    await inpPkgFDSizeG.setValue(\"5\");\n  }\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -119314,7 +119308,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  return (qFreezeDriedPackageItems.data || []).filter(i => i && i.nocopk).map(i => ({\n    label: i.label || `${i.name || i.item_id || i.nocopk}`,\n    value: i.nocopk,\n    default_unit_size: i.default_unit_size\n  }));\n}",
+          "body": "function () {\n  return (qFreezeDriedPackageItems.data || [])\n    .filter(i => i && i.option_value && i.package_item_id)\n    .map(i => ({\n      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n      value: i.option_value,\n      package_item_id: i.package_item_id,\n      item_id: i.item_id,\n      package_class: i.package_class\n    }));\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -119355,7 +119349,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "function () {\n  return (qFreezeDriedPackageItems.data || []).filter(i => i && i.nocopk).map(i => ({\n    label: i.label || `${i.name || i.item_id || i.nocopk}`,\n    value: i.nocopk,\n    default_unit_size: i.default_unit_size\n  }));\n}",
+          "body": "function () {\n  return (qFreezeDriedPackageItems.data || [])\n    .filter(i => i && i.option_value && i.package_item_id)\n    .map(i => ({\n      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n      value: i.option_value,\n      package_item_id: i.package_item_id,\n      item_id: i.item_id,\n      package_class: i.package_class\n    }));\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": []
         },
@@ -120247,7 +120241,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": false,
-          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds()) }}::bigint[],\n  {{ ProductsPage.sql.num(selPkgFDPackageItem.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.num(inpPkgFDSizeG.text) }}::numeric,\n  {{ ProductsPage.sql.num(inpPkgFDCount.text) }}::int,\n  {{ ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.str(dpPkgFDUseBy.formattedDate) }}::date,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::date,\n  {{ ProductsPage.sql.str(inpPkgFDNotes.text || '') }}::text\n) AS created_count;",
+          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds()) }}::bigint[],\n  {{ ProductsPage.sql.num(ProductsPage.selectedFreezeDriedPackageItem()?.package_item_id) }}::bigint,\n  {{ ProductsPage.sql.num(ProductsPage.freezeDriedPackageItemSizeG()) }}::numeric,\n  {{ ProductsPage.sql.num(inpPkgFDCount.text) }}::int,\n  {{ ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.str(dpPkgFDUseBy.formattedDate) }}::date,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::date,\n  {{ ProductsPage.sql.str(inpPkgFDNotes.text || '') }}::text,\n  {{ ProductsPage.sql.str(ProductsPage.selectedFreezeDriedPackageItem()?.package_class) }}::text\n) AS created_count;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -120298,7 +120292,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": false,
-          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds()) }}::bigint[],\n  {{ ProductsPage.sql.num(selPkgFDPackageItem.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.num(inpPkgFDSizeG.text) }}::numeric,\n  {{ ProductsPage.sql.num(inpPkgFDCount.text) }}::int,\n  {{ ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.str(dpPkgFDUseBy.formattedDate) }}::date,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::date,\n  {{ ProductsPage.sql.str(inpPkgFDNotes.text || '') }}::text\n) AS created_count;",
+          "body": "SELECT public.mp_products_package_freeze_dried_basic(\n  {{ ProductsPage.sql.arrBigint(ProductsPage.selectedProductIds()) }}::bigint[],\n  {{ ProductsPage.sql.num(ProductsPage.selectedFreezeDriedPackageItem()?.package_item_id) }}::bigint,\n  {{ ProductsPage.sql.num(ProductsPage.freezeDriedPackageItemSizeG()) }}::numeric,\n  {{ ProductsPage.sql.num(inpPkgFDCount.text) }}::int,\n  {{ ProductsPage.sql.num(selPkgFDLocation.selectedOptionValue) }}::bigint,\n  {{ ProductsPage.sql.str(dpPkgFDUseBy.formattedDate) }}::date,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::date,\n  {{ ProductsPage.sql.str(inpPkgFDNotes.text || '') }}::text,\n  {{ ProductsPage.sql.str(ProductsPage.selectedFreezeDriedPackageItem()?.package_class) }}::text\n) AS created_count;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -120356,7 +120350,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT\n  i.nocopk,\n  i.item_id,\n  i.name,\n  i.category,\n  i.default_unit_size_g,\n  i.default_unit_size_oz,\n  COALESCE(i.active, true) AS active,\n  trim(\n    concat_ws(\n      ' ',\n      NULLIF(i.name, ''),\n      CASE\n        WHEN i.default_unit_size_g IS NOT NULL THEN '(' || i.default_unit_size_g::text || 'g)'\n        WHEN i.default_unit_size_oz IS NOT NULL THEN '(' || i.default_unit_size_oz::text || 'oz)'\n        ELSE NULL\n      END,\n      CASE\n        WHEN NULLIF(i.item_id, '') IS NOT NULL THEN '— ' || i.item_id\n        ELSE NULL\n      END\n    )\n  ) AS label\nFROM public.items i\nWHERE COALESCE(i.active, true)\n  AND (\n    i.category IN (\n      'freezedriedmushrooms',\n      'freeze_dried',\n      'freeze_dried_packaged'\n    )\n    OR lower(COALESCE(i.name, '')) LIKE '%freeze%dried%'\n    OR lower(COALESCE(i.item_id, '')) LIKE '%freeze%dried%'\n  )\n  AND COALESCE(i.category, '') NOT IN ('fresh_tray', 'freezer_tray')\nORDER BY\n  lower(COALESCE(i.name, '')),\n  i.default_unit_size_g NULLS LAST,\n  i.default_unit_size_oz NULLS LAST,\n  i.nocopk;",
+          "body": "SELECT\n  i.nocopk AS package_item_id,\n  i.item_id,\n  i.name,\n  i.category,\n  package_classes.package_class,\n  i.nocopk::text || '|' || package_classes.package_class AS option_value,\n  trim(\n    concat_ws(\n      ' ',\n      NULLIF(i.name, ''),\n      '— ' || package_classes.package_class,\n      CASE\n        WHEN NULLIF(i.item_id, '') IS NOT NULL THEN '— ' || i.item_id\n        ELSE NULL\n      END\n    )\n  ) AS label\nFROM public.items i\nCROSS JOIN (\n  VALUES ('Retail'::text), ('Sample'::text)\n) AS package_classes(package_class)\nWHERE COALESCE(i.active, true)\n  AND lower(COALESCE(i.category, '')) IN (\n    'freezedriedmushrooms',\n    'freeze_dried',\n    'freeze_dried_packaged'\n  )\n  AND COALESCE(i.category, '') NOT IN ('fresh_tray', 'freezer_tray')\nORDER BY\n  CASE WHEN i.item_id = 'MUSH-DRIED' THEN 0 ELSE 1 END,\n  lower(COALESCE(i.name, '')),\n  CASE package_classes.package_class WHEN 'Retail' THEN 0 ELSE 1 END,\n  i.nocopk;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -120394,7 +120388,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT\n  i.nocopk,\n  i.item_id,\n  i.name,\n  i.category,\n  i.default_unit_size_g,\n  i.default_unit_size_oz,\n  COALESCE(i.active, true) AS active,\n  trim(\n    concat_ws(\n      ' ',\n      NULLIF(i.name, ''),\n      CASE\n        WHEN i.default_unit_size_g IS NOT NULL THEN '(' || i.default_unit_size_g::text || 'g)'\n        WHEN i.default_unit_size_oz IS NOT NULL THEN '(' || i.default_unit_size_oz::text || 'oz)'\n        ELSE NULL\n      END,\n      CASE\n        WHEN NULLIF(i.item_id, '') IS NOT NULL THEN '— ' || i.item_id\n        ELSE NULL\n      END\n    )\n  ) AS label\nFROM public.items i\nWHERE COALESCE(i.active, true)\n  AND (\n    i.category IN (\n      'freezedriedmushrooms',\n      'freeze_dried',\n      'freeze_dried_packaged'\n    )\n    OR lower(COALESCE(i.name, '')) LIKE '%freeze%dried%'\n    OR lower(COALESCE(i.item_id, '')) LIKE '%freeze%dried%'\n  )\n  AND COALESCE(i.category, '') NOT IN ('fresh_tray', 'freezer_tray')\nORDER BY\n  lower(COALESCE(i.name, '')),\n  i.default_unit_size_g NULLS LAST,\n  i.default_unit_size_oz NULLS LAST,\n  i.nocopk;",
+          "body": "SELECT\n  i.nocopk AS package_item_id,\n  i.item_id,\n  i.name,\n  i.category,\n  package_classes.package_class,\n  i.nocopk::text || '|' || package_classes.package_class AS option_value,\n  trim(\n    concat_ws(\n      ' ',\n      NULLIF(i.name, ''),\n      '— ' || package_classes.package_class,\n      CASE\n        WHEN NULLIF(i.item_id, '') IS NOT NULL THEN '— ' || i.item_id\n        ELSE NULL\n      END\n    )\n  ) AS label\nFROM public.items i\nCROSS JOIN (\n  VALUES ('Retail'::text), ('Sample'::text)\n) AS package_classes(package_class)\nWHERE COALESCE(i.active, true)\n  AND lower(COALESCE(i.category, '')) IN (\n    'freezedriedmushrooms',\n    'freeze_dried',\n    'freeze_dried_packaged'\n  )\n  AND COALESCE(i.category, '') NOT IN ('fresh_tray', 'freezer_tray')\nORDER BY\n  CASE WHEN i.item_id = 'MUSH-DRIED' THEN 0 ELSE 1 END,\n  lower(COALESCE(i.name, '')),\n  CASE package_classes.package_class WHEN 'Retail' THEN 0 ELSE 1 END,\n  i.nocopk;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
