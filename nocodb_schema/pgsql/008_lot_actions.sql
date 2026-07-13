@@ -2317,6 +2317,7 @@ DECLARE
       LIMIT 1
     )
   );
+  v_consumed_location_id bigint;
   v_src_id bigint;
   v_created_product_id bigint;
   v_first_created_product_id bigint;
@@ -2325,6 +2326,7 @@ DECLARE
   v_requested_count integer;
   v_selected_source_count integer;
   v_invalid_source_count integer;
+  v_inactive_source_count integer;
   v_total_source_weight_g numeric;
   v_required_weight_g numeric;
   v_normalized_package_size_g numeric;
@@ -2358,6 +2360,17 @@ BEGIN
   END IF;
   IF v_loc_id IS NULL THEN
     RAISE EXCEPTION 'Storage location is required';
+  END IF;
+
+  SELECT l.nocopk
+  INTO v_consumed_location_id
+  FROM public.locations l
+  WHERE lower(btrim(l.name)) = 'consumed'
+  ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+  LIMIT 1;
+
+  IF v_consumed_location_id IS NULL THEN
+    RAISE EXCEPTION 'Consumed location is required to retire source freezer trays';
   END IF;
 
   v_requested_count := p_package_count::integer;
@@ -2410,14 +2423,40 @@ BEGIN
     RAISE EXCEPTION 'Selected package item is not a freeze-dried product item: %', v_package_item_business_id;
   END IF;
 
+  -- Lock source trays so two packaging operations cannot consume the same
+  -- freezer-tray inventory concurrently.
+  PERFORM 1
+  FROM public.products p
+  WHERE p.nocopk = ANY(p_source_product_ids)
+  FOR UPDATE;
+
   SELECT
     count(*),
     count(*) FILTER (WHERE lower(COALESCE(p.item_category_mat, '')) <> 'freezer_tray'),
+    count(*) FILTER (
+      WHERE COALESCE(p.net_weight_g, 0) <= 0
+         OR regexp_replace(
+              lower(COALESCE(p.tray_state::text, '')),
+              '[^a-z0-9]',
+              '',
+              'g'
+            ) IN (
+              'emptytray',
+              'consumed',
+              'compost',
+              'composted',
+              'spoiled',
+              'retired',
+              'expired',
+              'shipped'
+            )
+    ),
     COALESCE(sum(p.net_weight_g), 0),
     COALESCE(array_agg(p.product_id ORDER BY p.nocopk), ARRAY[]::text[])
   INTO
     v_selected_source_count,
     v_invalid_source_count,
+    v_inactive_source_count,
     v_total_source_weight_g,
     v_source_product_business_ids
   FROM public.products p
@@ -2428,6 +2467,9 @@ BEGIN
   END IF;
   IF v_invalid_source_count > 0 THEN
     RAISE EXCEPTION 'Package Freeze Dried accepts freezer tray products only';
+  END IF;
+  IF v_inactive_source_count > 0 THEN
+    RAISE EXCEPTION 'Package Freeze Dried accepts active freezer trays with positive remaining weight only';
   END IF;
 
   v_required_weight_g := v_normalized_package_size_g * v_requested_count;
@@ -2619,6 +2661,11 @@ BEGIN
       'package_count', v_requested_count,
       'total_packaged_weight_g', v_required_weight_g,
       'selected_source_weight_g', v_total_source_weight_g,
+      'unpackaged_source_weight_g', greatest(v_total_source_weight_g - v_required_weight_g, 0),
+      'source_tray_state_after', 'empty_tray',
+      'source_storage_location_id_after', v_consumed_location_id,
+      'source_storage_location_after', 'Consumed',
+      'source_net_weight_g_after', 0,
       'pack_date', v_pack_date,
       'use_by', v_use_by,
       'notes', p_notes
@@ -2633,6 +2680,22 @@ BEGIN
   END LOOP;
   FOREACH v_origin_lot_id IN ARRAY v_origin_lot_ids LOOP
     PERFORM public.mp_events_link_lot(v_event_id, v_origin_lot_id);
+  END LOOP;
+
+  -- Match the Airtable production workflow: every selected freezer tray is
+  -- fully retired after the packaging operation. Any difference between the
+  -- selected tray weight and packaged weight remains visible in event audit
+  -- data as unpackaged_source_weight_g.
+  UPDATE public.products p
+  SET net_weight_g = 0,
+      net_weight_oz = 0,
+      tray_state = 'empty_tray',
+      storage_location_id = v_consumed_location_id,
+      nc_updated_at = now()
+  WHERE p.nocopk = ANY(p_source_product_ids);
+
+  FOREACH v_src_id IN ARRAY p_source_product_ids LOOP
+    PERFORM public.mp_product_set_storage_location(v_src_id, v_consumed_location_id);
   END LOOP;
 
   RETURN v_requested_count;

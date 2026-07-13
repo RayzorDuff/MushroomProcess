@@ -11,6 +11,7 @@ DECLARE
   v_tray_item_id bigint;
   v_origin_item_id bigint;
   v_storage_id bigint;
+  v_consumed_location_id bigint;
   v_strain_id bigint;
   v_origin_lot_id bigint;
   v_source_product_ids bigint[];
@@ -46,6 +47,12 @@ BEGIN
   ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
   LIMIT 1;
 
+  SELECT nocopk INTO v_consumed_location_id
+  FROM public.locations
+  WHERE lower(btrim(name)) = 'consumed'
+  ORDER BY CASE WHEN COALESCE(active, false) THEN 0 ELSE 1 END, nocopk
+  LIMIT 1;
+
   SELECT nocopk INTO v_strain_id
   FROM public.strains
   WHERE COALESCE(active, false)
@@ -55,7 +62,8 @@ BEGIN
   IF v_package_item_id IS NULL
      OR v_tray_item_id IS NULL
      OR v_origin_item_id IS NULL
-     OR v_storage_id IS NULL THEN
+     OR v_storage_id IS NULL
+     OR v_consumed_location_id IS NULL THEN
     RAISE EXCEPTION 'Freeze-dried packaging smoke-test fixtures are missing from imported Airtable data.';
   END IF;
 
@@ -212,6 +220,27 @@ BEGIN
 
   IF (
     SELECT count(*)
+    FROM public.products p
+    WHERE p.nocopk = ANY(v_source_product_ids)
+      AND p.tray_state = 'empty_tray'
+      AND p.storage_location_id = v_consumed_location_id
+      AND abs(COALESCE(p.net_weight_g, 0)) <= 0.01
+      AND abs(COALESCE(p.net_weight_oz, 0)) <= 0.01
+  ) <> 2 THEN
+    RAISE EXCEPTION 'Source freezer trays were not emptied and moved to Consumed.';
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM public._m2m_products_locations_storage_location m
+    WHERE m.products_id = ANY(v_source_product_ids)
+      AND m.locations_id = v_consumed_location_id
+  ) <> 2 THEN
+    RAISE EXCEPTION 'Source freezer tray Consumed-location relationships were not updated.';
+  END IF;
+
+  IF (
+    SELECT count(*)
     FROM public._m2m_products_products_merge_tray_products m
     WHERE m.products_id = ANY(v_created_product_ids)
       AND m.products1_id = ANY(v_source_product_ids)
@@ -259,7 +288,12 @@ BEGIN
      OR v_event_fields ->> 'package_size' <> '5 g'
      OR (v_event_fields ->> 'package_count')::integer <> 2
      OR abs((v_event_fields ->> 'package_size_g')::numeric - 5) > 0.01
-     OR abs((v_event_fields ->> 'total_packaged_weight_g')::numeric - 10) > 0.01 THEN
+     OR abs((v_event_fields ->> 'total_packaged_weight_g')::numeric - 10) > 0.01
+     OR abs((v_event_fields ->> 'unpackaged_source_weight_g')::numeric - 6) > 0.01
+     OR v_event_fields ->> 'source_tray_state_after' <> 'empty_tray'
+     OR v_event_fields ->> 'source_storage_location_after' <> 'Consumed'
+     OR (v_event_fields ->> 'source_storage_location_id_after')::bigint <> v_consumed_location_id
+     OR abs((v_event_fields ->> 'source_net_weight_g_after')::numeric) > 0.01 THEN
     RAISE EXCEPTION 'Package event fields_json is incomplete: %', v_event_fields;
   END IF;
 
@@ -318,7 +352,7 @@ BEGIN
     RAISE EXCEPTION 'Unsupported freeze-dried package size was not rejected.';
   END IF;
 
-  RAISE NOTICE 'Freeze-dried package class, size, event, lineage, and print smoke tests passed.';
+  RAISE NOTICE 'Freeze-dried package, source consumption, refresh, lineage, event, and print smoke tests passed.';
 END;
 $$;
 
