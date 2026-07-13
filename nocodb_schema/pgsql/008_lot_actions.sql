@@ -2866,19 +2866,33 @@ BEGIN
     ELSE 'Retired'
   END;
 
-  SELECT l.nocopk INTO v_target_location_id
-  FROM public.locations l
-  WHERE lower(btrim(l.name)) = lower(btrim(v_target_location_name))
-  ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
-  LIMIT 1;
-
-  IF v_target_location_id IS NULL THEN
-    RAISE EXCEPTION 'Target location not found: %', v_target_location_name;
+  IF v_state = 'retired' THEN
+    -- Airtable currently has no dedicated Retired product location. Prefer one
+    -- if it is added later; otherwise use the existing Consumed terminal
+    -- location while retaining tray_state = retired and ProductRetired audit
+    -- semantics.
+    SELECT l.nocopk, l.name
+    INTO v_target_location_id, v_target_location_resolved_name
+    FROM public.locations l
+    WHERE lower(btrim(l.name)) IN ('retired', 'consumed')
+    ORDER BY
+      CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END,
+      CASE lower(btrim(l.name)) WHEN 'retired' THEN 0 ELSE 1 END,
+      l.nocopk
+    LIMIT 1;
+  ELSE
+    SELECT l.nocopk, l.name
+    INTO v_target_location_id, v_target_location_resolved_name
+    FROM public.locations l
+    WHERE lower(btrim(l.name)) = lower(btrim(v_target_location_name))
+    ORDER BY CASE WHEN COALESCE(l.active, false) THEN 0 ELSE 1 END, l.nocopk
+    LIMIT 1;
   END IF;
 
-  SELECT l.name INTO v_target_location_resolved_name
-  FROM public.locations l
-  WHERE l.nocopk = v_target_location_id;
+  IF v_target_location_id IS NULL THEN
+    RAISE EXCEPTION 'Target location not found: %',
+      CASE WHEN v_state = 'retired' THEN 'Retired or Consumed' ELSE v_target_location_name END;
+  END IF;
 
   v_event_type := CASE
     WHEN v_state = 'compost' THEN 'ProductComposted'
