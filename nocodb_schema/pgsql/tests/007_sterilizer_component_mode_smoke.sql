@@ -17,6 +17,8 @@ DECLARE
   v_weight numeric;
   v_percent numeric;
   v_component_set text;
+  v_use_by date;
+  v_sterilized_at timestamp without time zone;
   v_plan record;
 BEGIN
   SELECT nocopk INTO v_grain_item_id
@@ -99,6 +101,16 @@ BEGIN
       v_count, v_weight;
   END IF;
 
+  SELECT use_by, sterilized_at
+  INTO v_use_by, v_sterilized_at
+  FROM public.lots
+  WHERE nocopk = v_lot_id;
+
+  IF v_use_by <> (v_sterilized_at + interval '3 months')::date THEN
+    RAISE EXCEPTION 'single_recipe use_by should be three calendar months from sterilization: sterilized_at %, use_by %',
+      v_sterilized_at, v_use_by;
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1
     FROM public._m2m_lots_lot_recipe_components_lot_recipe_components j
@@ -167,6 +179,15 @@ BEGIN
   IF v_count <> 2 OR v_weight <> 5 OR abs(v_percent - 100) >= 0.000001 THEN
     RAISE EXCEPTION 'multi_recipe lot components were not created correctly: count %, weight %, percent %',
       v_count, v_weight, v_percent;
+  END IF;
+
+  SELECT use_by
+  INTO v_use_by
+  FROM public.lots
+  WHERE nocopk = v_lot_id;
+
+  IF v_use_by IS NOT NULL THEN
+    RAISE EXCEPTION 'Uninoculated AIO lot use_by should remain blank until inoculation: %', v_use_by;
   END IF;
 
   IF (

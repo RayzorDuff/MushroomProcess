@@ -516,8 +516,8 @@ BEGIN
        1, v_run.planned_unit_size, v_status,
        v_run.nocopk, p_operator, now(), v_end,
        CASE
-         WHEN v_item_category IN ('grain', 'substrate', 'casing', 'cordyceps_substrate', 'all_in_one_bag')
-         THEN (v_end::date + 90)
+         WHEN v_item_category IN ('grain', 'substrate', 'casing', 'cordyceps_substrate')
+         THEN (v_end + interval '3 months')::date
          ELSE NULL
        END,
        v_run.planned_item_id,
