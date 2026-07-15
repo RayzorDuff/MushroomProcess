@@ -230,7 +230,7 @@ BEGIN
   WHERE nocopk = v_product_id;
 
   IF v_title <> 'RC5 LC Syringe'
-     OR COALESCE(v_subtitle, '') NOT LIKE '10%ml%RC5 Test Strain%' THEN
+     OR COALESCE(v_subtitle, '') NOT ILIKE '10%ml%RC5 Test Strain%' THEN
     RAISE EXCEPTION 'Product-output syringe labels regressed: title %, subtitle %', v_title, v_subtitle;
   END IF;
 
