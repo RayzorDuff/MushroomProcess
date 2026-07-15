@@ -1472,7 +1472,7 @@ BEGIN
     INSERT INTO public.lots(
       item_id, recipe_id, strain_id,
       item_name_mat, item_category_mat,
-      strain_species_strain_mat, vendor_name_mat, source_type,
+      strain_species_strain_mat, vendor_name_mat, vendor_name, vendor_batch, source_type,
       status, operator, created_at,
       source_lot_id, parent_lot_id,
       qty, unit_size, total_volume_ml, remaining_volume_ml, received_date, use_by,
@@ -1487,6 +1487,8 @@ BEGIN
       COALESCE(v_syringe_item.category, 'lc_syringe'),
       v_species_strain_mat,
       v_vendor_name_mat,
+      v_vendor_name_mat,
+      v_src.vendor_batch,
       'Produced',
       'Fridge',
       p_operator,

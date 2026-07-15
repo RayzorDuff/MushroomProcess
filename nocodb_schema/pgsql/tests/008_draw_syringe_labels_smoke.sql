@@ -17,6 +17,8 @@ DECLARE
   v_subtitle text;
   v_queue_title text;
   v_queue_subtitle text;
+  v_drawn_vendor_name text;
+  v_drawn_vendor_batch text;
 BEGIN
   INSERT INTO public.locations(name, active, type, notes)
   VALUES ('RC5 Draw Syringe Fridge', true, 'Storage', 'Rollback-only #60 smoke fixture')
@@ -42,6 +44,7 @@ BEGIN
     strain_id,
     strain_species_strain_mat,
     vendor_name_mat,
+    vendor_batch,
     source_type,
     status,
     operator,
@@ -62,6 +65,7 @@ BEGIN
     v_strain_id,
     'RC5 Test Strain',
     'RC5 Vendor',
+    'BATCH-RC5-DRAW',
     'Produced',
     'Fridge',
     'RC5 smoke test',
@@ -107,8 +111,8 @@ BEGIN
   ORDER BY l.nocopk DESC
   LIMIT 1;
 
-  SELECT label_title_lot, label_subtitle_lot
-  INTO v_title, v_subtitle
+  SELECT label_title_lot, label_subtitle_lot, vendor_name, vendor_batch
+  INTO v_title, v_subtitle, v_drawn_vendor_name, v_drawn_vendor_batch
   FROM public.vc_lots
   WHERE nocopk = v_drawn_lot_id;
 
@@ -116,7 +120,13 @@ BEGIN
     RAISE EXCEPTION 'Drawn syringe title is incorrect: %', v_title;
   END IF;
 
-  IF COALESCE(v_subtitle, '') NOT LIKE '10%ml%RC5 Test Strain%RC5 Vendor%' THEN
+  IF v_drawn_vendor_name <> 'RC5 Vendor'
+     OR v_drawn_vendor_batch <> 'BATCH-RC5-DRAW' THEN
+    RAISE EXCEPTION 'Drawn syringe vendor lineage is incorrect: vendor %, batch %',
+      v_drawn_vendor_name, v_drawn_vendor_batch;
+  END IF;
+
+  IF COALESCE(v_subtitle, '') NOT LIKE '10%ml%RC5 Test Strain%RC5 Vendor%BATCH-RC5-DRAW%' THEN
     RAISE EXCEPTION 'Drawn syringe subtitle is incorrect: %', v_subtitle;
   END IF;
 
