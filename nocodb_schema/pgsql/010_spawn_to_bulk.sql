@@ -130,6 +130,18 @@ DECLARE
   v_created_count integer := 0;
   v_event_id bigint;
   v_fruiting_goal text;
+
+  v_source record;
+  v_source_component record;
+  v_source_component_found boolean;
+  v_distribution_factor numeric;
+  v_component_weight numeric;
+  v_component_recipe_id bigint;
+  v_component_role text;
+  v_component_sort_order numeric;
+  v_lot_recipe_component_id bigint;
+  v_component_count integer;
+  v_component_weight_sum numeric;
 BEGIN
   IF p_grain_lot_ids IS NULL OR array_length(p_grain_lot_ids, 1) IS NULL THEN
     RAISE EXCEPTION 'Select at least one colonized grain source lot.';
@@ -438,6 +450,212 @@ BEGIN
       EXCEPTION WHEN undefined_table THEN NULL;
       END;
     END LOOP;
+
+    -- Persist the actual grain/substrate recipe contribution history for the
+    -- output lot. Source component weights are allocated using the same rule
+    -- that calculated this output lot's unit_size.
+    v_component_sort_order := 0;
+
+    FOR v_source IN
+      SELECT
+        source_rows.nocopk,
+        source_rows.lot_id,
+        source_rows.item_id,
+        source_rows.recipe_id,
+        source_rows.unit_size,
+        source_rows.source_role,
+        source_rows.source_ordinal
+      FROM (
+        SELECT
+          l.nocopk,
+          l.lot_id,
+          l.item_id,
+          l.recipe_id,
+          l.unit_size,
+          'grain'::text AS source_role,
+          grain_ids.ordinality::integer AS source_ordinal
+        FROM unnest(p_grain_lot_ids) WITH ORDINALITY AS grain_ids(lot_id, ordinality)
+        JOIN public.lots l ON l.nocopk = grain_ids.lot_id
+
+        UNION ALL
+
+        SELECT
+          l.nocopk,
+          l.lot_id,
+          l.item_id,
+          l.recipe_id,
+          l.unit_size,
+          'substrate'::text AS source_role,
+          substrate_ids.ordinality::integer AS source_ordinal
+        FROM unnest(p_substrate_lot_ids) WITH ORDINALITY AS substrate_ids(lot_id, ordinality)
+        JOIN public.lots l ON l.nocopk = substrate_ids.lot_id
+      ) source_rows
+      ORDER BY
+        CASE source_rows.source_role WHEN 'grain' THEN 0 ELSE 1 END,
+        source_rows.source_ordinal,
+        source_rows.nocopk
+    LOOP
+      IF v_plan_count > 0 THEN
+        v_distribution_factor := v_ratio / v_ratio_sum;
+      ELSIF v_sub_count = v_output_count THEN
+        IF v_source.source_role = 'grain' THEN
+          v_distribution_factor := 1.0 / v_output_count;
+        ELSIF v_source.source_ordinal = v_i THEN
+          v_distribution_factor := 1.0;
+        ELSE
+          CONTINUE;
+        END IF;
+      ELSE
+        v_distribution_factor := 1.0 / v_output_count;
+      END IF;
+
+      v_source_component_found := false;
+
+      FOR v_source_component IN
+        SELECT
+          lrc.recipe_id,
+          lrc.source_item_recipe_component_id,
+          NULLIF(btrim(lrc.component_role), '') AS component_role,
+          COALESCE(
+            NULLIF(lrc.component_weight_lb, 0),
+            v_source.unit_size * NULLIF(lrc.component_percent, 0) / 100.0,
+            CASE WHEN count(*) OVER () = 1 THEN v_source.unit_size END
+          ) AS component_weight_lb,
+          count(*) OVER () AS source_component_count,
+          lrc.sort_order,
+          lrc.nocopk
+        FROM public.lot_recipe_components lrc
+        WHERE lrc.lot_id = v_source.nocopk
+        ORDER BY COALESCE(lrc.sort_order, 0), lrc.nocopk
+      LOOP
+        v_source_component_found := true;
+
+        IF v_source_component.component_weight_lb IS NULL
+           OR v_source_component.component_weight_lb <= 0 THEN
+          RAISE EXCEPTION
+            'Spawn to Bulk source lot % component % of % has no usable weight or percent.',
+            COALESCE(v_source.lot_id, v_source.nocopk::text),
+            v_source_component.nocopk,
+            v_source_component.source_component_count;
+        END IF;
+
+        v_component_sort_order := v_component_sort_order + 1;
+        v_component_weight := v_source_component.component_weight_lb * v_distribution_factor;
+        v_component_recipe_id := COALESCE(v_source_component.recipe_id, v_source.recipe_id);
+        v_component_role := COALESCE(v_source_component.component_role, v_source.source_role);
+
+        IF v_component_recipe_id IS NULL THEN
+          RAISE EXCEPTION
+            'Spawn to Bulk source lot % has no recipe for component role %.',
+            COALESCE(v_source.lot_id, v_source.nocopk::text), v_component_role;
+        END IF;
+
+        INSERT INTO public.lot_recipe_components (
+          lot_id,
+          item_id,
+          recipe_id,
+          source_item_recipe_component_id,
+          component_role,
+          component_weight_lb,
+          component_percent,
+          sort_order,
+          notes
+        )
+        VALUES (
+          v_created_lot_id,
+          v_item_id,
+          v_component_recipe_id,
+          v_source_component.source_item_recipe_component_id,
+          v_component_role,
+          v_component_weight,
+          CASE
+            WHEN COALESCE(v_unit_size, 0) > 0
+              THEN v_component_weight / v_unit_size * 100.0
+            ELSE NULL
+          END,
+          v_component_sort_order,
+          'Derived from Spawn to Bulk ' || v_source.source_role ||
+            ' input ' || COALESCE(v_source.lot_id, v_source.nocopk::text)
+        )
+        RETURNING nocopk INTO v_lot_recipe_component_id;
+
+        PERFORM public.mp_link_lot_recipe_component(
+          v_lot_recipe_component_id,
+          v_created_lot_id,
+          v_item_id,
+          v_component_recipe_id,
+          v_source_component.source_item_recipe_component_id
+        );
+      END LOOP;
+
+      -- Legacy/imported source lots may not yet have actual component rows.
+      -- Fall back to the source lot recipe while still recording a distinct
+      -- contribution for each grain/substrate input.
+      IF NOT v_source_component_found THEN
+        IF v_source.recipe_id IS NULL THEN
+          RAISE EXCEPTION
+            'Spawn to Bulk source lot % has neither lot_recipe_components nor recipe_id.',
+            COALESCE(v_source.lot_id, v_source.nocopk::text);
+        END IF;
+
+        v_component_sort_order := v_component_sort_order + 1;
+        v_component_weight := v_source.unit_size * v_distribution_factor;
+
+        INSERT INTO public.lot_recipe_components (
+          lot_id,
+          item_id,
+          recipe_id,
+          source_item_recipe_component_id,
+          component_role,
+          component_weight_lb,
+          component_percent,
+          sort_order,
+          notes
+        )
+        VALUES (
+          v_created_lot_id,
+          v_item_id,
+          v_source.recipe_id,
+          NULL,
+          v_source.source_role,
+          v_component_weight,
+          CASE
+            WHEN COALESCE(v_unit_size, 0) > 0
+              THEN v_component_weight / v_unit_size * 100.0
+            ELSE NULL
+          END,
+          v_component_sort_order,
+          'Derived from Spawn to Bulk ' || v_source.source_role ||
+            ' input ' || COALESCE(v_source.lot_id, v_source.nocopk::text) ||
+            ' using source lot recipe fallback'
+        )
+        RETURNING nocopk INTO v_lot_recipe_component_id;
+
+        PERFORM public.mp_link_lot_recipe_component(
+          v_lot_recipe_component_id,
+          v_created_lot_id,
+          v_item_id,
+          v_source.recipe_id,
+          NULL
+        );
+      END IF;
+    END LOOP;
+
+    SELECT count(*)::integer, COALESCE(sum(lrc.component_weight_lb), 0)
+    INTO v_component_count, v_component_weight_sum
+    FROM public.lot_recipe_components lrc
+    WHERE lrc.lot_id = v_created_lot_id;
+
+    IF v_component_count = 0 THEN
+      RAISE EXCEPTION 'Spawn to Bulk created output lot % without component history.',
+        v_created_lot_id;
+    END IF;
+
+    IF abs(v_component_weight_sum - v_unit_size) >= 0.000001 THEN
+      RAISE EXCEPTION
+        'Spawn to Bulk component weights for output lot % total % lb but output unit_size is % lb.',
+        v_created_lot_id, v_component_weight_sum, v_unit_size;
+    END IF;
 
     BEGIN
       v_event_id := public.mp_events_insert_and_link_lot(
