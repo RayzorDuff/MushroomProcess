@@ -8,6 +8,7 @@ BEGIN;
 DO $$
 DECLARE
   v_package_item_id bigint;
+  v_sample_package_item_id bigint;
   v_tray_item_id bigint;
   v_origin_item_id bigint;
   v_storage_id bigint;
@@ -30,6 +31,12 @@ BEGIN
   SELECT nocopk INTO v_package_item_id
   FROM public.items
   WHERE item_id = 'MUSH-DRIED'
+    AND COALESCE(active, true)
+  LIMIT 1;
+
+  SELECT nocopk INTO v_sample_package_item_id
+  FROM public.items
+  WHERE item_id = 'MUSH-CAPSULES'
     AND COALESCE(active, true)
   LIMIT 1;
 
@@ -65,6 +72,7 @@ BEGIN
   LIMIT 1;
 
   IF v_package_item_id IS NULL
+     OR v_sample_package_item_id IS NULL
      OR v_tray_item_id IS NULL
      OR v_origin_item_id IS NULL
      OR v_storage_id IS NULL
@@ -163,7 +171,7 @@ BEGIN
 
   v_count := public.mp_products_package_freeze_dried_basic(
     p_source_product_ids => v_source_product_ids,
-    p_package_item_id => v_package_item_id,
+    p_package_item_id => v_sample_package_item_id,
     p_package_size_g => 5,
     p_package_count => 2,
     p_storage_location_id => v_storage_id,
@@ -207,8 +215,8 @@ BEGIN
     JOIN public.vc_products vp ON vp.nocopk = p.nocopk
     WHERE p.nocopk = ANY(v_created_product_ids)
   LOOP
-    IF v_product.item_id <> v_package_item_id
-       OR v_product.package_item_id <> v_package_item_id
+    IF v_product.item_id <> v_sample_package_item_id
+       OR v_product.package_item_id <> v_sample_package_item_id
        OR v_product.item_category_mat <> 'freezedriedmushrooms'
        OR abs(v_product.net_weight_g - 5) > 0.01
        OR v_product.package_class <> 'Sample'
@@ -288,8 +296,9 @@ BEGIN
   IF jsonb_array_length(v_event_fields -> 'source_product_ids') <> 2
      OR jsonb_array_length(v_event_fields -> 'created_product_ids') <> 2
      OR jsonb_array_length(v_event_fields -> 'origin_lot_ids') <> 1
-     OR v_event_fields ->> 'package_item_business_id' <> 'MUSH-DRIED'
+     OR v_event_fields ->> 'package_item_business_id' <> 'MUSH-CAPSULES'
      OR v_event_fields ->> 'package_class' <> 'Sample'
+     OR v_event_fields ->> 'label_type' <> 'Product_Package_Sample'
      OR v_event_fields ->> 'package_size' <> '5 g'
      OR (v_event_fields ->> 'package_count')::integer <> 2
      OR abs((v_event_fields ->> 'package_size_g')::numeric - 5) > 0.01
@@ -325,10 +334,10 @@ BEGIN
     FROM public.print_queue pq
     WHERE pq.product_id = ANY(v_created_product_ids)
       AND pq.source_kind = 'product'
-      AND pq.label_type = 'Product_Package'
+      AND pq.label_type = 'Product_Package_Sample'
       AND pq.print_status = 'Queued'
   ) <> 2 THEN
-    RAISE EXCEPTION 'Product_Package print jobs were not created for every package.';
+    RAISE EXCEPTION 'Product_Package_Sample print jobs were not created for every Sample package.';
   END IF;
 
   INSERT INTO public.products (
@@ -414,6 +423,17 @@ BEGIN
     RAISE EXCEPTION 'Default use-by label text is incorrect: %', v_default_label_useby;
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.print_queue pq
+    WHERE pq.product_id = v_default_created_product_id
+      AND pq.source_kind = 'product'
+      AND pq.label_type = 'Product_Package'
+      AND pq.print_status = 'Queued'
+  ) THEN
+    RAISE EXCEPTION 'Retail package did not create a Product_Package print job.';
+  END IF;
+
   BEGIN
     PERFORM public.mp_products_package_freeze_dried_basic(
       p_source_product_ids => v_source_product_ids,
@@ -440,7 +460,7 @@ BEGIN
     RAISE EXCEPTION 'Unsupported freeze-dried package size was not rejected.';
   END IF;
 
-  RAISE NOTICE 'Freeze-dried package, source consumption, use-by default/override, lineage, event, and print smoke tests passed.';
+  RAISE NOTICE 'Freeze-dried package item/class, Sample/Retail labels, source consumption, use-by default/override, lineage, event, and print smoke tests passed.';
 END;
 $$;
 

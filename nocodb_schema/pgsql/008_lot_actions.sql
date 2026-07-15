@@ -2312,6 +2312,7 @@ DECLARE
   v_normalized_package_size_g numeric;
   v_package_size text;
   v_package_class text;
+  v_label_type text;
   v_package_item_category text;
   v_package_item_name text;
   v_package_item_business_id text;
@@ -2366,6 +2367,11 @@ BEGIN
   IF v_package_class IS NULL THEN
     RAISE EXCEPTION 'Package class must be Retail or Sample';
   END IF;
+
+  v_label_type := CASE v_package_class
+    WHEN 'Sample' THEN 'Product_Package_Sample'
+    ELSE 'Product_Package'
+  END;
 
   -- Normalize the supported schema choices. The base products table stores the
   -- human-readable selector value; vc_products derives package_size_g from it.
@@ -2603,7 +2609,7 @@ BEGIN
 
     PERFORM public.mp_print_queue_enqueue(
       'product'::text,
-      'Product_Package'::text,
+      v_label_type,
       NULL::bigint,
       v_created_product_id,
       NULL::bigint,
@@ -2636,6 +2642,7 @@ BEGIN
       'package_item_id', p_package_item_id,
       'package_item_business_id', v_package_item_business_id,
       'package_class', v_package_class,
+      'label_type', v_label_type,
       'package_size', v_package_size,
       'package_size_g', v_normalized_package_size_g,
       'package_count', v_requested_count,
