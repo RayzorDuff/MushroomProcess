@@ -78,14 +78,27 @@ The RC5 open issue list was reviewed against the current schema tests.
 
 | Issue | Existing test |
 |---|---|
-| #59 / #73 schema path | `008_inoculate_source_modes_smoke.sql` and `008_aio_lifecycle_smoke.sql`; UI enable/reset behavior remains Appsmith validation |
+| #59 / #73 schema path | `008_inoculate_source_modes_smoke.sql`, `008_inoculate_validation_atomicity_smoke.sql`, and `008_aio_lifecycle_smoke.sql`; covers source modes, rejected-request no-side-effects, insufficient-volume atomicity, multi-target counts, decrement, events, and labels. UI enable/reset behavior remains Appsmith validation. |
 | #60 | `008_draw_syringe_labels_smoke.sql` |
-| #61 / #63 | `008_freeze_dried_package_smoke.sql` |
+| #61 / #63 | `008_freeze_dried_package_smoke.sql`; covers one operation event, source/created product links, origin-lot links exposed through `vc_products`, structured event fields, and package-label queueing. |
 | #65 / #70 schema paths | `008_product_tray_actions_smoke.sql` |
-| #66 schema actions | `011_print_queue_actions_smoke.sql` |
+| #66 schema actions/view | `011_print_queue_actions_smoke.sql` and `011_print_queue_view_contract_smoke.sql`; covers audited status changes plus the persisted fields, time predicates, and ZEBRA/TRAYS routing consumed by the Appsmith filters. |
 | #68 | `007_sterilizer_component_mode_smoke.sql`, AIO tests, casing test, freeze-dried tests, harvest test, and Spawn to Bulk component tests |
 | #69 | `008_package_multiple_lots_smoke.sql` |
 | #75 | `010_spawn_to_bulk_components_smoke.sql` |
+
+
+### Additional negative-path and view-contract coverage
+
+| Issue | Test coverage |
+|---|---|
+| #59 / #73 | Liquid-source missing/insufficient volume rejection, solid-source volume rejection, no target/event/print side effects on rejected requests, actual multi-target return count, source decrement, target updates, event metadata, and one queued label per successful target in `008_inoculate_validation_atomicity_smoke.sql` |
+| #66 | `vc_print_queue` exposure of status, printer target, daemon identity, source kind, label type, run/lot/product IDs, created/claimed/printed timestamps, errors, and ZEBRA/TRAYS routing in `011_print_queue_view_contract_smoke.sql` |
+
+These tests validate the database contracts that support the open issues. They do
+not close the remaining Appsmith-specific acceptance criteria, such as widget
+visibility, stale selection clearing, button busy-state, table filtering UI, or
+refresh behavior.
 
 ### Open issues not represented as PostgreSQL mutation tests
 

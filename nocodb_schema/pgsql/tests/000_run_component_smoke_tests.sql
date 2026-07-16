@@ -18,12 +18,14 @@
   \ir 008_draw_syringe_labels_smoke.sql
   \ir 008_freeze_dried_package_smoke.sql
   \ir 008_inoculate_source_modes_smoke.sql
+  \ir 008_inoculate_validation_atomicity_smoke.sql
   \ir 008_package_multiple_lots_smoke.sql
   \ir 008_product_tray_actions_smoke.sql
   \ir 009_harvest_mixed_outputs_smoke.sql
   \ir 010_spawn_to_bulk_components_smoke.sql
   \ir 010_spawn_to_bulk_contract_smoke.sql
   \ir 011_print_queue_actions_smoke.sql
+  \ir 011_print_queue_view_contract_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else

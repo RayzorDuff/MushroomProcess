@@ -270,6 +270,16 @@ BEGIN
     RAISE EXCEPTION 'Created products do not retain inherited origin-lot links.';
   END IF;
 
+  IF (
+    SELECT count(*)
+    FROM public.vc_products vp
+    WHERE vp.nocopk = ANY(v_created_product_ids)
+      AND cardinality(vp.products__products__merge_tray_products__ids) = 2
+      AND v_origin_lot_id = ANY(vp.products__lots__origin_lots__ids)
+  ) <> 2 THEN
+    RAISE EXCEPTION 'Products view does not expose complete source-product and origin-lot lineage.';
+  END IF;
+
   SELECT e.nocopk, e.fields_json::jsonb
   INTO v_event_id, v_event_fields
   FROM public.events e
