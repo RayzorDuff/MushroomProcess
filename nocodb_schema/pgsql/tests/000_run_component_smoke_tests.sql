@@ -10,6 +10,12 @@
 \if :allow_schema_modification
   \echo 'Running MushroomProcess component smoke tests with rollback-protected database mutation enabled.'
 
+  -- Bound every statement and lock wait so a smoke test cannot monopolize the
+  -- production database after a bad plan or interrupted client session.
+  SET statement_timeout = '60s';
+  SET lock_timeout = '5s';
+  SET idle_in_transaction_session_timeout = '60s';
+
   \ir 007_sterilizer_component_mode_smoke.sql
   \ir 007_sterilizer_process_type_smoke.sql
   \ir 008_aio_lifecycle_smoke.sql
