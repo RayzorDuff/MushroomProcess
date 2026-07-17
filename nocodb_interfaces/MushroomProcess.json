@@ -8192,7 +8192,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "collectionId": "Lots_LotsInoculate",
         "confirmBeforeExecute": false,
@@ -8233,7 +8233,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "collectionId": "Lots_LotsInoculate",
         "confirmBeforeExecute": false,
@@ -17579,7 +17579,7 @@
             }
           ],
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "confirmBeforeExecute": false,
         "createdAt": "2026-02-08T15:50:23Z",
@@ -17631,7 +17631,7 @@
             }
           ],
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "confirmBeforeExecute": false,
         "createdAt": "2026-02-08T15:50:23Z",
@@ -33509,7 +33509,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "collectionId": "Lab - Inoculate_LotsInoculate",
         "confirmBeforeExecute": false,
@@ -33550,7 +33550,7 @@
           "jsArguments": [],
           "paginationType": "NONE",
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "collectionId": "Lab - Inoculate_LotsInoculate",
         "confirmBeforeExecute": false,
@@ -34255,7 +34255,7 @@
             }
           ],
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "confirmBeforeExecute": false,
         "createdAt": "2026-05-23T20:48:57Z",
@@ -34307,7 +34307,7 @@
             }
           ],
           "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
+          "timeoutInMillisecond": 60000
         },
         "confirmBeforeExecute": false,
         "createdAt": "2026-05-23T20:48:57Z",
@@ -85948,12 +85948,22 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isLoading"
+                            },
+                            {
+                              "key": "isDisabled"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
-                          "isLoading": false,
+                          "isDisabled": "{{ qAgarFlasks.isLoading }}",
+                          "isLoading": "{{ qAgarFlasks.isLoading }}",
                           "isVisible": true,
                           "key": "4gn0zh8ycf",
                           "leftColumn": 42,
@@ -85979,7 +85989,8 @@
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "4b80m23qv8",
-                          "widgetName": "btnRefreshTargets"
+                          "widgetName": "btnRefreshTargets",
+                          "onClick": "{{ qAgarFlasks.run().then(() => resetWidget(\"tblAgarFlasks\", false)) }}"
                         }
                       ],
                       "containerStyle": "none",
@@ -87015,12 +87026,22 @@
                             },
                             {
                               "key": "borderRadius"
+                            },
+                            {
+                              "key": "isLoading"
+                            },
+                            {
+                              "key": "isDisabled"
                             }
                           ],
-                          "dynamicTriggerPathList": [],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
                           "isDefaultClickDisabled": true,
-                          "isDisabled": false,
-                          "isLoading": false,
+                          "isDisabled": "{{ qAgarFlasks.isLoading }}",
+                          "isLoading": "{{ qAgarFlasks.isLoading }}",
                           "isVisible": true,
                           "key": "4gn0zh8ycf",
                           "leftColumn": 42,
@@ -87046,7 +87067,8 @@
                           "type": "BUTTON_WIDGET",
                           "version": 1,
                           "widgetId": "4b80m23qv8",
-                          "widgetName": "btnRefreshTargets"
+                          "widgetName": "btnRefreshTargets",
+                          "onClick": "{{ qAgarFlasks.run().then(() => resetWidget(\"tblAgarFlasks\", false)) }}"
                         }
                       ],
                       "containerStyle": "none",
@@ -97613,12 +97635,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qSpawnSourceLotsSearch.isLoading }}",
+                  "isLoading": "{{ qSpawnSourceLotsSearch.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -97642,7 +97674,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "a231bsp9hf",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qSpawnSourceLotsSearch.run().then(() => resetWidget(\"tblSpawnSourceLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -97658,12 +97691,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 55,
@@ -97687,7 +97730,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "vikyv3udti",
-                  "widgetName": "btnRefreshTargets"
+                  "widgetName": "btnRefreshTargets",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -103415,12 +103459,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qSpawnSourceLotsSearch.isLoading }}",
+                  "isLoading": "{{ qSpawnSourceLotsSearch.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -103444,7 +103498,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "a231bsp9hf",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qSpawnSourceLotsSearch.run().then(() => resetWidget(\"tblSpawnSourceLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -103460,12 +103515,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 55,
@@ -103489,7 +103554,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "vikyv3udti",
-                  "widgetName": "btnRefreshTargets"
+                  "widgetName": "btnRefreshTargets",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -114507,12 +114573,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qSourceLotsSearch.isLoading }}",
+                  "isLoading": "{{ qSourceLotsSearch.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 43,
@@ -114536,7 +114612,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "proz7vv43b",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qSourceLotsSearch.run().then(() => resetWidget(\"tblInocSourceLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -114552,12 +114629,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 54,
@@ -114581,7 +114668,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "lejhb2w0cp",
-                  "widgetName": "btnRefreshTargets"
+                  "widgetName": "btnRefreshTargets",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 }
               ],
               "containerStyle": "none",
@@ -119953,12 +120041,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qSourceLotsSearch.isLoading }}",
+                  "isLoading": "{{ qSourceLotsSearch.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 43,
@@ -119982,7 +120080,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "proz7vv43b",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qSourceLotsSearch.run().then(() => resetWidget(\"tblInocSourceLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -119998,12 +120097,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 54,
@@ -120027,7 +120136,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "lejhb2w0cp",
-                  "widgetName": "btnRefreshTargets"
+                  "widgetName": "btnRefreshTargets",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 }
               ],
               "containerStyle": "none",
@@ -120117,12 +120227,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -120146,7 +120266,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "cxf26h0tja",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -125336,12 +125457,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -125365,7 +125496,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "cxf26h0tja",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -130559,12 +130691,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -130590,7 +130732,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "e32lm8mn1d",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
@@ -135695,12 +135838,22 @@
                     },
                     {
                       "key": "borderRadius"
+                    },
+                    {
+                      "key": "isLoading"
+                    },
+                    {
+                      "key": "isDisabled"
                     }
                   ],
-                  "dynamicTriggerPathList": [],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
                   "isDefaultClickDisabled": true,
-                  "isDisabled": false,
-                  "isLoading": false,
+                  "isDisabled": "{{ qLots.isLoading }}",
+                  "isLoading": "{{ qLots.isLoading }}",
                   "isVisible": true,
                   "key": "4gn0zh8ycf",
                   "leftColumn": 45,
@@ -135726,7 +135879,8 @@
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "e32lm8mn1d",
-                  "widgetName": "btnRefreshSources"
+                  "widgetName": "btnRefreshSources",
+                  "onClick": "{{ qLots.run().then(() => resetWidget(\"tblLots\", false)) }}"
                 },
                 {
                   "animateLoading": true,
