@@ -28,10 +28,6 @@
             "recwj3JB9j8Dff7fd",
             "recdU8DY3zKQ9o3MF"
         ],
-        "lots": [
-            "recBShGQGSE4qpNID",
-            "rech6IJdPJWsC0dG2"
-        ],
         "product_use": "Functional",
         "products": [
             "recnJsa4x61Nnctts",
@@ -83,20 +79,20 @@
             "recWM8HPA1fsICgCL",
             "rec17gjJmfd3cMjb3"
         ],
-        "lots": [
-            "recRi7HbiA11M4UOG",
-            "rec04533gFaZRodNe",
-            "recr1rvouT9jQsJrg",
-            "recubhnQdNB05fgNv"
-        ],
         "product_use": "Gourmet",
         "products": [
+            "recQvGbKnJFR2Xaui",
+            "reczEQHhDkTCjNAJa",
+            "rec2qvnqKrXVMkNDo",
+            "rec5dIDEmDxyXqMes",
+            "recPHooh00324VuVl",
+            "rech5X9aMz6jTeiPY",
+            "reclpVbJTcOF0skUG",
+            "recqsa8hoKRch4Wk8",
             "receO2H9ZP9wo6vKV",
             "recUoJPO09b5lt2FA",
             "rec8paGVXgvj9j5eR",
-            "recE1xLJwUxlex8B9",
-            "recQvGbKnJFR2Xaui",
-            "reczEQHhDkTCjNAJa"
+            "recE1xLJwUxlex8B9"
         ],
         "species_strain": "Pearl Oyster",
         "strain_id": "STR-PearlOyster"
@@ -118,15 +114,23 @@
             "rec3J4vzaxiqLFwGy"
         ],
         "lots": [
-            "recFcOoOyzaTIPoAX",
-            "recesxUAkb8ra5bJ9"
+            "recfTKQt97CPJYj2M",
+            "recvN5Wl9mXPxVEqa",
+            "recr3acYNMXy9fz6c"
         ],
         "product_use": "Gourmet",
         "products": [
+            "recAvKZYhi7zckx3g",
+            "recBcX5lsykBWfBv5",
+            "recdzF51a9EiU1yq8",
+            "recm3UAyEkpr3N6P8",
+            "recmzbATAajgIPumy",
+            "rectNqVYcQDzzq8EB",
+            "recw308dfNouJ8fQB",
             "recFDoIZDHjX267R0",
             "rec75BIQxk9ymlmWO",
-            "recdis5Epwl9QZclz",
-            "recUOXiqzawcKQFyP"
+            "recUOXiqzawcKQFyP",
+            "recdis5Epwl9QZclz"
         ],
         "species_strain": "Black Pearl King Oyster",
         "strain_id": "STR-BlackPearlKingOyster"
@@ -179,20 +183,6 @@
         "active": true,
         "airtable_createdTime": "2026-03-27T20:18:55.000Z",
         "airtable_id": "recUtuEgscPfh2xk7",
-        "lots": [
-            "rec34tNtceOfWaihk",
-            "rec689aaANUwqwWxr",
-            "recZpMQRv6kkccQ13",
-            "rec1H2qUGTb4p5cqY",
-            "recwOLDrnD1q6kGdW",
-            "recxqesjPcoVamnSv",
-            "rec34emtMzGgC51ad",
-            "reco0ji1b2KjEthzB",
-            "rec7XlTO3zMS3qM7i",
-            "recAu1w9QrpnQ3tzc",
-            "rec1D4BqvDwCASibG",
-            "recLZDYpCTXGEHtdu"
-        ],
         "product_use": "Functional",
         "species_strain": "Cordyceps",
         "strain_id": "STR-Cordyceps"
@@ -210,19 +200,18 @@
             "recSfoHsMwRY6Wrg9"
         ],
         "lots": [
-            "recx4iEsjflXkfYlc",
-            "recTc21kOdqurPWA6",
-            "recrq4Q4GXjh1lhJv",
-            "recsV7dwpD1t51wJo",
             "recA1cEC9hIc7MXzp",
-            "recxU7Sp5qlyHd5Ce"
+            "recxU7Sp5qlyHd5Ce",
+            "recOcbDldTKj2rSiB",
+            "recer483vxFZJnNYT",
+            "recZZPMcrQpkcUFXv"
         ],
         "product_use": "Gourmet",
         "products": [
-            "rectZjRrRCGffot4v",
             "recMT8mqlHOAV7SN4",
-            "recsMHkBRzFL7rUaV",
+            "rectZjRrRCGffot4v",
             "rec7av2XvqRHbtavK",
+            "recsMHkBRzFL7rUaV",
             "recT1oslzubnlxUef",
             "recPUXNTPt19Ryqyf",
             "rec6x0ZDrIsMOpa6m",
@@ -264,11 +253,13 @@
         "ecommerce": [
             "rec30vSjSeQwmruux"
         ],
-        "lots": [
-            "recjy3YgBfr8f05m3",
-            "recfCCE3M1nfURJUG"
-        ],
         "product_use": "Gourmet",
+        "products": [
+            "recFHy2Qccm91JEUt",
+            "recJo2NUEWnQwiuLZ",
+            "reciSK4kYWYUN131m",
+            "reckxPfc3paeFiEy5"
+        ],
         "species_strain": "Pink Oyster",
         "strain_id": "STR-PinkOyster"
     },
@@ -296,7 +287,13 @@
         ],
         "lots": [
             "recjPqp2UH3yKRg4n",
-            "recrKZhNqV5NjsbJT"
+            "recrKZhNqV5NjsbJT",
+            "recH2LOLClpxeE3zO",
+            "recTEJwkdNN6hSvcJ",
+            "recv7JbrkbddIKYBQ",
+            "recIuUpWM4VtZkQ24",
+            "rectzsA2X0Y490AsE",
+            "recZm7U14atzF7Uyn"
         ],
         "product_use": "Gourmet/Functional",
         "species_strain": "Lion\u2019s Mane",
@@ -335,10 +332,6 @@
             "reciqKMhNt9vrKelh"
         ],
         "lots": [
-            "recfyskUzH5JuKLen",
-            "recvyxpWHDZNxXktn",
-            "recxSBBfXoHgZQbeT",
-            "recDmtKc314E0h8zS",
             "rec6Fc3fiYmEnlQzd",
             "recs0nGpAMQcsHhW4"
         ],
@@ -406,16 +399,15 @@
             "recXc27A6fUIR0bJT",
             "recTcgbMrzxMv9Iwq"
         ],
-        "lots": [
-            "recVsy0u54gksu1m6",
-            "recciEYi9p1bEiMg3",
-            "recMAGHvFxICI7LDh",
-            "recJVKklz8pXfa8cV",
-            "reclCvNJMD8FJfL1i",
-            "recvxQFjUCzGNanq5"
-        ],
         "product_use": "Functional",
         "products": [
+            "rec4dTuinZcyOxVz6",
+            "rec9WSGQ6cMy4gBQu",
+            "rec9wGkF0dlYFcV18",
+            "recGTKewZ3qg3jwfg",
+            "recif9AcaljlF8hHT",
+            "recqoIPy2xbLxKN9z",
+            "recu2ir963M1NTEiP",
             "recjTLojAVq7HYs7X",
             "recLsg8EwKwUQnTOR",
             "rectcfyyczUWWQIJL",

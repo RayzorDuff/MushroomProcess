@@ -69,22 +69,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-01T15:52:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-18T21:05:00.000Z'
-  airtable_id: rec0DtzAneocTQ6xz
-  event_id: EVENT-260618-Q6xz
-  event_time_for_rollup: '2026-06-18T21:04:59.015Z'
-  fields_json: '{}'
-  lot_id:
-  - recrq4Q4GXjh1lhJv
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  timestamp: '2026-06-18T21:04:59.015Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-13T19:26:42.000Z'
   airtable_id: rec0NmkazHYNsgNy5
   event_id: EVENT-251013-gNy5
@@ -102,6 +86,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   timestamp: '2026-02-28T18:29:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec0Tby7U3pqqjV0U
+  event_id: EVENT-260716-jV0U
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - reclZmMP755JTJ0yh
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-12-13T13:17:20.000Z'
   airtable_id: rec0UdNMbYiGLsuXP
@@ -130,21 +127,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:41:25.000Z'
-  airtable_id: rec0qjI2Vv7DP6ImS
-  event_id: EVENT-260516-6ImS
-  event_time_for_rollup: '2026-05-16T23:41:25.000Z'
-  fields_json: '{"grain_input_ids":["recgWMysdYiUFE1Zx"],"substrate_input_ids":["recsWGK6tQySmWo75","reclFAvDlpJO8azHu"],"per_output_unit_size_lb":8.75,"output_item_code":"FB-MM75-LG","output_index":0,"output_count":2}'
-  lot_id:
-  - recBShGQGSE4qpNID
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-16T16:17:34.000Z'
   airtable_id: rec0swPMuMkbPKbBV
   event_id: EVENT-260116-KbBV
@@ -172,6 +154,17 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-03T18:00:45.573Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:31:14.000Z'
+  airtable_id: rec0z9x7otz04Mpwx
+  event_id: EVENT-260716-Mpwx
+  event_time_for_rollup: '2026-07-16T19:31:14.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recOcbDldTKj2rSiB","recer483vxFZJnNYT","recZZPMcrQpkcUFXv"]}'
+  lot_id:
+  - recg3oW0OvDVnyTL6
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2025-12-18T16:45:56.000Z'
   airtable_id: rec13cn8TNp70ohTM
   event_id: EVENT-251218-ohTM
@@ -190,6 +183,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-02-16T23:15:56.486Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec1A8KbGqpZ0ElrK
+  event_id: EVENT-260716-ElrK
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - reczAOAVJ591qCoFp
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-02-28T18:29:55.000Z'
   airtable_id: rec1DD0c5SG9Z0Knz
   event_id: EVENT-260228-0Knz
@@ -271,22 +277,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-22T12:29:05.101Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T15:22:53.000Z'
-  airtable_id: rec1UJbWr8bMWO1I1
-  event_id: EVENT-260512-O1I1
-  event_time_for_rollup: '2026-05-12T15:22:51.525Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":4,"operator":"","target_lot_id":"LOT-260512-aihk"}'
-  lot_id:
-  - rec34tNtceOfWaihk
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:22:51.525Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-24T22:04:30.000Z'
   airtable_id: rec1XBCL9XZwGaPaL
   event_id: EVENT-260624-aPaL
@@ -318,6 +308,21 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-10-07T16:17:00.000Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: rec1lSKfl7CQIJSkt
+  event_id: EVENT-260713-JSkt
+  event_time_for_rollup: '2026-07-13T20:58:54.000Z'
+  fields_json: '{"grain_input_ids":["recuFurbEVrwWYrz8"],"substrate_input_ids":["recmFku57yRtfqkub","receL0vTHMoY5B30M","recp7KLAsLcPgLVDJ"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-MM75-SM","output_index":1,"output_count":3}'
+  lot_id:
+  - recTEJwkdNN6hSvcJ
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - "Lion\u2019s Mane"
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - MYYCO
 - airtable_createdTime: '2025-11-21T17:16:32.000Z'
   airtable_id: rec1mQnRHuxEnALxQ
   event_id: EVENT-251121-ALxQ
@@ -354,22 +359,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-16T16:17:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-04T15:37:57.000Z'
-  airtable_id: rec1uIQylPSOQlnSE
-  event_id: EVENT-260604-lnSE
-  event_time_for_rollup: '2026-06-04T15:37:56.129Z'
-  fields_json: '{}'
-  lot_id:
-  - recx4iEsjflXkfYlc
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  timestamp: '2026-06-04T15:37:56.129Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-09-29T16:56:19.000Z'
   airtable_id: rec1w1prOsstUyGlV
   event_id: EVENT-250929-yGlV
@@ -514,6 +503,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-06T18:17:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec2X2pFiDCawFjMQ
+  event_id: EVENT-260716-FjMQ
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec52IiCvElVtS3ev
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: rec2XyfJiZ1KFYEDb
   event_id: EVENT-260616-YEDb
@@ -567,22 +569,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-13T13:16:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T15:39:56.000Z'
-  airtable_id: rec2l1iOrLvzK6EzI
-  event_id: EVENT-260512-6EzI
-  event_time_for_rollup: '2026-05-12T15:39:54.277Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":10,"operator":"","target_lot_id":"LOT-260512-5cqY"}'
-  lot_id:
-  - rec1H2qUGTb4p5cqY
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:39:54.277Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: rec2mTHoZP1KtQLSj
   event_id: EVENT-260424-QLSj
@@ -767,20 +753,23 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-15T13:54:00.000Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-29T13:18:53.000Z'
-  airtable_id: rec3nQXTN17d257tm
-  event_id: EVENT-260529-57tm
-  event_time_for_rollup: '2026-05-29T13:18:51.853Z'
-  fields_json: '{}'
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: rec3lcj0tq5lP6X4i
+  event_id: EVENT-260716-6X4i
+  event_time_for_rollup: '2026-07-16T19:32:59.000Z'
+  fields_json: '{"grain_input_ids":["rec3j4FEb64EiScwX"],"substrate_input_ids":["rec0t4tXf7pubsWcD","recOebh3B6AuifYKs","recnYBktdkxdyESip"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":1,"output_count":3}'
   lot_id:
-  - rec04533gFaZRodNe
-  station: Dark Room
+  - rectzsA2X0Y490AsE
+  station: Spawn to Bulk
   status (from lot_id):
-  - Consumed
+  - Colonizing
   strain_species_strain (from lot_id):
-  - Pearl Oyster
-  timestamp: '2026-05-29T13:18:51.853Z'
-  type: FullyColonized
+  - "Lion\u2019s Mane"
+  substrate_inputs (from lot_id):
+  - rec0t4tXf7pubsWcD
+  - recOebh3B6AuifYKs
+  - recnYBktdkxdyESip
+  type: SpawnedToBulk
   vendor_name (from lc_lot_id) (from lot_id):
   - Fungaia
 - airtable_createdTime: '2026-03-24T13:17:27.000Z'
@@ -792,21 +781,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-24T13:17:23.986Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:27.000Z'
-  airtable_id: rec41mrvEHO2elBZX
-  event_id: EVENT-260615-lBZX
-  event_time_for_rollup: '2026-06-15T11:36:27.066Z'
-  lot_id:
-  - rec7XlTO3zMS3qM7i
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:27.066Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-18T16:45:56.000Z'
   airtable_id: rec466oequr9GPgj8
   event_id: EVENT-251218-Pgj8
@@ -852,21 +826,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-07T12:42:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:40:27.000Z'
-  airtable_id: rec4Ry5aHViCvPg9U
-  event_id: EVENT-260516-Pg9U
-  event_time_for_rollup: '2026-05-16T23:40:27.000Z'
-  fields_json: '{"grain_input_ids":["recXixSeVeJ0qvSKm"],"substrate_input_ids":["recH1dIOStyZTzHlJ","recUDqhCr8diCbSev"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":0,"output_count":2}'
-  lot_id:
-  - reclCvNJMD8FJfL1i
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-31T19:34:58.000Z'
   airtable_id: rec4Wx9u5fbS50Sr8
   event_id: EVENT-251031-0Sr8
@@ -926,18 +885,10 @@ Operator 1 <operator1.email.address@mybusiness.com>
   event_id: EVENT-260513-DY1B
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - recAu1w9QrpnQ3tzc
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Retired
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-16T16:38:23.000Z'
   airtable_id: rec4qzgqVweoEv7ZA
   event_id: EVENT-251216-v7ZA
@@ -1070,18 +1021,10 @@ Operator 1 <operator1.email.address@mybusiness.com>
   event_id: EVENT-260513-4XDf
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - recLZDYpCTXGEHtdu
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-06T17:04:17.000Z'
   airtable_id: rec5T4IOrd18jYlJ9
   event_id: EVENT-251106-YlJ9
@@ -1090,6 +1033,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec5UyktcyDaNohm6
+  event_id: EVENT-260716-ohm6
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recJ9apcaFgcCboZF
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-09-29T18:28:46.000Z'
   airtable_id: rec5VcABPzJu0ge95
@@ -1225,20 +1181,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-16T14:52:01.000Z'
-  airtable_id: rec69FO4CVVNkSwwH
-  event_id: EVENT-260616-SwwH
-  event_time_for_rollup: '2026-06-16T14:51:59.722Z'
-  fields_json: '{}'
-  lot_id:
-  - recVsy0u54gksu1m6
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-16T14:51:59.722Z'
-  type: FullyColonized
 - airtable_createdTime: '2025-10-06T13:52:08.000Z'
   airtable_id: rec6E4FByHaM1uY1F
   event_id: EVENT-251006-uY1F
@@ -1248,6 +1190,18 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-10-06T13:51:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-13T21:00:21.000Z'
+  airtable_id: rec6G4TvOZfV5YVzX
+  event_id: EVENT-260713-YVzX
+  event_time_for_rollup: '2026-07-13T21:00:20.757Z'
+  fields_json: '{}'
+  lot_id:
+  - recBA0b4p7yCmn03H
+  station: Dark Room
+  status (from lot_id):
+  - Retired
+  timestamp: '2026-07-13T21:00:20.757Z'
+  type: Contaminated
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: rec6HOt5XlOdU7BRj
   event_id: EVENT-260424-7BRj
@@ -1284,22 +1238,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-01T16:30:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:02:35.000Z'
-  airtable_id: rec6SjJMvOftjYGB6
-  event_id: EVENT-260614-YGB6
-  event_time_for_rollup: '2026-06-14T20:02:34.495Z'
-  fields_json: '{}'
-  lot_id:
-  - recesxUAkb8ra5bJ9
-  station: Dark Room
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-06-14T20:02:34.495Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-11-21T17:16:32.000Z'
   airtable_id: rec6nR2pCPVN0Oi4S
   event_id: EVENT-251121-Oi4S
@@ -1385,22 +1323,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-09-29T16:56:17.617Z'
   type: Sterilized
-- airtable_createdTime: '2026-07-01T22:08:36.000Z'
-  airtable_id: rec7A8i9sxHXcXQ7I
-  event_id: EVENT-260701-XQ7I
-  event_time_for_rollup: '2026-07-01T22:08:35.469Z'
-  fields_json: '{"created_product_ids":["recFDoIZDHjX267R0"],"harvest_weight_g":126.75,"flush_no":1,"fresh_tray_count":0,"frozen_tray_count":1,"total_trays":1,"per_tray_weight_g":126.75}'
-  lot_id:
-  - recFcOoOyzaTIPoAX
-  station: Harvest
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-07-01T22:08:35.469Z'
-  type: Harvest
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-09-29T16:30:45.000Z'
   airtable_id: rec7CaURt3SquWX6t
   event_id: EVENT-250929-WX6t
@@ -1494,6 +1416,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2026-04-22T12:29:05.101Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec7tdzZ9M9uvKBvm
+  event_id: EVENT-260716-KBvm
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recT36veqmyLuMyCf
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-12-18T16:45:56.000Z'
   airtable_id: rec7wkx1QX6ThU882
@@ -1640,7 +1575,7 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   status (from lot_id):
-  - Sterilized
+  - Retired
   timestamp: '2026-05-19T18:36:15.927Z'
   type: Sterilized
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
@@ -1651,6 +1586,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec8caSAPHbPDDQGO
+  event_id: EVENT-260716-DQGO
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - reciLOGPVNjv2iIrX
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-12-09T20:02:23.000Z'
   airtable_id: rec8ehtwMmRnRFA8t
@@ -1692,36 +1640,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-15T13:54:00.000Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-13T16:55:48.000Z'
-  airtable_id: rec8r9t5dVl31xsAg
-  event_id: EVENT-260513-xsAg
-  event_time_for_rollup: '2026-05-13T16:55:46.935Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":5,"operator":"","target_lot_id":"LOT-260513-51ad"}'
-  lot_id:
-  - rec34emtMzGgC51ad
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T16:55:46.935Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-06-04T15:38:28.000Z'
-  airtable_id: rec8rmknwpsT2TZ3Z
-  event_id: EVENT-260604-TZ3Z
-  event_time_for_rollup: '2026-06-04T15:38:27.850Z'
-  fields_json: '{}'
-  lot_id:
-  - recciEYi9p1bEiMg3
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-04T15:38:27.850Z'
-  type: FullyColonized
 - airtable_createdTime: '2025-12-12T18:17:30.000Z'
   airtable_id: rec8wEiyun8p2BNDS
   event_id: EVENT-251212-BNDS
@@ -1811,18 +1729,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260512-5O65
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - recZpMQRv6kkccQ13
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-24T13:17:27.000Z'
   airtable_id: rec9KiTZpP4KCUWX6
   event_id: EVENT-260324-UWX6
@@ -1881,37 +1791,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:40:27.000Z'
-  airtable_id: rec9qImYKM38bn5iQ
-  event_id: EVENT-260516-n5iQ
-  event_time_for_rollup: '2026-05-16T23:40:27.000Z'
-  fields_json: '{"grain_input_ids":["recXixSeVeJ0qvSKm"],"substrate_input_ids":["recH1dIOStyZTzHlJ","recUDqhCr8diCbSev"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":1,"output_count":2}'
-  lot_id:
-  - recvxQFjUCzGNanq5
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-05-29T13:19:26.000Z'
-  airtable_id: rec9qXMbugW4PvMxM
-  event_id: EVENT-260529-vMxM
-  event_time_for_rollup: '2026-05-29T13:19:24.673Z'
-  fields_json: '{}'
-  lot_id:
-  - recfyskUzH5JuKLen
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  timestamp: '2026-05-29T13:19:24.673Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-09T20:02:23.000Z'
   airtable_id: rec9uj4MnuTPI7ycm
   event_id: EVENT-251209-7ycm
@@ -1979,22 +1858,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-03T18:06:18.361Z'
   type: Pasteurized
-- airtable_createdTime: '2026-06-14T20:00:57.000Z'
-  airtable_id: recAMKrddRuMLp7s0
-  event_id: EVENT-260614-p7s0
-  event_time_for_rollup: '2026-06-14T20:00:56.255Z'
-  fields_json: '{}'
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recAPOCs7QSqP49tD
+  event_id: EVENT-260716-49tD
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
   lot_id:
-  - recvxQFjUCzGNanq5
-  station: Dark Room
+  - recbWgjsAIm0fXSHI
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
   status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-14T20:00:56.255Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-06-29T20:52:55.000Z'
   airtable_id: recAQd1gxa5EbUWIc
   event_id: EVENT-260629-UWIc
@@ -2118,6 +1994,17 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:31:14.000Z'
+  airtable_id: recBKdWtSMLTIg1a3
+  event_id: EVENT-260716-g1a3
+  event_time_for_rollup: '2026-07-16T19:31:14.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recOcbDldTKj2rSiB","recer483vxFZJnNYT","recZZPMcrQpkcUFXv"]}'
+  lot_id:
+  - reczAOAVJ591qCoFp
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2026-02-28T18:29:55.000Z'
   airtable_id: recBN8sqjrDtxOYLI
   event_id: EVENT-260228-OYLI
@@ -2258,19 +2145,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Consumed
   timestamp: '2026-05-23T19:07:25.243Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-14T21:12:10.000Z'
-  airtable_id: recBobGNbLN1kMK8t
-  event_id: EVENT-260514-MK8t
-  event_time_for_rollup: '2026-05-14T21:12:10.000Z'
-  fields_json: '{"grain_input_ids":["recuSnbtiyiw1dGby"],"substrate_input_ids":["recJz8yt01j49RSHr","rec5BdDEQYlvMjLLa","recTpUSLyilzSM2al","recf9jzuiq6eQ6Erq"],"per_output_unit_size_lb":3.125,"output_item_code":"FB-MM75-SM","output_index":3,"output_count":4}'
-  lot_id:
-  - recJVKklz8pXfa8cV
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
 - airtable_createdTime: '2026-07-06T20:17:19.000Z'
   airtable_id: recBpJDWef2fkZc1h
   event_id: EVENT-260706-Zc1h
@@ -2322,21 +2196,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-29T19:46:46.420Z'
   type: Pasteurized
-- airtable_createdTime: '2026-06-15T11:37:07.000Z'
-  airtable_id: recBsDoUm71ymbpRN
-  event_id: EVENT-260615-bpRN
-  event_time_for_rollup: '2026-06-15T11:37:06.629Z'
-  lot_id:
-  - rec34tNtceOfWaihk
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:37:06.629Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-09-29T16:30:45.000Z'
   airtable_id: recBwE8GHfrwZim0b
   event_id: EVENT-250929-im0b
@@ -2374,7 +2233,7 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   status (from lot_id):
-  - Sterilized
+  - Retired
   timestamp: '2026-05-19T18:36:15.927Z'
   type: Sterilized
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
@@ -2690,22 +2549,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-05-23T19:07:25.243Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T15:40:43.000Z'
-  airtable_id: recDSQqKLtmcTz8Qh
-  event_id: EVENT-260512-z8Qh
-  event_time_for_rollup: '2026-05-12T15:40:41.058Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":15,"operator":"","target_lot_id":"LOT-260512-mnSv"}'
-  lot_id:
-  - recxqesjPcoVamnSv
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:40:41.058Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-23T19:07:28.000Z'
   airtable_id: recDTJV4DAuKV4Jai
   event_id: EVENT-260523-4Jai
@@ -2769,21 +2612,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:01:57.000Z'
-  airtable_id: recDckLq5brIAe4BC
-  event_id: EVENT-260614-e4BC
-  event_time_for_rollup: '2026-06-14T20:01:56.686Z'
-  lot_id:
-  - rech6IJdPJWsC0dG2
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  timestamp: '2026-06-14T20:01:56.686Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-31T18:22:13.000Z'
   airtable_id: recDf7aqUxYSBnHbQ
   event_id: EVENT-251031-nHbQ
@@ -3045,22 +2873,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-21T17:16:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T15:39:55.000Z'
-  airtable_id: recEPkFR9JC5AEAqc
-  event_id: EVENT-260512-EAqc
-  event_time_for_rollup: '2026-05-12T15:39:54.277Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":10,"operator":"","target_lot_id":"LOT-260512-cQ13"}'
-  lot_id:
-  - recZpMQRv6kkccQ13
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:39:54.277Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-12T19:14:50.000Z'
   airtable_id: recERLgpRtVS4xWLo
   event_id: EVENT-251112-xWLo
@@ -3137,6 +2949,25 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-24T17:31:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recEiiiooG1IInpnI
+  event_id: EVENT-260716-npnI
+  event_time_for_rollup: '2026-07-16T19:32:59.000Z'
+  fields_json: '{"grain_input_ids":["rec3j4FEb64EiScwX"],"substrate_input_ids":["rec0t4tXf7pubsWcD","recOebh3B6AuifYKs","recnYBktdkxdyESip"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":2,"output_count":3}'
+  lot_id:
+  - recZm7U14atzF7Uyn
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - "Lion\u2019s Mane"
+  substrate_inputs (from lot_id):
+  - rec0t4tXf7pubsWcD
+  - recOebh3B6AuifYKs
+  - recnYBktdkxdyESip
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recEjMyNAQNDUzB6O
   event_id: EVENT-260424-zB6O
@@ -3274,21 +3105,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-05T17:21:04.594Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:37:00.000Z'
-  airtable_id: recFG10eczj8Kl3I8
-  event_id: EVENT-260615-l3I8
-  event_time_for_rollup: '2026-06-15T11:36:59.751Z'
-  lot_id:
-  - rec689aaANUwqwWxr
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:59.751Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recFHrPJrbOPiHxKX
   event_id: EVENT-260424-HxKX
@@ -3342,6 +3158,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2025-11-21T17:16:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recFROn1D4vD3hfE9
+  event_id: EVENT-260716-hfE9
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recg3oW0OvDVnyTL6
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-12-13T13:17:20.000Z'
   airtable_id: recFSHNZRTwUhvX4u
@@ -3650,6 +3479,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recH45Ysee4o0mqaJ
+  event_id: EVENT-260716-mqaJ
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - recBPx5P1SpV9OQBL
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-03-30T17:39:52.000Z'
   airtable_id: recH7dBaFl6cAPWpI
   event_id: EVENT-260330-PWpI
@@ -3686,22 +3528,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-24T13:17:23.986Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-13T17:03:32.000Z'
-  airtable_id: recHL7GnZu0wrK30w
-  event_id: EVENT-260513-K30w
-  event_time_for_rollup: '2026-05-13T17:03:31.161Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":10,"operator":"","target_lot_id":"LOT-260513-qM7i"}'
-  lot_id:
-  - rec7XlTO3zMS3qM7i
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T17:03:31.161Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-09-29T18:28:46.000Z'
   airtable_id: recHNjBXGEyTfcW5u
   event_id: EVENT-250929-cW5u
@@ -3849,6 +3675,17 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-21T17:16:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:32:13.000Z'
+  airtable_id: recI66dUZSzzNNw1O
+  event_id: EVENT-260716-Nw1O
+  event_time_for_rollup: '2026-07-16T19:32:13.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recfTKQt97CPJYj2M","recvN5Wl9mXPxVEqa","recr3acYNMXy9fz6c"]}'
+  lot_id:
+  - reclZmMP755JTJ0yh
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: recI6mGXpddUbhnJc
   event_id: EVENT-260104-hnJc
@@ -3930,18 +3767,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260513-C32m
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - reco0ji1b2KjEthzB
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recIdkzK7fhm7an6c
   event_id: EVENT-260424-an6c
@@ -4049,6 +3878,17 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-09T19:58:00.000Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:32:13.000Z'
+  airtable_id: recJC28Xan8uSlkqm
+  event_id: EVENT-260716-lkqm
+  event_time_for_rollup: '2026-07-16T19:32:13.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recfTKQt97CPJYj2M","recvN5Wl9mXPxVEqa","recr3acYNMXy9fz6c"]}'
+  lot_id:
+  - recQST9Vx5j2Tr9R2
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2025-09-29T16:30:45.000Z'
   airtable_id: recJCRgyBeElduUJc
   event_id: EVENT-250929-uUJc
@@ -4058,21 +3898,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-01T16:30:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:02:45.000Z'
-  airtable_id: recJCWEmuM3XPV9Hc
-  event_id: EVENT-260614-V9Hc
-  event_time_for_rollup: '2026-06-14T20:02:44.687Z'
-  lot_id:
-  - recesxUAkb8ra5bJ9
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-06-14T20:02:44.687Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-10-01T20:38:38.000Z'
   airtable_id: recJCpF1lSk0uVsKH
   event_id: EVENT-251001-VsKH
@@ -4176,21 +4001,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-06-24T22:15:41.781Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:43:53.000Z'
-  airtable_id: recJvw3FlmsD4wncJ
-  event_id: EVENT-260516-wncJ
-  event_time_for_rollup: '2026-05-16T23:43:53.000Z'
-  fields_json: '{"grain_input_ids":["reczGlHa8hPAsBAWG"],"substrate_input_ids":["receKsMVYjaL62j1M","reciU4mkgIJc6FKss","recOttOwiJVMomq3g","rec7WBWmi2WlMyQRo"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":3,"output_count":4}'
-  lot_id:
-  - recsV7dwpD1t51wJo
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-19T18:36:17.000Z'
   airtable_id: recJwIFugX36HU8Ih
   event_id: EVENT-260519-U8Ih
@@ -4201,7 +4011,7 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   status (from lot_id):
-  - Sterilized
+  - Retired
   timestamp: '2026-05-19T18:36:15.927Z'
   type: Sterilized
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
@@ -4555,21 +4365,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-09-01T16:42:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:34.000Z'
-  airtable_id: recLlLWxXlZWeqVIS
-  event_id: EVENT-260615-qVIS
-  event_time_for_rollup: '2026-06-15T11:36:34.142Z'
-  lot_id:
-  - rec1D4BqvDwCASibG
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:34.142Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-06T17:04:17.000Z'
   airtable_id: recLnD1aLIBY2Cgku
   event_id: EVENT-251106-Cgku
@@ -4579,21 +4374,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:43:53.000Z'
-  airtable_id: recLoGKkDkPnTZWlK
-  event_id: EVENT-260516-ZWlK
-  event_time_for_rollup: '2026-05-16T23:43:53.000Z'
-  fields_json: '{"grain_input_ids":["reczGlHa8hPAsBAWG"],"substrate_input_ids":["receKsMVYjaL62j1M","reciU4mkgIJc6FKss","recOttOwiJVMomq3g","rec7WBWmi2WlMyQRo"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":1,"output_count":4}'
-  lot_id:
-  - recTc21kOdqurPWA6
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-09-29T16:30:45.000Z'
   airtable_id: recLqQ8eyov93s36n
   event_id: EVENT-250929-s36n
@@ -4728,6 +4508,25 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Pasteurized
   timestamp: '2026-06-22T16:35:00.000Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: recMZHWtF7kOShYUR
+  event_id: EVENT-260716-hYUR
+  event_time_for_rollup: '2026-07-16T19:32:12.000Z'
+  fields_json: '{"grain_input_ids":["recfGPOZJ9R0N6QWZ"],"substrate_input_ids":["recJ9apcaFgcCboZF","reclZmMP755JTJ0yh","recQST9Vx5j2Tr9R2"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":2,"output_count":3}'
+  lot_id:
+  - recr3acYNMXy9fz6c
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - Black Pearl King Oyster
+  substrate_inputs (from lot_id):
+  - recJ9apcaFgcCboZF
+  - reclZmMP755JTJ0yh
+  - recQST9Vx5j2Tr9R2
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - MYYCO
 - airtable_createdTime: '2026-06-22T16:35:32.000Z'
   airtable_id: recMZLpYQgfyufF6r
   event_id: EVENT-260622-fF6r
@@ -4790,22 +4589,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-13T17:03:33.000Z'
-  airtable_id: recMonkV9Wt9Cckdh
-  event_id: EVENT-260513-ckdh
-  event_time_for_rollup: '2026-05-13T17:03:31.161Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":10,"operator":"","target_lot_id":"LOT-260513-3tzc"}'
-  lot_id:
-  - recAu1w9QrpnQ3tzc
-  station: Inoculation
-  status (from lot_id):
-  - Retired
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T17:03:31.161Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-13T13:17:03.000Z'
   airtable_id: recMxkItxYIpi6hCM
   event_id: EVENT-251213-6hCM
@@ -4972,21 +4755,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-10-30T19:34:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T22:44:33.000Z'
-  airtable_id: recNq3elmrNKdA5Zk
-  event_id: EVENT-260512-A5Zk
-  event_time_for_rollup: '2026-05-12T22:44:33.000Z'
-  fields_json: '{"grain_input_ids":["recD4AvVh3IR6kRcB"],"substrate_input_ids":["recuajxFdFVzxlEno","rec3aFjbJbpXVHgKt"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":0,"output_count":2}'
-  lot_id:
-  - recjy3YgBfr8f05m3
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Colonizing
-  strain_species_strain (from lot_id):
-  - Pink Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-07T12:42:44.000Z'
   airtable_id: recNtGUPy6rSOdgbt
   event_id: EVENT-260307-dgbt
@@ -5062,6 +4830,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Consumed
   timestamp: '2026-05-23T19:07:25.243Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recOFX7nUqDtpY94P
+  event_id: EVENT-260716-Y94P
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recOebh3B6AuifYKs
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2025-11-17T18:18:36.000Z'
   airtable_id: recOGfWU4oUTJ4iAF
   event_id: EVENT-251117-4iAF
@@ -5111,22 +4892,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-17T13:35:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-13T17:14:14.000Z'
-  airtable_id: recOYG0RaPg5SoxR6
-  event_id: EVENT-260513-oxR6
-  event_time_for_rollup: '2026-05-13T17:14:12.272Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":15,"operator":"","target_lot_id":"LOT-260513-Htdu"}'
-  lot_id:
-  - recLZDYpCTXGEHtdu
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T17:14:12.272Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recOeE0Inq4wr2MIe
   event_id: EVENT-260424-2MIe
@@ -5158,21 +4923,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-17T13:35:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:41:25.000Z'
-  airtable_id: recP1lKmrWzR81dt4
-  event_id: EVENT-260516-1dt4
-  event_time_for_rollup: '2026-05-16T23:41:25.000Z'
-  fields_json: '{"grain_input_ids":["recgWMysdYiUFE1Zx"],"substrate_input_ids":["recsWGK6tQySmWo75","reclFAvDlpJO8azHu"],"per_output_unit_size_lb":8.75,"output_item_code":"FB-MM75-LG","output_index":1,"output_count":2}'
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recP18Itb0OGJyOcg
+  event_id: EVENT-260716-yOcg
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
   lot_id:
-  - rech6IJdPJWsC0dG2
-  station: Spawn to Bulk
+  - recivgOCwxrq5j5U1
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
   status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-03-24T13:17:27.000Z'
   airtable_id: recP2KK39WcKzsX48
   event_id: EVENT-260324-sX48
@@ -5361,22 +5124,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-07T12:42:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:01:26.000Z'
-  airtable_id: recPk4cPIKbFIRfOx
-  event_id: EVENT-260614-RfOx
-  event_time_for_rollup: '2026-06-14T20:01:25.505Z'
-  fields_json: '{}'
-  lot_id:
-  - recBShGQGSE4qpNID
-  station: Dark Room
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  timestamp: '2026-06-14T20:01:25.505Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-07T12:42:45.000Z'
   airtable_id: recPl1E7nIHQu4fUL
   event_id: EVENT-260307-4fUL
@@ -5483,21 +5230,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-06T18:17:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-14T21:13:10.000Z'
-  airtable_id: recQ9npNYq3QQM5Jf
-  event_id: EVENT-260514-M5Jf
-  event_time_for_rollup: '2026-05-14T21:13:10.000Z'
-  fields_json: '{"grain_input_ids":["recLoXkq9vU3mIoq5"],"substrate_input_ids":["recNDYavtetW88UqV","recAAC2kv0zNKzRKP","reccpxS1qoNaA7LZS","rectV8TtEqO3K2xYB"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":0,"output_count":4}'
-  lot_id:
-  - recfyskUzH5JuKLen
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-07-06T20:10:38.000Z'
   airtable_id: recQB1twiMAPZphV1
   event_id: EVENT-260706-phV1
@@ -5814,21 +5546,25 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:52.000Z'
-  airtable_id: recRILRLmiAlfJGcA
-  event_id: EVENT-260615-JGcA
-  event_time_for_rollup: '2026-06-15T11:36:52.364Z'
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: recRItyPl8MhxRqaE
+  event_id: EVENT-260716-RqaE
+  event_time_for_rollup: '2026-07-16T19:32:12.000Z'
+  fields_json: '{"grain_input_ids":["recfGPOZJ9R0N6QWZ"],"substrate_input_ids":["recJ9apcaFgcCboZF","reclZmMP755JTJ0yh","recQST9Vx5j2Tr9R2"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":1,"output_count":3}'
   lot_id:
-  - rec1H2qUGTb4p5cqY
-  station: Fruiting
+  - recvN5Wl9mXPxVEqa
+  station: Spawn to Bulk
   status (from lot_id):
-  - Fruiting
+  - Colonizing
   strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:52.364Z'
-  type: FruitingStart
+  - Black Pearl King Oyster
+  substrate_inputs (from lot_id):
+  - recJ9apcaFgcCboZF
+  - reclZmMP755JTJ0yh
+  - recQST9Vx5j2Tr9R2
+  type: SpawnedToBulk
   vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - MYYCO
 - airtable_createdTime: '2025-09-29T18:28:46.000Z'
   airtable_id: recRLJnRzOAVZKNiQ
   event_id: EVENT-250929-KNiQ
@@ -5895,6 +5631,25 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recRdFf59rg4uBqUI
+  event_id: EVENT-260716-BqUI
+  event_time_for_rollup: '2026-07-16T19:31:13.000Z'
+  fields_json: '{"grain_input_ids":["recflofAblWGLAYo4"],"substrate_input_ids":["recg3oW0OvDVnyTL6","recPZ9TWSnPW84Aqy","reczAOAVJ591qCoFp"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":2,"output_count":3}'
+  lot_id:
+  - recZZPMcrQpkcUFXv
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - Chestnut
+  substrate_inputs (from lot_id):
+  - recg3oW0OvDVnyTL6
+  - recPZ9TWSnPW84Aqy
+  - reczAOAVJ591qCoFp
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - Fungaia
 - airtable_createdTime: '2026-04-22T12:28:54.000Z'
   airtable_id: recRfSE9Vzh3hp0hX
   event_id: EVENT-260422-p0hX
@@ -5944,22 +5699,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-08-01T15:52:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:01:47.000Z'
-  airtable_id: recRt4HPyKKUQa9a4
-  event_id: EVENT-260614-a9a4
-  event_time_for_rollup: '2026-06-14T20:01:46.373Z'
-  fields_json: '{}'
-  lot_id:
-  - rech6IJdPJWsC0dG2
-  station: Dark Room
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  timestamp: '2026-06-14T20:01:46.373Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-10T15:52:27.000Z'
   airtable_id: recRvo7eQrrM039CK
   event_id: EVENT-251010-39CK
@@ -6023,22 +5762,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-10-07T16:17:00.000Z'
   type: Pasteurized
-- airtable_createdTime: '2026-06-04T15:37:33.000Z'
-  airtable_id: recSDfISSt8g5BzGD
-  event_id: EVENT-260604-BzGD
-  event_time_for_rollup: '2026-06-04T15:37:32.314Z'
-  fields_json: '{}'
-  lot_id:
-  - recTc21kOdqurPWA6
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  timestamp: '2026-06-04T15:37:32.314Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-22T16:35:32.000Z'
   airtable_id: recSGFqONadPL6UQi
   event_id: EVENT-260622-6UQi
@@ -6052,6 +5775,18 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Pasteurized
   timestamp: '2026-06-22T16:35:00.000Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-13T21:00:20.000Z'
+  airtable_id: recSIuvBaaRtz0smg
+  event_id: EVENT-260713-0smg
+  event_time_for_rollup: '2026-07-13T21:00:19.675Z'
+  fields_json: '{}'
+  lot_id:
+  - rec4QF0LSv1qIKWqg
+  station: Dark Room
+  status (from lot_id):
+  - Retired
+  timestamp: '2026-07-13T21:00:19.675Z'
+  type: Contaminated
 - airtable_createdTime: '2025-12-13T18:31:14.000Z'
   airtable_id: recSJpPJ6fSON0bZf
   event_id: EVENT-251213-0bZf
@@ -6245,6 +5980,17 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-29T19:44:27.969Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:33:00.000Z'
+  airtable_id: recT77EMpN7ExCoBV
+  event_id: EVENT-260716-CoBV
+  event_time_for_rollup: '2026-07-16T19:33:00.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recIuUpWM4VtZkQ24","rectzsA2X0Y490AsE","recZm7U14atzF7Uyn"]}'
+  lot_id:
+  - recOebh3B6AuifYKs
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2025-11-06T17:10:42.000Z'
   airtable_id: recT7FD4bUdc3MCB4
   event_id: EVENT-251106-MCB4
@@ -6290,22 +6036,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-16T16:17:00.000Z'
   type: Destroyed
-- airtable_createdTime: '2026-06-18T21:05:33.000Z'
-  airtable_id: recTKiIPF6Flm3WLN
-  event_id: EVENT-260618-3WLN
-  event_time_for_rollup: '2026-06-18T21:05:32.143Z'
-  fields_json: '{}'
-  lot_id:
-  - recsV7dwpD1t51wJo
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  timestamp: '2026-06-18T21:05:32.143Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-09-29T15:52:22.000Z'
   airtable_id: recTKvRyUKrWh1PrN
   event_id: EVENT-250929-1PrN
@@ -6357,21 +6087,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:01:37.000Z'
-  airtable_id: recTfZqIWN79Rwp3W
-  event_id: EVENT-260614-wp3W
-  event_time_for_rollup: '2026-06-14T20:01:36.565Z'
-  lot_id:
-  - recBShGQGSE4qpNID
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Bronze Reishi
-  timestamp: '2026-06-14T20:01:36.565Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-10T18:23:52.000Z'
   airtable_id: recTgA9PxVjnY8q0A
   event_id: EVENT-260310-8q0A
@@ -6440,18 +6155,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260512-EWRl
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - recxqesjPcoVamnSv
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-29T19:46:47.000Z'
   airtable_id: recUChKJQiagjf0rC
   event_id: EVENT-251229-f0rC
@@ -6551,22 +6258,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-29T19:44:27.969Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-12T15:22:53.000Z'
-  airtable_id: recUhC4ekBd1fHBTv
-  event_id: EVENT-260512-HBTv
-  event_time_for_rollup: '2026-05-12T15:22:51.525Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":4,"operator":"","target_lot_id":"LOT-260512-wWxr"}'
-  lot_id:
-  - rec689aaANUwqwWxr
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:22:51.525Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-02-28T18:29:55.000Z'
   airtable_id: recUhDyGgnBEo3N2n
   event_id: EVENT-260228-3N2n
@@ -6618,22 +6309,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-05-05T22:22:14.543Z'
   type: Sterilized
-- airtable_createdTime: '2026-07-06T18:46:07.000Z'
-  airtable_id: recUlwdg5COBPVbGy
-  event_id: EVENT-260706-VbGy
-  event_time_for_rollup: '2026-07-06T18:46:06.698Z'
-  fields_json: '{"created_product_ids":["recdis5Epwl9QZclz","recUOXiqzawcKQFyP"],"harvest_weight_g":333.05,"flush_no":2,"fresh_tray_count":0,"frozen_tray_count":2,"total_trays":2,"per_tray_weight_g":166.525}'
-  lot_id:
-  - recFcOoOyzaTIPoAX
-  station: Harvest
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-07-06T18:46:06.698Z'
-  type: Harvest
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-09-29T15:52:22.000Z'
   airtable_id: recUmGe1cXiAAqxiI
   event_id: EVENT-250929-qxiI
@@ -6697,22 +6372,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-05-23T19:07:25.243Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:10.000Z'
-  airtable_id: recVF4rHjtLczYfP2
-  event_id: EVENT-260615-YfP2
-  event_time_for_rollup: '2026-06-15T11:36:09.931Z'
-  fields_json: '{}'
-  lot_id:
-  - recAu1w9QrpnQ3tzc
-  station: Dark Room
-  status (from lot_id):
-  - Retired
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:09.931Z'
-  type: Contaminated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-16T15:44:22.000Z'
   airtable_id: recVMNqpdfG29vIR6
   event_id: EVENT-260116-vIR6
@@ -6733,6 +6392,25 @@ Operator 2 <operator2.email.address@mybusiness.com>
   status (from lot_id):
   - Consumed
   type: Consumed
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recVUOAe2KMwr2Iiq
+  event_id: EVENT-260716-2Iiq
+  event_time_for_rollup: '2026-07-16T19:31:13.000Z'
+  fields_json: '{"grain_input_ids":["recflofAblWGLAYo4"],"substrate_input_ids":["recg3oW0OvDVnyTL6","recPZ9TWSnPW84Aqy","reczAOAVJ591qCoFp"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":1,"output_count":3}'
+  lot_id:
+  - recer483vxFZJnNYT
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - Chestnut
+  substrate_inputs (from lot_id):
+  - recg3oW0OvDVnyTL6
+  - recPZ9TWSnPW84Aqy
+  - reczAOAVJ591qCoFp
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - Fungaia
 - airtable_createdTime: '2026-01-16T15:44:22.000Z'
   airtable_id: recVW2s0rS0IoROKi
   event_id: EVENT-260116-ROKi
@@ -6897,6 +6575,17 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-24T13:17:23.986Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:32:13.000Z'
+  airtable_id: recWGDyUuOqrKXsnl
+  event_id: EVENT-260716-Xsnl
+  event_time_for_rollup: '2026-07-16T19:32:13.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recfTKQt97CPJYj2M","recvN5Wl9mXPxVEqa","recr3acYNMXy9fz6c"]}'
+  lot_id:
+  - recJ9apcaFgcCboZF
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2025-09-29T15:52:22.000Z'
   airtable_id: recWGiRYbDwwpgxAs
   event_id: EVENT-250929-gxAs
@@ -7094,6 +6783,18 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-08-01T15:52:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-13T21:00:19.000Z'
+  airtable_id: recX3JqmktCNhXo3b
+  event_id: EVENT-260713-Xo3b
+  event_time_for_rollup: '2026-07-13T21:00:18.349Z'
+  fields_json: '{}'
+  lot_id:
+  - rec147K0RiZBNkLe2
+  station: Dark Room
+  status (from lot_id):
+  - Retired
+  timestamp: '2026-07-13T21:00:18.349Z'
+  type: Contaminated
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: recX3ua3Dm6ICDzWB
   event_id: EVENT-260616-DzWB
@@ -7152,36 +6853,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-09T19:58:00.000Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-14T21:13:10.000Z'
-  airtable_id: recXNgNeE4LW5lFzz
-  event_id: EVENT-260514-lFzz
-  event_time_for_rollup: '2026-05-14T21:13:10.000Z'
-  fields_json: '{"grain_input_ids":["recLoXkq9vU3mIoq5"],"substrate_input_ids":["recNDYavtetW88UqV","recAAC2kv0zNKzRKP","reccpxS1qoNaA7LZS","rectV8TtEqO3K2xYB"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":3,"output_count":4}'
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recXL31oKYwJkhAOS
+  event_id: EVENT-260716-hAOS
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
   lot_id:
-  - recDmtKc314E0h8zS
-  station: Spawn to Bulk
+  - recyX8biHJzuxaq8r
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
   status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-06-14T19:46:34.000Z'
-  airtable_id: recXTB1aiDKN6BwPx
-  event_id: EVENT-260614-BwPx
-  event_time_for_rollup: '2026-06-14T19:46:34.249Z'
-  lot_id:
-  - reclCvNJMD8FJfL1i
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-14T19:46:34.249Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2025-10-06T13:52:08.000Z'
   airtable_id: recXUgpbNpLz5GUGt
   event_id: EVENT-251006-GUGt
@@ -7207,18 +6891,10 @@ Operator 1 <operator1.email.address@mybusiness.com>
   event_id: EVENT-260513-OB3B
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec7XlTO3zMS3qM7i
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-31T18:12:52.000Z'
   airtable_id: recXeLd79gx7LefIw
   event_id: EVENT-251031-efIw
@@ -7434,6 +7110,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-09-29T16:56:17.617Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recYSMZYWS5S6gMIL
+  event_id: EVENT-260716-gMIL
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - recbdDtcPWKKK1ull
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-01-15T13:54:00.000Z'
   airtable_id: recYSiaiuJoJQW05f
   event_id: EVENT-260115-W05f
@@ -7470,22 +7159,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-15T13:54:00.000Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-29T13:19:03.000Z'
-  airtable_id: recYiSGN6QFjUvxyZ
-  event_id: EVENT-260529-vxyZ
-  event_time_for_rollup: '2026-05-29T13:19:01.614Z'
-  fields_json: '{}'
-  lot_id:
-  - recRi7HbiA11M4UOG
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  timestamp: '2026-05-29T13:19:01.614Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-05T22:22:16.000Z'
   airtable_id: recYlRADSUztnO7PQ
   event_id: EVENT-260505-O7PQ
@@ -7495,21 +7168,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-05-05T22:22:14.543Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:42:38.000Z'
-  airtable_id: recYq9tkxpzo1Rl0c
-  event_id: EVENT-260516-Rl0c
-  event_time_for_rollup: '2026-05-16T23:42:38.000Z'
-  fields_json: '{"grain_input_ids":["recmoNKT8WMOQEWKD"],"substrate_input_ids":["recFA07XISHru06Wa","recCFIoJHnO8pa5cp","recMWmMAomB9DcFaY","recYWNToc4VtBYeKF"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":1,"output_count":4}'
-  lot_id:
-  - rec04533gFaZRodNe
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-04T20:27:23.000Z'
   airtable_id: recYqTZ6mUqWiF7Do
   event_id: EVENT-260104-F7Do
@@ -7546,6 +7204,21 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recZAsWepGHAfginK
+  event_id: EVENT-260713-ginK
+  event_time_for_rollup: '2026-07-13T20:58:54.000Z'
+  fields_json: '{"grain_input_ids":["recuFurbEVrwWYrz8"],"substrate_input_ids":["recmFku57yRtfqkub","receL0vTHMoY5B30M","recp7KLAsLcPgLVDJ"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-MM75-SM","output_index":0,"output_count":3}'
+  lot_id:
+  - recH2LOLClpxeE3zO
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - "Lion\u2019s Mane"
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - MYYCO
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recZCHzFArBz6uiuv
   event_id: EVENT-260424-uiuv
@@ -7627,21 +7300,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-09-29T16:56:17.617Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:01:06.000Z'
-  airtable_id: recZVZApTE1otXgQj
-  event_id: EVENT-260614-XgQj
-  event_time_for_rollup: '2026-06-14T20:01:06.105Z'
-  lot_id:
-  - recvxQFjUCzGNanq5
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-14T20:01:06.105Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-29T19:44:29.000Z'
   airtable_id: recZcCIsvLocfrcqz
   event_id: EVENT-251229-rcqz
@@ -7796,6 +7454,18 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-22T12:28:52.942Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-13T21:00:52.000Z'
+  airtable_id: recaaLeYc9OBNYLrH
+  event_id: EVENT-260713-YLrH
+  event_time_for_rollup: '2026-07-13T21:00:51.230Z'
+  fields_json: '{}'
+  lot_id:
+  - recLxbYolvrzsPB1s
+  station: Dark Room
+  status (from lot_id):
+  - Retired
+  timestamp: '2026-07-13T21:00:51.230Z'
+  type: Contaminated
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: recae0r4zEhZWmS9J
   event_id: EVENT-260104-mS9J
@@ -7805,22 +7475,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-29T13:19:49.000Z'
-  airtable_id: recafHvxJwnmxW6m1
-  event_id: EVENT-260529-W6m1
-  event_time_for_rollup: '2026-05-29T13:19:47.635Z'
-  fields_json: '{}'
-  lot_id:
-  - recxSBBfXoHgZQbeT
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  timestamp: '2026-05-29T13:19:47.635Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: recakYY65kwNapFrO
   event_id: EVENT-260104-pFrO
@@ -7829,6 +7483,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recalBfayLLt1VjUT
+  event_id: EVENT-260716-VjUT
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recKBrbqslqu78ApW
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recanazGBDYZvZmtP
@@ -7927,6 +7594,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   status (from lot_id):
   - Sterilized
   timestamp: '2026-06-24T22:04:27.843Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recb6sqRwApSq8353
+  event_id: EVENT-260716-8353
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - recIZMdTl2YCcPCxQ
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-10-06T13:52:08.000Z'
   airtable_id: recbA353pQZcAbL1l
@@ -8040,21 +7720,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-16T15:44:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:45.000Z'
-  airtable_id: recba9NSuSKhHahkz
-  event_id: EVENT-260615-ahkz
-  event_time_for_rollup: '2026-06-15T11:36:44.582Z'
-  lot_id:
-  - reco0ji1b2KjEthzB
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:44.582Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-24T22:04:30.000Z'
   airtable_id: recbcDF6LttgUrDjS
   event_id: EVENT-260624-rDjS
@@ -8100,18 +7765,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260513-1DFK
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec34emtMzGgC51ad
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: recbsMgIpbgYd4Nuk
   event_id: EVENT-260616-4Nuk
@@ -8410,6 +8067,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   - Retired
   timestamp: '2026-06-19T19:06:53.332Z'
   type: Contaminated
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recdhFd9qEfGBPAag
+  event_id: EVENT-260716-PAag
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec0t4tXf7pubsWcD
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2025-11-06T17:10:42.000Z'
   airtable_id: recdiGo197IYiijTb
   event_id: EVENT-251106-ijTb
@@ -8625,37 +8295,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-02-28T18:29:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:54.000Z'
-  airtable_id: recea0Ttp57cOzx95
-  event_id: EVENT-260615-zx95
-  event_time_for_rollup: '2026-06-15T11:36:53.589Z'
-  lot_id:
-  - recxqesjPcoVamnSv
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:53.589Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-05-13T17:14:13.000Z'
-  airtable_id: reced5fBI8YxJAlOD
-  event_id: EVENT-260513-AlOD
-  event_time_for_rollup: '2026-05-13T17:14:12.272Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":15,"operator":"","target_lot_id":"LOT-260513-SibG"}'
-  lot_id:
-  - rec1D4BqvDwCASibG
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T17:14:12.272Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-12T19:14:50.000Z'
   airtable_id: receewT9EwrdctlzM
   event_id: EVENT-251112-tlzM
@@ -8737,22 +8376,17 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-13T13:16:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-13T16:55:49.000Z'
-  airtable_id: recf00N5u5wRuoLv7
-  event_id: EVENT-260513-oLv7
-  event_time_for_rollup: '2026-05-13T16:55:46.935Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":5,"operator":"","target_lot_id":"LOT-260513-thzB"}'
+- airtable_createdTime: '2026-07-16T19:31:14.000Z'
+  airtable_id: recf0blUpuwvPtVPX
+  event_id: EVENT-260716-tVPX
+  event_time_for_rollup: '2026-07-16T19:31:14.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recOcbDldTKj2rSiB","recer483vxFZJnNYT","recZZPMcrQpkcUFXv"]}'
   lot_id:
-  - reco0ji1b2KjEthzB
-  station: Inoculation
+  - recPZ9TWSnPW84Aqy
+  station: Spawn to Bulk
   status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-13T16:55:46.935Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2026-03-24T13:17:27.000Z'
   airtable_id: recf3CRGLR3NNuNdF
   event_id: EVENT-260324-uNdF
@@ -8829,20 +8463,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-24T13:17:23.986Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-29T01:57:36.000Z'
-  airtable_id: recfKivaTtZSToBNr
-  event_id: EVENT-260629-oBNr
-  event_time_for_rollup: '2026-06-29T01:57:34.959Z'
-  fields_json: '{}'
-  lot_id:
-  - recMAGHvFxICI7LDh
-  station: Dark Room
-  status (from lot_id):
-  - Fridge
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-29T01:57:34.959Z'
-  type: FullyColonized
 - airtable_createdTime: '2026-06-24T22:15:43.000Z'
   airtable_id: recfLpc1yEOX4VrXR
   event_id: EVENT-260624-VrXR
@@ -8851,6 +8471,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
 Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-06-24T22:15:41.781Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recfQjGLknUPZBqKU
+  event_id: EVENT-260716-BqKU
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recPZ9TWSnPW84Aqy
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-03-24T13:17:27.000Z'
   airtable_id: recfS0uePCKEyjSmL
@@ -8915,21 +8548,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-05-05T22:22:14.543Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:37:03.000Z'
-  airtable_id: recfl39uIPiLC8y6j
-  event_id: EVENT-260615-8y6j
-  event_time_for_rollup: '2026-06-15T11:37:02.587Z'
-  lot_id:
-  - recZpMQRv6kkccQ13
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:37:02.587Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-16T16:38:22.000Z'
   airtable_id: recfmecuHvP3w7wBP
   event_id: EVENT-251216-7wBP
@@ -9055,18 +8673,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260512-8p9k
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec34tNtceOfWaihk
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-12T19:15:55.000Z'
   airtable_id: recgG0VWr2HW9qBCb
   event_id: EVENT-251112-qBCb
@@ -9106,6 +8716,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   status (from lot_id):
   - Sterilized
   timestamp: '2026-06-15T16:51:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recgUTveU6JEcMZ6U
+  event_id: EVENT-260716-MZ6U
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recnYBktdkxdyESip
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: recgVTQZb1mbWCR4x
@@ -9268,6 +8891,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rechKq0a6UjRyIS99
+  event_id: EVENT-260716-IS99
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec20fCpEhmseFJRb
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: rechLuoivBHQyM17W
   event_id: EVENT-260424-M17W
@@ -9304,37 +8940,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-17T13:36:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T19:46:25.000Z'
-  airtable_id: rechZOsXCWTYnaoUf
-  event_id: EVENT-260614-aoUf
-  event_time_for_rollup: '2026-06-14T19:46:24.076Z'
-  fields_json: '{}'
-  lot_id:
-  - reclCvNJMD8FJfL1i
-  station: Dark Room
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-14T19:46:24.076Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-05-14T21:13:10.000Z'
-  airtable_id: rechgBSjhJMZ9WyO4
-  event_id: EVENT-260514-WyO4
-  event_time_for_rollup: '2026-05-14T21:13:10.000Z'
-  fields_json: '{"grain_input_ids":["recLoXkq9vU3mIoq5"],"substrate_input_ids":["recNDYavtetW88UqV","recAAC2kv0zNKzRKP","reccpxS1qoNaA7LZS","rectV8TtEqO3K2xYB"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":2,"output_count":4}'
-  lot_id:
-  - recxSBBfXoHgZQbeT
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-18T16:45:56.000Z'
   airtable_id: rechgpMsJ5w0OU711
   event_id: EVENT-251218-U711
@@ -9500,6 +9105,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-13T13:16:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: reciIwT330MsNHkzy
+  event_id: EVENT-260716-Hkzy
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - reca0loZu6y2aluhU
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2025-12-13T13:17:20.000Z'
   airtable_id: reciK92MG6WdqGS23
   event_id: EVENT-251213-GS23
@@ -9519,7 +9137,7 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   status (from lot_id):
-  - Sterilized
+  - Retired
   timestamp: '2026-05-19T18:36:15.927Z'
   type: Sterilized
 - airtable_createdTime: '2026-05-12T15:21:56.000Z'
@@ -9527,46 +9145,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260512-xMOZ
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec689aaANUwqwWxr
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
-- airtable_createdTime: '2026-05-14T21:12:10.000Z'
-  airtable_id: reciPLUWnHBShP06o
-  event_id: EVENT-260514-P06o
-  event_time_for_rollup: '2026-05-14T21:12:10.000Z'
-  fields_json: '{"grain_input_ids":["recuSnbtiyiw1dGby"],"substrate_input_ids":["recJz8yt01j49RSHr","rec5BdDEQYlvMjLLa","recTpUSLyilzSM2al","recf9jzuiq6eQ6Erq"],"per_output_unit_size_lb":3.125,"output_item_code":"FB-MM75-SM","output_index":2,"output_count":4}'
-  lot_id:
-  - recMAGHvFxICI7LDh
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fridge
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
-- airtable_createdTime: '2026-05-16T23:43:53.000Z'
-  airtable_id: reciRvmkFtSbb6aMe
-  event_id: EVENT-260516-6aMe
-  event_time_for_rollup: '2026-05-16T23:43:53.000Z'
-  fields_json: '{"grain_input_ids":["reczGlHa8hPAsBAWG"],"substrate_input_ids":["receKsMVYjaL62j1M","reciU4mkgIJc6FKss","recOttOwiJVMomq3g","rec7WBWmi2WlMyQRo"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":2,"output_count":4}'
-  lot_id:
-  - recrq4Q4GXjh1lhJv
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-27T22:05:07.000Z'
   airtable_id: reciWGMntmOweClrL
   event_id: EVENT-260527-ClrL
@@ -9614,22 +9196,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:02:06.000Z'
-  airtable_id: recirncWvfmC5DmfQ
-  event_id: EVENT-260614-DmfQ
-  event_time_for_rollup: '2026-06-14T20:02:05.854Z'
-  fields_json: '{}'
-  lot_id:
-  - recFcOoOyzaTIPoAX
-  station: Dark Room
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-06-14T20:02:05.854Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-10-31T18:22:13.000Z'
   airtable_id: recis1cAcOOJg6A0O
   event_id: EVENT-251031-6A0O
@@ -9695,6 +9261,17 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-24T07:30:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:33:00.000Z'
+  airtable_id: recjDyO6cQ5dW5fuP
+  event_id: EVENT-260716-5fuP
+  event_time_for_rollup: '2026-07-16T19:33:00.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recIuUpWM4VtZkQ24","rectzsA2X0Y490AsE","recZm7U14atzF7Uyn"]}'
+  lot_id:
+  - rec0t4tXf7pubsWcD
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Consumed
+  type: Consumed
 - airtable_createdTime: '2026-05-25T18:58:08.000Z'
   airtable_id: recjFMkjzRd0G5lGk
   event_id: EVENT-260525-5lGk
@@ -9730,21 +9307,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-16T15:44:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:42:38.000Z'
-  airtable_id: recjKJYRbtWS6JB5Z
-  event_id: EVENT-260516-JB5Z
-  event_time_for_rollup: '2026-05-16T23:42:38.000Z'
-  fields_json: '{"grain_input_ids":["recmoNKT8WMOQEWKD"],"substrate_input_ids":["recFA07XISHru06Wa","recCFIoJHnO8pa5cp","recMWmMAomB9DcFaY","recYWNToc4VtBYeKF"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":0,"output_count":4}'
-  lot_id:
-  - recRi7HbiA11M4UOG
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-16T16:17:34.000Z'
   airtable_id: recjOKJUIsIY7trYy
   event_id: EVENT-260116-trYy
@@ -9866,6 +9428,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: reck6IBiYhn60EusZ
+  event_id: EVENT-260716-EusZ
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec2xEuGN2Z0Jk4Ev
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2025-10-31T18:22:13.000Z'
   airtable_id: reck8dtRSPcwH2AI7
   event_id: EVENT-251031-2AI7
@@ -9932,6 +9507,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   status (from lot_id):
   - Sterilized
   timestamp: '2026-06-24T22:04:27.843Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: reckZ9FVDMzNcvR1n
+  event_id: EVENT-260716-vR1n
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - recIuHYUmF1q1F4ex
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: reckZzp1GgoH76YZm
@@ -10031,38 +9619,15 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T22:44:33.000Z'
-  airtable_id: reclEsrjLR7jLj2fL
-  event_id: EVENT-260512-j2fL
-  event_time_for_rollup: '2026-05-12T22:44:33.000Z'
-  fields_json: '{"grain_input_ids":["recD4AvVh3IR6kRcB"],"substrate_input_ids":["recuajxFdFVzxlEno","rec3aFjbJbpXVHgKt"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":1,"output_count":2}'
-  lot_id:
-  - recfCCE3M1nfURJUG
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Colonizing
-  strain_species_strain (from lot_id):
-  - Pink Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-12T15:21:56.000Z'
   airtable_id: reclFZ5zinPJo1b7b
   event_id: EVENT-260512-1b7b
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - recwOLDrnD1q6kGdW
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: reclIDKPxub11v9GY
   event_id: EVENT-260616-v9GY
@@ -10076,19 +9641,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Sterilized
   timestamp: '2026-06-15T16:51:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-14T21:12:10.000Z'
-  airtable_id: reclJpvMpAUgfubxe
-  event_id: EVENT-260514-ubxe
-  event_time_for_rollup: '2026-05-14T21:12:10.000Z'
-  fields_json: '{"grain_input_ids":["recuSnbtiyiw1dGby"],"substrate_input_ids":["recJz8yt01j49RSHr","rec5BdDEQYlvMjLLa","recTpUSLyilzSM2al","recf9jzuiq6eQ6Erq"],"per_output_unit_size_lb":3.125,"output_item_code":"FB-MM75-SM","output_index":1,"output_count":4}'
-  lot_id:
-  - recciEYi9p1bEiMg3
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: reclJqmXwIjoARVsW
   event_id: EVENT-260104-RVsW
@@ -10254,6 +9806,21 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-24T07:30:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recmBIKr6LkT2nbwq
+  event_id: EVENT-260713-nbwq
+  event_time_for_rollup: '2026-07-13T20:58:54.000Z'
+  fields_json: '{"grain_input_ids":["recuFurbEVrwWYrz8"],"substrate_input_ids":["recmFku57yRtfqkub","receL0vTHMoY5B30M","recp7KLAsLcPgLVDJ"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-MM75-SM","output_index":2,"output_count":3}'
+  lot_id:
+  - recv7JbrkbddIKYBQ
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - "Lion\u2019s Mane"
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - MYYCO
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: recmFXk98aubodtSA
   event_id: EVENT-260616-dtSA
@@ -10306,21 +9873,17 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-02-16T23:15:57.425Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-14T21:13:10.000Z'
-  airtable_id: recmYXlk8t3f2zMXC
-  event_id: EVENT-260514-zMXC
-  event_time_for_rollup: '2026-05-14T21:13:10.000Z'
-  fields_json: '{"grain_input_ids":["recLoXkq9vU3mIoq5"],"substrate_input_ids":["recNDYavtetW88UqV","recAAC2kv0zNKzRKP","reccpxS1qoNaA7LZS","rectV8TtEqO3K2xYB"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":1,"output_count":4}'
+- airtable_createdTime: '2026-07-16T19:33:00.000Z'
+  airtable_id: recmeRx6mAAb1QHPt
+  event_id: EVENT-260716-QHPt
+  event_time_for_rollup: '2026-07-16T19:33:00.000Z'
+  fields_json: '{"consumed_by_lot_ids":["recIuUpWM4VtZkQ24","rectzsA2X0Y490AsE","recZm7U14atzF7Uyn"]}'
   lot_id:
-  - recvyxpWHDZNxXktn
+  - recnYBktdkxdyESip
   station: Spawn to Bulk
   status (from lot_id):
   - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  type: Consumed
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
   airtable_id: recmeSpT128tT2KwK
   event_id: EVENT-260616-2KwK
@@ -10397,21 +9960,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-14T20:02:12.000Z'
-  airtable_id: recmzEPcnOPupi1Ze
-  event_id: EVENT-260614-i1Ze
-  event_time_for_rollup: '2026-06-14T20:02:12.110Z'
-  lot_id:
-  - recFcOoOyzaTIPoAX
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-06-14T20:02:12.110Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2026-05-23T19:07:28.000Z'
   airtable_id: recn1x7ucH8j5Nwsx
   event_id: EVENT-260523-Nwsx
@@ -10429,6 +9977,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2026-03-30T17:39:50.874Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recn9DWlRYpsQRvkf
+  event_id: EVENT-260716-Rvkf
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - rec6aa0uS3gzxGQJD
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: recnDYrL9ZHRDeft3
@@ -10456,6 +10017,32 @@ Operator 1 <operator1.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2026-04-22T12:28:52.942Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recnLY6MVWoEF80OP
+  event_id: EVENT-260716-80OP
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - rectuqOs4vyXILiXu
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recnNm4KvEDQPh0Oo
+  event_id: EVENT-260716-h0Oo
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recCb5n7AOjzD67Er
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-04-09T20:39:00.000Z'
   airtable_id: recnSFAD1SV4nALoM
@@ -10628,6 +10215,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: reco1oUaYU6rgI1ph
+  event_id: EVENT-260716-I1ph
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec6EZ3Bj2890D8Xu
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-06-24T22:04:30.000Z'
   airtable_id: reco2qRI2UNzNoVkG
   event_id: EVENT-260624-oVkG
@@ -10774,18 +10374,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260513-PvC7
   event_time_for_rollup: '2026-05-13T16:47:37.020Z'
   fields_json: '{"run_id":"recWAbeni0r7lEmMj","run_no":"RUN-260512-EmMj","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec1D4BqvDwCASibG
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-13T16:47:37.020Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-04T20:27:22.000Z'
   airtable_id: recoYg6XsFwgjvjMS
   event_id: EVENT-260104-vjMS
@@ -10813,6 +10405,18 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-10-01T20:38:00.000Z'
   type: Destroyed
+- airtable_createdTime: '2026-07-13T21:00:51.000Z'
+  airtable_id: recogfykRpLm21t7P
+  event_id: EVENT-260713-1t7P
+  event_time_for_rollup: '2026-07-13T21:00:50.098Z'
+  fields_json: '{}'
+  lot_id:
+  - receXyX0xRj94sHQo
+  station: Dark Room
+  status (from lot_id):
+  - Retired
+  timestamp: '2026-07-13T21:00:50.098Z'
+  type: Contaminated
 - airtable_createdTime: '2026-05-19T18:36:17.000Z'
   airtable_id: recogx8z8A6zGBCgg
   event_id: EVENT-260519-BCgg
@@ -10823,8 +10427,21 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   status (from lot_id):
-  - Sterilized
+  - Retired
   timestamp: '2026-05-19T18:36:15.927Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recojltN42UO8T1AA
+  event_id: EVENT-260716-T1AA
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rec4Uj5VnzfJf2VPo
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-11-17T18:18:36.000Z'
   airtable_id: recomwmR9dnVHfFA8
@@ -10947,21 +10564,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Sterilized
   timestamp: '2026-06-15T16:51:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:26.000Z'
-  airtable_id: recpF9vWTJ0ARGi9J
-  event_id: EVENT-260615-Gi9J
-  event_time_for_rollup: '2026-06-15T11:36:26.293Z'
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recpF6iCEBb93RoY8
+  event_id: EVENT-260716-RoY8
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
   lot_id:
-  - rec34emtMzGgC51ad
-  station: Fruiting
+  - recpph56flsIcb1JP
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
   status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:26.293Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recpLBMVcxIN0fd25
   event_id: EVENT-260424-fd25
@@ -10971,22 +10586,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-24T07:30:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-07-01T22:09:04.000Z'
-  airtable_id: recpRpt1fxYYkhef5
-  event_id: EVENT-260701-hef5
-  event_time_for_rollup: '2026-07-01T22:09:04.118Z'
-  fields_json: '{"created_product_ids":["rec75BIQxk9ymlmWO"],"harvest_weight_g":155.32,"flush_no":1,"fresh_tray_count":0,"frozen_tray_count":1,"total_trays":1,"per_tray_weight_g":155.32}'
-  lot_id:
-  - recesxUAkb8ra5bJ9
-  station: Harvest
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  timestamp: '2026-07-01T22:09:04.118Z'
-  type: Harvest
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-10-13T19:26:42.000Z'
   airtable_id: recpSVRcgv7AHy1HZ
   event_id: EVENT-251013-y1HZ
@@ -11108,21 +10707,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-01T16:30:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:42:38.000Z'
-  airtable_id: recq37F7PddtmesKQ
-  event_id: EVENT-260516-esKQ
-  event_time_for_rollup: '2026-05-16T23:42:38.000Z'
-  fields_json: '{"grain_input_ids":["recmoNKT8WMOQEWKD"],"substrate_input_ids":["recFA07XISHru06Wa","recCFIoJHnO8pa5cp","recMWmMAomB9DcFaY","recYWNToc4VtBYeKF"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":3,"output_count":4}'
-  lot_id:
-  - recubhnQdNB05fgNv
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-09T20:02:23.000Z'
   airtable_id: recq3ODqfMlxuAWuz
   event_id: EVENT-251209-AWuz
@@ -11172,6 +10756,25 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-08-01T18:28:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recqAjlEs1nV0s2Ny
+  event_id: EVENT-260716-s2Ny
+  event_time_for_rollup: '2026-07-16T19:31:13.000Z'
+  fields_json: '{"grain_input_ids":["recflofAblWGLAYo4"],"substrate_input_ids":["recg3oW0OvDVnyTL6","recPZ9TWSnPW84Aqy","reczAOAVJ591qCoFp"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":0,"output_count":3}'
+  lot_id:
+  - recOcbDldTKj2rSiB
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - Chestnut
+  substrate_inputs (from lot_id):
+  - recg3oW0OvDVnyTL6
+  - recPZ9TWSnPW84Aqy
+  - reczAOAVJ591qCoFp
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - Fungaia
 - airtable_createdTime: '2026-05-25T18:58:08.000Z'
   airtable_id: recqDzyTqhwXnv6uZ
   event_id: EVENT-260525-v6uZ
@@ -11274,20 +10877,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-10T23:45:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-04T15:38:15.000Z'
-  airtable_id: recqkt02yZygn9qDO
-  event_id: EVENT-260604-9qDO
-  event_time_for_rollup: '2026-06-04T15:38:14.892Z'
-  fields_json: '{}'
-  lot_id:
-  - recJVKklz8pXfa8cV
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  timestamp: '2026-06-04T15:38:14.892Z'
-  type: FullyColonized
 - airtable_createdTime: '2025-10-01T20:38:52.000Z'
   airtable_id: recqoE99UaMc1slUH
   event_id: EVENT-251001-slUH
@@ -11436,18 +11025,10 @@ Operator 2 <operator2.email.address@mybusiness.com>
   event_id: EVENT-260512-em6X
   event_time_for_rollup: '2026-05-12T15:21:55.005Z'
   fields_json: '{"run_id":"rec0NcLKQYHfN0M5j","run_no":"RUN-260512-0M5j","process_type":"sterilize","unit_size":500}'
-  lot_id:
-  - rec1H2qUGTb4p5cqY
   operator: system
   station: Sterilizer OUT
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
   timestamp: '2026-05-12T15:21:55.005Z'
   type: Sterilized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-10-06T13:52:08.000Z'
   airtable_id: recrQoW8y8G6sFphG
   event_id: EVENT-251006-FphG
@@ -11484,21 +11065,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-06T18:17:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:36:37.000Z'
-  airtable_id: recreiOjyCFvq0DBW
-  event_id: EVENT-260615-0DBW
-  event_time_for_rollup: '2026-06-15T11:36:36.464Z'
-  lot_id:
-  - recLZDYpCTXGEHtdu
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:36:36.464Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-12-18T16:45:57.000Z'
   airtable_id: recrgKB6SXM1a2kQR
   event_id: EVENT-251218-2kQR
@@ -11673,22 +11239,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-24T13:17:23.986Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T15:40:42.000Z'
-  airtable_id: recsRcNeWpf1CHFbH
-  event_id: EVENT-260512-HFbH
-  event_time_for_rollup: '2026-05-12T15:40:41.058Z'
-  fields_json: '{"source_lot_id":"rec7UlNJ7YvvkZOzo","source_category":"lc_flask","volume_ml":15,"operator":"","target_lot_id":"LOT-260512-kGdW"}'
-  lot_id:
-  - recwOLDrnD1q6kGdW
-  station: Inoculation
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-05-12T15:40:41.058Z'
-  type: Inoculated
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-07T12:42:44.000Z'
   airtable_id: recsTpNN31nVMtiYO
   event_id: EVENT-260307-tiYO
@@ -11716,22 +11266,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-05-24T17:31:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-29T13:18:31.000Z'
-  airtable_id: recsbt7ZOK7QuOElR
-  event_id: EVENT-260529-OElR
-  event_time_for_rollup: '2026-05-29T13:18:29.157Z'
-  fields_json: '{}'
-  lot_id:
-  - recr1rvouT9jQsJrg
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  timestamp: '2026-05-29T13:18:29.157Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recsfe9KimY3PVd2Y
   event_id: EVENT-260424-Vd2Y
@@ -11740,6 +11274,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: Robert
   station: Sterilizer OUT
   timestamp: '2026-04-24T07:30:00.000Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recshRgMKgN0t1QCi
+  event_id: EVENT-260716-1QCi
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - rectoX0CVSRat150O
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recso8sIaNrDiPqdp
@@ -11750,22 +11297,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-24T07:30:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-29T13:18:40.000Z'
-  airtable_id: recsoiXUmxcI8m0U1
-  event_id: EVENT-260529-m0U1
-  event_time_for_rollup: '2026-05-29T13:18:38.894Z'
-  fields_json: '{}'
-  lot_id:
-  - recubhnQdNB05fgNv
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  timestamp: '2026-05-29T13:18:38.894Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-06-24T22:04:30.000Z'
   airtable_id: recsrGEP4xLyUfoy8
   event_id: EVENT-260624-foy8
@@ -11842,20 +11373,23 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-11-06T17:04:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-29T13:19:38.000Z'
-  airtable_id: rectDUU9i21ZS8slJ
-  event_id: EVENT-260529-8slJ
-  event_time_for_rollup: '2026-05-29T13:19:36.553Z'
-  fields_json: '{}'
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: rectGwzbI50nN7leM
+  event_id: EVENT-260716-7leM
+  event_time_for_rollup: '2026-07-16T19:32:59.000Z'
+  fields_json: '{"grain_input_ids":["rec3j4FEb64EiScwX"],"substrate_input_ids":["rec0t4tXf7pubsWcD","recOebh3B6AuifYKs","recnYBktdkxdyESip"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":0,"output_count":3}'
   lot_id:
-  - recvyxpWHDZNxXktn
-  station: Dark Room
+  - recIuUpWM4VtZkQ24
+  station: Spawn to Bulk
   status (from lot_id):
-  - Consumed
+  - Colonizing
   strain_species_strain (from lot_id):
-  - Blue Oyster
-  timestamp: '2026-05-29T13:19:36.553Z'
-  type: FullyColonized
+  - "Lion\u2019s Mane"
+  substrate_inputs (from lot_id):
+  - rec0t4tXf7pubsWcD
+  - recOebh3B6AuifYKs
+  - recnYBktdkxdyESip
+  type: SpawnedToBulk
   vendor_name (from lc_lot_id) (from lot_id):
   - Fungaia
 - airtable_createdTime: '2026-06-16T16:51:30.000Z'
@@ -11889,21 +11423,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-08-01T18:22:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:42:38.000Z'
-  airtable_id: rectNrE4WB8fEGEWo
-  event_id: EVENT-260516-GEWo
-  event_time_for_rollup: '2026-05-16T23:42:38.000Z'
-  fields_json: '{"grain_input_ids":["recmoNKT8WMOQEWKD"],"substrate_input_ids":["recFA07XISHru06Wa","recCFIoJHnO8pa5cp","recMWmMAomB9DcFaY","recYWNToc4VtBYeKF"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":2,"output_count":4}'
-  lot_id:
-  - recr1rvouT9jQsJrg
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Pearl Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-01-15T13:54:00.000Z'
   airtable_id: rectOtF1k7kPAM10C
   event_id: EVENT-260115-M10C
@@ -12012,6 +11531,25 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2025-12-09T19:58:00.000Z'
   type: Pasteurized
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: rectsvsKN84ZWh89m
+  event_id: EVENT-260716-h89m
+  event_time_for_rollup: '2026-07-16T19:32:12.000Z'
+  fields_json: '{"grain_input_ids":["recfGPOZJ9R0N6QWZ"],"substrate_input_ids":["recJ9apcaFgcCboZF","reclZmMP755JTJ0yh","recQST9Vx5j2Tr9R2"],"per_output_unit_size_lb":3.1666666666666665,"output_item_code":"FB-GENERIC","output_index":0,"output_count":3}'
+  lot_id:
+  - recfTKQt97CPJYj2M
+  station: Spawn to Bulk
+  status (from lot_id):
+  - Colonizing
+  strain_species_strain (from lot_id):
+  - Black Pearl King Oyster
+  substrate_inputs (from lot_id):
+  - recJ9apcaFgcCboZF
+  - reclZmMP755JTJ0yh
+  - recQST9Vx5j2Tr9R2
+  type: SpawnedToBulk
+  vendor_name (from lc_lot_id) (from lot_id):
+  - MYYCO
 - airtable_createdTime: '2026-04-24T20:23:05.000Z'
   airtable_id: recttiVAoHSLyeTuA
   event_id: EVENT-260424-eTuA
@@ -12147,21 +11685,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-04-22T12:28:52.942Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-16T23:43:53.000Z'
-  airtable_id: reculrCDhCNpmgc7v
-  event_id: EVENT-260516-gc7v
-  event_time_for_rollup: '2026-05-16T23:43:53.000Z'
-  fields_json: '{"grain_input_ids":["reczGlHa8hPAsBAWG"],"substrate_input_ids":["receKsMVYjaL62j1M","reciU4mkgIJc6FKss","recOttOwiJVMomq3g","rec7WBWmi2WlMyQRo"],"per_output_unit_size_lb":3,"output_item_code":"FB-MM75-SM","output_index":0,"output_count":4}'
-  lot_id:
-  - recx4iEsjflXkfYlc
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Chestnut
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-05-05T22:22:16.000Z'
   airtable_id: recuvwiB2C9fehAwP
   event_id: EVENT-260505-hAwP
@@ -12420,6 +11943,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   - Sterilized
   timestamp: '2026-06-15T16:51:00.000Z'
   type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recw4Ehjphagd0nJ5
+  event_id: EVENT-260716-0nJ5
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
+  lot_id:
+  - recQST9Vx5j2Tr9R2
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Consumed
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-03-07T12:42:44.000Z'
   airtable_id: recw4R3rXT3s4IjvQ
   event_id: EVENT-260307-IjvQ
@@ -12480,21 +12016,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-04T20:27:19.381Z'
   type: Sterilized
-- airtable_createdTime: '2026-06-15T11:37:08.000Z'
-  airtable_id: recwGwUXQnshduTGI
-  event_id: EVENT-260615-uTGI
-  event_time_for_rollup: '2026-06-15T11:37:07.446Z'
-  lot_id:
-  - recwOLDrnD1q6kGdW
-  station: Fruiting
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Cordyceps
-  timestamp: '2026-06-15T11:37:07.446Z'
-  type: FruitingStart
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2026-03-27T20:45:12.000Z'
   airtable_id: recwO1W3yzhOXyH6Q
   event_id: EVENT-260327-yH6Q
@@ -12583,6 +12104,19 @@ Operator 2 <operator2.email.address@mybusiness.com>
   operator: system
   station: Sterilizer OUT
   timestamp: '2025-12-18T16:45:53.270Z'
+  type: Sterilized
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recwjqT9zyIoIs79q
+  event_id: EVENT-260716-s79q
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recq6e2hNvwWS4YjH","run_no":"RUN-260716-4YjH","process_type":"sterilize","unit_size":7.5,"component_set":null}'
+  lot_id:
+  - rec7F7THmBRnktbWx
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
+  status (from lot_id):
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
   type: Sterilized
 - airtable_createdTime: '2025-10-08T11:18:00.000Z'
   airtable_id: recwkvoKjyP0ETxRt
@@ -12683,22 +12217,6 @@ Operator 2 <operator2.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-30T17:39:50.874Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-29T13:19:14.000Z'
-  airtable_id: recxACDxKWUBk4MJ5
-  event_id: EVENT-260529-4MJ5
-  event_time_for_rollup: '2026-05-29T13:19:12.594Z'
-  fields_json: '{}'
-  lot_id:
-  - recDmtKc314E0h8zS
-  station: Dark Room
-  status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Blue Oyster
-  timestamp: '2026-05-29T13:19:12.594Z'
-  type: FullyColonized
-  vendor_name (from lc_lot_id) (from lot_id):
-  - Fungaia
 - airtable_createdTime: '2025-11-17T18:18:36.000Z'
   airtable_id: recxGTXiJuqe8i0X8
   event_id: EVENT-251117-i0X8
@@ -12907,21 +12425,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   status (from lot_id):
   - Consumed
   type: Consumed
-- airtable_createdTime: '2026-05-12T22:44:08.000Z'
-  airtable_id: recyCloTJWyeu2O51
-  event_id: EVENT-260512-2O51
-  event_time_for_rollup: '2026-05-12T22:44:08.000Z'
-  fields_json: '{"grain_input_ids":["rech0qZ2yxBuRp6PG"],"substrate_input_ids":["recoq3GtzlaJgRlTv","recqW57em6RYPCwpC"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":0,"output_count":2}'
-  lot_id:
-  - recFcOoOyzaTIPoAX
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2025-10-08T11:18:00.000Z'
   airtable_id: recyKACWbwhRaHW5d
   event_id: EVENT-251008-HW5d
@@ -12967,21 +12470,6 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-01-17T13:36:00.000Z'
   type: Sterilized
-- airtable_createdTime: '2026-05-12T22:44:08.000Z'
-  airtable_id: recyWhOmzjpIiykXP
-  event_id: EVENT-260512-ykXP
-  event_time_for_rollup: '2026-05-12T22:44:08.000Z'
-  fields_json: '{"grain_input_ids":["rech0qZ2yxBuRp6PG"],"substrate_input_ids":["recoq3GtzlaJgRlTv","recqW57em6RYPCwpC"],"per_output_unit_size_lb":8.5,"output_item_code":"FB-MM75-LG","output_index":1,"output_count":2}'
-  lot_id:
-  - recesxUAkb8ra5bJ9
-  station: Spawn to Bulk
-  status (from lot_id):
-  - Fruiting
-  strain_species_strain (from lot_id):
-  - Black Pearl King Oyster
-  type: SpawnedToBulk
-  vendor_name (from lc_lot_id) (from lot_id):
-  - MYYCO
 - airtable_createdTime: '2026-01-04T20:27:23.000Z'
   airtable_id: recyWwZnFFm3pVRM7
   event_id: EVENT-260104-VRM7
@@ -13103,19 +12591,19 @@ Operator 1 <operator1.email.address@mybusiness.com>
   station: Sterilizer OUT
   timestamp: '2026-03-10T18:23:50.693Z'
   type: Pasteurized
-- airtable_createdTime: '2026-05-14T21:12:10.000Z'
-  airtable_id: reczEhJ5nhKwhr1AU
-  event_id: EVENT-260514-r1AU
-  event_time_for_rollup: '2026-05-14T21:12:10.000Z'
-  fields_json: '{"grain_input_ids":["recuSnbtiyiw1dGby"],"substrate_input_ids":["recJz8yt01j49RSHr","rec5BdDEQYlvMjLLa","recTpUSLyilzSM2al","recf9jzuiq6eQ6Erq"],"per_output_unit_size_lb":3.125,"output_item_code":"FB-MM75-SM","output_index":0,"output_count":4}'
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: reczCKTrDaeMCoRFU
+  event_id: EVENT-260716-oRFU
+  event_time_for_rollup: '2026-07-16T19:09:00.000Z'
+  fields_json: '{"run_id":"recH9XtQ3GNRt9tvy","run_no":"RUN-260716-9tvy","process_type":"sterilize","unit_size":2.5,"component_set":null}'
   lot_id:
-  - recVsy0u54gksu1m6
-  station: Spawn to Bulk
+  - rec4p9Db7z1zpCA9a
+Operator 1 <operator1.email.address@mybusiness.com>
+  station: Sterilizer OUT
   status (from lot_id):
-  - Consumed
-  strain_species_strain (from lot_id):
-  - Red Reishi
-  type: SpawnedToBulk
+  - Sterilized
+  timestamp: '2026-07-16T19:09:00.000Z'
+  type: Sterilized
 - airtable_createdTime: '2026-01-04T20:27:23.000Z'
   airtable_id: reczH4BSJNNOTUR8l
   event_id: EVENT-260104-UR8l

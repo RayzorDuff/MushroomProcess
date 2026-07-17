@@ -12,6 +12,62 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: rec1CVjct7FnelWCH
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recZZPMcrQpkcUFXv
+  lot_recipe_component_id: LRC-260716-lWCH
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: rec1MpZHVImh70WPs
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - recBPx5P1SpV9OQBL
+  lot_recipe_component_id: LRC-260716-0WPs
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec1PSWzw5CnewqYc
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec52IiCvElVtS3ev
+  lot_recipe_component_id: LRC-260716-wqYc
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec30fVz2qSURH3VR
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recnYBktdkxdyESip
+  lot_recipe_component_id: LRC-260716-H3VR
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: rec4LuVZvX4RA5Taj
   component_role: grain
@@ -23,6 +79,34 @@
   - recKxxfzpa3mMcn0V
   lot_recipe_component_id: LRC-260624-5Taj
   notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec4Yvc69MW2qImyS
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recbWgjsAIm0fXSHI
+  lot_recipe_component_id: LRC-260716-ImyS
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: rec4aEL31WQnhZaDg
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recer483vxFZJnNYT
+  lot_recipe_component_id: LRC-260716-ZaDg
+  notes: Derived from Spawn to Bulk grain input
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
@@ -71,6 +155,34 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec6ZX99mL2V2qRCf
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recJ9apcaFgcCboZF
+  lot_recipe_component_id: LRC-260716-qRCf
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: rec6b1MC1R9bBMdvE
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - recIuHYUmF1q1F4ex
+  lot_recipe_component_id: LRC-260716-MdvE
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-07-06T20:17:19.000Z'
   airtable_id: rec77TdgbqmodSZ6S
   component_role: grain
@@ -85,6 +197,20 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec7KyK67NMkRzRDF
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - reciLOGPVNjv2iIrX
+  lot_recipe_component_id: LRC-260716-zRDF
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: rec7qTElK5SxmdVmn
   component_role: grain
@@ -98,6 +224,20 @@
   notes: Created from sterilization run planned_recipe
   recipe_id:
   - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rec8FvsyrUxlw9msl
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec2xEuGN2Z0Jk4Ev
+  lot_recipe_component_id: LRC-260716-9msl
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
   sort_order: 1
 - airtable_createdTime: '2026-06-24T22:15:43.000Z'
   airtable_id: rec8Pbh01xK3fQ44E
@@ -116,6 +256,48 @@
   sort_order: 1
   source_item_recipe_component:
   - rec33JZCIIVQVdjra
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: rec8m9AigsYw0u7iN
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recfTKQt97CPJYj2M
+  lot_recipe_component_id: LRC-260716-u7iN
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recARzhJPuhITGepP
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recOebh3B6AuifYKs
+  lot_recipe_component_id: LRC-260716-GepP
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recAt1NTILnKvWe1Q
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - recyX8biHJzuxaq8r
+  lot_recipe_component_id: LRC-260716-We1Q
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recBYLKvyTV7gBqbl
   component_role: grain
@@ -129,6 +311,20 @@
   notes: Created from sterilization run planned_recipe
   recipe_id:
   - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recC2m6UsvMIakpbk
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recCb5n7AOjzD67Er
+  lot_recipe_component_id: LRC-260716-kpbk
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
   sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recCCLpahWHgpik23
@@ -206,6 +402,20 @@
   recipe_id:
   - recdzi4MMq717DjmU
   sort_order: 2
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recFdGXV4tnywT4OY
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - rectzsA2X0Y490AsE
+  lot_recipe_component_id: LRC-260716-T4OY
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:15:43.000Z'
   airtable_id: recFiBx7uyPoupde1
   component_percent: 0
@@ -223,6 +433,62 @@
   sort_order: 2
   source_item_recipe_component:
   - recwGWGpMX2iPlzxV
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recGbSYA2UVnMXOlw
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec4Uj5VnzfJf2VPo
+  lot_recipe_component_id: LRC-260716-XOlw
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recGc6FbyaS4hVUqY
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec20fCpEhmseFJRb
+  lot_recipe_component_id: LRC-260716-VUqY
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recGjmgL4KhCs1Dse
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recH2LOLClpxeE3zO
+  lot_recipe_component_id: LRC-260713-1Dse
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recHjt8WOvBPD2HNq
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recg3oW0OvDVnyTL6
+  lot_recipe_component_id: LRC-260716-2HNq
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-07-06T20:10:38.000Z'
   airtable_id: recHyawbyToSpmIBR
   component_role: grain
@@ -236,6 +502,20 @@
   notes: Derived from Spawn to Bulk grain input
   recipe_id:
   - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recI5BGDMJ0dU2WFe
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rectoX0CVSRat150O
+  lot_recipe_component_id: LRC-260716-2WFe
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
   sort_order: 1
 - airtable_createdTime: '2026-07-06T20:16:48.000Z'
   airtable_id: recIRHskhnOpNH1GN
@@ -251,6 +531,34 @@
   recipe_id:
   - recdzi4MMq717DjmU
   sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recJbEHsrv31Tu69A
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec6EZ3Bj2890D8Xu
+  lot_recipe_component_id: LRC-260716-u69A
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recK9BOjwUdxRg531
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - reca0loZu6y2aluhU
+  lot_recipe_component_id: LRC-260716-g531
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recKI60Fu2FTqVCC7
   component_role: grain
@@ -296,6 +604,48 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recLQBUiQ5a08n1QU
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recTEJwkdNN6hSvcJ
+  lot_recipe_component_id: LRC-260713-n1QU
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recLl3O5y1yea38Jy
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - rectuqOs4vyXILiXu
+  lot_recipe_component_id: LRC-260716-38Jy
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recMBz5985JZcGmsz
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recer483vxFZJnNYT
+  lot_recipe_component_id: LRC-260716-Gmsz
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-06-29T20:53:10.000Z'
   airtable_id: recMH4MvsU4daxzJ9
   component_role: substrate
@@ -310,6 +660,34 @@
   recipe_id:
   - recpFhRjhqhXi52yY
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recMslsY8u80MhUeq
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - rec7F7THmBRnktbWx
+  lot_recipe_component_id: LRC-260716-hUeq
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: recPeZkj8m0SnFJvp
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recr3acYNMXy9fz6c
+  lot_recipe_component_id: LRC-260716-FJvp
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-06-29T20:53:10.000Z'
   airtable_id: recPkbnMUVIappS9O
   component_role: substrate
@@ -323,6 +701,20 @@
   notes: Created from sterilization run planned_recipe
   recipe_id:
   - recpFhRjhqhXi52yY
+  sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recQ1KqB7vaXTHaoz
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recv7JbrkbddIKYBQ
+  lot_recipe_component_id: LRC-260713-Haoz
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
   sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recQONtZmx0voRzID
@@ -338,6 +730,34 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: recRqITzVqtgaJEgy
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recvN5Wl9mXPxVEqa
+  lot_recipe_component_id: LRC-260716-JEgy
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: recRrCwAdQrCRDtel
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recfTKQt97CPJYj2M
+  lot_recipe_component_id: LRC-260716-Dtel
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recS5wyqwYPnHnb0c
   component_role: grain
@@ -352,6 +772,20 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recSnVTR4tCDeZOQ6
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recv7JbrkbddIKYBQ
+  lot_recipe_component_id: LRC-260713-ZOQ6
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-06-24T22:15:43.000Z'
   airtable_id: recUxuGQ9Px3R8knd
   component_percent: 0
@@ -369,6 +803,20 @@
   sort_order: 1
   source_item_recipe_component:
   - rec33JZCIIVQVdjra
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recVRyNk74MVVN9Mx
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - reclZmMP755JTJ0yh
+  lot_recipe_component_id: LRC-260716-N9Mx
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recWLoMvtSuCfiLom
   component_role: grain
@@ -400,6 +848,20 @@
   sort_order: 2
   source_item_recipe_component:
   - recCl6NU5hqNXDzxR
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recXRrTDj3wZxaQmy
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rectzsA2X0Y490AsE
+  lot_recipe_component_id: LRC-260716-aQmy
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-07-06T20:16:48.000Z'
   airtable_id: recXZGiKSqMsB03cE
   component_role: grain
@@ -470,6 +932,20 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recYgt09eyVfB75WI
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - recIZMdTl2YCcPCxQ
+  lot_recipe_component_id: LRC-260716-75WI
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-07-06T20:10:38.000Z'
   airtable_id: recZbKdDZv0dHEiTW
   component_role: grain
@@ -501,6 +977,20 @@
   sort_order: 2
   source_item_recipe_component:
   - recwGWGpMX2iPlzxV
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recactuwTOcA1R3Gm
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recZm7U14atzF7Uyn
+  lot_recipe_component_id: LRC-260716-R3Gm
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
 - airtable_createdTime: '2026-06-29T20:53:10.000Z'
   airtable_id: recaxtauFr5popUfG
   component_role: substrate
@@ -528,6 +1018,34 @@
   notes: Created from sterilization run planned_recipe
   recipe_id:
   - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recbIrx3eayveTwVP
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recOcbDldTKj2rSiB
+  lot_recipe_component_id: LRC-260716-TwVP
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recbhJg7nrKiFM3fI
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recPZ9TWSnPW84Aqy
+  lot_recipe_component_id: LRC-260716-M3fI
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
   sort_order: 1
 - airtable_createdTime: '2026-06-29T20:53:10.000Z'
   airtable_id: recc7QzvwglQezB4Q
@@ -588,6 +1106,20 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: receapP3Onc7S0VlJ
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recpph56flsIcb1JP
+  lot_recipe_component_id: LRC-260716-0VlJ
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recegvPOYLXcPgdND
   component_role: grain
@@ -644,6 +1176,34 @@
   recipe_id:
   - recpFhRjhqhXi52yY
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: rechtb5FZNhcVNPwJ
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recivgOCwxrq5j5U1
+  lot_recipe_component_id: LRC-260716-NPwJ
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: reciRINysmsgQmbkE
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec4p9Db7z1zpCA9a
+  lot_recipe_component_id: LRC-260716-mbkE
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: reciiernNCslW9dmX
   component_role: grain
@@ -669,6 +1229,34 @@
   - rectE7mt9vWSfZClZ
   lot_recipe_component_id: LRC-260624-N6fG
   notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recjteHQCdZSGYbAq
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recT36veqmyLuMyCf
+  lot_recipe_component_id: LRC-260716-YbAq
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recjz3tKwIbdzVONq
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recH2LOLClpxeE3zO
+  lot_recipe_component_id: LRC-260713-VONq
+  notes: Derived from Spawn to Bulk grain input
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
@@ -717,6 +1305,48 @@
   sort_order: 1
   source_item_recipe_component:
   - rec33JZCIIVQVdjra
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: reco6geq31F9aOwDh
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recZm7U14atzF7Uyn
+  lot_recipe_component_id: LRC-260716-OwDh
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recp47d7FkgQTs9rl
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recIuUpWM4VtZkQ24
+  lot_recipe_component_id: LRC-260716-s9rl
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recph0CCxLZ7aBEMl
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recKBrbqslqu78ApW
+  lot_recipe_component_id: LRC-260716-BEMl
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-29T20:52:44.000Z'
   airtable_id: recplm2qKISqPAMR0
   component_percent: 0
@@ -793,6 +1423,34 @@
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recrEYPt9kHQtwgTc
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - recbdDtcPWKKK1ull
+  lot_recipe_component_id: LRC-260716-wgTc
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-13T20:58:54.000Z'
+  airtable_id: recrwhEkTPKPCxB4b
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recU9tdgUerFEM9oJ
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recTEJwkdNN6hSvcJ
+  lot_recipe_component_id: LRC-260713-xB4b
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
 - airtable_createdTime: '2026-07-06T20:10:38.000Z'
   airtable_id: recsy6wNXb3kjjCtK
   component_role: substrate
@@ -807,6 +1465,34 @@
   recipe_id:
   - recdzi4MMq717DjmU
   sort_order: 2
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: rect8lPu6kuaPVuz3
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recZZPMcrQpkcUFXv
+  lot_recipe_component_id: LRC-260716-Vuz3
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: rectYTZdVKM8UQhrB
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recvN5Wl9mXPxVEqa
+  lot_recipe_component_id: LRC-260716-QhrB
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
 - airtable_createdTime: '2026-07-06T20:17:19.000Z'
   airtable_id: rectvGnAU9pu7Fe4g
   component_role: substrate
@@ -821,6 +1507,20 @@
   recipe_id:
   - recdzi4MMq717DjmU
   sort_order: 2
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recuJIRsfXerQUb9r
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - rec0t4tXf7pubsWcD
+  lot_recipe_component_id: LRC-260716-Ub9r
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recun9qWpRQ3OMIVk
   component_role: grain
@@ -848,6 +1548,34 @@
   notes: Created from sterilization run planned_recipe
   recipe_id:
   - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recwxEupP7GZWECMN
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - reczAOAVJ591qCoFp
+  lot_recipe_component_id: LRC-260716-ECMN
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:21.000Z'
+  airtable_id: recxGcNKViPWbK5Gr
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recQST9Vx5j2Tr9R2
+  lot_recipe_component_id: LRC-260716-K5Gr
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
   sort_order: 1
 - airtable_createdTime: '2026-06-24T22:04:29.000Z'
   airtable_id: recxQ7Bz8fWgRIRFB
@@ -877,6 +1605,34 @@
   recipe_id:
   - recdzi4MMq717DjmU
   sort_order: 2
+- airtable_createdTime: '2026-07-16T19:31:13.000Z'
+  airtable_id: recxURp1V8ChHb3E4
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recOcbDldTKj2rSiB
+  lot_recipe_component_id: LRC-260716-b3E4
+  notes: Derived from Spawn to Bulk grain input
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:09:42.000Z'
+  airtable_id: recxpCSGD0X0McmEe
+  component_role: substrate
+  component_weight_lb: 7.5
+  item_id:
+  - recBfYmeTPor27WFM
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 7.5 lb"
+  lot_id:
+  - rec6aa0uS3gzxGQJD
+  lot_recipe_component_id: LRC-260716-cmEe
+  notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 1
 - airtable_createdTime: '2026-06-24T22:15:43.000Z'
   airtable_id: recyG9CpQckiio0o4
   component_percent: 0
@@ -894,6 +1650,20 @@
   sort_order: 2
   source_item_recipe_component:
   - recwGWGpMX2iPlzxV
+- airtable_createdTime: '2026-07-16T19:32:59.000Z'
+  airtable_id: recyakjsRA6x631tz
+  component_role: substrate
+  component_weight_lb: 2.5
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "substrate: REC-SUB-MM75 \u2014 2.5 lb"
+  lot_id:
+  - recIuUpWM4VtZkQ24
+  lot_recipe_component_id: LRC-260716-31tz
+  notes: Derived from Spawn to Bulk substrate input
+  recipe_id:
+  - recdzi4MMq717DjmU
+  sort_order: 2
 - airtable_createdTime: '2026-06-29T20:52:44.000Z'
   airtable_id: recynVYKsZ55Hv7gU
   component_percent: 0
@@ -922,6 +1692,20 @@
   - recdPAu9xkT4DD4GH
   lot_recipe_component_id: LRC-260624-KNPG
   notes: Created from sterilization run planned_recipe
+  recipe_id:
+  - rec9ayZPHs9K5WS4K
+  sort_order: 1
+- airtable_createdTime: '2026-07-16T19:32:12.000Z'
+  airtable_id: reczCeLA24Utwj68o
+  component_role: grain
+  component_weight_lb: 0.6666666666666666
+  item_id:
+  - recAzMuAKDIeWmfq5
+  lot_component_display: "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb"
+  lot_id:
+  - recr3acYNMXy9fz6c
+  lot_recipe_component_id: LRC-260716-j68o
+  notes: Derived from Spawn to Bulk grain input
   recipe_id:
   - rec9ayZPHs9K5WS4K
   sort_order: 1

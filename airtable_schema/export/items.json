@@ -116,7 +116,30 @@
         "name": "Freeze Dried Mushrooms",
         "products": [
             "recQvGbKnJFR2Xaui",
-            "reczEQHhDkTCjNAJa"
+            "reczEQHhDkTCjNAJa",
+            "rec2qvnqKrXVMkNDo",
+            "rec5dIDEmDxyXqMes",
+            "recPHooh00324VuVl",
+            "rech5X9aMz6jTeiPY",
+            "reclpVbJTcOF0skUG",
+            "recqsa8hoKRch4Wk8",
+            "recAvKZYhi7zckx3g",
+            "recBcX5lsykBWfBv5",
+            "recdzF51a9EiU1yq8",
+            "recm3UAyEkpr3N6P8",
+            "recmzbATAajgIPumy",
+            "rectNqVYcQDzzq8EB",
+            "recw308dfNouJ8fQB",
+            "rec4dTuinZcyOxVz6",
+            "rec9WSGQ6cMy4gBQu",
+            "rec9wGkF0dlYFcV18",
+            "recGTKewZ3qg3jwfg",
+            "recif9AcaljlF8hHT",
+            "recqoIPy2xbLxKN9z",
+            "recu2ir963M1NTEiP"
+        ],
+        "products 2": [
+            "rec75BIQxk9ymlmWO"
         ]
     },
     {
@@ -177,6 +200,37 @@
         "category": "fruiting_block",
         "default_unit_size_lb": 5,
         "item_id": "FB-GENERIC",
+        "lot_recipe_components": [
+            "recxURp1V8ChHb3E4",
+            "recbIrx3eayveTwVP",
+            "rec4aEL31WQnhZaDg",
+            "recMBz5985JZcGmsz",
+            "rect8lPu6kuaPVuz3",
+            "rec1CVjct7FnelWCH",
+            "rec8m9AigsYw0u7iN",
+            "recRrCwAdQrCRDtel",
+            "rectYTZdVKM8UQhrB",
+            "recRqITzVqtgaJEgy",
+            "reczCeLA24Utwj68o",
+            "recPeZkj8m0SnFJvp",
+            "recp47d7FkgQTs9rl",
+            "recyakjsRA6x631tz",
+            "recFdGXV4tnywT4OY",
+            "recXRrTDj3wZxaQmy",
+            "recactuwTOcA1R3Gm",
+            "reco6geq31F9aOwDh"
+        ],
+        "lots": [
+            "recOcbDldTKj2rSiB",
+            "recer483vxFZJnNYT",
+            "recZZPMcrQpkcUFXv",
+            "recfTKQt97CPJYj2M",
+            "recvN5Wl9mXPxVEqa",
+            "recr3acYNMXy9fz6c",
+            "recIuUpWM4VtZkQ24",
+            "rectzsA2X0Y490AsE",
+            "recZm7U14atzF7Uyn"
+        ],
         "name": "Fruiting Block"
     },
     {
@@ -199,8 +253,80 @@
             "recIacitcbK72MxNM",
             "recXSlo6zHhTvnhZe"
         ],
+        "lot_recipe_components": [
+            "rec6ZX99mL2V2qRCf",
+            "recHjt8WOvBPD2HNq",
+            "recVRyNk74MVVN9Mx",
+            "recwxEupP7GZWECMN",
+            "rec30fVz2qSURH3VR",
+            "rec8FvsyrUxlw9msl",
+            "recARzhJPuhITGepP",
+            "recI5BGDMJ0dU2WFe",
+            "recuJIRsfXerQUb9r",
+            "rec1PSWzw5CnewqYc",
+            "recxGcNKViPWbK5Gr",
+            "receapP3Onc7S0VlJ",
+            "recbhJg7nrKiFM3fI",
+            "rec7KyK67NMkRzRDF",
+            "reciRINysmsgQmbkE",
+            "recph0CCxLZ7aBEMl",
+            "recGbSYA2UVnMXOlw",
+            "rechtb5FZNhcVNPwJ",
+            "recJbEHsrv31Tu69A",
+            "recGc6FbyaS4hVUqY",
+            "recC2m6UsvMIakpbk",
+            "recK9BOjwUdxRg531",
+            "rec4Yvc69MW2qImyS",
+            "recjteHQCdZSGYbAq",
+            "recYgt09eyVfB75WI",
+            "rec6b1MC1R9bBMdvE",
+            "rec1MpZHVImh70WPs",
+            "recLl3O5y1yea38Jy",
+            "recMslsY8u80MhUeq",
+            "recrEYPt9kHQtwgTc",
+            "recxpCSGD0X0McmEe",
+            "recAt1NTILnKvWe1Q"
+        ],
+        "lots": [
+            "recJ9apcaFgcCboZF",
+            "recg3oW0OvDVnyTL6",
+            "reclZmMP755JTJ0yh",
+            "reczAOAVJ591qCoFp",
+            "recnYBktdkxdyESip",
+            "rec2xEuGN2Z0Jk4Ev",
+            "recOebh3B6AuifYKs",
+            "rectoX0CVSRat150O",
+            "rec0t4tXf7pubsWcD",
+            "rec52IiCvElVtS3ev",
+            "recQST9Vx5j2Tr9R2",
+            "recpph56flsIcb1JP",
+            "recPZ9TWSnPW84Aqy",
+            "reciLOGPVNjv2iIrX",
+            "rec4p9Db7z1zpCA9a",
+            "recKBrbqslqu78ApW",
+            "rec4Uj5VnzfJf2VPo",
+            "recivgOCwxrq5j5U1",
+            "rec6EZ3Bj2890D8Xu",
+            "rec20fCpEhmseFJRb",
+            "recCb5n7AOjzD67Er",
+            "reca0loZu6y2aluhU",
+            "recbWgjsAIm0fXSHI",
+            "recT36veqmyLuMyCf",
+            "recIZMdTl2YCcPCxQ",
+            "recIuHYUmF1q1F4ex",
+            "recBPx5P1SpV9OQBL",
+            "rectuqOs4vyXILiXu",
+            "rec7F7THmBRnktbWx",
+            "recbdDtcPWKKK1ull",
+            "rec6aa0uS3gzxGQJD",
+            "recyX8biHJzuxaq8r"
+        ],
         "name": "Hardwood Substrate Bag",
-        "size_source": "lot_unit_size"
+        "size_source": "lot_unit_size",
+        "sterilization_runs": [
+            "recH9XtQ3GNRt9tvy",
+            "recq6e2hNvwWS4YjH"
+        ]
     },
     {
         "active": true,
@@ -302,14 +428,6 @@
             "recFZbcfyA1nrErbm"
         ],
         "lots": [
-            "recFcOoOyzaTIPoAX",
-            "recesxUAkb8ra5bJ9",
-            "recjy3YgBfr8f05m3",
-            "recfCCE3M1nfURJUG",
-            "reclCvNJMD8FJfL1i",
-            "recvxQFjUCzGNanq5",
-            "recBShGQGSE4qpNID",
-            "rech6IJdPJWsC0dG2",
             "recjPqp2UH3yKRg4n",
             "recrKZhNqV5NjsbJT",
             "recA1cEC9hIc7MXzp",
@@ -585,23 +703,18 @@
             "recYTzvlqNTXHvawc"
         ],
         "item_id": "FB-MM75-SM",
+        "lot_recipe_components": [
+            "recjz3tKwIbdzVONq",
+            "recGjmgL4KhCs1Dse",
+            "recrwhEkTPKPCxB4b",
+            "recLQBUiQ5a08n1QU",
+            "recQ1KqB7vaXTHaoz",
+            "recSnVTR4tCDeZOQ6"
+        ],
         "lots": [
-            "recVsy0u54gksu1m6",
-            "recciEYi9p1bEiMg3",
-            "recMAGHvFxICI7LDh",
-            "recJVKklz8pXfa8cV",
-            "recfyskUzH5JuKLen",
-            "recvyxpWHDZNxXktn",
-            "recxSBBfXoHgZQbeT",
-            "recDmtKc314E0h8zS",
-            "recRi7HbiA11M4UOG",
-            "rec04533gFaZRodNe",
-            "recr1rvouT9jQsJrg",
-            "recubhnQdNB05fgNv",
-            "recx4iEsjflXkfYlc",
-            "recTc21kOdqurPWA6",
-            "recrq4Q4GXjh1lhJv",
-            "recsV7dwpD1t51wJo"
+            "recH2LOLClpxeE3zO",
+            "recTEJwkdNN6hSvcJ",
+            "recv7JbrkbddIKYBQ"
         ],
         "name": "Small Masters Mix 75/25",
         "products": [
@@ -647,9 +760,6 @@
         "name": "Masters Mix 75/25",
         "replaced_by_item_id": [
             "recBfYmeTPor27WFM"
-        ],
-        "sterilization_runs": [
-            "recCzwiynOzb8UQbk"
         ]
     },
     {
@@ -728,16 +838,14 @@
         "airtable_id": "recfe2XhEw2mDbQIw",
         "category": "freezer_tray",
         "item_id": "TRAY-FREEZE",
-        "lots 4": [
-            "recFcOoOyzaTIPoAX",
-            "recesxUAkb8ra5bJ9"
-        ],
         "name": "Freezer Tray",
         "products": [
-            "rectZjRrRCGffot4v",
+            "recFDoIZDHjX267R0",
+            "rec75BIQxk9ymlmWO",
             "recMT8mqlHOAV7SN4",
-            "recsMHkBRzFL7rUaV",
+            "rectZjRrRCGffot4v",
             "rec7av2XvqRHbtavK",
+            "recsMHkBRzFL7rUaV",
             "recnJsa4x61Nnctts",
             "recuFkYzv9SMhaXKE",
             "recNqytaYSqobYBMR",
@@ -748,12 +856,14 @@
             "recjAovSBiylPuCCv",
             "recupbqIz5zeAlffI",
             "rec5J0fB7IBmpDHOB",
-            "recFDoIZDHjX267R0",
-            "rec75BIQxk9ymlmWO",
             "recTLY354eI9hPN28",
             "recjZFeeA1mChINe0",
+            "recUOXiqzawcKQFyP",
             "recdis5Epwl9QZclz",
-            "recUOXiqzawcKQFyP"
+            "recFHy2Qccm91JEUt",
+            "recJo2NUEWnQwiuLZ",
+            "reciSK4kYWYUN131m",
+            "reckxPfc3paeFiEy5"
         ]
     },
     {
@@ -778,14 +888,6 @@
         "default_unit_size_ml": 500,
         "deprecated_reason": "Replaced by CORDYCEPS-CONTAINER",
         "item_id": "FB-CORDYCEPS-A-500",
-        "lots": [
-            "rec34emtMzGgC51ad",
-            "recAu1w9QrpnQ3tzc",
-            "rec7XlTO3zMS3qM7i",
-            "rec1D4BqvDwCASibG",
-            "reco0ji1b2KjEthzB",
-            "recLZDYpCTXGEHtdu"
-        ],
         "name": "Cordyceps A",
         "replaced_by_item_id": [
             "recoclBQHZzK8GzQx"
@@ -799,14 +901,6 @@
         "default_unit_size_ml": 500,
         "deprecated_reason": "Replaced by CORDYCEPS-CONTAINER",
         "item_id": "FB-CORDYCEPS-B-500",
-        "lots": [
-            "rec34tNtceOfWaihk",
-            "recxqesjPcoVamnSv",
-            "recZpMQRv6kkccQ13",
-            "rec1H2qUGTb4p5cqY",
-            "rec689aaANUwqwWxr",
-            "recwOLDrnD1q6kGdW"
-        ],
         "name": "Cordyceps B",
         "replaced_by_item_id": [
             "recoclBQHZzK8GzQx"
@@ -1029,17 +1123,17 @@
         "name": "Wild Bird Seed",
         "products": [
             "recQwkTNRzIvERSlt",
+            "recKkqMzDGGnczJmA",
+            "rec1oPXxZMjaWscYG",
+            "recNJhUXO0e8JygpL",
             "recGEFSNpQgZWBpsD",
-            "recL1wSEWHp4rJg9d",
             "recf0lKNp6lNdrwcQ",
             "recq7NZzhtLJTPLuS",
             "reclsDHBRXt1qHNN7",
             "rec59yhQegq7TfaWK",
-            "recKkqMzDGGnczJmA",
-            "rec1oPXxZMjaWscYG",
             "recK1rokdg3mbIsE1",
-            "recNJhUXO0e8JygpL",
             "rec925z04eLSM4FeN",
+            "recL1wSEWHp4rJg9d",
             "recTTRlf7SC9uK7pd",
             "recxlrwiIKh5CAA94",
             "recukVj1EnayRntpy",

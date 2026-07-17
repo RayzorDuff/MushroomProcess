@@ -107,31 +107,19 @@
   - recqwiIe4INOhrQDK
   - recr5014Z3WmF6Hg5
   - rec77TdgbqmodSZ6S
+  - recjz3tKwIbdzVONq
+  - recrwhEkTPKPCxB4b
+  - recQ1KqB7vaXTHaoz
+  - recxURp1V8ChHb3E4
+  - rec4aEL31WQnhZaDg
+  - rect8lPu6kuaPVuz3
+  - rec8m9AigsYw0u7iN
+  - rectYTZdVKM8UQhrB
+  - reczCeLA24Utwj68o
+  - recp47d7FkgQTs9rl
+  - recFdGXV4tnywT4OY
+  - recactuwTOcA1R3Gm
   lots:
-  - recFcOoOyzaTIPoAX
-  - recesxUAkb8ra5bJ9
-  - recjy3YgBfr8f05m3
-  - recfCCE3M1nfURJUG
-  - recVsy0u54gksu1m6
-  - recciEYi9p1bEiMg3
-  - recMAGHvFxICI7LDh
-  - recJVKklz8pXfa8cV
-  - recfyskUzH5JuKLen
-  - recvyxpWHDZNxXktn
-  - recxSBBfXoHgZQbeT
-  - recDmtKc314E0h8zS
-  - reclCvNJMD8FJfL1i
-  - recvxQFjUCzGNanq5
-  - recBShGQGSE4qpNID
-  - rech6IJdPJWsC0dG2
-  - recRi7HbiA11M4UOG
-  - rec04533gFaZRodNe
-  - recr1rvouT9jQsJrg
-  - recubhnQdNB05fgNv
-  - recx4iEsjflXkfYlc
-  - recTc21kOdqurPWA6
-  - recrq4Q4GXjh1lhJv
-  - recsV7dwpD1t51wJo
   - recpyoMscyvYIHr1i
   - recwe7NjcQV0gR2Pe
   - recvovrAA0mOVsWSF
@@ -232,6 +220,18 @@
   - recxU7Sp5qlyHd5Ce
   - rec6Fc3fiYmEnlQzd
   - recs0nGpAMQcsHhW4
+  - recH2LOLClpxeE3zO
+  - recTEJwkdNN6hSvcJ
+  - recv7JbrkbddIKYBQ
+  - recOcbDldTKj2rSiB
+  - recer483vxFZJnNYT
+  - recZZPMcrQpkcUFXv
+  - recfTKQt97CPJYj2M
+  - recvN5Wl9mXPxVEqa
+  - recr3acYNMXy9fz6c
+  - recIuUpWM4VtZkQ24
+  - rectzsA2X0Y490AsE
+  - recZm7U14atzF7Uyn
   name: Wild Bird Seed Blend
   recipe_id: REC-GRAIN-WBS
   sterilization_runs:
@@ -264,13 +264,6 @@
     brown rice, dextrose, nutritional yeast, soy peptone
   item_recipe_components:
   - recxnDcW69OSnJBwI
-  lots:
-  - rec34tNtceOfWaihk
-  - recxqesjPcoVamnSv
-  - recZpMQRv6kkccQ13
-  - rec1H2qUGTb4p5cqY
-  - rec689aaANUwqwWxr
-  - recwOLDrnD1q6kGdW
   name: Liquid Assisted Broth Rice Formula
   notes: Liquid Assisted Broth Rice Formula
   recipe_id: REC-SUB-CORDYCEPS-B
@@ -297,17 +290,94 @@
   - recxTpogyMoFLMZS4
   - rectvGnAU9pu7Fe4g
   - recFZbcfyA1nrErbm
+  - recGjmgL4KhCs1Dse
+  - recLQBUiQ5a08n1QU
+  - recSnVTR4tCDeZOQ6
+  - rec6ZX99mL2V2qRCf
+  - recHjt8WOvBPD2HNq
+  - recVRyNk74MVVN9Mx
+  - recwxEupP7GZWECMN
+  - rec30fVz2qSURH3VR
+  - rec8FvsyrUxlw9msl
+  - recARzhJPuhITGepP
+  - recI5BGDMJ0dU2WFe
+  - recuJIRsfXerQUb9r
+  - rec1PSWzw5CnewqYc
+  - recxGcNKViPWbK5Gr
+  - receapP3Onc7S0VlJ
+  - recbhJg7nrKiFM3fI
+  - rec7KyK67NMkRzRDF
+  - reciRINysmsgQmbkE
+  - recph0CCxLZ7aBEMl
+  - recGbSYA2UVnMXOlw
+  - rechtb5FZNhcVNPwJ
+  - recJbEHsrv31Tu69A
+  - recGc6FbyaS4hVUqY
+  - recC2m6UsvMIakpbk
+  - recK9BOjwUdxRg531
+  - rec4Yvc69MW2qImyS
+  - recjteHQCdZSGYbAq
+  - recYgt09eyVfB75WI
+  - rec6b1MC1R9bBMdvE
+  - rec1MpZHVImh70WPs
+  - recLl3O5y1yea38Jy
+  - recMslsY8u80MhUeq
+  - recrEYPt9kHQtwgTc
+  - recxpCSGD0X0McmEe
+  - recAt1NTILnKvWe1Q
+  - recbIrx3eayveTwVP
+  - recMBz5985JZcGmsz
+  - rec1CVjct7FnelWCH
+  - recRrCwAdQrCRDtel
+  - recRqITzVqtgaJEgy
+  - recPeZkj8m0SnFJvp
+  - recyakjsRA6x631tz
+  - recXRrTDj3wZxaQmy
+  - reco6geq31F9aOwDh
   lots:
   - rec147K0RiZBNkLe2
   - recLxbYolvrzsPB1s
   - recBA0b4p7yCmn03H
   - rec4QF0LSv1qIKWqg
   - receXyX0xRj94sHQo
+  - recJ9apcaFgcCboZF
+  - recg3oW0OvDVnyTL6
+  - reclZmMP755JTJ0yh
+  - reczAOAVJ591qCoFp
+  - recnYBktdkxdyESip
+  - rec2xEuGN2Z0Jk4Ev
+  - recOebh3B6AuifYKs
+  - rectoX0CVSRat150O
+  - rec0t4tXf7pubsWcD
+  - rec52IiCvElVtS3ev
+  - recQST9Vx5j2Tr9R2
+  - recpph56flsIcb1JP
+  - recPZ9TWSnPW84Aqy
+  - reciLOGPVNjv2iIrX
+  - rec4p9Db7z1zpCA9a
+  - recKBrbqslqu78ApW
+  - rec4Uj5VnzfJf2VPo
+  - recivgOCwxrq5j5U1
+  - rec6EZ3Bj2890D8Xu
+  - rec20fCpEhmseFJRb
+  - recCb5n7AOjzD67Er
+  - reca0loZu6y2aluhU
+  - recbWgjsAIm0fXSHI
+  - recT36veqmyLuMyCf
+  - recIZMdTl2YCcPCxQ
+  - recIuHYUmF1q1F4ex
+  - recBPx5P1SpV9OQBL
+  - rectuqOs4vyXILiXu
+  - rec7F7THmBRnktbWx
+  - recbdDtcPWKKK1ull
+  - rec6aa0uS3gzxGQJD
+  - recyX8biHJzuxaq8r
   name: Masters Mix 75/25
   notes: 75/25 by weight
   recipe_id: REC-SUB-MM75
   sterilization_runs:
-  - recCzwiynOzb8UQbk
+  - recH9XtQ3GNRt9tvy
+  - recq6e2hNvwWS4YjH
 - active: true
   airtable_createdTime: '2025-09-16T01:31:22.000Z'
   airtable_id: recfgGM2NY57OwLnN
@@ -388,13 +458,6 @@
     brown rice, soy peptone, nutritional yeast, gypsum
   item_recipe_components:
   - recyZCWibn87uq0S6
-  lots:
-  - rec34emtMzGgC51ad
-  - recAu1w9QrpnQ3tzc
-  - rec7XlTO3zMS3qM7i
-  - rec1D4BqvDwCASibG
-  - reco0ji1b2KjEthzB
-  - recLZDYpCTXGEHtdu
   name: Cordyceps Soy Peptone Formula
   notes: Soy Peptone Formula
   recipe_id: REC-SUB-CORDYCEPS-A

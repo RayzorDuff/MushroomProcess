@@ -136,52 +136,77 @@
         "target_temp_c": 121
     },
     {
-        "airtable_createdTime": "2026-05-19T18:34:52.000Z",
-        "airtable_id": "recCzwiynOzb8UQbk",
-        "default_unit_size (from planned_item)": [
-            "7.5lb"
+        "airtable_createdTime": "2026-07-16T19:08:19.000Z",
+        "airtable_id": "recH9XtQ3GNRt9tvy",
+        "component_mode (from planned_item)": [
+            "single_recipe"
         ],
         "destroyed_count": 0,
-        "end_time": "2026-05-19T18:36:15.927Z",
-        "good_count": 5,
+        "end_time": "2026-07-16T19:09:00.000Z",
+        "good_count": 24,
         "lots": [
-            "rec147K0RiZBNkLe2",
-            "recLxbYolvrzsPB1s",
-            "recBA0b4p7yCmn03H",
-            "rec4QF0LSv1qIKWqg",
-            "receXyX0xRj94sHQo"
+            "recJ9apcaFgcCboZF",
+            "recg3oW0OvDVnyTL6",
+            "reclZmMP755JTJ0yh",
+            "reczAOAVJ591qCoFp",
+            "recnYBktdkxdyESip",
+            "rec2xEuGN2Z0Jk4Ev",
+            "recOebh3B6AuifYKs",
+            "rectoX0CVSRat150O",
+            "rec0t4tXf7pubsWcD",
+            "rec52IiCvElVtS3ev",
+            "recQST9Vx5j2Tr9R2",
+            "recpph56flsIcb1JP",
+            "recPZ9TWSnPW84Aqy",
+            "reciLOGPVNjv2iIrX",
+            "rec4p9Db7z1zpCA9a",
+            "recKBrbqslqu78ApW",
+            "rec4Uj5VnzfJf2VPo",
+            "recivgOCwxrq5j5U1",
+            "rec6EZ3Bj2890D8Xu",
+            "rec20fCpEhmseFJRb",
+            "recCb5n7AOjzD67Er",
+            "reca0loZu6y2aluhU",
+            "recbWgjsAIm0fXSHI",
+            "recT36veqmyLuMyCf"
         ],
         "name (from planned_recipe)": [
             "Masters Mix 75/25"
         ],
         "operator": "Operator 1 <operator1.email.address@mybusiness.com>",
-        "planned_count": 5,
+        "override_end_time": "2026-07-16T19:09:00.000Z",
+        "planned_count": 24,
         "planned_item": [
-            "recXSlo6zHhTvnhZe"
+            "recBfYmeTPor27WFM"
         ],
         "planned_item_id": [
-            "SUB-MM75-7_5"
+            "SUB-HW-BAG"
         ],
         "planned_item_name": [
-            "Masters Mix 75/25"
+            "Hardwood Substrate Bag"
+        ],
+        "planned_item_recipe_components": [
+            "recya9920WDq2Ytp9",
+            "recz70cia2kV7Du9I"
         ],
         "planned_item_recipe_options": [
-            null
+            "substrate: REC-SUB-MM50\nsubstrate: REC-SUB-MM75"
         ],
         "planned_recipe": [
             "recdzi4MMq717DjmU"
         ],
-        "planned_unit_size": 7.5,
+        "planned_recipe_instruction": "Select exactly one Recipe / Primary Recipe for this item.",
+        "planned_unit_size": 2.5,
         "pressure_mode": "Closed",
         "print_queue": [
-            "recpLaTLx6d5rANlG"
+            "recokoNTxVGHnMR2h"
         ],
         "process_type": "Sterilize",
         "recipe_id (from planned_recipe)": [
             "REC-SUB-MM75"
         ],
-        "start_time": "2026-05-15T18:34:00.000Z",
-        "steri_run_id": "RUN-260519-UQbk",
+        "start_time": "2026-07-15T19:06:00.000Z",
+        "steri_run_id": "RUN-260716-9tvy",
         "target_temp_c": 121
     },
     {
@@ -569,6 +594,64 @@
         ],
         "start_time": "2026-06-27T20:51:00.000Z",
         "steri_run_id": "RUN-260629-lLVT",
+        "target_temp_c": 121
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:08:53.000Z",
+        "airtable_id": "recq6e2hNvwWS4YjH",
+        "component_mode (from planned_item)": [
+            "single_recipe"
+        ],
+        "destroyed_count": 0,
+        "end_time": "2026-07-16T19:09:00.000Z",
+        "good_count": 8,
+        "lots": [
+            "recIZMdTl2YCcPCxQ",
+            "recIuHYUmF1q1F4ex",
+            "recBPx5P1SpV9OQBL",
+            "rectuqOs4vyXILiXu",
+            "rec7F7THmBRnktbWx",
+            "recbdDtcPWKKK1ull",
+            "rec6aa0uS3gzxGQJD",
+            "recyX8biHJzuxaq8r"
+        ],
+        "name (from planned_recipe)": [
+            "Masters Mix 75/25"
+        ],
+        "operator": "Operator 1 <operator1.email.address@mybusiness.com>",
+        "override_end_time": "2026-07-16T19:09:00.000Z",
+        "planned_count": 8,
+        "planned_item": [
+            "recBfYmeTPor27WFM"
+        ],
+        "planned_item_id": [
+            "SUB-HW-BAG"
+        ],
+        "planned_item_name": [
+            "Hardwood Substrate Bag"
+        ],
+        "planned_item_recipe_components": [
+            "recya9920WDq2Ytp9",
+            "recz70cia2kV7Du9I"
+        ],
+        "planned_item_recipe_options": [
+            "substrate: REC-SUB-MM50\nsubstrate: REC-SUB-MM75"
+        ],
+        "planned_recipe": [
+            "recdzi4MMq717DjmU"
+        ],
+        "planned_recipe_instruction": "Select exactly one Recipe / Primary Recipe for this item.",
+        "planned_unit_size": 7.5,
+        "pressure_mode": "Closed",
+        "print_queue": [
+            "recVzSYEmZ5uZLTVy"
+        ],
+        "process_type": "Sterilize",
+        "recipe_id (from planned_recipe)": [
+            "REC-SUB-MM75"
+        ],
+        "start_time": "2026-07-15T19:08:00.000Z",
+        "steri_run_id": "RUN-260716-4YjH",
         "target_temp_c": 121
     },
     {

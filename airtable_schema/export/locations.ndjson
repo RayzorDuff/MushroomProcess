@@ -1,29 +1,29 @@
 {"active": true, "airtable_createdTime": "2025-09-17T18:58:44.000Z", "airtable_id": "rec151HwtkDZhzPUb", "name": "Freezer  B (Garage)"}
 {"active": true, "airtable_createdTime": "2026-04-26T16:25:16.000Z", "airtable_id": "rec2Keaibc74vM7BH", "name": "Regulated Business F", "notes": "Farmers Market"}
 {"active": true, "airtable_createdTime": "2026-04-25T23:28:33.000Z", "airtable_id": "rec2PUYav3xcFOera", "name": "Fulfillment"}
-{"active": true, "airtable_createdTime": "2025-12-10T16:00:57.000Z", "airtable_id": "rec2vUujZ5CYkEAzq", "name": "Consumed"}
+{"active": true, "airtable_createdTime": "2025-12-10T16:00:57.000Z", "airtable_id": "rec2vUujZ5CYkEAzq", "name": "Consumed", "products": ["recFDoIZDHjX267R0", "rec75BIQxk9ymlmWO"]}
 {"active": true, "airtable_createdTime": "2025-09-16T23:13:40.000Z", "airtable_id": "rec5yepQsFWPbAYwF", "name": "Dark Room"}
 {"active": true, "airtable_createdTime": "2025-12-10T16:01:04.000Z", "airtable_id": "rec8inZVweILZUJKv", "name": "Expired"}
-{"active": true, "airtable_createdTime": "2025-09-21T00:53:37.000Z", "airtable_id": "rec8wChW6yuYDl51g", "name": "Products Storage", "products": ["recQvGbKnJFR2Xaui", "reczEQHhDkTCjNAJa"]}
+{"active": true, "airtable_createdTime": "2025-09-21T00:53:37.000Z", "airtable_id": "rec8wChW6yuYDl51g", "name": "Products Storage", "products": ["recQvGbKnJFR2Xaui", "reczEQHhDkTCjNAJa", "rec2qvnqKrXVMkNDo", "rec5dIDEmDxyXqMes", "recPHooh00324VuVl", "rech5X9aMz6jTeiPY", "reclpVbJTcOF0skUG", "recqsa8hoKRch4Wk8", "recAvKZYhi7zckx3g", "recBcX5lsykBWfBv5", "recdzF51a9EiU1yq8", "recm3UAyEkpr3N6P8", "recmzbATAajgIPumy", "rectNqVYcQDzzq8EB", "recw308dfNouJ8fQB", "rec4dTuinZcyOxVz6", "rec9WSGQ6cMy4gBQu", "rec9wGkF0dlYFcV18", "recGTKewZ3qg3jwfg", "recif9AcaljlF8hHT", "recqoIPy2xbLxKN9z", "recu2ir963M1NTEiP"]}
 {"active": true, "airtable_createdTime": "2026-01-15T22:47:24.000Z", "airtable_id": "rec9McmhMFumVHNbW", "name": "Family Miscellaneous"}
 {"active": true, "airtable_createdTime": "2026-06-19T21:52:02.000Z", "airtable_id": "recCfIDuc9I58EsEp", "name": "Regulated Business G", "notes": "Lanterns Way"}
 {"active": true, "airtable_createdTime": "2026-04-26T16:25:06.000Z", "airtable_id": "recGharn8L0NjbD1P", "name": "Regulated Business E"}
 {"active": true, "airtable_createdTime": "2025-09-17T18:58:51.000Z", "airtable_id": "recIJAGJLaRV4yPIY", "name": "Packaging"}
 {"active": true, "airtable_createdTime": "2026-04-26T16:24:51.000Z", "airtable_id": "recJFRGn38n905kXT", "name": "Regulated Business C", "notes": "Hillbilly"}
-{"active": true, "airtable_createdTime": "2025-09-22T21:58:11.000Z", "airtable_id": "recJxAz3OdFSxvs0l", "lots": ["recr1rvouT9jQsJrg", "recubhnQdNB05fgNv", "rec04533gFaZRodNe", "recRi7HbiA11M4UOG", "recDmtKc314E0h8zS", "recfyskUzH5JuKLen", "recvyxpWHDZNxXktn", "recxSBBfXoHgZQbeT", "recVsy0u54gksu1m6", "recrq4Q4GXjh1lhJv", "recsV7dwpD1t51wJo", "recMAGHvFxICI7LDh"], "name": "Fridge"}
+{"active": true, "airtable_createdTime": "2025-09-22T21:58:11.000Z", "airtable_id": "recJxAz3OdFSxvs0l", "name": "Fridge"}
 {"active": true, "airtable_createdTime": "2025-09-21T00:53:24.000Z", "airtable_id": "recUfoniFfqsKltMa", "name": "Regulated Business B", "notes": "B Plus (B Positive)"}
 {"active": true, "airtable_createdTime": "2026-03-05T17:45:38.000Z", "airtable_id": "recUjG8MBgAL5aNLi", "name": "Regulated Business A", "notes": "Penis Envy (PE)"}
 {"active": true, "airtable_createdTime": "2026-04-25T23:28:58.000Z", "airtable_id": "recdeDjYObsTOjMdJ", "name": "Freeze Dryer"}
 {"active": true, "airtable_createdTime": "2025-09-17T18:57:32.000Z", "airtable_id": "reckf5T55y351obTn", "name": "Fridge A (Garage)"}
 {"active": true, "airtable_createdTime": "2026-04-25T22:27:49.000Z", "airtable_id": "reclv2FpZbGhhf1YP", "name": "Freezer A (Garage)"}
 {"active": true, "airtable_createdTime": "2026-03-05T18:18:16.000Z", "airtable_id": "reclvagEz0Xshu7uX", "name": "Backpack"}
-{"active": true, "airtable_createdTime": "2026-02-13T20:54:45.000Z", "airtable_id": "recmsz1EhK9NRKLYr", "name": "Compost", "products": ["rec59yhQegq7TfaWK", "recf0lKNp6lNdrwcQ", "recK1rokdg3mbIsE1", "rec925z04eLSM4FeN", "reclsDHBRXt1qHNN7", "recq7NZzhtLJTPLuS", "recGEFSNpQgZWBpsD"]}
+{"active": true, "airtable_createdTime": "2026-02-13T20:54:45.000Z", "airtable_id": "recmsz1EhK9NRKLYr", "name": "Compost", "products": ["recGEFSNpQgZWBpsD", "recf0lKNp6lNdrwcQ", "recq7NZzhtLJTPLuS", "reclsDHBRXt1qHNN7", "rec59yhQegq7TfaWK", "recK1rokdg3mbIsE1", "rec925z04eLSM4FeN"]}
 {"airtable_createdTime": "2026-07-05T13:59:46.000Z", "airtable_id": "recpG42legny7oNA8", "name": "Samples"}
 {"active": true, "airtable_createdTime": "2026-02-19T16:17:12.000Z", "airtable_id": "recqXlka6ueVBOWIc", "name": "New Lots"}
 {"active": true, "airtable_createdTime": "2025-09-17T18:58:21.000Z", "airtable_id": "recrz1MNPPquKoGUc", "name": "Freezer"}
 {"active": true, "airtable_createdTime": "2025-09-22T21:58:18.000Z", "airtable_id": "rectvg66AQi3oswec", "name": "Fruiting Chamber"}
 {"active": true, "airtable_createdTime": "2026-04-25T14:26:25.000Z", "airtable_id": "recvMfIb6WkJh5iIh", "name": "Farmers Market"}
-{"active": true, "airtable_createdTime": "2025-11-21T20:48:15.000Z", "airtable_id": "recwRFW2aHlJivoX3", "name": "Shipped", "products": ["recNJhUXO0e8JygpL", "recQwkTNRzIvERSlt", "recKkqMzDGGnczJmA", "rec1oPXxZMjaWscYG", "recp2LWMQnEdN6GXU"]}
+{"active": true, "airtable_createdTime": "2025-11-21T20:48:15.000Z", "airtable_id": "recwRFW2aHlJivoX3", "name": "Shipped", "products": ["recQwkTNRzIvERSlt", "recKkqMzDGGnczJmA", "rec1oPXxZMjaWscYG", "recNJhUXO0e8JygpL", "recp2LWMQnEdN6GXU"]}
 {"active": true, "airtable_createdTime": "2026-04-25T22:29:10.000Z", "airtable_id": "recxTjNSUPu1LTV0h", "name": "Fridge B (Garage)"}
 {"active": true, "airtable_createdTime": "2025-09-17T18:58:14.000Z", "airtable_id": "recxwDqyt5Ae5IiZK", "name": "Fruiting Chamber (Trailer)"}
 {"active": true, "airtable_createdTime": "2026-04-26T16:25:00.000Z", "airtable_id": "recyOickGdzn4dQV0", "name": "Regulated Business D", "notes": "Bluey Vatton"}

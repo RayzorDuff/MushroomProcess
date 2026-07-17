@@ -36,7 +36,9 @@
         "origin_lots": [
             "recsHHh3LrQE1oq7L"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "rec5fyBzQR2YAFjQy"
         ],
@@ -56,6 +58,56 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rec2qvnqKrXVMkNDo",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-kNDo",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec4AP6CWbWXiWEUC"
+        ],
+        "product_id": "PROD-260713-kNDo",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-14T20:46:37.000Z",
@@ -83,10 +135,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recokzszChXhRvOf9"
         ],
@@ -99,6 +150,56 @@
             "rec7lLl0rRBhkwO6H"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec4dTuinZcyOxVz6",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-xVz6",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec1jzlsG971oVGI4"
+        ],
+        "product_id": "PROD-260713-xVz6",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-05T19:29:57.000Z",
@@ -149,7 +250,9 @@
         "origin_lots": [
             "recpyoMscyvYIHr1i"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "reclMe07Cavzkq2nR"
         ],
@@ -198,10 +301,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recyFkt01c5gjg38t"
         ],
@@ -214,6 +316,56 @@
             "recxZKdhM1v5Wh51M"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rec5dIDEmDxyXqMes",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-qMes",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rectLwFW8I849mLfu"
+        ],
+        "product_id": "PROD-260713-qMes",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-18T21:06:03.000Z",
@@ -234,17 +386,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-pa6m",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Chestnut",
+        "label_subtitle_prod": " Chestnut",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -254,16 +397,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-1wJo\"]",
-        "origin_lots": [
-            "recsV7dwpD1t51wJo"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "recJks2B9PRmnCkMY"
         ],
@@ -274,12 +413,6 @@
         ],
         "strain_id": [
             "recV9ephQ5NJProZu"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -295,37 +428,38 @@
         ],
         "label_company_prod": "My Business",
         "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
-        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
         "label_footer_prod": "PROD-260701-lmWO",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-30",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-12"
-        ],
         "label_subtitle_prod": "155.32 g \u2022 Black Pearl King Oyster",
         "label_title_prod": "Freezer Tray",
+        "merge_tray_products": [
+            "recFDoIZDHjX267R0"
+        ],
         "name": [
             "Freezer Tray"
+        ],
+        "name (from package_item)": [
+            "Freeze Dried Mushrooms"
         ],
         "name_mat": "Freezer Tray",
         "net_weight_g": 155.32,
         "origin_lot_ids_json": "[\"recesxUAkb8ra5bJ9\"]",
-        "origin_lots": [
-            "recesxUAkb8ra5bJ9"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-01",
-        "package_class": "Retail",
+        "package_class": "Sample",
+        "package_count": 7,
+        "package_item": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "package_item_category": [
+            "freezedriedmushrooms"
+        ],
+        "package_size": "5 g",
+        "package_size_g": "5",
         "print_queue": [
             "recBiDJpOZ7mKUCBU"
         ],
@@ -334,16 +468,13 @@
         "species_strain": [
             "Black Pearl King Oyster"
         ],
+        "storage_location": [
+            "rec2vUujZ5CYkEAzq"
+        ],
         "strain_id": [
             "recCh2Z1gu1BRgW5x"
         ],
-        "tray_state": "freezer_tray",
-        "unit_lbs": [
-            "8.5 lb"
-        ],
-        "unit_size": [
-            8.5
-        ]
+        "tray_state": "empty_tray"
     },
     {
         "airtable_createdTime": "2026-05-23T00:12:43.000Z",
@@ -371,10 +502,9 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-05-23",
+        "package_class": "Retail",
         "print_queue": [
             "rec6B21X30jNJ3FQt"
         ],
@@ -404,17 +534,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-j5eR",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Pearl Oyster",
+        "label_subtitle_prod": " Pearl Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -424,16 +545,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-sJrg\"]",
-        "origin_lots": [
-            "recr1rvouT9jQsJrg"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "recZHTNepJPDqjTmh"
         ],
@@ -444,12 +561,6 @@
         ],
         "strain_id": [
             "recAJwZGQuVlEUFpb"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -502,7 +613,9 @@
         "origin_lots": [
             "recvovrAA0mOVsWSF"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recpHzJN0z66jLsDd"
         ],
@@ -524,6 +637,56 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec9WSGQ6cMy4gBQu",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-gBQu",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recq1gXYgBpF0c87z"
+        ],
+        "product_id": "PROD-260713-gBQu",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-05T19:45:14.000Z",
@@ -574,7 +737,9 @@
         "origin_lots": [
             "reciaGUcYWidRaWgY"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recTHGDyBp4xSYuiC"
         ],
@@ -595,6 +760,156 @@
         "use_by": "2026-09-05"
     },
     {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec9wGkF0dlYFcV18",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-cV18",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "reccuOjtP6ZWYTmUk"
+        ],
+        "product_id": "PROD-260713-cV18",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recAvKZYhi7zckx3g",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-kx3g",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recu3ZqG0yps3obgU"
+        ],
+        "product_id": "PROD-260713-kx3g",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recBcX5lsykBWfBv5",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-fBv5",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recFdXXfCR5DnAkD3"
+        ],
+        "product_id": "PROD-260713-fBv5",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
         "airtable_createdTime": "2026-06-18T19:49:39.000Z",
         "airtable_id": "recE1xLJwUxlex8B9",
         "item_category": [
@@ -610,17 +925,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-x8B9",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Pearl Oyster",
+        "label_subtitle_prod": " Pearl Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -630,16 +936,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-odNe\"]",
-        "origin_lots": [
-            "rec04533gFaZRodNe"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "rec5ZRpYHLEZkJc3F"
         ],
@@ -651,15 +953,12 @@
         "strain_id": [
             "recAJwZGQuVlEUFpb"
         ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
-        ],
         "use_by": "2026-08-16"
     },
     {
+        "From field: merge_tray_products": [
+            "rec75BIQxk9ymlmWO"
+        ],
         "airtable_createdTime": "2026-07-01T22:08:36.000Z",
         "airtable_id": "recFDoIZDHjX267R0",
         "item_category": [
@@ -673,16 +972,7 @@
         "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
         "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
         "label_footer_prod": "PROD-260701-67R0",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-30",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-12"
-        ],
         "label_subtitle_prod": "126.75 g \u2022 Black Pearl King Oyster",
         "label_title_prod": "Freezer Tray",
         "name": [
@@ -691,15 +981,10 @@
         "name_mat": "Freezer Tray",
         "net_weight_g": 126.75,
         "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
-        "origin_lots": [
-            "recFcOoOyzaTIPoAX"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-01",
         "package_class": "Retail",
         "print_queue": [
@@ -710,16 +995,55 @@
         "species_strain": [
             "Black Pearl King Oyster"
         ],
+        "storage_location": [
+            "rec2vUujZ5CYkEAzq"
+        ],
         "strain_id": [
             "recCh2Z1gu1BRgW5x"
         ],
-        "tray_state": "freezer_tray",
-        "unit_lbs": [
-            "8.5 lb"
+        "tray_state": "empty_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:19:47.000Z",
+        "airtable_id": "recFHy2Qccm91JEUt",
+        "item_category": [
+            "freezer_tray"
         ],
-        "unit_size": [
-            8.5
-        ]
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-JEUt",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "142.38 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 142.38,
+        "origin_lot_ids_json": "[\"recfCCE3M1nfURJUG\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec2oMbh5sCzLuBRh"
+        ],
+        "product_id": "PROD-260715-JEUt",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
     },
     {
         "airtable_createdTime": "2026-06-05T19:28:29.000Z",
@@ -770,7 +1094,9 @@
         "origin_lots": [
             "recm4aVHlbHuHSjOy"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recrl3ypYcTMGsKOG"
         ],
@@ -792,6 +1118,56 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recGTKewZ3qg3jwfg",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-jwfg",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recZKVKKsJrNpuqN1"
+        ],
+        "product_id": "PROD-260713-jwfg",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-04T15:59:19.000Z",
@@ -821,17 +1197,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-W6N6",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Blue Oyster",
+        "label_subtitle_prod": " Blue Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -841,16 +1208,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260514-Xktn\"]",
-        "origin_lots": [
-            "recvyxpWHDZNxXktn"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recASXewZCTwtmAsA"
         ],
@@ -864,13 +1227,49 @@
         "strain_id": [
             "recszNf2WlZjSQqyL"
         ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
-        ],
         "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:19:47.000Z",
+        "airtable_id": "recJo2NUEWnQwiuLZ",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-iuLZ",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "142.38 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 142.38,
+        "origin_lot_ids_json": "[\"recfCCE3M1nfURJUG\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "recxjECofq1xwFm0h"
+        ],
+        "product_id": "PROD-260715-iuLZ",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
     },
     {
         "airtable_createdTime": "2026-06-05T19:33:34.000Z",
@@ -921,7 +1320,9 @@
         "origin_lots": [
             "rectiyuoziWwdcVnp"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "rec9HUlXfX7cKhk0p"
         ],
@@ -981,7 +1382,9 @@
         "origin_lots": [
             "recqLMWPvTT4sgKgn"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recBRyp85GKSkycDb"
         ],
@@ -1051,7 +1454,9 @@
         "origin_lots": [
             "recm7xuUoTBpD5Jhg"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recBAL071iKJSKGRR"
         ],
@@ -1099,17 +1504,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-nTOR",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3.13 lb \u2022 Red Reishi",
+        "label_subtitle_prod": " Red Reishi",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -1119,16 +1515,12 @@
         "net_weight_g": 1417.48,
         "net_weight_oz": 50,
         "origin_lot_ids_json": "[\"LOT-260514-iMg3\"]",
-        "origin_lots": [
-            "recciEYi9p1bEiMg3"
-        ],
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recbL9IYeleyafLQ6"
         ],
@@ -1141,12 +1533,6 @@
         ],
         "strain_id": [
             "recxZKdhM1v5Wh51M"
-        ],
-        "unit_lbs": [
-            "3.13 lb"
-        ],
-        "unit_size": [
-            3.125
         ],
         "use_by": "2026-08-14"
     },
@@ -1176,10 +1562,9 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-05-23",
+        "package_class": "Retail",
         "print_queue": [
             "recYDlOPATh8u1eyu"
         ],
@@ -1230,7 +1615,9 @@
         "origin_lots": [
             "rectrJMfA9sYddT3s"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recg4JgkFA66tL4ZW"
         ],
@@ -1277,10 +1664,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recVqzwmrpLEiIuNz"
         ],
@@ -1293,6 +1679,56 @@
             "rec7lLl0rRBhkwO6H"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "recPHooh00324VuVl",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-VuVl",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recsLx1KmBjFI72FS"
+        ],
+        "product_id": "PROD-260713-VuVl",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-04T15:38:51.000Z",
@@ -1313,17 +1749,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-yqyf",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Chestnut",
+        "label_subtitle_prod": " Chestnut",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -1333,16 +1760,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-fYlc\"]",
-        "origin_lots": [
-            "recx4iEsjflXkfYlc"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recz1lgpi9b4r9UHy"
         ],
@@ -1353,12 +1776,6 @@
         ],
         "strain_id": [
             "recV9ephQ5NJProZu"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -1388,10 +1805,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recj7t7SrPaB6WPEH"
         ],
@@ -1434,9 +1850,7 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-11",
         "package_class": "Sample",
         "package_size": "5 g",
@@ -1494,7 +1908,9 @@
         "origin_lots": [
             "reckhPRgdLf9aoeDs"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recmkywoL8QC0UQen"
         ],
@@ -1543,17 +1959,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-SBSC",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3.13 lb \u2022 Red Reishi",
+        "label_subtitle_prod": " Red Reishi",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -1563,16 +1970,12 @@
         "net_weight_g": 1417.48,
         "net_weight_oz": 50,
         "origin_lot_ids_json": "[\"LOT-260514-u1m6\"]",
-        "origin_lots": [
-            "recVsy0u54gksu1m6"
-        ],
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "recahI5xXHQbLzzkD"
         ],
@@ -1585,12 +1988,6 @@
         ],
         "strain_id": [
             "recxZKdhM1v5Wh51M"
-        ],
-        "unit_lbs": [
-            "3.13 lb"
-        ],
-        "unit_size": [
-            3.125
         ],
         "use_by": "2026-08-14"
     },
@@ -1613,17 +2010,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-CbrC",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Chestnut",
+        "label_subtitle_prod": " Chestnut",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -1633,16 +2021,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-lhJv\"]",
-        "origin_lots": [
-            "recrq4Q4GXjh1lhJv"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "rec20dIP2Fj5OAIYU"
         ],
@@ -1653,12 +2037,6 @@
         ],
         "strain_id": [
             "recV9ephQ5NJProZu"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -1681,17 +2059,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-xUef",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Chestnut",
+        "label_subtitle_prod": " Chestnut",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -1701,16 +2070,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-PWA6\"]",
-        "origin_lots": [
-            "recTc21kOdqurPWA6"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recFeljDu0LEAsHSU"
         ],
@@ -1721,12 +2086,6 @@
         ],
         "strain_id": [
             "recV9ephQ5NJProZu"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -1756,9 +2115,7 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-01",
         "package_class": "Retail",
         "print_queue": [
@@ -1823,7 +2180,9 @@
         "origin_lots": [
             "rec0ZbNh7jik9qini"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-19",
+        "package_class": "Retail",
         "print_queue": [
             "recdSmx58gkB66zl9"
         ],
@@ -1857,16 +2216,7 @@
         "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
         "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
         "label_footer_prod": "PROD-260706-QFyP",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-07-05",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-12"
-        ],
         "label_subtitle_prod": "166.53 g \u2022 Black Pearl King Oyster",
         "label_title_prod": "Freezer Tray",
         "name": [
@@ -1875,15 +2225,10 @@
         "name_mat": "Freezer Tray",
         "net_weight_g": 166.525,
         "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
-        "origin_lots": [
-            "recFcOoOyzaTIPoAX"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-06",
         "package_class": "Retail",
         "print_queue": [
@@ -1897,13 +2242,7 @@
         "strain_id": [
             "recCh2Z1gu1BRgW5x"
         ],
-        "tray_state": "freezer_tray",
-        "unit_lbs": [
-            "8.5 lb"
-        ],
-        "unit_size": [
-            8.5
-        ]
+        "tray_state": "freezer_tray"
     },
     {
         "airtable_createdTime": "2026-06-04T15:21:31.000Z",
@@ -1921,17 +2260,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-t2FA",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Pearl Oyster",
+        "label_subtitle_prod": " Pearl Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -1941,16 +2271,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-4UOG\"]",
-        "origin_lots": [
-            "recRi7HbiA11M4UOG"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recL6L5o6430Vu3Xz"
         ],
@@ -1961,12 +2287,6 @@
         ],
         "strain_id": [
             "recAJwZGQuVlEUFpb"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -1998,17 +2318,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-XKEV",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Blue Oyster",
+        "label_subtitle_prod": " Blue Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -2018,16 +2329,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260514-h8zS\"]",
-        "origin_lots": [
-            "recDmtKc314E0h8zS"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "recQpmAlrj2LlHylm"
         ],
@@ -2040,12 +2347,6 @@
         ],
         "strain_id": [
             "recszNf2WlZjSQqyL"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-14"
     },
@@ -2077,17 +2378,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260618-cMlF",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-17",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Blue Oyster",
+        "label_subtitle_prod": " Blue Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -2097,16 +2389,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260514-QbeT\"]",
-        "origin_lots": [
-            "recxSBBfXoHgZQbeT"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-18",
+        "package_class": "Retail",
         "print_queue": [
             "recCPvhjTmd8niGIi"
         ],
@@ -2119,12 +2407,6 @@
         ],
         "strain_id": [
             "recszNf2WlZjSQqyL"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-14"
     },
@@ -2142,16 +2424,7 @@
         "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
         "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
         "label_footer_prod": "PROD-260706-Zclz",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-07-05",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-12"
-        ],
         "label_subtitle_prod": "166.53 g \u2022 Black Pearl King Oyster",
         "label_title_prod": "Freezer Tray",
         "name": [
@@ -2160,15 +2433,10 @@
         "name_mat": "Freezer Tray",
         "net_weight_g": 166.525,
         "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
-        "origin_lots": [
-            "recFcOoOyzaTIPoAX"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-06",
         "package_class": "Retail",
         "print_queue": [
@@ -2182,13 +2450,57 @@
         "strain_id": [
             "recCh2Z1gu1BRgW5x"
         ],
-        "tray_state": "freezer_tray",
-        "unit_lbs": [
-            "8.5 lb"
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recdzF51a9EiU1yq8",
+        "item_category": [
+            "freezedriedmushrooms"
         ],
-        "unit_size": [
-            8.5
-        ]
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-1yq8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recE2u4CZKgNh2teV"
+        ],
+        "product_id": "PROD-260713-1yq8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-04T15:21:00.000Z",
@@ -2206,17 +2518,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-6vKV",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-16"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Pearl Oyster",
+        "label_subtitle_prod": " Pearl Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-15",
         "name": [
@@ -2226,16 +2529,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260516-fgNv\"]",
-        "origin_lots": [
-            "recubhnQdNB05fgNv"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recKIQ55HqSQqpWUF"
         ],
@@ -2246,12 +2545,6 @@
         ],
         "strain_id": [
             "recAJwZGQuVlEUFpb"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-16"
     },
@@ -2304,7 +2597,9 @@
         "origin_lots": [
             "recmHotH3ZmsQ0bmb"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recOsdBjySKOpuL9I"
         ],
@@ -2326,6 +2621,148 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rech5X9aMz6jTeiPY",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-eiPY",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recmsaWPeaKsdS3Ao"
+        ],
+        "product_id": "PROD-260713-eiPY",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:22:30.000Z",
+        "airtable_id": "reciSK4kYWYUN131m",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-131m",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "192.69 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 192.685,
+        "origin_lot_ids_json": "[\"recjy3YgBfr8f05m3\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec6VLQ4OWHor3lmZ"
+        ],
+        "product_id": "PROD-260715-131m",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recif9AcaljlF8hHT",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-8hHT",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recYgJDJpVNQpz9V4"
+        ],
+        "product_id": "PROD-260713-8hHT",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-14T21:04:06.000Z",
@@ -2353,10 +2790,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recxG9ehJCJYTWpE7"
         ],
@@ -2398,17 +2834,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-Ys7X",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3.13 lb \u2022 Red Reishi",
+        "label_subtitle_prod": " Red Reishi",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -2418,16 +2845,12 @@
         "net_weight_g": 1417.48,
         "net_weight_oz": 50,
         "origin_lot_ids_json": "[\"LOT-260514-a8cV\"]",
-        "origin_lots": [
-            "recJVKklz8pXfa8cV"
-        ],
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recCJhoRMglvGh1H2"
         ],
@@ -2440,12 +2863,6 @@
         ],
         "strain_id": [
             "recxZKdhM1v5Wh51M"
-        ],
-        "unit_lbs": [
-            "3.13 lb"
-        ],
-        "unit_size": [
-            3.125
         ],
         "use_by": "2026-08-14"
     },
@@ -2475,9 +2892,7 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-01",
         "package_class": "Retail",
         "print_queue": [
@@ -2492,6 +2907,98 @@
             "recV9ephQ5NJProZu"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:22:30.000Z",
+        "airtable_id": "reckxPfc3paeFiEy5",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-iEy5",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "192.69 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 192.685,
+        "origin_lot_ids_json": "[\"recjy3YgBfr8f05m3\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "recSZUhjpQKDwovDU"
+        ],
+        "product_id": "PROD-260715-iEy5",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "reclpVbJTcOF0skUG",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-skUG",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recOfR6dYcGRQs8KF"
+        ],
+        "product_id": "PROD-260713-skUG",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-05T19:29:50.000Z",
@@ -2542,7 +3049,9 @@
         "origin_lots": [
             "recpxC1yDCvcXuozn"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recqASemD3OhsjjYB"
         ],
@@ -2564,6 +3073,106 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recm3UAyEkpr3N6P8",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-N6P8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recpX0SVIYtAGB0MQ"
+        ],
+        "product_id": "PROD-260713-N6P8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recmzbATAajgIPumy",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-Pumy",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recJoVvoxiv8aRMR5"
+        ],
+        "product_id": "PROD-260713-Pumy",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-14T20:41:49.000Z",
@@ -2591,10 +3200,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "rec3Apbnp3txbFr8g"
         ],
@@ -2657,7 +3265,9 @@
         "origin_lots": [
             "rec4rc5rjKCi7NDUv"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-19",
+        "package_class": "Retail",
         "print_queue": [
             "recy622eaLlE9HUpQ"
         ],
@@ -2714,7 +3324,9 @@
         "origin_lots": [
             "recA5hUFz1FetrJnS"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recX1ilH6OSauielY"
         ],
@@ -2784,7 +3396,9 @@
         "origin_lots": [
             "recoMnoCnqoiyOWxE"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recIdbJTEQz1lEJ3F"
         ],
@@ -2806,6 +3420,106 @@
             2
         ],
         "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recqoIPy2xbLxKN9z",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-KN9z",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec8yitnUqwcDx5Ag"
+        ],
+        "product_id": "PROD-260713-KN9z",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:26:33.000Z",
+        "airtable_id": "recqsa8hoKRch4Wk8",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-4Wk8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recAkg4FMjLCnGlqA"
+        ],
+        "product_id": "PROD-260713-4Wk8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-05T19:45:07.000Z",
@@ -2856,7 +3570,9 @@
         "origin_lots": [
             "rechupBWHW7wvvvi2"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-05",
+        "package_class": "Retail",
         "print_queue": [
             "recqZ1D02BmOm0NxR"
         ],
@@ -2902,10 +3618,9 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-05-23",
+        "package_class": "Retail",
         "print_queue": [
             "recXTSB3XOcLKZqMq"
         ],
@@ -2918,6 +3633,56 @@
             "recV9ephQ5NJProZu"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "rectNqVYcQDzzq8EB",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-q8EB",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recOIDOkRuhYARPsn"
+        ],
+        "product_id": "PROD-260713-q8EB",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-05-23T00:00:56.000Z",
@@ -2945,10 +3710,9 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-05-23",
+        "package_class": "Retail",
         "print_queue": [
             "rec3CBNPYW3MeMSad"
         ],
@@ -2988,10 +3752,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recvK6UH1SP67RdLK"
         ],
@@ -3004,6 +3767,56 @@
             "recxZKdhM1v5Wh51M"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recu2ir963M1NTEiP",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-TEiP",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recV0RMCthzb31ull"
+        ],
+        "product_id": "PROD-260713-TEiP",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-14T20:43:33.000Z",
@@ -3031,10 +3844,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recowvNh7DfIv4LuB"
         ],
@@ -3097,7 +3909,9 @@
         "origin_lots": [
             "rec4oLI79L9qNB68Z"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-19",
+        "package_class": "Retail",
         "print_queue": [
             "recj42sdSdihE7NFX"
         ],
@@ -3143,10 +3957,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recr25dc2HJH49rG8"
         ],
@@ -3159,6 +3972,56 @@
             "recxZKdhM1v5Wh51M"
         ],
         "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recw308dfNouJ8fQB",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-8fQB",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recrc9dNFC445oy8v"
+        ],
+        "product_id": "PROD-260713-8fQB",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
     },
     {
         "airtable_createdTime": "2026-06-19T19:07:22.000Z",
@@ -3209,7 +4072,9 @@
         "origin_lots": [
             "rec2grEmnDMXTp5dk"
         ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-19",
+        "package_class": "Retail",
         "print_queue": [
             "recHB4gtMItn7HKvd"
         ],
@@ -3257,17 +4122,8 @@
         "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
         "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
         "label_footer_prod": "PROD-260604-GSPC",
-        "label_inoc_prod": [
-            null
-        ],
         "label_packaged_prod": "Packaged: 2026-06-03",
-        "label_proc_prod": [
-            null
-        ],
-        "label_spawned_prod": [
-            "Spawned: 2026-05-14"
-        ],
-        "label_subtitle_prod": "3 lb \u2022 Blue Oyster",
+        "label_subtitle_prod": " Blue Oyster",
         "label_title_prod": "Small Masters Mix 75/25",
         "label_useby_prod": "Use by: 2026-08-13",
         "name": [
@@ -3277,16 +4133,12 @@
         "net_weight_g": 1360.78,
         "net_weight_oz": 48,
         "origin_lot_ids_json": "[\"LOT-260514-KLen\"]",
-        "origin_lots": [
-            "recfyskUzH5JuKLen"
-        ],
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-04",
+        "package_class": "Retail",
         "print_queue": [
             "recls5p3S3VI7NYRd"
         ],
@@ -3299,12 +4151,6 @@
         ],
         "strain_id": [
             "recszNf2WlZjSQqyL"
-        ],
-        "unit_lbs": [
-            "3 lb"
-        ],
-        "unit_size": [
-            3
         ],
         "use_by": "2026-08-14"
     },
@@ -3334,10 +4180,9 @@
         "origin_strain_product_use": [
             "Functional"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-06-14",
+        "package_class": "Retail",
         "print_queue": [
             "recFB0uHrBLucUU63"
         ],
@@ -3380,9 +4225,7 @@
         "origin_strain_product_use": [
             "Gourmet"
         ],
-        "origin_strain_regulated": [
-            null
-        ],
+        "origin_strain_regulated": 0,
         "pack_date": "2026-07-11",
         "package_class": "Sample",
         "package_size": "5 g",

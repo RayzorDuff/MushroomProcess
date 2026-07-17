@@ -33,8 +33,8 @@
         ],
         "name": "5lb Pasteurized Coco Coir",
         "products": [
-            "rec9ZRsdSgoBabKn0",
-            "recrcbnUjgvBCJge5"
+            "recrcbnUjgvBCJge5",
+            "rec9ZRsdSgoBabKn0"
         ],
         "status": "Pasteurized",
         "sync_to_ecwid": true
@@ -87,7 +87,7 @@
     {
         "airtable_createdTime": "2025-12-26T18:37:02.000Z",
         "airtable_id": "rec3ArssudPfyLSlL",
-        "available_from_lots": 1,
+        "available_from_lots": 0,
         "available_from_products": 3,
         "ecwid_category": "160277251",
         "ecwid_price": 14.95,
@@ -98,14 +98,11 @@
         "item_id": [
             "recU9tdgUerFEM9oJ"
         ],
-        "lots": [
-            "recMAGHvFxICI7LDh"
-        ],
         "name": "Small 2.5lb Red Reishi Fruiting Block",
         "products": [
+            "recjTLojAVq7HYs7X",
             "recLsg8EwKwUQnTOR",
-            "recRx4pQuNAbBSBSC",
-            "recjTLojAVq7HYs7X"
+            "recRx4pQuNAbBSBSC"
         ],
         "status": "FullyColonized",
         "strain_id": [
@@ -278,9 +275,9 @@
         "name": "Small 2.5lb Blue Oyster Fruiting Block",
         "products": [
             "recGqkYnY9YXMW6N6",
+            "recyHg6ax6gBOGSPC",
             "recYMxahNa4HLXKEV",
-            "recbJot2InHP4cMlF",
-            "recyHg6ax6gBOGSPC"
+            "recbJot2InHP4cMlF"
         ],
         "status": "FullyColonized",
         "strain_id": [
@@ -346,18 +343,18 @@
         ],
         "name": "2lb Sterilized Wild Bird Seed",
         "products": [
-            "rec59yhQegq7TfaWK",
-            "rec925z04eLSM4FeN",
             "recGEFSNpQgZWBpsD",
+            "recf0lKNp6lNdrwcQ",
+            "recq7NZzhtLJTPLuS",
+            "reclsDHBRXt1qHNN7",
+            "rec59yhQegq7TfaWK",
             "recK1rokdg3mbIsE1",
+            "rec925z04eLSM4FeN",
             "recL1wSEWHp4rJg9d",
             "recTTRlf7SC9uK7pd",
-            "recf0lKNp6lNdrwcQ",
-            "reclsDHBRXt1qHNN7",
-            "recoGL6MiTf9KiwJS",
-            "recq7NZzhtLJTPLuS",
+            "recxlrwiIKh5CAA94",
             "recukVj1EnayRntpy",
-            "recxlrwiIKh5CAA94"
+            "recoGL6MiTf9KiwJS"
         ],
         "status": "Sterilized",
         "sync_to_ecwid": true
@@ -372,10 +369,10 @@
         ],
         "name": "Small 2.5lb Chestnut Fruiting Block",
         "products": [
-            "rec6x0ZDrIsMOpa6m",
+            "recT1oslzubnlxUef",
             "recPUXNTPt19Ryqyf",
-            "recSnxSkQ7KnfCbrC",
-            "recT1oslzubnlxUef"
+            "rec6x0ZDrIsMOpa6m",
+            "recSnxSkQ7KnfCbrC"
         ],
         "status": "FullyColonized",
         "strain_id": [
@@ -405,7 +402,7 @@
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "cdbd6f64-2637-488c-b9fc-0a5a47bb7322",
-        "ecwid_stock": 6,
+        "ecwid_stock": 1,
         "ecwid_upc": "6865787500037",
         "ecwid_url": "https://www.mybusiness.com/products/Blue-Oyster-Liquid-Culture-Syringe-p610274742",
         "item_id": [
@@ -468,7 +465,7 @@
         "available_from_products": 0,
         "ecwid_price": 9.95,
         "ecwid_sku": "0KTM8VBSEHN9W",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787502215",
         "ecwid_url": "https://www.mybusiness.com/products/Turkey-Tail-Liquid-Culture-Syringe-p711335074",
         "item_id": [
@@ -488,7 +485,7 @@
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "78deea9b-c56b-45d3-8fb4-36596c902002",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787501553",
         "ecwid_url": "https://www.mybusiness.com/products/Lions-Mane-Liquid-Culture-Syringe-p610274451",
         "item_id": [
@@ -598,23 +595,16 @@
     {
         "airtable_createdTime": "2025-11-22T02:39:49.000Z",
         "airtable_id": "recVcvY7l7e4nk4Vt",
-        "available_from_lots": 5,
+        "available_from_lots": 0,
         "available_from_products": 0,
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "7VX24W4Z0CAYJ",
-        "ecwid_stock": 12,
+        "ecwid_stock": 3,
         "ecwid_upc": "6.865787502079E12",
         "ecwid_url": "https://www.mybusiness.com/products/5lb-Masters-Mix-Substrate-Bag-Sterilized-p711335795",
         "item_id": [
             "recXSlo6zHhTvnhZe"
-        ],
-        "lots": [
-            "rec147K0RiZBNkLe2",
-            "rec4QF0LSv1qIKWqg",
-            "recBA0b4p7yCmn03H",
-            "recLxbYolvrzsPB1s",
-            "receXyX0xRj94sHQo"
         ],
         "name": "7.5lb Sterilized 75/25 Masters Mix",
         "status": "Sterilized",
@@ -628,7 +618,7 @@
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "f60786ed-dbb9-484f-8542-0f90c2bd5b73",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787501577",
         "ecwid_url": "https://www.mybusiness.com/products/Pearl-Oyster-Liquid-Culture-Syringe-p610277365",
         "item_id": [
@@ -718,7 +708,7 @@
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "8e69307a-cb75-484d-a3dd-0ff758adb094",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787501812",
         "ecwid_url": "https://www.mybusiness.com/products/Red-Reishi-Liquid-Culture-Syringe-p610276199",
         "item_id": [
@@ -808,7 +798,7 @@
         "available_from_products": 0,
         "ecwid_price": 7.95,
         "ecwid_sku": "T5N92Z1CQ2NTM",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6.865787502062E12",
         "ecwid_url": "https://www.mybusiness.com/products/2-5lb-Masters-Mix-Substrate-Bag-Sterilized-p711333863",
         "item_id": [
@@ -983,7 +973,7 @@
         "ecwid_category": "160277251",
         "ecwid_price": 9.95,
         "ecwid_sku": "ea1d0ac5-ef1b-476d-995c-1db3ec0b438d",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787500051",
         "ecwid_url": "https://www.mybusiness.com/products/Bronze-Reishi-Liquid-Culture-Syringe-p610277364",
         "item_id": [
@@ -1023,7 +1013,7 @@
         "available_from_products": 0,
         "ecwid_price": 9.95,
         "ecwid_sku": "P4QPQ6RQ4ARV4",
-        "ecwid_stock": 5,
+        "ecwid_stock": 0,
         "ecwid_upc": "6865787502239",
         "ecwid_url": "https://www.mybusiness.com/products/Chestnut-Liquid-Culture-Syringe-p711334876",
         "item_id": [

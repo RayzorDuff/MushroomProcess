@@ -22,7 +22,11 @@
         "active": true,
         "airtable_createdTime": "2025-12-10T16:00:57.000Z",
         "airtable_id": "rec2vUujZ5CYkEAzq",
-        "name": "Consumed"
+        "name": "Consumed",
+        "products": [
+            "recFDoIZDHjX267R0",
+            "rec75BIQxk9ymlmWO"
+        ]
     },
     {
         "active": true,
@@ -43,7 +47,27 @@
         "name": "Products Storage",
         "products": [
             "recQvGbKnJFR2Xaui",
-            "reczEQHhDkTCjNAJa"
+            "reczEQHhDkTCjNAJa",
+            "rec2qvnqKrXVMkNDo",
+            "rec5dIDEmDxyXqMes",
+            "recPHooh00324VuVl",
+            "rech5X9aMz6jTeiPY",
+            "reclpVbJTcOF0skUG",
+            "recqsa8hoKRch4Wk8",
+            "recAvKZYhi7zckx3g",
+            "recBcX5lsykBWfBv5",
+            "recdzF51a9EiU1yq8",
+            "recm3UAyEkpr3N6P8",
+            "recmzbATAajgIPumy",
+            "rectNqVYcQDzzq8EB",
+            "recw308dfNouJ8fQB",
+            "rec4dTuinZcyOxVz6",
+            "rec9WSGQ6cMy4gBQu",
+            "rec9wGkF0dlYFcV18",
+            "recGTKewZ3qg3jwfg",
+            "recif9AcaljlF8hHT",
+            "recqoIPy2xbLxKN9z",
+            "recu2ir963M1NTEiP"
         ]
     },
     {
@@ -82,20 +106,6 @@
         "active": true,
         "airtable_createdTime": "2025-09-22T21:58:11.000Z",
         "airtable_id": "recJxAz3OdFSxvs0l",
-        "lots": [
-            "recr1rvouT9jQsJrg",
-            "recubhnQdNB05fgNv",
-            "rec04533gFaZRodNe",
-            "recRi7HbiA11M4UOG",
-            "recDmtKc314E0h8zS",
-            "recfyskUzH5JuKLen",
-            "recvyxpWHDZNxXktn",
-            "recxSBBfXoHgZQbeT",
-            "recVsy0u54gksu1m6",
-            "recrq4Q4GXjh1lhJv",
-            "recsV7dwpD1t51wJo",
-            "recMAGHvFxICI7LDh"
-        ],
         "name": "Fridge"
     },
     {
@@ -142,13 +152,13 @@
         "airtable_id": "recmsz1EhK9NRKLYr",
         "name": "Compost",
         "products": [
-            "rec59yhQegq7TfaWK",
+            "recGEFSNpQgZWBpsD",
             "recf0lKNp6lNdrwcQ",
-            "recK1rokdg3mbIsE1",
-            "rec925z04eLSM4FeN",
-            "reclsDHBRXt1qHNN7",
             "recq7NZzhtLJTPLuS",
-            "recGEFSNpQgZWBpsD"
+            "reclsDHBRXt1qHNN7",
+            "rec59yhQegq7TfaWK",
+            "recK1rokdg3mbIsE1",
+            "rec925z04eLSM4FeN"
         ]
     },
     {
@@ -186,10 +196,10 @@
         "airtable_id": "recwRFW2aHlJivoX3",
         "name": "Shipped",
         "products": [
-            "recNJhUXO0e8JygpL",
             "recQwkTNRzIvERSlt",
             "recKkqMzDGGnczJmA",
             "rec1oPXxZMjaWscYG",
+            "recNJhUXO0e8JygpL",
             "recp2LWMQnEdN6GXU"
         ]
     },
