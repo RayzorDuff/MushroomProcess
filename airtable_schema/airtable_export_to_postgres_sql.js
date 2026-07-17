@@ -70,13 +70,16 @@ loadLocalDotEnv();
  *  - We avoid relying on NocoDB meta APIs entirely.
  *  - multipleRecordLinks are exported into junction tables (CSV) and resolved by airtable_id -> nocopk during load.
  *  - single-record links and prefersSingleRecordLink fields are loaded into canonical scalar FK columns.
- *  - rollup aggregation formula is not present in airtable-export output, so rollups are emitted as array_agg with TODO.
+ *  - rollup aggregation formula is not present in airtable-export output. Most
+ *    rollups are emitted as lookup-style arrays; numeric checkbox rollups are
+ *    safely inferred as scalar SUM(values) aggregates.
  * Usage:
  *   node airtable_export_to_postgres_sql.js
  *
  * Known limitations:
- *   - Airtable rollup aggregation formula is NOT present in the get-tables payload you provided,
- *     so rollups are emitted as array_agg(...) with TODO comments (same limitation as before).
+ *   - Airtable rollup aggregation formula is NOT present in the get-tables payload you provided.
+ *     Numeric checkbox rollups are emitted as SUM(values); other rollups remain
+ *     lookup-style arrays unless a safe aggregation can be inferred.
  *   - Formula compiler is "best effort" for common Airtable functions used in this base (IF/AND/OR/NOT,
  *     string concat via &, LEFT/RIGHT/MID, DATETIME_FORMAT, RECORD_ID, CREATED_TIME). Unhandled functions
  *     become NULL and are annotated in SQL comments. 
@@ -304,6 +307,27 @@ function m2mJoinName(aSlug, linkFieldSlug, bSlug) {
 }
 
 function isComputedType(type) { return ['lookup','multipleLookupValues','rollup','formula'].includes(type); }
+
+function rollupTargetField(tableObj, field, tablesDump) {
+  if (!tableObj || !field || field.type !== 'rollup' || !tablesDump) return null;
+  const opts = field.options || {};
+  const linkField = findFieldById(tableObj, opts.recordLinkFieldId);
+  if (!linkField || linkField.type !== 'multipleRecordLinks' || !linkField.options?.linkedTableId) return null;
+  const linkedTable = tableById(tablesDump, linkField.options.linkedTableId);
+  if (!linkedTable) return null;
+  return findFieldById(linkedTable, opts.fieldIdInLinkedTable);
+}
+
+// Airtable's exported table metadata does not include the rollup aggregation
+// formula. A numeric rollup over a checkbox is nevertheless unambiguous for
+// the schema pattern used here: SUM(values) counts checked linked records.
+// Emit it as a scalar numeric aggregate instead of a lookup-style array.
+function isCheckboxSumRollup(tableObj, field, tablesDump) {
+  if (!field || field.type !== 'rollup') return false;
+  const resultType = field.options?.result?.type;
+  const targetField = rollupTargetField(tableObj, field, tablesDump);
+  return resultType === 'number' && targetField?.type === 'checkbox';
+}
 
 function tableById(schema, tid) { return (schema.tables || []).find(t => t.id === tid); }
 function findFieldById(table, fid) { return (table.fields || []).find(x => x.id === fid); }
@@ -555,9 +579,15 @@ function compileFormulaExpr(raw, ctx) {
     for (const [fid, f] of ctx.fieldById.entries()) {
       const col = ctx.fieldIdToCol.get(fid);
       if (!col || !f) continue;
-      if (f.type === 'multipleLookupValues' || f.type === 'rollup') __arrayCols.add(col);
+      if (f.type === 'multipleLookupValues' ||
+          (f.type === 'rollup' && !isCheckboxSumRollup(ctx.tableObj, f, ctx.tablesDump))) {
+        __arrayCols.add(col);
+      }
       if (f.type === 'checkbox') __booleanCols.add(col);
-      if (['number','currency','percent','count','duration','rating','autoNumber'].includes(f.type)) __numericCols.add(col);
+      if (['number','currency','percent','count','duration','rating','autoNumber'].includes(f.type) ||
+          isCheckboxSumRollup(ctx.tableObj, f, ctx.tablesDump)) {
+        __numericCols.add(col);
+      }
     }
   }
 
@@ -786,6 +816,7 @@ function compileFormulaExpr(raw, ctx) {
       const col = m[2];
       if (__arrayCols && __arrayCols.has(col)) return `COALESCE(cardinality(${s}),0) > 0`;
       if (__booleanCols && __booleanCols.has(col)) return `COALESCE(${s}, FALSE)`;
+      if (__numericCols && __numericCols.has(col)) return `COALESCE(${s}, 0) <> 0`;
       return `NULLIF(${s}::text,'') IS NOT NULL`;
     }
     const unwrapped = stripOuterParens(s);
@@ -953,8 +984,11 @@ function compileFormulaExpr(raw, ctx) {
 
       return `CASE WHEN (${truthy(cond)}) THEN (${tVal}) ELSE (${fVal}) END`;
     }
-    if (fn === 'AND') return '(' + args.map(a=>`(${truthy(a)})`).join(' AND ') + ')';
-    if (fn === 'OR') return '(' + args.map(a=>`(${truthy(a)})`).join(' OR ') + ')';
+    // Wrap boolean operands in COALESCE so the generated SQL operator is not
+    // re-detected as an Airtable AND()/OR() function when the iterative parser
+    // encounters the following parenthesized operand.
+    if (fn === 'AND') return '(' + args.map(a=>`COALESCE((${truthy(a)}), FALSE)`).join(' AND ') + ')';
+    if (fn === 'OR') return '(' + args.map(a=>`COALESCE((${truthy(a)}), FALSE)`).join(' OR ') + ')';
     if (fn === 'NOT' && args.length===1) return `(NOT (${args[0]}))`;
 
     if ((fn === 'SEARCH' || fn === 'FIND') && (args.length === 2 || args.length === 3)) {
@@ -1157,22 +1191,6 @@ function compileFormulaExpr(raw, ctx) {
     }
     // Restore protected function markers
     s = s.replaceAll('?', '(');
-
-    // Repair boolean argument juxtaposition produced by nested Airtable AND()
-    // compilation in formulas such as:
-    //   IF(AND({unit_size}, {total_volume_ml}), ...)
-    //
-    // Without this, generated SQL can become:
-    //   (condition_a) ((condition_b))
-    //
-    // Use the boolean operator from the original Airtable formula. This keeps
-    // route-selection formulas such as print_queue.print_target as "any tray
-    // category" while preserving the AND repair for formulas that need it.
-    if (/\bOR\s*\(/i.test(e)) {
-      s = s.replace(/\)\s+\(\(/g, ') OR ((');
-    } else if (/\bAND\s*\(/i.test(e)) {
-      s = s.replace(/\)\s+\(\(/g, ') AND ((');
-    }
 
     return s;
   }
@@ -1927,10 +1945,24 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
               targetExpr = `btbl.${ident(slug(targetField.name))}`;
             }
 
-            // rollup without aggregation => treat as lookup array
-            // rollup with aggregation => TODO (not implemented here)
+            if (isCheckboxSumRollup(td, f, tablesDump)) {
+              const aggregateExpr = `COALESCE(SUM(CASE WHEN ${targetExpr} IS TRUE THEN 1 ELSE 0 END), 0)::numeric`;
+              lookupExprs.push(
+                (useFkJoin
+                  ? `(SELECT ${aggregateExpr} FROM ${otherRel} btbl ` +
+                    `WHERE btbl.${ident('nocopk')} = base.${ident(fkColName)}) AS ${outCol}`
+                  : `(SELECT ${aggregateExpr} ` +
+                    `FROM ${ident(POSTGRES_SCHEMA)}.${ident(joinTable)} j ` +
+                    `JOIN ${otherRel} btbl ON btbl.${ident('nocopk')} = j.${ident(rightFk)} ` +
+                    `WHERE j.${ident(leftFk)} = base.${ident('nocopk')}) AS ${outCol}`
+                )
+              );
+              continue;
+            }
+
+            // Rollups whose aggregation formula is not present in the export remain
+            // lookup-style arrays unless a safe scalar aggregate can be inferred above.
             if (targetField.type === 'rollup' && targetField.options && targetField.options.rollupFunction) {
-              // For now, preserve as TODO; most of your rollups are exposed as lookups.
               lookupExprs.push(`${emptyArrayForPgScalar('text')} AS ${outCol}`);
               continue;
             }

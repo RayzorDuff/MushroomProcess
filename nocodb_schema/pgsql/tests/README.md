@@ -83,7 +83,7 @@ The RC5 open issue list was reviewed against the current schema tests.
 | #61 / #63 | `008_freeze_dried_package_smoke.sql`; covers one operation event, source/created product links, origin-lot links exposed through `vc_products`, structured event fields, and package-label queueing. |
 | #65 / #70 schema paths | `008_product_tray_actions_smoke.sql` |
 | #66 schema actions/view | `011_print_queue_actions_smoke.sql` and `011_print_queue_view_contract_smoke.sql`; covers audited status changes plus the persisted fields, time predicates, and ZEBRA/TRAYS routing consumed by the Appsmith filters. |
-| #68 | `007_sterilizer_component_mode_smoke.sql`, AIO tests, casing test, freeze-dried tests, harvest test, and Spawn to Bulk component tests |
+| #68 | `004_product_regulation_rollup_smoke.sql` validates scalar regulation rollup and regulated/nonregulated Sample label branching. The sterilizer component-mode, AIO, casing, freeze-dried, harvest, and Spawn to Bulk tests cover the remaining implemented database paths. |
 | #69 | `008_package_multiple_lots_smoke.sql` |
 | #75 | `010_spawn_to_bulk_components_smoke.sql` |
 
@@ -111,7 +111,8 @@ refresh behavior.
 | #57 | Deproductize/unpackage does not yet have a PostgreSQL function to execute. Add a transactional test with the implementation. |
 | #67 | Fulfillment order visibility and stale selection are handled through the Appsmith/n8n API path rather than PostgreSQL mutation functions. |
 
-The deferred generated-view correction for nonregulated Sample regulation
-rollups under #68 should receive a computed-view test after the Airtable schema
-is regenerated for v1.1.0; it is intentionally not encoded as a passing RC5
-assertion against the current generated `004_computed_views.sql`.
+The generated-view correction for nonregulated Sample regulation rollups under
+#68 is covered by `004_product_regulation_rollup_smoke.sql`. The test requires
+`origin_strain_regulated` to be a scalar numeric SUM of linked checkboxes and
+verifies the company, address, disclaimer, company-info, cottage, and public-link
+branches for both regulated and unregulated Sample products.

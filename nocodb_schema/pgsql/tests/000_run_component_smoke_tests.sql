@@ -16,6 +16,7 @@
   SET lock_timeout = '5s';
   SET idle_in_transaction_session_timeout = '60s';
 
+  \ir 004_product_regulation_rollup_smoke.sql
   \ir 007_sterilizer_component_mode_smoke.sql
   \ir 007_sterilizer_process_type_smoke.sql
   \ir 008_aio_lifecycle_smoke.sql
