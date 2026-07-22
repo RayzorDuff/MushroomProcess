@@ -54265,13 +54265,10 @@
                           "bottomRow": 16,
                           "boxShadow": "none",
                           "children": [],
-                          "defaultOptionValue": "{{ ((options, serverSideFiltering) => ( \n  LotsPage.defaultPackageStorageLocationId()\n))(inpPackageStorageLocation.options, inpPackageStorageLocation.serverSideFiltering) }}",
+                          "defaultOptionValue": "",
                           "dynamicBindingPathList": [
                             {
                               "key": "sourceData"
-                            },
-                            {
-                              "key": "defaultOptionValue"
                             },
                             {
                               "key": "borderRadius"
@@ -66699,13 +66696,10 @@
                           "bottomRow": 16,
                           "boxShadow": "none",
                           "children": [],
-                          "defaultOptionValue": "{{ ((options, serverSideFiltering) => ( \n  LotsPage.defaultPackageStorageLocationId()\n))(inpPackageStorageLocation.options, inpPackageStorageLocation.serverSideFiltering) }}",
+                          "defaultOptionValue": "",
                           "dynamicBindingPathList": [
                             {
                               "key": "sourceData"
-                            },
-                            {
-                              "key": "defaultOptionValue"
                             },
                             {
                               "key": "borderRadius"
