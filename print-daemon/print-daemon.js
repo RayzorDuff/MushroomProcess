@@ -1,7 +1,7 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-01-26.1
- * Summary: NocoDB or Airtable backed print_queue, steri_sheet and lots updates
+ * Version: 2026-07-24.1
+ * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
  * Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -167,24 +167,36 @@ function nowStamp() {
 
 const DB_BACKEND = String(process.env.DB_BACKEND || 'airtable').toLowerCase();
 const NOCODB_API_VERSION = String(process.env.NOCODB_API_VERSION || 'v2').toLowerCase();
-const NOCODB_SOURCE_ID = (process.env.NOCODB_SOURCE_ID || process.env.NOCODB_BASE_SOURCE_ID || '').trim();
-const NOCODB_PAGE_SIZE = safeNum(process.env.NOCODB_PAGE_SIZE, 25);
+const IS_NOCODB_V3_CONFIG = DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
 
-// Airtable uses table names/IDs directly. NocoDB v2 also used table names/IDs directly.
-// NocoDB v3 external PostgreSQL sources usually require internal table/view IDs from API Snippets.
-// For v3, the daemon can read rendered label fields from vc_print_queue while writing status fields
-// back to the underlying print_queue table.
+// NocoDB's v3 data and metadata URLs use the base identifier in the first path
+// segment. NOCODB_SOURCE_ID and NOCODB_BASE_SOURCE_ID remain accepted as legacy
+// aliases because older daemon examples used those names.
+const NOCODB_BASE_ID = (
+  process.env.NOCODB_BASE_ID ||
+  process.env.NOCODB_SOURCE_ID ||
+  process.env.NOCODB_BASE_SOURCE_ID ||
+  ''
+).trim();
+const NOCODB_SOURCE_ID = NOCODB_BASE_ID; // Backward-compatible internal alias.
+const NOCODB_PAGE_SIZE = safeNum(process.env.NOCODB_PAGE_SIZE, 25);
+const NOCODB_AUTO_RESOLVE_IDS = String(process.env.NOCODB_AUTO_RESOLVE_IDS || 'true').toLowerCase() !== 'false';
+const CHECK_CONFIG_ONLY = argv.includes('--check-config');
+
+// Airtable and NocoDB v2 can use table names/IDs directly. NocoDB v3 needs
+// internal table IDs, but the daemon resolves the MushroomProcess logical names
+// below through NocoDB metadata at startup when IDs were not supplied.
 const PRINT_QUEUE_TABLE = process.env.PRINT_QUEUE_TABLE || process.env.AIRTABLE_QUEUE_TABLE || process.env.NOCODB_QUEUE_TABLE_ID || 'print_queue';
-const PRINT_QUEUE_READ_TABLE = process.env.PRINT_QUEUE_READ_TABLE || process.env.PRINT_QUEUE_TABLE_READ || PRINT_QUEUE_TABLE;
-const PRINT_QUEUE_WRITE_TABLE = process.env.PRINT_QUEUE_WRITE_TABLE || process.env.PRINT_QUEUE_TABLE_WRITE || PRINT_QUEUE_TABLE;
-const PRINT_QUEUE_READ_VIEW_ID = (process.env.PRINT_QUEUE_READ_VIEW_ID || process.env.PRINT_QUEUE_VIEW_ID || process.env.NOCODB_QUEUE_VIEW_ID || '').trim();
-const PRINT_QUEUE_WRITE_VIEW_ID = (process.env.PRINT_QUEUE_WRITE_VIEW_ID || '').trim();
+let PRINT_QUEUE_READ_TABLE = process.env.PRINT_QUEUE_READ_TABLE || process.env.PRINT_QUEUE_TABLE_READ || (IS_NOCODB_V3_CONFIG ? 'vc_print_queue' : PRINT_QUEUE_TABLE);
+let PRINT_QUEUE_WRITE_TABLE = process.env.PRINT_QUEUE_WRITE_TABLE || process.env.PRINT_QUEUE_TABLE_WRITE || PRINT_QUEUE_TABLE;
+const PRINT_QUEUE_READ_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRINT_QUEUE_READ_VIEW_ID || process.env.PRINT_QUEUE_VIEW_ID || process.env.NOCODB_QUEUE_VIEW_ID || '');
+const PRINT_QUEUE_WRITE_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRINT_QUEUE_WRITE_VIEW_ID || '');
 const PRINT_QUEUE_WRITE_ID_FIELD = (process.env.PRINT_QUEUE_WRITE_ID_FIELD || 'nocopk').trim();
 
-const STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || 'sterilization_runs';
-const STERILIZATION_RUNS_VIEW_ID = (process.env.STERILIZATION_RUNS_VIEW_ID || '').trim();
-const LOTS_TABLE = process.env.LOTS_TABLE || 'lots';
-const LOTS_VIEW_ID = (process.env.LOTS_VIEW_ID || '').trim();
+let STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_sterilization_runs' : 'sterilization_runs');
+const STERILIZATION_RUNS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.STERILIZATION_RUNS_VIEW_ID || '');
+let LOTS_TABLE = process.env.LOTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_lots' : 'lots');
+const LOTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.LOTS_VIEW_ID || '');
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
@@ -264,14 +276,167 @@ function isNocoV3() {
   return DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
 }
 
+function cleanOptionalNocoIdentifier(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (/(_id_?here|placeholder|replace_me)/i.test(text)) return '';
+  return text;
+}
+
+function looksLikeNocoV3TableId(value) {
+  const text = String(value || '').trim();
+  return /^(?:m[a-z0-9]{10,}|md_[a-z0-9]{8,})$/i.test(text);
+}
+
+function normalizeNocoName(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^public\./i, '')
+    .replace(/^"|"$/g, '')
+    .toLowerCase();
+}
+
+let nocoV3TableMetadataCache = null;
+
+async function listNocoV3Tables() {
+  if (nocoV3TableMetadataCache) return nocoV3TableMetadataCache;
+  if (!NOCODB_BASE_ID) {
+    throw new Error(
+      'NOCODB_BASE_ID is required for NocoDB v3. ' +
+      'NOCODB_SOURCE_ID is still accepted as a legacy alias.'
+    );
+  }
+
+  const encodedBase = encodeURIComponent(NOCODB_BASE_ID);
+  const endpoints = [
+    `/api/v3/meta/bases/${encodedBase}/tables`,
+    `/api/v2/meta/bases/${encodedBase}/tables`,
+  ];
+  const failures = [];
+
+  for (const endpoint of endpoints) {
+    try {
+      const { data } = await NC.get(endpoint, { params: { pageSize: 1000 } });
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.list)
+          ? data.list
+          : Array.isArray(data?.tables)
+            ? data.tables
+            : [];
+
+      if (list.length) {
+        nocoV3TableMetadataCache = list;
+        log.debug('Loaded NocoDB table metadata', { endpoint, count: list.length });
+        return list;
+      }
+      failures.push(`${endpoint}: returned no tables`);
+    } catch (error) {
+      const statusCode = error?.response?.status;
+      failures.push(`${endpoint}: ${statusCode || error?.message || String(error)}`);
+    }
+  }
+
+  throw new Error(
+    'Unable to list NocoDB tables for automatic ID resolution. ' +
+    failures.join(' | ') + '. Set the table IDs explicitly or grant the token metadata access.'
+  );
+}
+
+function nocoTableNames(table) {
+  return [table?.title, table?.table_name, table?.name]
+    .map(normalizeNocoName)
+    .filter(Boolean);
+}
+
+async function resolveNocoV3TableReference(label, configuredValue, fallbackNames) {
+  const configured = String(configuredValue || '').trim();
+  if (looksLikeNocoV3TableId(configured)) return configured;
+
+  if (!NOCODB_AUTO_RESOLVE_IDS) {
+    throw new Error(
+      `${label} must be a NocoDB table ID when NOCODB_AUTO_RESOLVE_IDS=false; got "${configured}".`
+    );
+  }
+
+  const tables = await listNocoV3Tables();
+  const requestedNames = [configured, ...(fallbackNames || [])]
+    .map(normalizeNocoName)
+    .filter(Boolean);
+
+  for (const requested of requestedNames) {
+    const matches = tables.filter(table => nocoTableNames(table).includes(requested));
+    if (matches.length === 1 && matches[0]?.id) {
+      const resolved = String(matches[0].id);
+      log.info('Resolved NocoDB table', {
+        setting: label,
+        requested: configured || requested,
+        matched_name: matches[0].title || matches[0].table_name || requested,
+        table_id: resolved,
+      });
+      return resolved;
+    }
+    if (matches.length > 1) {
+      throw new Error(
+        `${label} matched more than one NocoDB table named "${requested}". Set its table ID explicitly.`
+      );
+    }
+  }
+
+  const available = tables
+    .map(table => table?.title || table?.table_name || table?.id)
+    .filter(Boolean)
+    .slice(0, 40)
+    .join(', ');
+  throw new Error(
+    `${label} could not resolve "${configured}". Tried: ${requestedNames.join(', ')}. ` +
+    `Available tables include: ${available || '(none returned)'}.`
+  );
+}
+
+async function resolveNocoV3Configuration() {
+  if (!isNocoV3()) return;
+
+  PRINT_QUEUE_READ_TABLE = await resolveNocoV3TableReference(
+    'PRINT_QUEUE_READ_TABLE',
+    PRINT_QUEUE_READ_TABLE,
+    ['vc_print_queue']
+  );
+  PRINT_QUEUE_WRITE_TABLE = await resolveNocoV3TableReference(
+    'PRINT_QUEUE_WRITE_TABLE',
+    PRINT_QUEUE_WRITE_TABLE,
+    ['print_queue']
+  );
+
+  if (ENABLE_STERI_SHEETS) {
+    STERILIZATION_RUNS_TABLE = await resolveNocoV3TableReference(
+      'STERILIZATION_RUNS_TABLE',
+      STERILIZATION_RUNS_TABLE,
+      ['vc_sterilization_runs', 'sterilization_runs']
+    );
+    LOTS_TABLE = await resolveNocoV3TableReference(
+      'LOTS_TABLE',
+      LOTS_TABLE,
+      ['vc_lots', 'lots']
+    );
+  }
+
+  if (PRINT_QUEUE_WRITE_VIEW_ID) {
+    log.warn('PRINT_QUEUE_WRITE_VIEW_ID is not used for NocoDB v3 PATCH requests and may be removed from .env.');
+  }
+}
+
 function nocoV3RecordsPath(tableId) {
-  if (!NOCODB_SOURCE_ID) {
-    throw new Error('NOCODB_SOURCE_ID is required when NOCODB_API_VERSION=v3');
+  if (!NOCODB_BASE_ID) {
+    throw new Error(
+      'NOCODB_BASE_ID is required when NOCODB_API_VERSION=v3 ' +
+      '(NOCODB_SOURCE_ID is accepted as a legacy alias)'
+    );
   }
   if (!tableId) {
     throw new Error('NocoDB v3 table id is required');
   }
-  return `/api/v3/data/${encodeURIComponent(NOCODB_SOURCE_ID)}/${encodeURIComponent(tableId)}/records`;
+  return `/api/v3/data/${encodeURIComponent(NOCODB_BASE_ID)}/${encodeURIComponent(tableId)}/records`;
 }
 
 async function fetchNocoV3Records(tableId, viewId = '', params = {}, allPages = false) {
@@ -2190,52 +2355,63 @@ async function cycle() {
   }
 }
 
-  log.info(`MushroomProcess print daemon starting`, { backend: DB_BACKEND, instance: INSTANCE_ID });
+async function startDaemon() {
+  log.info('MushroomProcess print daemon starting', { backend: DB_BACKEND, instance: INSTANCE_ID });
+
+  await resolveNocoV3Configuration();
+
   if (DB_BACKEND !== 'airtable') {
     log.info('NocoDB config', {
       api_version: NOCODB_API_VERSION,
-      source_id: NOCODB_SOURCE_ID || '(v2/not set)',
+      base_id: NOCODB_BASE_ID || '(v2/not set)',
+      auto_resolve_ids: NOCODB_AUTO_RESOLVE_IDS,
       queue_read_table: PRINT_QUEUE_READ_TABLE,
       queue_read_view: PRINT_QUEUE_READ_VIEW_ID || '(none)',
       queue_write_table: PRINT_QUEUE_WRITE_TABLE,
       queue_write_id_field: PRINT_QUEUE_WRITE_ID_FIELD,
-      lots_table: LOTS_TABLE,
+      lots_table: ENABLE_STERI_SHEETS ? LOTS_TABLE : '(sterilizer sheets disabled)',
       lots_view: LOTS_VIEW_ID || '(none)',
-      sterilization_runs_table: STERILIZATION_RUNS_TABLE,
+      sterilization_runs_table: ENABLE_STERI_SHEETS ? STERILIZATION_RUNS_TABLE : '(sterilizer sheets disabled)',
       sterilization_runs_view: STERILIZATION_RUNS_VIEW_ID || '(none)',
     });
   }
-  log.info(
-  `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
-    PRINTER || '(default)'
-  } | Sheet printer: ${
-    STERI_SHEET_PRINTER || '(set per job or env)'
-  }`
-);
-  log.info(
-    `Logs: ${LOG_DIR}`
-);
-  log.info(
-  `FORCE_PAGE_SIZE=${FORCE_PAGE} | LOT PAGE ${PAGE_W}x${PAGE_H} pt | FORM=${
-    FORM_NAME || '(none)'
-  } | ORIENT=${ORIENT}${
-    FORCE_LAND ? ' (forced landscape)' : ''
-  }`
-);
-log.info(
-  `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Platform=${PLATFORM} | Sumatra=${
-    USE_SUMATRA ? 'on' : 'off'
-  } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'} | PRINT_DRY_RUN=${PRINT_DRY_RUN} | LP_DRY_RUN=${LP_DRY_RUN}`
-);
 
+  log.info(
+    `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
+      PRINTER || '(default)'
+    } | Sheet printer: ${
+      STERI_SHEET_PRINTER || '(set per job or env)'
+    }`
+  );
+  log.info(`Logs: ${LOG_DIR}`);
+  log.info(
+    `FORCE_PAGE_SIZE=${FORCE_PAGE} | LOT PAGE ${PAGE_W}x${PAGE_H} pt | FORM=${
+      FORM_NAME || '(none)'
+    } | ORIENT=${ORIENT}${FORCE_LAND ? ' (forced landscape)' : ''}`
+  );
+  log.info(
+    `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Platform=${PLATFORM} | Sumatra=${
+      USE_SUMATRA ? 'on' : 'off'
+    } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'} | PRINT_DRY_RUN=${PRINT_DRY_RUN} | LP_DRY_RUN=${LP_DRY_RUN}`
+  );
 
+  if (CHECK_CONFIG_ONLY) {
+    log.info('Configuration check passed; exiting without polling or printing.');
+    return;
+  }
 
-// Optional heartbeat so you can tell the daemon is alive even when the queue is empty.
-const HEARTBEAT_MS = safeNum(process.env.HEARTBEAT_MS, 60000);
-if (HEARTBEAT_MS > 0) {
-  setInterval(() => {
-    log.debug('Heartbeat', { backend: DB_BACKEND, poll_ms: POLL_MS });
-  }, HEARTBEAT_MS).unref?.();
+  // Optional heartbeat so you can tell the daemon is alive even when the queue is empty.
+  const HEARTBEAT_MS = safeNum(process.env.HEARTBEAT_MS, 60000);
+  if (HEARTBEAT_MS > 0) {
+    setInterval(() => {
+      log.debug('Heartbeat', { backend: DB_BACKEND, poll_ms: POLL_MS });
+    }, HEARTBEAT_MS).unref?.();
+  }
+
+  cycle();
 }
 
-cycle();
+startDaemon().catch(error => {
+  log.error('Print daemon startup failed', { err: error?.message || String(error) });
+  process.exitCode = 1;
+});

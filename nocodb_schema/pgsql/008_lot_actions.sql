@@ -611,7 +611,9 @@ DECLARE
   v_source_created_at timestamp without time zone;
   v_source_sterilized_at timestamp without time zone;
   v_source_received_date date;
+  v_source_inoculated_at timestamp without time zone;
   v_source_available_at timestamp without time zone;
+  v_source_status text;
   v_source_lot_id text;
   v_source_airtable_id text;
 
@@ -630,6 +632,10 @@ DECLARE
   v_target_remaining_ml numeric;
   v_target_lot_id text;
   v_target_airtable_id text;
+  v_target_status text;
+  v_target_inoculated_at timestamp without time zone;
+  v_target_strain_id bigint;
+  v_target_strain_species_strain_mat text;
 
   v_label_type text;
   
@@ -678,6 +684,8 @@ BEGIN
     l.created_at,
     l.sterilized_at,
     l.received_date,
+    l.inoculated_at,
+    l.status,
     l.lot_id,
     l.airtable_id,
     i.category,
@@ -694,13 +702,16 @@ BEGIN
     v_source_created_at,
     v_source_sterilized_at,
     v_source_received_date,
+    v_source_inoculated_at,
+    v_source_status,
     v_source_lot_id,
     v_source_airtable_id,
     v_source_item_category,
     v_source_item_name
   FROM public.lots l
   LEFT JOIN public.items i ON i.nocopk = l.item_id
-  WHERE l.nocopk = p_source_lot_id;
+  WHERE l.nocopk = p_source_lot_id
+  FOR UPDATE OF l;
 
   IF v_source_item_id IS NULL THEN
     UPDATE public.lots
@@ -711,6 +722,7 @@ BEGIN
   END IF;
 
   v_source_item_category := lower(COALESCE(v_source_item_category, ''));
+  v_source_status := regexp_replace(lower(COALESCE(v_source_status, '')), '[^a-z0-9]', '', 'g');
   v_is_liquid_source := v_source_item_category IN ('lc_syringe','lc_flask');
   v_is_solid_source := v_source_item_category IN ('plate','agar_plate','grain');
   v_is_untracked_source := v_source_item_category = 'untracked_source';
@@ -721,7 +733,8 @@ BEGIN
     VALUES
       (v_source_created_at),
       (v_source_sterilized_at),
-      (v_source_received_date::timestamp without time zone)
+      (v_source_received_date::timestamp without time zone),
+      (v_source_inoculated_at)
   ) AS source_dates(source_date)
   WHERE source_date IS NOT NULL;
 
@@ -740,6 +753,35 @@ BEGIN
   IF NOT (v_is_liquid_source OR v_is_solid_source OR v_is_untracked_source) THEN
     UPDATE public.lots
       SET ui_error = format('Inoculate validation: Source must be lc_syringe, lc_flask, plate, agar_plate, grain, or untracked_source (got "%s").', v_source_item_category),
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  IF v_source_status NOT IN (
+    'inoculated',
+    'colonizing',
+    'fullycolonized',
+    'fridge',
+    'coldshock'
+  ) THEN
+    UPDATE public.lots
+      SET ui_error = format(
+            'Inoculate validation: Source lot %s is not eligible. Status: %s.',
+            COALESCE(NULLIF(v_source_lot_id, ''), p_source_lot_id::text),
+            COALESCE(NULLIF(v_source_status, ''), '(blank)')
+          ),
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  IF v_is_solid_source AND v_source_inoculated_at IS NULL THEN
+    UPDATE public.lots
+      SET ui_error = format(
+            'Inoculate validation: Solid source lot %s has no inoculated date.',
+            COALESCE(NULLIF(v_source_lot_id, ''), p_source_lot_id::text)
+          ),
           ui_error_at = now()
     WHERE nocopk = p_source_lot_id;
     RETURN 0;
@@ -787,7 +829,125 @@ BEGIN
     END IF;
   END IF;
 
-  -- Clear any prior errors
+  -- Lock and validate every target before changing any lot. This prevents a
+  -- stale browser selection from inoculating a target that was retired,
+  -- consumed, or inoculated in another session after it was selected.
+  PERFORM 1
+  FROM public.lots l
+  WHERE l.nocopk = ANY(p_target_lot_ids)
+  ORDER BY l.nocopk
+  FOR UPDATE;
+
+  IF cardinality(p_target_lot_ids) <> (
+    SELECT count(DISTINCT target_id)
+    FROM unnest(p_target_lot_ids) AS requested(target_id)
+  ) THEN
+    UPDATE public.lots
+      SET ui_error = 'Inoculate validation: Target lot IDs must be unique.',
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  IF cardinality(p_target_lot_ids) <> (
+    SELECT count(*)
+    FROM public.lots l
+    WHERE l.nocopk = ANY(p_target_lot_ids)
+  ) THEN
+    UPDATE public.lots
+      SET ui_error = 'Inoculate validation: One or more selected target lots no longer exist.',
+          ui_error_at = now()
+    WHERE nocopk = p_source_lot_id;
+    RETURN 0;
+  END IF;
+
+  FOREACH v_target_id IN ARRAY p_target_lot_ids LOOP
+    SELECT
+      l.item_id,
+      l.lot_id,
+      l.status,
+      l.inoculated_at,
+      l.strain_id,
+      l.strain_species_strain_mat,
+      i.category
+    INTO
+      v_target_item_id,
+      v_target_lot_id,
+      v_target_status,
+      v_target_inoculated_at,
+      v_target_strain_id,
+      v_target_strain_species_strain_mat,
+      v_target_item_category
+    FROM public.lots l
+    LEFT JOIN public.items i ON i.nocopk = l.item_id
+    WHERE l.nocopk = v_target_id;
+
+    IF v_target_item_id IS NULL THEN
+      UPDATE public.lots
+        SET ui_error = format(
+              'Inoculate validation: Target lot %s is missing an item.',
+              COALESCE(NULLIF(v_target_lot_id, ''), v_target_id::text)
+            ),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+
+    v_target_item_category := lower(COALESCE(v_target_item_category, ''));
+    v_target_status := regexp_replace(lower(COALESCE(v_target_status, '')), '[^a-z0-9]', '', 'g');
+
+    IF v_target_item_category NOT IN (
+      'grain',
+      'lc_flask',
+      'plate',
+      'cordyceps_substrate',
+      'all_in_one_bag'
+    ) THEN
+      UPDATE public.lots
+        SET ui_error = format(
+              'Inoculate validation: Target lot %s has ineligible category "%s".',
+              COALESCE(NULLIF(v_target_lot_id, ''), v_target_id::text),
+              v_target_item_category
+            ),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+
+    IF v_target_status NOT IN (
+      'planned',
+      'sterilized',
+      'pasteurized',
+      'sealed',
+      'new',
+      'fridge'
+    ) THEN
+      UPDATE public.lots
+        SET ui_error = format(
+              'Inoculate validation: Target lot %s is not eligible. Status: %s.',
+              COALESCE(NULLIF(v_target_lot_id, ''), v_target_id::text),
+              COALESCE(NULLIF(v_target_status, ''), '(blank)')
+            ),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+
+    IF v_target_inoculated_at IS NOT NULL
+       OR v_target_strain_id IS NOT NULL
+       OR NULLIF(btrim(COALESCE(v_target_strain_species_strain_mat, '')), '') IS NOT NULL THEN
+      UPDATE public.lots
+        SET ui_error = format(
+              'Inoculate validation: Target lot %s has already been inoculated or assigned a strain.',
+              COALESCE(NULLIF(v_target_lot_id, ''), v_target_id::text)
+            ),
+            ui_error_at = now()
+      WHERE nocopk = p_source_lot_id;
+      RETURN 0;
+    END IF;
+  END LOOP;
+
+  -- Clear any prior errors only after source and all target validation passes.
   UPDATE public.lots SET ui_error = NULL, ui_error_at = NULL WHERE nocopk = p_source_lot_id;
 
   -- Apply inoculation to each target
@@ -989,6 +1149,45 @@ BEGIN
   END IF;
 
   RETURN v_success;
+END;
+$$;
+
+-- Appsmith-facing wrapper that returns the exact validation diagnostic written
+-- by mp_lots_inoculate_multiple in the same function call. Keeping the original
+-- integer-returning function preserves compatibility for existing callers.
+CREATE OR REPLACE FUNCTION public.mp_lots_inoculate_multiple_result(
+  p_source_lot_id bigint,
+  p_target_lot_ids bigint[],
+  p_storage_location_id bigint DEFAULT NULL,
+  p_lc_volume_ml numeric DEFAULT NULL,
+  p_override_inoc_time timestamp without time zone DEFAULT NULL,
+  p_operator text DEFAULT 'system',
+  p_station text DEFAULT 'Inoculation',
+  p_timestamp timestamp without time zone DEFAULT NULL,
+  p_note text DEFAULT NULL
+)
+RETURNS TABLE(inoculated_count integer, diagnostic text)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  inoculated_count := public.mp_lots_inoculate_multiple(
+    p_source_lot_id => p_source_lot_id,
+    p_target_lot_ids => p_target_lot_ids,
+    p_storage_location_id => p_storage_location_id,
+    p_lc_volume_ml => p_lc_volume_ml,
+    p_override_inoc_time => p_override_inoc_time,
+    p_operator => p_operator,
+    p_station => p_station,
+    p_timestamp => p_timestamp,
+    p_note => p_note
+  );
+
+  SELECT NULLIF(btrim(l.ui_error), '')
+  INTO diagnostic
+  FROM public.lots l
+  WHERE l.nocopk = p_source_lot_id;
+
+  RETURN NEXT;
 END;
 $$;
 

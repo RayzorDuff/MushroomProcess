@@ -128,44 +128,79 @@ PRINTER_NAME=Your Printer Name Here
 Use this mode when NocoDB's API Snippets show URLs like:
 
 ```text
-/api/v3/data/<sourceId>/<tableId>/records?pageSize=25&viewId=<viewId>
+/api/v3/data/<baseId>/<tableId>/records?pageSize=25&viewId=<viewId>
 ```
 
-This is common when MushroomProcess tables are exposed through a NocoDB external PostgreSQL data source. In this mode the daemon may need to **read from one table/view** and **write to another**:
+The first identifier after `/api/v3/data/` is the NocoDB **base ID**. The
+daemon now resolves the MushroomProcess table IDs automatically from table
+names, so the normal configuration does not require copying every table and
+view ID.
 
-- Read from `vc_print_queue` or another computed/read view that contains rendered label fields such as `label_title_lot (from lot_id)`, `label_subtitle_lot (from lot_id)`, `public_link`, `print_target`, and `print_status`.
-- Write status fields back to the real `print_queue` base table, because the daemon updates `print_status`, `claimed_by`, `claimed_at`, `printed_by`, `printed_at`, `error_msg`, and `pdf_path`.
+#### Which table is read and which table is written?
 
-Example `.env` values:
+The split is intentional:
+
+```text
+vc_print_queue  --read label/computed fields-->  print daemon
+print_queue     <--write status/audit fields--  print daemon
+```
+
+- **Read `vc_print_queue`** because it contains computed label fields, linked
+  lot/product information, public links, routing fields, and status values used
+  to render the label.
+- **Write `print_queue`** because it is the writable base table that owns
+  `print_status`, `claimed_by`, `claimed_at`, `printed_by`, `printed_at`,
+  `error_msg`, and `pdf_path`.
+- Sterilizer sheets read `vc_sterilization_runs` and `vc_lots` when those views
+  exist, falling back to `sterilization_runs` and `lots`.
+
+#### Recommended minimal `.env`
 
 ```dotenv
 DB_BACKEND=NocoDB
 NOCODB_API_VERSION=v3
 NOCODB_URL=https://nocodb.example.com
 NOCODB_API_TOKEN=your_api_token
-NOCODB_SOURCE_ID=pgxxxxxxxxxxxxx
+NOCODB_BASE_ID=pgxxxxxxxxxxxxx
 
-# Read from vc_print_queue or equivalent.
-PRINT_QUEUE_READ_TABLE=vc_print_queue_table_id_here
-PRINT_QUEUE_READ_VIEW_ID=vc_print_queue_view_id_here
+# Optional; true is the default.
+NOCODB_AUTO_RESOLVE_IDS=true
 
-# Write back to real print_queue.
-PRINT_QUEUE_WRITE_TABLE=print_queue_table_id_here
-PRINT_QUEUE_WRITE_VIEW_ID=print_queue_view_id_here
+# The writable print_queue primary key exposed by NocoDB.
 PRINT_QUEUE_WRITE_ID_FIELD=nocopk
-
-# Needed for sterilizer sheet jobs. Use table/view IDs from API Snippets.
-STERILIZATION_RUNS_TABLE=sterilization_runs_table_id_here
-STERILIZATION_RUNS_VIEW_ID=sterilization_runs_view_id_here
-LOTS_TABLE=vc_lots_or_lots_table_id_here
-LOTS_VIEW_ID=vc_lots_or_lots_view_id_here
 
 PRINTER_NAME=Your Printer Name Here
 ```
 
-#### How to find the NocoDB v3 identifiers
+`NOCODB_SOURCE_ID` and `NOCODB_BASE_SOURCE_ID` remain accepted as legacy
+aliases for `NOCODB_BASE_ID`.
 
-For each table or view you need, open it in NocoDB and go to **Details → API Snippets**. Use the identifiers from the generated URL. For example:
+At startup the daemon looks up these logical names and logs the resolved IDs:
+
+| Purpose | Preferred logical table | Fallback |
+|---|---|---|
+| Queue label read | `vc_print_queue` | none |
+| Queue status write | `print_queue` | none |
+| Sterilizer run read | `vc_sterilization_runs` | `sterilization_runs` |
+| Sterilizer lot read | `vc_lots` | `lots` |
+
+When `ENABLE_STERI_SHEETS=false`, the sterilization-run and lots tables are not
+resolved because that daemon instance does not use them.
+
+Check the configuration without polling or printing:
+
+```bash
+node print-daemon.js --env-file .env --check-config
+```
+
+A successful check prints the resolved table IDs and exits. No queue rows are
+claimed or changed.
+
+#### Optional manual IDs
+
+Automatic resolution uses NocoDB's metadata API. If the token cannot list table
+metadata, set the IDs explicitly. Open the table in NocoDB, choose
+**Details → API Snippets**, and copy the table ID from the generated URL:
 
 ```bash
 curl --request GET \
@@ -173,22 +208,40 @@ curl --request GET \
   --header 'xc-token: YOUR_TOKEN'
 ```
 
-Map that URL to `.env` like this:
+Mapping:
 
-```dotenv
-NOCODB_URL=https://nocodb.example.com
-NOCODB_SOURCE_ID=pgqebfafii7ro7t
-PRINT_QUEUE_WRITE_TABLE=msy61shkluqfjxf
-PRINT_QUEUE_WRITE_VIEW_ID=vwmevslwqqhc7x54
+```text
+/api/v3/data/<baseId>/<tableId>/records?...&viewId=<viewId>
+             └ base ID └ table ID                 └ optional view ID
 ```
 
-For `PRINT_QUEUE_READ_TABLE` and `PRINT_QUEUE_READ_VIEW_ID`, repeat the same API Snippets lookup while viewing `vc_print_queue`, not the base `print_queue`, so the daemon receives the label/lookup fields it needs for rendering.
+Example manual configuration:
 
-To verify write/update behavior, NocoDB v3 should accept PATCH requests in this shape:
+```dotenv
+NOCODB_BASE_ID=pgqebfafii7ro7t
+NOCODB_AUTO_RESOLVE_IDS=false
+
+PRINT_QUEUE_READ_TABLE=table_id_from_vc_print_queue
+PRINT_QUEUE_WRITE_TABLE=table_id_from_print_queue
+PRINT_QUEUE_WRITE_ID_FIELD=nocopk
+
+# Required only when ENABLE_STERI_SHEETS=true.
+STERILIZATION_RUNS_TABLE=table_id_from_vc_sterilization_runs
+LOTS_TABLE=table_id_from_vc_lots
+```
+
+View IDs are optional. Leave `PRINT_QUEUE_READ_VIEW_ID`,
+`STERILIZATION_RUNS_VIEW_ID`, and `LOTS_VIEW_ID` unset unless the daemon must
+respect a particular NocoDB UI view's filters or ordering.
+`PRINT_QUEUE_WRITE_VIEW_ID` is not used for PATCH requests and should normally
+be omitted.
+
+The NocoDB v3 write request is sent to the writable `print_queue` table in this
+shape:
 
 ```bash
 curl --request PATCH \
-  --url 'https://nocodb.example.com/api/v3/data/<sourceId>/<print_queue_table_id>/records' \
+  --url 'https://nocodb.example.com/api/v3/data/<baseId>/<print_queue_table_id>/records' \
   --header 'Content-Type: application/json' \
   --header 'xc-token: YOUR_TOKEN' \
   --data '{
@@ -198,8 +251,6 @@ curl --request PATCH \
     }
   }'
 ```
-
-The daemon uses that same PATCH shape for status updates.
 
 ### macOS / CUPS printing
 
@@ -225,12 +276,8 @@ DB_BACKEND=NocoDB
 NOCODB_API_VERSION=v3
 NOCODB_URL=https://your-nocodb-host
 NOCODB_API_TOKEN=your_api_token
-NOCODB_SOURCE_ID=pgxxxxxxxxxxxxx
-
-PRINT_QUEUE_READ_TABLE=vc_print_queue_table_id_here
-PRINT_QUEUE_READ_VIEW_ID=vc_print_queue_view_id_here
-PRINT_QUEUE_WRITE_TABLE=print_queue_table_id_here
-PRINT_QUEUE_WRITE_VIEW_ID=print_queue_view_id_here
+NOCODB_BASE_ID=pgxxxxxxxxxxxxx
+NOCODB_AUTO_RESOLVE_IDS=true
 PRINT_QUEUE_WRITE_ID_FIELD=nocopk
 
 PRINT_TARGET_FIELD=print_target
@@ -410,8 +457,9 @@ In NocoDB v3 mode, prefer reading from `vc_print_queue` and writing to the real 
 To switch modes:
 
 1. Update `.env` to point either at Airtable variables or at NocoDB variables.
-2. For NocoDB v3, copy source/table/view identifiers from NocoDB **Details → API Snippets**.
-3. Restart the daemon or Windows service.
+2. For NocoDB v3, set `NOCODB_BASE_ID`; table IDs resolve automatically by default.
+3. Run `node print-daemon.js --env-file .env --check-config`.
+4. Restart the daemon or Windows service.
 
 ---
 
@@ -432,11 +480,13 @@ To switch modes:
 
 ### NocoDB v3-specific
 
-- If the daemon starts but does not render labels, confirm that `PRINT_QUEUE_READ_TABLE` points to `vc_print_queue` or another view/table that includes the label fields. Reading from base `print_queue` alone usually only exposes links and status fields.
-- If status updates fail, confirm that `PRINT_QUEUE_WRITE_TABLE` points to the real `print_queue` table and that `PRINT_QUEUE_WRITE_ID_FIELD` matches the primary key field exposed by API Snippets, usually `nocopk`.
-- If you see `NOCODB_SOURCE_ID is required`, copy the source id from the v3 API URL segment immediately after `/api/v3/data/`.
-- If you see `404`, one of the table/view identifiers is wrong. Re-copy it from API Snippets.
-- If you see `401` or `403`, recreate the NocoDB token and ensure it has access to the external PostgreSQL source.
+- Run `node print-daemon.js --env-file .env --check-config` first. The output shows the logical table names and resolved internal IDs without claiming a job.
+- If automatic resolution fails, confirm `NOCODB_BASE_ID` is the first ID after `/api/v3/data/` in an API Snippet and that the token may read table metadata.
+- If the daemon does not render labels, confirm the resolved read table is `vc_print_queue`, not base `print_queue`.
+- If status updates fail, confirm the resolved write table is `print_queue` and `PRINT_QUEUE_WRITE_ID_FIELD=nocopk`.
+- View IDs are not required for normal operation. Remove placeholder `*_VIEW_ID` values rather than leaving text such as `view_id_here` in `.env`.
+- If metadata access is unavailable, copy table IDs from **Details → API Snippets**, set `NOCODB_AUTO_RESOLVE_IDS=false`, and use the manual-ID example above.
+- If you see `401` or `403`, recreate the NocoDB token and ensure it has access to the MushroomProcess base and external PostgreSQL tables.
 
 ### macOS-specific
 
