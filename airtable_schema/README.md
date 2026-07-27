@@ -116,6 +116,23 @@ Optional:
 node airtable_export_to_postgres_sql.js
 ```
 
+When Airtable exports more than one linked record for a field marked
+`prefersSingleRecordLink`, the generator now normalizes the relational load to
+one deterministic target and writes the anomalies to:
+
+```text
+../nocodb_schema/pgsql/csv/_prefers_single_link_conflicts.csv
+```
+
+Review that report before production cutover. The generated load remains
+transactional and the scalar FK and derived junction row use the same target.
+
+Run the offline generator contract smoke test after schema or formula changes:
+
+```bash
+node tests/airtable_export_to_postgres_sql_smoke.js
+```
+
 ---
 
 ### `generate_sql_from_schema.py`

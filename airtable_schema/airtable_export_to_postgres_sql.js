@@ -31,7 +31,7 @@ function loadLocalDotEnv(envPath = path.join(__dirname, '.env')) {
 loadLocalDotEnv();
 /**
  * Script: airtable_export_to_postgres_sql.js
- * Version: 2026-07-12.3
+ * Version: 2026-07-27.1
  * =============================================================================
  *  Copyright © 2025 Dank Mushrooms, LLC
  *  Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -1120,7 +1120,20 @@ function compileFormulaExpr(raw, ctx) {
       for (let i=0;i<lim;i+=2) {
         let res = resultExprs[i / 2];
         if (mixed && isArrayExpr(res)) res = scalarizeArrayExprToText(res);
-        out += ` WHEN (${switchExpr}) = (${pairs[i]}) THEN (${res})`;
+
+        // Airtable permits SWITCH() over lookup/rollup arrays and treats each
+        // scalar case value as an array-membership test. PostgreSQL otherwise
+        // attempts to coerce a scalar literal such as 'Sacrament' into text[],
+        // which fails at view creation with "malformed array literal".
+        let condition;
+        if (isArrayExpr(switchExpr) && !isArrayExpr(pairs[i])) {
+          condition = `${ensureCast(pairs[i], 'text')} = ANY(${ensureCast(switchExpr, 'text[]')})`;
+        } else if (!isArrayExpr(switchExpr) && isArrayExpr(pairs[i])) {
+          condition = `${ensureCast(switchExpr, 'text')} = ANY(${ensureCast(pairs[i], 'text[]')})`;
+        } else {
+          condition = `(${switchExpr}) = (${pairs[i]})`;
+        }
+        out += ` WHEN ${condition} THEN (${res})`;
       }
       if (mixed && isArrayExpr(defaultExpr)) defaultExpr = scalarizeArrayExprToText(defaultExpr);
       out += ` ELSE (${defaultExpr}) END`;
@@ -1315,6 +1328,11 @@ function main() {
 
   // Junctions: {jn, a, b, aCol, bCol, linkFieldSlug, linkFieldId}
   const junctions = [];
+
+  // Airtable occasionally exports more than one linked record for fields whose
+  // metadata says prefersSingleRecordLink. Preserve those anomalies in a report
+  // while normalizing both the scalar FK and derived junction row to one target.
+  const prefersSingleLinkConflicts = [];
 
   
   // For prefers-single link fields we also create scalar FK columns on the base table.
@@ -2193,9 +2211,18 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
           const fieldsObj = (r.fields && typeof r.fields === 'object') ? r.fields : r;
           const linked = fieldsObj[f.name];
           if (!linked) continue;
-          const linkedIds = Array.isArray(linked) ? linked : [linked];
-          for (const bId of linkedIds) {
-            if (!bId) continue;
+          const linkedIds = (Array.isArray(linked) ? linked : [linked]).filter(Boolean);
+          if (prefersSingle && linkedIds.length > 1) {
+            prefersSingleLinkConflicts.push({
+              table_name: aName,
+              field_name: f.name,
+              a_airtable_id: aId,
+              kept_b_airtable_id: linkedIds[0],
+              additional_b_airtable_ids: linkedIds.slice(1).join('|')
+            });
+          }
+          const linkedIdsToWrite = prefersSingle ? linkedIds.slice(0, 1) : linkedIds;
+          for (const bId of linkedIdsToWrite) {
             jrows.push({ a_airtable_id: aId, b_airtable_id: bId });
           }
         }
@@ -2207,7 +2234,11 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         loadSql.push(`CREATE TEMP TABLE ${ident(rawName)}(${ident('a_airtable_id')} text, ${ident('b_airtable_id')} text);\n`);
         loadSql.push(`\\copy ${ident(rawName)}(${cols.map(ident).join(',')}) FROM ${relJ} WITH (FORMAT csv, HEADER true);\n`);
         loadSql.push(`INSERT INTO ${ident(jn)}(${ident(aCol)}, ${ident(bCol)})\n`);
-        loadSql.push(`SELECT a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id;\n`);
+        if (prefersSingle) {
+          loadSql.push(`SELECT DISTINCT ON (a.nocopk) a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id\nORDER BY a.nocopk, b.nocopk;\n`);
+        } else {
+          loadSql.push(`SELECT a.nocopk, b.nocopk\nFROM ${ident(rawName)} r\nJOIN ${ident(a)} a ON a.airtable_id = r.a_airtable_id\nJOIN ${ident(b)} b ON b.airtable_id = r.b_airtable_id;\n`);
+        }
 
         if (prefersSingle && fkColName) {
           loadSql.push(`WITH resolved AS (\n`);
@@ -2227,8 +2258,23 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
       }
     }
 
+    if (prefersSingleLinkConflicts.length) {
+      writeCsv(
+        csvDir,
+        '_prefers_single_link_conflicts',
+        ['table_name', 'field_name', 'a_airtable_id', 'kept_b_airtable_id', 'additional_b_airtable_ids'],
+        prefersSingleLinkConflicts
+      );
+      loadSql.push(`\\echo 'WARNING: ${prefersSingleLinkConflicts.length} Airtable prefers-single link conflict(s) were normalized deterministically. Review csv/_prefers_single_link_conflicts.csv.'\n`);
+    }
+
     loadSql.push('COMMIT;\n');
     fs.writeFileSync(path.join(POSTGRES_OUT_DIR, '100_load.sql'), loadSql.join(''), 'utf8');
+  }
+
+  if (prefersSingleLinkConflicts.length) {
+    console.warn(`[WARN] Normalized ${prefersSingleLinkConflicts.length} prefers-single Airtable link conflict(s).`);
+    console.warn(`[WARN] Review ${path.join(POSTGRES_OUT_DIR, 'csv', '_prefers_single_link_conflicts.csv')}`);
   }
 
   console.log('[OK] Wrote Postgres artifacts to:', POSTGRES_OUT_DIR);
