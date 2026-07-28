@@ -12,7 +12,39 @@ const generator = path.join(schemaDir, 'airtable_export_to_postgres_sql.js');
 const exportDir = path.join(schemaDir, 'export');
 const schemaPath = path.join(exportDir, '_schema.json');
 const tablesDumpPath = path.join(exportDir, 'tables_dump.json');
-const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mp-pg-generator-smoke-'));
+const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mp-pg-generator-smoke-'));
+const outDir = path.join(tempDir, 'pgsql');
+const fixtureTablesDumpPath = path.join(tempDir, 'tables_dump.json');
+
+const tablesDump = JSON.parse(fs.readFileSync(tablesDumpPath, 'utf8'));
+const productsTable = (tablesDump.tables || []).find(table => table.name === 'products');
+assert(productsTable, 'Production tables_dump.json must contain the products table');
+
+const productUseLookup = (productsTable.fields || []).find(
+  field => field.name === 'origin_strain_product_use' && field.type === 'multipleLookupValues'
+);
+assert(
+  productUseLookup,
+  'Products must contain the origin_strain_product_use lookup-array field used by the compiler regression'
+);
+
+const formulaFixture = (productsTable.fields || []).find(
+  field => field.name === 'label_companyinfo_prod' && field.type === 'formula'
+);
+assert(
+  formulaFixture,
+  'Products must contain a formula field available for the lookup-array compiler regression'
+);
+
+const arraySwitchMarker = '__MP_LOOKUP_ARRAY_SWITCH_TEST__';
+formulaFixture.options = {
+  ...formulaFixture.options,
+  formula: `SWITCH({${productUseLookup.id}}, "${arraySwitchMarker}", "matched", "")`,
+  referencedFieldIds: [productUseLookup.id]
+};
+
+fs.writeFileSync(fixtureTablesDumpPath, `${JSON.stringify(tablesDump, null, 2)}\n`);
+fs.mkdirSync(outDir, { recursive: true });
 
 try {
   const result = spawnSync(process.execPath, [generator], {
@@ -21,7 +53,7 @@ try {
       ...process.env,
       AIRTABLE_EXPORT_DIR: exportDir,
       AIRTABLE_SCHEMA_PATH: schemaPath,
-      TABLES_DUMP_PATH: tablesDumpPath,
+      TABLES_DUMP_PATH: fixtureTablesDumpPath,
       POSTGRES_OUT_DIR: outDir,
       POSTGRES_SCHEMA: 'public',
       CREATE_VIEWS: 'true',
@@ -40,12 +72,16 @@ try {
   const loadSql = fs.readFileSync(path.join(outDir, '100_load.sql'), 'utf8');
   const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
+  const expectedArraySwitch =
+    `('${arraySwitchMarker}')::text = ANY((comp.\"origin_strain_product_use\")::text[])`;
   assert(
-    computedSql.includes("('Sacrament')::text = ANY((comp.\"origin_strain_product_use\")::text[])"),
-    'Lookup-array SWITCH cases must compile to scalar = ANY(text[])'
+    computedSql.includes(expectedArraySwitch),
+    `Lookup-array SWITCH cases must compile to scalar = ANY(text[]); missing: ${expectedArraySwitch}`
   );
   assert(
-    !computedSql.includes('(comp.\"origin_strain_product_use\") = (\'Sacrament\')'),
+    !computedSql.includes(
+      `(comp.\"origin_strain_product_use\") = ('${arraySwitchMarker}')`
+    ),
     'Generated computed views still contain an unsafe text[] = scalar comparison'
   );
 
@@ -106,5 +142,5 @@ try {
 
   console.log('Airtable-to-Postgres generator array and prefers-single link smoke tests passed.');
 } finally {
-  fs.rmSync(outDir, { recursive: true, force: true });
+  fs.rmSync(tempDir, { recursive: true, force: true });
 }

@@ -265,9 +265,9 @@ The system ties together:
 
 - `airtable/`
   Final Airtable parity/reference implementation retained through the v1.1.0 migration release:
-  - `automation/` — Airtable Automation scripts
+  - `automation/` — Airtable Automation scripts and reference screenshots
   - `extensions/` — one-off administrative and backfill scripts
-  - `interfaces/` — Airtable Interface specifications and exports
+  - `interfaces/` — Airtable Interface specifications, exports, and reference screenshots
   _See [`airtable/README.md`](airtable/README.md)._
 
 - `schema/`
@@ -295,9 +295,6 @@ The system ties together:
   - `FIELD_MAP.md` – mapping between conceptual fields and actual column names
   - `Lessons_Learned_and_Evolution_Report.pdf`
   - `NOTICE.md`
-
-- `screenshots/`  
-  Reference screenshots of automation, interfaces and flows.
 
 ---
 

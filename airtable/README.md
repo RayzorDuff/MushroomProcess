@@ -5,10 +5,10 @@ v1.1.0 parity release and final production migration.
 
 ## Contents
 
-- `automation/` — Airtable Automation scripts for production workflow actions.
+- `automation/` — Airtable Automation scripts for production workflow actions, with corresponding reference images under `automation/screenshots/`.
 - `extensions/` — one-off Airtable extension scripts used for backfills and
   administrative maintenance.
-- `interfaces/` — Airtable Interface specifications, exports, and setup notes.
+- `interfaces/` — Airtable Interface specifications, exports, setup notes, and page images under `interfaces/screenshots/`.
 
 The shared Airtable export, migration tools, generated PostgreSQL modules, and
 optional NocoDB schema snapshot live separately under [`../schema/`](../schema/).

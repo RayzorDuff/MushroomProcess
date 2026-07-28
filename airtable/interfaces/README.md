@@ -6,6 +6,7 @@ It includes:
 
 - `Mushroom Process_Interfaces.pdf` – primary, page-by-page visual guide.
 - `Interface_*.txt` – notes for each interface view.
+- `screenshots/` – retained page images for reconstructing and comparing the Airtable interfaces.
 
 Interfaces sit on top of the same base schema and automations described elsewhere in this repo.
 
@@ -35,7 +36,7 @@ Each station gets one or more Interfaces that:
    - For each interface described:
      1. Go to **Interfaces** in Airtable.
      2. Create a **new Interface** (layout and page types as shown in the PDF).
-     3. Add views, filters, and grouped layouts to match the screenshots and notes.
+     3. Add views, filters, and grouped layouts to match `screenshots/` and the interface notes.
      4. Link buttons in the interface to the corresponding automations (or directly to button fields that trigger those automations).
 
 3. **Automation hooks**
@@ -59,4 +60,4 @@ Each station gets one or more Interfaces that:
   - The events written in your `events` table
   - The audit trails in your automations
 
-With this folder plus the PDF, you can reconstruct the operator-facing Airtable experience from scratch.
+With this folder, its `screenshots/` directory, and the PDF, you can reconstruct the operator-facing Airtable experience from scratch.

@@ -9,7 +9,7 @@ This folder contains the **Airtable Automation scripts** that power the Mushroom
 - Harvest, packaging, labeling
 - Validation and audit-logging Events
 
-Each script is intended to run as an Airtable **Automation Script action** triggered by a button or by record changes.
+Each script is intended to run as an Airtable **Automation Script action** triggered by a button or by record changes. Reference images of the corresponding Airtable automation configurations are retained under `screenshots/`.
 
 ---
 
@@ -34,7 +34,7 @@ Script names match the station / workflow names used in Interfaces.
 
 2. **Create one Automation per flow**
 
-   For each `*.js` file in this folder:
+   For each `*.js` file in this folder, use the matching image in `screenshots/` when one is available:
 
    1. In Airtable, go to **Automations → Create automation**.
    2. Choose a trigger appropriate for that flow, commonly:
