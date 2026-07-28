@@ -326,6 +326,158 @@ Fail if Appsmith still calls an Airtable URL, if the list is stale, or if shippe
 
 ---
 
+## 5A. MushroomProcess - Ecwid Order Updated - PGSQL
+
+This workflow replaces the Airtable-backed Ecwid order intake workflow while retaining the existing webhook route:
+
+```text
+mushroomprocess/ecwid/order_updated
+```
+
+Before testing, import:
+
+```text
+n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json
+```
+
+Confirm:
+
+- The workflow imports **inactive**.
+- `PGSQL - Upsert Ecwid Order` uses the MushroomProcess PostgreSQL credential.
+- No Airtable node, Airtable credential, or Airtable environment variable exists in the workflow.
+- The Airtable-backed workflow is inactive before the PGSQL workflow is activated because both workflows use the same webhook path.
+- `ECWID_STORE_ID` and `ECWID_SECRET_TOKEN` are available to n8n.
+
+### 5A.1 Install and smoke-test the PostgreSQL function
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f nocodb_schema/pgsql/012_ecommerce_order_upsert.sql
+
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f nocodb_schema/pgsql/tests/012_ecommerce_order_upsert_smoke.sql
+```
+
+Expected:
+
+```text
+NOTICE:  Ecwid PostgreSQL create/update, retry idempotency, reconciliation reset, and duplicate-data guard smoke tests passed.
+```
+
+Run the workflow structure test:
+
+```bash
+node n8n/tests/ecwid_order_updated_pgsql_smoke.js
+```
+
+Expected:
+
+```text
+Ecwid Order Updated PGSQL workflow structure, filtering, mapping, and payload smoke tests passed.
+```
+
+### 5A.2 Before snapshot
+
+Choose an actual Ecwid order whose current payment status is `AWAITING_PAYMENT`. Record its numeric Ecwid API order ID and human-facing order code.
+
+```sql
+select
+  nocopk,
+  ecwid_order_id,
+  order_code,
+  name,
+  status,
+  payment_status,
+  order_total,
+  currency,
+  ecwid_event_type,
+  ecwid_event_id,
+  last_webhook_at,
+  clover_reconciliation_status,
+  clover_payment_id,
+  reconciled_at
+from public.ecommerce_orders
+where ecwid_order_id = 'REPLACE-WITH-ECWID-ENTITY-ID';
+```
+
+### 5A.3 Processed webhook test
+
+Use the workflow Test URL and substitute the actual Ecwid values. `eventCreated` is a Unix timestamp in seconds.
+
+```bash
+curl -sS -X POST "$N8N_TEST_URL" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "eventId": "RC5-N8N-ECWID-001",
+    "eventCreated": 1785175200,
+    "storeId": REPLACE_WITH_STORE_ID,
+    "eventType": "order.updated",
+    "entityId": REPLACE_WITH_NUMERIC_ECWID_ORDER_ID,
+    "data": {
+      "orderId": "REPLACE_WITH_ORDER_CODE",
+      "oldPaymentStatus": "PAID",
+      "newPaymentStatus": "AWAITING_PAYMENT"
+    }
+  }' | jq .
+```
+
+Pass if:
+
+- HTTP 200 is returned.
+- `processed` is `true`.
+- `action` is `created` or `updated`.
+- `ecwid_order_id` matches the numeric Ecwid API order ID.
+- `postgres_record_id` is returned.
+- Exactly one `ecommerce_orders` row exists for that `ecwid_order_id`.
+- Order/customer/item/totals fields match the Ecwid API response.
+- `clover_reconciliation_status` is `pending` and prior reconciliation fields are cleared, matching the Airtable workflow behavior for a newly awaiting-payment order.
+- No Airtable node executes.
+
+### 5A.4 Retry/idempotency test
+
+Send the exact same webhook payload again.
+
+Pass if:
+
+- The response is successful.
+- `action` is `updated`.
+- The same `postgres_record_id` is returned.
+- The database still contains exactly one row for the Ecwid order.
+- No duplicate order or product links are created.
+
+```sql
+select ecwid_order_id, count(*)
+from public.ecommerce_orders
+where ecwid_order_id = 'REPLACE-WITH-ECWID-ENTITY-ID'
+group by ecwid_order_id;
+```
+
+### 5A.5 Ignored webhook test
+
+Send an update that does not newly enter `AWAITING_PAYMENT`:
+
+```json
+{
+  "eventId": "RC5-N8N-ECWID-IGNORED",
+  "eventCreated": 1785175200,
+  "storeId": 123,
+  "eventType": "order.updated",
+  "entityId": 900001,
+  "data": {
+    "orderId": "ABCD1",
+    "oldPaymentStatus": "PAID",
+    "newPaymentStatus": "PAID"
+  }
+}
+```
+
+Pass if:
+
+- HTTP 200 is returned.
+- `processed` is `false`.
+- The Ecwid order lookup and PostgreSQL upsert nodes do not execute.
+- No database row changes.
+
 ## 6. MushroomProcess - Fulfillment API - PGSQL
 
 This validates the N8N backend for the MushroomProcess Fulfillment page / Move-Ship Products row.
@@ -521,6 +673,7 @@ N/A / inactive / not in RC4 pilot scope
 | SignatureGate - PGSQL - List Available Sacrament Products | Direct N8N response matches PGSQL products and SignatureGate Appsmith product list loads from PGSQL. |
 | SignatureGate - PGSQL - Mark Product Shipped | Direct N8N and SignatureGate UI both mark one product shipped, remove it from available list, and avoid Airtable. |
 | SignatureGate - PGSQL - Mark Product UnShipped | Direct N8N and SignatureGate UI both restore product availability, are idempotent, and avoid Airtable. |
+| MushroomProcess - Ecwid Order Updated - PGSQL | Newly awaiting-payment Ecwid orders are created or updated in PostgreSQL, retries remain single-row, ignored events do not mutate data, and no Airtable node executes. |
 | MushroomProcess - Fulfillment API - PGSQL | Fulfillment list/read works from PGSQL and any tested mutation updates exactly the intended product/order. |
 | Clover Payment Reconciliation Poller - PGSQL | Dry-run empty and known windows pass; live run is idempotent if tested. |
 | Daily Reconciliation Report Email + PDF - PGSQL | Test email/PDF goes only to test recipient, totals match PGSQL, and no Airtable executes. |

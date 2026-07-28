@@ -1,0 +1,274 @@
+{
+  "name": "MushroomProcess - Ecwid Order Updated - PGSQL",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/ecwid/order_updated",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2764f131-dbea-45f5-b95e-94f289c18919",
+      "name": "Webhook - Ecwid Order Updated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3968,
+        320
+      ],
+      "webhookId": "replace-after-import"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\n\nconst eventId = body.eventId || null;\nconst eventCreated = body.eventCreated || null;\nconst storeId = body.storeId || null;\nconst eventType = body.eventType || null;\nconst data = body.data || {};\n\nconst ecwidEntityId = body.entityId || null;      // numeric API order id\nconst orderCode = data.orderId || null;           // short human-facing order code\nconst oldPaymentStatus = data.oldPaymentStatus || null;\nconst newPaymentStatus = data.newPaymentStatus || null;\nconst oldFulfillmentStatus = data.oldFulfillmentStatus || null;\nconst newFulfillmentStatus = data.newFulfillmentStatus || null;\n\n/*\n  Process when:\n  - event is order.created or order.updated\n  - numeric entity id exists\n  - payment is awaiting payment\n\n  This keeps the workflow aligned to your current unpaid-order intake flow.\n*/\n/* Only trigger on new awaiting payment */\nconst shouldProcess =\n  (\n    eventType === 'order.created' &&\n    !!ecwidEntityId &&\n    newPaymentStatus === 'AWAITING_PAYMENT'\n  ) ||\n  (\n    eventType === 'order.updated' &&\n    !!ecwidEntityId &&\n    newPaymentStatus === 'AWAITING_PAYMENT' &&\n    oldPaymentStatus !== newPaymentStatus\n  );\n\n/*\nconst shouldProcess =\n  ['order.created', 'order.updated'].includes(eventType) &&\n  !!ecwidEntityId &&\n  newPaymentStatus === 'AWAITING_PAYMENT';\n*/\n\nreturn [{\n  json: {\n    eventId,\n    eventCreated,\n    storeId,\n    eventType,\n    ecwid_entity_id: String(ecwidEntityId || ''),\n    order_code: String(orderCode || ''),\n    oldPaymentStatus,\n    newPaymentStatus,\n    oldFulfillmentStatus,\n    newFulfillmentStatus,\n    shouldProcess,\n    raw_body: body\n  }\n}];"
+      },
+      "id": "b1a21d20-0a23-4950-b102-0f29741d8f7c",
+      "name": "Code - Validate / Filter Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3728,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "31f07122-863b-4ac3-996d-9d80d1f338e4",
+              "leftValue": "={{ $json.shouldProcess }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": false
+        }
+      },
+      "id": "0b14c0b1-5e57-4b88-be15-f42b0acce12e",
+      "name": "IF - Should Process?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -3488,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.ecwid_entity_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8ee0a473-e54e-47e4-b403-9538dfef3a5d",
+      "name": "HTTP - Get Ecwid Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3248,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $json;\nconst webhook = $('Code - Validate / Filter Webhook').first().json;\nconst items = order.items || order.orderItems || [];\n\nconst skuSet = new Set();\nfor (const item of items) {\n  const sku = String(item?.sku || item?.SKU || '').trim();\n  if (sku) skuSet.add(sku);\n}\n\nfunction isoOrNull(value) {\n  if (!value) return null;\n  const d = new Date(value);\n  return Number.isNaN(d.getTime()) ? null : d.toISOString();\n}\n\nconst billing = order.billingPerson || {};\nconst shipping = order.shippingPerson || {};\nconst customerName =\n  billing.name ||\n  shipping.name ||\n  `${billing.firstName || ''} ${billing.lastName || ''}`.trim() ||\n  `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() ||\n  null;\n\nconst customerEmail = billing.email || shipping.email || order.email || null;\n\n// numeric Ecwid entity/API id\nconst ecwidEntityId = String(order.id || webhook.ecwid_entity_id || '');\n\n// short human-facing code\nconst orderCode = String(order.orderNumber || webhook.order_code || '');\n\nreturn [{\n  json: {\n    ecwid_order_id: ecwidEntityId,\n    order_number: Number(order.id || webhook.ecwid_entity_id || 0) || null,\n    order_code: orderCode || null,\n    name: `#${orderCode || ecwidEntityId}${customerName ? ' – ' + customerName : ''}`,\n    status: order.fulfillmentStatus || 'AWAITING_PROCESSING',\n    payment_status: order.paymentStatus || webhook.newPaymentStatus || null,\n    payment_method: order.paymentMethod || null,\n    order_date: isoOrNull(order.createDate || order.created || order.dateCreated || webhook.eventCreated * 1000),\n    customer_name: customerName,\n    customer_email: customerEmail,\n    items_json: JSON.stringify(items, null, 2),\n    ecwid_skus: Array.from(skuSet).join(', ') || null,\n    subtotal: Number(order.subtotal ?? order.subtotalWithoutTax ?? 0),\n    tax_total: Number(order.tax ?? 0),\n    order_total: Number(order.total ?? 0),\n    currency: order.currency || order.currencyCode || 'USD',\n    ecwid_event_type: webhook.eventType,\n    ecwid_event_id: webhook.eventId,\n    last_webhook_at: isoOrNull((webhook.eventCreated || 0) * 1000) || new Date().toISOString(),\n    clover_reconciliation_status: 'pending',\n    clover_payment_id: null,\n    clover_payment_amount: null,\n    clover_payment_time: null,\n    clover_match_confidence: null,\n    reconciled_at: null,\n    reconciliation_notes: null\n  }\n}];"
+      },
+      "id": "ff677dae-fbe5-443c-a9c4-64cc28df9646",
+      "name": "Code - Map Ecwid Order to PostgreSQL Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3008,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = JSON.stringify($json);\nreturn [{\n  json: {\n    payload_base64: Buffer.from(payload, 'utf8').toString('base64'),\n    ecwid_order_id: $json.ecwid_order_id,\n    ecwid_event_id: $json.ecwid_event_id\n  }\n}];"
+      },
+      "id": "24ba4488-6f7e-4cc8-87cd-166884fd0872",
+      "name": "Code - Encode PostgreSQL Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2768,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ `SELECT *\nFROM public.mp_ecommerce_order_upsert(\n  convert_from(\n    decode('${String($json.payload_base64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )::jsonb\n);` }}",
+        "options": {}
+      },
+      "id": "5c993bd9-833c-4334-94dd-5b8b58adc53c",
+      "name": "PGSQL - Upsert Ecwid Order",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2528,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, processed: true, action: $json.action, ecwid_order_id: $json.ecwid_order_id, postgres_record_id: $json.id, ecwid_event_id: $json.ecwid_event_id } }}",
+        "options": {}
+      },
+      "id": "15b8dc96-9704-44fb-936c-f290de2209a3",
+      "name": "Respond - Processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -2288,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, processed: false, reason: 'ignored', eventType: $json.eventType, newPaymentStatus: $json.newPaymentStatus, ecwidEntityId: $json.ecwid_entity_id || null, orderCode: $json.order_code || null } }}",
+        "options": {}
+      },
+      "id": "e8714977-b0b7-49ed-a13d-f1a900372c9c",
+      "name": "Respond - Ignored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -3248,
+        496
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Ecwid Order Updated": {
+      "main": [
+        [
+          {
+            "node": "Code - Validate / Filter Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validate / Filter Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF - Should Process?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Should Process?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Ecwid Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Ecwid Order": {
+      "main": [
+        [
+          {
+            "node": "Code - Map Ecwid Order to PostgreSQL Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Map Ecwid Order to PostgreSQL Fields": {
+      "main": [
+        [
+          {
+            "node": "Code - Encode PostgreSQL Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Encode PostgreSQL Payload": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Upsert Ecwid Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Upsert Ecwid Order": {
+      "main": [
+        [
+          {
+            "node": "Respond - Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b3e8cff6-71be-435e-936c-8a0fac17d9fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "id": "EcwidOrderUpdatedPGSQL",
+  "tags": []
+}
