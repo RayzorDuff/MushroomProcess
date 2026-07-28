@@ -19,7 +19,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  * ============================================================================= 
- * Shared environment + API helpers for the airtable_schema scripts.
+ * Shared environment + API helpers for the schema migration scripts.
  *
  * Goals:
  *  - Zero external deps (no dotenv package)

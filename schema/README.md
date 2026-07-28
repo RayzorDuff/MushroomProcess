@@ -1,11 +1,11 @@
-# Airtable Schema Tools  
+# Schema and Migration Tools
 
-_Airtable ↔ NocoDB from a shared `_schema.json`_
+_Airtable export → PostgreSQL, with retained Airtable and optional NocoDB tooling_
 
 
 ## Environment (.env)
 
-All scripts in this directory load environment variables from `airtable_schema/.env` automatically (if present).
+All scripts in this directory load environment variables from `schema/.env` automatically (if present).
 
 1. Copy `.env.example` → `.env`
 2. Fill in values
@@ -20,22 +20,28 @@ This repository state has been tested through a full schema import into:
 - **NocoDB**: `0.265.1`
 - **PostgreSQL**: `13`
 
-This folder holds everything needed to:
+This folder consolidates the complete database migration toolchain:
 
-1. **Export** an Airtable base’s schema (and data) to `_schema.json` using `airtable-export`.
-2. **Use that same `_schema.json`** to:
-   - Recreate / update an **Airtable** base.
-   - Create a **NocoDB** project with the same tables and relationships.
+1. **Export** an Airtable base’s schema and data with `airtable-export`.
+2. Recreate or update an **Airtable** base from the same export.
+3. Generate the canonical **PostgreSQL** schema, views, functions, load files, and tests.
+4. Retain the older **NocoDB** provisioning and schema-comparison utilities where they remain useful.
 
-The goal is: **one canonical `_schema.json`** that can drive both Airtable and NocoDB.
+The goal is one canonical Airtable export that drives the final Airtable parity build and the PostgreSQL production migration.
 
 ---
 
 ## Contents
 
 - `export/`
-  - `_schema.json` – Airtable schema export (tables, fields, types, relationships, formulas, lookups, rollups).
-  - `*.json` / `*.ndjson` – optional per-table data exports (lots, events, etc.).
+  - `_schema.json` — canonical Airtable schema export.
+  - `_schema_nocodb.json` — retained NocoDB schema snapshot used by the comparison/provisioning tools.
+  - `tables_dump.json`, `*.json`, `*.ndjson`, and `*.yml` — Airtable data exports and generated table artifacts.
+
+- `pgsql/`
+  - Ordered PostgreSQL schema, view, function, seed, load, and migration modules.
+  - `csv/` — generated load data and link tables.
+  - `tests/` — rollback-protected PostgreSQL regression tests.
 
 - `compare_schemas.js`  
   Helper script to compare two `_schema.json` files (e.g., between versions) and show structural differences.
@@ -121,7 +127,7 @@ When Airtable exports more than one linked record for a field marked
 one deterministic target and writes the anomalies to:
 
 ```text
-../nocodb_schema/pgsql/csv/_prefers_single_link_conflicts.csv
+pgsql/csv/_prefers_single_link_conflicts.csv
 ```
 
 Review that report before production cutover. The generated load remains
@@ -352,7 +358,7 @@ This path uses Node.js and the NocoDB REST API, in two passes.
 
 ### 3.1. Prerequisites
 
-In this `airtable_schema` folder:
+In this `schema` folder:
 
 ```bash
 npm install axios
@@ -361,13 +367,18 @@ npm install axios
 Ensure this directory structure:
 
 ```text
-airtable_schema/
+schema/
   create_nocodb_schema_full.js
   export/
     _schema.json
+    _schema_nocodb.json
     lots.json
     events.json
     ...
+  pgsql/
+    001_tables.sql
+    ...
+    tests/
 ```
 
 ### 3.2. Environment variables (PowerShell example)

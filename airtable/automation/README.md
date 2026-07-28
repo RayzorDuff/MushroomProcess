@@ -29,7 +29,7 @@ Script names match the station / workflow names used in Interfaces.
 
 1. **Confirm your Airtable base and fields**
 
-   - Your base should already have the MushroomProcess schema (see `airtable_schema/`).
+   - Your base should already have the MushroomProcess schema (see `schema/`).
    - Ensure tables and fields (especially linked records and `ui_error`) match the scripts’ expectations.
 
 2. **Create one Automation per flow**

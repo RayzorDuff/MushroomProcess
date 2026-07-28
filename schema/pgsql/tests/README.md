@@ -30,7 +30,7 @@ psql \
   -d "$MP_BRIDGE_DB_NAME" \
   -v ON_ERROR_STOP=1 \
   -v allow_schema_modification=true \
-  -f nocodb_schema/pgsql/tests/000_run_component_smoke_tests.sql
+  -f schema/pgsql/tests/000_run_component_smoke_tests.sql
 ```
 
 ### Run with the PostgreSQL Docker container
@@ -43,7 +43,7 @@ sudo docker exec mushroomprocess-bridge-postgres \
   rm -rf /tmp/mushroomprocess-pg-tests
 
 sudo docker cp \
-  nocodb_schema/pgsql/tests \
+  schema/pgsql/tests \
   mushroomprocess-bridge-postgres:/tmp/mushroomprocess-pg-tests
 
 sudo docker exec -i \

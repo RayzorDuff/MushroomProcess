@@ -39,7 +39,7 @@ n8n remains integral for:
 This spec mirrors the Airtable interface behavior using:
 - Appsmith for UI (tables/forms/buttons)
 - NocoDB as the backend (REST API)
-- n8n for automation workflows (server-side equivalents of `airtable_automation/*`)
+- n8n for automation workflows (server-side equivalents of `airtable/automation/*`)
 
 1) Datasource: NocoDB (REST API)
    - In Appsmith, create a **REST API datasource** named `NocoDB`

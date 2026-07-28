@@ -352,10 +352,10 @@ Confirm:
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
-  -f nocodb_schema/pgsql/012_ecommerce_order_upsert.sql
+  -f schema/pgsql/012_ecommerce_order_upsert.sql
 
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
-  -f nocodb_schema/pgsql/tests/012_ecommerce_order_upsert_smoke.sql
+  -f schema/pgsql/tests/012_ecommerce_order_upsert_smoke.sql
 ```
 
 Expected:

@@ -16,7 +16,7 @@ Interfaces sit on top of the same base schema and automations described elsewher
 Each station gets one or more Interfaces that:
 
 - Show only the records relevant to that station (e.g., current sterilization runs, dark room lots, harvest-ready blocks).
-- Provide buttons that trigger the automations in `airtable_automation/`.
+- Provide buttons that trigger the automations in `airtable/automation/`.
 - Surface errors through a `ui_error` field so operators know what went wrong (invalid state, missing links, etc.).
 
 ---
@@ -26,8 +26,8 @@ Each station gets one or more Interfaces that:
 1. **Base and schema first**
 
    - Ensure your Airtable base already has:
-     - The MushroomProcess tables and fields (`airtable_schema/`).
-     - The automations from `airtable_automation/` installed and tested.
+     - The MushroomProcess tables and fields (`schema/`).
+     - The automations from `airtable/automation/` installed and tested.
 
 2. **Create Interfaces**
 
@@ -40,7 +40,7 @@ Each station gets one or more Interfaces that:
 
 3. **Automation hooks**
 
-   - For each JS file in `/airtable_automation`, ensure there is a corresponding Automation wired to the correct button fields used in the interface.
+   - For each JS file in `/airtable/automation`, ensure there is a corresponding Automation wired to the correct button fields used in the interface.
 
 4. **Expose `ui_error` in all interfaces**
 

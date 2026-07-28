@@ -10,7 +10,7 @@ The legacy Airtable UI is station-centric (Sterilizer, Inoculate, Dark Room, Fru
 
 - Read from `public.vc_*` views (optimized for operator display and computed fields)
 - Write to base tables (e.g. `public.lots`, `public.products`, `public.sterilization_runs`)
-- Centralize workflow side-effects in Postgres functions/triggers (`nocodb_schema/pgsql/005+`)
+- Centralize workflow side-effects in Postgres functions/triggers (`schema/pgsql/005+`)
 - Keep Appsmith widgets “dumb”: widgets call JS, JS calls SQL
 
 ## Lots page (current)

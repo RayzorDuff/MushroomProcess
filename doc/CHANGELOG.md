@@ -21,10 +21,12 @@ _This release is the feature-completion candidate for the Appsmith/Postgres impl
   - print-queue actions,
   - fulfillment order visibility.
 - Added a documented test procedure for validating the n8n workflows used by the Appsmith/Postgres implementation.
-- Simplified the repository hierarchy for the supported UI architecture:
+- Simplified the repository hierarchy for the supported UI and migration architecture:
   - moved the canonical Appsmith export and formatter to `appsmith/`,
   - retained migration-era page notes under `appsmith/spec/`,
-  - removed the abandoned NocoDB REST-automation and view-generation prototypes.
+  - removed the abandoned NocoDB REST-automation and view-generation prototypes,
+  - consolidated Airtable scripts and interface references under `airtable/automation`, `airtable/extensions`, and `airtable/interfaces`,
+  - consolidated the Airtable export, optional NocoDB schema snapshot, migration tools, generated PostgreSQL modules, CSVs, and tests under `schema/`.
 
 ---
 
@@ -598,7 +600,7 @@ _This release is the next Appsmith/Postgres release candidate after `v1.1.0-RC1`
 
 ## Lots actions: Airtable parity fixes
 
-- Improved parity for Postgres lot-action functions in `nocodb_schema/pgsql/008_lot_actions.sql`.
+- Improved parity for Postgres lot-action functions in `schema/pgsql/008_lot_actions.sql`.
 - Standardized shake event naming as `ShakeBreak` in both Airtable and Postgres paths.
 - Preserved terminal event parity and retired-lot state when retiring lots.
 - Added Fully Colonized and Start Fruiting transitions for Move Lots.
@@ -703,7 +705,7 @@ _This is the first release candidate for the Appsmith/Postgres implementation. T
 
 ## Spawn to Bulk implementation
 
-- Added initial and follow-up Postgres support for Spawn to Bulk in `nocodb_schema/pgsql/010_spawn_to_bulk.sql`.
+- Added initial and follow-up Postgres support for Spawn to Bulk in `schema/pgsql/010_spawn_to_bulk.sql`.
 - Added helper logic for selecting the correct fruiting-block item from grain/substrate/species context.
 - Wired the Spawn to Bulk UI, modal widgets, Appsmith JavaScript, and SQL calls together.
 - Updated documentation to reflect the new Spawn to Bulk migration and SQL module.
@@ -712,7 +714,7 @@ _This is the first release candidate for the Appsmith/Postgres implementation. T
 
 ## Harvest implementation
 
-- Added initial Postgres schema/function support for harvest operations in `nocodb_schema/pgsql/009_harvest_actions.sql`.
+- Added initial Postgres schema/function support for harvest operations in `schema/pgsql/009_harvest_actions.sql`.
 - Implemented the Harvest Lot modal in Appsmith, including UI, SQL, and JS.
 - Added validation to disable modal submit buttons until the required selections and inputs are present.
 - Added lifecycle timestamp maintenance for harvest/fruiting workflows:
@@ -887,7 +889,7 @@ _This release continues the transition from the legacy station-centric Airtable 
 
 ## Lot actions, validation, and interface-backed testing
 
-- Expanded `nocodb_schema/pgsql/008_lot_actions.sql` with more complete helper functions for lot-centric operations exposed through Appsmith.
+- Expanded `schema/pgsql/008_lot_actions.sql` with more complete helper functions for lot-centric operations exposed through Appsmith.
 - Added validation for lot actions such as **Shake** and **Move**, and allowed multiple modifier actions where needed.
 - Added / refined SQL wiring for:
   - Move Lots
@@ -924,7 +926,7 @@ _This release continues the transition from the legacy station-centric Airtable 
   - root README
   - `appsmith/README.md`
   - `n8n/README.md`
-  - `nocodb_schema/pgsql/README.md`
+  - `schema/pgsql/README.md`
   - `integrations/ecwid/README.md`
 - Added / retained supporting legacy UPC barcode tooling and code pools used for ecommerce workflows.
 
@@ -1002,7 +1004,7 @@ _This release includes production-branch updates since `v1.0.5-beta`. The focus 
 ## NocoDB / Postgres migration (schema + data)
 
 - Added a full **Airtable-export → Postgres SQL** pipeline, including a large new exporter (`airtable_export_to_postgres_sql.js`) and supporting tooling to generate/import SQL and CSV cleanly.
-- Reorganized and expanded the NocoDB migration outputs into a dedicated `nocodb_schema/` structure (including `pgsql/` scripts, generated schema artifacts, and CSV exports).
+- Reorganized and expanded the NocoDB migration outputs into a dedicated `schema/` structure (including `pgsql/` scripts, generated schema artifacts, and CSV exports).
 - Added support for importing into **external DB sources in NocoDB** (source-scoped meta endpoints), improving compatibility with setups where NocoDB is attached to a Postgres database.
 - Improved CSV load behavior:
   - fixed `psql \copy` filename handling (requires literal filename tokens),

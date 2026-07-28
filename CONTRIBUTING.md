@@ -1,6 +1,6 @@
 # Contributing
 
-This repository maintains Airtable Automation scripts for the Mushroom production system.
+This repository maintains the MushroomProcess Airtable parity implementation, PostgreSQL schema and workflow functions, Appsmith application, n8n integrations, and print tooling.
 
 git clone https://github.com/RayzorDuff/MushroomProcess.git
 
@@ -11,7 +11,7 @@ git clone https://github.com/RayzorDuff/MushroomProcess.git
 
 ## Workflow
 1. Branch from `main`: `git checkout -b feature/<short-topic>`
-2. Update scripts under `/airtable_automation`. Do not change table/field names casually; update docs if you do.
+2. Change the appropriate component. Airtable parity work lives under `/airtable`, database work under `/schema/pgsql`, Appsmith under `/appsmith`, and external workflows under `/n8n`. Do not change table or field names casually; update documentation when you do.
 3. Run formatting: `npm run lint:fix` (see ESLint/Prettier config).
 4. Commit with Conventional Commits, e.g., `feat(lc): validate syringe_count as integer ≥ 1`.
 5. Open a PR to **main** using the template. Assign a reviewer.

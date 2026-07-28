@@ -9,7 +9,7 @@ This directory contains the generated SQL used to rebuild the MushroomProcess br
 This process is used after:
 
 - Exporting Airtable
-- Regenerating `nocodb_schema/pgsql/*.sql`
+- Regenerating `schema/pgsql/*.sql`
 - Needing to rebuild the Postgres schema from scratch
 
 Workflow:
@@ -175,7 +175,7 @@ Run from the `MushroomProcess` repo root. Only import the `0xx` files at this st
 cd /path/to/MushroomProcess
 set -e
 
-for f in nocodb_schema/pgsql/0*.sql; do
+for f in schema/pgsql/0*.sql; do
   echo "Importing $f"
   sudo docker exec -i \
     -e PGPASSWORD="$MP_BRIDGE_DB_PASSWORD" \
@@ -193,21 +193,21 @@ The explicit equivalent is:
 cd /path/to/MushroomProcess
 
 for f in \
-  nocodb_schema/pgsql/001_tables.sql \
-  nocodb_schema/pgsql/002_links.sql \
-  nocodb_schema/pgsql/003_views.sql \
-  nocodb_schema/pgsql/004_computed_views.sql \
-  nocodb_schema/pgsql/005_helpers.sql \
-  nocodb_schema/pgsql/006_triggers.sql \
-  nocodb_schema/pgsql/007_sterilizer.sql \
-  nocodb_schema/pgsql/008_lot_actions.sql \
-  nocodb_schema/pgsql/009_harvest_actions.sql \
-  nocodb_schema/pgsql/010_spawn_to_bulk.sql \
-  nocodb_schema/pgsql/011_print_queue_actions.sql \
-  nocodb_schema/pgsql/012_ecommerce_order_upsert.sql \
-  nocodb_schema/pgsql/021_personnel_reviews.sql \
-  nocodb_schema/pgsql/022_personnel_reviews_seeds.sql \
-  nocodb_schema/pgsql/023_operator_identity.sql
+  schema/pgsql/001_tables.sql \
+  schema/pgsql/002_links.sql \
+  schema/pgsql/003_views.sql \
+  schema/pgsql/004_computed_views.sql \
+  schema/pgsql/005_helpers.sql \
+  schema/pgsql/006_triggers.sql \
+  schema/pgsql/007_sterilizer.sql \
+  schema/pgsql/008_lot_actions.sql \
+  schema/pgsql/009_harvest_actions.sql \
+  schema/pgsql/010_spawn_to_bulk.sql \
+  schema/pgsql/011_print_queue_actions.sql \
+  schema/pgsql/012_ecommerce_order_upsert.sql \
+  schema/pgsql/021_personnel_reviews.sql \
+  schema/pgsql/022_personnel_reviews_seeds.sql \
+  schema/pgsql/023_operator_identity.sql
 do
   echo "Importing $f"
   sudo docker exec -i \
@@ -227,7 +227,7 @@ This step requires a local `psql` client installed on the host.
 Change into the SQL directory first so the relative `csv/...` paths resolve correctly:
 
 ```bash
-cd /path/to/MushroomProcess/nocodb_schema/pgsql
+cd /path/to/MushroomProcess/schema/pgsql
 ```
 
 Then run:
@@ -263,7 +263,7 @@ sudo docker exec -i \
   psql -v ON_ERROR_STOP=1 \
     -U "$MP_BRIDGE_DB_USER" \
     -d "$MP_BRIDGE_DB_NAME" \
-  < nocodb_schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
+  < schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
 ```
 
 ### 9. Verify Import
@@ -291,7 +291,7 @@ If you prefer to keep everything inside Docker, you can copy the `csv/` director
 Example:
 
 ```bash
-cd /path/to/MushroomProcess/nocodb_schema/pgsql
+cd /path/to/MushroomProcess/schema/pgsql
 
 sudo docker exec mushroomprocess-bridge-postgres mkdir -p /tmp/mp-pgload
 sudo docker cp ./csv mushroomprocess-bridge-postgres:/tmp/mp-pgload/csv
@@ -337,7 +337,7 @@ If a table, view dependency, attachment mapping, computed value, or external int
 
 After regenerating schema from Airtable export:
 
-1. Regenerate `nocodb_schema/pgsql/*.sql`
+1. Regenerate `schema/pgsql/*.sql`
 2. Start RootedOps Postgres
 3. Back up current bridge DB
 4. Drop/recreate bridge DB

@@ -98,7 +98,7 @@ Two common modal-driven actions:
 - **Shake**: confirms selected lots, logs a `Shake` event per lot, and clears any UI error flags.
 - **Retire**: supports multi-select reasons; logs one event per reason per lot; updates `lots.status` and `lots.location_id` (FK) for terminal outcomes (e.g. Compost/Expired).
 
-These are implemented as Postgres functions under `nocodb_schema/pgsql/008_lot_actions.sql` and called via Appsmith queries (`qShakeLots`, `qRetireLots`).
+These are implemented as Postgres functions under `schema/pgsql/008_lot_actions.sql` and called via Appsmith queries (`qShakeLots`, `qRetireLots`).
 
 ## Harvest Modal
 
