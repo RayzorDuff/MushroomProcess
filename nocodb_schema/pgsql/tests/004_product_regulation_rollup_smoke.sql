@@ -23,7 +23,7 @@ BEGIN
     true,
     'RC5 Regulated Rollup Test',
     true,
-    'regulated_psychedelic'
+    'Sacrament'
   )
   RETURNING nocopk INTO v_regulated_strain_id;
 
@@ -38,7 +38,7 @@ BEGIN
     true,
     'RC5 Unregulated Rollup Test',
     false,
-    'gourmet'
+    'Gourmet'
   )
   RETURNING nocopk INTO v_unregulated_strain_id;
 
@@ -108,12 +108,12 @@ BEGIN
 
   IF v_row.regulation_type <> 'numeric'
      OR v_row.origin_strain_regulated <> 1
-     OR v_row.public_link <> 'https://www.regulatedbusiness.com/'
-     OR v_row.label_company_prod <> 'Regulated Business'
-     OR v_row.label_companyaddress_base_prod <> 'RegulatedBusinessAddressAndContact'
-     OR v_row.label_companyaddress_prod <> 'RegulatedBusinessAddressAndContact'
+     OR v_row.public_link <> 'https://www.rootedpsyche.com/'
+     OR v_row.label_company_prod <> 'Rooted Psyche'
+     OR COALESCE(v_row.label_companyaddress_base_prod, '') NOT ILIKE '%rootedpsyche.com%'
+     OR COALESCE(v_row.label_companyaddress_prod, '') NOT ILIKE '%rootedpsyche.com%'
      OR COALESCE(v_row.label_disclaimer_prod, '') NOT LIKE 'NOTICE%Psilocybin%'
-     OR COALESCE(v_row.label_companyinfo_prod, '') <> ''
+     OR v_row.label_companyinfo_prod <> 'Approximate sample size: 5–10 portions of 0.1–0.2 g.'
      OR COALESCE(v_row.label_cottage_prod, '') <> '' THEN
     RAISE EXCEPTION 'Regulated Sample label fields are incorrect: %', row_to_json(v_row);
   END IF;
@@ -134,12 +134,12 @@ BEGIN
 
   IF v_row.regulation_type <> 'numeric'
      OR v_row.origin_strain_regulated <> 0
-     OR v_row.public_link <> 'https://www.mybusiness.com/'
-     OR v_row.label_company_prod <> 'My Business'
-     OR v_row.label_companyaddress_base_prod <> 'MyBusinessAddressAndContact'
-     OR v_row.label_companyaddress_prod <> 'MyBusinessAddressAndContact'
+     OR v_row.public_link <> 'https://danks.store/'
+     OR v_row.label_company_prod <> 'Dank Mushrooms'
+     OR COALESCE(v_row.label_companyaddress_base_prod, '') NOT ILIKE '%danks.store%'
+     OR COALESCE(v_row.label_companyaddress_prod, '') NOT ILIKE '%danks.store%'
      OR COALESCE(v_row.label_disclaimer_prod, '') <> ''
-     OR v_row.label_companyinfo_prod <> 'MyBusinessOffering'
+     OR v_row.label_companyinfo_prod <> 'Sample size: Great for one recipe.'
      OR COALESCE(v_row.label_cottage_prod, '') NOT ILIKE '%home kitchen%' THEN
     RAISE EXCEPTION 'Unregulated Sample label fields are incorrect: %', row_to_json(v_row);
   END IF;
