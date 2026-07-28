@@ -1,7 +1,7 @@
 ------------------------------------------------------------
-Appsmith UI Spec: Dark Room
+Appsmith UI Spec: Inoculate
 Generated: 2026-01-23
-Primary Table: lots
+Primary Table: (unknown)
 ------------------------------------------------------------
 
 This spec mirrors the Airtable interface behavior using:
@@ -23,48 +23,13 @@ This spec mirrors the Airtable interface behavior using:
 2) Query: getData
    - Create a query named `getData` (Datasource: `NocoDB`)
    - Method: `GET`
-   - URL: `/tables/lots/rows`
-   - Params:
-       - `where`: (JSON)
-         {
-           "condition": "AND",
-           "children": [
-             {
-               "column_name": "status",
-               "comparator": "in",
-               "value": [
-                 "Inoculated",
-                 "Colonizing",
-                 "Fully Colonized",
-                 "Fridge"
-               ]
-             }
-           ]
-         }
+   - URL: `/tables/(unknown)/rows`
    - Response transform (Appsmith):
        - Use `{{ getData.data.list }}` as the table data source
 
 3) Widget: Table
    - Add a **Table** widget, e.g. `tblMain`
    - Table Data: `{{ getData.data.list }}`
-   - Suggested visible columns:
-       - action
-       - casing_applied_at
-       - casing_lot_id
-       - created_at
-       - inoculated_at
-       - item_id
-       - lot_id
-       - notes
-       - spawned_at
-       - status
-       - strain_species_strain
-       - ui_error
-       - validation
-       - Grouping (if supported):
-       - item_id (asc)
-       - status (asc)
-       - strain_species_strain (asc)
 
 4) Widget: Record Editor
    - Use either:
@@ -75,7 +40,7 @@ This spec mirrors the Airtable interface behavior using:
 5) Mutations
    A) Query: updateRow
       - Method: `PATCH`
-      - URL: `/tables/lots/rows/{{ tblMain.selectedRow.id }}`
+      - URL: `/tables/(unknown)/rows/{{ tblMain.selectedRow.id }}`
       - Body (example):
           {
             "notes": {{ inpNotes.text }},
@@ -89,11 +54,9 @@ This spec mirrors the Airtable interface behavior using:
           1) `storeValue('pendingAction', '<ACTION>')`
           2) run `setAction.run()`
 
-6) Automation handoff to n8n (recommended)
-   - In Airtable, many workflows are “set `action` → script runs → clears `action` / advances status”.
-   - In NocoDB + Appsmith, replicate this by triggering n8n when an `action` is set.
-   - Two common patterns:
-       A) Appsmith button calls an n8n webhook directly (best for deterministic UI actions).
-       B) NocoDB webhook (or n8n polling) watches for `action != null` and processes it.
+6) Current implementation note
+   - These retained specifications predate the final PostgreSQL-backed Appsmith implementation.
+   - Internal operational actions should call transactional PostgreSQL functions directly.
+   - Use n8n only when an operation crosses systems or must run asynchronously.
 
-   See: `nocodb_interfaces/Appsmith_N8N_Automation_Strategy.md`.
+   See `../README.md` for the current Appsmith/PostgreSQL/n8n responsibility split.

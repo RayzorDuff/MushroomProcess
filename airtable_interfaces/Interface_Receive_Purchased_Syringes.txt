@@ -173,7 +173,7 @@ notes: —
 
 ──────────────────────────────────────────────
 
-8. Derived API Behavior (for NocoDB Automation Script)
+8. Derived API Behavior (for PostgreSQL/Appsmith implementation)
 
 ──────────────────────────────────────────────
 

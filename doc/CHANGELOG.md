@@ -21,6 +21,10 @@ _This release is the feature-completion candidate for the Appsmith/Postgres impl
   - print-queue actions,
   - fulfillment order visibility.
 - Added a documented test procedure for validating the n8n workflows used by the Appsmith/Postgres implementation.
+- Simplified the repository hierarchy for the supported UI architecture:
+  - moved the canonical Appsmith export and formatter to `appsmith/`,
+  - retained migration-era page notes under `appsmith/spec/`,
+  - removed the abandoned NocoDB REST-automation and view-generation prototypes.
 
 ---
 
@@ -693,7 +697,7 @@ _This is the first release candidate for the Appsmith/Postgres implementation. T
   - product manipulation / product-page mockup work
 - Added button-state and selection validation behavior so operation buttons are hidden or disabled when the current table selection is not valid for the selected action.
 - Improved Appsmith workflow wiring so interface actions call the corresponding Postgres functions with correct IDs, materialized values, and modal inputs.
-- Updated Appsmith page and modal definitions in `nocodb_interfaces/MushroomProcess.json` for the current production workflow surface.
+- Updated Appsmith page and modal definitions in `appsmith/MushroomProcess.json` for the current production workflow surface.
 
 ---
 
@@ -822,7 +826,7 @@ _This release continues the transition from the legacy station-centric Airtable 
 
 ## Appsmith interface expansion
 
-- Expanded the Appsmith app (`nocodb_interfaces/MushroomProcess.json`) substantially beyond the initial Sterilizer and Lots pages.
+- Expanded the Appsmith app (`appsmith/MushroomProcess.json`) substantially beyond the initial Sterilizer and Lots pages.
 - Added and iterated on a **Fulfillment** page for assigning internal products to Ecwid/Clover orders and marking inventory appropriately during packing / market reconciliation.
 - Added an initial **Personnel – Reviews** page to support the 10-minute manager log / personnel review workflow.
 - Added or advanced additional lot-centric Appsmith pages and modals, including:
@@ -915,10 +919,10 @@ _This release continues the transition from the legacy station-centric Airtable 
 ## Documentation and migration direction
 
 - Updated the top-level README to make clear that **Retool is no longer a target** and Appsmith is the supported interface direction going forward.
-- Removed legacy `Retool_*.txt` files from `nocodb_interfaces/`.
+- Removed legacy `Retool_*.txt` files from the interface-planning area.
 - Expanded README content across:
   - root README
-  - `nocodb_interfaces/README.md`
+  - `appsmith/README.md`
   - `n8n/README.md`
   - `nocodb_schema/pgsql/README.md`
   - `integrations/ecwid/README.md`
@@ -942,8 +946,8 @@ _This release advances the NocoDB/Postgres migration by introducing the first **
 
 - **Initial Appsmith “Lot-centric UI” running against the imported Postgres database**, accessible through NocoDB.
   - Includes working Sterilizer interfaces (**Sterilizer – In**, **Sterilizer – Out**) and a **Lots** page for viewing/filtering by major identifiers.
-  - Added Appsmith app export (`nocodb_interfaces/MushroomProcess.json`) plus formatting tooling (`pretty-json.mjs`).
-- Documentation added/updated for the Appsmith approach and current coverage (`doc/Appsmith-Lot-Centric-UI.md`, `nocodb_interfaces/README.md`, and related interface notes).
+  - Added Appsmith app export (`appsmith/MushroomProcess.json`) plus formatting tooling (`pretty-json.mjs`).
+- Documentation added/updated for the Appsmith approach and current coverage (`doc/Appsmith-Lot-Centric-UI.md`, `appsmith/README.md`, and related interface notes).
 
 ---
 
@@ -1186,9 +1190,9 @@ _This release includes updates from both the `nocodb_migration` branch and recen
 
 ---
 
-## NocoDB Automations (Parity with Airtable)
+## Experimental NocoDB REST automation prototype
 
-- Expanded `nocodb_automation/README.md` with:
+- Expanded the prototype documentation with:
   - webhook configuration instructions,
   - API-version guidance,
   - detailed environment variable documentation,
@@ -1201,9 +1205,9 @@ _This release includes updates from both the `nocodb_migration` branch and recen
 
 ---
 
-## Interfaces & Retool (NocoDB Path)
+## Experimental NocoDB interface and Retool path
 
-- Updated `nocodb_interfaces` documentation with instructions for generating views that correspond to Airtable Interfaces.
+- Updated the experimental interface documentation with instructions for generating views that correspond to Airtable Interfaces.
 - Added guidance for building equivalent Retool apps for:
   - inoculation,
   - sterilization runs,
@@ -1302,7 +1306,8 @@ This release strengthens cross-backend support while keeping Airtable fully func
 
 ### NocoDB automations
 
-- Added an initial **`nocodb_automation/`** package with Node.js handlers that mirror the core Airtable automations (sterilizer, inoculation, spawn to bulk, harvest, packaging, etc.) but talk to NocoDB via its REST API. 
+- Added an initial experimental Node.js package that mirrored the core Airtable automations through the NocoDB REST API. This prototype was later removed when operational automation moved into PostgreSQL.
+
 - Brought over the **multi-target inoculation** workflow so you can inoculate multiple targets from a single source in the NocoDB path, matching the behavior already available on Airtable. 
 - Ensured that automations remain compatible with existing changes such as:
   - inoculation from untracked sources;  
@@ -1311,7 +1316,7 @@ This release strengthens cross-backend support while keeping Airtable fully func
 
 ### NocoDB interfaces & Retool
 
-- Introduced **`nocodb_interfaces/`** containing:
+- Introduced an experimental interface-migration package containing:
   - scripts to create NocoDB views that approximate the Airtable Interfaces, and  
   - **Retool how-to documentation** for each interface. 
 - Added detailed **interface descriptions** focused on NocoDB/Retool, with enough information to:
@@ -1320,7 +1325,7 @@ This release strengthens cross-backend support while keeping Airtable fully func
 - Updated the **top-level README** to clearly describe the dual path:
   - Airtable schema + automations + interfaces, and  
   - NocoDB schema generation, automations, and interfaces / Retool guidance. 
-- Added a dedicated **README for `nocodb_interfaces/`** describing the new scripts and their usage (creation of views, Retool glue, and assumptions about the schema).
+- Added dedicated documentation for the experimental view-generation scripts, Retool glue, and schema assumptions.
 
 ### Print daemon: NocoDB support
 
@@ -1330,7 +1335,8 @@ This release strengthens cross-backend support while keeping Airtable fully func
 ### Documentation & housekeeping
 
 - **Top-level README** rewritten for **combined Airtable/NocoDB support**, including updated repository layout and “how the system hangs together” with both backends. 
-- Added / updated READMEs for the new `nocodb_automation` and `nocodb_interfaces` directories with setup and usage notes. 
+- Added setup and usage documentation for the experimental NocoDB REST-automation and interface-generation prototypes.
+
 - Cleaned up INSTALL / README duplication in the root and subdirectories, ensuring Airtable-specific instructions live with the Airtable tooling and NocoDB setup is described alongside the migration scripts. 
 - Added extra logging (including timestamps) in migration / casing scripts to make troubleshooting NocoDB migrations easier. 
 

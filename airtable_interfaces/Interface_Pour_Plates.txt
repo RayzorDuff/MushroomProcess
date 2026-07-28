@@ -152,7 +152,7 @@ _ui_error: (empty)
 
 ──────────────────────────────────────────────
 
-9. Derived API Behavior (for NocoDB Automation Script)
+9. Derived API Behavior (for PostgreSQL/Appsmith implementation)
 
 ──────────────────────────────────────────────
 
@@ -174,7 +174,7 @@ PATCH /api/v2/tables/lots/rows/LOT-251102-zjQx
 }
 
 
-NocoDB automation script (nocodb_create_Pour_Plates.js) will watch for "action": "PourPlates" to trigger creation of new plate records in the lots table with appropriate category plate.
+The current Appsmith implementation calls the PostgreSQL pour-plates operation directly; no NocoDB view or automation script watches the `action` field.
 
 ──────────────────────────────────────────────
 

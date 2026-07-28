@@ -124,7 +124,7 @@ operator: [operator initials]
 
 ──────────────────────────────────────────────
 
-7. Derived API Behavior (for NocoDB Automation Script)
+7. Derived API Behavior (for PostgreSQL/Appsmith implementation)
 
 ──────────────────────────────────────────────
 Create New Sterilizer Run:

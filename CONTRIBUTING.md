@@ -26,7 +26,7 @@ New operational workflows should prefer:
 - explicit event logging
 - lineage preservation
 
-Legacy Airtable/NocoDB automations should be treated as migration references rather than primary operational logic.
+Legacy Airtable automation code and discarded migration prototypes should be treated as reference material rather than primary operational logic.
 
 Avoid duplicating business logic between:
 

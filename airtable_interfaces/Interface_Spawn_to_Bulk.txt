@@ -159,7 +159,7 @@ Validation: —
 
 ──────────────────────────────────────────────
 
-9. Derived API Behavior (for NocoDB automation)
+9. Derived API Behavior (for PostgreSQL/Appsmith implementation)
 
 ──────────────────────────────────────────────
 

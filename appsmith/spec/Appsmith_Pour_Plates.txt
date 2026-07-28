@@ -1,40 +1,8 @@
 ------------------------------------------------------------
-
-### Postgres-first Datasource (current)
-
-This project is transitioning to **direct Postgres queries** wherever possible.
-
-- Use Postgres datasource for:
-  - tables / forms / actions
-  - validation queries
-  - workflow functions (e.g., `mp_sterilizer_complete_run`, `mp_lots_shake`, `mp_lots_retire`)
-- Use NocoDB API only where it adds value (notably **file uploads/attachments**), or where NocoDB metadata is required.
-
-n8n remains integral for:
-- external integrations (Ecwid)
-- file storage pipelines (e.g., Google Drive)
-- cross-system sync workflows
-
-Appsmith UI Spec: Sterilizer In
+Appsmith UI Spec: Pour Plates
 Generated: 2026-01-23
-Primary Table: sterilization_runs
+Primary Table: lots
 ------------------------------------------------------------
-
-### Postgres-first Datasource (current)
-
-This project is transitioning to **direct Postgres queries** wherever possible.
-
-- Use Postgres datasource for:
-  - tables / forms / actions
-  - validation queries
-  - workflow functions (e.g., `mp_sterilizer_complete_run`, `mp_lots_shake`, `mp_lots_retire`)
-- Use NocoDB API only where it adds value (notably **file uploads/attachments**), or where NocoDB metadata is required.
-
-n8n remains integral for:
-- external integrations (Ecwid)
-- file storage pipelines (e.g., Google Drive)
-- cross-system sync workflows
-
 
 This spec mirrors the Airtable interface behavior using:
 - Appsmith for UI (tables/forms/buttons)
@@ -55,7 +23,10 @@ This spec mirrors the Airtable interface behavior using:
 2) Query: getData
    - Create a query named `getData` (Datasource: `NocoDB`)
    - Method: `GET`
-   - URL: `/tables/sterilization_runs/rows`
+   - URL: `/tables/lots/rows`
+   - Params:
+       - `where`: (JSON)
+         {"condition":"AND","children":[{"column_name":"item_category","comparator":"in","value":["agar_flask"]}]}
    - Response transform (Appsmith):
        - Use `{{ getData.data.list }}` as the table data source
 
@@ -64,7 +35,7 @@ This spec mirrors the Airtable interface behavior using:
    - Table Data: `{{ getData.data.list }}`
    - Suggested visible columns:
        - Grouping:
-       - process_type (asc)
+       - item_name (asc)
        - Sorting:
 
 4) Widget: Record Editor
@@ -76,7 +47,7 @@ This spec mirrors the Airtable interface behavior using:
 5) Mutations
    A) Query: updateRow
       - Method: `PATCH`
-      - URL: `/tables/sterilization_runs/rows/{{ tblMain.selectedRow.id }}`
+      - URL: `/tables/lots/rows/{{ tblMain.selectedRow.id }}`
       - Body (example):
           {
             "notes": {{ inpNotes.text }},
@@ -90,11 +61,9 @@ This spec mirrors the Airtable interface behavior using:
           1) `storeValue('pendingAction', '<ACTION>')`
           2) run `setAction.run()`
 
-6) Automation handoff to n8n (recommended)
-   - In Airtable, many workflows are “set `action` → script runs → clears `action` / advances status”.
-   - In NocoDB + Appsmith, replicate this by triggering n8n when an `action` is set.
-   - Two common patterns:
-       A) Appsmith button calls an n8n webhook directly (best for deterministic UI actions).
-       B) NocoDB webhook (or n8n polling) watches for `action != null` and processes it.
+6) Current implementation note
+   - These retained specifications predate the final PostgreSQL-backed Appsmith implementation.
+   - Internal operational actions should call transactional PostgreSQL functions directly.
+   - Use n8n only when an operation crosses systems or must run asynchronously.
 
-   See: `nocodb_interfaces/Appsmith_N8N_Automation_Strategy.md`.
+   See `../README.md` for the current Appsmith/PostgreSQL/n8n responsibility split.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------
-Appsmith UI Spec: Pour Plates
+Appsmith UI Spec: Package Grain/Substrate/Blocks
 Generated: 2026-01-23
-Primary Table: lots
+Primary Table: products
 ------------------------------------------------------------
 
 This spec mirrors the Airtable interface behavior using:
@@ -23,10 +23,10 @@ This spec mirrors the Airtable interface behavior using:
 2) Query: getData
    - Create a query named `getData` (Datasource: `NocoDB`)
    - Method: `GET`
-   - URL: `/tables/lots/rows`
+   - URL: `/tables/products/rows`
    - Params:
        - `where`: (JSON)
-         {"condition":"AND","children":[{"column_name":"item_category","comparator":"in","value":["agar_flask"]}]}
+         {"condition":"AND","children":[{"column_name":"package_item_category","comparator":"in","value":["grain_spawn","substrate","fruiting_block"]}]}
    - Response transform (Appsmith):
        - Use `{{ getData.data.list }}` as the table data source
 
@@ -35,7 +35,7 @@ This spec mirrors the Airtable interface behavior using:
    - Table Data: `{{ getData.data.list }}`
    - Suggested visible columns:
        - Grouping:
-       - item_name (asc)
+       - package_item_category (asc)
        - Sorting:
 
 4) Widget: Record Editor
@@ -47,7 +47,7 @@ This spec mirrors the Airtable interface behavior using:
 5) Mutations
    A) Query: updateRow
       - Method: `PATCH`
-      - URL: `/tables/lots/rows/{{ tblMain.selectedRow.id }}`
+      - URL: `/tables/products/rows/{{ tblMain.selectedRow.id }}`
       - Body (example):
           {
             "notes": {{ inpNotes.text }},
@@ -61,11 +61,9 @@ This spec mirrors the Airtable interface behavior using:
           1) `storeValue('pendingAction', '<ACTION>')`
           2) run `setAction.run()`
 
-6) Automation handoff to n8n (recommended)
-   - In Airtable, many workflows are “set `action` → script runs → clears `action` / advances status”.
-   - In NocoDB + Appsmith, replicate this by triggering n8n when an `action` is set.
-   - Two common patterns:
-       A) Appsmith button calls an n8n webhook directly (best for deterministic UI actions).
-       B) NocoDB webhook (or n8n polling) watches for `action != null` and processes it.
+6) Current implementation note
+   - These retained specifications predate the final PostgreSQL-backed Appsmith implementation.
+   - Internal operational actions should call transactional PostgreSQL functions directly.
+   - Use n8n only when an operation crosses systems or must run asynchronously.
 
-   See: `nocodb_interfaces/Appsmith_N8N_Automation_Strategy.md`.
+   See `../README.md` for the current Appsmith/PostgreSQL/n8n responsibility split.
