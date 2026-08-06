@@ -255,10 +255,119 @@ function safeNum(val, fb) {
 
 const in2pt = (inches) => Math.round(safeNum(inches, 0) * 72);
 
+function parsePostgresArrayLiteral(value) {
+  const text = String(value || '').trim();
+  if (text.length < 2 || text[0] !== '{' || text[text.length - 1] !== '}') return null;
+
+  const inner = text.slice(1, -1);
+  if (inner === '') return [];
+
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+  let escaped = false;
+  let quoted = false;
+
+  const pushValue = () => {
+    const raw = quoted ? current : current.trim();
+    values.push(!quoted && raw.toUpperCase() === 'NULL' ? null : raw);
+    current = '';
+    quoted = false;
+  };
+
+  for (let i = 0; i < inner.length; i += 1) {
+    const ch = inner[i];
+
+    if (escaped) {
+      current += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (inQuotes) {
+      if (ch === '\\') {
+        escaped = true;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+      continue;
+    }
+
+    if (ch === '"' && current.trim() === '') {
+      inQuotes = true;
+      quoted = true;
+      current = '';
+      continue;
+    }
+
+    if (ch === ',') {
+      pushValue();
+      continue;
+    }
+
+    // Nested PostgreSQL arrays are not expected in label fields. Refuse to
+    // transform them rather than flattening potentially meaningful text.
+    if (ch === '{' || ch === '}') return null;
+
+    current += ch;
+  }
+
+  if (inQuotes || escaped) return null;
+  pushValue();
+  return values;
+}
+
+function structuredTextValue(value) {
+  const text = String(value || '').trim();
+  if (!text) return null;
+
+  if (
+    (text.startsWith('[') && text.endsWith(']')) ||
+    (text.startsWith('{') && text.endsWith('}'))
+  ) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      // PostgreSQL text[] values commonly arrive from NocoDB v3 as strings
+      // such as {"Freezer Tray"}. They are not JSON objects, so parse them
+      // with PostgreSQL array-literal rules after JSON parsing fails.
+    }
+  }
+
+  return parsePostgresArrayLiteral(text);
+}
+
 function toFlat(v) {
   if (v == null) return '';
-  if (Array.isArray(v)) return v.filter(Boolean).map(toFlat).join(', ');
-  if (typeof v === 'object' && v.name) return v.name;
+
+  if (Array.isArray(v)) {
+    return v
+      .map(toFlat)
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (typeof v === 'object') {
+    for (const key of ['name', 'title', 'label', 'value', 'display_value', 'text']) {
+      if (Object.prototype.hasOwnProperty.call(v, key)) {
+        const flattened = toFlat(v[key]);
+        if (flattened) return flattened;
+      }
+    }
+
+    const entries = Object.entries(v).filter(([, value]) => value != null && value !== '');
+    if (entries.length === 1) return toFlat(entries[0][1]);
+    return '';
+  }
+
+  if (typeof v === 'string') {
+    const structured = structuredTextValue(v);
+    if (structured !== null) return toFlat(structured);
+  }
+
   return String(v);
 }
 
