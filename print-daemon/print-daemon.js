@@ -811,8 +811,14 @@ async function markStatus(id, status, errorMsg = null) {
 function detectItemCategory(rec) {
   const f = rec.fields || {};
   return (
-    pick(f, ['item_category_mat (from product_id)']) ||
-    pick(f, ['item_category_mat (from lot_id)']) ||
+    pick(f, [
+      'item_category_mat_from_product_id',
+      'item_category_mat (from product_id)',
+    ]) ||
+    pick(f, [
+      'item_category_mat_from_lot_id',
+      'item_category_mat (from lot_id)',
+    ]) ||
     pick(f, ['item_category_mat']) ||
     ''
   ).toLowerCase();
@@ -831,10 +837,12 @@ function gatherFields(rec) {
     const labelType = toFlat(f.label_type || f.Label_Type || f['label_type']) || '';
     const packaged = pick(f, [
       'label_packaged_prod',
+      'label_packaged_prod_from_product_id',
       'label_packaged_prod (from product_id)',
     ]);
     const useBy = pick(f, [
       'label_useby_prod',
+      'label_useby_prod_from_product_id',
       'label_useby_prod (from product_id)',
     ]);
 
@@ -844,61 +852,163 @@ function gatherFields(rec) {
       isPackageSampleLabel: String(labelType).trim().toLowerCase() === 'product_package_sample',
       itemCategory,
       isSyringeLabel: isSyringeCategory(itemCategory),
-      company: pick(f, ['label_company_prod', 'label_company_prod (from product_id)']) || '',
-      title: pick(f, ['label_title_prod', 'label_title_prod (from product_id)']),
-      subtitle: pick(f, ['label_subtitle_prod', 'label_subtitle_prod (from product_id)']),
-      footer: pick(f, ['label_footer_prod', 'label_footer_prod (from product_id)']),
+      company: pick(f, [
+        'label_company_prod',
+        'label_company_prod_from_product_id',
+        'label_company_prod (from product_id)',
+      ]) || '',
+      title: pick(f, [
+        'label_title_prod',
+        'label_title_prod_from_product_id',
+        'label_title_prod (from product_id)',
+      ]),
+      subtitle: pick(f, [
+        'label_subtitle_prod',
+        'label_subtitle_prod_from_product_id',
+        'label_subtitle_prod (from product_id)',
+      ]),
+      footer: pick(f, [
+        'label_footer_prod',
+        'label_footer_prod_from_product_id',
+        'label_footer_prod (from product_id)',
+      ]),
       packaged,
       useBy,
       qr: pick(f, [
+        'public_link_from_product_id',
         'public_link (from product_id)',
+        'public_link_from_lot_id',
         'public_link (from lot_id)',
         'public_link',
       ]),
-      // product-only blocks
-      companyAddr: pick(f, ['label_companyaddress_prod', 'label_companyaddress_prod (from product_id)']),
-      companyInfo: pick(f, ['label_companyinfo_prod', 'label_companyinfo_prod (from product_id)']),
-      disclaimer: pick(f, ['label_disclaimer_prod', 'label_disclaimer_prod (from product_id)']),
-      cottage: pick(f, ['label_cottage_prod', 'label_cottage_prod (from product_id)']),
+      companyAddr: pick(f, [
+        'label_companyaddress_prod',
+        'label_companyaddress_prod_from_product_id',
+        'label_companyaddress_prod (from product_id)',
+      ]),
+      companyInfo: pick(f, [
+        'label_companyinfo_prod',
+        'label_companyinfo_prod_from_product_id',
+        'label_companyinfo_prod (from product_id)',
+      ]),
+      disclaimer: pick(f, [
+        'label_disclaimer_prod',
+        'label_disclaimer_prod_from_product_id',
+        'label_disclaimer_prod (from product_id)',
+      ]),
+      cottage: pick(f, [
+        'label_cottage_prod',
+        'label_cottage_prod_from_product_id',
+        'label_cottage_prod (from product_id)',
+      ]),
       extras: [
-        pick(f, ['label_proc_prod', 'label_proc_prod (from product_id)']),
-        pick(f, ['label_inoc_prod', 'label_inoc_prod (from product_id)']),
-        pick(f, ['label_spawned_prod', 'label_spawned_prod (from product_id)']),
+        pick(f, [
+          'label_proc_prod',
+          'label_proc_prod_from_product_id',
+          'label_proc_prod (from product_id)',
+        ]),
+        pick(f, [
+          'label_inoc_prod',
+          'label_inoc_prod_from_product_id',
+          'label_inoc_prod (from product_id)',
+        ]),
+        pick(f, [
+          'label_spawned_prod',
+          'label_spawned_prod_from_product_id',
+          'label_spawned_prod (from product_id)',
+        ]),
         packaged,
         useBy,
       ].filter(Boolean),
     };
   }
 
-  // default: lot
   return {
     kind: 'lot',
     itemCategory,
     isSyringeLabel: isSyringeCategory(itemCategory),
-    company: pick(f, ['label_company_lot (from lot_id)']) || '',
-    title: pick(f, ['label_title_lot (from lot_id)']),
-    subtitle: pick(f, ['label_subtitle_lot (from lot_id)']),
-    footer: pick(f, ['label_footer_lot (from lot_id)']),
+    company: pick(f, [
+      'label_company_lot',
+      'label_company_lot_from_lot_id',
+      'label_company_lot (from lot_id)',
+    ]) || '',
+    title: pick(f, [
+      'label_title_lot',
+      'label_title_lot_from_lot_id',
+      'label_title_lot (from lot_id)',
+    ]),
+    subtitle: pick(f, [
+      'label_subtitle_lot',
+      'label_subtitle_lot_from_lot_id',
+      'label_subtitle_lot (from lot_id)',
+    ]),
+    footer: pick(f, [
+      'label_footer_lot',
+      'label_footer_lot_from_lot_id',
+      'label_footer_lot (from lot_id)',
+    ]),
     qr: pick(f, [
+      'public_link_from_lot_id',
       'public_link (from lot_id)',
+      'public_link_from_product_id',
       'public_link (from product_id)',
       'public_link',
     ]),
     extras: [
-      pick(f, ['label_proc_line (from lot_id)']),
-      pick(f, ['label_inoc_line (from lot_id)']),
-      pick(f, ['label_spawned_line (from lot_id)']),
-      pick(f, ['label_useby_line (from lot_id)']),
+      pick(f, [
+        'label_proc_line',
+        'label_proc_line_from_lot_id',
+        'label_proc_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_inoc_line',
+        'label_inoc_line_from_lot_id',
+        'label_inoc_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_spawned_line',
+        'label_spawned_line_from_lot_id',
+        'label_spawned_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_useby_line',
+        'label_useby_line_from_lot_id',
+        'label_useby_line (from lot_id)',
+      ]),
       (() => {
-        const v = pick(f, ['label_graininputblocks_line (from lot_id)']);
+        const v = pick(f, [
+          'label_graininputblocks_line',
+          'label_graininputblocks_line_from_lot_id',
+          'label_graininputblocks_line (from lot_id)',
+        ]);
         return v ? `Grain: ${v}` : '';
       })(),
       (() => {
-        const v = pick(f, ['label_substrateinputblocks_line (from lot_id)']);
+        const v = pick(f, [
+          'label_substrateinputblocks_line',
+          'label_substrateinputblocks_line_from_lot_id',
+          'label_substrateinputblocks_line (from lot_id)',
+        ]);
         return v ? `Substrate: ${v}` : '';
       })(),
     ].filter(Boolean),
   };
+}
+
+function hasRenderableLabelText(label) {
+  if (!label || typeof label !== 'object') return false;
+  const values = [
+    label.title,
+    label.subtitle,
+    label.footer,
+    label.packaged,
+    label.useBy,
+    label.companyInfo,
+    label.disclaimer,
+    label.cottage,
+    ...(Array.isArray(label.extras) ? label.extras : []),
+  ];
+  return values.some(value => String(value || '').trim() !== '');
 }
 
 /* ---------- Logo selection (company → file) ---------- */
@@ -1032,7 +1142,7 @@ async function renderSplitSyringeLabelPDF(outPath, rec) {
   const title = L.title || '';
   const subtitle = L.subtitle || '';
   const footer = L.footer || '';
-  const qrUrl = L.qr || 'https://example.com';
+  const qrUrl = L.qr || '';
   const extras = Array.isArray(L.extras) ? L.extras.filter(Boolean) : [];
 
   const doc = new PDFDocument({
@@ -1186,7 +1296,7 @@ async function renderLabelPDF(outPath, rec) {
   const title = L.title || '';
   const subtitle = L.subtitle || '';
   const footer = L.footer || '';
-  const qrUrl = L.qr || 'https://example.com';
+  const qrUrl = L.qr || '';
 
   const doc = new PDFDocument({
     size: [PAGE_W, PAGE_H],
@@ -2250,8 +2360,17 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       `label_${timestamp}_${id}.pdf`
     );
     status(id, 'rendering_label', { pdf: out });
-    await markStatus(id, 'Printing', null);
     const gathered = gatherFields(rec);
+    if (!hasRenderableLabelText(gathered)) {
+      const availableFields = Object.keys(f).sort().join(', ');
+      throw new Error(
+        'No renderable label text was returned for this print job. ' +
+        'Verify that PRINT_QUEUE_READ_TABLE resolves to vc_print_queue and that the daemon accepts ' +
+        'the *_from_lot_id / *_from_product_id computed-view field names. ' +
+        `Available fields: ${availableFields || '(none)'}`
+      );
+    }
+    await markStatus(id, 'Printing', null);
     if (gathered.isSyringeLabel) {
       await renderSplitSyringeLabelPDF(out, rec);
     } else if (gathered.isPackageSampleLabel) {
@@ -2411,7 +2530,15 @@ async function startDaemon() {
   cycle();
 }
 
-startDaemon().catch(error => {
-  log.error('Print daemon startup failed', { err: error?.message || String(error) });
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  startDaemon().catch(error => {
+    log.error('Print daemon startup failed', { err: error?.message || String(error) });
+    process.exitCode = 1;
+  });
+}
+
+module.exports = {
+  detectItemCategory,
+  gatherFields,
+  hasRenderableLabelText,
+};
