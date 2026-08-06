@@ -381,6 +381,104 @@ function pick(fields, keys) {
   return '';
 }
 
+function quoteNocoWhereValue(value) {
+  const text = String(value ?? '').trim();
+  if (/^-?(?:\d+|\d*\.\d+)$/.test(text)) return text;
+  return `"${text
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')}"`;
+}
+
+function nocoV3Where(field, operator, value) {
+  const safeField = String(field || '').trim();
+  const safeOperator = String(operator || '').trim();
+  if (!safeField || !safeOperator) {
+    throw new Error('NocoDB where clause requires a field and operator');
+  }
+  return `(${safeField},${safeOperator},${quoteNocoWhereValue(value)})`;
+}
+
+function normalizeRunMatchTargets(runIds) {
+  const pending = Array.isArray(runIds) ? [...runIds] : [runIds];
+  const targets = [];
+
+  while (pending.length) {
+    const value = pending.shift();
+    if (Array.isArray(value)) {
+      pending.unshift(...value);
+      continue;
+    }
+    const target = String(toFlat(value) || '').trim();
+    if (target && !targets.includes(target)) targets.push(target);
+  }
+
+  return targets;
+}
+
+function valueMatchesRunId(value, runIds) {
+  const targets = normalizeRunMatchTargets(runIds);
+  if (!targets.length || value == null) return false;
+
+  const flat = String(toFlat(value) || '').trim();
+  if (targets.includes(flat)) return true;
+
+  const linked = String(toFlat(
+    linkedNocoValue(value, ['steri_run_id', 'nocopk'])
+  ) || '').trim();
+  if (targets.includes(linked)) return true;
+
+  try {
+    const encoded = JSON.stringify(value);
+    return targets.some(target => encoded.includes(target));
+  } catch {
+    return false;
+  }
+}
+
+function lotMatchesRun(row, runIds) {
+  const f = row && row.fields && typeof row.fields === 'object'
+    ? row.fields
+    : nocoV3RecordFields(row);
+
+  return [
+    f.steri_run_id,
+    f.sterilization_run_id,
+    f.sterilization_runs,
+  ].some(value => valueMatchesRunId(value, runIds));
+}
+
+function steriSheetRunFields(runRec) {
+  const f = (runRec && runRec.fields) || {};
+  return {
+    runNo: pick(f, ['steri_run_id']) || String(runRec?.id || ''),
+    processType: pick(f, ['process_type']) || inferProcessTypeFromRun(f),
+    operator: pick(f, ['operator']),
+    start: f.start_time,
+    end: f.end_time || f.override_end_time,
+    plannedItem: pick(f, [
+      'planned_item_name',
+      'planned_item',
+      'planned_item_id',
+    ]),
+    plannedCount: f.planned_count ?? '',
+    plannedSize: f.planned_unit_size ?? '',
+    goodCount: f.good_count ?? '',
+    destroyedCount: f.destroyed_count ?? '',
+  };
+}
+
+function steriSheetLotFields(lotRec) {
+  const f = (lotRec && lotRec.fields) || {};
+  return {
+    lotId: pick(f, ['lot_id']) || String(lotRec?.id || ''),
+    itemName: pick(f, ['item_name', 'item_name_mat', 'item_id']),
+    recipeName: pick(f, ['recipe_name', 'name_from_recipe_id', 'recipe_id']),
+    unit: pick(f, ['unit_size', 'planned_unit_size']),
+    status: pick(f, ['status']),
+    qrUrl: pick(f, ['public_link']),
+  };
+}
+
 function isNocoV3() {
   return DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
 }
@@ -1862,13 +1960,38 @@ async function fetchRun(runId) {
       
   } else {
     
-    // NocoDB v3: fetch from the configured sterilization_runs table/view and match locally.
+    // NocoDB v3: filter on the server. Fetching the entire computed view is
+    // both slow and unreliable when the API only returns the first page.
     if (isNocoV3()) {
       if (runId == null || runId === '') return null;
-      const target = String(runId).trim();
-      const rows = await fetchNocoV3Records(STERILIZATION_RUNS_TABLE, STERILIZATION_RUNS_VIEW_ID, {}, true);
-      const row = rows.find(r => nocoV3MatchesRecord(r, target, ['steri_run_id']));
-      return row ? { id: nocoV3RecordId(row), fields: nocoV3RecordFields(row), _raw: row } : null;
+      const target = String(toFlat(runId) || '').trim();
+      if (!target) return null;
+
+      const fieldsToTry = /^\d+$/.test(target)
+        ? ['nocopk', 'steri_run_id']
+        : ['steri_run_id', 'nocopk'];
+
+      for (const field of fieldsToTry) {
+        const rows = await fetchNocoV3Records(
+          STERILIZATION_RUNS_TABLE,
+          STERILIZATION_RUNS_VIEW_ID,
+          {
+            pageSize: 5,
+            where: nocoV3Where(field, 'eq', target),
+          },
+          false
+        );
+        const row = rows.find(r => nocoV3MatchesRecord(r, target, ['steri_run_id', 'nocopk']));
+        if (row) {
+          return {
+            id: nocoV3RecordId(row),
+            fields: nocoV3RecordFields(row),
+            _raw: row,
+          };
+        }
+      }
+
+      return null;
     }
 
     // NocoDB v2: accept either a numeric record Id or a steri_run_id string
@@ -1913,7 +2036,7 @@ async function fetchRun(runId) {
   
 }
 
-async function fetchLotsForRun(runId) {
+async function fetchLotsForRun(runId, runPk = '') {
   
   if (DB_BACKEND === 'airtable') {
     // filter: lots whose link field steri_run_id contains this runId
@@ -1938,18 +2061,37 @@ async function fetchLotsForRun(runId) {
       
   } else {
     if (isNocoV3()) {
-      if (runId == null || runId === '') return [];
-      const target = String(runId).trim();
-      const rows = await fetchNocoV3Records(LOTS_TABLE, LOTS_VIEW_ID, {}, true);
-      return rows
-        .filter(row => {
-          const f = nocoV3RecordFields(row);
-          if (String(f.steri_run_id ?? '').includes(target)) return true;
-          if (String(f.sterilization_run_id ?? '').includes(target)) return true;
-          if (String(f.sterilization_runs ?? '').includes(target)) return true;
-          return JSON.stringify(f).includes(target);
-        })
-        .map(row => ({ id: nocoV3RecordId(row), fields: nocoV3RecordFields(row), _raw: row }));
+      const matchTargets = normalizeRunMatchTargets([runPk, runId]);
+      if (!matchTargets.length) return [];
+
+      // vc_lots retains the PostgreSQL run FK in steri_run_id, while
+      // vc_sterilization_runs exposes both that numeric nocopk and the
+      // RUN-* business identifier. Query the numeric FK first, then retain
+      // the business identifier as a compatibility fallback.
+      for (const candidate of matchTargets) {
+        const rows = await fetchNocoV3Records(
+          LOTS_TABLE,
+          LOTS_VIEW_ID,
+          {
+            pageSize: 100,
+            where: nocoV3Where('steri_run_id', 'eq', candidate),
+          },
+          true
+        );
+
+        const matches = rows
+          .filter(row => lotMatchesRun(row, matchTargets))
+          .map(row => ({
+            id: nocoV3RecordId(row),
+            fields: nocoV3RecordFields(row),
+            _raw: row,
+          }))
+          .sort((a, b) => steriSheetLotFields(a).lotId.localeCompare(steriSheetLotFields(b).lotId));
+
+        if (matches.length) return matches;
+      }
+
+      return [];
     }
 
     if (runId == null || runId === '') return [];
@@ -2017,19 +2159,17 @@ async function renderSterilizerSheetPDF(outPath, runRec, lotRecs) {
   const stream = fs.createWriteStream(outPath);
   doc.pipe(stream);
 
-  const f = (runRec && runRec.fields) || {};
-  const runNo = f.steri_run_id || runRec.id;
-  const processType =
-    (f.process_type || '').toString().trim() ||
-    inferProcessTypeFromRun(f);
-  const op = (f.operator || '').toString();
-  const start = fmtDt(f.start_time);
-  const end = fmtDt(f.end_time || f.override_end_time);
-  const plannedItem = toFlat(f.planned_item_id);
-  const plannedCount = f.planned_count ?? '';
-  const plannedSize = f.planned_unit_size ?? '';
-  const good = f.good_count ?? '';
-  const bad = f.destroyed_count ?? '';
+  const runFields = steriSheetRunFields(runRec);
+  const runNo = runFields.runNo;
+  const processType = runFields.processType;
+  const op = runFields.operator;
+  const start = fmtDt(runFields.start);
+  const end = fmtDt(runFields.end);
+  const plannedItem = runFields.plannedItem;
+  const plannedCount = runFields.plannedCount;
+  const plannedSize = runFields.plannedSize;
+  const good = runFields.goodCount;
+  const bad = runFields.destroyedCount;
 
   // Header
   doc.fontSize(18).font('Helvetica-Bold').text(
@@ -2090,14 +2230,13 @@ async function renderSterilizerSheetPDF(outPath, runRec, lotRecs) {
 
   // Rows
   for (const lot of lotRecs) {
-    const lf = lot.fields || {};
-    const lotId = lf.lot_id || lot.id;
-    const itemName = toFlat(lf.item_name) || '';
-    const recipeName = toFlat(lf.recipe_name) || '';
-    const unit =
-      lf.unit_size != null ? String(lf.unit_size) : '';
-    const status = toFlat(lf.status) || '';
-    const qrUrl = lf.public_link || '';
+    const lotFields = steriSheetLotFields(lot);
+    const lotId = lotFields.lotId;
+    const itemName = lotFields.itemName;
+    const recipeName = lotFields.recipeName;
+    const unit = lotFields.unit;
+    const status = lotFields.status;
+    const qrUrl = lotFields.qrUrl;
 
     // text columns
     x = x0;
@@ -2406,7 +2545,7 @@ async function processRecord(rec) {
 
     // --- Sterilizer sheet ---
     if (kind === 'steri_sheet') {
-      const runLink =
+      const runLinkRaw =
         f.run_id && Array.isArray(f.run_id) && f.run_id[0]
           ? f.run_id[0]
           : (
@@ -2416,24 +2555,55 @@ async function processRecord(rec) {
               f.sterilization_run_id ||
               null
             );
-      if (!runLink)
+      const runLink = String(toFlat(runLinkRaw) || '').trim();
+      if (!runLink) {
         throw new Error(
           'steri_sheet job missing run_id/sterilization_runs link'
         );
+      }
 
+      // Claim the job before any NocoDB lookups so another daemon cannot
+      // pick the same sheet while its run/lot data is being loaded.
+      await markStatus(id, 'Printing', null);
+
+      const loadStartedAt = Date.now();
+      status(id, 'loading_sheet_run', { run_id: runLink });
       const run = await fetchRun(runLink);
       if (!run) {
         throw new Error(`steri_sheet run not found for run_id="${runLink}"`);
-      }      
-      const r = run.fields || {};
-      const lots = await fetchLotsForRun(r.steri_run_id || runLink);
+      }
 
-      const outName = `steri-sheet_${
-        (run.fields && run.fields.steri_run_id) || run.id
-      }_${timestamp}.pdf`;
+      const runFields = steriSheetRunFields(run);
+      const businessRunId = runFields.runNo || runLink;
+      status(id, 'loading_sheet_lots', { run_id: businessRunId });
+      const lots = await fetchLotsForRun(businessRunId, run.id);
+      const expectedGood = safeNum(runFields.goodCount, 0);
+
+      status(id, 'sheet_data_loaded', {
+        run_id: businessRunId,
+        run_pk: run.id,
+        lot_count: lots.length,
+        expected_good: expectedGood,
+        elapsed_ms: Date.now() - loadStartedAt,
+      });
+
+      if (!lots.length && expectedGood > 0) {
+        throw new Error(
+          `Sterilizer sheet run ${businessRunId} reports ${expectedGood} good lot(s), ` +
+          'but no linked lots were returned. Refusing to print a blank sheet.'
+        );
+      }
+      if (lots.length && expectedGood !== lots.length) {
+        log.warn('Sterilizer sheet lot count differs from good_count', {
+          run_id: businessRunId,
+          lot_count: lots.length,
+          expected_good: expectedGood,
+        });
+      }
+
+      const outName = `steri-sheet_${businessRunId}_${timestamp}.pdf`;
       const outPath = path.join(archiveDir, outName);
 
-      await markStatus(id, 'Printing', null);
       status(id, 'rendering_sheet', { pdf: outPath });
       await renderSterilizerSheetPDF(outPath, run, lots);
 
@@ -2650,4 +2820,8 @@ module.exports = {
   detectItemCategory,
   gatherFields,
   hasRenderableLabelText,
+  nocoV3Where,
+  lotMatchesRun,
+  steriSheetRunFields,
+  steriSheetLotFields,
 };
