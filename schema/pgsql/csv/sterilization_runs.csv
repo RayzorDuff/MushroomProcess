@@ -1,0 +1,12 @@
+airtable_id,steri_run_id,start_time,end_time,operator,planned_count,good_count,destroyed_count,planned_unit_size,ui_error,ui_error_at,process_type,target_temp_c,pressure_mode,override_end_time,planned_component_set
+rec4kjzQCltjUHSCv,RUN-260629-HSCv,2026-06-27T20:50:00.000Z,2026-06-29T20:52:43.485Z,operator2.email.address@mybusiness.com,2,2,0,5,,,Sterilize,121,Closed,,WBS_CVG_RIZ1
+rec8b9gwQ65FYFTYo,RUN-260623-FTYo,2026-06-22T21:44:00.000Z,2026-06-24T22:04:27.843Z,operator2.email.address@mybusiness.com,30,30,0,1.5,,,Sterilize,121,Closed,,
+recH9XtQ3GNRt9tvy,RUN-260716-9tvy,2026-07-15T19:06:00.000Z,2026-07-16T19:09:00.000Z,operator1.email.address@mybusiness.com,24,24,0,2.5,,,Sterilize,121,Closed,2026-07-16T19:09:00.000Z,
+recPbl4pQNxvxqso0,RUN-260622-qso0,2026-06-19T16:35:00.000Z,2026-06-22T16:35:00.000Z,operator1.email.address@mybusiness.com,16,16,0,5,,,Pasteurize,74,Closed,2026-06-22T16:35:00.000Z,
+recT7cCdNjTLducvq,RUN-260523-ucvq,2026-05-20T19:06:00.000Z,2026-05-23T19:07:25.243Z,operator1.email.address@mybusiness.com,55,55,0,2,,,Sterilize,121,Closed,,
+receqE6oTONWjkun8,RUN-260623-kun8,2026-06-22T21:44:00.000Z,2026-06-24T22:15:41.781Z,operator2.email.address@mybusiness.com,8,8,0,5,,,Sterilize,121,Closed,,WBS_CVG_RIZ1
+recgRAjPX8HKei2lj,RUN-260525-i2lj,2026-05-23T18:52:00.000Z,2026-05-25T18:58:06.442Z,operator1.email.address@mybusiness.com,15,15,0,5,,,Pasteurize,74,Closed,,
+reckkAU2IsJQACD2X,RUN-260615-CD2X,2026-06-14T16:52:00.000Z,2026-06-15T16:51:00.000Z,operator1.email.address@mybusiness.com,49,49,0,1.75,,,Sterilize,121,Closed,2026-06-15T16:51:00.000Z,
+recmOfj55C1iwlLVT,RUN-260629-lLVT,2026-06-27T20:51:00.000Z,2026-06-29T20:52:53.810Z,operator2.email.address@mybusiness.com,6,6,0,3,,,Sterilize,121,Closed,,WBS_CVG_RIZ1
+recq6e2hNvwWS4YjH,RUN-260716-4YjH,2026-07-15T19:08:00.000Z,2026-07-16T19:09:00.000Z,operator1.email.address@mybusiness.com,8,8,0,7.5,,,Sterilize,121,Closed,2026-07-16T19:09:00.000Z,
+recwjKJcMtXVRXJNz,RUN-260629-XJNz,2026-06-27T20:52:00.000Z,2026-06-29T20:53:00.000Z,,6,6,0,5,,,Sterilize,121,Closed,2026-06-29T20:53:00.000Z,

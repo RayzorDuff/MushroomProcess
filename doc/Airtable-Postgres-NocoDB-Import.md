@@ -1,6 +1,6 @@
 # Airtable → Postgres → NocoDB Import Pipeline
 
-This document captures the **final architecture, design decisions, and hard‑won fixes** involved in migrating an Airtable base into a Postgres database used by **NocoDB**, using the custom SQL generator in `airtable_schema`.
+This document captures the **final architecture, design decisions, and hard‑won fixes** involved in migrating an Airtable base into a Postgres database used by **NocoDB**, using the custom SQL generator in `schema`.
 
 It is intended to explain *why the system looks the way it does*, not just *what it does*, so future changes do not regress critical behavior.
 
@@ -10,7 +10,7 @@ It is intended to explain *why the system looks the way it does*, not just *what
 
 ## pgsql Import Order Convention
 
-The generated SQL under `nocodb_schema/pgsql/` is intended to be applied in numbered order.
+The generated SQL under `schema/pgsql/` is intended to be applied in numbered order.
 
 Typical hierarchy:
 
@@ -53,37 +53,18 @@ Two key principles guide the design:
 
 ## Directory Overview
 
-### `airtable_schema/`
+### `schema/`
 
-Contains the **source of truth** for schema generation.
+Contains both the **source of truth** for generation and the checked-in outputs used to rebuild production.
 
-Key files:
+Key files and directories:
 
-* **`airtable_export_to_postgres_sql.js`**
-  The primary generator. It reads Airtable schema JSON and emits:
+* **`export/`** — canonical Airtable schema/data export plus the retained `_schema_nocodb.json` comparison snapshot.
+* **`airtable_export_to_postgres_sql.js`** — primary generator. It reads the Airtable export and emits the ordered PostgreSQL modules, CSV data, and loader under `pgsql/`.
+* **`create_nocodb_schema_full.js`** — legacy/optional NocoDB provisioning path retained for reference and comparison.
+* **`pgsql/`** — canonical SQL-only production import, including numbered modules, generated CSVs, post-load integration, and rollback-protected tests.
 
-  * `001_tables.sql` (tables, triggers)
-  * `002_links.sql` (m2m tables)
-  * `003_views.sql` (base views)
-  * `004_computed_views.sql` (computed / Airtable‑style formula views)
-  * `010_load.sql` (CSV import)
-
-* **`create_nocodb_schema_full/`**
-  Legacy / alternate path: generates a full schema import using env vars. Kept for reference and comparison.
-
----
-
-### `nocodb_schema/`
-
-Contains **outputs and experiments** derived from the generator.
-
-Subdirectories:
-
-#### `pgsql/`
-
-The **canonical SQL‑only import** produced by `airtable_export_to_postgres_sql.js`.
-
-This is now the *preferred* path for rebuilding the DB.
+The PostgreSQL path is the preferred and supported database rebuild path.
 
 ---
 

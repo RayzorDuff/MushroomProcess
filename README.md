@@ -1,13 +1,12 @@
-# MushroomProcess (NocoDB + Appsmith)
+# MushroomProcess (Airtable + PostgreSQL + Appsmith + n8n)
 
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
 
 This repository contains:
-- **Postgres schema + functions** in `nocodb_schema/pgsql` (exported for NocoDB / Postgres).
-- **Appsmith UI** in `nocodb_interfaces/MushroomProcess.json`.
-- Legacy reference implementation:
-  - Airtable interfaces screenshots in `screenshots/interfaces`
-  - Airtable automations in `airtable_automation`
+- **Schema exports, migration tools, and PostgreSQL modules** under `schema/`.
+- **Appsmith UI** in `appsmith/MushroomProcess.json`.
+- **External and asynchronous workflows** under `n8n/`.
+- The final **Airtable parity/reference implementation** under `airtable/`.
 
 The core database model is:
 
@@ -32,8 +31,9 @@ Appsmith is **lot-centric** (centered on `lots`) while Airtable was more **stati
 
 ### New Appsmith pages (stub UI now wired)
 - **Products**
-- **Lab - Receive**
-- **Lab - Agar**
+- Lab - Receive
+- Lab - Agar
+- **Fullfillment**
 - **Spawn to Bulk**
 
 Each page now has named widgets and working SQL/JS wiring:
@@ -63,19 +63,145 @@ Each page now has named widgets and working SQL/JS wiring:
 - Migrate ecwid integration to postgres/n8n
 - Branch and begin retiring station-centric Airtable interface (described below) following testing of lot-centric appsmith approach
 
-## 🧩 Fulfillment System (NEW)
+## Harvest Workflow (Postgres / Appsmith)
 
-MushroomProcess now includes a unified fulfillment workflow supporting:
+The Harvest workflow has been migrated from Airtable automation into the Postgres + Appsmith operational model.
 
-- Farmers market POS (Ecwid + Clover)
-- Website orders (Ecwid online)
+### Harvest Flow
 
-### Key Concepts
+1. User selects a single `fruiting_block` lot in the Lots interface.
+2. User opens the **Harvest** modal.
+3. User selects a harvest output type:
+   - `fresh_tray`
+   - `freezer_tray`
+4. User enters:
+   - harvest weight (g)
+   - tray count
+5. Storage location is constrained automatically:
+   - Fresh trays → Shipping/Fulfillment locations
+   - Freezer trays → Freeze/Freeze Dryer locations
+6. Product tray records are created in `products`.
+7. Harvest lineage is linked back to the originating fruiting block lot.
 
-- Orders are created in Ecwid
-- Payments processed in Clover
-- Products tracked internally at **exact-instance level**
-- Fulfillment links internal `product_id` → Ecwid order
+### Harvest Metadata
+
+The following fields are now populated during lifecycle transitions.
+
+#### `lots`
+
+- `beganfruiting_at`
+- `firstharvested_at`
+- `lastharvested_at`
+- `flush_no`
+- `fresh_tray_count`
+- `frozen_tray_count`
+
+#### `products`
+
+- `harvest_flush_no`
+- `harvest_weight_g`
+- `harvested_at`
+
+### Tray Products
+
+Harvested trays are represented as `products`, not `lots`.
+
+Supported tray product categories:
+
+- `fresh_tray`
+- `freezer_tray`
+
+These tray products are intended for:
+
+- fulfillment
+- freeze drying
+- downstream packaging operations
+
+### SQL Functions
+
+Implemented in:
+
+- `009_harvest_actions.sql`
+
+Primary function:
+
+- `mp_lots_harvest_create_tray_products(...)`
+
+---
+
+## Spawn to Bulk Workflow (Postgres / Appsmith)
+
+The Spawn-to-Bulk workflow has been migrated from Airtable automation into the Postgres + Appsmith operational model.
+
+### Spawn to Bulk Flow
+
+1. User selects one or more substrate lots from the Lots table.
+2. User opens the **Spawn to Bulk** modal.
+3. User selects one or more colonized grain source lots.
+4. All selected grain lots must:
+   - be category `grain`
+   - share the same species/strain
+5. User optionally specifies block sizing plans.
+6. New `fruiting_block` lots are created.
+7. Grain and substrate lineage are preserved.
+
+### Output Planning
+
+Supports variable block sizing.
+
+Examples:
+
+```text
+5,5,2.5
+```
+
+or:
+
+```text
+FB-COCO-LG:5, FB-COCO-SM:2.5
+```
+
+### SQL Functions
+
+Implemented in:
+
+- `010_spawn_to_bulk.sql`
+
+Primary function:
+
+- `mp_lots_spawn_to_bulk(...)`
+
+## Fulfillment + Reconciliation
+
+MushroomProcess includes an operational fulfillment system built using:
+
+- Appsmith (UI)
+- n8n (API + orchestration)
+- Airtable/Postgres inventory data
+
+### Features
+
+- exact-instance inventory assignment
+- market + web order support
+- Clover payment reconciliation
+- manual reconciliation review
+- inventory shipment state tracking
+
+### Design Principles
+
+- Ecwid is NOT the inventory authority.
+- Clover is the payment authority for market card transactions.
+- Inventory is tracked at exact product-instance level.
+- Products are manually assigned to orders during fulfillment.
+
+### Reconciliation States
+
+| State | Meaning |
+|---|---|
+| reconciled | Clover payment matched |
+| pending | Awaiting valid Clover match |
+| needs_review | Ambiguous or unresolved match |
+| accounted | Cash/manual transaction resolved operationally |
 
 ---
 
@@ -112,11 +238,11 @@ Exact-instance tracking requires:
 
 # MushroomProcess  
 
-_Airtable / NocoDB Inventory, Traceability & Labeling System_
+_Airtable / PostgreSQL / Appsmith / n8n Inventory, Traceability & Labeling System_
 
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
 
-It started on **Airtable** and is being migrated to **Appsmith/Postgres/N8N/NocoDB**, while keeping the same core model:
+It started on **Airtable** and is being migrated to **Appsmith/PostgreSQL/n8n**, with NocoDB retained only where it remains useful for administrative data access, while keeping the same core model:
 
 - Items, recipes, strains
 - Locations & stations (sterilizer, inoculation, dark room, fruiting, harvest, packaging)
@@ -126,9 +252,10 @@ It started on **Airtable** and is being migrated to **Appsmith/Postgres/N8N/Noco
 
 The system ties together:
 
-- A normalized **schema** (`airtable_schema/`)
-- **Automations** to enforce workflows (`airtable_automation/`, `nocodb_automation/`)
-- **Interfaces / Views** for station operators (`airtable_interfaces/`, `nocodb_interfaces/`)
+- A shared Airtable export and migration toolchain (`schema/`)
+- Airtable parity scripts and interface references (`airtable/`)
+- PostgreSQL functions for internal operations and n8n workflows for external integrations (`schema/pgsql/`, `n8n/`)
+- Appsmith operator interfaces (`appsmith/`)
 - A **print daemon** that watches a queue and prints 4×2 thermal labels (`print-daemon/`)
 - Optional **Ecwid integration** for ecommerce sync (`integrations/ecwid/`)
 
@@ -136,30 +263,23 @@ The system ties together:
 
 ## Repository Layout
 
-- `airtable_schema/`  
-  Tools to export an Airtable base to `_schema.json` (via `airtable-export`), clean it up, and use that same JSON to:
-  - Recreate a fresh **Airtable** base, and
-  - Generate a **NocoDB** project (tables + relations + formulas) from the Airtable schema.  
-  _See [`airtable_schema/README.md`](airtable_schema/README.md)._
+- `airtable/`
+  Final Airtable parity/reference implementation retained through the v1.1.0 migration release:
+  - `automation/` — Airtable Automation scripts and reference screenshots
+  - `extensions/` — one-off administrative and backfill scripts
+  - `interfaces/` — Airtable Interface specifications, exports, and reference screenshots
+  _See [`airtable/README.md`](airtable/README.md)._
 
-- `airtable_automation/`  
-  JavaScript **Airtable Automation** scripts that implement the production flows (sterilizer in/out, LC → grain, grain → substrate, spawn to bulk, harvest, packaging, etc.).  
-  _See [`airtable_automation/README.md`](airtable_automation/README.md)._
+- `schema/`
+  Shared Airtable export, schema-management utilities, optional NocoDB schema snapshot, generated PostgreSQL modules, load CSVs, and regression tests.
+  _See [`schema/README.md`](schema/README.md)._
 
-- `airtable_interfaces/`  
-  Documentation for the Airtable **Interfaces** (station UIs), plus a PDF (“Mushroom Process_Interfaces.pdf”) describing page-by-page setup.  
-  _See [`airtable_interfaces/README.md`](airtable_interfaces/README.md)._
+- `appsmith/`
+  Canonical Appsmith application export, JSON normalization utility, and retained page specifications.
+  _See [`appsmith/README.md`](appsmith/README.md)._
 
-- `nocodb_automation/`  
-  Node.js handlers that mirror Airtable automations using the NocoDB REST API.  
-  _See `nocodb_automation/README_NocoDB_AUTOMATIONS.md`._
-
-- `nocodb_interfaces/`  
-  Node.js scripts to create NocoDB views that resemble the Airtable Interfaces, plus Appsmith how-to text files for each interface.  
-  _See [`nocodb_interfaces/README.md`](nocodb_interfaces/README.md)._
-
-- `nocodb_schema/`  
-  Schema generated by scripts in airtable_schema for import into NocoDB or Postgres. 
+- `n8n/`
+  External-system and asynchronous workflows, including ecommerce, fulfillment, reporting, and reconciliation integrations.
 
 - `print-daemon/`  
   Node.js label **print daemon** plus PowerShell helpers to run it on Windows (including as a service via NSSM). Supports pulling jobs from Airtable (legacy) or NocoDB.  
@@ -176,9 +296,6 @@ The system ties together:
   - `Lessons_Learned_and_Evolution_Report.pdf`
   - `NOTICE.md`
 
-- `screenshots/`  
-  Reference screenshots of automation, interfaces and flows.
-
 ---
 
 ## How the System Hangs Together
@@ -188,17 +305,19 @@ At a high level:
 1. **Schema**  
    - Start from an Airtable base (the current production base or a template).
    - Export its schema using `airtable-export` into `_schema.json` and table data JSON.
-   - Use `airtable_schema` tools to:
+   - Use `schema` tools to:
      - Recreate a clean Airtable base, or
      - Generate the full NocoDB or Postgres schema from that same `_schema.json`.
 
 2. **Automations**  
-   - On Airtable: create one Automation per flow and paste the corresponding script from `airtable_automation/`.
-   - On NocoDB: Automations are included in the Postgres schema imported from nocodb_schema/pgsql.
+   - On Airtable: create one Automation per flow and paste the corresponding script from `airtable/automation/`.
+   - On PostgreSQL: Internal workflow automation is implemented by functions and triggers imported from `schema/pgsql/`.
+   - In n8n: External integrations and asynchronous workflows are imported from `n8n/workflows/`.
 
 3. **Interfaces / Views**  
-   - Airtable Interfaces are defined by the PDF and text files in `airtable_interfaces/`.
-   - NocoDB views and Appsmith apps are created using the scripts, json imports and notes in `nocodb_interfaces/`.
+   - Airtable Interfaces are defined by the PDF and text files in `airtable/interfaces/`.
+   - The Appsmith application is imported from `appsmith/MushroomProcess.json`.
+   - Retained planning notes are stored under `appsmith/spec/`; the JSON export is the authoritative current implementation.
 
 4. **Print Queue & Daemon**  
    - Workflows append rows to a `print_queue` table (in Airtable or NocoDB).
@@ -234,16 +353,16 @@ If you only want Airtable (no NocoDB yet):
 
 1. **Create an Airtable base**  
    - Create a new base for MushroomProcess.
-   - Optionally use `airtable_schema/` to reconstruct the schema from `_schema.json`.
+   - Optionally use `schema/` to reconstruct the schema from `_schema.json`.
 
 2. **Install Airtable Automations**  
-   - Follow [`airtable_automation/README.md`](airtable_automation/README.md) to:
+   - Follow [`airtable/automation/README.md`](airtable/automation/README.md) to:
      - Add one Automation per script, typically triggered from a button that passes the current record ID.
      - Paste each script into the Script action.
      - Adjust field names if your base differs.
 
 3. **Create Interfaces**  
-   - Follow [`airtable_interfaces/README.md`](airtable_interfaces/README.md) and the `Mushroom Process_Interfaces.pdf` to recreate station interfaces.
+   - Follow [`airtable/interfaces/README.md`](airtable/interfaces/README.md) and the `Mushroom Process_Interfaces.pdf` to recreate station interfaces.
    - Ensure `ui_error` is visible in each interface so operators see validation failures.
 
 4. **Set Up the Print Daemon**  
@@ -313,23 +432,21 @@ Once you have an Airtable base and `_schema.json`:
    $env:NOCODB_RECREATE_LOOKUPS = "true"
    ```
 
-3. **Use `airtable_schema` to create the NocoDB schema**  
-   - See [`airtable_schema/README.md`](airtable_schema/README.md) for:
+3. **Use `schema` to create the NocoDB schema**
+   - See [`schema/README.md`](schema/README.md) for:
      - Directory layout (where `_schema.json` and data exports live).
-     - Running `create_nocodb_from_schema.js` to create tables.
-     - Running `create_nocodb_relations_and_rollups.js` to wire up relationships and formulas.
+     - Running `create_nocodb_schema_full.js` for the retained NocoDB provisioning path.
+     - Running `compare_schemas.js` against `export/_schema.json` and `export/_schema_nocodb.json`.
 
-4. **Wire NocoDB Automations**  
-   - Follow `nocodb_automation/README_NocoDB_AUTOMATIONS.md` to:
-     - Add NocoDB Buttons per flow.
-     - Configure webhooks to hit your Node services.
-     - Ensure environment variables for NocoDB API access are set.
+4. **Install PostgreSQL workflow functions**
+   - Import the ordered SQL modules under `schema/pgsql/`.
+   - Internal multi-row workflow behavior is implemented transactionally in PostgreSQL rather than in a separate NocoDB automation service.
 
-5. **Create NocoDB Views & Appsmith Apps**  
-   - Follow [`nocodb_interfaces/README.md`](nocodb_interfaces/README.md) to:
-     - Run the view-creator scripts.
-     - Import the Appsmith exported json.
-     - Use the Appsmith “how-to” notes to recreate equivalent station dashboards.
+5. **Import the Appsmith application**
+   - Follow [`appsmith/README.md`](appsmith/README.md).
+   - Import `appsmith/MushroomProcess.json`.
+   - Use `appsmith/pretty-json.mjs` when normalizing a newly exported Appsmith project.
+   - Treat `appsmith/spec/` as retained planning/reference material, not as the authoritative runtime definition.
 
 6. **Point the Print Daemon at NocoDB**  
    - Update `.env` as described in `print-daemon/README.md` with NocoDB URL, token, and print_queue table ID.

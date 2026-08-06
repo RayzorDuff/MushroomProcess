@@ -1,7 +1,7 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-01-26.1
- * Summary: NocoDB or Airtable backed print_queue, steri_sheet and lots updates
+ * Version: 2026-07-24.1
+ * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
  * Licensed under the GNU General Public License v3 (GPL-3.0-only)
@@ -48,10 +48,21 @@ const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
-const { print } = require('pdf-to-printer');
+let print = null;
+try {
+  // pdf-to-printer is Windows-oriented. Keep it optional so the daemon can run on macOS/Linux.
+  ({ print } = require('pdf-to-printer'));
+} catch (e) {
+  print = null;
+}
 const { spawn } = require('child_process');
 
 const os = require('os');
+
+const PLATFORM = process.platform;
+const IS_WINDOWS = PLATFORM === 'win32';
+const IS_MAC = PLATFORM === 'darwin';
+const IS_POSIX_PRINT = IS_MAC || PLATFORM === 'linux';
 
 const INSTANCE_ID = (process.env.DAEMON_INSTANCE_ID || process.env.INSTANCE_ID || '').trim()
   || `${os.hostname()}-${process.pid}`;
@@ -155,9 +166,37 @@ function nowStamp() {
 }
 
 const DB_BACKEND = String(process.env.DB_BACKEND || 'airtable').toLowerCase();
+const NOCODB_API_VERSION = String(process.env.NOCODB_API_VERSION || 'v2').toLowerCase();
+const IS_NOCODB_V3_CONFIG = DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
+
+// NocoDB's v3 data and metadata URLs use the base identifier in the first path
+// segment. NOCODB_SOURCE_ID and NOCODB_BASE_SOURCE_ID remain accepted as legacy
+// aliases because older daemon examples used those names.
+const NOCODB_BASE_ID = (
+  process.env.NOCODB_BASE_ID ||
+  process.env.NOCODB_SOURCE_ID ||
+  process.env.NOCODB_BASE_SOURCE_ID ||
+  ''
+).trim();
+const NOCODB_SOURCE_ID = NOCODB_BASE_ID; // Backward-compatible internal alias.
+const NOCODB_PAGE_SIZE = safeNum(process.env.NOCODB_PAGE_SIZE, 25);
+const NOCODB_AUTO_RESOLVE_IDS = String(process.env.NOCODB_AUTO_RESOLVE_IDS || 'true').toLowerCase() !== 'false';
+const CHECK_CONFIG_ONLY = argv.includes('--check-config');
+
+// Airtable and NocoDB v2 can use table names/IDs directly. NocoDB v3 needs
+// internal table IDs, but the daemon resolves the MushroomProcess logical names
+// below through NocoDB metadata at startup when IDs were not supplied.
 const PRINT_QUEUE_TABLE = process.env.PRINT_QUEUE_TABLE || process.env.AIRTABLE_QUEUE_TABLE || process.env.NOCODB_QUEUE_TABLE_ID || 'print_queue';
-const STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || 'sterilization_runs';
-const LOTS_TABLE = process.env.LOTS_TABLE || 'lots';
+let PRINT_QUEUE_READ_TABLE = process.env.PRINT_QUEUE_READ_TABLE || process.env.PRINT_QUEUE_TABLE_READ || (IS_NOCODB_V3_CONFIG ? 'vc_print_queue' : PRINT_QUEUE_TABLE);
+let PRINT_QUEUE_WRITE_TABLE = process.env.PRINT_QUEUE_WRITE_TABLE || process.env.PRINT_QUEUE_TABLE_WRITE || PRINT_QUEUE_TABLE;
+const PRINT_QUEUE_READ_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRINT_QUEUE_READ_VIEW_ID || process.env.PRINT_QUEUE_VIEW_ID || process.env.NOCODB_QUEUE_VIEW_ID || '');
+const PRINT_QUEUE_WRITE_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRINT_QUEUE_WRITE_VIEW_ID || '');
+const PRINT_QUEUE_WRITE_ID_FIELD = (process.env.PRINT_QUEUE_WRITE_ID_FIELD || 'nocopk').trim();
+
+let STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_sterilization_runs' : 'sterilization_runs');
+const STERILIZATION_RUNS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.STERILIZATION_RUNS_VIEW_ID || '');
+let LOTS_TABLE = process.env.LOTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_lots' : 'lots');
+const LOTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.LOTS_VIEW_ID || '');
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
@@ -216,10 +255,119 @@ function safeNum(val, fb) {
 
 const in2pt = (inches) => Math.round(safeNum(inches, 0) * 72);
 
+function parsePostgresArrayLiteral(value) {
+  const text = String(value || '').trim();
+  if (text.length < 2 || text[0] !== '{' || text[text.length - 1] !== '}') return null;
+
+  const inner = text.slice(1, -1);
+  if (inner === '') return [];
+
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+  let escaped = false;
+  let quoted = false;
+
+  const pushValue = () => {
+    const raw = quoted ? current : current.trim();
+    values.push(!quoted && raw.toUpperCase() === 'NULL' ? null : raw);
+    current = '';
+    quoted = false;
+  };
+
+  for (let i = 0; i < inner.length; i += 1) {
+    const ch = inner[i];
+
+    if (escaped) {
+      current += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (inQuotes) {
+      if (ch === '\\') {
+        escaped = true;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+      continue;
+    }
+
+    if (ch === '"' && current.trim() === '') {
+      inQuotes = true;
+      quoted = true;
+      current = '';
+      continue;
+    }
+
+    if (ch === ',') {
+      pushValue();
+      continue;
+    }
+
+    // Nested PostgreSQL arrays are not expected in label fields. Refuse to
+    // transform them rather than flattening potentially meaningful text.
+    if (ch === '{' || ch === '}') return null;
+
+    current += ch;
+  }
+
+  if (inQuotes || escaped) return null;
+  pushValue();
+  return values;
+}
+
+function structuredTextValue(value) {
+  const text = String(value || '').trim();
+  if (!text) return null;
+
+  if (
+    (text.startsWith('[') && text.endsWith(']')) ||
+    (text.startsWith('{') && text.endsWith('}'))
+  ) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      // PostgreSQL text[] values commonly arrive from NocoDB v3 as strings
+      // such as {"Freezer Tray"}. They are not JSON objects, so parse them
+      // with PostgreSQL array-literal rules after JSON parsing fails.
+    }
+  }
+
+  return parsePostgresArrayLiteral(text);
+}
+
 function toFlat(v) {
   if (v == null) return '';
-  if (Array.isArray(v)) return v.filter(Boolean).map(toFlat).join(', ');
-  if (typeof v === 'object' && v.name) return v.name;
+
+  if (Array.isArray(v)) {
+    return v
+      .map(toFlat)
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (typeof v === 'object') {
+    for (const key of ['name', 'title', 'label', 'value', 'display_value', 'text']) {
+      if (Object.prototype.hasOwnProperty.call(v, key)) {
+        const flattened = toFlat(v[key]);
+        if (flattened) return flattened;
+      }
+    }
+
+    const entries = Object.entries(v).filter(([, value]) => value != null && value !== '');
+    if (entries.length === 1) return toFlat(entries[0][1]);
+    return '';
+  }
+
+  if (typeof v === 'string') {
+    const structured = structuredTextValue(v);
+    if (structured !== null) return toFlat(structured);
+  }
+
   return String(v);
 }
 
@@ -231,6 +379,362 @@ function pick(fields, keys) {
     }
   }
   return '';
+}
+
+function quoteNocoWhereValue(value) {
+  const text = String(value ?? '').trim();
+  if (/^-?(?:\d+|\d*\.\d+)$/.test(text)) return text;
+  return `"${text
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')}"`;
+}
+
+function nocoV3Where(field, operator, value) {
+  const safeField = String(field || '').trim();
+  const safeOperator = String(operator || '').trim();
+  if (!safeField || !safeOperator) {
+    throw new Error('NocoDB where clause requires a field and operator');
+  }
+  return `(${safeField},${safeOperator},${quoteNocoWhereValue(value)})`;
+}
+
+function normalizeRunMatchTargets(runIds) {
+  const pending = Array.isArray(runIds) ? [...runIds] : [runIds];
+  const targets = [];
+
+  while (pending.length) {
+    const value = pending.shift();
+    if (Array.isArray(value)) {
+      pending.unshift(...value);
+      continue;
+    }
+    const target = String(toFlat(value) || '').trim();
+    if (target && !targets.includes(target)) targets.push(target);
+  }
+
+  return targets;
+}
+
+function valueMatchesRunId(value, runIds) {
+  const targets = normalizeRunMatchTargets(runIds);
+  if (!targets.length || value == null) return false;
+
+  const flat = String(toFlat(value) || '').trim();
+  if (targets.includes(flat)) return true;
+
+  const linked = String(toFlat(
+    linkedNocoValue(value, ['steri_run_id', 'nocopk'])
+  ) || '').trim();
+  if (targets.includes(linked)) return true;
+
+  try {
+    const encoded = JSON.stringify(value);
+    return targets.some(target => encoded.includes(target));
+  } catch {
+    return false;
+  }
+}
+
+function lotMatchesRun(row, runIds) {
+  const f = row && row.fields && typeof row.fields === 'object'
+    ? row.fields
+    : nocoV3RecordFields(row);
+
+  return [
+    f.steri_run_id,
+    f.sterilization_run_id,
+    f.sterilization_runs,
+  ].some(value => valueMatchesRunId(value, runIds));
+}
+
+function steriSheetRunFields(runRec) {
+  const f = (runRec && runRec.fields) || {};
+  return {
+    runNo: pick(f, ['steri_run_id']) || String(runRec?.id || ''),
+    processType: pick(f, ['process_type']) || inferProcessTypeFromRun(f),
+    operator: pick(f, ['operator']),
+    start: f.start_time,
+    end: f.end_time || f.override_end_time,
+    plannedItem: pick(f, [
+      'planned_item_name',
+      'planned_item',
+      'planned_item_id',
+    ]),
+    plannedCount: f.planned_count ?? '',
+    plannedSize: f.planned_unit_size ?? '',
+    goodCount: f.good_count ?? '',
+    destroyedCount: f.destroyed_count ?? '',
+  };
+}
+
+function steriSheetLotFields(lotRec) {
+  const f = (lotRec && lotRec.fields) || {};
+  return {
+    lotId: pick(f, ['lot_id']) || String(lotRec?.id || ''),
+    itemName: pick(f, ['item_name', 'item_name_mat', 'item_id']),
+    recipeName: pick(f, ['recipe_name', 'name_from_recipe_id', 'recipe_id']),
+    unit: pick(f, ['unit_size', 'planned_unit_size']),
+    status: pick(f, ['status']),
+    qrUrl: pick(f, ['public_link']),
+  };
+}
+
+function isNocoV3() {
+  return DB_BACKEND !== 'airtable' && NOCODB_API_VERSION === 'v3';
+}
+
+function cleanOptionalNocoIdentifier(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (/(_id_?here|placeholder|replace_me)/i.test(text)) return '';
+  return text;
+}
+
+function looksLikeNocoV3TableId(value) {
+  const text = String(value || '').trim();
+  return /^(?:m[a-z0-9]{10,}|md_[a-z0-9]{8,})$/i.test(text);
+}
+
+function normalizeNocoName(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^public\./i, '')
+    .replace(/^"|"$/g, '')
+    .toLowerCase();
+}
+
+let nocoV3TableMetadataCache = null;
+
+async function listNocoV3Tables() {
+  if (nocoV3TableMetadataCache) return nocoV3TableMetadataCache;
+  if (!NOCODB_BASE_ID) {
+    throw new Error(
+      'NOCODB_BASE_ID is required for NocoDB v3. ' +
+      'NOCODB_SOURCE_ID is still accepted as a legacy alias.'
+    );
+  }
+
+  const encodedBase = encodeURIComponent(NOCODB_BASE_ID);
+  const endpoints = [
+    `/api/v3/meta/bases/${encodedBase}/tables`,
+    `/api/v2/meta/bases/${encodedBase}/tables`,
+  ];
+  const failures = [];
+
+  for (const endpoint of endpoints) {
+    try {
+      const { data } = await NC.get(endpoint, { params: { pageSize: 1000 } });
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.list)
+          ? data.list
+          : Array.isArray(data?.tables)
+            ? data.tables
+            : [];
+
+      if (list.length) {
+        nocoV3TableMetadataCache = list;
+        log.debug('Loaded NocoDB table metadata', { endpoint, count: list.length });
+        return list;
+      }
+      failures.push(`${endpoint}: returned no tables`);
+    } catch (error) {
+      const statusCode = error?.response?.status;
+      failures.push(`${endpoint}: ${statusCode || error?.message || String(error)}`);
+    }
+  }
+
+  throw new Error(
+    'Unable to list NocoDB tables for automatic ID resolution. ' +
+    failures.join(' | ') + '. Set the table IDs explicitly or grant the token metadata access.'
+  );
+}
+
+function nocoTableNames(table) {
+  return [table?.title, table?.table_name, table?.name]
+    .map(normalizeNocoName)
+    .filter(Boolean);
+}
+
+async function resolveNocoV3TableReference(label, configuredValue, fallbackNames) {
+  const configured = String(configuredValue || '').trim();
+  if (looksLikeNocoV3TableId(configured)) return configured;
+
+  if (!NOCODB_AUTO_RESOLVE_IDS) {
+    throw new Error(
+      `${label} must be a NocoDB table ID when NOCODB_AUTO_RESOLVE_IDS=false; got "${configured}".`
+    );
+  }
+
+  const tables = await listNocoV3Tables();
+  const requestedNames = [configured, ...(fallbackNames || [])]
+    .map(normalizeNocoName)
+    .filter(Boolean);
+
+  for (const requested of requestedNames) {
+    const matches = tables.filter(table => nocoTableNames(table).includes(requested));
+    if (matches.length === 1 && matches[0]?.id) {
+      const resolved = String(matches[0].id);
+      log.info('Resolved NocoDB table', {
+        setting: label,
+        requested: configured || requested,
+        matched_name: matches[0].title || matches[0].table_name || requested,
+        table_id: resolved,
+      });
+      return resolved;
+    }
+    if (matches.length > 1) {
+      throw new Error(
+        `${label} matched more than one NocoDB table named "${requested}". Set its table ID explicitly.`
+      );
+    }
+  }
+
+  const available = tables
+    .map(table => table?.title || table?.table_name || table?.id)
+    .filter(Boolean)
+    .slice(0, 40)
+    .join(', ');
+  throw new Error(
+    `${label} could not resolve "${configured}". Tried: ${requestedNames.join(', ')}. ` +
+    `Available tables include: ${available || '(none returned)'}.`
+  );
+}
+
+async function resolveNocoV3Configuration() {
+  if (!isNocoV3()) return;
+
+  PRINT_QUEUE_READ_TABLE = await resolveNocoV3TableReference(
+    'PRINT_QUEUE_READ_TABLE',
+    PRINT_QUEUE_READ_TABLE,
+    ['vc_print_queue']
+  );
+  PRINT_QUEUE_WRITE_TABLE = await resolveNocoV3TableReference(
+    'PRINT_QUEUE_WRITE_TABLE',
+    PRINT_QUEUE_WRITE_TABLE,
+    ['print_queue']
+  );
+
+  if (ENABLE_STERI_SHEETS) {
+    STERILIZATION_RUNS_TABLE = await resolveNocoV3TableReference(
+      'STERILIZATION_RUNS_TABLE',
+      STERILIZATION_RUNS_TABLE,
+      ['vc_sterilization_runs', 'sterilization_runs']
+    );
+    LOTS_TABLE = await resolveNocoV3TableReference(
+      'LOTS_TABLE',
+      LOTS_TABLE,
+      ['vc_lots', 'lots']
+    );
+  }
+
+  if (PRINT_QUEUE_WRITE_VIEW_ID) {
+    log.warn('PRINT_QUEUE_WRITE_VIEW_ID is not used for NocoDB v3 PATCH requests and may be removed from .env.');
+  }
+}
+
+function nocoV3RecordsPath(tableId) {
+  if (!NOCODB_BASE_ID) {
+    throw new Error(
+      'NOCODB_BASE_ID is required when NOCODB_API_VERSION=v3 ' +
+      '(NOCODB_SOURCE_ID is accepted as a legacy alias)'
+    );
+  }
+  if (!tableId) {
+    throw new Error('NocoDB v3 table id is required');
+  }
+  return `/api/v3/data/${encodeURIComponent(NOCODB_BASE_ID)}/${encodeURIComponent(tableId)}/records`;
+}
+
+async function fetchNocoV3Records(tableId, viewId = '', params = {}, allPages = false) {
+  const out = [];
+  let url = nocoV3RecordsPath(tableId);
+  let first = true;
+
+  while (url) {
+    const requestParams = first
+      ? {
+          pageSize: NOCODB_PAGE_SIZE,
+          ...(viewId ? { viewId } : {}),
+          ...params,
+        }
+      : undefined;
+
+    const { data } = await NC.get(url, requestParams ? { params: requestParams } : undefined);
+    const records = data && Array.isArray(data.records) ? data.records : [];
+    out.push(...records);
+
+    if (!allPages) break;
+    url = data && data.next ? data.next : '';
+    first = false;
+  }
+
+  return out;
+}
+
+function nocoV3RecordFields(row) {
+  return (row && row.fields && typeof row.fields === 'object') ? row.fields : {};
+}
+
+function nocoV3RecordId(row, preferredField = 'nocopk') {
+  const f = nocoV3RecordFields(row);
+  const idFields = (row && row.id_fields && typeof row.id_fields === 'object') ? row.id_fields : {};
+
+  const candidates = [
+    preferredField ? f[preferredField] : undefined,
+    preferredField ? idFields[preferredField] : undefined,
+    f.nocopk,
+    idFields.nocopk,
+    row && row.id,
+    row && row.Id,
+  ];
+
+  for (const v of candidates) {
+    if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+  }
+  return null;
+}
+
+function normalizeNocoV3QueueRecord(row) {
+  return {
+    id: nocoV3RecordId(row, PRINT_QUEUE_WRITE_ID_FIELD),
+    read_id: row && row.id,
+    fields: nocoV3RecordFields(row),
+    _raw: row,
+  };
+}
+
+function linkedNocoValue(value, fieldNames = []) {
+  if (value == null) return '';
+  const one = Array.isArray(value) ? value[0] : value;
+  if (one == null) return '';
+  if (typeof one !== 'object') return one;
+
+  const f = one.fields && typeof one.fields === 'object' ? one.fields : {};
+  const idf = one.id_fields && typeof one.id_fields === 'object' ? one.id_fields : {};
+
+  for (const k of fieldNames) {
+    if (f[k] !== undefined && f[k] !== null && String(f[k]).trim() !== '') return f[k];
+    if (idf[k] !== undefined && idf[k] !== null && String(idf[k]).trim() !== '') return idf[k];
+  }
+
+  return one.id ?? one.Id ?? idf.nocopk ?? '';
+}
+
+function nocoV3MatchesRecord(row, value, fieldNames = []) {
+  const target = String(value || '').trim();
+  if (!target) return false;
+  const f = nocoV3RecordFields(row);
+  const id = nocoV3RecordId(row);
+
+  if (String(row?.id ?? '').trim() === target) return true;
+  if (String(id ?? '').trim() === target) return true;
+
+  for (const k of fieldNames) {
+    if (String(f[k] ?? '').trim() === target) return true;
+  }
+
+  return false;
 }
 
 /* ---------- Env (hardened) ---------- */
@@ -251,11 +755,42 @@ const MARGIN_PT = safeNum(process.env.MARGIN_PT, 8);
 const LOGO_W_PT = safeNum(process.env.LOGO_WIDTH_PT, 140);
 const QR_SIZE_PT = safeNum(process.env.QR_SIZE_PT, 90);
 
+// Product_Package_Sample labels are dense 4x2 labels that keep product identity,
+// package/use-by dates, and the product disclaimer on one physical label.
+const SAMPLE_LOGO_W_PT = safeNum(process.env.SAMPLE_LOGO_WIDTH_PT, Math.min(70, LOGO_W_PT));
+const SAMPLE_QR_SIZE_PT = safeNum(process.env.SAMPLE_QR_SIZE_PT, 34);
+const SAMPLE_INCLUDE_QR = String(process.env.SAMPLE_INCLUDE_QR || 'true').toLowerCase() !== 'false';
+const SAMPLE_LOGO_TEXT_GAP_PT = safeNum(process.env.SAMPLE_LOGO_TEXT_GAP_PT, 2);
+const SAMPLE_COMPANY_INFO_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_INFO_MAX_FONT, 7);
+const SAMPLE_COMPANY_ADDRESS_MAX_FONT = safeNum(process.env.SAMPLE_COMPANY_ADDRESS_MAX_FONT, 6);
+const SAMPLE_COTTAGE_MAX_FONT = safeNum(process.env.SAMPLE_COTTAGE_MAX_FONT, 6);
+const SAMPLE_TITLE_MAX_FONT = safeNum(process.env.SAMPLE_TITLE_MAX_FONT, 7.5);
+const SAMPLE_SUBTITLE_MAX_FONT = safeNum(process.env.SAMPLE_SUBTITLE_MAX_FONT, 7.5);
+const SAMPLE_META_MAX_FONT = safeNum(process.env.SAMPLE_META_MAX_FONT, 7);
+const SAMPLE_DISCLAIMER_MAX_FONT = safeNum(process.env.SAMPLE_DISCLAIMER_MAX_FONT, 6.5);
+const SAMPLE_LOWER_MIN_FONT = safeNum(process.env.SAMPLE_LOWER_MIN_FONT, 3.75);
+const SAMPLE_FOOTER_MAX_FONT = safeNum(process.env.SAMPLE_FOOTER_MAX_FONT, 7);
+const SAMPLE_FOOTER_MIN_FONT = safeNum(process.env.SAMPLE_FOOTER_MIN_FONT, 5);
+const SAMPLE_FOOTER_RESERVE_PT = safeNum(process.env.SAMPLE_FOOTER_RESERVE_PT, 11);
+
 const DRAW_BORDER = String(process.env.DRAW_PAGE_BORDER || 'false').toLowerCase() === 'true';
 
-const USE_SUMATRA = String(process.env.USE_SUMATRA || 'false').toLowerCase() === 'true';
+const USE_SUMATRA = IS_WINDOWS && String(process.env.USE_SUMATRA || 'false').toLowerCase() === 'true';
 const SUMATRA_EXE = process.env.SUMATRA_EXE || 'SumatraPDF.exe';
 const SUMATRA_SETTINGS = process.env.SUMATRA_PRINT_SETTINGS || 'noscale,portrait';
+
+// macOS/Linux printing via CUPS command-line tools. On macOS this uses /usr/bin/lp.
+// Use `lpstat -p -d` to find printer names and `lpoptions -p <printer> -l` to inspect driver options.
+const LP_COMMAND = process.env.LP_COMMAND || 'lp';
+const LP_LABEL_OPTIONS = (process.env.LP_LABEL_OPTIONS || '').trim();
+const LP_SHEET_OPTIONS = (process.env.LP_SHEET_OPTIONS || '').trim();
+const LP_DEFAULT_OPTIONS = (process.env.LP_DEFAULT_OPTIONS || '').trim();
+const LP_DRY_RUN = String(process.env.LP_DRY_RUN || 'false').toLowerCase() === 'true';
+
+// Cross-platform dry run: render PDFs and mark jobs Printed, but skip physical printing.
+// Useful on macOS as a replacement for testing with a Windows PDF printer.
+// LP_DRY_RUN only logs the lp command path; PRINT_DRY_RUN skips all print backends.
+const PRINT_DRY_RUN = String(process.env.PRINT_DRY_RUN || 'false').toLowerCase() === 'true';
 
 const PRINT_DRIVER_DELAY = parseInt(process.env.PRINT_DRIVER_DELAY) || 1000;
 
@@ -372,7 +907,27 @@ async function fetchQueued(viewName) {
     return data.records || [];
   
   } else {
-    // "viewName" is ignored for NocoDB, kept for API compatibility with old code.
+    if (isNocoV3()) {
+      // NocoDB v3 external PostgreSQL API. Read from vc_print_queue or another read view
+      // that contains rendered label fields; write status updates back to print_queue.
+      const records = await fetchNocoV3Records(
+        PRINT_QUEUE_READ_TABLE,
+        PRINT_QUEUE_READ_VIEW_ID,
+        {},
+        false
+      );
+
+      return records
+        .map(normalizeNocoV3QueueRecord)
+        .filter(rec => String(toFlat(rec.fields?.print_status)).trim() === 'Queued')
+        .filter(rec => {
+          if (!PRINT_TARGET_VALUE) return true;
+          const v = toFlat(rec.fields?.[PRINT_TARGET_FIELD]);
+          return String(v || '').trim() === PRINT_TARGET_VALUE;
+        });
+    }
+
+    // "viewName" is ignored for NocoDB v2, kept for API compatibility with old code.
     // Build NocoDB where clause:
     // - always require print_status='Queued'
     // - optionally require print_target match (PRINT_TARGET_VALUE)
@@ -422,6 +977,12 @@ async function updateQueueRecord(id, fields) {
     
     await API.patch(PRINT_QUEUE_TABLE, payload);
   } else {
+    if (isNocoV3()) {
+      const url = nocoV3RecordsPath(PRINT_QUEUE_WRITE_TABLE);
+      await NC.patch(url, { id, fields });
+      return;
+    }
+
     const url = `/api/v2/tables/${encodeURIComponent(PRINT_QUEUE_TABLE)}/records/${encodeURIComponent(id)}`;
     await NC.patch(url, fields);
   }
@@ -457,8 +1018,14 @@ async function markStatus(id, status, errorMsg = null) {
 function detectItemCategory(rec) {
   const f = rec.fields || {};
   return (
-    pick(f, ['item_category_mat (from product_id)']) ||
-    pick(f, ['item_category_mat (from lot_id)']) ||
+    pick(f, [
+      'item_category_mat_from_product_id',
+      'item_category_mat (from product_id)',
+    ]) ||
+    pick(f, [
+      'item_category_mat_from_lot_id',
+      'item_category_mat (from lot_id)',
+    ]) ||
     pick(f, ['item_category_mat']) ||
     ''
   ).toLowerCase();
@@ -474,63 +1041,181 @@ function gatherFields(rec) {
   const itemCategory = detectItemCategory(rec);
 
   if (sourceKind === 'product') {
+    const labelType = toFlat(f.label_type || f.Label_Type || f['label_type']) || '';
+    const packaged = pick(f, [
+      'label_packaged_prod',
+      'label_packaged_prod_from_product_id',
+      'label_packaged_prod (from product_id)',
+    ]);
+    const useBy = pick(f, [
+      'label_useby_prod',
+      'label_useby_prod_from_product_id',
+      'label_useby_prod (from product_id)',
+    ]);
+
     return {
       kind: 'product',
+      labelType,
+      isPackageSampleLabel: String(labelType).trim().toLowerCase() === 'product_package_sample',
       itemCategory,
       isSyringeLabel: isSyringeCategory(itemCategory),
-      company: pick(f, ['label_company_prod (from product_id)']) || '',
-      title: pick(f, ['label_title_prod (from product_id)']),
-      subtitle: pick(f, ['label_subtitle_prod (from product_id)']),
-      footer: pick(f, ['label_footer_prod (from product_id)']),
+      company: pick(f, [
+        'label_company_prod',
+        'label_company_prod_from_product_id',
+        'label_company_prod (from product_id)',
+      ]) || '',
+      title: pick(f, [
+        'label_title_prod',
+        'label_title_prod_from_product_id',
+        'label_title_prod (from product_id)',
+      ]),
+      subtitle: pick(f, [
+        'label_subtitle_prod',
+        'label_subtitle_prod_from_product_id',
+        'label_subtitle_prod (from product_id)',
+      ]),
+      footer: pick(f, [
+        'label_footer_prod',
+        'label_footer_prod_from_product_id',
+        'label_footer_prod (from product_id)',
+      ]),
+      packaged,
+      useBy,
       qr: pick(f, [
+        'public_link_from_product_id',
         'public_link (from product_id)',
+        'public_link_from_lot_id',
         'public_link (from lot_id)',
         'public_link',
       ]),
-      // product-only blocks
-      companyAddr: pick(f, ['label_companyaddress_prod (from product_id)']),
-      companyInfo: pick(f, ['label_companyinfo_prod (from product_id)']),
-      disclaimer: pick(f, ['label_disclaimer_prod (from product_id)']),
-      cottage: pick(f, ['label_cottage_prod (from product_id)']),
+      companyAddr: pick(f, [
+        'label_companyaddress_prod',
+        'label_companyaddress_prod_from_product_id',
+        'label_companyaddress_prod (from product_id)',
+      ]),
+      companyInfo: pick(f, [
+        'label_companyinfo_prod',
+        'label_companyinfo_prod_from_product_id',
+        'label_companyinfo_prod (from product_id)',
+      ]),
+      disclaimer: pick(f, [
+        'label_disclaimer_prod',
+        'label_disclaimer_prod_from_product_id',
+        'label_disclaimer_prod (from product_id)',
+      ]),
+      cottage: pick(f, [
+        'label_cottage_prod',
+        'label_cottage_prod_from_product_id',
+        'label_cottage_prod (from product_id)',
+      ]),
       extras: [
-        pick(f, ['label_proc_prod (from product_id)']),
-        pick(f, ['label_inoc_prod (from product_id)']),
-        pick(f, ['label_spawned_prod (from product_id)']),
-        pick(f, ['label_packaged_prod (from product_id)']),
-        pick(f, ['label_useby_prod (from product_id)']),
+        pick(f, [
+          'label_proc_prod',
+          'label_proc_prod_from_product_id',
+          'label_proc_prod (from product_id)',
+        ]),
+        pick(f, [
+          'label_inoc_prod',
+          'label_inoc_prod_from_product_id',
+          'label_inoc_prod (from product_id)',
+        ]),
+        pick(f, [
+          'label_spawned_prod',
+          'label_spawned_prod_from_product_id',
+          'label_spawned_prod (from product_id)',
+        ]),
+        packaged,
+        useBy,
       ].filter(Boolean),
     };
   }
 
-  // default: lot
   return {
     kind: 'lot',
     itemCategory,
     isSyringeLabel: isSyringeCategory(itemCategory),
-    company: pick(f, ['label_company_lot (from lot_id)']) || '',
-    title: pick(f, ['label_title_lot (from lot_id)']),
-    subtitle: pick(f, ['label_subtitle_lot (from lot_id)']),
-    footer: pick(f, ['label_footer_lot (from lot_id)']),
+    company: pick(f, [
+      'label_company_lot',
+      'label_company_lot_from_lot_id',
+      'label_company_lot (from lot_id)',
+    ]) || '',
+    title: pick(f, [
+      'label_title_lot',
+      'label_title_lot_from_lot_id',
+      'label_title_lot (from lot_id)',
+    ]),
+    subtitle: pick(f, [
+      'label_subtitle_lot',
+      'label_subtitle_lot_from_lot_id',
+      'label_subtitle_lot (from lot_id)',
+    ]),
+    footer: pick(f, [
+      'label_footer_lot',
+      'label_footer_lot_from_lot_id',
+      'label_footer_lot (from lot_id)',
+    ]),
     qr: pick(f, [
+      'public_link_from_lot_id',
       'public_link (from lot_id)',
+      'public_link_from_product_id',
       'public_link (from product_id)',
       'public_link',
     ]),
     extras: [
-      pick(f, ['label_proc_line (from lot_id)']),
-      pick(f, ['label_inoc_line (from lot_id)']),
-      pick(f, ['label_spawned_line (from lot_id)']),
-      pick(f, ['label_useby_line (from lot_id)']),
+      pick(f, [
+        'label_proc_line',
+        'label_proc_line_from_lot_id',
+        'label_proc_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_inoc_line',
+        'label_inoc_line_from_lot_id',
+        'label_inoc_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_spawned_line',
+        'label_spawned_line_from_lot_id',
+        'label_spawned_line (from lot_id)',
+      ]),
+      pick(f, [
+        'label_useby_line',
+        'label_useby_line_from_lot_id',
+        'label_useby_line (from lot_id)',
+      ]),
       (() => {
-        const v = pick(f, ['label_graininputblocks_line (from lot_id)']);
+        const v = pick(f, [
+          'label_graininputblocks_line',
+          'label_graininputblocks_line_from_lot_id',
+          'label_graininputblocks_line (from lot_id)',
+        ]);
         return v ? `Grain: ${v}` : '';
       })(),
       (() => {
-        const v = pick(f, ['label_substrateinputblocks_line (from lot_id)']);
+        const v = pick(f, [
+          'label_substrateinputblocks_line',
+          'label_substrateinputblocks_line_from_lot_id',
+          'label_substrateinputblocks_line (from lot_id)',
+        ]);
         return v ? `Substrate: ${v}` : '';
       })(),
     ].filter(Boolean),
   };
+}
+
+function hasRenderableLabelText(label) {
+  if (!label || typeof label !== 'object') return false;
+  const values = [
+    label.title,
+    label.subtitle,
+    label.footer,
+    label.packaged,
+    label.useBy,
+    label.companyInfo,
+    label.disclaimer,
+    label.cottage,
+    ...(Array.isArray(label.extras) ? label.extras : []),
+  ];
+  return values.some(value => String(value || '').trim() !== '');
 }
 
 /* ---------- Logo selection (company → file) ---------- */
@@ -558,6 +1243,39 @@ function selectLogoPath(company) {
 }
 
 /* ---------- Text helpers (robust multi-line with auto-shrink) ---------- */
+
+function normalizeLabelText(text) {
+  if (text == null) return '';
+  return String(text)
+    // Airtable formulas sometimes contain literal backslash sequences instead of actual CR/LF.
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\n')
+    // Also normalize real CR/LF variants.
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Trim trailing spaces on each line, but preserve intentional blank lines.
+    .split('\n')
+    .map(line => line.replace(/[ \t]+$/g, ''))
+    .join('\n')
+    .trim();
+}
+
+function imageHeightForWidth(doc, imagePath, width) {
+  try {
+    const img = doc.openImage(imagePath);
+    if (img && img.width && img.height && width) {
+      return width * (img.height / img.width);
+    }
+  } catch {}
+  return width * 0.35;
+}
+
+function drawImageWithMeasuredHeight(doc, imagePath, x, y, width) {
+  const h = imageHeightForWidth(doc, imagePath, width);
+  doc.image(imagePath, x, y, { width });
+  return y + h;
+}
 
 // Measure how tall text would be at fontName+fontSize within width
 function measureTextHeight(doc, text, width, fontName, fontSize, opts = {}) {
@@ -595,8 +1313,8 @@ function drawBlock(
     maxHeight = null,
   } = {}
 ) {
-  if (!text) return y;
-  const txt = String(text);
+  const txt = normalizeLabelText(text);
+  if (!txt) return y;
 
   // choose size to fit
   let size = maxFont;
@@ -631,7 +1349,7 @@ async function renderSplitSyringeLabelPDF(outPath, rec) {
   const title = L.title || '';
   const subtitle = L.subtitle || '';
   const footer = L.footer || '';
-  const qrUrl = L.qr || 'https://example.com';
+  const qrUrl = L.qr || '';
   const extras = Array.isArray(L.extras) ? L.extras.filter(Boolean) : [];
 
   const doc = new PDFDocument({
@@ -785,7 +1503,7 @@ async function renderLabelPDF(outPath, rec) {
   const title = L.title || '';
   const subtitle = L.subtitle || '';
   const footer = L.footer || '';
-  const qrUrl = L.qr || 'https://example.com';
+  const qrUrl = L.qr || '';
 
   const doc = new PDFDocument({
     size: [PAGE_W, PAGE_H],
@@ -882,6 +1600,238 @@ async function renderLabelPDF(outPath, rec) {
       PAGE_W - M - QR_SIZE_PT,
       PAGE_H - M - QR_SIZE_PT,
       { width: QR_SIZE_PT, height: QR_SIZE_PT }
+    );
+  }
+
+  doc.end();
+
+  await new Promise((res, rej) => {
+    stream.on('finish', res);
+    stream.on('error', rej);
+  });
+}
+
+
+function drawLabelDivider(doc, y, x1 = M, x2 = PAGE_W - M) {
+  doc.save();
+  doc.lineWidth(0.4).moveTo(x1, y).lineTo(x2, y).stroke();
+  doc.restore();
+}
+
+/* ---------- Render one-piece product package sample label ---------- */
+async function renderProductPackageSampleLabelPDF(outPath, rec) {
+  const L = gatherFields(rec);
+  if (L.kind !== 'product') return;
+
+  const company = L.company || '';
+  const title = L.title || '';
+  const subtitle = normalizeLabelText(L.subtitle || '');
+  const footer = normalizeLabelText(L.footer || '');
+  const packaged = normalizeLabelText(L.packaged || '');
+  const useBy = normalizeLabelText(L.useBy || '');
+  const companyInfo = normalizeLabelText(L.companyInfo || '');
+  const companyAddr = normalizeLabelText(L.companyAddr || '');
+  const cottage = normalizeLabelText(L.cottage || '');
+  const disclaimer = normalizeLabelText(L.disclaimer || '');
+  const isRegulatedSample = Boolean(disclaimer);
+  const lowerBlocks = isRegulatedSample
+    ? [companyInfo, disclaimer].filter(Boolean)
+    : [companyInfo, companyAddr, cottage].filter(Boolean);
+  const qrUrl = L.qr || '';
+
+  const doc = new PDFDocument({
+    size: [PAGE_W, PAGE_H],
+    margins: { top: M, left: M, right: M, bottom: M },
+  });
+
+  const stream = fs.createWriteStream(outPath);
+  doc.pipe(stream);
+
+  if (DRAW_BORDER) {
+    doc.save();
+    doc.lineWidth(0.7).rect(0.5, 0.5, PAGE_W - 1, PAGE_H - 1).stroke();
+    doc.restore();
+  }
+
+  const contentWidth = PAGE_W - 2 * M;
+  const contentBottom = PAGE_H - M;
+  let y = M;
+
+  // Compact top row: logo/company on left, optional small QR on right.
+  const qrSize = SAMPLE_INCLUDE_QR && qrUrl ? Math.max(0, Math.min(SAMPLE_QR_SIZE_PT, 46)) : 0;
+  const qrGap = qrSize ? 5 : 0;
+  const qrX = PAGE_W - M - qrSize;
+  const topRightGuard = qrSize ? qrSize + qrGap : 0;
+  const textRight = PAGE_W - M - topRightGuard;
+  const textWidth = Math.max(80, textRight - M);
+
+  const { path: logoPath } = selectLogoPath(company);
+  if (logoPath) {
+    try {
+      const logoW = Math.min(SAMPLE_LOGO_W_PT, Math.max(42, textWidth * 0.42));
+      y = drawImageWithMeasuredHeight(doc, logoPath, M, y, logoW) + SAMPLE_LOGO_TEXT_GAP_PT;
+    } catch {
+      // ignore logo errors; company text still prints below
+    }
+  }
+
+  if (company) {
+    y = drawBlock(doc, company, M, y, textWidth, 'Helvetica-Bold', {
+      maxFont: 8.5,
+      minFont: 4,
+      lineGap: 0.5,
+      paragraphGap: 0,
+      maxHeight: 13,
+    });
+  }
+
+  if (qrSize) {
+    try {
+      const qrPng = await QRCode.toDataURL(qrUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 0,
+        scale: 4,
+      });
+      const qrBuf = Buffer.from(qrPng.split(',')[1], 'base64');
+      doc.image(qrBuf, qrX, M, { width: qrSize, height: qrSize });
+    } catch (e) {
+      log.warn('Sample label QR render failed', { err: e?.message || String(e) });
+    }
+  }
+
+  const metaLines = [packaged, useBy].filter(Boolean);
+  const metaText = metaLines.join('   |   ');
+
+  // Reserve a lower information band for either:
+  // - regulated samples: responsibility statement + regulated disclaimer, or
+  // - unregulated samples: company information + address + cottage-food statement.
+  // The blocks share one auto-shrinking band so the sample remains a single 4x2 label.
+  const lowerReserve = lowerBlocks.length ? Math.floor(PAGE_H * 0.54) : 0;
+  const footerReserve = footer ? SAMPLE_FOOTER_RESERVE_PT : 0;
+  const mainBottom = contentBottom - lowerReserve - footerReserve - 2;
+
+  if (title) {
+    y = drawBlock(doc, title, M, y, textWidth, 'Helvetica-Bold', {
+      maxFont: SAMPLE_TITLE_MAX_FONT,
+      minFont: 4.5,
+      lineGap: 0.25,
+      paragraphGap: 0,
+      maxHeight: Math.max(11, mainBottom - y),
+    });
+  }
+
+  // Always attempt to draw subtitle and package metadata. If the upper band is tight,
+  // drawBlock() will shrink them rather than silently omitting them.
+  if (subtitle) {
+    y = drawBlock(
+      doc,
+      subtitle,
+      M,
+      y,
+      textWidth,
+      'Helvetica-Bold',
+      {
+        maxFont: SAMPLE_SUBTITLE_MAX_FONT,
+        minFont: 3.8,
+        lineGap: 0.2,
+        paragraphGap: 0,
+        maxHeight: Math.max(7, mainBottom - y),
+      }
+    );
+  } else if (String(L.labelType || '').trim().toLowerCase() === 'product_package_sample') {
+    log.debug('Product_Package_Sample label has no subtitle field value', {
+      queue_id: rec.id,
+      available_label_subtitle_keys: Object.keys(rec.fields || {}).filter(k => k.toLowerCase().includes('subtitle')),
+    });
+  }
+
+  if (metaText) {
+    y = drawBlock(doc, metaText, M, y, contentWidth, 'Helvetica-Bold', {
+      maxFont: SAMPLE_META_MAX_FONT,
+      minFont: 3.8,
+      lineGap: 0.2,
+      paragraphGap: 0,
+      maxHeight: Math.max(7, mainBottom - y),
+    });
+  }
+
+  if (lowerBlocks.length) {
+    const lowerY = Math.max(y + 2, contentBottom - lowerReserve - footerReserve);
+    drawLabelDivider(doc, lowerY - 1);
+    const lowerHeight = Math.max(14, contentBottom - lowerY - footerReserve - 1);
+    let lowerCursor = lowerY + 2;
+    const blockGap = 1;
+
+    // Allocate lower-band height according to how much text each block actually needs.
+    // Equal slices made the long regulated disclaimer shrink dramatically while short
+    // gourmet blocks retained much larger type. Proportional allocation lets the
+    // disclaimer use the otherwise-empty space without making short blocks oversized.
+    const blockSpecs = lowerBlocks.map((text) => {
+      const isAddressBlock = !isRegulatedSample && text === companyAddr;
+      const isCottageBlock = !isRegulatedSample && text === cottage;
+      const isDisclaimerBlock = isRegulatedSample && text === disclaimer;
+      const fontName = isAddressBlock
+        ? 'Helvetica'
+        : (isRegulatedSample ? 'Helvetica-Bold' : 'Helvetica-Oblique');
+      const maxFont = isAddressBlock
+        ? SAMPLE_COMPANY_ADDRESS_MAX_FONT
+        : (isCottageBlock
+            ? SAMPLE_COTTAGE_MAX_FONT
+            : (isDisclaimerBlock ? SAMPLE_DISCLAIMER_MAX_FONT : SAMPLE_COMPANY_INFO_MAX_FONT));
+      const desiredHeight = measureTextHeight(doc, text, contentWidth, fontName, maxFont, {
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+      });
+      const minimumHeight = measureTextHeight(doc, text, contentWidth, fontName, SAMPLE_LOWER_MIN_FONT, {
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+      });
+      return { text, fontName, maxFont, desiredHeight, minimumHeight };
+    });
+
+    const usableHeight = Math.max(7, lowerHeight - blockGap * (blockSpecs.length - 1));
+    const desiredTotal = blockSpecs.reduce((sum, spec) => sum + spec.desiredHeight, 0);
+    const minimumTotal = blockSpecs.reduce((sum, spec) => sum + spec.minimumHeight, 0);
+
+    for (let i = 0; i < blockSpecs.length; i++) {
+      const spec = blockSpecs[i];
+      let allocatedHeight;
+
+      if (desiredTotal <= usableHeight) {
+        allocatedHeight = spec.desiredHeight;
+      } else if (minimumTotal >= usableHeight) {
+        allocatedHeight = usableHeight * (spec.minimumHeight / minimumTotal);
+      } else {
+        const flexibleHeight = usableHeight - minimumTotal;
+        const extraNeedTotal = Math.max(0.001, desiredTotal - minimumTotal);
+        const extraNeed = Math.max(0, spec.desiredHeight - spec.minimumHeight);
+        allocatedHeight = spec.minimumHeight + flexibleHeight * (extraNeed / extraNeedTotal);
+      }
+
+      lowerCursor = drawBlock(doc, spec.text, M, lowerCursor, contentWidth, spec.fontName, {
+        maxFont: spec.maxFont,
+        minFont: SAMPLE_LOWER_MIN_FONT,
+        lineGap: 0.2,
+        paragraphGap: 0.5,
+        maxHeight: Math.max(6, allocatedHeight),
+      });
+    }
+  }
+
+  if (footer) {
+    drawBlock(
+      doc,
+      footer,
+      M,
+      PAGE_H - M - SAMPLE_FOOTER_RESERVE_PT,
+      contentWidth,
+      'Helvetica-Bold',
+      {
+        maxFont: SAMPLE_FOOTER_MAX_FONT,
+        minFont: SAMPLE_FOOTER_MIN_FONT,
+        lineGap: 0.25,
+        maxHeight: SAMPLE_FOOTER_RESERVE_PT,
+      }
     );
   }
 
@@ -1010,7 +1960,41 @@ async function fetchRun(runId) {
       
   } else {
     
-    // NocoDB: accept either a numeric record Id or a steri_run_id string
+    // NocoDB v3: filter on the server. Fetching the entire computed view is
+    // both slow and unreliable when the API only returns the first page.
+    if (isNocoV3()) {
+      if (runId == null || runId === '') return null;
+      const target = String(toFlat(runId) || '').trim();
+      if (!target) return null;
+
+      const fieldsToTry = /^\d+$/.test(target)
+        ? ['nocopk', 'steri_run_id']
+        : ['steri_run_id', 'nocopk'];
+
+      for (const field of fieldsToTry) {
+        const rows = await fetchNocoV3Records(
+          STERILIZATION_RUNS_TABLE,
+          STERILIZATION_RUNS_VIEW_ID,
+          {
+            pageSize: 5,
+            where: nocoV3Where(field, 'eq', target),
+          },
+          false
+        );
+        const row = rows.find(r => nocoV3MatchesRecord(r, target, ['steri_run_id', 'nocopk']));
+        if (row) {
+          return {
+            id: nocoV3RecordId(row),
+            fields: nocoV3RecordFields(row),
+            _raw: row,
+          };
+        }
+      }
+
+      return null;
+    }
+
+    // NocoDB v2: accept either a numeric record Id or a steri_run_id string
     if (runId == null || runId === '') return null;
 
     const table = encodeURIComponent(STERILIZATION_RUNS_TABLE);
@@ -1052,7 +2036,7 @@ async function fetchRun(runId) {
   
 }
 
-async function fetchLotsForRun(runId) {
+async function fetchLotsForRun(runId, runPk = '') {
   
   if (DB_BACKEND === 'airtable') {
     // filter: lots whose link field steri_run_id contains this runId
@@ -1076,6 +2060,40 @@ async function fetchLotsForRun(runId) {
     return out;
       
   } else {
+    if (isNocoV3()) {
+      const matchTargets = normalizeRunMatchTargets([runPk, runId]);
+      if (!matchTargets.length) return [];
+
+      // vc_lots retains the PostgreSQL run FK in steri_run_id, while
+      // vc_sterilization_runs exposes both that numeric nocopk and the
+      // RUN-* business identifier. Query the numeric FK first, then retain
+      // the business identifier as a compatibility fallback.
+      for (const candidate of matchTargets) {
+        const rows = await fetchNocoV3Records(
+          LOTS_TABLE,
+          LOTS_VIEW_ID,
+          {
+            pageSize: 100,
+            where: nocoV3Where('steri_run_id', 'eq', candidate),
+          },
+          true
+        );
+
+        const matches = rows
+          .filter(row => lotMatchesRun(row, matchTargets))
+          .map(row => ({
+            id: nocoV3RecordId(row),
+            fields: nocoV3RecordFields(row),
+            _raw: row,
+          }))
+          .sort((a, b) => steriSheetLotFields(a).lotId.localeCompare(steriSheetLotFields(b).lotId));
+
+        if (matches.length) return matches;
+      }
+
+      return [];
+    }
+
     if (runId == null || runId === '') return [];
 
     const table = encodeURIComponent(LOTS_TABLE);
@@ -1141,19 +2159,17 @@ async function renderSterilizerSheetPDF(outPath, runRec, lotRecs) {
   const stream = fs.createWriteStream(outPath);
   doc.pipe(stream);
 
-  const f = (runRec && runRec.fields) || {};
-  const runNo = f.steri_run_id || runRec.id;
-  const processType =
-    (f.process_type || '').toString().trim() ||
-    inferProcessTypeFromRun(f);
-  const op = (f.operator || '').toString();
-  const start = fmtDt(f.start_time);
-  const end = fmtDt(f.end_time || f.override_end_time);
-  const plannedItem = toFlat(f.planned_item_id);
-  const plannedCount = f.planned_count ?? '';
-  const plannedSize = f.planned_unit_size ?? '';
-  const good = f.good_count ?? '';
-  const bad = f.destroyed_count ?? '';
+  const runFields = steriSheetRunFields(runRec);
+  const runNo = runFields.runNo;
+  const processType = runFields.processType;
+  const op = runFields.operator;
+  const start = fmtDt(runFields.start);
+  const end = fmtDt(runFields.end);
+  const plannedItem = runFields.plannedItem;
+  const plannedCount = runFields.plannedCount;
+  const plannedSize = runFields.plannedSize;
+  const good = runFields.goodCount;
+  const bad = runFields.destroyedCount;
 
   // Header
   doc.fontSize(18).font('Helvetica-Bold').text(
@@ -1214,14 +2230,13 @@ async function renderSterilizerSheetPDF(outPath, runRec, lotRecs) {
 
   // Rows
   for (const lot of lotRecs) {
-    const lf = lot.fields || {};
-    const lotId = lf.lot_id || lot.id;
-    const itemName = toFlat(lf.item_name) || '';
-    const recipeName = toFlat(lf.recipe_name) || '';
-    const unit =
-      lf.unit_size != null ? String(lf.unit_size) : '';
-    const status = toFlat(lf.status) || '';
-    const qrUrl = lf.public_link || '';
+    const lotFields = steriSheetLotFields(lot);
+    const lotId = lotFields.lotId;
+    const itemName = lotFields.itemName;
+    const recipeName = lotFields.recipeName;
+    const unit = lotFields.unit;
+    const status = lotFields.status;
+    const qrUrl = lotFields.qrUrl;
 
     // text columns
     x = x0;
@@ -1296,11 +2311,95 @@ function inferProcessTypeFromRun(f) {
 }
 
 /* ---------- Printing ---------- */
+function splitPrinterOptions(raw) {
+  const txt = String(raw || '').trim();
+  if (!txt) return [];
+
+  // Supports either comma-separated or shell-like whitespace-separated options.
+  // Examples:
+  //   LP_LABEL_OPTIONS=media=Custom.4x2in,fit-to-page,landscape
+  //   LP_LABEL_OPTIONS="media=Custom.4x2in fit-to-page landscape"
+  return txt
+    .split(/[\s,]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function orientationOption() {
+  return (ORIENT === 'landscape' || FORCE_LAND) ? 'landscape' : 'portrait';
+}
+
+function defaultLabelLpOptions() {
+  const opts = splitPrinterOptions(LP_DEFAULT_OPTIONS);
+
+  // Only add defaults when caller did not provide explicit label options.
+  // CUPS media names are driver-specific, so LP_LABEL_OPTIONS is preferred.
+  if (!LP_LABEL_OPTIONS) {
+    opts.push(orientationOption());
+    opts.push('fit-to-page');
+  }
+
+  return opts;
+}
+
+function labelLpOptions() {
+  const explicit = splitPrinterOptions(LP_LABEL_OPTIONS);
+  return explicit.length ? explicit : defaultLabelLpOptions();
+}
+
+function sheetLpOptions() {
+  const explicit = splitPrinterOptions(LP_SHEET_OPTIONS);
+  if (explicit.length) return explicit;
+  return [...splitPrinterOptions(LP_DEFAULT_OPTIONS), 'media=Letter', 'portrait', 'fit-to-page'];
+}
+
+async function printWithLpTo(printerName, pdfPath, options = []) {
+  if (!IS_POSIX_PRINT) return false;
+
+  const args = [];
+  if (printerName) args.push('-d', printerName);
+  for (const opt of options) {
+    if (opt) args.push('-o', opt);
+  }
+  args.push(pdfPath);
+
+  if (LP_DRY_RUN) {
+    log.info('LP dry-run print command', { command: LP_COMMAND, args });
+    return true;
+  }
+
+  return await new Promise((resolve) => {
+    const p = spawn(LP_COMMAND, args, {
+      cwd: __dirname,
+      windowsHide: true,
+    });
+
+    let out = '';
+    let err = '';
+    p.stdout.on('data', (d) => (out += d.toString()));
+    p.stderr.on('data', (d) => (err += d.toString()));
+    p.on('error', (e) => {
+      log.error('lp spawn failed', { command: LP_COMMAND, printer: printerName, pdfPath, err: e?.message || String(e) });
+      resolve(false);
+    });
+    p.on('close', (code) => {
+      if (code === 0) {
+        log.info('lp print submitted', { printer: printerName || '(default)', pdfPath, options, out: out.trim() });
+        resolve(true);
+      } else {
+        log.error('lp print failed', { command: LP_COMMAND, printer: printerName, pdfPath, options, err: err.trim() || `exit ${code}` });
+        resolve(false);
+      }
+    });
+  });
+}
+
 async function printWithSumatraTo(
   printerName,
   pdfPath,
   settings = SUMATRA_SETTINGS
 ) {
+  if (!IS_WINDOWS) return false;
   if (!USE_SUMATRA) return false;
   if (!printerName) return false;
 
@@ -1321,6 +2420,10 @@ async function printWithSumatraTo(
     });
     let err = '';
     p.stderr.on('data', (d) => (err += d.toString()));
+    p.on('error', (e) => {
+      log.error('Sumatra spawn failed', { printer: printerName, pdfPath, err: e?.message || String(e) });
+      resolve(false);
+    });
     p.on('close', (code) => {
       if (code === 0) resolve(true);
       else {
@@ -1331,9 +2434,51 @@ async function printWithSumatraTo(
   });
 }
 
+async function printWithPdfToPrinter(pdfPath) {
+  if (!IS_WINDOWS) return false;
+  if (!print) {
+    log.error('pdf-to-printer is not available', { platform: PLATFORM });
+    return false;
+  }
+
+  try {
+    const opts = { printer: PRINTER, silent: true, margin: 0 };
+
+    if (FORM_NAME) {
+      opts.paperSize = FORM_NAME;
+    } else {
+      opts.paperSize = {
+        width: LABEL_W_IN || 4,
+        height: LABEL_H_IN || 2,
+      };
+      opts.landscape =
+        ORIENT === 'landscape' || FORCE_LAND;
+    }
+
+    await print(pdfPath, opts);
+    return true;
+  } catch (e) {
+    log.error('pdf-to-printer failed', { printer: PRINTER, pdfPath, err: e?.message || String(e) });
+    return false;
+  }
+}
+
 async function printLabelPdfWithFallback(pdfPath) {
   return await withPrinterLock(PRINTER, async () => {
-    // Try Sumatra, then pdf-to-printer
+    if (PRINT_DRY_RUN) {
+      log.info('PRINT_DRY_RUN enabled; skipping physical label print', {
+        printer: PRINTER || '(default)',
+        pdfPath,
+        platform: PLATFORM,
+      });
+      return true;
+    }
+
+    if (IS_POSIX_PRINT) {
+      return await printWithLpTo(PRINTER, pdfPath, labelLpOptions());
+    }
+
+    // Windows path: try Sumatra, then pdf-to-printer.
     const ok = await printWithSumatraTo(
       PRINTER,
       pdfPath,
@@ -1341,26 +2486,7 @@ async function printLabelPdfWithFallback(pdfPath) {
     );
     if (ok) return true;
 
-    try {
-      const opts = { printer: PRINTER, silent: true, margin: 0 };
-
-      if (FORM_NAME) {
-        opts.paperSize = FORM_NAME;
-      } else {
-        opts.paperSize = {
-          width: LABEL_W_IN || 4,
-          height: LABEL_H_IN || 2,
-        };
-        opts.landscape =
-          ORIENT === 'landscape' || FORCE_LAND;
-      }
-
-      await print(pdfPath, opts);
-      return true;
-    } catch (e) {
-      log.error('pdf-to-printer failed', { printer: PRINTER, pdfPath, err: e?.message || String(e) });
-      return false;
-    }
+    return await printWithPdfToPrinter(pdfPath);
   });
 }
 
@@ -1374,6 +2500,19 @@ async function printSheetPdfNoFallback(
   if (!target) return false;
 
   return await withPrinterLock(target, async () => {
+    if (PRINT_DRY_RUN) {
+      log.info('PRINT_DRY_RUN enabled; skipping physical sheet print', {
+        printer: target,
+        pdfPath,
+        platform: PLATFORM,
+      });
+      return true;
+    }
+
+    if (IS_POSIX_PRINT) {
+      return await printWithLpTo(target, pdfPath, sheetLpOptions());
+    }
+
     const ok = await printWithSumatraTo(
       target,
       pdfPath,
@@ -1406,28 +2545,65 @@ async function processRecord(rec) {
 
     // --- Sterilizer sheet ---
     if (kind === 'steri_sheet') {
-      const runLink =
+      const runLinkRaw =
         f.run_id && Array.isArray(f.run_id) && f.run_id[0]
           ? f.run_id[0]
-          : null;
-      if (!runLink)
+          : (
+              linkedNocoValue(f.sterilization_runs, ['steri_run_id', 'nocopk']) ||
+              linkedNocoValue(f.run_id, ['steri_run_id', 'nocopk']) ||
+              f.steri_run_id ||
+              f.sterilization_run_id ||
+              null
+            );
+      const runLink = String(toFlat(runLinkRaw) || '').trim();
+      if (!runLink) {
         throw new Error(
-          'steri_sheet job missing run_id link'
+          'steri_sheet job missing run_id/sterilization_runs link'
         );
+      }
 
+      // Claim the job before any NocoDB lookups so another daemon cannot
+      // pick the same sheet while its run/lot data is being loaded.
+      await markStatus(id, 'Printing', null);
+
+      const loadStartedAt = Date.now();
+      status(id, 'loading_sheet_run', { run_id: runLink });
       const run = await fetchRun(runLink);
       if (!run) {
         throw new Error(`steri_sheet run not found for run_id="${runLink}"`);
-      }      
-      const r = run.fields || {};
-      const lots = await fetchLotsForRun(r.steri_run_id);
+      }
 
-      const outName = `steri-sheet_${
-        (run.fields && run.fields.steri_run_id) || run.id
-      }_${timestamp}.pdf`;
+      const runFields = steriSheetRunFields(run);
+      const businessRunId = runFields.runNo || runLink;
+      status(id, 'loading_sheet_lots', { run_id: businessRunId });
+      const lots = await fetchLotsForRun(businessRunId, run.id);
+      const expectedGood = safeNum(runFields.goodCount, 0);
+
+      status(id, 'sheet_data_loaded', {
+        run_id: businessRunId,
+        run_pk: run.id,
+        lot_count: lots.length,
+        expected_good: expectedGood,
+        elapsed_ms: Date.now() - loadStartedAt,
+      });
+
+      if (!lots.length && expectedGood > 0) {
+        throw new Error(
+          `Sterilizer sheet run ${businessRunId} reports ${expectedGood} good lot(s), ` +
+          'but no linked lots were returned. Refusing to print a blank sheet.'
+        );
+      }
+      if (lots.length && expectedGood !== lots.length) {
+        log.warn('Sterilizer sheet lot count differs from good_count', {
+          run_id: businessRunId,
+          lot_count: lots.length,
+          expected_good: expectedGood,
+        });
+      }
+
+      const outName = `steri-sheet_${businessRunId}_${timestamp}.pdf`;
       const outPath = path.join(archiveDir, outName);
 
-      await markStatus(id, 'Printing', null);
       status(id, 'rendering_sheet', { pdf: outPath });
       await renderSterilizerSheetPDF(outPath, run, lots);
 
@@ -1463,10 +2639,21 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       `label_${timestamp}_${id}.pdf`
     );
     status(id, 'rendering_label', { pdf: out });
-    await markStatus(id, 'Printing', null);
     const gathered = gatherFields(rec);
+    if (!hasRenderableLabelText(gathered)) {
+      const availableFields = Object.keys(f).sort().join(', ');
+      throw new Error(
+        'No renderable label text was returned for this print job. ' +
+        'Verify that PRINT_QUEUE_READ_TABLE resolves to vc_print_queue and that the daemon accepts ' +
+        'the *_from_lot_id / *_from_product_id computed-view field names. ' +
+        `Available fields: ${availableFields || '(none)'}`
+      );
+    }
+    await markStatus(id, 'Printing', null);
     if (gathered.isSyringeLabel) {
       await renderSplitSyringeLabelPDF(out, rec);
+    } else if (gathered.isPackageSampleLabel) {
+      await renderProductPackageSampleLabelPDF(out, rec);
     } else {
       await renderLabelPDF(out, rec);
     }
@@ -1486,6 +2673,7 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
     if (
       gathered.kind === 'product' &&
       !gathered.isSyringeLabel &&
+      !gathered.isPackageSampleLabel &&
       String(gathered.companyInfo || '').trim()
     ) {
       // small driver delay between two prints, just like between jobs
@@ -1565,38 +2753,75 @@ async function cycle() {
   }
 }
 
-  log.info(`MushroomProcess print daemon starting`, { backend: DB_BACKEND, instance: INSTANCE_ID });
-  log.info(
-  `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
-    PRINTER || '(default)'
-  } | Sheet printer: ${
-    STERI_SHEET_PRINTER || '(set per job or env)'
-  }`
-);
-  log.info(
-    `Logs: ${LOG_DIR}`
-);
-  log.info(
-  `FORCE_PAGE_SIZE=${FORCE_PAGE} | LOT PAGE ${PAGE_W}x${PAGE_H} pt | FORM=${
-    FORM_NAME || '(none)'
-  } | ORIENT=${ORIENT}${
-    FORCE_LAND ? ' (forced landscape)' : ''
-  }`
-);
-log.info(
-  `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Sumatra=${
-    USE_SUMATRA ? 'on' : 'off'
-  }`
-);
+async function startDaemon() {
+  log.info('MushroomProcess print daemon starting', { backend: DB_BACKEND, instance: INSTANCE_ID });
 
+  await resolveNocoV3Configuration();
 
+  if (DB_BACKEND !== 'airtable') {
+    log.info('NocoDB config', {
+      api_version: NOCODB_API_VERSION,
+      base_id: NOCODB_BASE_ID || '(v2/not set)',
+      auto_resolve_ids: NOCODB_AUTO_RESOLVE_IDS,
+      queue_read_table: PRINT_QUEUE_READ_TABLE,
+      queue_read_view: PRINT_QUEUE_READ_VIEW_ID || '(none)',
+      queue_write_table: PRINT_QUEUE_WRITE_TABLE,
+      queue_write_id_field: PRINT_QUEUE_WRITE_ID_FIELD,
+      lots_table: ENABLE_STERI_SHEETS ? LOTS_TABLE : '(sterilizer sheets disabled)',
+      lots_view: LOTS_VIEW_ID || '(none)',
+      sterilization_runs_table: ENABLE_STERI_SHEETS ? STERILIZATION_RUNS_TABLE : '(sterilizer sheets disabled)',
+      sterilization_runs_view: STERILIZATION_RUNS_VIEW_ID || '(none)',
+    });
+  }
 
-// Optional heartbeat so you can tell the daemon is alive even when the queue is empty.
-const HEARTBEAT_MS = safeNum(process.env.HEARTBEAT_MS, 60000);
-if (HEARTBEAT_MS > 0) {
-  setInterval(() => {
-    log.debug('Heartbeat', { backend: DB_BACKEND, poll_ms: POLL_MS });
-  }, HEARTBEAT_MS).unref?.();
+  log.info(
+    `Queue: ${PRINT_TARGET_FIELD} = ${PRINT_TARGET_VALUE} | Poll: ${POLL_MS}ms | Label printer: ${
+      PRINTER || '(default)'
+    } | Sheet printer: ${
+      STERI_SHEET_PRINTER || '(set per job or env)'
+    }`
+  );
+  log.info(`Logs: ${LOG_DIR}`);
+  log.info(
+    `FORCE_PAGE_SIZE=${FORCE_PAGE} | LOT PAGE ${PAGE_W}x${PAGE_H} pt | FORM=${
+      FORM_NAME || '(none)'
+    } | ORIENT=${ORIENT}${FORCE_LAND ? ' (forced landscape)' : ''}`
+  );
+  log.info(
+    `Margins=${M}pt | Logo=${LOGO_W_PT}pt | QR=${QR_SIZE_PT}pt | Border=${DRAW_BORDER} | Platform=${PLATFORM} | Sumatra=${
+      USE_SUMATRA ? 'on' : 'off'
+    } | lp=${IS_POSIX_PRINT ? LP_COMMAND : 'n/a'} | PRINT_DRY_RUN=${PRINT_DRY_RUN} | LP_DRY_RUN=${LP_DRY_RUN}`
+  );
+
+  if (CHECK_CONFIG_ONLY) {
+    log.info('Configuration check passed; exiting without polling or printing.');
+    return;
+  }
+
+  // Optional heartbeat so you can tell the daemon is alive even when the queue is empty.
+  const HEARTBEAT_MS = safeNum(process.env.HEARTBEAT_MS, 60000);
+  if (HEARTBEAT_MS > 0) {
+    setInterval(() => {
+      log.debug('Heartbeat', { backend: DB_BACKEND, poll_ms: POLL_MS });
+    }, HEARTBEAT_MS).unref?.();
+  }
+
+  cycle();
 }
 
-cycle();
+if (require.main === module) {
+  startDaemon().catch(error => {
+    log.error('Print daemon startup failed', { err: error?.message || String(error) });
+    process.exitCode = 1;
+  });
+}
+
+module.exports = {
+  detectItemCategory,
+  gatherFields,
+  hasRenderableLabelText,
+  nocoV3Where,
+  lotMatchesRun,
+  steriSheetRunFields,
+  steriSheetLotFields,
+};

@@ -12,13 +12,13 @@
           ]
         }
       },
-      "id": "68f1d028-fab1-44f2-b06a-43745d157c08",
+      "id": "2fcfab62-c64f-4150-a60a-325506004abc",
       "name": "Schedule - Poll Clover Payments",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -2496,
-        272
+        -336,
+        384
       ]
     },
     {
@@ -49,13 +49,13 @@
         },
         "options": {}
       },
-      "id": "5e0fb11e-5b80-4923-a17d-1dd50881d2a8",
+      "id": "81cf6bdd-57ef-45e8-8c8c-428b8ea2df86",
       "name": "HTTP - List Pending Airtable Orders",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -2256,
-        272
+        464,
+        368
       ],
       "credentials": {
         "airtableTokenApi": {
@@ -68,26 +68,27 @@
       "parameters": {
         "jsCode": "\nconst records = Array.isArray($json.records) ? $json.records : [];\nreturn records.map(r => ({\n  json: {\n    airtable_record_id: r.id,\n    ...r.fields\n  }\n}));\n"
       },
-      "id": "61e55ae9-a956-4dee-ad0c-c842cb81783f",
+      "id": "cab54eac-ed27-4a1d-a470-67bf9cf901dc",
       "name": "Code - Expand Airtable Records",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2016,
-        272
+        704,
+        368
       ]
     },
     {
       "parameters": {
-        "jsCode": "\nfunction toMillis(value) {\n  if (!value) return null;\n  const t = new Date(value).getTime();\n  return Number.isFinite(t) ? t : null;\n}\n\nconst matchWindowMinutes = Number($env.CLOVER_MATCH_WINDOW_MINUTES || 15);\nconst graceMinutes = Number($env.CLOVER_PENDING_GRACE_MINUTES || 10);\nconst orderDateMs = toMillis($json.order_date);\nconst now = Date.now();\n\nif (!orderDateMs) {\n  return [{\n    json: {\n      ...$json,\n      skip_reason: 'missing_order_date',\n      shouldLookup: false\n    }\n  }];\n}\n\nconst amount = Number($json.order_total || 0);\nconst amountCents = Math.round(amount * 100);\nconst windowMs = matchWindowMinutes * 60 * 1000;\nconst graceMs = graceMinutes * 60 * 1000;\n\nconst start = orderDateMs - windowMs;\nconst end = orderDateMs + windowMs;\nconst ageMs = now - orderDateMs;\n\nreturn [{\n  json: {\n    ...$json,\n    shouldLookup: amountCents > 0,\n    order_date_ms: orderDateMs,\n    order_total_num: amount,\n    order_total_cents: amountCents,\n    lookup_start_ms: start,\n    lookup_end_ms: end,\n    order_age_ms: ageMs,\n    older_than_grace: ageMs > graceMs,\n    clover_filter: `createdTime>=${start} AND createdTime<=${end}`\n  }\n}];\n"
+        "mode": "runOnceForEachItem",
+        "jsCode": "function toMillis(value) {\n  if (!value) return null;\n  const t = new Date(value).getTime();\n  return Number.isFinite(t) ? t : null;\n}\n\nconst matchWindowMinutes = Number($env.CLOVER_MATCH_WINDOW_MINUTES || 15);\nconst graceMinutes = Number($env.CLOVER_PENDING_GRACE_MINUTES || 10);\nconst orderDateMs = toMillis($json.order_date);\nconst now = Date.now();\n\nif (!orderDateMs) {\n  return {\n    json: {\n      ...$json,\n      skip_reason: 'missing_order_date',\n      shouldLookup: false\n    }\n  };\n}\n\nconst amount = Number($json.order_total || 0);\nconst amountCents = Math.round(amount * 100);\nconst windowMs = matchWindowMinutes * 60 * 1000;\nconst graceMs = graceMinutes * 60 * 1000;\n\nconst start = orderDateMs - windowMs;\nconst end = orderDateMs + windowMs;\nconst ageMs = now - orderDateMs;\n\nreturn {\n  json: {\n    ...$json,\n    shouldLookup: amountCents > 0,\n    order_date_ms: orderDateMs,\n    order_total_num: amount,\n    order_total_cents: amountCents,\n    lookup_start_ms: start,\n    lookup_end_ms: end,\n    order_age_ms: ageMs,\n    older_than_grace: ageMs > graceMs,\n    clover_filter_start: `createdTime>=${start}`,\n    clover_filter_end: `createdTime<=${end}`,\n    reconciliation_debug: {\n      airtable_record_id: $json.airtable_record_id,\n      ecwid_order_id: $json.ecwid_order_id,\n      order_number: $json.order_number,\n      order_date: $json.order_date,\n      order_total_cents: amountCents,\n      lookup_start_ms: start,\n      lookup_end_ms: end\n    }\n  }\n};"
       },
-      "id": "c0c7c64b-49e4-4e45-a42b-478dc24291c0",
+      "id": "6abf2e93-f8ad-47d6-a48e-d21a84e677ce",
       "name": "Code - Prepare Clover Lookup",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1776,
-        272
+        944,
+        368
       ]
     },
     {
@@ -115,13 +116,13 @@
         },
         "options": {}
       },
-      "id": "cce7b30a-4e58-4611-8a00-28b33059844b",
+      "id": "678923df-44c3-44cd-aeb3-6bd5da51b6bd",
       "name": "IF - Should Lookup Clover?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -1536,
-        272
+        1184,
+        368
       ]
     },
     {
@@ -133,6 +134,14 @@
             {
               "name": "limit",
               "value": "100"
+            },
+            {
+              "name": "filter",
+              "value": "={{`createdTime>=${$json.lookup_start_ms}`}}"
+            },
+            {
+              "name": "filter",
+              "value": "={{`createdTime<=${$json.lookup_end_ms}`}}"
             }
           ]
         },
@@ -151,63 +160,66 @@
         },
         "options": {}
       },
-      "id": "94e922cd-f1ef-4106-a4d0-dcb09684f4d1",
+      "id": "a1c4fd28-9d4b-4b8b-84fa-a1c590a57b6b",
       "name": "HTTP - Get Clover Payments",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1296,
-        144
+        1424,
+        240
       ]
     },
     {
       "parameters": {
-        "jsCode": "const row = $('IF - Should Lookup Clover?').item.json;\nconst paymentsResponse = $json || {};\nconst payments = Array.isArray(paymentsResponse.elements) ? paymentsResponse.elements : [];\n\nconst amountCents = Number(row.order_total_cents || 0);\nconst startMs = Number(row.lookup_start_ms || 0);\nconst endMs = Number(row.lookup_end_ms || 0);\nconst orderDateMs = Number(row.order_date_ms || 0);\nconst olderThanGrace = Boolean(row.older_than_grace);\n\nconst candidates = payments\n  .filter((p) => {\n    const createdMs = Number(p.createdTime || 0);\n    const paymentAmount = Number(p.amount || 0);\n    const result = String(p.result || '');\n\n    return (\n      result === 'SUCCESS' &&\n      paymentAmount === amountCents &&\n      createdMs >= startMs &&\n      createdMs <= endMs\n    );\n  })\n  .map((p) => {\n    const createdMs = Number(p.createdTime || 0);\n    return {\n      ...p,\n      _timeDistanceMs: Math.abs(createdMs - orderDateMs),\n    };\n  })\n  .sort((a, b) => a._timeDistanceMs - b._timeDistanceMs);\n\nlet match_action = 'pending';\nlet clover_candidate_count = candidates.length;\nlet clover_selected_payment_id = null;\nlet clover_selected_order_id = null;\nlet clover_selected_amount_cents = null;\nlet clover_selected_created_ms = null;\nlet clover_selected_note = null;\nlet clover_selected_tender_id = null;\nlet clover_match_confidence_num = null;\nlet reconciliation_note = 'No Clover payment found yet; keeping order pending.';\n\nif (candidates.length === 1) {\n  const p = candidates[0];\n  match_action = 'reconciled';\n  clover_selected_payment_id = p.id || null;\n  clover_selected_order_id = p.order?.id || null;\n  clover_selected_amount_cents = Number(p.amount || 0);\n  clover_selected_created_ms = Number(p.createdTime || 0);\n  clover_selected_note = p.note || p.externalReferenceId || null;\n  clover_selected_tender_id = p.tender?.id || null;\n  clover_match_confidence_num = 1;\n  reconciliation_note = 'Matched single Clover payment by exact amount and closest createdTime within polling window.';\n} else if (candidates.length > 1) {\n  const best = candidates[0];\n  const second = candidates[1];\n  const bestGap = Number(best._timeDistanceMs || 0);\n  const secondGap = Number(second._timeDistanceMs || 0);\n\n  if (secondGap - bestGap >= 60000) {\n    match_action = 'reconciled';\n    clover_selected_payment_id = best.id || null;\n    clover_selected_order_id = best.order?.id || null;\n    clover_selected_amount_cents = Number(best.amount || 0);\n    clover_selected_created_ms = Number(best.createdTime || 0);\n    clover_selected_note = best.note || best.externalReferenceId || null;\n    clover_selected_tender_id = best.tender?.id || null;\n    clover_match_confidence_num = 0.8;\n    reconciliation_note = 'Matched Clover payment by exact amount and closest createdTime within polling window; nearest candidate was clearly better than the next.';\n  } else {\n    match_action = 'needs_review';\n    reconciliation_note = 'Multiple Clover payments matched exact amount within polling window; no clear winner.';\n  } \n/* Don't invalidate just yet\n} else if (olderThanGrace) {\n  match_action = 'not_found';\n  reconciliation_note = 'No Clover payment found in polling window after grace period.';\n}\n*/   \n} else {\n  match_action = 'pending';\n  reconciliation_note = olderThanGrace\n    ? 'No Clover payment found yet; order remains pending for future polling.'\n    : 'No Clover payment found yet; keeping order pending.';\n}\n\n\nreturn [{\n  json: {\n    ...row,\n    match_action,\n    clover_candidate_count,\n    clover_selected_payment_id,\n    clover_selected_order_id,\n    clover_selected_amount_cents,\n    clover_selected_created_ms,\n    clover_selected_note,\n    clover_selected_tender_id,\n    clover_match_confidence_num,\n    reconciliation_note,\n  },\n}];"
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $('Code - Prepare Clover Lookup').item.json;\nconst paymentsResponse = $json || {};\nconst payments = Array.isArray(paymentsResponse.elements) ? paymentsResponse.elements : [];\n\nconst data = $getWorkflowStaticData('global');\nconst alreadyUsedIds = new Set(Array.isArray(data.cloverReconciliationUsedPaymentIds) ? data.cloverReconciliationUsedPaymentIds : []);\nconst reservedIds = new Set(Array.isArray(data.cloverReconciliationReservedPaymentIds) ? data.cloverReconciliationReservedPaymentIds : []);\nconst tenderMap = data.cloverReconciliationTenderMap || {};\n\nconst amountCents = Number(row.order_total_cents || 0);\nconst startMs = Number(row.lookup_start_ms || 0);\nconst endMs = Number(row.lookup_end_ms || 0);\nconst orderDateMs = Number(row.order_date_ms || 0);\nconst olderThanGrace = Boolean(row.older_than_grace);\nconst clearWinnerGapMs = Number($env.CLOVER_CLEAR_WINNER_GAP_MS || 60000);\nconst allowExternalAuto = String($env.CLOVER_AUTO_RECONCILE_EXTERNAL_PAYMENTS || '').toLowerCase() === 'true';\nconst assumeUnknownTenderCard = String($env.CLOVER_ASSUME_UNKNOWN_TENDERS_CARD || 'true').toLowerCase() !== 'false';\nconst configuredCardTenderIds = new Set(String($env.CLOVER_CARD_TENDER_IDS || '').split(',').map(s => s.trim()).filter(Boolean));\nconst configuredNonCardTenderIds = new Set(String($env.CLOVER_NON_CARD_TENDER_IDS || '').split(',').map(s => s.trim()).filter(Boolean));\n\nfunction tenderInfo(p) {\n  const id = String(p?.tender?.id || p?.tender || '').trim();\n  const mapped = id && tenderMap[id] ? tenderMap[id] : {};\n  const label = String(\n    mapped.label ||\n    p?.tender?.label ||\n    p?.tender?.name ||\n    p?.tender?.displayName ||\n    ''\n  ).trim();\n  return {\n    id: id || null,\n    label: label || null,\n    mapped: Boolean(mapped && (mapped.label || mapped.id))\n  };\n}\n\nfunction isKnownNonCardTender(p) {\n  const info = tenderInfo(p);\n  const id = info.id || '';\n  const label = String(info.label || '').toLowerCase();\n  if (id && configuredNonCardTenderIds.has(id)) return true;\n  if (!label) return false;\n  return (\n    label.includes('external') ||\n    label.includes('cash') ||\n    label.includes('check') ||\n    label.includes('gift') ||\n    label.includes('manual') ||\n    label.includes('other')\n  );\n}\n\nfunction isCardTender(p) {\n  const info = tenderInfo(p);\n  const id = info.id || '';\n  const label = String(info.label || '').toLowerCase();\n\n  if (id && configuredCardTenderIds.has(id)) return true;\n  if (isKnownNonCardTender(p)) return false;\n\n  if (label) {\n    return label.includes('credit') || label.includes('debit') || label.includes('card');\n  }\n\n  // Clover payment objects often contain only tender.id unless tenders are fetched separately.\n  // If we still cannot resolve the id, treat it as card by default so card sales do not all fall into needs_review.\n  // Set CLOVER_ASSUME_UNKNOWN_TENDERS_CARD=false to make unknown tenders require review instead.\n  return assumeUnknownTenderCard;\n}\n\nfunction selectedFields(p) {\n  const info = tenderInfo(p);\n  return {\n    id: p?.id || null,\n    order_id: p?.order?.id || null,\n    amount_cents: p?.amount != null ? Number(p.amount) : null,\n    created_ms: p?.createdTime != null ? Number(p.createdTime) : null,\n    note: p?.note || p?.externalReferenceId || null,\n    tender_id: info.id,\n    tender_label: info.label || info.id || null,\n  };\n}\n\nconst amountTimeMatches = payments\n  .filter((p) => {\n    const createdMs = Number(p.createdTime || 0);\n    const paymentAmount = Number(p.amount || 0);\n    const result = String(p.result || '');\n    const id = String(p.id || '');\n\n    return (\n      id &&\n      result === 'SUCCESS' &&\n      paymentAmount === amountCents &&\n      createdMs >= startMs &&\n      createdMs <= endMs\n    );\n  })\n  .map((p) => {\n    const createdMs = Number(p.createdTime || 0);\n    const info = tenderInfo(p);\n    const nonCard = isKnownNonCardTender(p);\n    const card = isCardTender(p);\n    return {\n      ...p,\n      _timeDistanceMs: Math.abs(createdMs - orderDateMs),\n      _alreadyUsed: alreadyUsedIds.has(String(p.id || '')),\n      _reservedThisRun: reservedIds.has(String(p.id || '')),\n      _tenderId: info.id,\n      _tenderLabel: info.label || info.id || '',\n      _tenderMapped: info.mapped,\n      _isKnownNonCardTender: nonCard,\n      _isCardTender: card,\n    };\n  })\n  .sort((a, b) => a._timeDistanceMs - b._timeDistanceMs);\n\nconst availableMatches = amountTimeMatches.filter(p => !p._alreadyUsed && !p._reservedThisRun);\nconst cardCandidates = availableMatches.filter(p => p._isCardTender || allowExternalAuto);\nconst nonCardCandidates = availableMatches.filter(p => !p._isCardTender && !allowExternalAuto);\n\nlet candidates = cardCandidates;\nlet match_action = 'pending';\nlet clover_candidate_count = candidates.length;\nlet clover_total_candidate_count = amountTimeMatches.length;\nlet clover_available_candidate_count = availableMatches.length;\nlet clover_non_card_candidate_count = nonCardCandidates.length;\nlet clover_selected_payment_id = null;\nlet clover_selected_order_id = null;\nlet clover_selected_amount_cents = null;\nlet clover_selected_created_ms = null;\nlet clover_selected_note = null;\nlet clover_selected_tender_id = null;\nlet clover_selected_tender_label = null;\nlet clover_match_confidence_num = null;\nlet reconciliation_note = 'No Clover payment found yet; keeping order pending.';\n\nfunction choosePayment(p, action, confidence, note) {\n  const s = selectedFields(p);\n  match_action = action;\n  clover_selected_payment_id = s.id;\n  clover_selected_order_id = s.order_id;\n  clover_selected_amount_cents = s.amount_cents;\n  clover_selected_created_ms = s.created_ms;\n  clover_selected_note = s.note;\n  clover_selected_tender_id = s.tender_id;\n  clover_selected_tender_label = s.tender_label;\n  clover_match_confidence_num = confidence;\n  reconciliation_note = note;\n\n  if (s.id && (action === 'reconciled' || action === 'needs_review')) {\n    reservedIds.add(String(s.id));\n    data.cloverReconciliationReservedPaymentIds = [...reservedIds];\n  }\n}\n\nif (candidates.length === 1) {\n  choosePayment(\n    candidates[0],\n    'reconciled',\n    1,\n    'Matched single available card/allowed Clover payment by exact amount and closest createdTime within polling window.'\n  );\n} else if (candidates.length > 1) {\n  const best = candidates[0];\n  const second = candidates[1];\n  const bestGap = Number(best._timeDistanceMs || 0);\n  const secondGap = Number(second._timeDistanceMs || 0);\n\n  if (secondGap - bestGap >= clearWinnerGapMs) {\n    choosePayment(\n      best,\n      'reconciled',\n      0.8,\n      'Matched available card/allowed Clover payment by exact amount and closest createdTime within polling window; nearest candidate was clearly better than the next.'\n    );\n  } else {\n    match_action = 'needs_review';\n    reconciliation_note = 'Multiple available card/allowed Clover payments matched exact amount within polling window; no clear winner.';\n  }\n} else if (nonCardCandidates.length === 1) {\n  choosePayment(\n    nonCardCandidates[0],\n    'needs_review',\n    0.5,\n    `Matched exact amount/time Clover payment, but tender is non-card (${nonCardCandidates[0]._tenderLabel || 'unknown'}); manual review required.`\n  );\n} else if (nonCardCandidates.length > 1) {\n  match_action = 'needs_review';\n  reconciliation_note = 'Only non-card/external Clover payments matched exact amount within polling window, and more than one candidate exists; manual review required.';\n} else if (amountTimeMatches.length > 0 && availableMatches.length === 0) {\n  match_action = 'needs_review';\n  reconciliation_note = 'Clover payments matched amount/time, but all candidates were already used by prior reconciliations or reserved earlier in this workflow run; manual review required.';\n} else {\n  match_action = 'pending';\n  reconciliation_note = olderThanGrace\n    ? 'No Clover payment found yet; order remains pending for future polling.'\n    : 'No Clover payment found yet; keeping order pending.';\n}\n\nreturn {\n  json: {\n    ...row,\n    match_action,\n    clover_candidate_count,\n    clover_total_candidate_count,\n    clover_available_candidate_count,\n    clover_non_card_candidate_count,\n    clover_selected_payment_id,\n    clover_selected_order_id,\n    clover_selected_amount_cents,\n    clover_selected_created_ms,\n    clover_selected_note,\n    clover_selected_tender_id,\n    clover_selected_tender_label,\n    clover_match_confidence_num,\n    reconciliation_note,\n    reconciliation_debug: {\n      ...(row.reconciliation_debug || {}),\n      tender_map_count: Object.keys(tenderMap).length,\n      used_payment_count: alreadyUsedIds.size,\n      reserved_payment_count: reservedIds.size,\n      total_amount_time_matches: amountTimeMatches.length,\n      available_matches: availableMatches.length,\n      card_candidates: cardCandidates.length,\n      non_card_candidates: nonCardCandidates.length,\n      candidate_ids: amountTimeMatches.map(p => ({\n        id: p.id,\n        amount: p.amount,\n        createdTime: p.createdTime,\n        tender_id: p._tenderId,\n        tender: p._tenderLabel,\n        tenderMapped: p._tenderMapped,\n        isCardTender: p._isCardTender,\n        isKnownNonCardTender: p._isKnownNonCardTender,\n        alreadyUsed: p._alreadyUsed,\n        reservedThisRun: p._reservedThisRun,\n        timeDistanceMs: p._timeDistanceMs,\n      }))\n    }\n  },\n};"
       },
-      "id": "a03a1004-bc49-421e-b81f-22baddff1fe5",
+      "id": "00783723-9883-41ee-8438-8f4603958cb9",
       "name": "Code - Match Clover Payment",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1056,
-        144
+        1664,
+        240
       ]
     },
     {
       "parameters": {
-        "jsCode": "\nconst status = $json.skip_reason ? 'needs_review' : 'pending';\nconst note = $json.skip_reason\n  ? `Skipped Clover lookup: ${$json.skip_reason}`\n  : 'Skipped Clover lookup.';\n\nreturn [{\n  json: {\n    ...$json,\n    match_action: status,\n    reconciliation_note: note,\n    clover_candidate_count: 0,\n    clover_selected_payment_id: null,\n    clover_selected_order_id: null,\n    clover_selected_amount_cents: null,\n    clover_selected_created_ms: null,\n    clover_selected_note: null,\n    clover_selected_tender_id: null,\n    clover_match_confidence_num: null\n  }\n}];\n"
+        "mode": "runOnceForEachItem",
+        "jsCode": "const status = $json.skip_reason ? 'needs_review' : 'pending';\nconst note = $json.skip_reason\n  ? `Skipped Clover lookup: ${$json.skip_reason}`\n  : 'Skipped Clover lookup.';\n\nreturn {\n  json: {\n    ...$json,\n    match_action: status,\n    reconciliation_note: note,\n    clover_candidate_count: 0,\n    clover_selected_payment_id: null,\n    clover_selected_order_id: null,\n    clover_selected_amount_cents: null,\n    clover_selected_created_ms: null,\n    clover_selected_note: null,\n    clover_selected_tender_id: null,\n    clover_match_confidence_num: null\n  }\n};"
       },
-      "id": "96ca7e68-1ae1-4bc4-adce-515981943dd9",
+      "id": "207603a7-7a66-4aee-b78e-107977f385d5",
       "name": "Code - Handle Skipped Lookup",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1296,
-        384
+        1424,
+        480
       ]
     },
     {
       "parameters": {},
-      "id": "bf8b6300-e102-42b0-9b3e-1feb4fcc7594",
+      "id": "48943a9d-1427-4464-a513-68e8743586cc",
       "name": "Merge - Lookup Results",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -816,
-        272
+        1904,
+        368
       ]
     },
     {
       "parameters": {
-        "jsCode": "function isoOrNull(ms) {\n  if (!ms) return null;\n  const d = new Date(Number(ms));\n  return Number.isFinite(d.getTime()) ? d.toISOString() : null;\n}\n\nconst nowIso = new Date().toISOString();\nlet status = $json.clover_reconciliation_status || 'pending';\n\nif ($json.match_action === 'reconciled') status = 'reconciled';\nelse if ($json.match_action === 'needs_review') status = 'needs_review';\nelse if ($json.match_action === 'pending') status = 'pending';\n\nconst fields = {\n  clover_reconciliation_status: status,\n  clover_payment_id:\n    $json.match_action === 'reconciled' || $json.match_action === 'needs_review'\n      ? ($json.clover_selected_payment_id || null)\n      : null,\n  clover_payment_amount:\n    $json.clover_selected_amount_cents != null\n      ? Number($json.clover_selected_amount_cents) / 100\n      : null,\n  clover_payment_time: isoOrNull($json.clover_selected_created_ms),\n  clover_match_confidence: $json.clover_match_confidence_num,\n  reconciled_at: $json.match_action === 'reconciled' ? nowIso : null,\n  reconciliation_notes: [\n    $json.reconciliation_note,\n    $json.clover_selected_order_id ? `Clover order id: ${$json.clover_selected_order_id}` : null,\n    $json.clover_selected_tender_id ? `Tender id: ${$json.clover_selected_tender_id}` : null,\n    $json.clover_selected_note ? `Payment note: ${$json.clover_selected_note}` : null\n  ].filter(Boolean).join(' | ')\n};\n\nreturn [{\n  json: {\n    airtable_record_id: $json.airtable_record_id || null,\n    ecwid_order_id: $json.ecwid_order_id || null,\n    match_action: $json.match_action || 'pending',\n    should_mark_ecwid_paid: $json.match_action === 'reconciled',\n    clover_selected_payment_id: $json.clover_selected_payment_id || null,\n    clover_selected_order_id: $json.clover_selected_order_id || null,\n    fields\n  }\n}];"
+        "mode": "runOnceForEachItem",
+        "jsCode": "function isoOrNull(ms) {\n  if (!ms) return null;\n  const d = new Date(Number(ms));\n  return Number.isFinite(d.getTime()) ? d.toISOString() : null;\n}\n\nconst nowIso = new Date().toISOString();\nlet status = $json.clover_reconciliation_status || 'pending';\n\nif ($json.match_action === 'reconciled') status = 'reconciled';\nelse if ($json.match_action === 'needs_review') status = 'needs_review';\nelse if ($json.match_action === 'pending') status = 'pending';\n\nconst shouldKeepSelectedPayment = $json.match_action === 'reconciled' || $json.match_action === 'needs_review';\n\nconst fields = {\n  clover_reconciliation_status: status,\n  clover_payment_id: shouldKeepSelectedPayment ? ($json.clover_selected_payment_id || null) : null,\n  clover_payment_amount:\n    $json.clover_selected_amount_cents != null\n      ? Number($json.clover_selected_amount_cents) / 100\n      : null,\n  clover_payment_time: isoOrNull($json.clover_selected_created_ms),\n  clover_match_confidence: $json.clover_match_confidence_num,\n  reconciled_at: $json.match_action === 'reconciled' ? nowIso : null,\n  reconciliation_notes: [\n    $json.reconciliation_note,\n    $json.clover_total_candidate_count != null ? `Total candidates: ${$json.clover_total_candidate_count}` : null,\n    $json.clover_available_candidate_count != null ? `Available candidates: ${$json.clover_available_candidate_count}` : null,\n    $json.clover_non_card_candidate_count != null ? `Non-card candidates: ${$json.clover_non_card_candidate_count}` : null,\n    $json.clover_selected_order_id ? `Clover order id: ${$json.clover_selected_order_id}` : null,\n    $json.clover_selected_tender_id ? `Tender id: ${$json.clover_selected_tender_id}` : null,\n    $json.clover_selected_tender_label ? `Tender: ${$json.clover_selected_tender_label}` : null,\n    $json.clover_selected_note ? `Payment note: ${$json.clover_selected_note}` : null\n  ].filter(Boolean).join(' | ')\n};\n\nreturn {\n  json: {\n    airtable_record_id: $json.airtable_record_id || null,\n    ecwid_order_id: $json.ecwid_order_id || null,\n    match_action: $json.match_action || 'pending',\n    should_mark_ecwid_paid: $json.match_action === 'reconciled',\n    clover_selected_payment_id: $json.clover_selected_payment_id || null,\n    clover_selected_order_id: $json.clover_selected_order_id || null,\n    reconciliation_debug: $json.reconciliation_debug || null,\n    fields\n  }\n};"
       },
-      "id": "5f997e4f-45df-4698-94db-94d6a5170617",
+      "id": "73975364-3974-4caa-9042-dc71cc9d8c36",
       "name": "Code - Build Airtable Update",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -576,
-        272
+        2144,
+        368
       ]
     },
     {
@@ -230,13 +242,13 @@
         "jsonBody": "={{ { fields: $json.fields } }}",
         "options": {}
       },
-      "id": "81d9fa34-dcca-497e-8882-30f16e196355",
+      "id": "54f5b12f-2376-4eea-a602-6d7fc3baa733",
       "name": "HTTP - Update Airtable Reconciliation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -336,
-        272
+        2384,
+        368
       ],
       "credentials": {
         "airtableTokenApi": {
@@ -257,7 +269,7 @@
           "conditions": [
             {
               "id": "c9f158d9-bfde-4bf3-a388-1a3e51763bd4",
-              "leftValue": "={{ Boolean($('Code - Build Airtable Update').item.json.should_mark_ecwid_paid) }}",
+              "leftValue": "={{ Boolean($json.should_mark_ecwid_paid) }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -273,16 +285,16 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -224,
-        32
+        2496,
+        128
       ],
-      "id": "b033c634-bbb2-4ef5-b6ed-5d16da7179d4",
+      "id": "49600eff-b09c-44b4-b942-09cdd7b6af43",
       "name": "IF - Reconciled?"
     },
     {
       "parameters": {
         "method": "PUT",
-        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.fields.ecwid_order_id}` }}",
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/orders/${$json.ecwid_order_id}` }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -308,11 +320,114 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        0,
-        0
+        2720,
+        96
       ],
-      "id": "2403e39c-89a1-4801-b3da-e9f67241485e",
+      "id": "c9e45811-9617-4dac-a487-4e5ef55deb77",
       "name": "HTTP - Mark Ecwid Order Reconciled"
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://api.airtable.com/v0/${$env.AIRTABLE_BASE_ID}/${$env.AIRTABLE_ECOMMERCE_ORDERS_TABLE_ID}` }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxRecords",
+              "value": "100"
+            },
+            {
+              "name": "filterByFormula",
+              "value": "=LEN({clover_payment_id}&'')>0"
+            },
+            {
+              "name": "fields[]",
+              "value": "clover_payment_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf4482ea-bf32-4ac4-b2e0-f2acc0a62586",
+      "name": "HTTP - List Used Clover Payment IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        176
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vgt8hbjfh9CbsaQA",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const records = Array.isArray($json.records) ? $json.records : [];\nconst usedIds = records\n  .map(r => String(r.fields?.clover_payment_id || '').trim())\n  .filter(Boolean);\n\nconst data = $getWorkflowStaticData('global');\ndata.cloverReconciliationUsedPaymentIds = [...new Set(usedIds)];\ndata.cloverReconciliationReservedPaymentIds = [];\ndata.cloverReconciliationRunStartedAt = new Date().toISOString();\n\nreturn {\n  json: {\n    used_clover_payment_ids: data.cloverReconciliationUsedPaymentIds,\n    used_clover_payment_count: data.cloverReconciliationUsedPaymentIds.length,\n    reserved_clover_payment_ids: []\n  }\n};"
+      },
+      "id": "5e9ada81-fd49-4288-b253-532526e2b85e",
+      "name": "Code - Initialize Reconciliation State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ `${$env.CLOVER_API_BASE_URL || 'https://api.clover.com'}/v3/merchants/${$env.CLOVER_MERCHANT_ID}/tenders` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "93bdb7a3-32ea-49fe-b09f-7dab9c69bd91",
+      "name": "HTTP - Get Clover Tenders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const tenders = Array.isArray($json.elements) ? $json.elements : [];\nconst tenderMap = {};\n\nfor (const t of tenders) {\n  const id = String(t.id || '').trim();\n  if (!id) continue;\n  tenderMap[id] = {\n    id,\n    label: String(t.label || t.name || t.displayName || '').trim(),\n    raw: t\n  };\n}\n\nconst data = $getWorkflowStaticData('global');\ndata.cloverReconciliationTenderMap = tenderMap;\ndata.cloverReconciliationTenderMapLoadedAt = new Date().toISOString();\n\nreturn {\n  json: {\n    tender_count: Object.keys(tenderMap).length,\n    tender_map: tenderMap\n  }\n};"
+      },
+      "id": "337c6e54-0e0a-494a-abb0-093cf1368c54",
+      "name": "Code - Store Clover Tender Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -16
+      ]
     }
   ],
   "pinData": {},
@@ -321,7 +436,7 @@
       "main": [
         [
           {
-            "node": "HTTP - List Pending Airtable Orders",
+            "node": "HTTP - Get Clover Tenders",
             "type": "main",
             "index": 0
           }
@@ -455,17 +570,61 @@
           }
         ]
       ]
+    },
+    "HTTP - List Used Clover Payment IDs": {
+      "main": [
+        [
+          {
+            "node": "Code - Initialize Reconciliation State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Initialize Reconciliation State": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Pending Airtable Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Clover Tenders": {
+      "main": [
+        [
+          {
+            "node": "Code - Store Clover Tender Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Store Clover Tender Map": {
+      "main": [
+        [
+          {
+            "node": "HTTP - List Used Clover Payment IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "8e91d6b7-7072-4fcc-9671-78572b6dce33",
+  "versionId": "3e952737-163d-4bfb-b1ea-4f8b092975ec",
   "meta": {
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
-  "id": "P9OAh2kiwN6wptz9",
+  "id": "0IsjxV0w52DiVsEM",
   "tags": []
 }

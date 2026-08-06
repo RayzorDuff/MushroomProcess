@@ -1,0 +1,2346 @@
+[
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "rec0wJ83oVWc0twCz",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recbYw9MqT0gM8tfr"
+        ],
+        "lot_recipe_component_id": "LRC-260624-twCz",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "rec1CVjct7FnelWCH",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recZZPMcrQpkcUFXv"
+        ],
+        "lot_recipe_component_id": "LRC-260716-lWCH",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "rec1MpZHVImh70WPs",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recBPx5P1SpV9OQBL"
+        ],
+        "lot_recipe_component_id": "LRC-260716-0WPs",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec1PSWzw5CnewqYc",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec52IiCvElVtS3ev"
+        ],
+        "lot_recipe_component_id": "LRC-260716-wqYc",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec30fVz2qSURH3VR",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recnYBktdkxdyESip"
+        ],
+        "lot_recipe_component_id": "LRC-260716-H3VR",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "rec4LuVZvX4RA5Taj",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recKxxfzpa3mMcn0V"
+        ],
+        "lot_recipe_component_id": "LRC-260624-5Taj",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec4Yvc69MW2qImyS",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recbWgjsAIm0fXSHI"
+        ],
+        "lot_recipe_component_id": "LRC-260716-ImyS",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "rec4aEL31WQnhZaDg",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recer483vxFZJnNYT"
+        ],
+        "lot_recipe_component_id": "LRC-260716-ZaDg",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "rec4etvHjmG1Nz3pC",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recAAEjZeL3m5X9hB"
+        ],
+        "lot_recipe_component_id": "LRC-260629-z3pC",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "rec4nauZxFQh9f5Q5",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "recmwyu7eoHkHxenB"
+        ],
+        "lot_recipe_component_id": "LRC-260624-f5Q5",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "rec63ieruYKfmafDb",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "rec7z6nOIDrst4LAY"
+        ],
+        "lot_recipe_component_id": "LRC-260624-afDb",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec6ZX99mL2V2qRCf",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recJ9apcaFgcCboZF"
+        ],
+        "lot_recipe_component_id": "LRC-260716-qRCf",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "rec6b1MC1R9bBMdvE",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recIuHYUmF1q1F4ex"
+        ],
+        "lot_recipe_component_id": "LRC-260716-MdvE",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:17:19.000Z",
+        "airtable_id": "rec77TdgbqmodSZ6S",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "recs0nGpAMQcsHhW4"
+        ],
+        "lot_recipe_component_id": "LRC-260706-SZ6S",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec7KyK67NMkRzRDF",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "reciLOGPVNjv2iIrX"
+        ],
+        "lot_recipe_component_id": "LRC-260716-zRDF",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "rec7qTElK5SxmdVmn",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recmkqC16Aej4wpnD"
+        ],
+        "lot_recipe_component_id": "LRC-260624-dVmn",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rec8FvsyrUxlw9msl",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec2xEuGN2Z0Jk4Ev"
+        ],
+        "lot_recipe_component_id": "LRC-260716-9msl",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "rec8Pbh01xK3fQ44E",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "reccAUeoNlKQOlJib"
+        ],
+        "lot_recipe_component_id": "LRC-260624-Q44E",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "rec8m9AigsYw0u7iN",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recfTKQt97CPJYj2M"
+        ],
+        "lot_recipe_component_id": "LRC-260716-u7iN",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recARzhJPuhITGepP",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recOebh3B6AuifYKs"
+        ],
+        "lot_recipe_component_id": "LRC-260716-GepP",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recAt1NTILnKvWe1Q",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recyX8biHJzuxaq8r"
+        ],
+        "lot_recipe_component_id": "LRC-260716-We1Q",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recBYLKvyTV7gBqbl",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recUFG8B3wbTal8EG"
+        ],
+        "lot_recipe_component_id": "LRC-260624-Bqbl",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recC2m6UsvMIakpbk",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recCb5n7AOjzD67Er"
+        ],
+        "lot_recipe_component_id": "LRC-260716-kpbk",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recCCLpahWHgpik23",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recwWVBG1KSZBpmvS"
+        ],
+        "lot_recipe_component_id": "LRC-260624-ik23",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recCu9iKZc1W7ESfE",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recRVieeEy7V1A2oH"
+        ],
+        "lot_recipe_component_id": "LRC-260624-ESfE",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:44.000Z",
+        "airtable_id": "recE4QNm5bzYjHEVO",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "recwmGz1GAmOCamct"
+        ],
+        "lot_recipe_component_id": "LRC-260629-HEVO",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recEwH3oXGYsMLMDh",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "reccAUeoNlKQOlJib"
+        ],
+        "lot_recipe_component_id": "LRC-260624-LMDh",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:17:19.000Z",
+        "airtable_id": "recFZbcfyA1nrErbm",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recs0nGpAMQcsHhW4"
+        ],
+        "lot_recipe_component_id": "LRC-260706-Erbm",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "recFdGXV4tnywT4OY",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "rectzsA2X0Y490AsE"
+        ],
+        "lot_recipe_component_id": "LRC-260716-T4OY",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recFiBx7uyPoupde1",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "recmwyu7eoHkHxenB"
+        ],
+        "lot_recipe_component_id": "LRC-260624-pde1",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recGbSYA2UVnMXOlw",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec4Uj5VnzfJf2VPo"
+        ],
+        "lot_recipe_component_id": "LRC-260716-XOlw",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recGc6FbyaS4hVUqY",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec20fCpEhmseFJRb"
+        ],
+        "lot_recipe_component_id": "LRC-260716-VUqY",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recGjmgL4KhCs1Dse",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recH2LOLClpxeE3zO"
+        ],
+        "lot_recipe_component_id": "LRC-260713-1Dse",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recHjt8WOvBPD2HNq",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recg3oW0OvDVnyTL6"
+        ],
+        "lot_recipe_component_id": "LRC-260716-2HNq",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:10:38.000Z",
+        "airtable_id": "recHyawbyToSpmIBR",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "recjPqp2UH3yKRg4n"
+        ],
+        "lot_recipe_component_id": "LRC-260706-mIBR",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recI5BGDMJ0dU2WFe",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rectoX0CVSRat150O"
+        ],
+        "lot_recipe_component_id": "LRC-260716-2WFe",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:16:48.000Z",
+        "airtable_id": "recIRHskhnOpNH1GN",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recA1cEC9hIc7MXzp"
+        ],
+        "lot_recipe_component_id": "LRC-260706-H1GN",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recJbEHsrv31Tu69A",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec6EZ3Bj2890D8Xu"
+        ],
+        "lot_recipe_component_id": "LRC-260716-u69A",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recK9BOjwUdxRg531",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "reca0loZu6y2aluhU"
+        ],
+        "lot_recipe_component_id": "LRC-260716-g531",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recKI60Fu2FTqVCC7",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recoxC4qr1yAqZStR"
+        ],
+        "lot_recipe_component_id": "LRC-260624-VCC7",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:55.000Z",
+        "airtable_id": "recKkMpIfHoMjXgXW",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recJXkwdqOWh7DQO2"
+        ],
+        "lot_recipe_component_id": "LRC-260629-XgXW",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "recVgaSAr6FP7Gjk5"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recL7vHX64Ma7rbrO",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recPuIpwjVXZLMpoj"
+        ],
+        "lot_recipe_component_id": "LRC-260624-rbrO",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recLQBUiQ5a08n1QU",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recTEJwkdNN6hSvcJ"
+        ],
+        "lot_recipe_component_id": "LRC-260713-n1QU",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recLl3O5y1yea38Jy",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "rectuqOs4vyXILiXu"
+        ],
+        "lot_recipe_component_id": "LRC-260716-38Jy",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "recMBz5985JZcGmsz",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recer483vxFZJnNYT"
+        ],
+        "lot_recipe_component_id": "LRC-260716-Gmsz",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "recMH4MvsU4daxzJ9",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recGJ6ZVsuDPmH6U3"
+        ],
+        "lot_recipe_component_id": "LRC-260629-xzJ9",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recMslsY8u80MhUeq",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "rec7F7THmBRnktbWx"
+        ],
+        "lot_recipe_component_id": "LRC-260716-hUeq",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "recPeZkj8m0SnFJvp",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recr3acYNMXy9fz6c"
+        ],
+        "lot_recipe_component_id": "LRC-260716-FJvp",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "recPkbnMUVIappS9O",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recArAEsTvuIqOP2L"
+        ],
+        "lot_recipe_component_id": "LRC-260629-pS9O",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recQ1KqB7vaXTHaoz",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recv7JbrkbddIKYBQ"
+        ],
+        "lot_recipe_component_id": "LRC-260713-Haoz",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recQONtZmx0voRzID",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recHAOR5eDiAccMlT"
+        ],
+        "lot_recipe_component_id": "LRC-260624-RzID",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "recRqITzVqtgaJEgy",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recvN5Wl9mXPxVEqa"
+        ],
+        "lot_recipe_component_id": "LRC-260716-JEgy",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "recRrCwAdQrCRDtel",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recfTKQt97CPJYj2M"
+        ],
+        "lot_recipe_component_id": "LRC-260716-Dtel",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recS5wyqwYPnHnb0c",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recr7BMwqTOF8K1qb"
+        ],
+        "lot_recipe_component_id": "LRC-260624-nb0c",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recSnVTR4tCDeZOQ6",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recv7JbrkbddIKYBQ"
+        ],
+        "lot_recipe_component_id": "LRC-260713-ZOQ6",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recUxuGQ9Px3R8knd",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "recO5KoRn7EFWyznB"
+        ],
+        "lot_recipe_component_id": "LRC-260624-8knd",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recVRyNk74MVVN9Mx",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "reclZmMP755JTJ0yh"
+        ],
+        "lot_recipe_component_id": "LRC-260716-N9Mx",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recWLoMvtSuCfiLom",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "rec3BAAJeezGfrTT0"
+        ],
+        "lot_recipe_component_id": "LRC-260624-iLom",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:55.000Z",
+        "airtable_id": "recWtsVmcCr7RJO9R",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 1.5 lb",
+        "lot_id": [
+            "recJXkwdqOWh7DQO2"
+        ],
+        "lot_recipe_component_id": "LRC-260629-JO9R",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recCl6NU5hqNXDzxR"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "recXRrTDj3wZxaQmy",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rectzsA2X0Y490AsE"
+        ],
+        "lot_recipe_component_id": "LRC-260716-aQmy",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:16:48.000Z",
+        "airtable_id": "recXZGiKSqMsB03cE",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "recA1cEC9hIc7MXzp"
+        ],
+        "lot_recipe_component_id": "LRC-260706-03cE",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recXpuO573TIWbxpI",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recBXsoAmyR34PeAt"
+        ],
+        "lot_recipe_component_id": "LRC-260624-bxpI",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:10:38.000Z",
+        "airtable_id": "recYB0Yw9WwOToAvi",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recrKZhNqV5NjsbJT"
+        ],
+        "lot_recipe_component_id": "LRC-260706-oAvi",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recYYj4WGPC56HGLB",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recUNebjseeNPKaYQ"
+        ],
+        "lot_recipe_component_id": "LRC-260624-HGLB",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recYZZuOTQ2Lhiicr",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "reclHuRPSeJZthVez"
+        ],
+        "lot_recipe_component_id": "LRC-260624-iicr",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recYgt09eyVfB75WI",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recIZMdTl2YCcPCxQ"
+        ],
+        "lot_recipe_component_id": "LRC-260716-75WI",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:10:38.000Z",
+        "airtable_id": "recZbKdDZv0dHEiTW",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "recrKZhNqV5NjsbJT"
+        ],
+        "lot_recipe_component_id": "LRC-260706-EiTW",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recaNSaPcrJKUj1Ie",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "recO5KoRn7EFWyznB"
+        ],
+        "lot_recipe_component_id": "LRC-260624-j1Ie",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "recactuwTOcA1R3Gm",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recZm7U14atzF7Uyn"
+        ],
+        "lot_recipe_component_id": "LRC-260716-R3Gm",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "recaxtauFr5popUfG",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recXS1mY68g97ljFW"
+        ],
+        "lot_recipe_component_id": "LRC-260629-pUfG",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recb95gsqdRNmobFo",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recZE49Mte1TG2CXC"
+        ],
+        "lot_recipe_component_id": "LRC-260624-obFo",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "recbIrx3eayveTwVP",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recOcbDldTKj2rSiB"
+        ],
+        "lot_recipe_component_id": "LRC-260716-TwVP",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recbhJg7nrKiFM3fI",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recPZ9TWSnPW84Aqy"
+        ],
+        "lot_recipe_component_id": "LRC-260716-M3fI",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "recc7QzvwglQezB4Q",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recrPxDkS8LbnxHjS"
+        ],
+        "lot_recipe_component_id": "LRC-260629-zB4Q",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "reccO5sMq8MBvoYlb",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recs21cwu1w5dUWmr"
+        ],
+        "lot_recipe_component_id": "LRC-260624-oYlb",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:55.000Z",
+        "airtable_id": "reccxnFAhDXosQ3a2",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 1.5 lb",
+        "lot_id": [
+            "recknDQhWmXDxvhWT"
+        ],
+        "lot_recipe_component_id": "LRC-260629-Q3a2",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recCl6NU5hqNXDzxR"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "receI3staomyMcBBf",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recMYXLsY6O8DTZLQ"
+        ],
+        "lot_recipe_component_id": "LRC-260624-cBBf",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "receapP3Onc7S0VlJ",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recpph56flsIcb1JP"
+        ],
+        "lot_recipe_component_id": "LRC-260716-0VlJ",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recegvPOYLXcPgdND",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "rec4OBP6yslXcGRI4"
+        ],
+        "lot_recipe_component_id": "LRC-260624-gdND",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "receyg7EysjvIbO3D",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recijQzkVe5DZHpQi"
+        ],
+        "lot_recipe_component_id": "LRC-260624-bO3D",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recf5PEvrYoxVTjg7",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recYOXjQcjfSd8yfT"
+        ],
+        "lot_recipe_component_id": "LRC-260624-Tjg7",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:53:10.000Z",
+        "airtable_id": "recf6eDgYzB6eo9lJ",
+        "component_role": "substrate",
+        "component_weight_lb": 5,
+        "item_id": [
+            "rec9SrjULya0yqlOU"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 5 lb",
+        "lot_id": [
+            "recVVV3KkUP9F8tzR"
+        ],
+        "lot_recipe_component_id": "LRC-260629-o9lJ",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "rechtb5FZNhcVNPwJ",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recivgOCwxrq5j5U1"
+        ],
+        "lot_recipe_component_id": "LRC-260716-NPwJ",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "reciRINysmsgQmbkE",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec4p9Db7z1zpCA9a"
+        ],
+        "lot_recipe_component_id": "LRC-260716-mbkE",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "reciiernNCslW9dmX",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recW3crthW54d7ECk"
+        ],
+        "lot_recipe_component_id": "LRC-260624-9dmX",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recjgzIJX5osIN6fG",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "rectE7mt9vWSfZClZ"
+        ],
+        "lot_recipe_component_id": "LRC-260624-N6fG",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recjteHQCdZSGYbAq",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recT36veqmyLuMyCf"
+        ],
+        "lot_recipe_component_id": "LRC-260716-YbAq",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recjz3tKwIbdzVONq",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recH2LOLClpxeE3zO"
+        ],
+        "lot_recipe_component_id": "LRC-260713-VONq",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recmk5KG4rf95J06x",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "receOrZTxhMBhkRDH"
+        ],
+        "lot_recipe_component_id": "LRC-260624-J06x",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recmqqvdFUXGIk5SZ",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recEzw36CoJblPJXI"
+        ],
+        "lot_recipe_component_id": "LRC-260624-k5SZ",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recnQE462Iq2qPQj6",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "reco0FveBXo4HxXWz"
+        ],
+        "lot_recipe_component_id": "LRC-260624-PQj6",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "reco6geq31F9aOwDh",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recZm7U14atzF7Uyn"
+        ],
+        "lot_recipe_component_id": "LRC-260716-OwDh",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "recp47d7FkgQTs9rl",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recIuUpWM4VtZkQ24"
+        ],
+        "lot_recipe_component_id": "LRC-260716-s9rl",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recph0CCxLZ7aBEMl",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recKBrbqslqu78ApW"
+        ],
+        "lot_recipe_component_id": "LRC-260716-BEMl",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:44.000Z",
+        "airtable_id": "recplm2qKISqPAMR0",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "recwmGz1GAmOCamct"
+        ],
+        "lot_recipe_component_id": "LRC-260629-AMR0",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recqHksLFZD4cAbd7",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recNNzT8FZIc94UDu"
+        ],
+        "lot_recipe_component_id": "LRC-260624-Abd7",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:44.000Z",
+        "airtable_id": "recqiijQw7N4i6kQc",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 2,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 2 lb",
+        "lot_id": [
+            "recHg7kSIq1b9s5QP"
+        ],
+        "lot_recipe_component_id": "LRC-260629-6kQc",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "rec33JZCIIVQVdjra"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:16:48.000Z",
+        "airtable_id": "recqwiIe4INOhrQDK",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "recxU7Sp5qlyHd5Ce"
+        ],
+        "lot_recipe_component_id": "LRC-260706-rQDK",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:17:19.000Z",
+        "airtable_id": "recr5014Z3WmF6Hg5",
+        "component_role": "grain",
+        "component_weight_lb": 1,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1 lb",
+        "lot_id": [
+            "rec6Fc3fiYmEnlQzd"
+        ],
+        "lot_recipe_component_id": "LRC-260706-6Hg5",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recrEYPt9kHQtwgTc",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recbdDtcPWKKK1ull"
+        ],
+        "lot_recipe_component_id": "LRC-260716-wgTc",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-13T20:58:54.000Z",
+        "airtable_id": "recrwhEkTPKPCxB4b",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recTEJwkdNN6hSvcJ"
+        ],
+        "lot_recipe_component_id": "LRC-260713-xB4b",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:10:38.000Z",
+        "airtable_id": "recsy6wNXb3kjjCtK",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recjPqp2UH3yKRg4n"
+        ],
+        "lot_recipe_component_id": "LRC-260706-jCtK",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "rect8lPu6kuaPVuz3",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recZZPMcrQpkcUFXv"
+        ],
+        "lot_recipe_component_id": "LRC-260716-Vuz3",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "rectYTZdVKM8UQhrB",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recvN5Wl9mXPxVEqa"
+        ],
+        "lot_recipe_component_id": "LRC-260716-QhrB",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:17:19.000Z",
+        "airtable_id": "rectvGnAU9pu7Fe4g",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "rec6Fc3fiYmEnlQzd"
+        ],
+        "lot_recipe_component_id": "LRC-260706-Fe4g",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recuJIRsfXerQUb9r",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "rec0t4tXf7pubsWcD"
+        ],
+        "lot_recipe_component_id": "LRC-260716-Ub9r",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recun9qWpRQ3OMIVk",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recssNwyBDvQG99rA"
+        ],
+        "lot_recipe_component_id": "LRC-260624-MIVk",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recveA7zA99i2Ajq3",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recBQ1BCwvv19mmQl"
+        ],
+        "lot_recipe_component_id": "LRC-260624-Ajq3",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recwxEupP7GZWECMN",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "reczAOAVJ591qCoFp"
+        ],
+        "lot_recipe_component_id": "LRC-260716-ECMN",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:21.000Z",
+        "airtable_id": "recxGcNKViPWbK5Gr",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recQST9Vx5j2Tr9R2"
+        ],
+        "lot_recipe_component_id": "LRC-260716-K5Gr",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recxQ7Bz8fWgRIRFB",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recjIytqd4c21Qbw9"
+        ],
+        "lot_recipe_component_id": "LRC-260624-IRFB",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-06T20:16:48.000Z",
+        "airtable_id": "recxTpogyMoFLMZS4",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recDO7zTvQ1KaQksg"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "recxU7Sp5qlyHd5Ce"
+        ],
+        "lot_recipe_component_id": "LRC-260706-MZS4",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:31:13.000Z",
+        "airtable_id": "recxURp1V8ChHb3E4",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recOcbDldTKj2rSiB"
+        ],
+        "lot_recipe_component_id": "LRC-260716-b3E4",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:09:42.000Z",
+        "airtable_id": "recxpCSGD0X0McmEe",
+        "component_role": "substrate",
+        "component_weight_lb": 7.5,
+        "item_id": [
+            "recBfYmeTPor27WFM"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 7.5 lb",
+        "lot_id": [
+            "rec6aa0uS3gzxGQJD"
+        ],
+        "lot_recipe_component_id": "LRC-260716-cmEe",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:15:43.000Z",
+        "airtable_id": "recyG9CpQckiio0o4",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "reco0FveBXo4HxXWz"
+        ],
+        "lot_recipe_component_id": "LRC-260624-o0o4",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260623-kun8",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:59.000Z",
+        "airtable_id": "recyakjsRA6x631tz",
+        "component_role": "substrate",
+        "component_weight_lb": 2.5,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "substrate: REC-SUB-MM75 \u2014 2.5 lb",
+        "lot_id": [
+            "recIuUpWM4VtZkQ24"
+        ],
+        "lot_recipe_component_id": "LRC-260716-31tz",
+        "notes": "Derived from Spawn to Bulk substrate input",
+        "recipe_id": [
+            "recdzi4MMq717DjmU"
+        ],
+        "sort_order": 2
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:44.000Z",
+        "airtable_id": "recynVYKsZ55Hv7gU",
+        "component_percent": 0,
+        "component_role": "substrate",
+        "component_weight_lb": 3,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "substrate: REC-SUB-CVG-RIZ-V1 \u2014 3 lb",
+        "lot_id": [
+            "recHg7kSIq1b9s5QP"
+        ],
+        "lot_recipe_component_id": "LRC-260629-v7gU",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-HSCv",
+        "recipe_id": [
+            "recpFhRjhqhXi52yY"
+        ],
+        "sort_order": 2,
+        "source_item_recipe_component": [
+            "recwGWGpMX2iPlzxV"
+        ]
+    },
+    {
+        "airtable_createdTime": "2026-06-24T22:04:29.000Z",
+        "airtable_id": "recz615J5i3isKNPG",
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "rec8OlixLGGGw3dLn"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recdPAu9xkT4DD4GH"
+        ],
+        "lot_recipe_component_id": "LRC-260624-KNPG",
+        "notes": "Created from sterilization run planned_recipe",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-07-16T19:32:12.000Z",
+        "airtable_id": "reczCeLA24Utwj68o",
+        "component_role": "grain",
+        "component_weight_lb": 0.6666666666666666,
+        "item_id": [
+            "recAzMuAKDIeWmfq5"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 0.6666666666666666 lb",
+        "lot_id": [
+            "recr3acYNMXy9fz6c"
+        ],
+        "lot_recipe_component_id": "LRC-260716-j68o",
+        "notes": "Derived from Spawn to Bulk grain input",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1
+    },
+    {
+        "airtable_createdTime": "2026-06-29T20:52:55.000Z",
+        "airtable_id": "reczaPv3SlUKOp0KJ",
+        "component_percent": 0,
+        "component_role": "grain",
+        "component_weight_lb": 1.5,
+        "item_id": [
+            "recEmMfAJEVRuCOXf"
+        ],
+        "lot_component_display": "grain: REC-GRAIN-WBS \u2014 1.5 lb",
+        "lot_id": [
+            "recknDQhWmXDxvhWT"
+        ],
+        "lot_recipe_component_id": "LRC-260629-p0KJ",
+        "notes": "Created from multi_recipe item component plan on sterilization run RUN-260629-lLVT",
+        "recipe_id": [
+            "rec9ayZPHs9K5WS4K"
+        ],
+        "sort_order": 1,
+        "source_item_recipe_component": [
+            "recVgaSAr6FP7Gjk5"
+        ]
+    }
+]

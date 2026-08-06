@@ -1,0 +1,4249 @@
+[
+    {
+        "airtable_createdTime": "2026-06-05T19:30:20.000Z",
+        "airtable_id": "rec1oPXxZMjaWscYG",
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-scYG",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-oq7L\"]",
+        "origin_lots": [
+            "recsHHh3LrQE1oq7L"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec5fyBzQR2YAFjQy"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-scYG",
+        "public_link": "https://www.mybusiness.com/",
+        "storage_location": [
+            "recwRFW2aHlJivoX3"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rec2qvnqKrXVMkNDo",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-kNDo",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec4AP6CWbWXiWEUC"
+        ],
+        "product_id": "PROD-260713-kNDo",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T20:46:37.000Z",
+        "airtable_id": "rec33PzqBO8ecfajT",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-fajT",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "75.94 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 75.94,
+        "origin_lot_ids_json": "[\"recZBLsiYstYmydo8\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recokzszChXhRvOf9"
+        ],
+        "product_id": "PROD-260614-fajT",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec4dTuinZcyOxVz6",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-xVz6",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec1jzlsG971oVGI4"
+        ],
+        "product_id": "PROD-260713-xVz6",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:29:57.000Z",
+        "airtable_id": "rec59yhQegq7TfaWK",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-faWK",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-Hr1i\"]",
+        "origin_lots": [
+            "recpyoMscyvYIHr1i"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "reclMe07Cavzkq2nR"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-faWK",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:06:08.000Z",
+        "airtable_id": "rec5J0fB7IBmpDHOB",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-DHOB",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "118.61 g \u2022 Red Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 118.61,
+        "origin_lot_ids_json": "[\"recr9236mt5jjyAZc\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recyFkt01c5gjg38t"
+        ],
+        "product_id": "PROD-260614-DHOB",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rec5dIDEmDxyXqMes",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-qMes",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rectLwFW8I849mLfu"
+        ],
+        "product_id": "PROD-260713-qMes",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T21:06:03.000Z",
+        "airtable_id": "rec6x0ZDrIsMOpa6m",
+        "ecommerce": [
+            "recJ0Sy8OEkHjYlns"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-pa6m",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Chestnut",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-1wJo\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "recJks2B9PRmnCkMY"
+        ],
+        "product_id": "PROD-260618-pa6m",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-07-01T22:09:04.000Z",
+        "airtable_id": "rec75BIQxk9ymlmWO",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_footer_prod": "PROD-260701-lmWO",
+        "label_packaged_prod": "Packaged: 2026-06-30",
+        "label_subtitle_prod": "155.32 g \u2022 Black Pearl King Oyster",
+        "label_title_prod": "Freezer Tray",
+        "merge_tray_products": [
+            "recFDoIZDHjX267R0"
+        ],
+        "name": [
+            "Freezer Tray"
+        ],
+        "name (from package_item)": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 155.32,
+        "origin_lot_ids_json": "[\"recesxUAkb8ra5bJ9\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-01",
+        "package_class": "Sample",
+        "package_count": 7,
+        "package_item": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "package_item_category": [
+            "freezedriedmushrooms"
+        ],
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recBiDJpOZ7mKUCBU"
+        ],
+        "product_id": "PROD-260701-lmWO",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec2vUujZ5CYkEAzq"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "tray_state": "empty_tray"
+    },
+    {
+        "airtable_createdTime": "2026-05-23T00:12:43.000Z",
+        "airtable_id": "rec7av2XvqRHbtavK",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260523-tavK",
+        "label_packaged_prod": "Packaged: 2026-05-22",
+        "label_subtitle_prod": "209.02 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 209.02,
+        "origin_lot_ids_json": "[\"rec6mV7zZFh2IfOgP\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-05-23",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec6B21X30jNJ3FQt"
+        ],
+        "product_id": "PROD-260523-tavK",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T19:49:14.000Z",
+        "airtable_id": "rec8paGVXgvj9j5eR",
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-j5eR",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Pearl Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-sJrg\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "recZHTNepJPDqjTmh"
+        ],
+        "product_id": "PROD-260618-j5eR",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:33:50.000Z",
+        "airtable_id": "rec925z04eLSM4FeN",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-4FeN",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-sWSF\"]",
+        "origin_lots": [
+            "recvovrAA0mOVsWSF"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recpHzJN0z66jLsDd"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-4FeN",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec9WSGQ6cMy4gBQu",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-gBQu",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recq1gXYgBpF0c87z"
+        ],
+        "product_id": "PROD-260713-gBQu",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:45:14.000Z",
+        "airtable_id": "rec9ZRsdSgoBabKn0",
+        "ecommerce": [
+            "rec02VOqyUOnHMPzQ"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787502208"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877"
+        ],
+        "item_category": [
+            "substrate"
+        ],
+        "item_category_mat": "substrate",
+        "item_id": [
+            "recJgSj2nMQhhMQm3"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-bKn0",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Pasteurized: 2026-05-25"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "5 lb \u2022 Pasteurized",
+        "label_title_prod": "Coco Verm Gypsum Substrate",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Coco Verm Gypsum"
+        ],
+        "name_mat": "Coco Verm Gypsum",
+        "net_weight_g": 2267.96,
+        "net_weight_oz": 80,
+        "origin_lot_ids_json": "[\"LOT-260525-aWgY\"]",
+        "origin_lots": [
+            "reciaGUcYWidRaWgY"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recTHGDyBp4xSYuiC"
+        ],
+        "process_type": [
+            "Pasteurize"
+        ],
+        "process_type_mat": "Pasteurize",
+        "product_id": "PROD-260605-bKn0",
+        "public_link": [
+            "https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877"
+        ],
+        "unit_lbs": [
+            "5 lb"
+        ],
+        "unit_size": [
+            5
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "rec9wGkF0dlYFcV18",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-cV18",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "reccuOjtP6ZWYTmUk"
+        ],
+        "product_id": "PROD-260713-cV18",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recAvKZYhi7zckx3g",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-kx3g",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recu3ZqG0yps3obgU"
+        ],
+        "product_id": "PROD-260713-kx3g",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recBcX5lsykBWfBv5",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-fBv5",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recFdXXfCR5DnAkD3"
+        ],
+        "product_id": "PROD-260713-fBv5",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T19:49:39.000Z",
+        "airtable_id": "recE1xLJwUxlex8B9",
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-x8B9",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Pearl Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-odNe\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec5ZRpYHLEZkJc3F"
+        ],
+        "product_id": "PROD-260618-x8B9",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "From field: merge_tray_products": [
+            "rec75BIQxk9ymlmWO"
+        ],
+        "airtable_createdTime": "2026-07-01T22:08:36.000Z",
+        "airtable_id": "recFDoIZDHjX267R0",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260701-67R0",
+        "label_packaged_prod": "Packaged: 2026-06-30",
+        "label_subtitle_prod": "126.75 g \u2022 Black Pearl King Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 126.75,
+        "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-01",
+        "package_class": "Retail",
+        "print_queue": [
+            "recg3dKknTbNBuYtr"
+        ],
+        "product_id": "PROD-260701-67R0",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec2vUujZ5CYkEAzq"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "tray_state": "empty_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:19:47.000Z",
+        "airtable_id": "recFHy2Qccm91JEUt",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-JEUt",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "142.38 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 142.38,
+        "origin_lot_ids_json": "[\"recfCCE3M1nfURJUG\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec2oMbh5sCzLuBRh"
+        ],
+        "product_id": "PROD-260715-JEUt",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:28:29.000Z",
+        "airtable_id": "recGEFSNpQgZWBpsD",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-BpsD",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-SjOy\"]",
+        "origin_lots": [
+            "recm4aVHlbHuHSjOy"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recrl3ypYcTMGsKOG"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-BpsD",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recGTKewZ3qg3jwfg",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-jwfg",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recZKVKKsJrNpuqN1"
+        ],
+        "product_id": "PROD-260713-jwfg",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:59:19.000Z",
+        "airtable_id": "recGqkYnY9YXMW6N6",
+        "ecommerce": [
+            "recF3He1PR1Bo9voi"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787500020"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-W6N6",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Blue Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260514-Xktn\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recASXewZCTwtmAsA"
+        ],
+        "product_id": "PROD-260604-W6N6",
+        "public_link": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:19:47.000Z",
+        "airtable_id": "recJo2NUEWnQwiuLZ",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-iuLZ",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "142.38 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 142.38,
+        "origin_lot_ids_json": "[\"recfCCE3M1nfURJUG\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "recxjECofq1xwFm0h"
+        ],
+        "product_id": "PROD-260715-iuLZ",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:33:34.000Z",
+        "airtable_id": "recK1rokdg3mbIsE1",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-IsE1",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-cVnp\"]",
+        "origin_lots": [
+            "rectiyuoziWwdcVnp"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec9HUlXfX7cKhk0p"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-IsE1",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:30:14.000Z",
+        "airtable_id": "recKkqMzDGGnczJmA",
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-zJmA",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-gKgn\"]",
+        "origin_lots": [
+            "recqLMWPvTT4sgKgn"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recBRyp85GKSkycDb"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-zJmA",
+        "public_link": "https://www.mybusiness.com/",
+        "storage_location": [
+            "recwRFW2aHlJivoX3"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:28:37.000Z",
+        "airtable_id": "recL1wSEWHp4rJg9d",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-Jg9d",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-5Jhg\"]",
+        "origin_lots": [
+            "recm7xuUoTBpD5Jhg"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recBAL071iKJSKGRR"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-Jg9d",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:39:15.000Z",
+        "airtable_id": "recLsg8EwKwUQnTOR",
+        "ecommerce": [
+            "rec3ArssudPfyLSlL"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787501805"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-nTOR",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Red Reishi",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1417.48,
+        "net_weight_oz": 50,
+        "origin_lot_ids_json": "[\"LOT-260514-iMg3\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recbL9IYeleyafLQ6"
+        ],
+        "product_id": "PROD-260604-nTOR",
+        "public_link": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-05-23T00:00:56.000Z",
+        "airtable_id": "recMT8mqlHOAV7SN4",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260523-7SN4",
+        "label_packaged_prod": "Packaged: 2026-05-22",
+        "label_subtitle_prod": "159.5 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 159.5,
+        "origin_lot_ids_json": "[\"recpLZQpMFvnUSUbR\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-05-23",
+        "package_class": "Retail",
+        "print_queue": [
+            "recYDlOPATh8u1eyu"
+        ],
+        "product_id": "PROD-260523-7SN4",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:33:43.000Z",
+        "airtable_id": "recNJhUXO0e8JygpL",
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-ygpL",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-dT3s\"]",
+        "origin_lots": [
+            "rectrJMfA9sYddT3s"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recg4JgkFA66tL4ZW"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-ygpL",
+        "public_link": "https://www.mybusiness.com/",
+        "storage_location": [
+            "recwRFW2aHlJivoX3"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T20:46:21.000Z",
+        "airtable_id": "recNqytaYSqobYBMR",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-YBMR",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "85.42 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 85.42,
+        "origin_lot_ids_json": "[\"recHSBX0g2LbXoQKl\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recVqzwmrpLEiIuNz"
+        ],
+        "product_id": "PROD-260614-YBMR",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "recPHooh00324VuVl",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-VuVl",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recsLx1KmBjFI72FS"
+        ],
+        "product_id": "PROD-260713-VuVl",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:38:51.000Z",
+        "airtable_id": "recPUXNTPt19Ryqyf",
+        "ecommerce": [
+            "recJ0Sy8OEkHjYlns"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-yqyf",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Chestnut",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-fYlc\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recz1lgpi9b4r9UHy"
+        ],
+        "product_id": "PROD-260604-yqyf",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:01:47.000Z",
+        "airtable_id": "recPv6BJaawchpEit",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-pEit",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "133.62 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 133.62,
+        "origin_lot_ids_json": "[\"recs4gwhBUyFKdekW\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recj7t7SrPaB6WPEH"
+        ],
+        "product_id": "PROD-260614-pEit",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-11T19:52:54.000Z",
+        "airtable_id": "recQvGbKnJFR2Xaui",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260711-Xaui",
+        "label_packaged_prod": "Packaged: 2026-07-10",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-10",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-11",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec131ZNGWYeOnLcm"
+        ],
+        "product_id": "PROD-260711-Xaui",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-11"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:28:20.000Z",
+        "airtable_id": "recQwkTNRzIvERSlt",
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-RSlt",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-oeDs\"]",
+        "origin_lots": [
+            "reckhPRgdLf9aoeDs"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recmkywoL8QC0UQen"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-RSlt",
+        "public_link": "https://www.mybusiness.com/",
+        "storage_location": [
+            "recwRFW2aHlJivoX3"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T19:50:09.000Z",
+        "airtable_id": "recRx4pQuNAbBSBSC",
+        "ecommerce": [
+            "rec3ArssudPfyLSlL"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787501805"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-SBSC",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Red Reishi",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1417.48,
+        "net_weight_oz": 50,
+        "origin_lot_ids_json": "[\"LOT-260514-u1m6\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "recahI5xXHQbLzzkD"
+        ],
+        "product_id": "PROD-260618-SBSC",
+        "public_link": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T21:06:37.000Z",
+        "airtable_id": "recSnxSkQ7KnfCbrC",
+        "ecommerce": [
+            "recJ0Sy8OEkHjYlns"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-CbrC",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Chestnut",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-lhJv\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec20dIP2Fj5OAIYU"
+        ],
+        "product_id": "PROD-260618-CbrC",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:38:39.000Z",
+        "airtable_id": "recT1oslzubnlxUef",
+        "ecommerce": [
+            "recJ0Sy8OEkHjYlns"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-xUef",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Chestnut",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-PWA6\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recFeljDu0LEAsHSU"
+        ],
+        "product_id": "PROD-260604-xUef",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-07-01T22:09:56.000Z",
+        "airtable_id": "recTLY354eI9hPN28",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260701-PN28",
+        "label_packaged_prod": "Packaged: 2026-06-30",
+        "label_subtitle_prod": "158.28 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 158.275,
+        "origin_lot_ids_json": "[\"rec6mV7zZFh2IfOgP\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-01",
+        "package_class": "Retail",
+        "print_queue": [
+            "recNqnuQxuJFk2d7w"
+        ],
+        "product_id": "PROD-260701-PN28",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-19T19:07:15.000Z",
+        "airtable_id": "recTTRlf7SC9uK7pd",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260619-K7pd",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-18",
+        "label_proc_prod": [
+            "Sterilized: 2026-06-15"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "1.75 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-18",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 793.79,
+        "net_weight_oz": 28,
+        "origin_lot_ids_json": "[\"LOT-260616-qini\"]",
+        "origin_lots": [
+            "rec0ZbNh7jik9qini"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-19",
+        "package_class": "Retail",
+        "print_queue": [
+            "recdSmx58gkB66zl9"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260619-K7pd",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "unit_lbs": [
+            "1.75 lb"
+        ],
+        "unit_size": [
+            1.75
+        ],
+        "use_by": "2026-09-19"
+    },
+    {
+        "airtable_createdTime": "2026-07-06T18:46:07.000Z",
+        "airtable_id": "recUOXiqzawcKQFyP",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260706-QFyP",
+        "label_packaged_prod": "Packaged: 2026-07-05",
+        "label_subtitle_prod": "166.53 g \u2022 Black Pearl King Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 166.525,
+        "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-06",
+        "package_class": "Retail",
+        "print_queue": [
+            "recHeKgswsf8OQfyo"
+        ],
+        "product_id": "PROD-260706-QFyP",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:21:31.000Z",
+        "airtable_id": "recUoJPO09b5lt2FA",
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-t2FA",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Pearl Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-4UOG\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recL6L5o6430Vu3Xz"
+        ],
+        "product_id": "PROD-260604-t2FA",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T19:49:51.000Z",
+        "airtable_id": "recYMxahNa4HLXKEV",
+        "ecommerce": [
+            "recF3He1PR1Bo9voi"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787500020"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-XKEV",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Blue Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260514-h8zS\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "recQpmAlrj2LlHylm"
+        ],
+        "product_id": "PROD-260618-XKEV",
+        "public_link": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-06-18T19:50:00.000Z",
+        "airtable_id": "recbJot2InHP4cMlF",
+        "ecommerce": [
+            "recF3He1PR1Bo9voi"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787500020"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260618-cMlF",
+        "label_packaged_prod": "Packaged: 2026-06-17",
+        "label_subtitle_prod": " Blue Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260514-QbeT\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-18",
+        "package_class": "Retail",
+        "print_queue": [
+            "recCPvhjTmd8niGIi"
+        ],
+        "product_id": "PROD-260618-cMlF",
+        "public_link": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-07-06T18:46:07.000Z",
+        "airtable_id": "recdis5Epwl9QZclz",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260706-Zclz",
+        "label_packaged_prod": "Packaged: 2026-07-05",
+        "label_subtitle_prod": "166.53 g \u2022 Black Pearl King Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 166.525,
+        "origin_lot_ids_json": "[\"recFcOoOyzaTIPoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-06",
+        "package_class": "Retail",
+        "print_queue": [
+            "recakkODs32xYaGmk"
+        ],
+        "product_id": "PROD-260706-Zclz",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recdzF51a9EiU1yq8",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-1yq8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recE2u4CZKgNh2teV"
+        ],
+        "product_id": "PROD-260713-1yq8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:21:00.000Z",
+        "airtable_id": "receO2H9ZP9wo6vKV",
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-6vKV",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Pearl Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-15",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260516-fgNv\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recKIQ55HqSQqpWUF"
+        ],
+        "product_id": "PROD-260604-6vKV",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2026-08-16"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:29:32.000Z",
+        "airtable_id": "recf0lKNp6lNdrwcQ",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-rwcQ",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-0bmb\"]",
+        "origin_lots": [
+            "recmHotH3ZmsQ0bmb"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recOsdBjySKOpuL9I"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-rwcQ",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "rech5X9aMz6jTeiPY",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-eiPY",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recmsaWPeaKsdS3Ao"
+        ],
+        "product_id": "PROD-260713-eiPY",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:22:30.000Z",
+        "airtable_id": "reciSK4kYWYUN131m",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-131m",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "192.69 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 192.685,
+        "origin_lot_ids_json": "[\"recjy3YgBfr8f05m3\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec6VLQ4OWHor3lmZ"
+        ],
+        "product_id": "PROD-260715-131m",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recif9AcaljlF8hHT",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-8hHT",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recYgJDJpVNQpz9V4"
+        ],
+        "product_id": "PROD-260713-8hHT",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:04:06.000Z",
+        "airtable_id": "recjAovSBiylPuCCv",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-uCCv",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "100.86 g \u2022 Red Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 100.86,
+        "origin_lot_ids_json": "[\"reckgVV744mHVy1th\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recxG9ehJCJYTWpE7"
+        ],
+        "product_id": "PROD-260614-uCCv",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:39:00.000Z",
+        "airtable_id": "recjTLojAVq7HYs7X",
+        "ecommerce": [
+            "rec3ArssudPfyLSlL"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787501805"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-Ys7X",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Red Reishi",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1417.48,
+        "net_weight_oz": 50,
+        "origin_lot_ids_json": "[\"LOT-260514-a8cV\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recCJhoRMglvGh1H2"
+        ],
+        "product_id": "PROD-260604-Ys7X",
+        "public_link": [
+            "https://www.mybusiness.com/products/Red-Reishi-Grow-Kit-Ready-to-Grow-p610276670"
+        ],
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-07-01T22:09:56.000Z",
+        "airtable_id": "recjZFeeA1mChINe0",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260701-INe0",
+        "label_packaged_prod": "Packaged: 2026-06-30",
+        "label_subtitle_prod": "158.28 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 158.275,
+        "origin_lot_ids_json": "[\"rec6mV7zZFh2IfOgP\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-01",
+        "package_class": "Retail",
+        "print_queue": [
+            "recehDGF4E5blJc54"
+        ],
+        "product_id": "PROD-260701-INe0",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-15T19:22:30.000Z",
+        "airtable_id": "reckxPfc3paeFiEy5",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260715-iEy5",
+        "label_packaged_prod": "Packaged: 2026-07-14",
+        "label_subtitle_prod": "192.69 g \u2022 Pink Oyster",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 192.685,
+        "origin_lot_ids_json": "[\"recjy3YgBfr8f05m3\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-15",
+        "package_class": "Retail",
+        "print_queue": [
+            "recSZUhjpQKDwovDU"
+        ],
+        "product_id": "PROD-260715-iEy5",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pink Oyster"
+        ],
+        "strain_id": [
+            "rechTbpjL4Nt9Tks0"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:25:46.000Z",
+        "airtable_id": "reclpVbJTcOF0skUG",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-skUG",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recOfR6dYcGRQs8KF"
+        ],
+        "product_id": "PROD-260713-skUG",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:29:50.000Z",
+        "airtable_id": "reclsDHBRXt1qHNN7",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-HNN7",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-uozn\"]",
+        "origin_lots": [
+            "recpxC1yDCvcXuozn"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recqASemD3OhsjjYB"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-HNN7",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recm3UAyEkpr3N6P8",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-N6P8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recpX0SVIYtAGB0MQ"
+        ],
+        "product_id": "PROD-260713-N6P8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recmzbATAajgIPumy",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-Pumy",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recJoVvoxiv8aRMR5"
+        ],
+        "product_id": "PROD-260713-Pumy",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T20:41:49.000Z",
+        "airtable_id": "recnJsa4x61Nnctts",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-ctts",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "239.43 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 239.43,
+        "origin_lot_ids_json": "[\"recqV2YP2xN7ZMpaY\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec3Apbnp3txbFr8g"
+        ],
+        "product_id": "PROD-260614-ctts",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-19T19:07:36.000Z",
+        "airtable_id": "recoGL6MiTf9KiwJS",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260619-iwJS",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-18",
+        "label_proc_prod": [
+            "Sterilized: 2026-06-15"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "1.75 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-18",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 793.79,
+        "net_weight_oz": 28,
+        "origin_lot_ids_json": "[\"LOT-260616-NDUv\"]",
+        "origin_lots": [
+            "rec4rc5rjKCi7NDUv"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-19",
+        "package_class": "Retail",
+        "print_queue": [
+            "recy622eaLlE9HUpQ"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260619-iwJS",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "unit_lbs": [
+            "1.75 lb"
+        ],
+        "unit_size": [
+            1.75
+        ],
+        "use_by": "2026-09-19"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:45:00.000Z",
+        "airtable_id": "recp2LWMQnEdN6GXU",
+        "item_category": [
+            "substrate"
+        ],
+        "item_category_mat": "substrate",
+        "item_id": [
+            "recJgSj2nMQhhMQm3"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-6GXU",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Pasteurized: 2026-05-25"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "5 lb \u2022 Pasteurized",
+        "label_title_prod": "Coco Verm Gypsum Substrate",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Coco Verm Gypsum"
+        ],
+        "name_mat": "Coco Verm Gypsum",
+        "net_weight_g": 2267.96,
+        "net_weight_oz": 80,
+        "origin_lot_ids_json": "[\"LOT-260525-rJnS\"]",
+        "origin_lots": [
+            "recA5hUFz1FetrJnS"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recX1ilH6OSauielY"
+        ],
+        "process_type": [
+            "Pasteurize"
+        ],
+        "process_type_mat": "Pasteurize",
+        "product_id": "PROD-260605-6GXU",
+        "public_link": "https://www.mybusiness.com/",
+        "storage_location": [
+            "recwRFW2aHlJivoX3"
+        ],
+        "unit_lbs": [
+            "5 lb"
+        ],
+        "unit_size": [
+            5
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:29:43.000Z",
+        "airtable_id": "recq7NZzhtLJTPLuS",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-PLuS",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Sterilized: 2026-05-23"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "2 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 907.18,
+        "net_weight_oz": 32,
+        "origin_lot_ids_json": "[\"LOT-260523-OWxE\"]",
+        "origin_lots": [
+            "recoMnoCnqoiyOWxE"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recIdbJTEQz1lEJ3F"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260605-PLuS",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "storage_location": [
+            "recmsz1EhK9NRKLYr"
+        ],
+        "unit_lbs": [
+            "2 lb"
+        ],
+        "unit_size": [
+            2
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recqoIPy2xbLxKN9z",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-KN9z",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "rec8yitnUqwcDx5Ag"
+        ],
+        "product_id": "PROD-260713-KN9z",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:26:33.000Z",
+        "airtable_id": "recqsa8hoKRch4Wk8",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-4Wk8",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recAkg4FMjLCnGlqA"
+        ],
+        "product_id": "PROD-260713-4Wk8",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-05T19:45:07.000Z",
+        "airtable_id": "recrcbnUjgvBCJge5",
+        "ecommerce": [
+            "rec02VOqyUOnHMPzQ"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787502208"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877"
+        ],
+        "item_category": [
+            "substrate"
+        ],
+        "item_category_mat": "substrate",
+        "item_id": [
+            "recJgSj2nMQhhMQm3"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260605-Jge5",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-04",
+        "label_proc_prod": [
+            "Pasteurized: 2026-05-25"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "5 lb \u2022 Pasteurized",
+        "label_title_prod": "Coco Verm Gypsum Substrate",
+        "label_useby_prod": "Use by: 2026-09-04",
+        "name": [
+            "Coco Verm Gypsum"
+        ],
+        "name_mat": "Coco Verm Gypsum",
+        "net_weight_g": 2267.96,
+        "net_weight_oz": 80,
+        "origin_lot_ids_json": "[\"LOT-260525-vvi2\"]",
+        "origin_lots": [
+            "rechupBWHW7wvvvi2"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-05",
+        "package_class": "Retail",
+        "print_queue": [
+            "recqZ1D02BmOm0NxR"
+        ],
+        "process_type": [
+            "Pasteurize"
+        ],
+        "process_type_mat": "Pasteurize",
+        "product_id": "PROD-260605-Jge5",
+        "public_link": [
+            "https://www.mybusiness.com/products/5lb-Coco-Coir-Bag-p711334877"
+        ],
+        "unit_lbs": [
+            "5 lb"
+        ],
+        "unit_size": [
+            5
+        ],
+        "use_by": "2026-09-05"
+    },
+    {
+        "airtable_createdTime": "2026-05-23T00:12:43.000Z",
+        "airtable_id": "recsMHkBRzFL7rUaV",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260523-rUaV",
+        "label_packaged_prod": "Packaged: 2026-05-22",
+        "label_subtitle_prod": "209.02 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 209.02,
+        "origin_lot_ids_json": "[\"rec6mV7zZFh2IfOgP\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-05-23",
+        "package_class": "Retail",
+        "print_queue": [
+            "recXTSB3XOcLKZqMq"
+        ],
+        "product_id": "PROD-260523-rUaV",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "rectNqVYcQDzzq8EB",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-q8EB",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recOIDOkRuhYARPsn"
+        ],
+        "product_id": "PROD-260713-q8EB",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-05-23T00:00:56.000Z",
+        "airtable_id": "rectZjRrRCGffot4v",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260523-ot4v",
+        "label_packaged_prod": "Packaged: 2026-05-22",
+        "label_subtitle_prod": "159.5 g \u2022 Chestnut",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 159.5,
+        "origin_lot_ids_json": "[\"recpLZQpMFvnUSUbR\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-05-23",
+        "package_class": "Retail",
+        "print_queue": [
+            "rec3CBNPYW3MeMSad"
+        ],
+        "product_id": "PROD-260523-ot4v",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Chestnut"
+        ],
+        "strain_id": [
+            "recV9ephQ5NJProZu"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:03:15.000Z",
+        "airtable_id": "rectcfyyczUWWQIJL",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-QIJL",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "133.95 g \u2022 Red Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 133.95,
+        "origin_lot_ids_json": "[\"rec7f8nVIdC7NsnlO\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recvK6UH1SP67RdLK"
+        ],
+        "product_id": "PROD-260614-QIJL",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:29:09.000Z",
+        "airtable_id": "recu2ir963M1NTEiP",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Approximate sample size: 3\u20135 daily servings.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-TEiP",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Red Reishi",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-251113-doLo\",\"LOT-251121-bq4J\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recV0RMCthzb31ull"
+        ],
+        "product_id": "PROD-260713-TEiP",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T20:43:33.000Z",
+        "airtable_id": "recuFkYzv9SMhaXKE",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-aXKE",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "155.79 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 155.79,
+        "origin_lot_ids_json": "[\"rec0muhkbeeEr9KX7\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recowvNh7DfIv4LuB"
+        ],
+        "product_id": "PROD-260614-aXKE",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-06-19T19:07:29.000Z",
+        "airtable_id": "recukVj1EnayRntpy",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260619-ntpy",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-18",
+        "label_proc_prod": [
+            "Sterilized: 2026-06-15"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "1.75 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-18",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 793.79,
+        "net_weight_oz": 28,
+        "origin_lot_ids_json": "[\"LOT-260616-B68Z\"]",
+        "origin_lots": [
+            "rec4oLI79L9qNB68Z"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-19",
+        "package_class": "Retail",
+        "print_queue": [
+            "recj42sdSdihE7NFX"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260619-ntpy",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "unit_lbs": [
+            "1.75 lb"
+        ],
+        "unit_size": [
+            1.75
+        ],
+        "use_by": "2026-09-19"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:05:12.000Z",
+        "airtable_id": "recupbqIz5zeAlffI",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-lffI",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "125.48 g \u2022 Red Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 125.48,
+        "origin_lot_ids_json": "[\"recInm0ognmr4N0NX\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recr25dc2HJH49rG8"
+        ],
+        "product_id": "PROD-260614-lffI",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Red Reishi"
+        ],
+        "strain_id": [
+            "recxZKdhM1v5Wh51M"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-13T22:27:35.000Z",
+        "airtable_id": "recw308dfNouJ8fQB",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260713-8fQB",
+        "label_packaged_prod": "Packaged: 2026-07-12",
+        "label_subtitle_prod": "5 g Black Pearl King Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-12",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260512-5bJ9\",\"LOT-260512-PoAX\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-13",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recrc9dNFC445oy8v"
+        ],
+        "product_id": "PROD-260713-8fQB",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Black Pearl King Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recCh2Z1gu1BRgW5x"
+        ],
+        "use_by": "2028-07-13"
+    },
+    {
+        "airtable_createdTime": "2026-06-19T19:07:22.000Z",
+        "airtable_id": "recxlrwiIKh5CAA94",
+        "ecommerce": [
+            "recIo7Q8Si74dzuDk"
+        ],
+        "ecwid_price (from ecommerce)": [
+            7.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6.865787502055E12"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "item_category": [
+            "grain"
+        ],
+        "item_category_mat": "grain",
+        "item_id": [
+            "recwdBny04rzSGGrO"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260619-AA94",
+        "label_inoc_prod": [
+            null
+        ],
+        "label_packaged_prod": "Packaged: 2026-06-18",
+        "label_proc_prod": [
+            "Sterilized: 2026-06-15"
+        ],
+        "label_spawned_prod": [
+            null
+        ],
+        "label_subtitle_prod": "1.75 lb \u2022 Sterilized",
+        "label_title_prod": "Wild Bird Seed Grain",
+        "label_useby_prod": "Use by: 2026-09-18",
+        "name": [
+            "Wild Bird Seed"
+        ],
+        "name_mat": "Wild Bird Seed",
+        "net_weight_g": 793.79,
+        "net_weight_oz": 28,
+        "origin_lot_ids_json": "[\"LOT-260616-p5dk\"]",
+        "origin_lots": [
+            "rec2grEmnDMXTp5dk"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-19",
+        "package_class": "Retail",
+        "print_queue": [
+            "recHB4gtMItn7HKvd"
+        ],
+        "process_type": [
+            "Sterilize"
+        ],
+        "process_type_mat": "Sterilize",
+        "product_id": "PROD-260619-AA94",
+        "public_link": [
+            "https://www.mybusiness.com/products/2lb-WBS-Grain-Spawn-Bag-Sterilized-p711335072"
+        ],
+        "unit_lbs": [
+            "1.75 lb"
+        ],
+        "unit_size": [
+            1.75
+        ],
+        "use_by": "2026-09-19"
+    },
+    {
+        "airtable_createdTime": "2026-06-04T15:59:30.000Z",
+        "airtable_id": "recyHg6ax6gBOGSPC",
+        "ecommerce": [
+            "recF3He1PR1Bo9voi"
+        ],
+        "ecwid_price (from ecommerce)": [
+            14.95
+        ],
+        "ecwid_upc (from ecommerce)": [
+            "6865787500020"
+        ],
+        "ecwid_url (from ecommerce)": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "item_category": [
+            "fruiting_block"
+        ],
+        "item_category_mat": "fruiting_block",
+        "item_id": [
+            "recU9tdgUerFEM9oJ"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyinfo_prod": "My Business offers delivery and shipment of fresh gourmet and specialty mushrooms, dried mushrooms, mushroom supplements, mushroom grow kits and mycology supplies.",
+        "label_cottage_prod": "This product contains ingredients designed for mushroom cultivation.  This product is not intended for human consumption.",
+        "label_footer_prod": "PROD-260604-GSPC",
+        "label_packaged_prod": "Packaged: 2026-06-03",
+        "label_subtitle_prod": " Blue Oyster",
+        "label_title_prod": "Small Masters Mix 75/25",
+        "label_useby_prod": "Use by: 2026-08-13",
+        "name": [
+            "Small Masters Mix 75/25"
+        ],
+        "name_mat": "Small Masters Mix 75/25",
+        "net_weight_g": 1360.78,
+        "net_weight_oz": 48,
+        "origin_lot_ids_json": "[\"LOT-260514-KLen\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-04",
+        "package_class": "Retail",
+        "print_queue": [
+            "recls5p3S3VI7NYRd"
+        ],
+        "product_id": "PROD-260604-GSPC",
+        "public_link": [
+            "https://www.mybusiness.com/products/Blue-Oyster-Grow-Kit-Ready-to-Grow-p610274980"
+        ],
+        "species_strain": [
+            "Blue Oyster"
+        ],
+        "strain_id": [
+            "recszNf2WlZjSQqyL"
+        ],
+        "use_by": "2026-08-14"
+    },
+    {
+        "airtable_createdTime": "2026-06-14T21:00:05.000Z",
+        "airtable_id": "recywDdY7eCfrxKL7",
+        "item_category": [
+            "freezer_tray"
+        ],
+        "item_category_mat": "freezer_tray",
+        "item_id": [
+            "recfe2XhEw2mDbQIw"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessAddressAndContactness.com",
+        "label_footer_prod": "PROD-260614-xKL7",
+        "label_packaged_prod": "Packaged: 2026-06-13",
+        "label_subtitle_prod": "113.35 g \u2022 Bronze Reishi",
+        "label_title_prod": "Freezer Tray",
+        "name": [
+            "Freezer Tray"
+        ],
+        "name_mat": "Freezer Tray",
+        "net_weight_g": 113.35,
+        "origin_lot_ids_json": "[\"recPC5g8giZxWEbFz\"]",
+        "origin_strain_product_use": [
+            "Functional"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-06-14",
+        "package_class": "Retail",
+        "print_queue": [
+            "recFB0uHrBLucUU63"
+        ],
+        "product_id": "PROD-260614-xKL7",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Bronze Reishi"
+        ],
+        "strain_id": [
+            "rec7lLl0rRBhkwO6H"
+        ],
+        "tray_state": "freezer_tray"
+    },
+    {
+        "airtable_createdTime": "2026-07-11T19:52:54.000Z",
+        "airtable_id": "reczEQHhDkTCjNAJa",
+        "item_category": [
+            "freezedriedmushrooms"
+        ],
+        "item_category_mat": "freezedriedmushrooms",
+        "item_id": [
+            "rec9NyWf6GffWxDzt"
+        ],
+        "label_company_prod": "My Business",
+        "label_companyaddress_base_prod": "MyBusinessAddressAndContactness.com",
+        "label_companyaddress_prod": "MyBusinessStreetAddress \u2022 MyBusinessCityStateZip \u2022 https://www.mybusiness.com/ \u2022 MyBusinessPhone \u2022 contact@mybusiness.com",
+        "label_companyinfo_prod": "Sample size: Great for one recipe.",
+        "label_cottage_prod": "This product was produced in a home kitchen that is not subject to state licensure or inspection and that may also contain common food allergies such as tree nuts, peanuts, eggs, soy, wheat, milk, fish, and crustacean shellfish.  This product is not intended for resale.",
+        "label_footer_prod": "PROD-260711-NAJa",
+        "label_packaged_prod": "Packaged: 2026-07-10",
+        "label_subtitle_prod": "5 g Pearl Oyster",
+        "label_title_prod": "Freeze Dried Mushrooms",
+        "label_useby_prod": "Use by: 2028-07-10",
+        "name": [
+            "Freeze Dried Mushrooms"
+        ],
+        "name_mat": "Freeze Dried Mushrooms",
+        "net_weight_g": 5,
+        "origin_lot_ids_json": "[\"LOT-260228-JqUB\"]",
+        "origin_strain_product_use": [
+            "Gourmet"
+        ],
+        "origin_strain_regulated": 0,
+        "pack_date": "2026-07-11",
+        "package_class": "Sample",
+        "package_size": "5 g",
+        "package_size_g": "5",
+        "print_queue": [
+            "recBiq7TYlHX2wpGq"
+        ],
+        "product_id": "PROD-260711-NAJa",
+        "public_link": "https://www.mybusiness.com/",
+        "species_strain": [
+            "Pearl Oyster"
+        ],
+        "storage_location": [
+            "rec8wChW6yuYDl51g"
+        ],
+        "strain_id": [
+            "recAJwZGQuVlEUFpb"
+        ],
+        "use_by": "2028-07-11"
+    }
+]

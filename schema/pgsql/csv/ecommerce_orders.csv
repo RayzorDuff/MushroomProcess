@@ -1,0 +1,69 @@
+airtable_id,name,ecwid_order_id,order_number,order_code,status,order_date,customer_name,customer_email,items_json,ecwid_skus,payment_status,payment_method,subtotal,tax_total,order_total,currency,clover_reconciliation_status,clover_payment_id,clover_payment_amount,clover_payment_time,clover_match_confidence,reconciled_at,reconciliation_notes,ecwid_event_type,ecwid_event_id,last_webhook_at
+rec3DqozSZW2O8rw8,#493677939 – [DEMO] Test order,SCWXX,493677939,,SHIPPED,2024-05-05T22:58:00.000Z,[DEMO] Test order,,"[
+  {
+    ""id"": 1745477078,
+    ""productId"": 610273995,
+    ""categoryId"": 160277251,
+    ""price"": 15.95,
+    ""priceWithoutTax"": 15.95,
+    ""productPrice"": 15.95,
+    ""basePrice"": 15.95,
+    ""basePriceType"": ""PRODUCT"",
+    ""sku"": ""9099d20e-67e4-4824-ba9e-0bad4e3d527c"",
+    ""quantity"": 1,
+    ""shortDescription"": """",
+    ""shortDescriptionTranslated"": {
+      ""en"": """"
+    },
+    ""tax"": 0.46,
+    ""shipping"": 9.25,
+    ""handlingFee"": 0,
+    ""quantityInStock"": 2,
+    ""name"": ""Pink Oyster Grow Kit"",
+    ""nameTranslated"": {
+      ""en"": ""Pink Oyster Grow Kit""
+    },
+    ""isShippingRequired"": true,
+    ""weight"": 0,
+    ""trackQuantity"": true,
+    ""fixedShippingRateOnly"": false,
+    ""fixedShippingRate"": 0,
+    ""digital"": false,
+    ""productAvailable"": true,
+    ""couponApplied"": false,
+    ""taxes"": [
+      {
+        ""name"": ""Colorado State Tax"",
+        ""value"": 2.9,
+        ""total"": 0.46,
+        ""taxOnDiscountedSubtotal"": 0.46,
+        ""taxOnShipping"": 0,
+        ""taxOnHandlingFee"": 0,
+        ""includeInPrice"": false,
+        ""sourceTaxRateId"": 0,
+        ""sourceTaxRateType"": ""AUTO"",
+        ""taxClassName"": ""General tax category (sales tax standard rate)"",
+        ""taxClassCode"": ""default"",
+        ""taxType"": ""STATE""
+      }
+    ],
+    ""discounts"": [],
+    ""discountsAllowed"": true,
+    ""taxable"": true,
+    ""giftCard"": false,
+    ""recurringTaxIds"": [],
+    ""isCustomerSetPrice"": false,
+    ""taxClassCode"": ""default"",
+    ""attributes"": [
+      {
+        ""name"": ""Clover Product ID"",
+        ""value"": ""RNGGKMYBVF2YW""
+      },
+      {
+        ""name"": ""UPC"",
+        ""value"": ""6865787501607""
+      }
+    ],
+    ""compositeComponents"": []
+  }
+]",9099d20e-67e4-4824-ba9e-0bad4e3d527c,PAID,,15.95,0.46,25.66,,,,,,,,,,,

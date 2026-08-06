@@ -1,0 +1,259 @@
+{
+  "name": "MushroomProcess - Daily Reconciliation Report Email + PDF - PGSQL",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 21
+            }
+          ]
+        }
+      },
+      "id": "37ef516e-6256-4fa4-8401-a923ed6b8fd0",
+      "name": "Schedule - Daily Report",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst timezone = $env.REPORT_TIMEZONE || 'America/Denver';\n\nfunction zonedParts(date, timeZone) {\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false,\n    hourCycle: 'h23'\n  }).formatToParts(date);\n  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));\n  return {\n    year: Number(map.year),\n    month: Number(map.month),\n    day: Number(map.day),\n    hour: Number(map.hour),\n    minute: Number(map.minute),\n    second: Number(map.second)\n  };\n}\n\nfunction localDateKey(date, timeZone) {\n  const p = zonedParts(date, timeZone);\n  return [\n    String(p.year).padStart(4, '0'),\n    String(p.month).padStart(2, '0'),\n    String(p.day).padStart(2, '0')\n  ].join('-');\n}\n\nfunction addDaysToDateKey(dateKey, days) {\n  const [year, month, day] = dateKey.split('-').map(Number);\n  const d = new Date(Date.UTC(year, month - 1, day + days, 0, 0, 0));\n  return d.toISOString().slice(0, 10);\n}\n\nfunction utcForLocalMidnight(dateKey, timeZone) {\n  const [year, month, day] = dateKey.split('-').map(Number);\n  const targetMs = Date.UTC(year, month - 1, day, 0, 0, 0);\n  let guessMs = targetMs;\n\n  for (let i = 0; i < 6; i += 1) {\n    const p = zonedParts(new Date(guessMs), timeZone);\n    const actualMs = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);\n    const deltaMs = targetMs - actualMs;\n    if (deltaMs === 0) break;\n    guessMs += deltaMs;\n  }\n\n  return new Date(guessMs).toISOString();\n}\n\nconst now = new Date();\nconst reportDate = localDateKey(now, timezone);\nconst nextReportDate = addDaysToDateKey(reportDate, 1);\n\nreturn [{\n  json: {\n    report_timezone: timezone,\n    report_date: reportDate,\n    report_start_utc: utcForLocalMidnight(reportDate, timezone),\n    report_end_utc: utcForLocalMidnight(nextReportDate, timezone),\n    report_generated_at: now.toISOString()\n  }\n}];\n"
+      },
+      "id": "c541645d-908b-4266-adbf-a87057ad89d1",
+      "name": "Code - Prepare Report Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ `SELECT COALESCE(json_agg(json_build_object('id', COALESCE(o.airtable_id, o.nocopk::text), 'fields', json_build_object(\n  'name', o.name,\n  'ecwid_order_id', o.ecwid_order_id,\n  'order_number', o.order_number,\n  'order_code', o.order_code,\n  'status', o.status,\n  'order_date', o.order_date,\n  'customer_name', o.customer_name,\n  'customer_email', o.customer_email,\n  'items_json', o.items_json,\n  'ecwid_skus', o.ecwid_skus,\n  'payment_status', o.payment_status,\n  'payment_method', o.payment_method,\n  'subtotal', o.subtotal,\n  'tax_total', o.tax_total,\n  'order_total', o.order_total,\n  'currency', o.currency,\n  'clover_reconciliation_status', o.clover_reconciliation_status,\n  'clover_payment_id', o.clover_payment_id,\n  'clover_payment_amount', o.clover_payment_amount,\n  'clover_payment_time', o.clover_payment_time,\n  'clover_match_confidence', o.clover_match_confidence,\n  'reconciled_at', o.reconciled_at,\n  'reconciliation_notes', o.reconciliation_notes,\n  'ecwid_event_type', o.ecwid_event_type,\n  'ecwid_event_id', o.ecwid_event_id,\n  'last_webhook_at', o.last_webhook_at,\n  'products', COALESCE(lp.product_record_ids, ARRAY[]::text[]),\n  'products_report', COALESCE(lp.product_names, ''),\n  'product_ids_report', COALESCE(lp.product_ids, '')\n)) ORDER BY o.order_date ASC), '[]'::json) AS records\nFROM public.ecommerce_orders o\nLEFT JOIN LATERAL (\n  SELECT\n    array_agg(COALESCE(p.airtable_id, p.nocopk::text) ORDER BY p.product_id) AS product_record_ids,\n    string_agg(COALESCE(p.name_mat, p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_names,\n    string_agg(COALESCE(p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_ids\n  FROM public._m2m_products_ecommerce_orders_ecommerce_orders m\n  JOIN public.products p ON p.nocopk = m.products_id\n  WHERE m.ecommerce_orders_id = o.nocopk\n) lp ON true\nWHERE o.order_date >= '${$('Code - Prepare Report Context').first().json.report_start_utc}'::timestamp\n  AND o.order_date < '${$('Code - Prepare Report Context').first().json.report_end_utc}'::timestamp;` }}",
+        "options": {}
+      },
+      "id": "e18aa29d-c493-49ce-9f09-3e03fbd44429",
+      "name": "PGSQL - List Orders for Report Date",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ `${$env.CLOVER_API_BASE_URL || 'https://api.clover.com'}/v3/merchants/${$env.CLOVER_MERCHANT_ID}/payments` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "200"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9fea55b6-ec28-4dd2-92b1-c58fbb1c4e1d",
+      "name": "HTTP - Get Clover Payments for Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "dc867692-c092-4352-af05-3805e6102522",
+      "name": "Merge - Orders and Clover Payments",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Code - Prepare Report Context').first().json;\nconst ordersResponse = $('PGSQL - List Orders for Report Date').first()?.json || {};\nconst cloverResponse = $('HTTP - Get Clover Payments for Report').first()?.json || {};\n\nconst timezone = ctx.report_timezone || 'America/Denver';\nconst reportDate = ctx.report_date;\nconst generatedAt = ctx.report_generated_at;\n\nconst orders = Array.isArray(ordersResponse.records)\n  ? ordersResponse.records.map(r => ({ airtable_record_id: r.id, ...(r.fields || {}) }))\n  : [];\n\nconst allPayments = Array.isArray(cloverResponse.elements) ? cloverResponse.elements : [];\n\nfunction localDateKey(date, timeZone) {\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit'\n  }).formatToParts(date);\n  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));\n  return `${map.year}-${map.month}-${map.day}`;\n}\n\nfunction localTime(dateLike, timeZone) {\n  if (!dateLike) return '';\n  const d = dateLike instanceof Date ? dateLike : new Date(dateLike);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone,\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction money(value) {\n  const num = Number(value || 0);\n  return `$${num.toFixed(2)}`;\n}\n\nfunction parseItems(row) {\n  try {\n    const items = typeof row.items_json === 'string' ? JSON.parse(row.items_json) : [];\n    return Array.isArray(items) ? items : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction orderedNames(row) {\n  const items = parseItems(row);\n  const names = items\n    .map((i) => String(i?.name || i?.nameTranslated?.en || '').trim())\n    .filter(Boolean);\n  return names.join(', ');\n}\n\nfunction productsSummary(row) {\n  const candidates = [\n    row.products_report,\n    row.product_ids_report,\n    row.products_summary,\n    row.product_summary,\n    row.products_display\n  ].filter(Boolean);\n\n  const linked = candidates.length\n    ? (Array.isArray(candidates[0]) ? candidates[0].join(', ') : String(candidates[0]))\n    : (Array.isArray(row.products) && row.products.length ? row.products.join(', ') : '');\n\n  const ordered = orderedNames(row);\n\n  if (linked && ordered) return `${linked} (ordered: ${ordered})`;\n  if (linked) return linked;\n  if (ordered) return `(not yet linked) ordered: ${ordered}`;\n  return '(none linked)';\n}\n\n// Build Ecwid product tally from order line items\nconst tallyMap = new Map();\nfor (const row of orders) {\n  const orderRef = String(row.order_code || row.ecwid_order_id || row.order_number || '(unknown)');\n  for (const item of parseItems(row)) {\n    const name = String(item?.name || item?.nameTranslated?.en || '(unknown product)').trim() || '(unknown product)';\n    const sku = String(item?.sku || '').trim() || '';\n    const productId = String(item?.productId || '').trim() || '';\n    const qty = Number(item?.quantity || 0) || 0;\n    const key = `${name}|||${sku}|||${productId}`;\n\n    if (!tallyMap.has(key)) {\n      tallyMap.set(key, {\n        name,\n        sku,\n        productId,\n        qty: 0,\n        orderRefs: new Set(),\n      });\n    }\n\n    const entry = tallyMap.get(key);\n    entry.qty += qty;\n    entry.orderRefs.add(orderRef);\n  }\n}\n\nconst productTally = Array.from(tallyMap.values()).sort((a, b) => {\n  const qtyDiff = b.qty - a.qty;\n  if (qtyDiff !== 0) return qtyDiff;\n  return a.name.localeCompare(b.name);\n});\n\nconst todaysPayments = allPayments.filter((p) => {\n  const created = Number(p.createdTime || 0);\n  if (!created) return false;\n  return localDateKey(new Date(created), timezone) === reportDate;\n});\n\nconst successfulPayments = todaysPayments.filter((p) => String(p.result || '') === 'SUCCESS');\n\nconst reconciledOrders = orders.filter((r) => String(r.clover_reconciliation_status || '') === 'reconciled');\nconst pendingOrders = orders.filter((r) => String(r.clover_reconciliation_status || '') === 'pending');\nconst reviewOrders = orders.filter((r) => String(r.clover_reconciliation_status || '') === 'needs_review');\nconst otherOrders = orders.filter((r) => !['reconciled', 'pending', 'needs_review'].includes(String(r.clover_reconciliation_status || '')));\n\nconst usedPaymentIds = new Set(\n  reconciledOrders.map((r) => String(r.clover_payment_id || '').trim()).filter(Boolean)\n);\n\nconst unreconciledPayments = successfulPayments.filter((p) => !usedPaymentIds.has(String(p.id || '').trim()));\n\nconst lines = [];\nlines.push(`MushroomProcess Daily Reconciliation Report`);\nlines.push(`Report date: ${reportDate} (${timezone})`);\nlines.push(`Generated at: ${generatedAt}`);\nlines.push('');\nlines.push(`Summary`);\nlines.push(`- Postgres orders today: ${orders.length}`);\nlines.push(`- Reconciled orders: ${reconciledOrders.length}`);\nlines.push(`- Pending orders: ${pendingOrders.length}`);\nlines.push(`- Needs review orders: ${reviewOrders.length}`);\nlines.push(`- Other order statuses: ${otherOrders.length}`);\nlines.push(`- Clover SUCCESS payments today: ${successfulPayments.length}`);\nlines.push(`- Clover payments not tied to reconciled orders: ${unreconciledPayments.length}`);\nlines.push(`- Distinct Ecwid products sold today: ${productTally.length}`);\nlines.push('');\n\nlines.push(`Ecwid Product Tally`);\nif (!productTally.length) {\n  lines.push(`(none)`);\n} else {\n  productTally.forEach((p) => {\n    const skuPart = p.sku ? ` | SKU ${p.sku}` : '';\n    const productIdPart = p.productId ? ` | productId ${p.productId}` : '';\n    const ordersPart = Array.from(p.orderRefs).sort().join(', ');\n    lines.push(\n      `- ${p.name} | qty ${p.qty}${skuPart}${productIdPart} | orders: ${ordersPart || '(none)'}`\n    );\n  });\n}\nlines.push('');\n\nlines.push(`Reconciled Orders`);\nif (!reconciledOrders.length) {\n  lines.push(`(none)`);\n} else {\n  reconciledOrders.forEach((r) => {\n    lines.push(\n      `- Ecwid ${r.order_code || r.ecwid_order_id || r.order_number || '(unknown)'} | ` +\n      `${money(r.order_total)} | ordered ${localTime(r.order_date, timezone)} | ` +\n      `paid ${localTime(r.clover_payment_time, timezone)} | ` +\n      `Clover ${r.clover_payment_id || '(none)'} | ` +\n      `Products: ${productsSummary(r)}`\n    );\n  });\n}\nlines.push('');\n\nlines.push(`Ecwid Orders Not Reconciled`);\nconst unreconciledOrders = [...pendingOrders, ...reviewOrders, ...otherOrders];\nif (!unreconciledOrders.length) {\n  lines.push(`(none)`);\n} else {\n  unreconciledOrders.forEach((r) => {\n    lines.push(\n      `- Ecwid ${r.order_code || r.ecwid_order_id || r.order_number || '(unknown)'} | ` +\n      `${money(r.order_total)} | ordered ${localTime(r.order_date, timezone)} | ` +\n      `status ${r.clover_reconciliation_status || '(blank)'} | ` +\n      `Products: ${productsSummary(r)} | ` +\n      `Notes: ${r.reconciliation_notes || '(none)'}`\n    );\n  });\n}\nlines.push('');\n\nlines.push(`Clover Payments Not Reconciled To Ecwid Orders`);\nif (!unreconciledPayments.length) {\n  lines.push(`(none)`);\n} else {\n  unreconciledPayments.forEach((p) => {\n    lines.push(\n      `- Clover ${p.id || '(unknown)'} | ` +\n      `${money((Number(p.amount || 0)) / 100)} | ` +\n      `paid ${localTime(new Date(Number(p.createdTime || 0)), timezone)} | ` +\n      `Clover order ${p.order?.id || '(none)'} | ` +\n      `external ref ${p.externalReferenceId || '(none)'}`\n    );\n  });\n}\n\nconst reportText = lines.join('\\n');\n\nreturn [{\n  json: {\n    report_date: reportDate,\n    report_timezone: timezone,\n    report_generated_at: generatedAt,\n    orders_count: orders.length,\n    reconciled_orders_count: reconciledOrders.length,\n    unreconciled_orders_count: unreconciledOrders.length,\n    successful_clover_payments_count: successfulPayments.length,\n    unreconciled_clover_payments_count: unreconciledPayments.length,\n    product_tally_count: productTally.length,\n    report_text: reportText\n  }\n}];"
+      },
+      "id": "ff300994-a2ac-42a2-b976-ab13f1b90b5f",
+      "name": "Code - Build Daily Text Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst row = $json;\nconst reportText = String(row.report_text || '');\nconst reportDate = String(row.report_date || new Date().toISOString().slice(0,10));\n\nfunction escapePdfText(s) {\n  return String(s)\n    .replace(/\\\\/g, '\\\\\\\\')\n    .replace(/\\(/g, '\\\\(')\n    .replace(/\\)/g, '\\\\)');\n}\n\nfunction wrapLine(line, maxLen) {\n  if (line.length <= maxLen) return [line];\n  const words = line.split(/\\s+/);\n  const out = [];\n  let cur = '';\n  for (const word of words) {\n    const next = cur ? `${cur} ${word}` : word;\n    if (next.length <= maxLen) {\n      cur = next;\n    } else {\n      if (cur) out.push(cur);\n      if (word.length > maxLen) {\n        for (let i = 0; i < word.length; i += maxLen) out.push(word.slice(i, i + maxLen));\n        cur = '';\n      } else {\n        cur = word;\n      }\n    }\n  }\n  if (cur) out.push(cur);\n  return out;\n}\n\nfunction makePdfFromText(text) {\n  const rawLines = String(text).replace(/\\r/g, '').split('\\n');\n  const wrapped = [];\n  for (const line of rawLines) {\n    const normalized = line === '' ? ' ' : line;\n    wrapped.push(...wrapLine(normalized, 95));\n  }\n\n  const linesPerPage = 48;\n  const pages = [];\n  for (let i = 0; i < wrapped.length; i += linesPerPage) {\n    pages.push(wrapped.slice(i, i + linesPerPage));\n  }\n  if (!pages.length) pages.push([' ']);\n\n  const objects = [];\n  const addObject = (content) => {\n    objects.push(content);\n    return objects.length;\n  };\n\n  const fontId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');\n  const pageIds = [];\n  const contentIds = [];\n\n  for (const pageLines of pages) {\n    let y = 770;\n    const content = ['BT', '/F1 10 Tf', '14 TL', '50 770 Td'];\n    pageLines.forEach((line, idx) => {\n      if (idx === 0) {\n        content.push(`(${escapePdfText(line)}) Tj`);\n      } else {\n        content.push('T*');\n        content.push(`(${escapePdfText(line)}) Tj`);\n      }\n    });\n    content.push('ET');\n    const stream = content.join('\\n');\n    const contentId = addObject(`<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\\nstream\\n${stream}\\nendstream`);\n    contentIds.push(contentId);\n    const pageId = addObject(`<< /Type /Page /Parent PAGES_ID 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`);\n    pageIds.push(pageId);\n  }\n\n  const kids = pageIds.map(id => `${id} 0 R`).join(' ');\n  const pagesId = addObject(`<< /Type /Pages /Kids [${kids}] /Count ${pageIds.length} >>`);\n  for (const pageId of pageIds) {\n    objects[pageId - 1] = objects[pageId - 1].replace('PAGES_ID', String(pagesId));\n  }\n  const catalogId = addObject(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);\n\n  let pdf = '%PDF-1.4\\n';\n  const offsets = [0];\n  for (let i = 0; i < objects.length; i++) {\n    offsets.push(Buffer.byteLength(pdf, 'utf8'));\n    pdf += `${i + 1} 0 obj\\n${objects[i]}\\nendobj\\n`;\n  }\n  const xrefOffset = Buffer.byteLength(pdf, 'utf8');\n  pdf += `xref\\n0 ${objects.length + 1}\\n`;\n  pdf += '0000000000 65535 f \\n';\n  for (let i = 1; i <= objects.length; i++) {\n    pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \\n`;\n  }\n  pdf += `trailer\\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF`;\n  return Buffer.from(pdf, 'utf8');\n}\n\nconst pdfBuffer = makePdfFromText(reportText);\nreturn [{\n  json: {\n    ...row,\n    pdf_filename: `mushroomprocess-reconciliation-${reportDate}.pdf`\n  },\n  binary: {\n    pdf: {\n      data: pdfBuffer.toString('base64'),\n      mimeType: 'application/pdf',\n      fileName: `mushroomprocess-reconciliation-${reportDate}.pdf`\n    }\n  }\n}];\n"
+      },
+      "id": "7064bdcf-3074-4970-9a38-8df94fa95cc7",
+      "name": "Code - Build PDF Attachment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.REPORT_FROM_EMAIL }}",
+        "toEmail": "={{ $env.REPORT_TO_EMAIL }}",
+        "subject": "={{ `MushroomProcess Daily Reconciliation Report - ${$json.report_date}` }}",
+        "emailFormat": "text",
+        "text": "={{ $json.report_text }}",
+        "options": {
+          "attachments": "=pdf"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        96
+      ],
+      "id": "e681f68b-6810-48eb-84b3-56bd9eecd09a",
+      "name": "Send an Email",
+      "webhookId": "818b9082-dcee-43b3-a406-9ad483010bcb",
+      "credentials": {
+        "smtp": {
+          "id": "ONvaKWUvS5FHRma6",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule - Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare Report Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare Report Context": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - List Orders for Report Date",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP - Get Clover Payments for Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Clover Payments for Report": {
+      "main": [
+        [
+          {
+            "node": "Merge - Orders and Clover Payments",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge - Orders and Clover Payments": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Daily Text Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Daily Text Report": {
+      "main": [
+        [
+          {
+            "node": "Code - Build PDF Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build PDF Attachment": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - List Orders for Report Date": {
+      "main": [
+        [
+          {
+            "node": "Merge - Orders and Clover Payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fc34aeb1-574a-47bb-8959-0adb0f0a6ee4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "id": "SzU6wPlieOTqzYel",
+  "tags": []
+}

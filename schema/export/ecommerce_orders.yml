@@ -1,0 +1,82 @@
+- airtable_createdTime: '2025-12-02T20:29:01.000Z'
+  airtable_id: rec3DqozSZW2O8rw8
+  customer_name: '[DEMO] Test order'
+  ecwid_order_id: SCWXX
+  ecwid_skus: 9099d20e-67e4-4824-ba9e-0bad4e3d527c
+  items_json: |-
+    [
+      {
+        "id": 1745477078,
+        "productId": 610273995,
+        "categoryId": 160277251,
+        "price": 15.95,
+        "priceWithoutTax": 15.95,
+        "productPrice": 15.95,
+        "basePrice": 15.95,
+        "basePriceType": "PRODUCT",
+        "sku": "9099d20e-67e4-4824-ba9e-0bad4e3d527c",
+        "quantity": 1,
+        "shortDescription": "",
+        "shortDescriptionTranslated": {
+          "en": ""
+        },
+        "tax": 0.46,
+        "shipping": 9.25,
+        "handlingFee": 0,
+        "quantityInStock": 2,
+        "name": "Pink Oyster Grow Kit",
+        "nameTranslated": {
+          "en": "Pink Oyster Grow Kit"
+        },
+        "isShippingRequired": true,
+        "weight": 0,
+        "trackQuantity": true,
+        "fixedShippingRateOnly": false,
+        "fixedShippingRate": 0,
+        "digital": false,
+        "productAvailable": true,
+        "couponApplied": false,
+        "taxes": [
+          {
+            "name": "Colorado State Tax",
+            "value": 2.9,
+            "total": 0.46,
+            "taxOnDiscountedSubtotal": 0.46,
+            "taxOnShipping": 0,
+            "taxOnHandlingFee": 0,
+            "includeInPrice": false,
+            "sourceTaxRateId": 0,
+            "sourceTaxRateType": "AUTO",
+            "taxClassName": "General tax category (sales tax standard rate)",
+            "taxClassCode": "default",
+            "taxType": "STATE"
+          }
+        ],
+        "discounts": [],
+        "discountsAllowed": true,
+        "taxable": true,
+        "giftCard": false,
+        "recurringTaxIds": [],
+        "isCustomerSetPrice": false,
+        "taxClassCode": "default",
+        "attributes": [
+          {
+            "name": "Clover Product ID",
+            "value": "RNGGKMYBVF2YW"
+          },
+          {
+            "name": "UPC",
+            "value": "6865787501607"
+          }
+        ],
+        "compositeComponents": []
+      }
+    ]
+  name: "#493677939 \u2013 [DEMO] Test order"
+  order_date: '2024-05-05T22:58:00.000Z'
+  order_number: 493677939
+  order_total: 25.66
+  payment_status: PAID
+  status: SHIPPED
+  subtotal: 15.95
+  tax_total: 0.46
