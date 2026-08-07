@@ -373,6 +373,19 @@ This document maps all tables and their fields as defined in the current Airtabl
 | ecwid_url               | url                 |
 | ecwid_image             | multipleAttachments |
 | ecwid_upc               | single line         |
+| provider                | PostgreSQL text (provider-neutral) |
+| site_key                | PostgreSQL text (provider-neutral) |
+| external_sku            | PostgreSQL text (provider-neutral) |
+| sync_enabled            | PostgreSQL boolean (provider-neutral) |
+| external_category       | PostgreSQL text (provider-neutral) |
+| external_price          | PostgreSQL number (provider-neutral) |
+| external_stock          | PostgreSQL number (provider-neutral) |
+| public_url              | PostgreSQL URL (provider-neutral) |
+| external_image          | PostgreSQL jsonb (provider-neutral) |
+| upc                     | PostgreSQL text (provider-neutral) |
+| external_product_id     | PostgreSQL text (provider-neutral) |
+| external_variation_id   | PostgreSQL text (provider-neutral) |
+| is_primary_public_listing | PostgreSQL boolean (provider-neutral) |
 | available_from_products | rollup              |
 | available_from_lots     | rollup              |
 | ecommerce_orders        | link/id             |
@@ -410,6 +423,10 @@ This document maps all tables and their fields as defined in the current Airtabl
 | ecwid_event_type             | single line   |
 | ecwid_event_id               | single line   |
 | last_webhook_at              | date/time     |
+| provider                     | PostgreSQL text (provider-neutral) |
+| site_key                     | PostgreSQL text (provider-neutral) |
+| external_order_id            | PostgreSQL text (provider-neutral) |
+| external_skus                | PostgreSQL long text (provider-neutral) |
 | products_report              | rollup        |
 | product_ids_report           | rollup        |
 ---

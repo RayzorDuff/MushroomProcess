@@ -396,12 +396,28 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce" (
   "ecwid_url" text,
   "ecwid_image" jsonb,
   "ecwid_upc" text,
+  "provider" text,
+  "site_key" text,
+  "external_sku" text,
+  "sync_enabled" boolean,
+  "external_category" text,
+  "external_price" numeric,
+  "external_stock" numeric,
+  "public_url" text,
+  "external_image" jsonb,
+  "upc" text,
+  "external_product_id" text,
+  "external_variation_id" text,
+  "is_primary_public_listing" boolean,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
   "nc_updated_at" timestamp without time zone DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_name" ON "public"."ecommerce"("name");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_provider" ON "public"."ecommerce"("provider");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_external_sku" ON "public"."ecommerce"("external_sku");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_public_url" ON "public"."ecommerce"("public_url");
 
 CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "nocopk" BIGSERIAL PRIMARY KEY,
@@ -431,6 +447,10 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "ecwid_event_type" text,
   "ecwid_event_id" text,
   "last_webhook_at" timestamp without time zone,
+  "provider" text,
+  "site_key" text,
+  "external_order_id" text,
+  "external_skus" text,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
@@ -440,6 +460,7 @@ CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_name" ON "public"."ecommerce_ord
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_order_id" ON "public"."ecommerce_orders"("ecwid_order_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_clover_payment_id" ON "public"."ecommerce_orders"("clover_payment_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_event_id" ON "public"."ecommerce_orders"("ecwid_event_id");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_provider_external_order_id" ON "public"."ecommerce_orders"("provider", "external_order_id");
 
 -- Deferred FK constraints for canonical single-link columns
 DO $$ BEGIN

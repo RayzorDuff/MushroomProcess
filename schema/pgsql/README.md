@@ -364,3 +364,10 @@ After regenerating schema from Airtable export:
 - `mp_product_set_storage_location_by_name(...)` updates the scalar `products.storage_location_id` and now also refreshes the Airtable-style location link tables for products.
 - `mp_lots_package_basic(...)` now checks whether `lots.process_type_mat` or+  `lots.process_type` actually exists before referencing either column.
 
+
+
+## Issue #12 Phase 1: provider-neutral ecommerce metadata
+
+`026_ecommerce_provider_neutral.sql` adds provider-neutral catalog fields while retaining the legacy `ecwid_*` columns. Existing Ecwid rows are backfilled with `provider = 'ecwid'`, `site_key = 'dank_mushrooms'`, generic SKU/price/stock/public URL/UPC aliases, and a primary-listing flag. Triggers keep the generic aliases current when existing Ecwid integrations continue to update the legacy columns. Once a row is moved to another provider such as `woocommerce`, later Ecwid legacy updates no longer overwrite the generic provider mapping.
+
+For an incremental production deployment, import `026_ecommerce_provider_neutral.sql` after the existing schema files. It is idempotent and may be re-run. On a rebuild, `001_tables.sql` contains the new columns and `026` installs/backfills the compatibility triggers before/after data load as applicable.

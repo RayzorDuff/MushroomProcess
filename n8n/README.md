@@ -256,3 +256,10 @@ REPORT_FROM_EMAIL=
 REPORT_TO_EMAIL=
 REPORT_TIMEZONE=America/Denver
 ```
+
+
+## Issue #12 provider-neutral commerce transition
+
+The PostgreSQL Ecwid order webhook now emits both the legacy `ecwid_*` order identifiers and provider-neutral aliases (`provider`, `site_key`, `external_order_id`, `external_skus`). The PostgreSQL upsert persists both sets during the Ecwid transition.
+
+The Airtable compatibility workflow remains legacy-safe by default. It only emits the provider-neutral alias fields when `AIRTABLE_PROVIDER_NEUTRAL_ECOMMERCE_FIELDS=true`; do not enable that flag unless matching Airtable fields have been created. PostgreSQL is the production path for this phase.

@@ -36,6 +36,7 @@
   \ir 012_ecommerce_order_upsert_smoke.sql
   \ir 024_inventory_reconciliation_smoke.sql
   \ir 025_inventory_reconciliation_lots_smoke.sql
+  \ir 026_ecommerce_provider_neutral_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else
