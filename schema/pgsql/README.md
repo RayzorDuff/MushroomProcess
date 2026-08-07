@@ -87,6 +87,7 @@ Import in lexical order:
 022_personnel_reviews_seeds.sql
 023_operator_identity.sql
 024_inventory_reconciliation.sql
+025_inventory_reconciliation_lots.sql
 100_load.sql
 124_operator_identity_backfill_and_review_integration.sql
 ```
@@ -100,6 +101,13 @@ Import in lexical order:
 Because `124_operator_identity_backfill_and_review_integration.sql` sorts after `100_load.sql`, it is still applied after the load step.
 
 ---
+
+
+### Inventory reconciliation (#78)
+
+- `024_inventory_reconciliation.sql` provides transactional Product location reconciliation.
+- `025_inventory_reconciliation_lots.sql` adds the equivalent Lot path using `mp_lot_set_location(...)`.
+- The Appsmith Inventory - Reconcile page submits Product and Lot reconciliation calls in one PostgreSQL statement so a failure in either scope rolls back the complete physical-location reconciliation.
 
 ## Full Rebuild Procedure
 
@@ -209,7 +217,8 @@ for f in \
   schema/pgsql/021_personnel_reviews.sql \
   schema/pgsql/022_personnel_reviews_seeds.sql \
   schema/pgsql/023_operator_identity.sql \
-  schema/pgsql/024_inventory_reconciliation.sql
+  schema/pgsql/024_inventory_reconciliation.sql \
+  schema/pgsql/025_inventory_reconciliation_lots.sql
 do
   echo "Importing $f"
   sudo docker exec -i \
