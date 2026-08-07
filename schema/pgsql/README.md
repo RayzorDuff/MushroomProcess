@@ -86,6 +86,7 @@ Import in lexical order:
 021_personnel_reviews.sql
 022_personnel_reviews_seeds.sql
 023_operator_identity.sql
+024_inventory_reconciliation.sql
 100_load.sql
 124_operator_identity_backfill_and_review_integration.sql
 ```
@@ -207,7 +208,8 @@ for f in \
   schema/pgsql/012_ecommerce_order_upsert.sql \
   schema/pgsql/021_personnel_reviews.sql \
   schema/pgsql/022_personnel_reviews_seeds.sql \
-  schema/pgsql/023_operator_identity.sql
+  schema/pgsql/023_operator_identity.sql \
+  schema/pgsql/024_inventory_reconciliation.sql
 do
   echo "Importing $f"
   sudo docker exec -i \

@@ -34,6 +34,7 @@
   \ir 011_print_queue_actions_smoke.sql
   \ir 011_print_queue_view_contract_smoke.sql
   \ir 012_ecommerce_order_upsert_smoke.sql
+  \ir 024_inventory_reconciliation_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else

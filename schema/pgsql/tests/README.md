@@ -86,6 +86,7 @@ The RC5 open issue list was reviewed against the current schema tests.
 | #68 | `004_product_regulation_rollup_smoke.sql` validates scalar regulation rollup and regulated/nonregulated Sample label branching. The sterilizer component-mode, AIO, casing, freeze-dried, harvest, and Spawn to Bulk tests cover the remaining implemented database paths. |
 | #69 | `008_package_multiple_lots_smoke.sql` |
 | #75 | `010_spawn_to_bulk_components_smoke.sql` |
+| #78 | `024_inventory_reconciliation_smoke.sql`; covers found-product moves, Missing or Lost assignment, duplicate found IDs, post-snapshot concurrency protection, synchronized location links, audit events, explicit Shipped correction, and terminal-state blocking. |
 
 
 ### Additional negative-path and view-contract coverage
