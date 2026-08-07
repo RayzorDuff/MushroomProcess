@@ -419,6 +419,11 @@ CREATE INDEX IF NOT EXISTS "ix_ecommerce_provider" ON "public"."ecommerce"("prov
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_external_sku" ON "public"."ecommerce"("external_sku");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_public_url" ON "public"."ecommerce"("public_url");
 
+CREATE TABLE IF NOT EXISTS "public"."ecommerce_upc_pool" (
+  "ordinal" integer PRIMARY KEY,
+  "upc" text NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "nocopk" BIGSERIAL PRIMARY KEY,
   "name" text,

@@ -371,3 +371,19 @@ After regenerating schema from Airtable export:
 `026_ecommerce_provider_neutral.sql` adds provider-neutral catalog fields while retaining the legacy `ecwid_*` columns. Existing Ecwid rows are backfilled with `provider = 'ecwid'`, `site_key = 'dank_mushrooms'`, generic SKU/price/stock/public URL/UPC aliases, and a primary-listing flag. Triggers keep the generic aliases current when existing Ecwid integrations continue to update the legacy columns. Once a row is moved to another provider such as `woocommerce`, later Ecwid legacy updates no longer overwrite the generic provider mapping.
 
 For an incremental production deployment, import `026_ecommerce_provider_neutral.sql` after the existing schema files. It is idempotent and may be re-run. On a rebuild, `001_tables.sql` contains the new columns and `026` installs/backfills the compatibility triggers before/after data load as applicable.
+
+## Issue #12 Phase 1B: PostgreSQL-native Ecwid catalog sync
+
+`027_ecommerce_ecwid_catalog_sync.sql` provides the database contract used by `MushroomProcess - Ecwid Catalog Sync - PGSQL`.
+
+It adds:
+
+- `ecommerce_upc_pool`, seeded from the existing repository UPC pool;
+- `mp_normalize_gtin_text(...)`, including repair of scientific-notation UPC strings inherited from Airtable exports;
+- `mp_ecommerce_reserve_upc(...)` for serialized/idempotent UPC allocation;
+- `mp_ecommerce_ecwid_catalog_sync_candidates()` for provider-neutral Ecwid sync candidates and sellable inventory counts;
+- `mp_ecommerce_ecwid_catalog_sync_writeback(...)` for guarded legacy + provider-neutral metadata persistence after a successful Ecwid API update.
+
+The candidate function deliberately derives availability from current PostgreSQL state instead of relying on Airtable-era ecommerce junction rollups. Product availability excludes expired records and terminal/exception storage locations (Shipped, Expired, Consumed, Compost/Composted, Retired, Missing/Missing or Lost). Lot availability follows the former Airtable `ecommerce_refresh.js` status map and excludes expired Lots.
+
+For an incremental production deployment, import `027_ecommerce_ecwid_catalog_sync.sql` after `026_ecommerce_provider_neutral.sql`, run `027_ecommerce_ecwid_catalog_sync_smoke.sql`, and only then import/activate the n8n catalog workflow.

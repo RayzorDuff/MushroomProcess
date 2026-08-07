@@ -1,5 +1,7 @@
 # Ecwid ? Airtable Sync Utilities
 
+> **PostgreSQL production transition (Issue #12):** These Node.js scripts are now legacy Airtable compatibility/reference utilities. The PostgreSQL production path uses n8n: `MushroomProcess - Ecwid Order Updated - PGSQL` for order ingestion and `MushroomProcess - Ecwid Catalog Sync - PGSQL` for PostgreSQL -> Ecwid inventory/catalog synchronization. Do not schedule the legacy Airtable cron after importing and validating the PGSQL workflows.
+
 This repository includes two complementary Node.js scripts for synchronizing data between **Airtable** (your operational inventory database) and **Ecwid** (your ecommerce storefront).
 
 The goals are:

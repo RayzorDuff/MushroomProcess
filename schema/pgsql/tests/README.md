@@ -105,7 +105,7 @@ refresh behavior.
 
 | Issue | Reason |
 |---|---|
-| #12 | `026_ecommerce_provider_neutral_smoke.sql` covers Ecwid-to-provider-neutral catalog/order aliases and protects non-Ecwid provider mappings. QR resolver/deep-link behavior remains an integration test. |
+| #12 | `026_ecommerce_provider_neutral_smoke.sql` covers provider-neutral catalog/order aliases. `027_ecommerce_ecwid_catalog_sync_smoke.sql` covers PostgreSQL-derived sellable inventory, terminal-location exclusions, Lot status filtering, UPC normalization/allocation, Ecwid metadata writeback, and non-Ecwid provider protection. QR resolver/deep-link behavior remains an integration test. |
 | #13 | Image capture/upload storage has not been implemented in the PostgreSQL action layer. |
 | #15 | Windows spooler success/failure is print-daemon behavior. `011_print_queue_actions_smoke.sql` covers database queue actions, but cannot simulate a spooler. |
 | #56 | Default tray counts, stale widget state, and single-selection are Appsmith state behavior. Harvest database creation is covered by `009_harvest_mixed_outputs_smoke.sql`. |

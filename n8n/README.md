@@ -4,16 +4,16 @@ This directory contains all n8n workflows used to orchestrate integrations betwe
 
 - Ecwid (order source)
 - Clover (payment processor)
-- Airtable (temporary operational datastore)
-- Future: PostgreSQL / NocoDB (primary datastore)
+- PostgreSQL / NocoDB (primary operational datastore)
+- Airtable (legacy compatibility only; deprecated after v1.1.0)
 - Appsmith (UI layer via API endpoints)
 
 ---
 
 ## 🧠 Architecture Overview
 
-Appsmith → n8n → Airtable (current)  
-Appsmith → n8n → PostgreSQL (future)
+Appsmith → n8n → PostgreSQL (current)
+Airtable integrations remain legacy compatibility paths only.
 
 n8n acts as:
 - API layer for Appsmith
@@ -25,14 +25,20 @@ n8n acts as:
 
 ## 📊 Current Workflows
 
-### 1. Ecwid → Airtable Sync (existing)
-**Source:** `integrations/ecwid`
-- Syncs orders, products, customers into Airtable
-- Populates:
-  - `ecommerce_orders`
-  - `items_json`
-  - `payment_status`
-  - `products` (initially empty)
+### 1. Ecwid / PostgreSQL integration
+
+Production Ecwid integration now uses PostgreSQL-backed n8n workflows:
+
+- `MushroomProcess - Ecwid Order Updated - PGSQL`
+  - receives Ecwid order webhooks;
+  - persists orders through `mp_ecommerce_order_upsert(...)`.
+- `MushroomProcess - Ecwid Catalog Sync - PGSQL`
+  - runs hourly (and supports manual execution);
+  - derives sellable Product/Lot inventory directly from PostgreSQL;
+  - updates the matching Ecwid base Product or variation by exact SKU;
+  - writes current Ecwid IDs, category, price, stock, public URL, and UPC back to `ecommerce`.
+
+The scripts under `integrations/ecwid` remain as Airtable-era reference/compatibility utilities and should not be scheduled in the PostgreSQL production path.
 
 ---
 
@@ -263,3 +269,30 @@ REPORT_TIMEZONE=America/Denver
 The PostgreSQL Ecwid order webhook now emits both the legacy `ecwid_*` order identifiers and provider-neutral aliases (`provider`, `site_key`, `external_order_id`, `external_skus`). The PostgreSQL upsert persists both sets during the Ecwid transition.
 
 The Airtable compatibility workflow remains legacy-safe by default. It only emits the provider-neutral alias fields when `AIRTABLE_PROVIDER_NEUTRAL_ECOMMERCE_FIELDS=true`; do not enable that flag unless matching Airtable fields have been created. PostgreSQL is the production path for this phase.
+
+### Issue #12 Phase 1B: PostgreSQL → Ecwid catalog synchronization
+
+`MushroomProcess - Ecwid Catalog Sync - PGSQL` replaces the catalog half of the former Airtable cron integration.
+
+Required n8n environment variables:
+
+```bash
+ECWID_STORE_ID=
+ECWID_SECRET_TOKEN=
+```
+
+The workflow uses the standard MushroomProcess PostgreSQL credential (`Postgres account 2`) and calls:
+
+- `mp_ecommerce_ecwid_catalog_sync_candidates()` to derive current sellable inventory;
+- `mp_ecommerce_reserve_upc(...)` when a listing needs a UPC;
+- `mp_ecommerce_ecwid_catalog_sync_writeback(...)` after a successful Ecwid update.
+
+Inventory is derived from `ecommerce.item_id`, optional `strain_id`, current Products, and current Lots rather than from Airtable-era `ecommerce.products` / `ecommerce.lots` link rollups. Products in terminal/exception locations such as Shipped, Expired, Consumed, Compost, Retired, or Missing or Lost are excluded. Lot availability follows the existing ecommerce status map (`Sterilized`, `Pasteurized`, `FullyColonized`, `Inoculated`) and excludes expired Lots.
+
+Before activating the imported workflow, run:
+
+```bash
+node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
+```
+
+Then execute the workflow manually once and compare the candidate `desired_quantity` values with expected physical inventory before enabling its hourly schedule.
