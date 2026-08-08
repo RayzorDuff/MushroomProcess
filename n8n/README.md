@@ -307,3 +307,12 @@ Issue #12 Phase 2 stable QR resolver. The production webhook is `GET /webhook/mu
 - Unknown, malformed, unmapped, or ambiguous identifiers return controlled 4xx responses. Missing `MP_APP_LOTS_URL` returns 503 for Lot scans.
 
 Run `node n8n/tests/qr_resolver_pgsql_smoke.js` before importing/publishing the workflow.
+
+### QR resolver Product routing (Issue #12)
+
+The QR resolver also reads these n8n environment variables:
+
+- `MP_APP_PRODUCTS_URL` — static published Appsmith Products page URL used for fresh/freezer tray Products.
+- `MP_REGULATED_BUSINESS_URL` — regulated organization base website used for regulated freeze-dried mushroom/capsule Products.
+
+Normal saleable Products continue to resolve through provider-neutral `ecommerce.public_url`; Lots continue to use `MP_APP_LOTS_URL`.

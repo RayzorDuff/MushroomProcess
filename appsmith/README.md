@@ -83,3 +83,7 @@ state.
 `source=qr` is informational and causes a brief success notification after the
 Lot is focused. Direct deep links without `source=qr` use the same selection
 behavior.
+
+### Product QR deep links
+
+The published Products page accepts `?product=PROD-...&source=qr`. The requested Product is included even if the current table filters would normally hide it, sorted first, and made the only selected row. This is used for fresh/freezer tray QR routing.

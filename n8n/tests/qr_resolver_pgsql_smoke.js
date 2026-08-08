@@ -33,7 +33,7 @@ for (const required of [
 }
 
 const webhook = nodes.get('Webhook - Resolve QR');
-if (webhook.parameters.httpMethod !== 'GET') fail('QR resolver webhook must use GET');
+if (webhook.parameters.httpMethod && webhook.parameters.httpMethod !== 'GET') fail('QR resolver webhook must use GET');
 if (webhook.parameters.path !== 'mushroomprocess/qr/resolve') {
   fail(`Unexpected webhook path: ${webhook.parameters.path}`);
 }
@@ -95,8 +95,13 @@ out = runCode(
     entity_type: 'product',
     inventory_id: 'PROD-260419-bDew',
     public_url: 'https://danks.store/products/example?existing=1',
+    route_kind: 'ecommerce',
   },
-  { MP_APP_LOTS_URL: 'https://appsmith.danks.store/app/mushroomprocess/lots' }
+  {
+    MP_APP_LOTS_URL: 'https://appsmith.danks.store/app/mushroomprocess/lots',
+    MP_APP_PRODUCTS_URL: 'https://appsmith.danks.store/app/mushroomprocess/products',
+    MP_REGULATED_BUSINESS_URL: 'https://rootedpsyche.org'
+  }
 );
 const productUrl = new URL(out[0].json.redirect_url);
 if (out[0].json.response_code !== 302 || out[0].json.should_redirect !== true) {
@@ -106,6 +111,60 @@ if (productUrl.searchParams.get('existing') !== '1'
     || productUrl.searchParams.get('mp_product') !== 'PROD-260419-bDew'
     || productUrl.searchParams.get('source') !== 'qr') {
   fail(`Product redirect query parameters are wrong: ${productUrl}`);
+}
+
+
+
+out = runCode(
+  prepareCode,
+  {
+    status: 'ok',
+    entity_type: 'product',
+    inventory_id: 'PROD-TRAY-QR',
+    route_kind: 'product_internal',
+    item_category: 'freezer_tray',
+  },
+  { MP_APP_PRODUCTS_URL: 'https://appsmith.danks.store/app/mushroomprocess/products?existing=1' }
+);
+const productInternalUrl = new URL(out[0].json.redirect_url);
+if (productInternalUrl.searchParams.get('existing') !== '1'
+    || productInternalUrl.searchParams.get('product') !== 'PROD-TRAY-QR'
+    || productInternalUrl.searchParams.get('source') !== 'qr') {
+  fail(`Tray Product redirect query parameters are wrong: ${productInternalUrl}`);
+}
+
+out = runCode(
+  prepareCode,
+  {
+    status: 'ok',
+    entity_type: 'product',
+    inventory_id: 'PROD-REG-FD',
+    route_kind: 'regulated_business',
+    regulated: true,
+    item_category: 'freezedriedmushrooms',
+  },
+  { MP_REGULATED_BUSINESS_URL: 'https://rootedpsyche.org/' }
+);
+if (out[0].json.redirect_url !== 'https://rootedpsyche.org/') {
+  fail(`Regulated freeze-dried Product should use the base regulated business URL: ${out[0].json.redirect_url}`);
+}
+
+out = runCode(
+  prepareCode,
+  { status: 'ok', entity_type: 'product', inventory_id: 'PROD-TRAY-X', route_kind: 'product_internal' },
+  {}
+);
+if (out[0].json.should_redirect !== false || out[0].json.response_code !== 503) {
+  fail('Internal tray Product without MP_APP_PRODUCTS_URL should prepare a 503 response');
+}
+
+out = runCode(
+  prepareCode,
+  { status: 'ok', entity_type: 'product', inventory_id: 'PROD-REG-X', route_kind: 'regulated_business' },
+  {}
+);
+if (out[0].json.should_redirect !== false || out[0].json.response_code !== 503) {
+  fail('Regulated Product without MP_REGULATED_BUSINESS_URL should prepare a 503 response');
 }
 
 out = runCode(
@@ -142,4 +201,4 @@ if (out[0].json.should_redirect !== false || out[0].json.response_code !== 503) 
   fail('Lot resolution without MP_APP_LOTS_URL should prepare a 503 response');
 }
 
-console.log('QR Resolver PGSQL workflow structure, identifier handling, Product/Lot redirects, and error smoke tests passed.');
+console.log('QR Resolver PGSQL workflow structure, ecommerce/internal/regulated Product routing, Lot redirects, and error smoke tests passed.');

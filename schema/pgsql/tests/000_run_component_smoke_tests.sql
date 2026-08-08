@@ -45,3 +45,5 @@
   \warn 'Mutation tests were not run. Re-run with -v allow_schema_modification=true.'
   \quit 3
 \endif
+
+\i 029_qr_product_routing_smoke.sql

@@ -393,3 +393,7 @@ For an incremental production deployment, import `027_ecommerce_ecwid_catalog_sy
 `028_qr_resolver.sql` adds `mp_qr_resolve_inventory(text)`, the provider-neutral database contract behind `https://qr.danks.store/r?i=...`. Product identifiers resolve through the Product item/strain mapping to exactly one enabled ecommerce row with a public URL. A single `is_primary_public_listing = true` row wins when more than one active provider mapping exists; multiple primary mappings (or multiple active mappings without a primary) are rejected as ambiguous rather than routed arbitrarily. Lot identifiers are validated and returned for the HTTP layer to deep-link into Appsmith.
 
 For an incremental production deployment, import `028_qr_resolver.sql` after `027_ecommerce_ecwid_catalog_sync.sql`, run `028_qr_resolver_smoke.sql`, then import and publish `MushroomProcess - QR Resolver - PGSQL`. RootedOps exposes the workflow through `qr.danks.store`; the n8n container must receive `MP_APP_LOTS_URL` containing the published Appsmith Lots page URL.
+
+### QR Product routing classes (Issue #12)
+
+After `028_qr_resolver.sql`, apply `029_qr_product_routing.sql`. It keeps the stable QR identifier contract but classifies fresh/freezer trays for the internal Products interface and regulated freeze-dried/capsule Products for the regulated business base website.
