@@ -117,3 +117,5 @@ The generated-view correction for nonregulated Sample regulation rollups under
 `origin_strain_regulated` to be a scalar numeric SUM of linked checkboxes and
 verifies the company, address, disclaimer, company-info, cottage, and public-link
 branches for both regulated and unregulated Sample products.
+
+- `028_qr_resolver_smoke.sql` — Issue #12 stable QR routing: Product provider-neutral public URL resolution, Lot existence routing, disabled/unmapped handling, primary-listing selection, and ambiguous-mapping safeguards.

@@ -296,3 +296,14 @@ node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
 ```
 
 Then execute the workflow manually once and compare the candidate `desired_quantity` values with expected physical inventory before enabling its hourly schedule.
+
+### MushroomProcess - QR Resolver - PGSQL
+
+Issue #12 Phase 2 stable QR resolver. The production webhook is `GET /webhook/mushroomprocess/qr/resolve?i=PROD-...` (or `LOT-...`). RootedOps NGINX exposes that webhook as `https://qr.danks.store/r?i=...`, so printed QR codes never contain an n8n URL.
+
+- Products are resolved by `mp_qr_resolve_inventory(...)` to the provider-neutral `ecommerce.public_url`; the redirect appends `mp_product=<PROD-ID>&source=qr`.
+- Lots are validated in PostgreSQL and redirected to `$MP_APP_LOTS_URL` with `lot=<LOT-ID>&source=qr`. Phase 3 makes the Lots page consume that parameter and select the scanned Lot.
+- Successful scans use HTTP `302` plus `Cache-Control: no-store` so a future Ecwid → WooCommerce migration does not strand previously printed labels.
+- Unknown, malformed, unmapped, or ambiguous identifiers return controlled 4xx responses. Missing `MP_APP_LOTS_URL` returns 503 for Lot scans.
+
+Run `node n8n/tests/qr_resolver_pgsql_smoke.js` before importing/publishing the workflow.

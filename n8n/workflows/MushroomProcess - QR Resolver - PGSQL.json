@@ -1,0 +1,293 @@
+{
+  "name": "MushroomProcess - QR Resolver - PGSQL",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "mushroomprocess/qr/resolve",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ebe87fce-bb9c-47c0-b30f-504f959170e5",
+      "name": "Webhook - Resolve QR",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $json.query || {};\nconst raw = String(query.i ?? query.id ?? '').trim();\nconst valid = /^(PROD|LOT)-[A-Za-z0-9-]+$/i.test(raw);\n\nreturn [{\n  json: {\n    inventory_id: raw || null,\n    inventory_id_b64: Buffer.from(raw, 'utf8').toString('base64'),\n    valid_id: valid,\n    should_redirect: false,\n    response_code: valid ? 200 : 400,\n    status: valid ? 'pending' : 'invalid_id',\n    message: valid\n      ? null\n      : 'QR URL requires i=PROD-* or i=LOT-*.'\n  }\n}];"
+      },
+      "id": "ab2654de-5b91-4e08-b6b5-6412e912bf45",
+      "name": "Code - Normalize QR Identifier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "5b3d884c-7c42-4725-bd4b-1f49b07c1307",
+              "leftValue": "={{ $json.valid_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": false
+        }
+      },
+      "id": "c39ab409-2104-470d-8d36-4548a1c4dded",
+      "name": "IF - Identifier Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ `SELECT *\nFROM public.mp_qr_resolve_inventory(\n  convert_from(\n    decode('${String($json.inventory_id_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )\n);` }}",
+        "options": {}
+      },
+      "id": "d1f2d3a0-d2a4-4329-b777-f873b26cc89a",
+      "name": "PGSQL - Resolve Inventory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\nconst status = String(row.status || 'resolver_error');\nconst entityType = String(row.entity_type || '').toLowerCase();\nconst inventoryId = String(row.inventory_id || '').trim();\n\nfunction failure(code, message) {\n  return [{\n    json: {\n      ...row,\n      should_redirect: false,\n      response_code: code,\n      message: message || row.message || 'QR destination could not be resolved.'\n    }\n  }];\n}\n\nif (status !== 'ok') {\n  const code = status === 'not_found' ? 404\n    : status === 'product_unmapped' ? 404\n    : status === 'ambiguous_mapping' ? 409\n    : status === 'invalid_id' ? 400\n    : 500;\n  return failure(code, row.message);\n}\n\nlet target;\ntry {\n  if (entityType === 'product') {\n    const publicUrl = String(row.public_url || '').trim();\n    if (!publicUrl) return failure(404, `Product ${inventoryId} has no public ecommerce URL.`);\n    target = new URL(publicUrl);\n    target.searchParams.set('mp_product', inventoryId);\n    target.searchParams.set('source', 'qr');\n  } else if (entityType === 'lot') {\n    const lotsUrl = String($env.MP_APP_LOTS_URL || '').trim();\n    if (!lotsUrl) {\n      return failure(503, 'Lot QR routing is not configured: MP_APP_LOTS_URL is missing.');\n    }\n    target = new URL(lotsUrl);\n    target.searchParams.set('lot', inventoryId);\n    target.searchParams.set('source', 'qr');\n  } else {\n    return failure(500, `Unsupported resolver entity type: ${entityType || '(blank)'}`);\n  }\n} catch (error) {\n  return failure(500, `QR destination URL is invalid: ${error.message}`);\n}\n\nreturn [{\n  json: {\n    ...row,\n    should_redirect: true,\n    response_code: 302,\n    redirect_url: target.toString(),\n    message: null\n  }\n}];"
+      },
+      "id": "73273a53-35b2-4d9a-b451-4859c524801f",
+      "name": "Code - Prepare QR Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "e87c865e-6b6b-48cd-8872-3bb3d23ce43b",
+              "leftValue": "={{ $json.should_redirect }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": false
+        }
+      },
+      "id": "ac069d8a-490d-4f78-9680-4f73eeef9b79",
+      "name": "IF - Redirect?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        80,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "={{ $json.redirect_url }}",
+        "options": {
+          "responseCode": 302,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store, max-age=0"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      },
+      "id": "515bf43d-2884-4394-88c5-63424efb7ea1",
+      "name": "Respond - Redirect",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, status: $json.status || 'error', inventory_id: $json.inventory_id || null, message: $json.message || 'QR destination could not be resolved.' } }}",
+        "options": {
+          "responseCode": "={{ Number($json.response_code || 500) }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store, max-age=0"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      },
+      "id": "cb08de39-d87f-4c8c-9451-117841067c17",
+      "name": "Respond - QR Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Resolve QR": {
+      "main": [
+        [
+          {
+            "node": "Code - Normalize QR Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Normalize QR Identifier": {
+      "main": [
+        [
+          {
+            "node": "IF - Identifier Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Identifier Valid?": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Resolve Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - QR Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Resolve Inventory": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare QR Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare QR Response": {
+      "main": [
+        [
+          {
+            "node": "IF - Redirect?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Redirect?": {
+      "main": [
+        [
+          {
+            "node": "Respond - Redirect",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - QR Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bfafbdc8-4ab8-4fce-874d-22b66553190e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "id": "MushroomProcessQRResolverPGSQL",
+  "tags": []
+}

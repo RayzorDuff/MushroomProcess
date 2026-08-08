@@ -387,3 +387,9 @@ It adds:
 The candidate function deliberately derives availability from current PostgreSQL state instead of relying on Airtable-era ecommerce junction rollups. Product availability excludes expired records and terminal/exception storage locations (Shipped, Expired, Consumed, Compost/Composted, Retired, Missing/Missing or Lost). Lot availability follows the former Airtable `ecommerce_refresh.js` status map and excludes expired Lots.
 
 For an incremental production deployment, import `027_ecommerce_ecwid_catalog_sync.sql` after `026_ecommerce_provider_neutral.sql`, run `027_ecommerce_ecwid_catalog_sync_smoke.sql`, and only then import/activate the n8n catalog workflow.
+
+## Issue #12 Phase 2: stable QR resolver contract
+
+`028_qr_resolver.sql` adds `mp_qr_resolve_inventory(text)`, the provider-neutral database contract behind `https://qr.danks.store/r?i=...`. Product identifiers resolve through the Product item/strain mapping to exactly one enabled ecommerce row with a public URL. A single `is_primary_public_listing = true` row wins when more than one active provider mapping exists; multiple primary mappings (or multiple active mappings without a primary) are rejected as ambiguous rather than routed arbitrarily. Lot identifiers are validated and returned for the HTTP layer to deep-link into Appsmith.
+
+For an incremental production deployment, import `028_qr_resolver.sql` after `027_ecommerce_ecwid_catalog_sync.sql`, run `028_qr_resolver_smoke.sql`, then import and publish `MushroomProcess - QR Resolver - PGSQL`. RootedOps exposes the workflow through `qr.danks.store`; the n8n container must receive `MP_APP_LOTS_URL` containing the published Appsmith Lots page URL.
