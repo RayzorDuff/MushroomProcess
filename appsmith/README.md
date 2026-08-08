@@ -64,3 +64,22 @@ Current responsibilities are:
 - New pages or widgets should normally be created through the Appsmith UI and then re-exported.
 - Keep published and unpublished page/action definitions synchronized.
 - Validate JSON, JavaScript syntax, query bindings, widget references, and the applicable PostgreSQL smoke tests before release.
+
+## Lots deep links and QR routing
+
+The published **Lots** page accepts an optional `lot` query parameter:
+
+```text
+...?lot=LOT-260624-rTT0&source=qr
+```
+
+When a valid Lot identifier is supplied, the main Lots query always includes that
+record even when the page's current filters would otherwise hide it, sorts it to
+the first row, and `LotsPage.init()` resets the table so the scanned Lot becomes
+the active/default selection. The page does not automatically open a workflow
+modal; the operator still chooses the appropriate action for the Lot's current
+state.
+
+`source=qr` is informational and causes a brief success notification after the
+Lot is focused. Direct deep links without `source=qr` use the same selection
+behavior.
