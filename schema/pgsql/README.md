@@ -397,3 +397,7 @@ For an incremental production deployment, import `028_qr_resolver.sql` after `02
 ### QR Product routing classes (Issue #12)
 
 After `028_qr_resolver.sql`, apply `029_qr_product_routing.sql`. It keeps the stable QR identifier contract but classifies fresh/freezer trays for the internal Products interface and regulated freeze-dried/capsule Products for the regulated business base website.
+
+### `030_qr_scan_log.sql` — QR scan analytics foundation
+
+Creates `qr_scan_log` and `mp_qr_log_scan(jsonb)`. The public QR resolver uses this to persist one request record per scan, including the resolved inventory ID, routing outcome, company/item/strain/location snapshots, client/browser/device metadata, and Cloudflare visitor-location headers when available. The denormalized inventory fields intentionally preserve scan-time context for later reporting.

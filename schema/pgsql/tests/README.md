@@ -121,3 +121,5 @@ branches for both regulated and unregulated Sample products.
 - `028_qr_resolver_smoke.sql` — Issue #12 stable QR routing: Product provider-neutral public URL resolution, Lot existence routing, disabled/unmapped handling, primary-listing selection, and ambiguous-mapping safeguards.
 
 - `029_qr_product_routing_smoke.sql` — verifies ecommerce, internal tray, and regulated freeze-dried Product QR routing classes.
+
+- `030_qr_scan_log_smoke.sql` — rollback-only QR scan logging test covering Product snapshots, IPv6/client metadata, Cloudflare location fields, browser/OS/device fields, and invalid-ID logging.

@@ -467,6 +467,72 @@ CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_clover_payment_id" ON "public"."
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_event_id" ON "public"."ecommerce_orders"("ecwid_event_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_provider_external_order_id" ON "public"."ecommerce_orders"("provider", "external_order_id");
 
+CREATE TABLE IF NOT EXISTS "public"."qr_scan_log" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "request_id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "requested_at" timestamptz NOT NULL DEFAULT now(),
+  "inventory_id" text,
+  "entity_type" text,
+  "entity_nocopk" bigint,
+  "resolution_status" text NOT NULL,
+  "route_kind" text,
+  "response_code" integer,
+  "destination_url" text,
+  "success" boolean NOT NULL DEFAULT false,
+  "ecommerce_id" bigint,
+  "provider" text,
+  "site_key" text,
+  "company_key" text,
+  "company_name" text,
+  "item_nocopk" bigint,
+  "item_id" text,
+  "item_name" text,
+  "item_category" text,
+  "strain_nocopk" bigint,
+  "strain_id" text,
+  "strain_name" text,
+  "regulated" boolean,
+  "package_class" text,
+  "location_nocopk" bigint,
+  "location_name" text,
+  "entity_status" text,
+  "client_ip" inet,
+  "forwarded_for" text,
+  "cf_country" text,
+  "cf_continent" text,
+  "cf_city" text,
+  "cf_region" text,
+  "cf_region_code" text,
+  "cf_postal_code" text,
+  "cf_timezone" text,
+  "cf_latitude" numeric,
+  "cf_longitude" numeric,
+  "cf_metro_code" text,
+  "cf_ray" text,
+  "user_agent" text,
+  "browser_name" text,
+  "browser_version" text,
+  "os_name" text,
+  "os_version" text,
+  "device_type" text,
+  "referer" text,
+  "accept_language" text,
+  "request_host" text,
+  "request_method" text,
+  "request_path" text,
+  "query_json" jsonb NOT NULL DEFAULT '{}'::jsonb,
+  "source" text NOT NULL DEFAULT 'qr',
+  "metadata" jsonb NOT NULL DEFAULT '{}'::jsonb,
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_qr_scan_log_request_id" ON "public"."qr_scan_log"("request_id");
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_requested_at" ON "public"."qr_scan_log"("requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_inventory_id" ON "public"."qr_scan_log"("inventory_id", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_entity_type" ON "public"."qr_scan_log"("entity_type", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_company_name" ON "public"."qr_scan_log"("company_name", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_resolution_status" ON "public"."qr_scan_log"("resolution_status", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_route_kind" ON "public"."qr_scan_log"("route_kind", "requested_at" DESC);
+
 -- Deferred FK constraints for canonical single-link columns
 DO $$ BEGIN
         IF NOT EXISTS (

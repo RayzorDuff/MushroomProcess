@@ -316,3 +316,11 @@ The QR resolver also reads these n8n environment variables:
 - `MP_REGULATED_BUSINESS_URL` — regulated organization base website used for regulated freeze-dried mushroom/capsule Products.
 
 Normal saleable Products continue to resolve through provider-neutral `ecommerce.public_url`; Lots continue to use `MP_APP_LOTS_URL`.
+
+### QR resolver scan analytics
+
+The QR resolver records every request through `mp_qr_log_scan(jsonb)` before returning the redirect/error response. `qr_scan_log` preserves the requested Product/Lot identifier, resolver outcome, destination, company assignment and inventory metadata at scan time, plus client/browser/device information available from the HTTP request.
+
+For requests proxied through Cloudflare, the workflow prefers `CF-Connecting-IP` as the visitor IP. Country is read from `CF-IPCountry`. Detailed city/region/postal/timezone/latitude/longitude fields are populated when Cloudflare's **Add visitor location headers** Managed Transform is enabled for the QR hostname/zone. When those headers are absent, the corresponding database fields remain null rather than performing a separate geolocation lookup.
+
+The logging path intentionally does not store cookies or authorization headers. The full user-agent string is retained together with parsed browser, OS, and device-type fields for later aggregate reporting.

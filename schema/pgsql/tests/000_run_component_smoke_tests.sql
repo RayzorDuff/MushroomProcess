@@ -47,3 +47,4 @@
 \endif
 
 \i 029_qr_product_routing_smoke.sql
+\i 030_qr_scan_log_smoke.sql

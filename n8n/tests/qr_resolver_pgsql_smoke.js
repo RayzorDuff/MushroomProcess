@@ -25,6 +25,9 @@ for (const required of [
   'IF - Identifier Valid?',
   'PGSQL - Resolve Inventory',
   'Code - Prepare QR Response',
+  'Code - Prepare QR Log',
+  'PGSQL - Log QR Request',
+  'Code - Restore QR Response',
   'IF - Redirect?',
   'Respond - Redirect',
   'Respond - QR Error',
@@ -48,6 +51,17 @@ if (!String(pg.parameters.query).includes('public.mp_qr_resolve_inventory')) {
 if (!String(pg.parameters.query).includes("decode('${String($json.inventory_id_b64")) {
   fail('PostgreSQL resolver query must transport the identifier via base64');
 }
+if (!String(pg.parameters.query).includes('request_context_b64')) {
+  fail('PostgreSQL resolver query must preserve request context for analytics logging');
+}
+
+const pgLog = nodes.get('PGSQL - Log QR Request');
+if (!String(pgLog.parameters.query).includes('public.mp_qr_log_scan')) {
+  fail('QR logging node does not call mp_qr_log_scan');
+}
+if (!String(pgLog.parameters.query).includes('qr_log_payload_b64')) {
+  fail('QR logging node must transport its JSON payload via base64');
+}
 
 const redirect = nodes.get('Respond - Redirect');
 if (redirect.parameters.respondWith !== 'redirect') fail('Success response must be a redirect');
@@ -64,6 +78,8 @@ if (!cacheHeader || !String(cacheHeader.value).includes('no-store')) {
 
 const normalizeCode = nodes.get('Code - Normalize QR Identifier').parameters.jsCode;
 const prepareCode = nodes.get('Code - Prepare QR Response').parameters.jsCode;
+const prepareLogCode = nodes.get('Code - Prepare QR Log').parameters.jsCode;
+const restoreCode = nodes.get('Code - Restore QR Response').parameters.jsCode;
 
 function runCode(code, json, env = {}) {
   const context = {
@@ -75,12 +91,37 @@ function runCode(code, json, env = {}) {
   return vm.runInNewContext(`(function () {\n${code}\n})()`, context);
 }
 
-let out = runCode(normalizeCode, { query: { i: 'PROD-260419-bDew' } });
+let out = runCode(normalizeCode, {
+  query: { i: 'PROD-260419-bDew' },
+  headers: {
+    'cf-connecting-ip': '203.0.113.42',
+    'cf-ipcountry': 'US',
+    'cf-ipcity': 'Johnstown',
+    'cf-region': 'Colorado',
+    'cf-region-code': 'CO',
+    'cf-timezone': 'America/Denver',
+    'cf-iplatitude': '40.3369',
+    'cf-iplongitude': '-104.9122',
+    'cf-ray': 'test-ray-SJC',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/537.36 Chrome/140.0.0.0 Safari/537.36',
+    'accept-language': 'en-US,en;q=0.9',
+    'host': 'qr.danks.store'
+  }
+});
 if (!Array.isArray(out) || out[0]?.json?.valid_id !== true) {
   fail('Valid Product identifier was rejected by normalization');
 }
 if (Buffer.from(out[0].json.inventory_id_b64, 'base64').toString('utf8') !== 'PROD-260419-bDew') {
   fail('Product identifier base64 transport changed the identifier');
+}
+const requestContext = JSON.parse(Buffer.from(out[0].json.request_context_b64, 'base64').toString('utf8'));
+if (requestContext.client_ip !== '203.0.113.42'
+    || requestContext.cf_city !== 'Johnstown'
+    || requestContext.browser_name !== 'Chrome'
+    || requestContext.os_name !== 'macOS'
+    || requestContext.device_type !== 'desktop'
+    || requestContext.request_host !== 'qr.danks.store') {
+  fail(`QR request metadata normalization is wrong: ${JSON.stringify(requestContext)}`);
 }
 
 out = runCode(normalizeCode, { query: { i: 'not-an-inventory-id' } });
@@ -201,4 +242,48 @@ if (out[0].json.should_redirect !== false || out[0].json.response_code !== 503) 
   fail('Lot resolution without MP_APP_LOTS_URL should prepare a 503 response');
 }
 
-console.log('QR Resolver PGSQL workflow structure, ecommerce/internal/regulated Product routing, Lot redirects, and error smoke tests passed.');
+const analyticsContext = {
+  client_ip: '203.0.113.42',
+  cf_country: 'US',
+  cf_city: 'Johnstown',
+  browser_name: 'Chrome',
+  os_name: 'macOS',
+  device_type: 'desktop',
+  query_json: { i: 'PROD-260419-bDew' },
+  source: 'qr'
+};
+out = runCode(prepareLogCode, {
+  status: 'ok',
+  entity_type: 'product',
+  entity_nocopk: 123,
+  inventory_id: 'PROD-260419-bDew',
+  route_kind: 'ecommerce',
+  response_code: 302,
+  should_redirect: true,
+  redirect_url: 'https://danks.store/products/example?mp_product=PROD-260419-bDew&source=qr',
+  company_key: 'primary',
+  company_name: 'Dank Mushrooms',
+  ecommerce_id: 16,
+  provider: 'ecwid',
+  site_key: 'dank_mushrooms',
+  request_context_b64: Buffer.from(JSON.stringify(analyticsContext), 'utf8').toString('base64')
+});
+const logPayload = JSON.parse(Buffer.from(out[0].json.qr_log_payload_b64, 'base64').toString('utf8'));
+if (logPayload.inventory_id !== 'PROD-260419-bDew'
+    || logPayload.client_ip !== '203.0.113.42'
+    || logPayload.destination_url.indexOf('danks.store') < 0
+    || logPayload.success !== true
+    || logPayload.company_name !== 'Dank Mushrooms') {
+  fail(`Prepared QR analytics payload is wrong: ${JSON.stringify(logPayload)}`);
+}
+const passthrough = JSON.parse(Buffer.from(out[0].json.response_passthrough_b64, 'base64').toString('utf8'));
+if (passthrough.should_redirect !== true || passthrough.response_code !== 302) {
+  fail('QR analytics preparation did not preserve the HTTP response payload');
+}
+
+out = runCode(restoreCode, { response_json: passthrough, qr_scan_log_id: 777 });
+if (out[0].json.redirect_url !== passthrough.redirect_url || out[0].json.qr_scan_log_id !== 777) {
+  fail('QR response restoration after analytics logging failed');
+}
+
+console.log('QR Resolver PGSQL workflow structure, routing, request analytics capture, persistence handoff, and response restoration smoke tests passed.');

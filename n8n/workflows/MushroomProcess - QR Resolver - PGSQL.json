@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $json.query || {};\nconst raw = String(query.i ?? query.id ?? '').trim();\nconst valid = /^(PROD|LOT)-[A-Za-z0-9-]+$/i.test(raw);\n\nreturn [{\n  json: {\n    inventory_id: raw || null,\n    inventory_id_b64: Buffer.from(raw, 'utf8').toString('base64'),\n    valid_id: valid,\n    should_redirect: false,\n    response_code: valid ? 200 : 400,\n    status: valid ? 'pending' : 'invalid_id',\n    message: valid\n      ? null\n      : 'QR URL requires i=PROD-* or i=LOT-*.'\n  }\n}];"
+        "jsCode": "const query = $json.query || {};\nconst headersRaw = $json.headers || {};\nconst headers = {};\nfor (const [key, value] of Object.entries(headersRaw)) {\n  headers[String(key).toLowerCase()] = Array.isArray(value) ? value.join(', ') : String(value ?? '');\n}\n\nconst raw = String(query.i ?? query.id ?? '').trim();\nconst valid = /^(PROD|LOT)-[A-Za-z0-9-]+$/i.test(raw);\nconst userAgent = String(headers['user-agent'] || '').trim();\n\nfunction firstForwarded(value) {\n  return String(value || '').split(',')[0].trim();\n}\n\nfunction browserInfo(ua) {\n  const checks = [\n    ['Edge', /Edg(?:A|iOS)?\\/([\\d.]+)/i],\n    ['Samsung Internet', /SamsungBrowser\\/([\\d.]+)/i],\n    ['Chrome', /(?:Chrome|CriOS)\\/([\\d.]+)/i],\n    ['Firefox', /(?:Firefox|FxiOS)\\/([\\d.]+)/i],\n    ['Safari', /Version\\/([\\d.]+).*Safari/i]\n  ];\n  for (const [name, re] of checks) {\n    const m = ua.match(re);\n    if (m) return { name, version: m[1] || null };\n  }\n  return { name: null, version: null };\n}\n\nfunction osInfo(ua) {\n  let m;\n  if ((m = ua.match(/Windows NT ([\\d.]+)/i))) return { name: 'Windows', version: m[1] };\n  if ((m = ua.match(/Android ([\\d.]+)/i))) return { name: 'Android', version: m[1] };\n  if ((m = ua.match(/(?:iPhone|CPU) OS ([\\d_]+)/i))) return { name: 'iOS', version: m[1].replace(/_/g, '.') };\n  if ((m = ua.match(/Mac OS X ([\\d_]+)/i))) return { name: 'macOS', version: m[1].replace(/_/g, '.') };\n  if (/Linux/i.test(ua)) return { name: 'Linux', version: null };\n  return { name: null, version: null };\n}\n\nfunction deviceType(ua) {\n  if (!ua) return null;\n  if (/bot|crawler|spider|slurp|headless/i.test(ua)) return 'bot';\n  if (/iPad|Tablet|Android(?!.*Mobile)/i.test(ua)) return 'tablet';\n  if (/Mobile|iPhone|iPod|Android/i.test(ua)) return 'mobile';\n  return 'desktop';\n}\n\nconst browser = browserInfo(userAgent);\nconst os = osInfo(userAgent);\nconst forwardedFor = String(headers['x-forwarded-for'] || '').trim();\nconst clientIp = String(\n  headers['cf-connecting-ip'] ||\n  firstForwarded(forwardedFor) ||\n  headers['x-real-ip'] ||\n  ''\n).trim();\n\nconst requestContext = {\n  client_ip: clientIp || null,\n  forwarded_for: forwardedFor || null,\n  cf_country: headers['cf-ipcountry'] || null,\n  cf_continent: headers['cf-ipcontinent'] || null,\n  cf_city: headers['cf-ipcity'] || null,\n  cf_region: headers['cf-region'] || null,\n  cf_region_code: headers['cf-region-code'] || null,\n  cf_postal_code: headers['cf-postal-code'] || null,\n  cf_timezone: headers['cf-timezone'] || null,\n  cf_latitude: headers['cf-iplatitude'] || null,\n  cf_longitude: headers['cf-iplongitude'] || null,\n  cf_metro_code: headers['cf-metro-code'] || null,\n  cf_ray: headers['cf-ray'] || null,\n  user_agent: userAgent || null,\n  browser_name: browser.name,\n  browser_version: browser.version,\n  os_name: os.name,\n  os_version: os.version,\n  device_type: deviceType(userAgent),\n  referer: headers['referer'] || headers['referrer'] || null,\n  accept_language: headers['accept-language'] || null,\n  request_host: headers['x-forwarded-host'] || headers['host'] || null,\n  request_method: String($json.httpMethod || $json.method || 'GET').toUpperCase(),\n  request_path: '/r',\n  query_json: query,\n  source: String(query.source || 'qr')\n};\n\nreturn [{\n  json: {\n    inventory_id: raw || null,\n    inventory_id_b64: Buffer.from(raw, 'utf8').toString('base64'),\n    request_context_b64: Buffer.from(JSON.stringify(requestContext), 'utf8').toString('base64'),\n    valid_id: valid,\n    should_redirect: false,\n    response_code: valid ? 200 : 400,\n    status: valid ? 'pending' : 'invalid_id',\n    message: valid\n      ? null\n      : 'QR URL requires i=PROD-* or i=LOT-*.'\n  }\n}];"
       },
       "id": "2a903b3e-e604-49fd-a643-b6df844dedd6",
       "name": "Code - Normalize QR Identifier",
@@ -69,7 +69,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "{{ `SELECT *\nFROM public.mp_qr_resolve_inventory(\n  convert_from(\n    decode('${String($json.inventory_id_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )\n);` }}",
+        "query": "{{ `SELECT r.*,\n  '${String($json.request_context_b64 || '').replace(/'/g, \"''\")}'::text AS request_context_b64\nFROM public.mp_qr_resolve_inventory(\n  convert_from(\n    decode('${String($json.inventory_id_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )\n) AS r;` }}",
         "options": {}
       },
       "id": "e5216ae3-d22b-4ca5-b7ac-2d1c9099b630",
@@ -132,7 +132,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -240,
+        480,
         80
       ]
     },
@@ -161,7 +161,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        0,
+        720,
         0
       ]
     },
@@ -190,8 +190,55 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        0,
+        720,
         240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\n\nfunction decodeContext(value) {\n  try {\n    if (!value) return {};\n    return JSON.parse(Buffer.from(String(value), 'base64').toString('utf8'));\n  } catch (_) {\n    return {};\n  }\n}\n\nconst context = decodeContext(row.request_context_b64);\nconst response = { ...row };\ndelete response.request_context_b64;\n\nconst payload = {\n  ...context,\n  inventory_id: row.inventory_id || null,\n  entity_type: row.entity_type || null,\n  entity_nocopk: row.entity_nocopk ?? null,\n  status: row.status || 'unknown',\n  route_kind: row.route_kind || null,\n  response_code: Number(row.response_code || 500),\n  destination_url: row.redirect_url || row.public_url || null,\n  success: row.should_redirect === true,\n  ecommerce_id: row.ecommerce_id ?? null,\n  provider: row.provider || null,\n  site_key: row.site_key || null,\n  company_key: row.company_key || null,\n  company_name: row.company_name || null,\n  item_category: row.item_category || null,\n  regulated: row.regulated ?? null,\n  package_class: row.package_class || null,\n  metadata: {\n    resolver_message: row.message || null\n  }\n};\n\nreturn [{\n  json: {\n    qr_log_payload_b64: Buffer.from(JSON.stringify(payload), 'utf8').toString('base64'),\n    response_passthrough_b64: Buffer.from(JSON.stringify(response), 'utf8').toString('base64')\n  }\n}];"
+      },
+      "id": "2f9191d7-bb0c-489d-863d-f247a5f2b21d",
+      "name": "Code - Prepare QR Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH logged AS (\n  SELECT public.mp_qr_log_scan(\n    convert_from(\n      decode('${String($json.qr_log_payload_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n      'UTF8'\n    )::jsonb\n  ) AS qr_scan_log_id\n)\nSELECT\n  qr_scan_log_id,\n  convert_from(\n    decode('${String($json.response_passthrough_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )::jsonb AS response_json\nFROM logged;` }}",
+        "options": {}
+      },
+      "id": "73b3970f-fc9f-4549-886b-765eef052f6c",
+      "name": "PGSQL - Log QR Request",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\nlet response = row.response_json || {};\nif (typeof response === 'string') {\n  try { response = JSON.parse(response); } catch (_) { response = {}; }\n}\nreturn [{\n  json: {\n    ...(response || {}),\n    qr_scan_log_id: row.qr_scan_log_id ?? null\n  }\n}];"
+      },
+      "id": "9dfded03-42e7-4549-b44e-24b46cd38376",
+      "name": "Code - Restore QR Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        80
       ]
     }
   ],
@@ -230,7 +277,7 @@
         ],
         [
           {
-            "node": "Respond - QR Error",
+            "node": "Code - Prepare QR Log",
             "type": "main",
             "index": 0
           }
@@ -249,6 +296,39 @@
       ]
     },
     "Code - Prepare QR Response": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare QR Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare QR Log": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Log QR Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Log QR Request": {
+      "main": [
+        [
+          {
+            "node": "Code - Restore QR Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Restore QR Response": {
       "main": [
         [
           {
