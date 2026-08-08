@@ -1,6 +1,6 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-07-24.1
+ * Version: 2026-08-08.1
  * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
@@ -381,6 +381,100 @@ function pick(fields, keys) {
   return '';
 }
 
+function extractInventoryId(value, expectedKind = '') {
+  const text = toFlat(value).trim();
+  if (!text) return '';
+
+  const matches = text.match(/\b(?:PROD|LOT)-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\b/gi) || [];
+  const expectedPrefix = String(expectedKind || '').trim().toLowerCase() === 'product'
+    ? 'PROD-'
+    : String(expectedKind || '').trim().toLowerCase() === 'lot'
+      ? 'LOT-'
+      : '';
+
+  for (const match of matches) {
+    if (!expectedPrefix || match.toUpperCase().startsWith(expectedPrefix)) {
+      return match;
+    }
+  }
+
+  return '';
+}
+
+function buildQrResolverUrl(inventoryId) {
+  const id = extractInventoryId(inventoryId);
+  if (!id) return '';
+
+  const base = String(QR_RESOLVER_BASE_URL || '').trim();
+  if (!base) return '';
+
+  const separator = base.includes('?')
+    ? (base.endsWith('?') || base.endsWith('&') ? '' : '&')
+    : '?';
+
+  return `${base}${separator}i=${encodeURIComponent(id)}`;
+}
+
+function stableQrUrlFromFields(fields, kind) {
+  const f = fields || {};
+  const normalizedKind = String(kind || '').trim().toLowerCase();
+
+  const explicit = pick(f, [
+    'scan_url',
+    normalizedKind === 'product' ? 'scan_url_from_product_id' : 'scan_url_from_lot_id',
+    normalizedKind === 'product' ? 'scan_url (from product_id)' : 'scan_url (from lot_id)',
+  ]);
+  if (explicit) return explicit;
+
+  const identityCandidates = normalizedKind === 'product'
+    ? [
+        'product_number',
+        'product_code',
+        'label_footer_prod',
+        'label_footer_prod_from_product_id',
+        'label_footer_prod (from product_id)',
+      ]
+    : [
+        'lot_number',
+        'lot_code',
+        'label_footer_lot',
+        'label_footer_lot_from_lot_id',
+        'label_footer_lot (from lot_id)',
+      ];
+
+  for (const key of identityCandidates) {
+    if (!(key in f)) continue;
+    const id = extractInventoryId(f[key], normalizedKind);
+    const resolved = buildQrResolverUrl(id);
+    if (resolved) return resolved;
+  }
+
+  return '';
+}
+
+function legacyQrUrlFromFields(fields, kind) {
+  const f = fields || {};
+  return String(kind || '').trim().toLowerCase() === 'product'
+    ? pick(f, [
+        'public_link_from_product_id',
+        'public_link (from product_id)',
+        'public_link_from_lot_id',
+        'public_link (from lot_id)',
+        'public_link',
+      ])
+    : pick(f, [
+        'public_link_from_lot_id',
+        'public_link (from lot_id)',
+        'public_link_from_product_id',
+        'public_link (from product_id)',
+        'public_link',
+      ]);
+}
+
+function labelQrUrl(fields, kind) {
+  return stableQrUrlFromFields(fields, kind) || legacyQrUrlFromFields(fields, kind);
+}
+
 function quoteNocoWhereValue(value) {
   const text = String(value ?? '').trim();
   if (/^-?(?:\d+|\d*\.\d+)$/.test(text)) return text;
@@ -469,13 +563,14 @@ function steriSheetRunFields(runRec) {
 
 function steriSheetLotFields(lotRec) {
   const f = (lotRec && lotRec.fields) || {};
+  const lotId = pick(f, ['lot_id']) || String(lotRec?.id || '');
   return {
-    lotId: pick(f, ['lot_id']) || String(lotRec?.id || ''),
+    lotId,
     itemName: pick(f, ['item_name', 'item_name_mat', 'item_id']),
     recipeName: pick(f, ['recipe_name', 'name_from_recipe_id', 'recipe_id']),
     unit: pick(f, ['unit_size', 'planned_unit_size']),
     status: pick(f, ['status']),
-    qrUrl: pick(f, ['public_link']),
+    qrUrl: buildQrResolverUrl(lotId) || pick(f, ['scan_url', 'public_link']),
   };
 }
 
@@ -754,6 +849,9 @@ const FORCE_H_PT = safeNum(process.env.FORCE_PAGE_HEIGHT_PT, 144); // 2 in
 const MARGIN_PT = safeNum(process.env.MARGIN_PT, 8);
 const LOGO_W_PT = safeNum(process.env.LOGO_WIDTH_PT, 140);
 const QR_SIZE_PT = safeNum(process.env.QR_SIZE_PT, 90);
+const QR_RESOLVER_BASE_URL = String(
+  process.env.QR_RESOLVER_BASE_URL || 'https://qr.danks.store/r'
+).trim();
 
 // Product_Package_Sample labels are dense 4x2 labels that keep product identity,
 // package/use-by dates, and the product disclaimer on one physical label.
@@ -1081,13 +1179,7 @@ function gatherFields(rec) {
       ]),
       packaged,
       useBy,
-      qr: pick(f, [
-        'public_link_from_product_id',
-        'public_link (from product_id)',
-        'public_link_from_lot_id',
-        'public_link (from lot_id)',
-        'public_link',
-      ]),
+      qr: labelQrUrl(f, 'product'),
       companyAddr: pick(f, [
         'label_companyaddress_prod',
         'label_companyaddress_prod_from_product_id',
@@ -1154,13 +1246,7 @@ function gatherFields(rec) {
       'label_footer_lot_from_lot_id',
       'label_footer_lot (from lot_id)',
     ]),
-    qr: pick(f, [
-      'public_link_from_lot_id',
-      'public_link (from lot_id)',
-      'public_link_from_product_id',
-      'public_link (from product_id)',
-      'public_link',
-    ]),
+    qr: labelQrUrl(f, 'lot'),
     extras: [
       pick(f, [
         'label_proc_line',
@@ -2818,6 +2904,10 @@ if (require.main === module) {
 
 module.exports = {
   detectItemCategory,
+  extractInventoryId,
+  buildQrResolverUrl,
+  stableQrUrlFromFields,
+  labelQrUrl,
   gatherFields,
   hasRenderableLabelText,
   nocoV3Where,
