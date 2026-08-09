@@ -123,3 +123,5 @@ branches for both regulated and unregulated Sample products.
 - `029_qr_product_routing_smoke.sql` — verifies ecommerce, internal tray, and regulated freeze-dried Product QR routing classes.
 
 - `030_qr_scan_log_smoke.sql` — rollback-only QR scan logging test covering Product snapshots, IPv6/client metadata, Cloudflare location fields, browser/OS/device fields, and invalid-ID logging.
+
+- `031_remove_legacy_public_links_smoke.sql` — verifies migration 031 removed all legacy `public_link*` columns and Airtable URL expressions from `vc_lots`, `vc_products`, and `vc_print_queue`, restored downstream computed views, and preserved representative Appsmith/n8n/print-daemon columns.

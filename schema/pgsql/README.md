@@ -404,21 +404,34 @@ Creates `qr_scan_log` and `mp_qr_log_scan(jsonb)`. The public QR resolver uses t
 
 ### Legacy Airtable/public-link cleanup (#12 Phase 6)
 
-Stable QR routing now owns Product/Lot navigation. The export generator therefore
-suppresses Airtable/formula `public_link*` fields when producing `vc_lots`,
-`vc_products`, and `vc_print_queue`, and the checked-in generated
-`004_computed_views.sql` reflects that future rebuild contract.
+Stable QR routing now owns Product/Lot navigation. The export generator suppresses
+Airtable/formula `public_link*` fields when producing `vc_lots`, `vc_products`,
+and `vc_print_queue`, and Appsmith/print-daemon runtime consumers have been
+removed.
 
-**Incremental production deployment:** do not re-import
-`004_computed_views.sql` solely for this Phase 6 patch. The checked-in rebuild
-artifact is generated from the repository's sanitized Airtable export and can
-contain generic company/branding placeholders that do not represent the live
-production view definitions. Existing `public_link*` columns may therefore remain
-physically present in the currently deployed `vc_*` views until the next
-controlled full view/database rebuild; Appsmith and the print daemon no longer
-consume them.
+Airtable is now deprecated as a production source rather than a database that is
+expected to be migrated again. `031_remove_legacy_public_links.sql` therefore
+removes the obsolete fields from the **live** PostgreSQL computed views:
 
-On the next controlled rebuild, regenerate the PostgreSQL artifacts from the
-appropriate environment source. The generator smoke test asserts that the legacy
-columns are not reintroduced. Retained Airtable exports remain archival source
-data and are not rewritten by this cleanup.
+- ten `public_link*` columns from `vc_lots`;
+- `public_link` from `vc_products`;
+- `public_link_from_lot_id` and `public_link_from_product_id` from
+  `vc_print_queue`.
+
+Migration 031 was built from the live production view definitions captured during
+the Phase 6 preflight. It verifies whitespace-normalized signatures for all three
+target views before changing anything, captures downstream view definitions and
+metadata from PostgreSQL, drops/recreates them in dependency order without
+`CASCADE`, and aborts if a downstream view still explicitly consumes a legacy
+`public_link*` field.
+
+For an incremental production deployment, import
+`031_remove_legacy_public_links.sql` after the preceding schema migrations and
+then run `031_remove_legacy_public_links_smoke.sql`. Do **not** re-import
+`004_computed_views.sql` for this cleanup; that file remains historical/generator
+output derived from the former Airtable migration path.
+
+Retained Airtable exports, `airtable_id`, and migration tooling remain available
+for historical provenance and schema archaeology, but PostgreSQL/Appsmith is the
+authoritative production implementation and no future Airtable migration is
+assumed.
