@@ -89,3 +89,52 @@ behavior.
 The published Products page accepts `?product=PROD-...&source=qr`. The requested Product is included even if the current table filters would normally hide it, sorted first, and made the only selected row. This is used for fresh/freezer tray QR routing.
 
 Legacy Airtable `public_link*` columns are not part of the active Lots table metadata. Internal navigation is driven by the stable Product/Lot query-parameter contract instead.
+
+## Inventory reconciliation QR scanner (Issue #78)
+
+`InventoryReconcile.addProduct(rawValue, fromScan)` supports both the existing
+manual Product/Lot entry path and values supplied by an Appsmith Code Scanner.
+When `fromScan` is `true`, the controller extracts the first canonical
+`PROD-...` or `LOT-...` identifier from the scanned value. This supports the
+stable MushroomProcess QR payloads such as:
+
+```text
+https://qr.danks.store/r?i=PROD-260801-bojs
+https://qr.danks.store/r?i=LOT-260624-rTT0
+```
+
+The scanner UI is intentionally **not** serialized into this repository patch.
+Create the widget manually on **Inventory - Reconcile** and then re-export the
+application if the widget definition should be committed later.
+
+Recommended widget setup:
+
+- Widget type: **Code Scanner**
+- Widget name: `scnReconInventory`
+- Place it adjacent to the existing `inpReconProductNumber` input / **Add Product / Lot** control.
+- Use an on-demand scanner layout so each inventory scan is intentional.
+- Disable it until a reconciliation session is active, if the widget version exposes a Disabled property:
+
+  ```javascript
+  {{ !InventoryReconcile.isSessionActive() }}
+  ```
+
+- Set **OnCodeDetected** to:
+
+  ```javascript
+  {{ InventoryReconcile.addProduct(scnReconInventory.value, true) }}
+  ```
+
+Do not change the existing input `onSubmit` or **Add Product / Lot** button;
+both continue to call `InventoryReconcile.addProduct()` with no arguments.
+
+Scanner behavior:
+
+- extracts `PROD-*` / `LOT-*` from a full stable QR URL or accepts a canonical ID directly;
+- rejects scans that do not contain a valid Product/Lot identifier;
+- writes the normalized identifier into the existing input while it is being resolved;
+- uses the same exact Product/Lot query and reconciliation rules as manual entry;
+- suppresses immediate duplicate scanner callbacks and concurrent scan handling;
+- clears the input after a successful or already-found scan;
+- leaves unresolved identifiers visible for operator review;
+- makes no inventory database change until the existing reconciliation Finalize step.
