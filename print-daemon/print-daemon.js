@@ -975,6 +975,31 @@ if (FORCE_PAGE) {
 const M = MARGIN_PT || 8;
 const LINE_GAP = 2;
 
+function httpErrorMeta(error) {
+  const meta = {};
+  const method = error?.config?.method;
+  const baseURL = error?.config?.baseURL || '';
+  const url = error?.config?.url || '';
+  const statusCode = error?.response?.status;
+  const params = error?.config?.params;
+  const responseData = error?.response?.data;
+
+  if (method) meta.method = String(method).toUpperCase();
+  if (url || baseURL) meta.url = `${baseURL}${url}`;
+  if (params && typeof params === 'object') meta.params = params;
+  if (statusCode) meta.status = statusCode;
+  if (responseData !== undefined) {
+    let body;
+    try {
+      body = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
+    } catch {
+      body = String(responseData);
+    }
+    meta.response = body.length > 500 ? `${body.slice(0, 500)}…` : body;
+  }
+  return meta;
+}
+
 /* ---------- Queue helpers  ---------- */
 
 /**
@@ -1013,36 +1038,86 @@ async function fetchQueued(viewName) {
   
   } else {
     if (isNocoV3()) {
-      // NocoDB v3 external PostgreSQL API. Filter on the server so the daemon
-      // does not fetch an arbitrary first page of the full computed view. This
-      // also ensures queued jobs beyond the first page remain discoverable.
-      const where = buildNocoV3QueueWhere();
-      const records = await fetchNocoV3Records(
-        PRINT_QUEUE_READ_TABLE,
-        PRINT_QUEUE_READ_VIEW_ID,
+      // Poll the simple base print_queue table for Queued rows, then hydrate
+      // candidates one-at-a-time from vc_print_queue. NocoDB v3 has proven
+      // unreliable when filtering the computed vc_print_queue view directly
+      // (especially on computed print_target), while the base table is stable.
+      // Target routing remains a local safety decision after hydration.
+      const candidateClauses = [nocoV3Where('print_status', 'eq', 'Queued')];
+      if (NOCODB_EXTRA_WHERE) candidateClauses.push(NOCODB_EXTRA_WHERE);
+      const candidateWhere = combineNocoV3WhereClauses(candidateClauses);
+
+      const candidateRows = await fetchNocoV3Records(
+        PRINT_QUEUE_WRITE_TABLE,
+        '',
         {
-          pageSize: 25,
-          where,
+          pageSize: 100,
+          where: candidateWhere,
         },
-        false
+        true
       );
 
-      const normalized = records.map(normalizeNocoV3QueueRecord);
-      log.debug('Polled NocoDB v3 print queue', {
-        where,
-        returned: normalized.length,
+      const hydrated = [];
+      for (const candidateRow of candidateRows) {
+        if (hydrated.length >= 25) break;
+
+        const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
+        if (writeId == null || String(writeId).trim() === '') {
+          log.warn('Skipping queued NocoDB row without writable queue id');
+          continue;
+        }
+
+        try {
+          const viewRows = await fetchNocoV3Records(
+            PRINT_QUEUE_READ_TABLE,
+            PRINT_QUEUE_READ_VIEW_ID,
+            {
+              pageSize: 1,
+              where: nocoV3Where('nocopk', 'eq', writeId),
+            },
+            false
+          );
+
+          const viewRow = viewRows.find(row =>
+            nocoV3MatchesRecord(row, writeId, ['nocopk', 'print_id'])
+          );
+          if (!viewRow) {
+            log.warn('Queued print job was not found in vc_print_queue', {
+              id: writeId,
+            });
+            continue;
+          }
+
+          const rec = normalizeNocoV3QueueRecord(viewRow);
+          rec.id = writeId;
+          rec.fields = {
+            ...nocoV3RecordFields(candidateRow),
+            ...rec.fields,
+          };
+
+          if (String(toFlat(rec.fields?.print_status)).trim() !== 'Queued') continue;
+          if (PRINT_TARGET_VALUE) {
+            const target = String(toFlat(rec.fields?.[PRINT_TARGET_FIELD]) || '').trim();
+            if (target !== PRINT_TARGET_VALUE) continue;
+          }
+
+          hydrated.push(rec);
+        } catch (error) {
+          log.error('Failed to hydrate queued print job from vc_print_queue', {
+            id: writeId,
+            ...httpErrorMeta(error),
+          });
+        }
+      }
+
+      log.debug('Polled NocoDB v3 base print queue', {
+        where: candidateWhere,
+        candidates: candidateRows.length,
+        returned: hydrated.length,
         target: PRINT_TARGET_VALUE || '(all)',
       });
 
-      // Retain local filtering as a safety net in case a NocoDB version or
-      // configured view returns rows outside the requested where clause.
-      return normalized
-        .filter(rec => String(toFlat(rec.fields?.print_status)).trim() === 'Queued')
-        .filter(rec => {
-          if (!PRINT_TARGET_VALUE) return true;
-          const v = toFlat(rec.fields?.[PRINT_TARGET_FIELD]);
-          return String(v || '').trim() === PRINT_TARGET_VALUE;
-        });
+      return hydrated;
     }
 
     // "viewName" is ignored for NocoDB v2, kept for API compatibility with old code.
@@ -2853,7 +2928,7 @@ async function cycle() {
       }
     }
   } catch (e) {
-    log.error('Cycle error', { err: e?.message || String(e) });
+    log.error('Cycle error', { err: e?.message || String(e), ...httpErrorMeta(e) });
   } finally {
     setTimeout(cycle, POLL_MS);
   }

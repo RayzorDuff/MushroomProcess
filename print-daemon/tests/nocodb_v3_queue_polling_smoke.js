@@ -30,41 +30,47 @@ assert.strictEqual(
 assert.strictEqual(
   context.combineNocoV3WhereClauses([
     '(print_status,eq,"Queued")',
-    '(print_target,eq,"ZEBRA")',
+    '(source_kind,neq,"product")',
   ]),
-  '(print_status,eq,"Queued")~and(print_target,eq,"ZEBRA")',
+  '(print_status,eq,"Queued")~and(source_kind,neq,"product")',
   'NocoDB v3 clauses must use the documented ~and syntax'
 );
 
-assert.strictEqual(
-  context.buildNocoV3QueueWhere('print_target', 'ZEBRA', ''),
-  '(print_status,eq,"Queued")~and(print_target,eq,"ZEBRA")',
-  'Zebra polling must be filtered to queued Zebra jobs on the server'
-);
+const fetchStart = source.indexOf('async function fetchQueued(viewName)');
+const fetchEnd = source.indexOf('/**\n * Update a single print_queue record', fetchStart);
+assert(fetchStart >= 0 && fetchEnd > fetchStart, 'Unable to isolate fetchQueued()');
+const fetchSource = source.slice(fetchStart, fetchEnd);
 
-assert.strictEqual(
-  context.buildNocoV3QueueWhere('print_target', 'TRAYS', ''),
-  '(print_status,eq,"Queued")~and(print_target,eq,"TRAYS")',
-  'Tray polling must be filtered to queued tray jobs on the server'
-);
-
-assert.strictEqual(
-  context.buildNocoV3QueueWhere('print_target', '', ''),
-  '(print_status,eq,"Queued")',
-  'An un-routed daemon must still filter to queued jobs'
-);
-
-assert.strictEqual(
-  context.buildNocoV3QueueWhere('print_target', 'ZEBRA', '(source_kind,neq,"product")'),
-  '(print_status,eq,"Queued")~and(print_target,eq,"ZEBRA")~and(source_kind,neq,"product")',
-  'Advanced NOCODB_EXTRA_WHERE clauses must be appended to the queue filter'
+assert(
+  fetchSource.includes('PRINT_QUEUE_WRITE_TABLE') &&
+  fetchSource.includes("nocoV3Where('print_status', 'eq', 'Queued')") &&
+  fetchSource.includes('where: candidateWhere') &&
+  fetchSource.includes('pageSize: 100'),
+  'NocoDB v3 polling must read Queued candidates from the simple print_queue table'
 );
 
 assert(
-  source.includes('const where = buildNocoV3QueueWhere();') &&
-  source.includes('where,') &&
-  source.includes("log.debug('Polled NocoDB v3 print queue'"),
-  'fetchQueued() must send the server-side where clause and log the poll result'
+  fetchSource.includes('PRINT_QUEUE_READ_TABLE') &&
+  fetchSource.includes("nocoV3Where('nocopk', 'eq', writeId)") &&
+  fetchSource.includes('pageSize: 1'),
+  'Each queued base-table candidate must be hydrated individually from vc_print_queue by nocopk'
 );
 
-console.log('NocoDB v3 server-side queue polling smoke tests passed.');
+assert(
+  fetchSource.includes("target !== PRINT_TARGET_VALUE") &&
+  fetchSource.includes('hydrated.push(rec)'),
+  'Print-target routing must be enforced locally after computed-view hydration'
+);
+
+assert(
+  !fetchSource.includes('const where = buildNocoV3QueueWhere();'),
+  'fetchQueued() must not filter vc_print_queue directly by computed print_target'
+);
+
+assert(
+  source.includes("log.error('Failed to hydrate queued print job from vc_print_queue'") &&
+  source.includes("log.error('Cycle error', { err: e?.message || String(e), ...httpErrorMeta(e) });"),
+  'NocoDB failures must include request/status/response diagnostics'
+);
+
+console.log('NocoDB v3 base-table queue polling and per-job hydration smoke tests passed.');
