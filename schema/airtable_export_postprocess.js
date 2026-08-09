@@ -301,14 +301,8 @@ function rewriteCompanyFormulasProducts(schema) {
       .map((v) => `{${itemCategoryMatId}} = "${v}"`)
       .join(",\r\n    ");
 
-    // products.public_link
-    // Keep the same behavior: for retail categories, switch between regulated/non-regulated URLs;
-    // otherwise default to my business.
-    setFormulaByFieldName(
-      table,
-      "public_link",
-      `IF(\r\n  OR(\r\n    {${itemCategoryMatId}} = "freezedriedmushrooms",\r\n    {${itemCategoryMatId}} = "fresh_mushrooms"\r\n  ),\r\n  IF({${originRegulatedId}}, "${COMPANY.regulatedBusinessUrl}", "${COMPANY.myBusinessUrl}"),\r\n  "${COMPANY.myBusinessUrl}"\r\n)`
-    );
+    // products.public_link is intentionally no longer rewritten. Stable Product/Lot
+    // navigation is resolved by qr.danks.store rather than Airtable formula URLs.
 
     // products.label_company_prod
     setFormulaByFieldName(

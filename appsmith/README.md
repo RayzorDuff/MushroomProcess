@@ -87,3 +87,5 @@ behavior.
 ### Product QR deep links
 
 The published Products page accepts `?product=PROD-...&source=qr`. The requested Product is included even if the current table filters would normally hide it, sorted first, and made the only selected row. This is used for fresh/freezer tray QR routing.
+
+Legacy Airtable `public_link*` columns are not part of the active Lots table metadata. Internal navigation is driven by the stable Product/Lot query-parameter contract instead.

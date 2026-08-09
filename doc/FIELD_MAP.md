@@ -36,6 +36,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 
 ## ✅ `products`
 
+> **Legacy QR field note (#12):** `public_link` remains listed because this file maps the retained Airtable source schema. Phase 6 excludes it from the active PostgreSQL `vc_products` contract; QR routing uses `https://qr.danks.store/r?i=PROD-...`.
+
 | Field                          | Type          |
 | ------------------------------ | ------------- |
 | product_id                     | formula       |
@@ -102,6 +104,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 ---
 
 ## ✅ `lots`
+
+> **Legacy QR field note (#12):** the `public_link*` formulas remain listed as Airtable-source fields only. Phase 6 excludes them from active PostgreSQL computed views and Appsmith table metadata; Lot QR routing uses the stable resolver and Appsmith deep link.
 
 | Field                                    | Type          |
 | ---------------------------------------- | ------------- |
@@ -306,6 +310,8 @@ This document maps all tables and their fields as defined in the current Airtabl
 ---
 
 ## ✅ `print_queue`
+
+> **Legacy QR field note (#12):** the `public_link (from ...)` lookups remain part of the retained Airtable schema, but are not emitted by active `vc_print_queue` and are ignored by the print daemon. Canonical Product/Lot IDs drive QR payloads.
 
 | Field                                         | Type          |
 | --------------------------------------------- | ------------- |

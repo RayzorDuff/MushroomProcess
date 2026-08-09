@@ -67,7 +67,7 @@ const productRec = {
 assert.strictEqual(
   gatherFields(productRec).qr,
   'https://qr.danks.store/r?i=PROD-260801-bojs',
-  'product labels should prefer the stable resolver over legacy public_link values'
+  'product labels should use the stable resolver and ignore legacy public_link values'
 );
 
 const lotRec = {
@@ -80,13 +80,13 @@ const lotRec = {
 assert.strictEqual(
   gatherFields(lotRec).qr,
   'https://qr.danks.store/r?i=LOT-260624-rTT0',
-  'lot labels should prefer the stable resolver over legacy Airtable links'
+  'lot labels should use the stable resolver and ignore legacy Airtable links'
 );
 
 assert.strictEqual(
   labelQrUrl({ public_link: 'https://legacy.example/fallback' }, 'lot'),
-  'https://legacy.example/fallback',
-  'legacy public_link must remain a migration fallback when no canonical inventory ID is available'
+  '',
+  'legacy public_link must be ignored when no canonical inventory ID or scan_url is available'
 );
 
 assert.strictEqual(
@@ -98,6 +98,18 @@ assert.strictEqual(
   }).qrUrl,
   'https://qr.danks.store/r?i=LOT-260624-rTT0',
   'sterilizer sheet Lot QR codes should use the stable resolver'
+);
+
+assert.strictEqual(
+  steriSheetLotFields({
+    fields: {
+      lot_id: 'LOT-260624-rTT0',
+      scan_url: 'https://qr.example.test/custom',
+      public_link: 'https://airtable.example/lot',
+    },
+  }).qrUrl,
+  'https://qr.example.test/custom',
+  'sterilizer sheet Lot QR codes should honor an explicit scan_url before deriving the resolver URL'
 );
 
 console.log('Print daemon stable Product/Lot QR routing smoke tests passed.');

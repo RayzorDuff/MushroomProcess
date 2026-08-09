@@ -178,8 +178,8 @@ QR_RESOLVER_BASE_URL=https://qr.danks.store/r
 
 ### Stable Product/Lot QR routing (#12 Phase 4)
 
-For current PostgreSQL/NocoDB labels, the daemon no longer uses Airtable or
-storefront `public_link*` values as the preferred QR payload. It extracts the
+For current PostgreSQL/NocoDB labels, the daemon does not use Airtable or
+storefront `public_link*` values as QR payloads. It extracts the
 canonical `PROD-...` or `LOT-...` identifier already present in the computed
 label fields and encodes:
 
@@ -193,15 +193,14 @@ WooCommerce later without reprinting labels, while Lot traffic continues to
 resolve to the authenticated Appsmith Lots deep link. Sterilizer output sheets
 use the same resolver URL for each Lot QR.
 
-Resolution order is intentionally transitional:
+Resolution order is now:
 
 1. an explicit `scan_url` supplied by a future database/view contract;
-2. a stable resolver URL derived from the canonical Product/Lot identifier;
-3. the existing `public_link*` value as a fallback for legacy/Airtable records
-   that do not expose a canonical identifier.
+2. a stable resolver URL derived from the canonical Product/Lot identifier.
 
-This avoids adding another persisted QR URL column while Airtable-derived
-`public_link*` fields are being prepared for retirement. Override
+Legacy Airtable/storefront `public_link*` values are intentionally ignored by the
+active daemon. If neither `scan_url` nor a canonical inventory identifier is
+available, no QR payload is rendered rather than falling back to a legacy link. Override
 `QR_RESOLVER_BASE_URL` only for a development/staging resolver.
 
 Run the QR routing smoke test after daemon changes:

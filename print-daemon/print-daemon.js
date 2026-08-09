@@ -452,27 +452,8 @@ function stableQrUrlFromFields(fields, kind) {
   return '';
 }
 
-function legacyQrUrlFromFields(fields, kind) {
-  const f = fields || {};
-  return String(kind || '').trim().toLowerCase() === 'product'
-    ? pick(f, [
-        'public_link_from_product_id',
-        'public_link (from product_id)',
-        'public_link_from_lot_id',
-        'public_link (from lot_id)',
-        'public_link',
-      ])
-    : pick(f, [
-        'public_link_from_lot_id',
-        'public_link (from lot_id)',
-        'public_link_from_product_id',
-        'public_link (from product_id)',
-        'public_link',
-      ]);
-}
-
 function labelQrUrl(fields, kind) {
-  return stableQrUrlFromFields(fields, kind) || legacyQrUrlFromFields(fields, kind);
+  return stableQrUrlFromFields(fields, kind);
 }
 
 function quoteNocoWhereValue(value) {
@@ -570,7 +551,7 @@ function steriSheetLotFields(lotRec) {
     recipeName: pick(f, ['recipe_name', 'name_from_recipe_id', 'recipe_id']),
     unit: pick(f, ['unit_size', 'planned_unit_size']),
     status: pick(f, ['status']),
-    qrUrl: buildQrResolverUrl(lotId) || pick(f, ['scan_url', 'public_link']),
+    qrUrl: pick(f, ['scan_url']) || buildQrResolverUrl(lotId),
   };
 }
 

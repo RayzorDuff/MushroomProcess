@@ -85,6 +85,32 @@ try {
     'Generated computed views still contain an unsafe text[] = scalar comparison'
   );
 
+
+  const legacyPublicLinkColumns = [
+    'public_link',
+    'public_link_dark_room',
+    'public_link_fruiting',
+    'public_link_harvest',
+    'public_link_spawn_to_bulk',
+    'public_link_inoculate_flask',
+    'public_link_inoculate_grain',
+    'public_link_freeze_dry_package',
+    'public_link_substrate_package',
+    'public_link_lot_lineage',
+    'public_link_from_lot_id',
+    'public_link_from_product_id',
+  ];
+  for (const column of legacyPublicLinkColumns) {
+    assert(
+      !computedSql.includes(`AS "${column}"`),
+      `Generated computed views must not reintroduce legacy QR/public-link column ${column}`
+    );
+  }
+  assert(
+    computedSql.includes('-- legacy QR/public-link field omitted: lots.public_link'),
+    'Generated computed views should document omitted legacy QR/public-link fields'
+  );
+
   const prefersSingleFields = new Map();
   for (const table of schema.tables || []) {
     for (const field of table.fields || []) {
@@ -140,7 +166,7 @@ try {
     );
   }
 
-  console.log('Airtable-to-Postgres generator array and prefers-single link smoke tests passed.');
+  console.log('Airtable-to-Postgres generator array, prefers-single link, and legacy public-link omission smoke tests passed.');
 } finally {
   fs.rmSync(tempDir, { recursive: true, force: true });
 }

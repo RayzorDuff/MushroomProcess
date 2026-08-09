@@ -401,3 +401,24 @@ After `028_qr_resolver.sql`, apply `029_qr_product_routing.sql`. It keeps the st
 ### `030_qr_scan_log.sql` — QR scan analytics foundation
 
 Creates `qr_scan_log` and `mp_qr_log_scan(jsonb)`. The public QR resolver uses this to persist one request record per scan, including the resolved inventory ID, routing outcome, company/item/strain/location snapshots, client/browser/device metadata, and Cloudflare visitor-location headers when available. The denormalized inventory fields intentionally preserve scan-time context for later reporting.
+
+### Legacy Airtable/public-link cleanup (#12 Phase 6)
+
+Stable QR routing now owns Product/Lot navigation. The export generator therefore
+suppresses Airtable/formula `public_link*` fields when producing `vc_lots`,
+`vc_products`, and `vc_print_queue`, and the checked-in generated
+`004_computed_views.sql` reflects that future rebuild contract.
+
+**Incremental production deployment:** do not re-import
+`004_computed_views.sql` solely for this Phase 6 patch. The checked-in rebuild
+artifact is generated from the repository's sanitized Airtable export and can
+contain generic company/branding placeholders that do not represent the live
+production view definitions. Existing `public_link*` columns may therefore remain
+physically present in the currently deployed `vc_*` views until the next
+controlled full view/database rebuild; Appsmith and the print daemon no longer
+consume them.
+
+On the next controlled rebuild, regenerate the PostgreSQL artifacts from the
+appropriate environment source. The generator smoke test asserts that the legacy
+columns are not reintroduced. Retained Airtable exports remain archival source
+data and are not rewritten by this cleanup.
