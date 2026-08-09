@@ -510,17 +510,45 @@ function printTargetForSource(sourceKind, itemCategory) {
   return 'ZEBRA';
 }
 
-function queueSourcePk(fields, sourceKind) {
+function queueSourceLinkValue(fields, sourceKind) {
   const f = fields || {};
   const kind = String(sourceKind || '').trim().toLowerCase();
-  const raw = kind === 'product'
-    ? f.product_id
+  const aliases = kind === 'product'
+    ? ['product_id', 'product', 'products']
     : kind === 'lot'
-      ? f.lot_id
-      : '';
+      ? ['lot_id', 'lot', 'lots']
+      : [];
 
+  for (const key of aliases) {
+    if (Object.prototype.hasOwnProperty.call(f, key) && f[key] != null && f[key] !== '') {
+      return f[key];
+    }
+  }
+
+  // NocoDB can expose external-database link titles with display-oriented
+  // punctuation/casing. Match conservative aliases without accidentally
+  // accepting lookup fields such as label_*_from_product_id.
+  const normalizedAliases = new Set(
+    aliases.map(key => key.toLowerCase().replace(/[^a-z0-9]/g, ''))
+  );
+  for (const [key, value] of Object.entries(f)) {
+    const normalizedKey = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (normalizedAliases.has(normalizedKey) && value != null && value !== '') {
+      return value;
+    }
+  }
+
+  return '';
+}
+
+function queueSourcePk(fields, sourceKind) {
+  const raw = queueSourceLinkValue(fields, sourceKind);
   if (raw == null || raw === '') return '';
-  const linked = linkedNocoValue(raw, ['nocopk', kind === 'product' ? 'product_id' : 'lot_id']);
+
+  // With linksAsLtar=true, NocoDB v3 returns Link fields as linked record
+  // objects. Prefer the linked record's actual Record ID / nocopk, not its
+  // display value (which may be a business ID such as PROD-... or LOT-...).
+  const linked = linkedNocoValue(raw, ['nocopk']);
   return String(toFlat(linked || raw) || '').trim();
 }
 
@@ -1051,7 +1079,11 @@ async function hydrateNocoV3QueueCandidate(candidateRow) {
 
   const sourcePk = queueSourcePk(queueFields, sourceKind);
   if (!sourcePk) {
-    throw new Error(`Queued print job ${writeId} is missing its ${sourceKind}_id`);
+    const availableFields = Object.keys(queueFields).sort().join(', ');
+    throw new Error(
+      `Queued print job ${writeId} is missing its ${sourceKind}_id/link. ` +
+      `Available queue fields: ${availableFields || '(none)'}`
+    );
   }
 
   const tableId = sourceKind === 'product' ? PRODUCTS_TABLE : LOTS_TABLE;
@@ -1150,6 +1182,9 @@ async function fetchQueued(viewName) {
         {
           pageSize: 100,
           where: candidateWhere,
+          // Expand external PostgreSQL Link fields so lot_id/product_id carry
+          // the linked record ID instead of being omitted or reduced to counts.
+          linksAsLtar: 'true',
         },
         true
       );
@@ -3078,6 +3113,7 @@ module.exports = {
   combineNocoV3WhereClauses,
   buildNocoV3QueueWhere,
   printTargetForSource,
+  queueSourceLinkValue,
   queueSourcePk,
   mergeQueueSourceFields,
   lotMatchesRun,
