@@ -552,6 +552,65 @@ function queueSourcePk(fields, sourceKind) {
   return String(toFlat(linked || raw) || '').trim();
 }
 
+function queueSourceBusinessId(fields, sourceKind) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const businessField = kind === 'product' ? 'product_id' : kind === 'lot' ? 'lot_id' : '';
+  if (!businessField) return '';
+
+  const raw = queueSourceLinkValue(fields, kind);
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  if (!one || typeof one !== 'object') {
+    const flat = String(toFlat(one) || '').trim();
+    return /^(?:PROD|LOT)-/i.test(flat) ? flat : '';
+  }
+
+  const linkedFields = one.fields && typeof one.fields === 'object' ? one.fields : {};
+  const idFields = one.id_fields && typeof one.id_fields === 'object' ? one.id_fields : {};
+  return String(toFlat(linkedFields[businessField] ?? idFields[businessField] ?? '') || '').trim();
+}
+
+function nocoV3SourceFieldNames(sourceKind) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  if (kind === 'product') {
+    return [
+      'product_id',
+      'item_category_mat',
+      'label_company_prod',
+      'label_companyaddress_prod',
+      'label_disclaimer_prod',
+      'label_companyinfo_prod',
+      'label_cottage_prod',
+      'label_title_prod',
+      'label_subtitle_prod',
+      'label_footer_prod',
+      'label_packaged_prod',
+      'label_useby_prod',
+      'label_inoc_prod',
+      'label_spawned_prod',
+      'label_proc_prod',
+    ];
+  }
+
+  if (kind === 'lot') {
+    return [
+      'lot_id',
+      'item_category_mat',
+      'label_company_lot',
+      'label_title_lot',
+      'label_subtitle_lot',
+      'label_footer_lot',
+      'label_substrateinputblocks_line',
+      'label_graininputblocks_line',
+      'label_useby_line',
+      'label_spawned_line',
+      'label_inoc_line',
+      'label_proc_line',
+    ];
+  }
+
+  return [];
+}
+
 function mergeQueueSourceFields(queueFields, sourceFields, printTarget) {
   return {
     ...(sourceFields || {}),
@@ -1041,18 +1100,44 @@ if (FORCE_PAGE) {
 const M = MARGIN_PT || 8;
 const LINE_GAP = 2;
 
-async function fetchNocoV3SourceRecord(tableId, viewId, sourcePk) {
-  const rows = await fetchNocoV3Records(
-    tableId,
-    viewId,
-    {
-      pageSize: 1,
-      where: nocoV3Where('nocopk', 'eq', sourcePk),
-    },
-    false
-  );
+async function fetchNocoV3SourceRecord(tableId, viewId, sourcePk, sourceKind, queueFields) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const fieldNames = nocoV3SourceFieldNames(kind);
+  const params = fieldNames.length ? { fields: fieldNames.join(',') } : {};
+  const directUrl = `${nocoV3RecordsPath(tableId)}/${encodeURIComponent(sourcePk)}`;
 
-  return rows.find(row => nocoV3MatchesRecord(row, sourcePk, ['nocopk'])) || null;
+  // sourcePk comes from the LTAR link object's Record ID. Use NocoDB v3's
+  // single-record endpoint rather than filtering computed views on nocopk.
+  try {
+    const { data } = await NC.get(directUrl, Object.keys(params).length ? { params } : undefined);
+    const row = data?.record ?? data;
+    if (row && typeof row === 'object') return row;
+  } catch (directError) {
+    const businessId = queueSourceBusinessId(queueFields, kind);
+    if (!businessId) throw directError;
+
+    const businessField = kind === 'product' ? 'product_id' : 'lot_id';
+    log.warn('Direct NocoDB source record read failed; trying business-id filter', {
+      source_kind: kind,
+      record_id: sourcePk,
+      business_id: businessId,
+      ...httpErrorMeta(directError),
+    });
+
+    const rows = await fetchNocoV3Records(
+      tableId,
+      viewId,
+      {
+        pageSize: 1,
+        ...(fieldNames.length ? { fields: fieldNames.join(',') } : {}),
+        where: nocoV3Where(businessField, 'eq', businessId),
+      },
+      false
+    );
+    return rows[0] || null;
+  }
+
+  return null;
 }
 
 async function hydrateNocoV3QueueCandidate(candidateRow) {
@@ -1088,7 +1173,13 @@ async function hydrateNocoV3QueueCandidate(candidateRow) {
 
   const tableId = sourceKind === 'product' ? PRODUCTS_TABLE : LOTS_TABLE;
   const viewId = sourceKind === 'product' ? PRODUCTS_VIEW_ID : LOTS_VIEW_ID;
-  const sourceRow = await fetchNocoV3SourceRecord(tableId, viewId, sourcePk);
+  const sourceRow = await fetchNocoV3SourceRecord(
+    tableId,
+    viewId,
+    sourcePk,
+    sourceKind,
+    queueFields
+  );
   if (!sourceRow) {
     throw new Error(`Queued print job ${writeId} could not find ${sourceKind} nocopk=${sourcePk}`);
   }
@@ -3115,6 +3206,8 @@ module.exports = {
   printTargetForSource,
   queueSourceLinkValue,
   queueSourcePk,
+  queueSourceBusinessId,
+  nocoV3SourceFieldNames,
   mergeQueueSourceFields,
   lotMatchesRun,
   steriSheetRunFields,

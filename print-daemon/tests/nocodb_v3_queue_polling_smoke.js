@@ -96,6 +96,23 @@ assert.strictEqual(
   'Display-oriented NocoDB link titles should be accepted conservatively'
 );
 
+assert.strictEqual(
+  context.queueSourceBusinessId(
+    { product_id: [{ id: 409, fields: { product_id: 'PROD-260804-HBhS' } }] },
+    'product'
+  ),
+  'PROD-260804-HBhS'
+);
+assert.strictEqual(
+  context.queueSourceBusinessId(
+    { lot_id: [{ id: 1581, fields: { lot_id: 'LOT-260805-9c70' } }] },
+    'lot'
+  ),
+  'LOT-260805-9c70'
+);
+assert(context.nocoV3SourceFieldNames('product').includes('label_title_prod'));
+assert(context.nocoV3SourceFieldNames('lot').includes('label_title_lot'));
+
 const merged = context.mergeQueueSourceFields(
   { nocopk: 871, source_kind: 'lot', print_status: 'Queued' },
   { nocopk: 1581, label_title_lot: 'Small CVG', item_category_mat: 'fruiting_block' },
@@ -113,10 +130,12 @@ assert(
 );
 assert(
   source.includes("sourceKind === 'product' ? PRODUCTS_TABLE : LOTS_TABLE") &&
-  source.includes("where: nocoV3Where('nocopk', 'eq', sourcePk)") &&
+  source.includes('`${nocoV3RecordsPath(tableId)}/${encodeURIComponent(sourcePk)}`') &&
+  source.includes("where: nocoV3Where(businessField, 'eq', businessId)") &&
+  !source.includes("where: nocoV3Where('nocopk', 'eq', sourcePk)") &&
   source.includes("['vc_products', 'products']") &&
   source.includes("['vc_lots', 'lots']"),
-  'Label data must hydrate from vc_products/vc_lots by source nocopk'
+  'Label data must read vc_products/vc_lots by linked Record ID with business-id fallback'
 );
 assert(
   !source.includes("Failed to hydrate queued print job from vc_print_queue") &&
