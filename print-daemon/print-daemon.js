@@ -1,6 +1,6 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-08-08.1
+ * Version: 2026-08-08.2
  * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
@@ -471,6 +471,32 @@ function nocoV3Where(field, operator, value) {
     throw new Error('NocoDB where clause requires a field and operator');
   }
   return `(${safeField},${safeOperator},${quoteNocoWhereValue(value)})`;
+}
+
+function combineNocoV3WhereClauses(clauses) {
+  return (Array.isArray(clauses) ? clauses : [clauses])
+    .map(clause => String(clause || '').trim())
+    .filter(Boolean)
+    .join('~and');
+}
+
+function buildNocoV3QueueWhere(
+  printTargetField = PRINT_TARGET_FIELD,
+  printTargetValue = PRINT_TARGET_VALUE,
+  extraWhere = NOCODB_EXTRA_WHERE
+) {
+  const clauses = [nocoV3Where('print_status', 'eq', 'Queued')];
+
+  const targetValue = String(printTargetValue || '').trim();
+  if (targetValue) {
+    const targetField = String(printTargetField || 'print_target').trim() || 'print_target';
+    clauses.push(nocoV3Where(targetField, 'eq', targetValue));
+  }
+
+  const extra = String(extraWhere || '').trim();
+  if (extra) clauses.push(extra);
+
+  return combineNocoV3WhereClauses(clauses);
 }
 
 function normalizeRunMatchTargets(runIds) {
@@ -987,17 +1013,30 @@ async function fetchQueued(viewName) {
   
   } else {
     if (isNocoV3()) {
-      // NocoDB v3 external PostgreSQL API. Read from vc_print_queue or another read view
-      // that contains rendered label fields; write status updates back to print_queue.
+      // NocoDB v3 external PostgreSQL API. Filter on the server so the daemon
+      // does not fetch an arbitrary first page of the full computed view. This
+      // also ensures queued jobs beyond the first page remain discoverable.
+      const where = buildNocoV3QueueWhere();
       const records = await fetchNocoV3Records(
         PRINT_QUEUE_READ_TABLE,
         PRINT_QUEUE_READ_VIEW_ID,
-        {},
+        {
+          pageSize: 25,
+          where,
+        },
         false
       );
 
-      return records
-        .map(normalizeNocoV3QueueRecord)
+      const normalized = records.map(normalizeNocoV3QueueRecord);
+      log.debug('Polled NocoDB v3 print queue', {
+        where,
+        returned: normalized.length,
+        target: PRINT_TARGET_VALUE || '(all)',
+      });
+
+      // Retain local filtering as a safety net in case a NocoDB version or
+      // configured view returns rows outside the requested where clause.
+      return normalized
         .filter(rec => String(toFlat(rec.fields?.print_status)).trim() === 'Queued')
         .filter(rec => {
           if (!PRINT_TARGET_VALUE) return true;
@@ -2892,6 +2931,8 @@ module.exports = {
   gatherFields,
   hasRenderableLabelText,
   nocoV3Where,
+  combineNocoV3WhereClauses,
+  buildNocoV3QueueWhere,
   lotMatchesRun,
   steriSheetRunFields,
   steriSheetLotFields,
