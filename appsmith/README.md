@@ -138,3 +138,27 @@ Scanner behavior:
 - clears the input after a successful or already-found scan;
 - leaves unresolved identifiers visible for operator review;
 - makes no inventory database change until the existing reconciliation Finalize step.
+
+## Recipes - Manage (Issue #79)
+
+The **Recipes - Manage** page provides PostgreSQL-first administration for Recipe
+metadata, structured ingredients, Item component plans, and read-only actual Lot
+component history.
+
+The page is organized into four tabs:
+
+- **Recipes** — create/update `recipes` metadata and maintain structured
+  `recipe_ingredients` rows. The imported `recipes.ingredients` text is displayed
+  as legacy read-only reference and is never overwritten by the new workflow.
+- **Ingredients** — maintain the `ingredients` master, including default unit and
+  preferred vendor/source metadata intended to support future received-ingredient
+  inventory without changing Recipe definitions.
+- **Item Component Plans** — maintain existing `item_recipe_components`. The
+  database save function enforces the #68 distinction between `single_recipe`
+  and `multi_recipe` Items and requires Component Set for multi-recipe plans.
+- **Lot Component History** — read-only view of `lot_recipe_components`, which
+  remains actual production history written by operational lifecycle functions.
+
+Appsmith mutations call the canonical functions installed by
+`schema/pgsql/032_recipe_management.sql`; the page does not directly mutate
+`lot_recipe_components`.

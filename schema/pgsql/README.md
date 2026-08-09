@@ -435,3 +435,33 @@ Retained Airtable exports, `airtable_id`, and migration tooling remain available
 for historical provenance and schema archaeology, but PostgreSQL/Appsmith is the
 authoritative production implementation and no future Airtable migration is
 assumed.
+
+
+### `032_recipe_management.sql` — Recipe and ingredient administration (#79)
+
+PostgreSQL/Appsmith is now the authoritative recipe-management implementation.
+Migration `032_recipe_management.sql` adds:
+
+- `ingredients` — a stable ingredient master with category, default unit,
+  preferred vendor/source, active state, and notes;
+- `recipe_ingredients` — structured Recipe composition rows with Ingredient,
+  amount, unit, optional per-Recipe vendor/source, sort order, active state, and
+  notes;
+- `mp_recipe_admin_save(...)` — create/update Recipe metadata while leaving the
+  imported `recipes.ingredients` text untouched as legacy reference;
+- `mp_ingredient_admin_save(...)` — create/update the Ingredient master;
+- `mp_recipe_ingredient_admin_save(...)` — create/update structured Recipe
+  Ingredient rows;
+- `mp_item_recipe_component_admin_save(...)` — maintain existing
+  `item_recipe_components` with the single-recipe versus multi-recipe rules
+  established under #68.
+
+`item_recipe_components` remains the allowed/default Item component-plan source.
+`lot_recipe_components` remains actual production history and is exposed
+read-only by the Recipes - Manage page; it is not modified by Recipe
+administration.
+
+For incremental production deployment, import `032_recipe_management.sql` after
+`031_remove_legacy_public_links.sql`, then run
+`tests/032_recipe_management_smoke.sql` before importing the updated Appsmith
+application.

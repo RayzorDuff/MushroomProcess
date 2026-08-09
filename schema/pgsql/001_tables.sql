@@ -135,6 +135,120 @@ DO $$ BEGIN
       END $$;
 CREATE INDEX IF NOT EXISTS "ix_recipes_recipe_id" ON "public"."recipes"("recipe_id");
 
+CREATE TABLE IF NOT EXISTS "public"."ingredients" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "ingredient_id" text NOT NULL,
+  "active" boolean NOT NULL DEFAULT true,
+  "name" text NOT NULL,
+  "category" text,
+  "default_unit" text,
+  "preferred_vendor" text,
+  "notes" text,
+  "nocouuid" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now(),
+  "nc_updated_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'uq_ingredients_ingredient_id'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "uq_ingredients_ingredient_id" UNIQUE ("ingredient_id");
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_ingredients_ingredient_id_nonblank'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "ck_ingredients_ingredient_id_nonblank" CHECK (btrim("ingredient_id") <> '');
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_ingredients_name_nonblank'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "ck_ingredients_name_nonblank" CHECK (btrim("name") <> '');
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_ingredients_name" ON "public"."ingredients"(lower("name"), "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_ingredients_active" ON "public"."ingredients"("active", lower("name"), "nocopk");
+
+CREATE TABLE IF NOT EXISTS "public"."recipe_ingredients" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "recipe_ingredient_id" text NOT NULL,
+  "recipe_id" bigint NOT NULL,
+  "ingredient_id" bigint NOT NULL,
+  "amount" numeric NOT NULL,
+  "unit" text NOT NULL,
+  "vendor_name" text,
+  "sort_order" numeric,
+  "active" boolean NOT NULL DEFAULT true,
+  "notes" text,
+  "nocouuid" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now(),
+  "nc_updated_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'uq_recipe_ingredients_recipe_ingredient_id'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "uq_recipe_ingredients_recipe_ingredient_id" UNIQUE ("recipe_ingredient_id");
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_recipe_ingredients_recipe'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "fk_recipe_ingredients_recipe"
+            FOREIGN KEY ("recipe_id") REFERENCES "public"."recipes"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_recipe_ingredients_ingredient'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "fk_recipe_ingredients_ingredient"
+            FOREIGN KEY ("ingredient_id") REFERENCES "public"."ingredients"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_amount_positive'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_amount_positive" CHECK ("amount" > 0);
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_unit_nonblank'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_unit_nonblank" CHECK (btrim("unit") <> '');
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_recipe" ON "public"."recipe_ingredients"("recipe_id", "active", "sort_order", "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_ingredient" ON "public"."recipe_ingredients"("ingredient_id", "active", "recipe_id", "nocopk");
+
 CREATE TABLE IF NOT EXISTS "public"."lot_recipe_components" (
   "nocopk" BIGSERIAL PRIMARY KEY,
   "lot_recipe_component_id" text,

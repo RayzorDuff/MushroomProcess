@@ -87,6 +87,7 @@ The RC5 open issue list was reviewed against the current schema tests.
 | #69 | `008_package_multiple_lots_smoke.sql` |
 | #75 | `010_spawn_to_bulk_components_smoke.sql` |
 | #78 | `024_inventory_reconciliation_smoke.sql` and `025_inventory_reconciliation_lots_smoke.sql`; cover Product and Lot found-item moves, Missing or Lost assignment, duplicate found IDs, post-snapshot concurrency protection, synchronized location links, audit events, Product Shipped correction, and terminal-state blocking. |
+| #79 | `032_recipe_management_smoke.sql`; covers Recipe and Ingredient creation/update, structured Recipe Ingredient values, single- vs. multi-recipe item component rules, duplicate active component rejection, and continued read access to immutable lot component history. |
 
 
 ### Additional negative-path and view-contract coverage
