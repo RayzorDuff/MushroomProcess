@@ -1,6 +1,6 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-08-08.2
+ * Version: 2026-08-08.3
  * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
@@ -197,6 +197,8 @@ let STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || (IS_NOCOD
 const STERILIZATION_RUNS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.STERILIZATION_RUNS_VIEW_ID || '');
 let LOTS_TABLE = process.env.LOTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_lots' : 'lots');
 const LOTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.LOTS_VIEW_ID || '');
+let PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_products' : 'products');
+const PRODUCTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRODUCTS_VIEW_ID || '');
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
@@ -499,6 +501,37 @@ function buildNocoV3QueueWhere(
   return combineNocoV3WhereClauses(clauses);
 }
 
+function printTargetForSource(sourceKind, itemCategory) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const category = String(toFlat(itemCategory) || '').trim().toLowerCase();
+
+  if (kind === 'steri_sheet') return 'ZEBRA';
+  if (['fresh_mushrooms', 'freezer_tray', 'fresh_tray'].includes(category)) return 'TRAYS';
+  return 'ZEBRA';
+}
+
+function queueSourcePk(fields, sourceKind) {
+  const f = fields || {};
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const raw = kind === 'product'
+    ? f.product_id
+    : kind === 'lot'
+      ? f.lot_id
+      : '';
+
+  if (raw == null || raw === '') return '';
+  const linked = linkedNocoValue(raw, ['nocopk', kind === 'product' ? 'product_id' : 'lot_id']);
+  return String(toFlat(linked || raw) || '').trim();
+}
+
+function mergeQueueSourceFields(queueFields, sourceFields, printTarget) {
+  return {
+    ...(sourceFields || {}),
+    ...(queueFields || {}),
+    [PRINT_TARGET_FIELD]: printTarget,
+  };
+}
+
 function normalizeRunMatchTargets(runIds) {
   const pending = Array.isArray(runIds) ? [...runIds] : [runIds];
   const targets = [];
@@ -706,15 +739,24 @@ async function resolveNocoV3TableReference(label, configuredValue, fallbackNames
 async function resolveNocoV3Configuration() {
   if (!isNocoV3()) return;
 
-  PRINT_QUEUE_READ_TABLE = await resolveNocoV3TableReference(
-    'PRINT_QUEUE_READ_TABLE',
-    PRINT_QUEUE_READ_TABLE,
-    ['vc_print_queue']
-  );
+  // NocoDB currently returns HTTP 500 when querying vc_print_queue even though
+  // PostgreSQL can query that view directly. Do not depend on that view for
+  // daemon polling; read Queued rows from print_queue and hydrate label data
+  // from vc_lots / vc_products instead.
   PRINT_QUEUE_WRITE_TABLE = await resolveNocoV3TableReference(
     'PRINT_QUEUE_WRITE_TABLE',
     PRINT_QUEUE_WRITE_TABLE,
     ['print_queue']
+  );
+  LOTS_TABLE = await resolveNocoV3TableReference(
+    'LOTS_TABLE',
+    LOTS_TABLE,
+    ['vc_lots', 'lots']
+  );
+  PRODUCTS_TABLE = await resolveNocoV3TableReference(
+    'PRODUCTS_TABLE',
+    PRODUCTS_TABLE,
+    ['vc_products', 'products']
   );
 
   if (ENABLE_STERI_SHEETS) {
@@ -723,16 +765,12 @@ async function resolveNocoV3Configuration() {
       STERILIZATION_RUNS_TABLE,
       ['vc_sterilization_runs', 'sterilization_runs']
     );
-    LOTS_TABLE = await resolveNocoV3TableReference(
-      'LOTS_TABLE',
-      LOTS_TABLE,
-      ['vc_lots', 'lots']
-    );
   }
 
   if (PRINT_QUEUE_WRITE_VIEW_ID) {
     log.warn('PRINT_QUEUE_WRITE_VIEW_ID is not used for NocoDB v3 PATCH requests and may be removed from .env.');
   }
+
 }
 
 function nocoV3RecordsPath(tableId) {
@@ -975,6 +1013,67 @@ if (FORCE_PAGE) {
 const M = MARGIN_PT || 8;
 const LINE_GAP = 2;
 
+async function fetchNocoV3SourceRecord(tableId, viewId, sourcePk) {
+  const rows = await fetchNocoV3Records(
+    tableId,
+    viewId,
+    {
+      pageSize: 1,
+      where: nocoV3Where('nocopk', 'eq', sourcePk),
+    },
+    false
+  );
+
+  return rows.find(row => nocoV3MatchesRecord(row, sourcePk, ['nocopk'])) || null;
+}
+
+async function hydrateNocoV3QueueCandidate(candidateRow) {
+  const queueFields = nocoV3RecordFields(candidateRow);
+  const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
+  if (writeId == null || String(writeId).trim() === '') {
+    throw new Error('Queued NocoDB row is missing its writable queue id');
+  }
+
+  const sourceKind = String(toFlat(queueFields.source_kind) || '').trim().toLowerCase();
+  if (!['lot', 'product', 'steri_sheet'].includes(sourceKind)) {
+    throw new Error(`Queued print job ${writeId} has unsupported source_kind="${sourceKind || '(blank)'}"`);
+  }
+
+  if (sourceKind === 'steri_sheet') {
+    const printTarget = printTargetForSource(sourceKind, '');
+    return {
+      id: writeId,
+      read_id: candidateRow?.id,
+      fields: mergeQueueSourceFields(queueFields, {}, printTarget),
+      _raw: candidateRow,
+    };
+  }
+
+  const sourcePk = queueSourcePk(queueFields, sourceKind);
+  if (!sourcePk) {
+    throw new Error(`Queued print job ${writeId} is missing its ${sourceKind}_id`);
+  }
+
+  const tableId = sourceKind === 'product' ? PRODUCTS_TABLE : LOTS_TABLE;
+  const viewId = sourceKind === 'product' ? PRODUCTS_VIEW_ID : LOTS_VIEW_ID;
+  const sourceRow = await fetchNocoV3SourceRecord(tableId, viewId, sourcePk);
+  if (!sourceRow) {
+    throw new Error(`Queued print job ${writeId} could not find ${sourceKind} nocopk=${sourcePk}`);
+  }
+
+  const sourceFields = nocoV3RecordFields(sourceRow);
+  const itemCategory = pick(sourceFields, ['item_category_mat', 'item_category']);
+  const printTarget = printTargetForSource(sourceKind, itemCategory);
+
+  return {
+    id: writeId,
+    read_id: candidateRow?.id,
+    fields: mergeQueueSourceFields(queueFields, sourceFields, printTarget),
+    _raw: candidateRow,
+    _source_raw: sourceRow,
+  };
+}
+
 function httpErrorMeta(error) {
   const meta = {};
   const method = error?.config?.method;
@@ -1038,11 +1137,9 @@ async function fetchQueued(viewName) {
   
   } else {
     if (isNocoV3()) {
-      // Poll the simple base print_queue table for Queued rows, then hydrate
-      // candidates one-at-a-time from vc_print_queue. NocoDB v3 has proven
-      // unreliable when filtering the computed vc_print_queue view directly
-      // (especially on computed print_target), while the base table is stable.
-      // Target routing remains a local safety decision after hydration.
+      // Poll the simple base print_queue table for Queued rows. Hydrate each
+      // candidate from vc_lots or vc_products; vc_print_queue is intentionally
+      // bypassed because NocoDB currently returns HTTP 500 for that view.
       const candidateClauses = [nocoV3Where('print_status', 'eq', 'Queued')];
       if (NOCODB_EXTRA_WHERE) candidateClauses.push(NOCODB_EXTRA_WHERE);
       const candidateWhere = combineNocoV3WhereClauses(candidateClauses);
@@ -1062,40 +1159,10 @@ async function fetchQueued(viewName) {
         if (hydrated.length >= 25) break;
 
         const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
-        if (writeId == null || String(writeId).trim() === '') {
-          log.warn('Skipping queued NocoDB row without writable queue id');
-          continue;
-        }
-
         try {
-          const viewRows = await fetchNocoV3Records(
-            PRINT_QUEUE_READ_TABLE,
-            PRINT_QUEUE_READ_VIEW_ID,
-            {
-              pageSize: 1,
-              where: nocoV3Where('nocopk', 'eq', writeId),
-            },
-            false
-          );
-
-          const viewRow = viewRows.find(row =>
-            nocoV3MatchesRecord(row, writeId, ['nocopk', 'print_id'])
-          );
-          if (!viewRow) {
-            log.warn('Queued print job was not found in vc_print_queue', {
-              id: writeId,
-            });
-            continue;
-          }
-
-          const rec = normalizeNocoV3QueueRecord(viewRow);
-          rec.id = writeId;
-          rec.fields = {
-            ...nocoV3RecordFields(candidateRow),
-            ...rec.fields,
-          };
-
+          const rec = await hydrateNocoV3QueueCandidate(candidateRow);
           if (String(toFlat(rec.fields?.print_status)).trim() !== 'Queued') continue;
+
           if (PRINT_TARGET_VALUE) {
             const target = String(toFlat(rec.fields?.[PRINT_TARGET_FIELD]) || '').trim();
             if (target !== PRINT_TARGET_VALUE) continue;
@@ -1103,8 +1170,10 @@ async function fetchQueued(viewName) {
 
           hydrated.push(rec);
         } catch (error) {
-          log.error('Failed to hydrate queued print job from vc_print_queue', {
+          log.error('Failed to hydrate queued print job from source view', {
             id: writeId,
+            source_kind: toFlat(nocoV3RecordFields(candidateRow).source_kind),
+            err: error?.message || String(error),
             ...httpErrorMeta(error),
           });
         }
@@ -2825,8 +2894,7 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       const availableFields = Object.keys(f).sort().join(', ');
       throw new Error(
         'No renderable label text was returned for this print job. ' +
-        'Verify that PRINT_QUEUE_READ_TABLE resolves to vc_print_queue and that the daemon accepts ' +
-        'the *_from_lot_id / *_from_product_id computed-view field names. ' +
+        'Verify that the queued job resolves to vc_lots/vc_products and exposes the expected label fields. ' +
         `Available fields: ${availableFields || '(none)'}`
       );
     }
@@ -2944,11 +3012,12 @@ async function startDaemon() {
       api_version: NOCODB_API_VERSION,
       base_id: NOCODB_BASE_ID || '(v2/not set)',
       auto_resolve_ids: NOCODB_AUTO_RESOLVE_IDS,
-      queue_read_table: PRINT_QUEUE_READ_TABLE,
+      queue_read_table: '(vc_print_queue bypassed)',
       queue_read_view: PRINT_QUEUE_READ_VIEW_ID || '(none)',
       queue_write_table: PRINT_QUEUE_WRITE_TABLE,
       queue_write_id_field: PRINT_QUEUE_WRITE_ID_FIELD,
-      lots_table: ENABLE_STERI_SHEETS ? LOTS_TABLE : '(sterilizer sheets disabled)',
+      lots_table: LOTS_TABLE,
+      products_table: PRODUCTS_TABLE,
       lots_view: LOTS_VIEW_ID || '(none)',
       sterilization_runs_table: ENABLE_STERI_SHEETS ? STERILIZATION_RUNS_TABLE : '(sterilizer sheets disabled)',
       sterilization_runs_view: STERILIZATION_RUNS_VIEW_ID || '(none)',
@@ -3008,6 +3077,9 @@ module.exports = {
   nocoV3Where,
   combineNocoV3WhereClauses,
   buildNocoV3QueueWhere,
+  printTargetForSource,
+  queueSourcePk,
+  mergeQueueSourceFields,
   lotMatchesRun,
   steriSheetRunFields,
   steriSheetLotFields,
