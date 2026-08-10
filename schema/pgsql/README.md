@@ -465,3 +465,9 @@ For incremental production deployment, import `032_recipe_management.sql` after
 `031_remove_legacy_public_links.sql`, then run
 `tests/032_recipe_management_smoke.sql` before importing the updated Appsmith
 application.
+
+### Recipe document model (`033_recipe_document_model.sql`)
+
+Issue #79 extends the PostgreSQL-first recipe definition so complete human-readable production instructions can eventually be rendered from database content rather than maintained only in an external document.
+
+The model adds `recipes.description` and `recipes.batch_yield_text`, extends `recipe_ingredients` with quantity ranges/display text, alternative groups, optional/nested composition support, and adds ordered `recipe_steps` grouped by section. These are recipe-definition fields only; actual production history remains in `lot_recipe_components`.

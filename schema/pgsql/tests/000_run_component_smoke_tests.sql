@@ -40,6 +40,7 @@
   \ir 027_ecommerce_ecwid_catalog_sync_smoke.sql
   \ir 028_qr_resolver_smoke.sql
   \ir 032_recipe_management_smoke.sql
+\ir 033_recipe_document_model_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else
