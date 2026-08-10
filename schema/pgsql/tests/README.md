@@ -128,3 +128,5 @@ branches for both regulated and unregulated Sample products.
 - `031_remove_legacy_public_links_smoke.sql` — verifies migration 031 removed all legacy `public_link*` columns and Airtable URL expressions from `vc_lots`, `vc_products`, and `vc_print_queue`, restored downstream computed views, and preserved representative Appsmith/n8n/print-daemon columns.
 
 - `033_recipe_document_model_smoke.sql` — validates Issue #79 recipe document metadata, ranged/qualitative/nested ingredient representation, quantity constraints, and ordered recipe steps.
+
+- `034_recipe_admin_document_wiring_smoke.sql` — validates Issue #79 expanded Recipe Ingredient administration, including ranged and qualitative quantities, nested same-Recipe parent validation, optional state, and invalid-range rejection.

@@ -162,3 +162,13 @@ The page is organized into four tabs:
 Appsmith mutations call the canonical functions installed by
 `schema/pgsql/032_recipe_management.sql`; the page does not directly mutate
 `lot_recipe_components`.
+
+### Recipes - Manage document fields (#79)
+
+The Recipes tab also edits the document-oriented fields introduced by PostgreSQL migrations 033/034:
+
+- Recipe description and human-readable batch yield/output;
+- structured Ingredient amount ranges, display quantity text, alternative groups, nested parent ingredients, and optional state;
+- ordered, sectioned Recipe instruction steps through `recipe_steps`.
+
+`qRecipeAdminRecipeIngredients` and `qRecipeAdminItemComponents` are parameter-dependent manual queries. They are executed by `RecipeAdmin` only after a Recipe/Item selection and use prepared-statement-safe nullable parameter expressions; this prevents an empty selection from being passed to PostgreSQL as the literal string `NULL` for a `bigint` parameter.

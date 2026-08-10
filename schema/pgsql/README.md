@@ -471,3 +471,11 @@ application.
 Issue #79 extends the PostgreSQL-first recipe definition so complete human-readable production instructions can eventually be rendered from database content rather than maintained only in an external document.
 
 The model adds `recipes.description` and `recipes.batch_yield_text`, extends `recipe_ingredients` with quantity ranges/display text, alternative groups, optional/nested composition support, and adds ordered `recipe_steps` grouped by section. These are recipe-definition fields only; actual production history remains in `lot_recipe_components`.
+
+### Recipe administration document-field wiring (`034_recipe_admin_document_wiring.sql`)
+
+Issue #79 migration `034_recipe_admin_document_wiring.sql` completes the canonical write path for the document-oriented structured Recipe Ingredient fields introduced by migration 033. `mp_recipe_ingredient_document_admin_save(...)` writes numeric/ranged quantities, display quantity text, vendor/source, alternative groups, nested parent ingredients, optional state, ordering, active state, and notes while enforcing same-Recipe parent relationships.
+
+The Recipes - Manage Appsmith page uses migration 033's `mp_recipe_document_metadata_save(...)` and `mp_recipe_step_admin_save(...)` functions for Recipe description/batch-yield metadata and ordered Recipe instruction steps. Parameter-dependent Appsmith reads are manual-only and use prepared-statement-safe nullable numeric bindings so an unselected Recipe or Item does not send the literal string `NULL` to a PostgreSQL `bigint` parameter.
+
+For incremental production deployment, import `034_recipe_admin_document_wiring.sql` after migrations 032 and 033, then run `tests/034_recipe_admin_document_wiring_smoke.sql` before importing the corresponding Appsmith JSON.
