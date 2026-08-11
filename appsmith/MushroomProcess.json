@@ -79645,9 +79645,467 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 890,
+              "bottomRow": 940,
               "canExtend": true,
               "children": [
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 5,
+                  "widgetName": "navMainNavigation",
+                  "isCanvas": false,
+                  "bottomRow": 5,
+                  "topRow": 0,
+                  "parentRowSpace": 10,
+                  "groupButtons": {
+                    "groupButton1": {
+                      "buttonColor": "{{ [\"lots\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton1",
+                      "index": 0,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Lots",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Lots\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton2": {
+                      "buttonColor": "{{ [\"products\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton2",
+                      "index": 1,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Products",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Products\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton3": {
+                      "buttonColor": "{{ [\"sterilizer-in\",\"sterilizer-out\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton3",
+                      "index": 2,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Sterilizer",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Sterilizer In",
+                          "onClick": "{{navigateTo(\"Sterilizer – In\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Sterilizer Out",
+                          "onClick": "{{navigateTo(\"Sterilizer – Out\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton4": {
+                      "buttonColor": "{{ [\"lab-agar\",\"lab-inoculate\",\"lab-spawn-to-bulk\",\"lab-draw-syringes\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton4",
+                      "index": 3,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Lab",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Agar",
+                          "onClick": "{{navigateTo(\"Lab - Agar\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Inoculate",
+                          "onClick": "{{navigateTo(\"Lab - Inoculate\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem3": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem3",
+                          "index": 2,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Spawn to Bulk",
+                          "onClick": "{{navigateTo(\"Lab - Spawn to Bulk\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem4": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem4",
+                          "index": 3,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Draw Syringes",
+                          "onClick": "{{navigateTo(\"Lab - Draw Syringes\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton5": {
+                      "buttonColor": "{{ [\"harvest\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton5",
+                      "index": 4,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Harvest",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Harvest\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton6": {
+                      "buttonColor": "{{ [\"lab-receive\",\"recipes-manage\",\"fulfillment\",\"inventory-reconcile\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton6",
+                      "index": 5,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Inventory",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Receive Syringes",
+                          "onClick": "{{navigateTo(\"Lab - Receive\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Recipes",
+                          "onClick": "{{navigateTo(\"Recipes - Manage\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem3": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem3",
+                          "index": 2,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Fulfillment",
+                          "onClick": "{{navigateTo(\"Fulfillment\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem4": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem4",
+                          "index": 3,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Reconcile",
+                          "onClick": "{{navigateTo(\"Inventory - Reconcile\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton7": {
+                      "buttonColor": "{{ [\"reporting\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton7",
+                      "index": 6,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Reporting",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Reporting\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton8": {
+                      "buttonColor": "{{ [\"print-queue\",\"personnel-reviews\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton8",
+                      "index": 7,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Administration",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Print Queue",
+                          "onClick": "{{navigateTo(\"Print Queue\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Personnel - Reviews",
+                          "onClick": "{{navigateTo(\"Personnel - Reviews\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    }
+                  },
+                  "type": "BUTTON_GROUP_WIDGET",
+                  "mobileRightColumn": 62,
+                  "animateLoading": true,
+                  "parentColumnSpace": 20.25,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "groupButtons.groupButton1.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ],
+                  "leftColumn": 0,
+                  "key": "p6r3x9c2jd",
+                  "orientation": "horizontal",
+                  "rightColumn": 62,
+                  "widgetId": "q8n4v2m7ka",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 0,
+                  "renderMode": "CANVAS",
+                  "childStylesheet": {
+                    "button": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+                    }
+                  },
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 0,
+                  "buttonVariant": "PRIMARY",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ]
+                },
                 {
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "animateLoading": true,
@@ -79655,7 +80113,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": 1,
-                  "bottomRow": 89,
+                  "bottomRow": 94,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "children": [
                     {
@@ -82278,7 +82736,7 @@
                       "widgetId": "426u3qd0lg"
                     }
                   },
-                  "topRow": 0,
+                  "topRow": 5,
                   "type": "TABS_WIDGET",
                   "version": 3,
                   "widgetId": "nrxgmyq4by",
@@ -82428,9 +82886,467 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 890,
+              "bottomRow": 940,
               "canExtend": true,
               "children": [
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 5,
+                  "widgetName": "navMainNavigation",
+                  "isCanvas": false,
+                  "bottomRow": 5,
+                  "topRow": 0,
+                  "parentRowSpace": 10,
+                  "groupButtons": {
+                    "groupButton1": {
+                      "buttonColor": "{{ [\"lots\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton1",
+                      "index": 0,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Lots",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Lots\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton2": {
+                      "buttonColor": "{{ [\"products\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton2",
+                      "index": 1,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Products",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Products\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton3": {
+                      "buttonColor": "{{ [\"sterilizer-in\",\"sterilizer-out\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton3",
+                      "index": 2,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Sterilizer",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Sterilizer In",
+                          "onClick": "{{navigateTo(\"Sterilizer – In\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Sterilizer Out",
+                          "onClick": "{{navigateTo(\"Sterilizer – Out\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton4": {
+                      "buttonColor": "{{ [\"lab-agar\",\"lab-inoculate\",\"lab-spawn-to-bulk\",\"lab-draw-syringes\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton4",
+                      "index": 3,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Lab",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Agar",
+                          "onClick": "{{navigateTo(\"Lab - Agar\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Inoculate",
+                          "onClick": "{{navigateTo(\"Lab - Inoculate\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem3": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem3",
+                          "index": 2,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Spawn to Bulk",
+                          "onClick": "{{navigateTo(\"Lab - Spawn to Bulk\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem4": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem4",
+                          "index": 3,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Draw Syringes",
+                          "onClick": "{{navigateTo(\"Lab - Draw Syringes\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton5": {
+                      "buttonColor": "{{ [\"harvest\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton5",
+                      "index": 4,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Harvest",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Harvest\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton6": {
+                      "buttonColor": "{{ [\"lab-receive\",\"recipes-manage\",\"fulfillment\",\"inventory-reconcile\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton6",
+                      "index": 5,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Inventory",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Receive Syringes",
+                          "onClick": "{{navigateTo(\"Lab - Receive\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Recipes",
+                          "onClick": "{{navigateTo(\"Recipes - Manage\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem3": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem3",
+                          "index": 2,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Fulfillment",
+                          "onClick": "{{navigateTo(\"Fulfillment\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem4": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem4",
+                          "index": 3,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Reconcile",
+                          "onClick": "{{navigateTo(\"Inventory - Reconcile\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    },
+                    "groupButton7": {
+                      "buttonColor": "{{ [\"reporting\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "SIMPLE",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton7",
+                      "index": 6,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Reporting",
+                      "menuItems": {},
+                      "placement": "CENTER",
+                      "widgetId": "",
+                      "onClick": "{{navigateTo(\"Reporting\", {}, 'SAME_WINDOW')}}"
+                    },
+                    "groupButton8": {
+                      "buttonColor": "{{ [\"print-queue\",\"personnel-reviews\"].some(slug => String(appsmith.URL?.pathname || '').includes('/' + slug)) ? appsmith.theme.colors.primaryColor : '#64748B' }}",
+                      "buttonType": "MENU",
+                      "disabledWhenInvalid": false,
+                      "id": "groupButton8",
+                      "index": 7,
+                      "isDisabled": false,
+                      "isVisible": true,
+                      "label": "Administration",
+                      "menuItems": {
+                        "menuItem1": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem1",
+                          "index": 0,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Print Queue",
+                          "onClick": "{{navigateTo(\"Print Queue\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        },
+                        "menuItem2": {
+                          "backgroundColor": "#FFFFFF",
+                          "disabledWhenInvalid": false,
+                          "id": "menuItem2",
+                          "index": 1,
+                          "isDisabled": false,
+                          "isVisible": true,
+                          "label": "Personnel - Reviews",
+                          "onClick": "{{navigateTo(\"Personnel - Reviews\", {}, 'SAME_WINDOW')}}",
+                          "widgetId": ""
+                        }
+                      },
+                      "placement": "CENTER",
+                      "widgetId": ""
+                    }
+                  },
+                  "type": "BUTTON_GROUP_WIDGET",
+                  "mobileRightColumn": 62,
+                  "animateLoading": true,
+                  "parentColumnSpace": 20.25,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "groupButtons.groupButton1.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.buttonColor"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ],
+                  "leftColumn": 0,
+                  "key": "p6r3x9c2jd",
+                  "orientation": "horizontal",
+                  "rightColumn": 62,
+                  "widgetId": "q8n4v2m7ka",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 0,
+                  "renderMode": "CANVAS",
+                  "childStylesheet": {
+                    "button": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+                    }
+                  },
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 0,
+                  "buttonVariant": "PRIMARY",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "groupButtons.groupButton1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton3.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton4.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton5.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem2.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem3.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton6.menuItems.menuItem4.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton7.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem1.onClick"
+                    },
+                    {
+                      "key": "groupButtons.groupButton8.menuItems.menuItem2.onClick"
+                    }
+                  ]
+                },
                 {
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "animateLoading": true,
@@ -82438,7 +83354,7 @@
                   "borderColor": "#E0DEDE",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "borderWidth": 1,
-                  "bottomRow": 89,
+                  "bottomRow": 94,
                   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                   "children": [
                     {
@@ -85061,7 +85977,7 @@
                       "widgetId": "426u3qd0lg"
                     }
                   },
-                  "topRow": 0,
+                  "topRow": 5,
                   "type": "TABS_WIDGET",
                   "version": 3,
                   "widgetId": "nrxgmyq4by",
