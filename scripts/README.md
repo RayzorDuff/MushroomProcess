@@ -31,6 +31,28 @@ The utility was moved from `appsmith/pretty-json.mjs` as part of issue #83 so
 repository-level utilities have one maintained location. Its behavior was not
 changed by the move.
 
+## `reporting_data_audit.py`
+
+Audits the generated PostgreSQL migration CSVs used for the v1.1.0 Airtable
+migration and reports historical lifecycle, relationship, data-quality, and
+inventory coverage relevant to Reporting issue #87. The utility is read-only,
+uses only the Python standard library, and does not connect to PostgreSQL.
+
+Run it against a generated `schema/pgsql/csv` directory:
+
+```bash
+python3 scripts/reporting_data_audit.py \
+  --csv-dir /path/to/airtable-export-1.1.0/tmp/schema/pgsql/csv \
+  --as-of 2026-08-06
+```
+
+Use `--format json` for machine-readable output. If `--as-of` is omitted, the
+script derives the latest observed date in the supplied migration dataset for
+the inventory snapshot.
+
+The interpretation and source-precedence rules established from this audit are
+documented in [`doc/Reporting-Data-Contract.md`](../doc/Reporting-Data-Contract.md).
+
 ## `sync_navigation.js`
 
 Synchronizes the logical contents of every existing Appsmith
