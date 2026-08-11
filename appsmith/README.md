@@ -7,6 +7,7 @@ This directory contains the supported MushroomProcess operator interface for the
 - `MushroomProcess.json` — canonical Appsmith application export used for repository review, import, and release packaging.
 - `navigation/navigation_manifest.json` — canonical logical page grouping, labels, target page names, static slugs, ordering, and enabled state for the custom navigation introduced by issue #83.
 - `../scripts/pretty-json.mjs` — repository-level normalization utility for converting an Appsmith export into stable, reviewable JSON.
+- `../scripts/sync_navigation.js` — validates and synchronizes every existing custom navigation widget from the canonical navigation manifest.
 - `spec/` — retained page-planning notes from the migration. These files are useful historical references, but `MushroomProcess.json` is authoritative for the current application.
 
 The removed NocoDB view-creation scripts and REST-automation prototypes are not part of the production architecture. Internal operational workflows run in PostgreSQL functions and triggers; n8n is reserved for external systems and asynchronous work.
@@ -41,12 +42,17 @@ node .\scripts\pretty-json.mjs `
   --sort-keys
 ```
 
-Validate the normalized export before committing:
+Validate the normalized export and custom navigation before committing:
 
 ```bash
 python3 -m json.tool appsmith/MushroomProcess.json >/dev/null
+node scripts/sync_navigation.js --check
 git diff --check
 ```
+
+After intentionally changing `navigation/navigation_manifest.json`, run
+`node scripts/sync_navigation.js` before the check command to propagate the
+logical navigation definition to every published and unpublished page copy.
 
 ## Retained specifications
 

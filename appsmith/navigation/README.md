@@ -30,5 +30,26 @@ Appsmith pages exist. The related GitHub issue is retained in the `issue` field
 so the intended group and order can be recorded without exposing broken
 navigation.
 
-The navigation synchronization utility added in a later phase of issue #83
-will enforce these rules before changing serialized navigation widgets.
+## Synchronization
+
+Run the repository synchronization utility after changing the manifest:
+
+```bash
+node scripts/sync_navigation.js
+```
+
+Use check mode when validating a proposed commit or export without modifying it:
+
+```bash
+node scripts/sync_navigation.js --check
+```
+
+The utility validates enabled target page names and slugs against both Appsmith
+page states, then updates the logical contents of every existing
+`navMainNavigation`. It does not create missing widgets or change their
+page-specific IDs, keys, coordinates, or surrounding workflow layout. A page
+definition with zero or multiple matching navigation widgets is a validation
+error.
+
+`--dry-run` reports which published/unpublished page definitions would change
+without writing `MushroomProcess.json`.
