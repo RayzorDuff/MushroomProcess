@@ -130,3 +130,5 @@ branches for both regulated and unregulated Sample products.
 - `033_recipe_document_model_smoke.sql` — validates Issue #79 recipe document metadata, ranged/qualitative/nested ingredient representation, quantity constraints, and ordered recipe steps.
 
 - `034_recipe_admin_document_wiring_smoke.sql` — validates Issue #79 expanded Recipe Ingredient administration, including ranged and qualitative quantities, nested same-Recipe parent validation, optional state, and invalid-range rejection.
+
+- `035_native_postgres_views_smoke.sql` — verifies the PostgreSQL-native `v_` / `vc_` interfaces for Ingredients, structured Recipe Ingredients, Recipe Steps, and QR analytics; verifies Recipe document fields are exposed through `v_recipes` / `vc_recipes`; and confirms row-count/display-code contracts without mutating data.

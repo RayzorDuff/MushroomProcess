@@ -479,3 +479,18 @@ Issue #79 migration `034_recipe_admin_document_wiring.sql` completes the canonic
 The Recipes - Manage Appsmith page uses migration 033's `mp_recipe_document_metadata_save(...)` and `mp_recipe_step_admin_save(...)` functions for Recipe description/batch-yield metadata and ordered Recipe instruction steps. Parameter-dependent Appsmith reads are manual-only and use prepared-statement-safe nullable numeric bindings so an unselected Recipe or Item does not send the literal string `NULL` to a PostgreSQL `bigint` parameter.
 
 For incremental production deployment, import `034_recipe_admin_document_wiring.sql` after migrations 032 and 033, then run `tests/034_recipe_admin_document_wiring_smoke.sql` before importing the corresponding Appsmith JSON.
+
+### PostgreSQL-native compatibility views (`035_native_postgres_views.sql`)
+
+Migration `035_native_postgres_views.sql` establishes the `v_` / `vc_` interface
+for tables created after the Airtable migration boundary: `ingredients`,
+`recipe_ingredients`, `recipe_steps`, and `qr_scan_log`. It also extends the
+existing `v_recipes` / `vc_recipes` contract with the `description` and
+`batch_yield_text` fields added by migration 033.
+
+These definitions intentionally live in a normal numbered migration rather than
+being folded back into `003_views.sql` / `004_computed_views.sql`; those files are
+retained historical output from the deprecated Airtable schema generator.
+`vc_recipe_ingredients` and `vc_recipe_steps` add useful display identifiers for
+administration/reporting. `vc_qr_scan_log` deliberately remains a passthrough so
+historical scan-time snapshots are not replaced by current inventory state.

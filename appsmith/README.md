@@ -172,3 +172,13 @@ The Recipes tab also edits the document-oriented fields introduced by PostgreSQL
 - ordered, sectioned Recipe instruction steps through `recipe_steps`.
 
 `qRecipeAdminRecipeIngredients` and `qRecipeAdminItemComponents` are parameter-dependent manual queries. They are executed by `RecipeAdmin` only after a Recipe/Item selection and use prepared-statement-safe nullable parameter expressions; this prevents an empty selection from being passed to PostgreSQL as the literal string `NULL` for a `bigint` parameter.
+
+### Recipes - Manage row-selection behavior
+
+Recipe administration editors intentionally mirror the currently selected table
+row. Table row-selection events populate the corresponding editor, and editor
+widgets also carry row-derived default bindings as a fallback so imported page
+state does not present a selected record with blank edit controls. Numeric Select
+option values are normalized to strings to match Appsmith `setSelectedOption()`
+semantics. Item Component Plans uses `RecipeAdmin.itemComponentRows()` so the
+Show Inactive Components control affects the displayed rows.
