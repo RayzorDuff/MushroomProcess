@@ -173,6 +173,21 @@ The Recipes tab also edits the document-oriented fields introduced by PostgreSQL
 
 `qRecipeAdminRecipeIngredients` and `qRecipeAdminItemComponents` are parameter-dependent manual queries. They are executed by `RecipeAdmin` only after a Recipe/Item selection and use prepared-statement-safe nullable parameter expressions; this prevents an empty selection from being passed to PostgreSQL as the literal string `NULL` for a `bigint` parameter.
 
+### Recipes - Manage Recipe Preview
+
+The **Recipe Preview** tab renders a selected Recipe from PostgreSQL as a
+read-only Markdown recipe sheet. Preview selection is intentionally independent
+from the Recipe currently selected for editing.
+
+`qRecipeAdminPreviewIngredients` and `qRecipeAdminPreviewSteps` are manual,
+preview-only queries. `RecipeAdmin.recipePreviewMarkdown()` combines Recipe
+metadata, active structured Ingredients, nested ingredient relationships,
+alternative groups, and ordered instruction sections without changing the
+editing-tab query state.
+
+The **Include Admin Notes** checkbox and **Print** button are reserved for
+follow-up work and remain disabled in the initial implementation.
+
 ### Recipes - Manage row-selection behavior
 
 Recipe administration editors intentionally mirror the currently selected table
