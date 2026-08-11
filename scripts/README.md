@@ -77,5 +77,9 @@ size, workflow widgets, queries, and JS Objects. Groups are derived from enabled
 manifest items: zero enabled items are hidden, one is a direct button, and two
 or more become a dropdown.
 
+Comparison is structural rather than JSON property-order-sensitive. This keeps
+Appsmith import/export canonicalization from producing false synchronization
+drift when object members are merely reordered.
+
 Do not add page-specific workflow logic to repository maintenance scripts.
 Navigation synchronization must remain independent of PostgreSQL and n8n.

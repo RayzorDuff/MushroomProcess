@@ -54,6 +54,12 @@ After intentionally changing `navigation/navigation_manifest.json`, run
 `node scripts/sync_navigation.js` before the check command to propagate the
 logical navigation definition to every published and unpublished page copy.
 
+The application export intentionally retains `navigationSetting.showNavbar = false`
+in both published and unpublished application details. The custom
+`navMainNavigation` component is the supported application navigation; do not
+re-enable the native Appsmith navbar unless issue #83 is being deliberately
+rolled back.
+
 ## Retained specifications
 
 The files under `appsmith/spec/` describe intended pages, widgets, and workflows from earlier migration planning. They may be useful when reviewing page coverage or reconstructing a widget manually, but they can lag the current exported application.

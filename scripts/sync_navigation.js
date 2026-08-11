@@ -12,6 +12,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { isDeepStrictEqual } = require("util");
 
 const DEFAULT_APPSMITH = "appsmith/MushroomProcess.json";
 const DEFAULT_MANIFEST = "appsmith/navigation/navigation_manifest.json";
@@ -437,12 +438,12 @@ function navigationExpression(pageName) {
 }
 
 function logicalSnapshot(widget) {
-  return JSON.stringify({
+  return {
     groupButtons: widget.groupButtons,
     dynamicBindingPathList: widget.dynamicBindingPathList,
     dynamicPropertyPathList: widget.dynamicPropertyPathList,
     dynamicTriggerPathList: widget.dynamicTriggerPathList,
-  });
+  };
 }
 
 function applyDefinition(widget, definition) {
@@ -473,13 +474,14 @@ function synchronize(appsmith, definition) {
       throw new Error(`${pageName}: ${NAV_WIDGET_NAME} key differs between unpublished and published definitions.`);
     }
 
+    const expected = logicalSnapshot(definition);
+
     for (const stateName of ["unpublishedPage", "publishedPage"]) {
       const widget = widgets[stateName];
       const before = logicalSnapshot(widget);
-      applyDefinition(widget, definition);
-      const after = logicalSnapshot(widget);
 
-      if (before !== after) {
+      if (!isDeepStrictEqual(before, expected)) {
+        applyDefinition(widget, definition);
         changed.push(`${pageName}/${stateName}`);
       }
     }

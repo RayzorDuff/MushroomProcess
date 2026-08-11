@@ -53,3 +53,11 @@ error.
 
 `--dry-run` reports which published/unpublished page definitions would change
 without writing `MushroomProcess.json`.
+
+The Appsmith export may reorder object properties during import/export.
+Synchronization compares the owned navigation fields structurally, so property
+ordering alone does not cause `--check` to fail or rewrite every navigation
+widget.
+
+The native Appsmith navbar is disabled in the canonical export; this custom
+navigation is the application-wide replacement.
