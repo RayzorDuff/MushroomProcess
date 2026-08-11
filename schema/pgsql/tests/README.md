@@ -132,3 +132,4 @@ branches for both regulated and unregulated Sample products.
 - `034_recipe_admin_document_wiring_smoke.sql` — validates Issue #79 expanded Recipe Ingredient administration, including ranged and qualitative quantities, nested same-Recipe parent validation, optional state, and invalid-range rejection.
 
 - `035_native_postgres_views_smoke.sql` — verifies the PostgreSQL-native `v_` / `vc_` interfaces for Ingredients, structured Recipe Ingredients, Recipe Steps, and QR analytics; verifies Recipe document fields are exposed through `v_recipes` / `vc_recipes`; and confirms row-count/display-code contracts without mutating data.
+- `036_reporting_lifecycle_smoke.sql` — validates Issue #87 Phase 2 one-row-per-lot lifecycle reporting, direct-field/event precedence, provenance, Harvest/flush aggregation, canonical input-lineage counts, and the known v1.1.0 historical fallback fixture when present.

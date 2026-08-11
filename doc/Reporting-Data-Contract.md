@@ -584,6 +584,31 @@ The migration audit currently identifies:
 
 These should inform reporting quality flags and tests. They are not authorization to mutate historical source data.
 
+## Phase 2 canonical lifecycle implementation
+
+Migration `schema/pgsql/036_reporting_lifecycle.sql` implements the first
+normalized reporting interface defined by this contract as
+`public.v_reporting_lot_lifecycle`. It is deliberately read-only and produces
+exactly one row per `lots.nocopk`.
+
+The view exposes the direct and event candidate timestamps alongside each
+normalized milestone and its source. It also includes direct/event mismatch
+flags, event/date coverage counts, Harvest-event flush/yield metrics, exact
+grain/substrate relationship arrays, lifecycle-duration measures, and a
+`quality_flags` array. This preserves source-data anomalies for analysis rather
+than repairing them in a reporting view.
+
+`lifecycle_start_at` is selected from the earliest operational evidence and
+uses `lots.created_at` only as an explicitly labeled fallback. Ongoing fruiting
+lots do not receive a fabricated current-time end date: `days_in_fruiting` is
+only populated when a terminal date or last-harvest date provides an evidenced
+observation endpoint.
+
+Phase 2 intentionally does not implement product lineage, entity timelines,
+cohort membership, or inventory snapshots. Those remain separate later phases
+so the lot-level lifecycle contract can be validated independently before the
+Appsmith Reporting UI consumes it.
+
 ## Current PostgreSQL write compatibility
 
 The current workflow implementation is compatible with the hybrid contract:

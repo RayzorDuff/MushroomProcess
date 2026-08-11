@@ -494,3 +494,25 @@ retained historical output from the deprecated Airtable schema generator.
 `vc_recipe_ingredients` and `vc_recipe_steps` add useful display identifiers for
 administration/reporting. `vc_qr_scan_log` deliberately remains a passthrough so
 historical scan-time snapshots are not replaced by current inventory state.
+
+### Canonical lot lifecycle reporting (`036_reporting_lifecycle.sql`)
+
+Issue #87 Phase 2 introduces `v_reporting_lot_lifecycle`, the read-only
+one-row-per-lot reporting contract used by the rebuilt Reporting interface.
+The view intentionally combines direct lifecycle columns with dated Events so
+Airtable-migrated history and PostgreSQL-native records use the same interface.
+Direct fields remain canonical when both sources exist; the view retains the
+event timestamp, provenance source, mismatch flag, and source-quality flags
+instead of silently replacing conflicting history.
+
+The view also exposes Harvest-event flush/yield aggregates and exact grain /
+substrate input relationship arrays. `mp_reporting_try_jsonb(text)` and
+`mp_reporting_try_numeric(text)` are defensive read-only helpers used to avoid
+legacy malformed/blank event metadata turning a Reporting query into a page
+failure.
+
+For incremental production deployment, import `036_reporting_lifecycle.sql`
+after the existing schema/function migrations, then run
+`tests/036_reporting_lifecycle_smoke.sql`. Phase 2 does not change the Appsmith
+Reporting page; Phase 3 will switch the Lifecycle Trace UI only after the view
+is validated against the live database.
