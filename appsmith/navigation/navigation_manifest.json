@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "key": "lots",
+      "label": "Lots",
+      "order": 10,
+      "items": [
+        {
+          "label": "Lots",
+          "page": "Lots",
+          "slug": "lots",
+          "order": 10,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "key": "products",
+      "label": "Products",
+      "order": 20,
+      "items": [
+        {
+          "label": "Products",
+          "page": "Products",
+          "slug": "products",
+          "order": 10,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "key": "sterilizer",
+      "label": "Sterilizer",
+      "order": 30,
+      "items": [
+        {
+          "label": "Sterilizer In",
+          "page": "Sterilizer – In",
+          "slug": "sterilizer-in",
+          "order": 10,
+          "enabled": true
+        },
+        {
+          "label": "Sterilizer Out",
+          "page": "Sterilizer – Out",
+          "slug": "sterilizer-out",
+          "order": 20,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "key": "lab",
+      "label": "Lab",
+      "order": 40,
+      "items": [
+        {
+          "label": "Agar",
+          "page": "Lab - Agar",
+          "slug": "lab-agar",
+          "order": 10,
+          "enabled": true
+        },
+        {
+          "label": "Inoculate",
+          "page": "Lab - Inoculate",
+          "slug": "lab-inoculate",
+          "order": 20,
+          "enabled": true
+        },
+        {
+          "label": "Spawn to Bulk",
+          "page": "Lab - Spawn to Bulk",
+          "slug": "lab-spawn-to-bulk",
+          "order": 30,
+          "enabled": true
+        },
+        {
+          "label": "Draw Syringes",
+          "page": "Lab - Draw Syringes",
+          "slug": "lab-draw-syringes",
+          "order": 40,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "key": "harvest",
+      "label": "Harvest",
+      "order": 50,
+      "items": [
+        {
+          "label": "Harvest",
+          "page": "Harvest",
+          "slug": "harvest",
+          "order": 10,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "key": "inventory",
+      "label": "Inventory",
+      "order": 60,
+      "items": [
+        {
+          "label": "Receive Syringes",
+          "page": "Lab - Receive",
+          "slug": "lab-receive",
+          "order": 10,
+          "enabled": true
+        },
+        {
+          "label": "Receive Vendor Purchase",
+          "page": null,
+          "slug": null,
+          "order": 20,
+          "enabled": false,
+          "issue": 84
+        },
+        {
+          "label": "Recipes",
+          "page": "Recipes - Manage",
+          "slug": "recipes-manage",
+          "order": 30,
+          "enabled": true
+        },
+        {
+          "label": "Fulfillment",
+          "page": "Fulfillment",
+          "slug": "fulfillment",
+          "order": 40,
+          "enabled": true
+        },
+        {
+          "label": "Reconcile",
+          "page": "Inventory - Reconcile",
+          "slug": "inventory-reconcile",
+          "order": 50,
+          "enabled": true
+        },
+        {
+          "label": "Ecommerce",
+          "page": null,
+          "slug": null,
+          "order": 60,
+          "enabled": false,
+          "issue": 80
+        }
+      ]
+    },
+    {
+      "key": "reporting",
+      "label": "Reporting",
+      "order": 70,
+      "items": [
+        {
+          "label": "Reporting",
+          "page": "Reporting",
+          "slug": "reporting",
+          "order": 10,
+          "enabled": true
+        },
+        {
+          "label": "QR Scan Analytics",
+          "page": null,
+          "slug": null,
+          "order": 20,
+          "enabled": false,
+          "issue": 81
+        }
+      ]
+    },
+    {
+      "key": "administration",
+      "label": "Administration",
+      "order": 80,
+      "items": [
+        {
+          "label": "Print Queue",
+          "page": "Print Queue",
+          "slug": "print-queue",
+          "order": 10,
+          "enabled": true
+        },
+        {
+          "label": "Personnel - Reviews",
+          "page": "Personnel - Reviews",
+          "slug": "personnel-reviews",
+          "order": 20,
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

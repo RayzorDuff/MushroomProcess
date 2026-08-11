@@ -33,10 +33,11 @@ changed by the move.
 
 ## Navigation synchronization
 
-Issue #83 will add `sync_navigation.js` here when the canonical navigation
-manifest and Appsmith navigation component are available to synchronize. The
-script should be run from the repository root and documented here when it is
-implemented.
+Issue #83 stores the canonical logical navigation definition in
+`appsmith/navigation/navigation_manifest.json`. A later phase will add
+`sync_navigation.js` here after the Appsmith navigation component exists to
+synchronize. The script should be run from the repository root and documented
+here when it is implemented.
 
 Do not add page-specific workflow logic to repository maintenance scripts.
 Navigation synchronization must remain independent of PostgreSQL and n8n.

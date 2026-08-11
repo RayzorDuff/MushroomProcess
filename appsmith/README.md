@@ -5,6 +5,7 @@ This directory contains the supported MushroomProcess operator interface for the
 ## Contents
 
 - `MushroomProcess.json` — canonical Appsmith application export used for repository review, import, and release packaging.
+- `navigation/navigation_manifest.json` — canonical logical page grouping, labels, target page names, static slugs, ordering, and enabled state for the custom navigation introduced by issue #83.
 - `../scripts/pretty-json.mjs` — repository-level normalization utility for converting an Appsmith export into stable, reviewable JSON.
 - `spec/` — retained page-planning notes from the migration. These files are useful historical references, but `MushroomProcess.json` is authoritative for the current application.
 
