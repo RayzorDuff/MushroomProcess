@@ -275,8 +275,12 @@ The system ties together:
   _See [`schema/README.md`](schema/README.md)._
 
 - `appsmith/`
-  Canonical Appsmith application export, JSON normalization utility, and retained page specifications.
+  Canonical Appsmith application export and retained page specifications.
   _See [`appsmith/README.md`](appsmith/README.md)._
+
+- `scripts/`
+  Repository-level maintenance utilities, including Appsmith JSON normalization and navigation synchronization tooling.
+  _See [`scripts/README.md`](scripts/README.md)._
 
 - `n8n/`
   External-system and asynchronous workflows, including ecommerce, fulfillment, reporting, and reconciliation integrations.
@@ -445,7 +449,7 @@ Once you have an Airtable base and `_schema.json`:
 5. **Import the Appsmith application**
    - Follow [`appsmith/README.md`](appsmith/README.md).
    - Import `appsmith/MushroomProcess.json`.
-   - Use `appsmith/pretty-json.mjs` when normalizing a newly exported Appsmith project.
+   - Use `scripts/pretty-json.mjs` when normalizing a newly exported Appsmith project.
    - Treat `appsmith/spec/` as retained planning/reference material, not as the authoritative runtime definition.
 
 6. **Point the Print Daemon at NocoDB**  

@@ -5,7 +5,7 @@ This directory contains the supported MushroomProcess operator interface for the
 ## Contents
 
 - `MushroomProcess.json` — canonical Appsmith application export used for repository review, import, and release packaging.
-- `pretty-json.mjs` — normalization utility for converting an Appsmith directory export into stable, reviewable JSON.
+- `../scripts/pretty-json.mjs` — repository-level normalization utility for converting an Appsmith export into stable, reviewable JSON.
 - `spec/` — retained page-planning notes from the migration. These files are useful historical references, but `MushroomProcess.json` is authoritative for the current application.
 
 The removed NocoDB view-creation scripts and REST-automation prototypes are not part of the production architecture. Internal operational workflows run in PostgreSQL functions and triggers; n8n is reserved for external systems and asynchronous work.
@@ -25,7 +25,7 @@ The application generally reads from `vc_*` computed views and performs transact
 When Appsmith produces a raw JSON export, normalize it from the repository root with:
 
 ```bash
-node appsmith/pretty-json.mjs \
+node scripts/pretty-json.mjs \
   --in appsmith/MushroomProcess.exported.json \
   --out appsmith/MushroomProcess.json \
   --sort-keys
@@ -34,7 +34,7 @@ node appsmith/pretty-json.mjs \
 On PowerShell:
 
 ```powershell
-node .\appsmith\pretty-json.mjs `
+node .\scripts\pretty-json.mjs `
   --in .\appsmith\MushroomProcess.exported.json `
   --out .\appsmith\MushroomProcess.json `
   --sort-keys
