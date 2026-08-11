@@ -185,8 +185,16 @@ metadata, active structured Ingredients, nested ingredient relationships,
 alternative groups, and ordered instruction sections without changing the
 editing-tab query state.
 
-The **Include Admin Notes** checkbox and **Print** button are reserved for
-follow-up work and remain disabled in the initial implementation.
+The **Include Admin Notes** checkbox controls whether Recipe-, structured
+Ingredient-, and instruction-step administrative notes are included in both the
+on-screen Markdown preview and the printable document. It defaults off so
+internal notes are not included accidentally.
+
+The **Print** button produces a self-contained, print-styled HTML document from
+the same database-driven preview data. The downloaded HTML automatically opens
+the browser print dialog when opened, allowing the operator to print directly or
+save a PDF without requiring a separate document-generation service. Printing
+honors the current **Include Admin Notes** setting.
 
 ### Recipes - Manage row-selection behavior
 
