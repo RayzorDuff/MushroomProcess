@@ -516,3 +516,7 @@ after the existing schema/function migrations, then run
 `tests/036_reporting_lifecycle_smoke.sql`. Phase 2 does not change the Appsmith
 Reporting page; Phase 3 will switch the Lifecycle Trace UI only after the view
 is validated against the live database.
+
+### Reporting lineage (`037_reporting_lineage.sql`)
+
+Issue #87 Phase 4 adds `v_reporting_lot_lineage`, a read-only adjacent-lineage view rooted at each lot. It exposes explicit upstream/downstream grain, substrate, source/parent lot relationships and resulting products. It does not infer lineage from matching item/strain/date values.

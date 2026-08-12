@@ -133,3 +133,5 @@ branches for both regulated and unregulated Sample products.
 
 - `035_native_postgres_views_smoke.sql` — verifies the PostgreSQL-native `v_` / `vc_` interfaces for Ingredients, structured Recipe Ingredients, Recipe Steps, and QR analytics; verifies Recipe document fields are exposed through `v_recipes` / `vc_recipes`; and confirms row-count/display-code contracts without mutating data.
 - `036_reporting_lifecycle_smoke.sql` — validates Issue #87 Phase 2 one-row-per-lot lifecycle reporting, direct-field/event precedence, provenance, Harvest/flush aggregation, canonical input-lineage counts, and the known v1.1.0 historical fallback fixture when present.
+
+- `037_reporting_lineage_smoke.sql` validates Issue #87 Phase 4 explicit lot lineage in both directions plus resulting products and a known migrated historical fixture.

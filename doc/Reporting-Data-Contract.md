@@ -686,3 +686,49 @@ The first-tab execution contract is:
 The UI exposes lifecycle start/source, status/stage, immediate grain/substrate inputs, colonization duration, spawn-to-fruiting duration, fruiting duration, flush count, first-flush/total yield, contamination timing/stage, terminal outcome, origin (`airtable_migrated` versus `postgres_native`), and Phase 2 quality flags.
 
 `created_at` remains explicitly labeled as record creation in the timeline and is not presented as physical lifecycle inception unless Phase 2 identifies it as the lifecycle-start fallback.
+
+## Phase 4 adjacent lineage contract
+
+Phase 4 extends Lifecycle Trace from one isolated lot to the explicitly related
+entities immediately upstream and downstream of that lot.  The implementation
+uses `public.v_reporting_lot_lineage`; no relationship may be inferred from
+matching strain, item, date, recipe, or naming patterns.
+
+The initial traversal contract is deliberately bounded rather than recursively
+expanding every descendant:
+
+- selecting a fruiting block exposes each explicit source grain and substrate;
+- source-grain rows expose the grain's own inoculation/colonization history and
+  its age when the block was spawned;
+- selecting a grain exposes every explicitly linked resulting fruiting block,
+  including spawn-to-fruiting duration, fruiting duration, flush/yield summary,
+  contamination, and terminal outcome;
+- selecting a substrate similarly exposes explicitly linked resulting lots;
+- source/parent lot relationships are shown when the schema records them;
+- products linked by `products.origin_lots` are shown as resulting products,
+  including available harvest/package/state/location metadata;
+- selecting a related **lot** pivots Lifecycle Trace to that lot; product rows
+  remain read-only during Phase 4.
+
+The Phase 3 summary's grain/substrate line is populated from the same explicit
+lineage rows rather than relying on PostgreSQL-array serialization in Appsmith.
+This keeps the visible input labels and the traversal source identical.
+
+Historical data must not be artificially limited to an assumed branching
+factor.  The migration dataset contains one source grain linked to as many as
+six fruiting blocks, so all explicit adjacent relationships are preserved even
+when the normal operational expectation is smaller.
+
+### Deferred lineage visualization
+
+A radial/tree lineage visualization is a desirable future presentation layer,
+particularly for culture or LC roots where branching can become large.  A
+possible visualization would place the selected LC/syringe at the center,
+grains on the next ring, fruiting blocks outside those, and Harvest/products on
+an outer ring.  Phase 4 intentionally does **not** implement that visualization;
+it establishes the explicit edge/data contract needed to support it later
+without recursively flooding the normal Lifecycle Trace UI.
+
+Phase 4 also makes timeline-row details store-backed (`selectedLifecycleEvent`)
+so selecting canonical rows with no Event ID still produces read-only detail
+content reliably.
