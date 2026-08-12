@@ -19952,7 +19952,7 @@
       "pluginType": "DB",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "WITH cohort AS (\n  SELECT lot_nocopk FROM public.mp_reporting_cohort(\n  p_date_basis     => {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n  p_start_at       => NULLIF({{ appsmith.store.reportingCohortFilters?.startAt || \"\" }}::text, '')::timestamp,\n  p_end_at         => NULLIF({{ appsmith.store.reportingCohortFilters?.endAt || \"\" }}::text, '')::timestamp,\n  p_item_category  => NULLIF({{ appsmith.store.reportingCohortFilters?.itemCategory || \"\" }}::text, ''),\n  p_item_name      => NULLIF({{ appsmith.store.reportingCohortFilters?.itemName || \"\" }}::text, ''),\n  p_strain         => NULLIF({{ appsmith.store.reportingCohortFilters?.strain || \"\" }}::text, ''),\n  p_grain_item     => NULLIF({{ appsmith.store.reportingCohortFilters?.grainItem || \"\" }}::text, ''),\n  p_substrate_item => NULLIF({{ appsmith.store.reportingCohortFilters?.substrateItem || \"\" }}::text, ''),\n  p_recipe         => NULL,\n  p_regulated      => NULL,\n  p_data_origin    => NULL\n)\n), harvests AS (\n  SELECT\n    date_trunc('month', e.\"timestamp\") AS month_at,\n    public.mp_reporting_try_numeric(public.mp_reporting_try_jsonb(e.fields_json) ->> 'harvest_weight_g') AS harvest_g\n  FROM public.events e\n  JOIN cohort c ON c.lot_nocopk = e.lot_id\n  WHERE lower(COALESCE(e.type, '')) = 'harvest'\n    AND e.\"timestamp\" IS NOT NULL\n)\nSELECT\n  to_char(month_at, 'YYYY-MM') AS month,\n  count(*) FILTER (WHERE harvest_g IS NOT NULL)::bigint AS harvest_events,\n  round(COALESCE(sum(harvest_g), 0)::numeric, 1) AS total_harvest_g\nFROM harvests\nGROUP BY month_at\nORDER BY month_at;",
+          "body": "WITH cohort AS (\n  SELECT * FROM public.mp_reporting_cohort(\n  p_date_basis     => {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n  p_start_at       => NULLIF({{ appsmith.store.reportingCohortFilters?.startAt || \"\" }}::text, '')::timestamp,\n  p_end_at         => NULLIF({{ appsmith.store.reportingCohortFilters?.endAt || \"\" }}::text, '')::timestamp,\n  p_item_category  => NULLIF({{ appsmith.store.reportingCohortFilters?.itemCategory || \"\" }}::text, ''),\n  p_item_name      => NULLIF({{ appsmith.store.reportingCohortFilters?.itemName || \"\" }}::text, ''),\n  p_strain         => NULLIF({{ appsmith.store.reportingCohortFilters?.strain || \"\" }}::text, ''),\n  p_grain_item     => NULLIF({{ appsmith.store.reportingCohortFilters?.grainItem || \"\" }}::text, ''),\n  p_substrate_item => NULLIF({{ appsmith.store.reportingCohortFilters?.substrateItem || \"\" }}::text, ''),\n  p_recipe         => NULL,\n  p_regulated      => NULL,\n  p_data_origin    => NULL\n)\n), dated AS (\n  SELECT\n    lot_nocopk,\n    public.mp_reporting_cohort_basis_at(\n      {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n      record_created_at, lifecycle_start_at, received_at, processed_at, inoculated_at, fully_colonized_at,\n      spawned_at, fruiting_start_at, first_harvest_at, last_harvest_at, contaminated_at, terminal_at\n    ) AS cohort_at\n  FROM cohort\n), harvests AS (\n  SELECT\n    date_trunc('month', d.cohort_at) AS month_at,\n    public.mp_reporting_try_numeric(public.mp_reporting_try_jsonb(e.fields_json) ->> 'harvest_weight_g') AS harvest_g\n  FROM dated d\n  JOIN public.events e ON e.lot_id = d.lot_nocopk\n  WHERE d.cohort_at IS NOT NULL\n    AND lower(COALESCE(e.type, '')) = 'harvest'\n)\nSELECT\n  to_char(month_at, 'YYYY-MM') AS month,\n  count(*) FILTER (WHERE harvest_g IS NOT NULL)::bigint AS harvest_events,\n  round(COALESCE(sum(harvest_g), 0)::numeric, 1) AS total_harvest_g\nFROM harvests\nGROUP BY month_at\nORDER BY month_at;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -20003,7 +20003,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "WITH cohort AS (\n  SELECT lot_nocopk FROM public.mp_reporting_cohort(\n  p_date_basis     => {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n  p_start_at       => NULLIF({{ appsmith.store.reportingCohortFilters?.startAt || \"\" }}::text, '')::timestamp,\n  p_end_at         => NULLIF({{ appsmith.store.reportingCohortFilters?.endAt || \"\" }}::text, '')::timestamp,\n  p_item_category  => NULLIF({{ appsmith.store.reportingCohortFilters?.itemCategory || \"\" }}::text, ''),\n  p_item_name      => NULLIF({{ appsmith.store.reportingCohortFilters?.itemName || \"\" }}::text, ''),\n  p_strain         => NULLIF({{ appsmith.store.reportingCohortFilters?.strain || \"\" }}::text, ''),\n  p_grain_item     => NULLIF({{ appsmith.store.reportingCohortFilters?.grainItem || \"\" }}::text, ''),\n  p_substrate_item => NULLIF({{ appsmith.store.reportingCohortFilters?.substrateItem || \"\" }}::text, ''),\n  p_recipe         => NULL,\n  p_regulated      => NULL,\n  p_data_origin    => NULL\n)\n), harvests AS (\n  SELECT\n    date_trunc('month', e.\"timestamp\") AS month_at,\n    public.mp_reporting_try_numeric(public.mp_reporting_try_jsonb(e.fields_json) ->> 'harvest_weight_g') AS harvest_g\n  FROM public.events e\n  JOIN cohort c ON c.lot_nocopk = e.lot_id\n  WHERE lower(COALESCE(e.type, '')) = 'harvest'\n    AND e.\"timestamp\" IS NOT NULL\n)\nSELECT\n  to_char(month_at, 'YYYY-MM') AS month,\n  count(*) FILTER (WHERE harvest_g IS NOT NULL)::bigint AS harvest_events,\n  round(COALESCE(sum(harvest_g), 0)::numeric, 1) AS total_harvest_g\nFROM harvests\nGROUP BY month_at\nORDER BY month_at;",
+          "body": "WITH cohort AS (\n  SELECT * FROM public.mp_reporting_cohort(\n  p_date_basis     => {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n  p_start_at       => NULLIF({{ appsmith.store.reportingCohortFilters?.startAt || \"\" }}::text, '')::timestamp,\n  p_end_at         => NULLIF({{ appsmith.store.reportingCohortFilters?.endAt || \"\" }}::text, '')::timestamp,\n  p_item_category  => NULLIF({{ appsmith.store.reportingCohortFilters?.itemCategory || \"\" }}::text, ''),\n  p_item_name      => NULLIF({{ appsmith.store.reportingCohortFilters?.itemName || \"\" }}::text, ''),\n  p_strain         => NULLIF({{ appsmith.store.reportingCohortFilters?.strain || \"\" }}::text, ''),\n  p_grain_item     => NULLIF({{ appsmith.store.reportingCohortFilters?.grainItem || \"\" }}::text, ''),\n  p_substrate_item => NULLIF({{ appsmith.store.reportingCohortFilters?.substrateItem || \"\" }}::text, ''),\n  p_recipe         => NULL,\n  p_regulated      => NULL,\n  p_data_origin    => NULL\n)\n), dated AS (\n  SELECT\n    lot_nocopk,\n    public.mp_reporting_cohort_basis_at(\n      {{ appsmith.store.reportingCohortFilters?.dateBasis || \"lifecycle_start\" }}::text,\n      record_created_at, lifecycle_start_at, received_at, processed_at, inoculated_at, fully_colonized_at,\n      spawned_at, fruiting_start_at, first_harvest_at, last_harvest_at, contaminated_at, terminal_at\n    ) AS cohort_at\n  FROM cohort\n), harvests AS (\n  SELECT\n    date_trunc('month', d.cohort_at) AS month_at,\n    public.mp_reporting_try_numeric(public.mp_reporting_try_jsonb(e.fields_json) ->> 'harvest_weight_g') AS harvest_g\n  FROM dated d\n  JOIN public.events e ON e.lot_id = d.lot_nocopk\n  WHERE d.cohort_at IS NOT NULL\n    AND lower(COALESCE(e.type, '')) = 'harvest'\n)\nSELECT\n  to_char(month_at, 'YYYY-MM') AS month,\n  count(*) FILTER (WHERE harvest_g IS NOT NULL)::bigint AS harvest_events,\n  round(COALESCE(sum(harvest_g), 0)::numeric, 1) AS total_harvest_g\nFROM harvests\nGROUP BY month_at\nORDER BY month_at;",
           "encodeParamsToggle": true,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -86384,8 +86384,8 @@
                           "bottomRow": 66,
                           "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                           "chartData": "{{ appsmith.store.reportingCohortStatus === \"ready\" ? ReportingUtils.monthlyYieldChartData(qMonthlyHarvestYield.data) : {} }}",
-                          "chartName": "Monthly Harvest Yield",
-                          "chartType": "LINE_CHART",
+                          "chartName": "Yield by Cohort Month",
+                          "chartType": "COLUMN_CHART",
                           "customEChartConfig": "{{ {} }}",
                           "customFusionChartConfig": {
                             "dataSource": {
@@ -86480,8 +86480,8 @@
                           "version": 1,
                           "widgetId": "0nxmcz8rv7",
                           "widgetName": "chMonthlyYield",
-                          "xAxisName": "Harvest month",
-                          "yAxisName": "Harvest weight (g)"
+                          "xAxisName": "Cohort month",
+                          "yAxisName": "Harvest yield (g)"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -91758,8 +91758,8 @@
                           "bottomRow": 66,
                           "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                           "chartData": "{{ appsmith.store.reportingCohortStatus === \"ready\" ? ReportingUtils.monthlyYieldChartData(qMonthlyHarvestYield.data) : {} }}",
-                          "chartName": "Monthly Harvest Yield",
-                          "chartType": "LINE_CHART",
+                          "chartName": "Yield by Cohort Month",
+                          "chartType": "COLUMN_CHART",
                           "customEChartConfig": "{{ {} }}",
                           "customFusionChartConfig": {
                             "dataSource": {
@@ -91854,8 +91854,8 @@
                           "version": 1,
                           "widgetId": "0nxmcz8rv7",
                           "widgetName": "chMonthlyYield",
-                          "xAxisName": "Harvest month",
-                          "yAxisName": "Harvest weight (g)"
+                          "xAxisName": "Cohort month",
+                          "yAxisName": "Harvest yield (g)"
                         },
                         {
                           "accentColor": "{{appsmith.theme.colors.primaryColor}}",

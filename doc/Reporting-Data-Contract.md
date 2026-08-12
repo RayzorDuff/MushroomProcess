@@ -863,18 +863,22 @@ The initial Phase 6 report set is:
 - lifecycle distributions: sample count, average, median, and 90th percentile
   for grain age at spawn, colonization, spawn-to-fruiting, fruiting duration,
   Harvest yield per harvested lot, and flush count per harvested lot;
-- monthly Harvest yield: actual dated Harvest-event weight grouped by Harvest
-  month, restricted to lots in the already-selected cohort;
+- yield by cohort month: eventual Harvest-event weight grouped by the same
+  **selected cohort date basis** month used for membership, restricted to lots
+  in the already-selected cohort and displayed as a column chart so single-month
+  cohorts remain visually explicit;
 - monthly contamination incidence: contaminated/total lots grouped by the same
   **selected cohort date basis** used for membership;
 - cohort-lot inspection: up to 100 lots ordered with contaminated lots first and
   then by the longest available lifecycle/input-age measure, exposing the
   component durations, flush/yield outcome, and terminal result.
 
-The monthly Harvest chart intentionally groups actual Harvest Events rather
-than assigning a lot's total yield to its first-Harvest month.  The contamination
-chart groups by the selected cohort date basis so its month buckets describe
-the same population definition shown in the filter summary.
+The primary yield and contamination charts both group by the selected cohort
+date basis so their month buckets describe the same population definition shown
+in the filter summary.  Yield still sums the actual Harvest Event weights from
+each lot, but attributes that eventual yield to the lot's cohort month.  A
+separate future operational-output report may group those same Harvest Events by
+physical Harvest month when the question is when production actually occurred.
 
 Selector values for strain/category/item/grain/substrate come only from
 `v_reporting_cohort_dimension_options`.  The previous array-to-text selector
