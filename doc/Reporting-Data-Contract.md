@@ -925,3 +925,51 @@ Historical migration acceptance values at `2026-08-06` are:
 These values are a **point-in-time migration audit**, not a replayable live-database assertion. Product tray state and storage location are mutable current-state fields and MushroomProcess does not retain temporal history for those attributes. Consequently, `p_as_of` can reproduce expiration classification for an earlier date, but it cannot reconstruct which Products were active versus terminal/excluded on that earlier date after operational state/location changes. Phase 7 smoke tests therefore validate the live active/terminal rule and expiration partition invariants; historical counts remain audit reference values.
 
 Phase 7 remains read-only.  Retiring expired inventory, correcting missing locations, or changing Product lifecycle state continues to use the operational Products/Reconciliation workflows rather than Reporting.
+
+## Phase 8 final integration and cleanup contract
+
+Phase 8 closes Issue #87 around the three validated Reporting modes rather
+than adding another reporting feature. The final Appsmith page contract is:
+
+1. **Lifecycle Trace** — canonical lot lifecycle, provenance-aware timeline,
+   event details, and explicit adjacent lineage traversal.
+2. **Cohort analytics** — one Apply-driven cohort definition shared by summary,
+   lifecycle distributions, Yield by Cohort Month, contamination incidence,
+   and cohort-lot inspection.
+3. **Inventory Snapshot** — read-only Product inventory/expiration reporting
+   plus an independent current in-process lot-stage summary.
+
+The Phase 8 cleanup removes only code that is no longer referenced by those
+three modes. `ReportingUtils.safeParse`, `ReportingUtils.durationDays`, and the
+unused `ReportingUtils.init` method are removed together with their generated
+JS actions. The obsolete `selectedEventId` store value is also removed; Event
+Details is driven solely by the selected timeline-row object stored as
+`selectedLifecycleEvent`. Stable DB action IDs that were repurposed during the
+phased rebuild are intentionally retained to avoid an unnecessary Appsmith
+rename/import risk.
+
+The serialized Chart fallback configuration is cleaned as well: no Reporting
+chart may retain the original Appsmith sample `Sales Report`, `Product Line`,
+`Revenue($)`, or sample Product1/Product2/Product3 payload. Those fallback
+fields now describe the same cohort-month semantics as the live Chart binding.
+
+`scripts/reporting_appsmith_check.py` is the repository-level Appsmith contract
+check. It validates published/unpublished equality, the three tab labels and
+canvas targets, required widget/action presence, manual cohort execution, final
+chart types/titles, and absence of the removed prototype artifacts. This check
+is structural and read-only; live Appsmith behavior remains a runtime smoke
+test.
+
+`schema/pgsql/tests/040_reporting_integration_smoke.sql` is the final
+rollback-only PostgreSQL integration test. It materializes the canonical lot,
+cohort, Product-inventory, and lot-inventory reporting facts once and verifies:
+
+- one-row-per-source cardinality for lifecycle/cohort/Product/lot inventory;
+- agreement between unfiltered canonical filter functions and their fact
+  views;
+- complete live Product active/terminal partitioning;
+- cross-layer lifecycle/lineage/cohort consistency for `LOT-260527-ivas` when
+  that migrated historical fixture exists.
+
+Phase 8 does not add a new persistent Reporting schema object. The final
+Reporting database API remains migrations 036 through 039.

@@ -47,6 +47,7 @@
   \ir 037_reporting_lineage_smoke.sql
   \ir 038_reporting_cohort_smoke.sql
   \ir 039_reporting_inventory_smoke.sql
+  \ir 040_reporting_integration_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else

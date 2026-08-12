@@ -53,6 +53,28 @@ the inventory snapshot.
 The interpretation and source-precedence rules established from this audit are
 documented in [`doc/Reporting-Data-Contract.md`](../doc/Reporting-Data-Contract.md).
 
+## `reporting_appsmith_check.py`
+
+Validates the final Issue #87 Reporting contract in the canonical Appsmith
+export without rewriting the file. Run it from the repository root after
+Reporting widget/query/JS changes or after an Appsmith export/import cycle:
+
+```bash
+python3 scripts/reporting_appsmith_check.py
+```
+
+Optional `--appsmith <path>` validates an alternate export. The check requires
+the three validated Reporting tabs (Lifecycle Trace, Cohort analytics, and
+Inventory Snapshot), published/unpublished parity, required widgets/actions,
+manual Apply-driven cohort analytics, the final chart semantics, and the
+absence of obsolete prototype artifacts. It also fails if the removed
+`ReportingUtils.safeParse`, `ReportingUtils.durationDays`,
+`ReportingUtils.init`, or `selectedEventId` wiring reappears.
+
+The check is intentionally read-only and uses only the Python standard
+library. It complements the PostgreSQL Reporting smoke tests; it does not
+execute SQL or substitute for Appsmith runtime smoke testing.
+
 ## `sync_navigation.js`
 
 Synchronizes the logical contents of every existing Appsmith

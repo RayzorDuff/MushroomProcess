@@ -266,7 +266,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  safeParse(s) {\n    try {\n      if (!s) return {};\n      if (typeof s === \"object\") return s;\n      return JSON.parse(s);\n    } catch (e) {\n      return { _raw: s, _error: String(e) };\n    }\n  },\n\n  durationDays(interval) {\n    if (!interval) return \"\";\n    const s = String(interval);\n    const m = s.match(/(-?\\d+)\\s+days?/i);\n    if (m) return m[1];\n    return s;\n  },\n\n  monthlyYieldChartData(rows) {\n    return {\n      harvest_weight_g: {\n        seriesName: \"Harvest weight (g)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.total_harvest_g || 0) }))\n      }\n    };\n  },\n\n  contamMonthlyChartData(rows) {\n    return {\n      contamination_rate_pct: {\n        seriesName: \"Contamination rate (%)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.contamination_rate_pct || 0) }))\n      }\n    };\n  },\n\n  async init() {\n    await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n    await storeValue(\"selectedEventId\", null);\n    await storeValue(\"selectedLifecycleEvent\", null);\n    await storeValue(\"reportingCohortStatus\", \"idle\");\n    await storeValue(\"reportingCohortError\", \"\");\n    await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n    if (appsmith.store.selectedLotId) {\n      await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n    }\n  },\n\n  async applyAnalytics() {\n    const filters = {\n      dateBasis: selCohortDateBasis.selectedOptionValue || \"lifecycle_start\",\n      startAt: dpStart.selectedDate || \"\",\n      endAt: dpEnd.selectedDate || \"\",\n      itemCategory: selCohortCategory.selectedOptionValue || \"\",\n      itemName: selCohortItem.selectedOptionValue || \"\",\n      strain: selSpecies.selectedOptionValue || \"\",\n      grainItem: selGrain.selectedOptionValue || \"\",\n      substrateItem: selSubstrate.selectedOptionValue || \"\"\n    };\n    const labels = [\n      `Date basis: ${selCohortDateBasis.selectedOptionLabel || filters.dateBasis}`,\n      `Range: ${dpStart.formattedDate || \"Any\"} → ${dpEnd.formattedDate || \"Any\"}`,\n      filters.itemCategory ? `Category: ${filters.itemCategory}` : \"\",\n      filters.itemName ? `Item: ${filters.itemName}` : \"\",\n      filters.strain ? `Strain: ${filters.strain}` : \"\",\n      filters.grainItem ? `Grain: ${filters.grainItem}` : \"\",\n      filters.substrateItem ? `Substrate: ${filters.substrateItem}` : \"\"\n    ].filter(Boolean);\n\n    await storeValue(\"reportingCohortFilters\", filters);\n    await storeValue(\"reportingCohortFilterSummary\", labels.join(\" · \"));\n    await storeValue(\"reportingCohortStatus\", \"loading\");\n    await storeValue(\"reportingCohortError\", \"\");\n\n    const jobs = [\n      [\"summary\", qContamIncidencePerItem.run()],\n      [\"distributions\", qCohortCycleTimes.run()],\n      [\"monthly yield\", qMonthlyHarvestYield.run()],\n      [\"monthly contamination\", qContamIncidenceMonthly.run()],\n      [\"cohort lots\", qCohortOutliers.run()]\n    ];\n    const settled = await Promise.allSettled(jobs.map(j => j[1]));\n    const failures = settled.map((result, index) => {\n      if (result.status === \"fulfilled\") return \"\";\n      const reason = result.reason?.message || String(result.reason || \"unknown error\");\n      return `${jobs[index][0]}: ${reason}`;\n    }).filter(Boolean);\n\n    if (failures.length) {\n      const message = failures.join(\";  \");\n      await storeValue(\"reportingCohortStatus\", \"error\");\n      await storeValue(\"reportingCohortError\", message);\n      showAlert(\"Cohort analytics failed: \" + message, \"error\");\n      return false;\n    }\n\n    await storeValue(\"reportingCohortStatus\", \"ready\");\n    return true;\n  }\n};",
+        "body": "export default {\n  monthlyYieldChartData(rows) {\n    return {\n      harvest_weight_g: {\n        seriesName: \"Harvest weight (g)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.total_harvest_g || 0) }))\n      }\n    };\n  },\n\n  contamMonthlyChartData(rows) {\n    return {\n      contamination_rate_pct: {\n        seriesName: \"Contamination rate (%)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.contamination_rate_pct || 0) }))\n      }\n    };\n  },\n\n  async applyAnalytics() {\n    const filters = {\n      dateBasis: selCohortDateBasis.selectedOptionValue || \"lifecycle_start\",\n      startAt: dpStart.selectedDate || \"\",\n      endAt: dpEnd.selectedDate || \"\",\n      itemCategory: selCohortCategory.selectedOptionValue || \"\",\n      itemName: selCohortItem.selectedOptionValue || \"\",\n      strain: selSpecies.selectedOptionValue || \"\",\n      grainItem: selGrain.selectedOptionValue || \"\",\n      substrateItem: selSubstrate.selectedOptionValue || \"\"\n    };\n    const labels = [\n      `Date basis: ${selCohortDateBasis.selectedOptionLabel || filters.dateBasis}`,\n      `Range: ${dpStart.formattedDate || \"Any\"} → ${dpEnd.formattedDate || \"Any\"}`,\n      filters.itemCategory ? `Category: ${filters.itemCategory}` : \"\",\n      filters.itemName ? `Item: ${filters.itemName}` : \"\",\n      filters.strain ? `Strain: ${filters.strain}` : \"\",\n      filters.grainItem ? `Grain: ${filters.grainItem}` : \"\",\n      filters.substrateItem ? `Substrate: ${filters.substrateItem}` : \"\"\n    ].filter(Boolean);\n\n    await storeValue(\"reportingCohortFilters\", filters);\n    await storeValue(\"reportingCohortFilterSummary\", labels.join(\" · \"));\n    await storeValue(\"reportingCohortStatus\", \"loading\");\n    await storeValue(\"reportingCohortError\", \"\");\n\n    const jobs = [\n      [\"summary\", qContamIncidencePerItem.run()],\n      [\"distributions\", qCohortCycleTimes.run()],\n      [\"monthly yield\", qMonthlyHarvestYield.run()],\n      [\"monthly contamination\", qContamIncidenceMonthly.run()],\n      [\"cohort lots\", qCohortOutliers.run()]\n    ];\n    const settled = await Promise.allSettled(jobs.map(j => j[1]));\n    const failures = settled.map((result, index) => {\n      if (result.status === \"fulfilled\") return \"\";\n      const reason = result.reason?.message || String(result.reason || \"unknown error\");\n      return `${jobs[index][0]}: ${reason}`;\n    }).filter(Boolean);\n\n    if (failures.length) {\n      const message = failures.join(\";  \");\n      await storeValue(\"reportingCohortStatus\", \"error\");\n      await storeValue(\"reportingCohortError\", message);\n      showAlert(\"Cohort analytics failed: \" + message, \"error\");\n      return false;\n    }\n\n    await storeValue(\"reportingCohortStatus\", \"ready\");\n    return true;\n  }\n};",
         "name": "ReportingUtils",
         "pageId": "Reporting",
         "pluginId": "js-plugin",
@@ -277,7 +277,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  safeParse(s) {\n    try {\n      if (!s) return {};\n      if (typeof s === \"object\") return s;\n      return JSON.parse(s);\n    } catch (e) {\n      return { _raw: s, _error: String(e) };\n    }\n  },\n\n  durationDays(interval) {\n    if (!interval) return \"\";\n    const s = String(interval);\n    const m = s.match(/(-?\\d+)\\s+days?/i);\n    if (m) return m[1];\n    return s;\n  },\n\n  monthlyYieldChartData(rows) {\n    return {\n      harvest_weight_g: {\n        seriesName: \"Harvest weight (g)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.total_harvest_g || 0) }))\n      }\n    };\n  },\n\n  contamMonthlyChartData(rows) {\n    return {\n      contamination_rate_pct: {\n        seriesName: \"Contamination rate (%)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.contamination_rate_pct || 0) }))\n      }\n    };\n  },\n\n  async init() {\n    await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n    await storeValue(\"selectedEventId\", null);\n    await storeValue(\"selectedLifecycleEvent\", null);\n    await storeValue(\"reportingCohortStatus\", \"idle\");\n    await storeValue(\"reportingCohortError\", \"\");\n    await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n    if (appsmith.store.selectedLotId) {\n      await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n    }\n  },\n\n  async applyAnalytics() {\n    const filters = {\n      dateBasis: selCohortDateBasis.selectedOptionValue || \"lifecycle_start\",\n      startAt: dpStart.selectedDate || \"\",\n      endAt: dpEnd.selectedDate || \"\",\n      itemCategory: selCohortCategory.selectedOptionValue || \"\",\n      itemName: selCohortItem.selectedOptionValue || \"\",\n      strain: selSpecies.selectedOptionValue || \"\",\n      grainItem: selGrain.selectedOptionValue || \"\",\n      substrateItem: selSubstrate.selectedOptionValue || \"\"\n    };\n    const labels = [\n      `Date basis: ${selCohortDateBasis.selectedOptionLabel || filters.dateBasis}`,\n      `Range: ${dpStart.formattedDate || \"Any\"} → ${dpEnd.formattedDate || \"Any\"}`,\n      filters.itemCategory ? `Category: ${filters.itemCategory}` : \"\",\n      filters.itemName ? `Item: ${filters.itemName}` : \"\",\n      filters.strain ? `Strain: ${filters.strain}` : \"\",\n      filters.grainItem ? `Grain: ${filters.grainItem}` : \"\",\n      filters.substrateItem ? `Substrate: ${filters.substrateItem}` : \"\"\n    ].filter(Boolean);\n\n    await storeValue(\"reportingCohortFilters\", filters);\n    await storeValue(\"reportingCohortFilterSummary\", labels.join(\" · \"));\n    await storeValue(\"reportingCohortStatus\", \"loading\");\n    await storeValue(\"reportingCohortError\", \"\");\n\n    const jobs = [\n      [\"summary\", qContamIncidencePerItem.run()],\n      [\"distributions\", qCohortCycleTimes.run()],\n      [\"monthly yield\", qMonthlyHarvestYield.run()],\n      [\"monthly contamination\", qContamIncidenceMonthly.run()],\n      [\"cohort lots\", qCohortOutliers.run()]\n    ];\n    const settled = await Promise.allSettled(jobs.map(j => j[1]));\n    const failures = settled.map((result, index) => {\n      if (result.status === \"fulfilled\") return \"\";\n      const reason = result.reason?.message || String(result.reason || \"unknown error\");\n      return `${jobs[index][0]}: ${reason}`;\n    }).filter(Boolean);\n\n    if (failures.length) {\n      const message = failures.join(\";  \");\n      await storeValue(\"reportingCohortStatus\", \"error\");\n      await storeValue(\"reportingCohortError\", message);\n      showAlert(\"Cohort analytics failed: \" + message, \"error\");\n      return false;\n    }\n\n    await storeValue(\"reportingCohortStatus\", \"ready\");\n    return true;\n  }\n};",
+        "body": "export default {\n  monthlyYieldChartData(rows) {\n    return {\n      harvest_weight_g: {\n        seriesName: \"Harvest weight (g)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.total_harvest_g || 0) }))\n      }\n    };\n  },\n\n  contamMonthlyChartData(rows) {\n    return {\n      contamination_rate_pct: {\n        seriesName: \"Contamination rate (%)\",\n        data: (rows || []).map(r => ({ x: String(r.month || \"\"), y: Number(r.contamination_rate_pct || 0) }))\n      }\n    };\n  },\n\n  async applyAnalytics() {\n    const filters = {\n      dateBasis: selCohortDateBasis.selectedOptionValue || \"lifecycle_start\",\n      startAt: dpStart.selectedDate || \"\",\n      endAt: dpEnd.selectedDate || \"\",\n      itemCategory: selCohortCategory.selectedOptionValue || \"\",\n      itemName: selCohortItem.selectedOptionValue || \"\",\n      strain: selSpecies.selectedOptionValue || \"\",\n      grainItem: selGrain.selectedOptionValue || \"\",\n      substrateItem: selSubstrate.selectedOptionValue || \"\"\n    };\n    const labels = [\n      `Date basis: ${selCohortDateBasis.selectedOptionLabel || filters.dateBasis}`,\n      `Range: ${dpStart.formattedDate || \"Any\"} → ${dpEnd.formattedDate || \"Any\"}`,\n      filters.itemCategory ? `Category: ${filters.itemCategory}` : \"\",\n      filters.itemName ? `Item: ${filters.itemName}` : \"\",\n      filters.strain ? `Strain: ${filters.strain}` : \"\",\n      filters.grainItem ? `Grain: ${filters.grainItem}` : \"\",\n      filters.substrateItem ? `Substrate: ${filters.substrateItem}` : \"\"\n    ].filter(Boolean);\n\n    await storeValue(\"reportingCohortFilters\", filters);\n    await storeValue(\"reportingCohortFilterSummary\", labels.join(\" · \"));\n    await storeValue(\"reportingCohortStatus\", \"loading\");\n    await storeValue(\"reportingCohortError\", \"\");\n\n    const jobs = [\n      [\"summary\", qContamIncidencePerItem.run()],\n      [\"distributions\", qCohortCycleTimes.run()],\n      [\"monthly yield\", qMonthlyHarvestYield.run()],\n      [\"monthly contamination\", qContamIncidenceMonthly.run()],\n      [\"cohort lots\", qCohortOutliers.run()]\n    ];\n    const settled = await Promise.allSettled(jobs.map(j => j[1]));\n    const failures = settled.map((result, index) => {\n      if (result.status === \"fulfilled\") return \"\";\n      const reason = result.reason?.message || String(result.reason || \"unknown error\");\n      return `${jobs[index][0]}: ${reason}`;\n    }).filter(Boolean);\n\n    if (failures.length) {\n      const message = failures.join(\";  \");\n      await storeValue(\"reportingCohortStatus\", \"error\");\n      await storeValue(\"reportingCohortError\", message);\n      showAlert(\"Cohort analytics failed: \" + message, \"error\");\n      return false;\n    }\n\n    await storeValue(\"reportingCohortStatus\", \"ready\");\n    return true;\n  }\n};",
         "name": "ReportingUtils",
         "pageId": "Reporting",
         "pluginId": "js-plugin",
@@ -18986,103 +18986,6 @@
     },
     {
       "deleted": false,
-      "gitSyncId": "699bb3991b92037d29ef7f9f_0e00413e-af97-4e7b-a099-4f8fd29f115b",
-      "id": "Reporting_ReportingUtils.durationDays",
-      "pluginId": "js-plugin",
-      "pluginType": "JS",
-      "publishedAction": {
-        "actionConfiguration": {
-          "body": "function (interval) {\n  if (!interval) return \"\";\n  const s = String(interval);\n  const m = s.match(/(-?\\d+)\\s+days?/i);\n  if (m) return m[1];\n  return s;\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [
-            {
-              "name": "interval"
-            }
-          ],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.durationDays",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "function (interval) {\n  if (!interval) return \"\";\n  const s = String(interval);\n  const m = s.match(/(-?\\d+)\\s+days?/i);\n  if (m) return m[1];\n  return s;\n}"
-        ],
-        "messages": [],
-        "name": "durationDays",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      },
-      "unpublishedAction": {
-        "actionConfiguration": {
-          "body": "function (interval) {\n  if (!interval) return \"\";\n  const s = String(interval);\n  const m = s.match(/(-?\\d+)\\s+days?/i);\n  if (m) return m[1];\n  return s;\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [
-            {
-              "name": "interval"
-            }
-          ],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.durationDays",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "function (interval) {\n  if (!interval) return \"\";\n  const s = String(interval);\n  const m = s.match(/(-?\\d+)\\s+days?/i);\n  if (m) return m[1];\n  return s;\n}"
-        ],
-        "messages": [],
-        "name": "durationDays",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      }
-    },
-    {
-      "deleted": false,
       "gitSyncId": "699bb3991b92037d29ef7f9f_df342b78-8d2e-4788-a29c-544a56efbdd8",
       "id": "Reporting_ReportingUtils.monthlyYieldChartData",
       "pluginId": "js-plugin",
@@ -19260,192 +19163,6 @@
         ],
         "messages": [],
         "name": "applyAnalytics",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      }
-    },
-    {
-      "deleted": false,
-      "gitSyncId": "699bb3991b92037d29ef7f9f_3f4f92cb-beb7-4471-b7ad-a5ecfd21ea1a",
-      "id": "Reporting_ReportingUtils.safeParse",
-      "pluginId": "js-plugin",
-      "pluginType": "JS",
-      "publishedAction": {
-        "actionConfiguration": {
-          "body": "function (s) {\n  try {\n    if (!s) return {};\n    if (typeof s === \"object\") return s;\n    return JSON.parse(s);\n  } catch (e) {\n    return {\n      _raw: s,\n      _error: String(e)\n    };\n  }\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [
-            {
-              "name": "s"
-            }
-          ],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.safeParse",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "function (s) {\n  try {\n    if (!s) return {};\n    if (typeof s === \"object\") return s;\n    return JSON.parse(s);\n  } catch (e) {\n    return {\n      _raw: s,\n      _error: String(e)\n    };\n  }\n}"
-        ],
-        "messages": [],
-        "name": "safeParse",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      },
-      "unpublishedAction": {
-        "actionConfiguration": {
-          "body": "function (s) {\n  try {\n    if (!s) return {};\n    if (typeof s === \"object\") return s;\n    return JSON.parse(s);\n  } catch (e) {\n    return {\n      _raw: s,\n      _error: String(e)\n    };\n  }\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [
-            {
-              "name": "s"
-            }
-          ],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.safeParse",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "function (s) {\n  try {\n    if (!s) return {};\n    if (typeof s === \"object\") return s;\n    return JSON.parse(s);\n  } catch (e) {\n    return {\n      _raw: s,\n      _error: String(e)\n    };\n  }\n}"
-        ],
-        "messages": [],
-        "name": "safeParse",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      }
-    },
-    {
-      "deleted": false,
-      "gitSyncId": "699bb3991b92037d29ef7f9f_ee23e7fc-3651-42c8-8a09-99abc909b2a4",
-      "id": "Reporting_ReportingUtils.init",
-      "pluginId": "js-plugin",
-      "pluginType": "JS",
-      "publishedAction": {
-        "actionConfiguration": {
-          "body": "async function () {\n  await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n  await storeValue(\"selectedEventId\", null);\n  await storeValue(\"selectedLifecycleEvent\", null);\n  await storeValue(\"reportingCohortStatus\", \"idle\");\n  await storeValue(\"reportingCohortError\", \"\");\n  await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n  if (appsmith.store.selectedLotId) {\n    await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n  }\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.init",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "async function () {\n  await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n  await storeValue(\"selectedEventId\", null);\n  await storeValue(\"selectedLifecycleEvent\", null);\n  await storeValue(\"reportingCohortStatus\", \"idle\");\n  await storeValue(\"reportingCohortError\", \"\");\n  await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n  if (appsmith.store.selectedLotId) {\n    await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n  }\n}"
-        ],
-        "messages": [],
-        "name": "init",
-        "pageId": "Reporting",
-        "policyMap": {},
-        "runBehaviour": "MANUAL",
-        "userPermissions": [],
-        "userSetOnLoad": false
-      },
-      "unpublishedAction": {
-        "actionConfiguration": {
-          "body": "async function () {\n  await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n  await storeValue(\"selectedEventId\", null);\n  await storeValue(\"selectedLifecycleEvent\", null);\n  await storeValue(\"reportingCohortStatus\", \"idle\");\n  await storeValue(\"reportingCohortError\", \"\");\n  await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n  if (appsmith.store.selectedLotId) {\n    await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n  }\n}",
-          "encodeParamsToggle": true,
-          "jsArguments": [],
-          "paginationType": "NONE",
-          "selfReferencingDataPaths": [],
-          "timeoutInMillisecond": 10000
-        },
-        "collectionId": "Reporting_ReportingUtils",
-        "confirmBeforeExecute": false,
-        "createdAt": "2026-02-23T01:55:46Z",
-        "datasource": {
-          "deleted": false,
-          "isAutoGenerated": false,
-          "messages": [],
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "policies": [],
-          "policyMap": {},
-          "userPermissions": []
-        },
-        "dynamicBindingPathList": [
-          {
-            "key": "body"
-          }
-        ],
-        "fullyQualifiedName": "ReportingUtils.init",
-        "invalids": [],
-        "isValid": true,
-        "jsonPathKeys": [
-          "async function () {\n  await storeValue(\"selectedLotId\", appsmith.store.selectedLotId || null);\n  await storeValue(\"selectedEventId\", null);\n  await storeValue(\"selectedLifecycleEvent\", null);\n  await storeValue(\"reportingCohortStatus\", \"idle\");\n  await storeValue(\"reportingCohortError\", \"\");\n  await Promise.allSettled([qLotsSearch.run(), qSpeciesOptions.run(), qGrainOptions.run(), qSubstrateOptions.run()]);\n  if (appsmith.store.selectedLotId) {\n    await Promise.allSettled([qEventsForLot.run(), qLotMetrics.run(), qLineageForLot.run()]);\n  }\n}"
-        ],
-        "messages": [],
-        "name": "init",
         "pageId": "Reporting",
         "policyMap": {},
         "runBehaviour": "MANUAL",
@@ -83712,7 +83429,7 @@
                           "mobileRightColumn": 25,
                           "mobileTopRow": 7,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblLots.selectedRow; if (!row?.nocopk) return; await storeValue('selectedLotId', row.nocopk); await storeValue('selectedEventId', null); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblLots.selectedRow; if (!row?.nocopk) return; await storeValue('selectedLotId', row.nocopk); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -85416,7 +85133,7 @@
                           "mobileRightColumn": 45,
                           "mobileTopRow": 42,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblEvents.selectedRow || null; await storeValue('selectedLifecycleEvent', row); await storeValue('selectedEventId', row?.event_id || null); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblEvents.selectedRow || null; await storeValue('selectedLifecycleEvent', row); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -86079,7 +85796,7 @@
                           "mobileRightColumn": 64,
                           "mobileTopRow": 88,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblLineage.selectedRow; if (row?.related_entity_type !== 'lot' || !row?.related_nocopk) return; await storeValue('selectedLotId', row.related_nocopk); await storeValue('selectedEventId', null); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblLineage.selectedRow; if (row?.related_entity_type !== 'lot' || !row?.related_nocopk) return; await storeValue('selectedLotId', row.related_nocopk); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -86873,7 +86590,7 @@
                               "chart": {
                                 "alignCaptionWithCanvas": 1,
                                 "canvasPadding": "0",
-                                "caption": "Sales Report",
+                                "caption": "Yield by Cohort Month",
                                 "captionAlignment": "center",
                                 "captionFontColor": "#231F20",
                                 "captionFontSize": "24",
@@ -86889,29 +86606,16 @@
                                 "legendIconSides": "4",
                                 "legendPosition": "top",
                                 "theme": "fusion",
-                                "xAxisName": "Product Line",
+                                "xAxisName": "Cohort month",
                                 "xAxisNameFontColor": "#716e6e",
                                 "xAxisNameFontSize": "14",
-                                "yAxisName": "Revenue($)",
+                                "yAxisName": "Harvest yield (g)",
                                 "yAxisNameFontColor": "#716e6e",
                                 "yAxisNameFontSize": "14",
                                 "yAxisValueFontColor": "#716e6e",
                                 "yAxisValueFontSize": "12"
                               },
-                              "data": [
-                                {
-                                  "label": "Product1",
-                                  "value": 20000
-                                },
-                                {
-                                  "label": "Product2",
-                                  "value": 22000
-                                },
-                                {
-                                  "label": "Product3",
-                                  "value": 32000
-                                }
-                              ]
+                              "data": []
                             },
                             "type": "column2d"
                           },
@@ -86980,7 +86684,7 @@
                               "chart": {
                                 "alignCaptionWithCanvas": 1,
                                 "canvasPadding": "0",
-                                "caption": "Sales Report",
+                                "caption": "Contamination Incidence by Cohort Month",
                                 "captionAlignment": "center",
                                 "captionFontColor": "#231F20",
                                 "captionFontSize": "24",
@@ -86996,29 +86700,16 @@
                                 "legendIconSides": "4",
                                 "legendPosition": "top",
                                 "theme": "fusion",
-                                "xAxisName": "Product Line",
+                                "xAxisName": "Cohort month",
                                 "xAxisNameFontColor": "#716e6e",
                                 "xAxisNameFontSize": "14",
-                                "yAxisName": "Revenue($)",
+                                "yAxisName": "Contamination rate (%)",
                                 "yAxisNameFontColor": "#716e6e",
                                 "yAxisNameFontSize": "14",
                                 "yAxisValueFontColor": "#716e6e",
                                 "yAxisValueFontSize": "12"
                               },
-                              "data": [
-                                {
-                                  "label": "Product1",
-                                  "value": 20000
-                                },
-                                {
-                                  "label": "Product2",
-                                  "value": 22000
-                                },
-                                {
-                                  "label": "Product3",
-                                  "value": 32000
-                                }
-                              ]
+                              "data": []
                             },
                             "type": "column2d"
                           },
@@ -90988,7 +90679,7 @@
                           "mobileRightColumn": 25,
                           "mobileTopRow": 7,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblLots.selectedRow; if (!row?.nocopk) return; await storeValue('selectedLotId', row.nocopk); await storeValue('selectedEventId', null); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblLots.selectedRow; if (!row?.nocopk) return; await storeValue('selectedLotId', row.nocopk); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -92692,7 +92383,7 @@
                           "mobileRightColumn": 45,
                           "mobileTopRow": 42,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblEvents.selectedRow || null; await storeValue('selectedLifecycleEvent', row); await storeValue('selectedEventId', row?.event_id || null); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblEvents.selectedRow || null; await storeValue('selectedLifecycleEvent', row); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -93355,7 +93046,7 @@
                           "mobileRightColumn": 64,
                           "mobileTopRow": 88,
                           "needsErrorInfo": false,
-                          "onRowSelected": "{{ (async () => { const row = tblLineage.selectedRow; if (row?.related_entity_type !== 'lot' || !row?.related_nocopk) return; await storeValue('selectedLotId', row.related_nocopk); await storeValue('selectedEventId', null); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
+                          "onRowSelected": "{{ (async () => { const row = tblLineage.selectedRow; if (row?.related_entity_type !== 'lot' || !row?.related_nocopk) return; await storeValue('selectedLotId', row.related_nocopk); await storeValue('selectedLifecycleEvent', null); await Promise.all([qLotMetrics.run(), qEventsForLot.run(), qLineageForLot.run()]); })() }}",
                           "parentColumnSpace": 19.3046875,
                           "parentId": "jz771saybo",
                           "parentRowSpace": 10,
@@ -94149,7 +93840,7 @@
                               "chart": {
                                 "alignCaptionWithCanvas": 1,
                                 "canvasPadding": "0",
-                                "caption": "Sales Report",
+                                "caption": "Yield by Cohort Month",
                                 "captionAlignment": "center",
                                 "captionFontColor": "#231F20",
                                 "captionFontSize": "24",
@@ -94165,29 +93856,16 @@
                                 "legendIconSides": "4",
                                 "legendPosition": "top",
                                 "theme": "fusion",
-                                "xAxisName": "Product Line",
+                                "xAxisName": "Cohort month",
                                 "xAxisNameFontColor": "#716e6e",
                                 "xAxisNameFontSize": "14",
-                                "yAxisName": "Revenue($)",
+                                "yAxisName": "Harvest yield (g)",
                                 "yAxisNameFontColor": "#716e6e",
                                 "yAxisNameFontSize": "14",
                                 "yAxisValueFontColor": "#716e6e",
                                 "yAxisValueFontSize": "12"
                               },
-                              "data": [
-                                {
-                                  "label": "Product1",
-                                  "value": 20000
-                                },
-                                {
-                                  "label": "Product2",
-                                  "value": 22000
-                                },
-                                {
-                                  "label": "Product3",
-                                  "value": 32000
-                                }
-                              ]
+                              "data": []
                             },
                             "type": "column2d"
                           },
@@ -94256,7 +93934,7 @@
                               "chart": {
                                 "alignCaptionWithCanvas": 1,
                                 "canvasPadding": "0",
-                                "caption": "Sales Report",
+                                "caption": "Contamination Incidence by Cohort Month",
                                 "captionAlignment": "center",
                                 "captionFontColor": "#231F20",
                                 "captionFontSize": "24",
@@ -94272,29 +93950,16 @@
                                 "legendIconSides": "4",
                                 "legendPosition": "top",
                                 "theme": "fusion",
-                                "xAxisName": "Product Line",
+                                "xAxisName": "Cohort month",
                                 "xAxisNameFontColor": "#716e6e",
                                 "xAxisNameFontSize": "14",
-                                "yAxisName": "Revenue($)",
+                                "yAxisName": "Contamination rate (%)",
                                 "yAxisNameFontColor": "#716e6e",
                                 "yAxisNameFontSize": "14",
                                 "yAxisValueFontColor": "#716e6e",
                                 "yAxisValueFontSize": "12"
                               },
-                              "data": [
-                                {
-                                  "label": "Product1",
-                                  "value": 20000
-                                },
-                                {
-                                  "label": "Product2",
-                                  "value": 22000
-                                },
-                                {
-                                  "label": "Product3",
-                                  "value": 32000
-                                }
-                              ]
+                              "data": []
                             },
                             "type": "column2d"
                           },
