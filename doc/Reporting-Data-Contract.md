@@ -823,3 +823,63 @@ The known historical block `LOT-260527-ivas` validates combined cohort
 membership for `fruiting_block` + `Small CVG` + `Malabar` + `Wild Bird Seed` +
 `Coco Verm Gypsum` on the spawned date basis.  Its source grain age at spawn is
 approximately 58.179 days and source substrate age is approximately 2.130 days.
+
+## Phase 6 Cohort Analytics UI contract
+
+Phase 6 replaces the prototype Cohort Analytics execution model while leaving
+Lifecycle Trace/lineage untouched.  The Appsmith tab captures the visible
+filters into one `appsmith.store.reportingCohortFilters` object when the user
+clicks **Apply Cohort Filters**.  Every cohort SQL action reads only that stored
+object, so editing a selector does not partially change one report before the
+rest of the cohort has been reapplied.
+
+The applied UI dimensions are:
+
+- date basis;
+- start timestamp;
+- end timestamp;
+- item category;
+- item;
+- strain (the legacy widget is internally still named `selSpecies`);
+- grain input;
+- substrate input.
+
+The Phase 5 function also supports recipe, regulated state, and data origin,
+but those are deliberately not exposed in the initial Phase 6 UI.  They remain
+available for later extension without changing cohort membership semantics.
+
+The old automatic/page-load cohort actions are changed to manual execution.
+The tab remains in an explicit idle state until Apply is pressed.  Apply stores
+one filter snapshot, runs the five cohort reports against that snapshot, and
+records one of `loading`, `ready`, or `error`.  Query failures are collected and
+shown instead of being discarded by an unchecked `Promise.allSettled()`.
+
+The initial Phase 6 report set is:
+
+- cohort summary: population size, contamination count/rate, harvested
+  count/rate, median colonization/spawn-to-fruiting/fruiting durations, median
+  grain age at spawn, total/average Harvest-event yield, and count of lots with
+  cohort quality flags;
+- lifecycle distributions: sample count, average, median, and 90th percentile
+  for grain age at spawn, colonization, spawn-to-fruiting, fruiting duration,
+  Harvest yield per harvested lot, and flush count per harvested lot;
+- monthly Harvest yield: actual dated Harvest-event weight grouped by Harvest
+  month, restricted to lots in the already-selected cohort;
+- monthly contamination incidence: contaminated/total lots grouped by the same
+  **selected cohort date basis** used for membership;
+- cohort-lot inspection: up to 100 lots ordered with contaminated lots first and
+  then by the longest available lifecycle/input-age measure, exposing the
+  component durations, flush/yield outcome, and terminal result.
+
+The monthly Harvest chart intentionally groups actual Harvest Events rather
+than assigning a lot's total yield to its first-Harvest month.  The contamination
+chart groups by the selected cohort date basis so its month buckets describe
+the same population definition shown in the filter summary.
+
+Selector values for strain/category/item/grain/substrate come only from
+`v_reporting_cohort_dimension_options`.  The previous array-to-text selector
+queries and substring grain/substrate filtering are no longer used.
+
+Prototype chart titles/axes (`Sales Report`, `Product Line`, `Revenue($)`) are
+removed.  Empty/unapplied/error states are explained by the cohort summary
+rather than appearing as unexplained blank charts/tables.
