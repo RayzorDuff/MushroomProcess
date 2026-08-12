@@ -670,3 +670,19 @@ python3 scripts/reporting_data_audit.py \
 ```
 
 The audit utility is intentionally read-only and uses only the generated migration CSVs. It does not connect to or modify PostgreSQL.
+
+## Phase 3 Lifecycle Trace UI contract
+
+Phase 3 binds the first Reporting tab directly to `public.v_reporting_lot_lifecycle`.  The tab is renamed **Lifecycle Trace** and remains lot-scoped; product/ancestor/descendant traversal is deferred to Phase 4.
+
+The first-tab execution contract is:
+
+1. `qLotsSearch` searches lifecycle-view dimensions only.
+2. Selecting one search result stores its `lot_nocopk`, then explicitly runs `qLotMetrics` and `qEventsForLot` after the store completes.
+3. `qLotMetrics` reads one canonical lifecycle row and adds presentation-only current-stage/age and contamination-stage fields.
+4. `qEventsForLot` renders an understandable timeline from canonical milestones plus individual Harvest events and other preserved Events.  Canonical milestones carry the provenance selected by Phase 2.  Undated historical Events are retained at the end of the timeline rather than assigned fabricated timestamps.
+5. The old editable JSON Form is removed.  Timeline-row details are read-only and display source, operator/station/product context, and preserved event metadata.
+
+The UI exposes lifecycle start/source, status/stage, immediate grain/substrate inputs, colonization duration, spawn-to-fruiting duration, fruiting duration, flush count, first-flush/total yield, contamination timing/stage, terminal outcome, origin (`airtable_migrated` versus `postgres_native`), and Phase 2 quality flags.
+
+`created_at` remains explicitly labeled as record creation in the timeline and is not presented as physical lifecycle inception unless Phase 2 identifies it as the lifecycle-start fallback.
