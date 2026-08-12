@@ -922,4 +922,6 @@ Historical migration acceptance values at `2026-08-06` are:
 - 261 active Products with unknown storage location;
 - 32 Products in the complete historical Product population with `use_by < pack_date` (preserved as a quality condition, not corrected).
 
+These values are a **point-in-time migration audit**, not a replayable live-database assertion. Product tray state and storage location are mutable current-state fields and MushroomProcess does not retain temporal history for those attributes. Consequently, `p_as_of` can reproduce expiration classification for an earlier date, but it cannot reconstruct which Products were active versus terminal/excluded on that earlier date after operational state/location changes. Phase 7 smoke tests therefore validate the live active/terminal rule and expiration partition invariants; historical counts remain audit reference values.
+
 Phase 7 remains read-only.  Retiring expired inventory, correcting missing locations, or changing Product lifecycle state continues to use the operational Products/Reconciliation workflows rather than Reporting.

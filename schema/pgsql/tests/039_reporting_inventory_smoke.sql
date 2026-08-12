@@ -12,6 +12,9 @@ DECLARE
   v_view_products bigint;
   v_active bigint;
   v_terminal bigint;
+  v_active_function bigint;
+  v_terminal_function bigint;
+  v_all_function bigint;
   v_migrated_products bigint;
   v_active_asof bigint;
   v_expired_asof bigint;
@@ -46,51 +49,74 @@ BEGIN
     RAISE EXCEPTION 'Active/terminal inventory classification does not cover every product';
   END IF;
 
-  -- Exact historical migration snapshot from the Phase 1 audit.  This remains
-  -- valid even after PostgreSQL-native Products are added because the view
-  -- preserves data_origin.
+  -- The canonical filter function must return the same live populations as the
+  -- fact view.  Active/terminal state is current mutable inventory state; an
+  -- expiration as-of date does not rewind tray_state or storage_location.
+  SELECT count(*) INTO v_active_function
+  FROM public.mp_reporting_product_inventory(p_scope => 'active');
+  SELECT count(*) INTO v_terminal_function
+  FROM public.mp_reporting_product_inventory(p_scope => 'terminal');
+  SELECT count(*) INTO v_all_function
+  FROM public.mp_reporting_product_inventory(p_scope => 'all');
+
+  IF v_active_function <> v_active THEN
+    RAISE EXCEPTION 'Active filter-function count mismatch: function %, view %', v_active_function, v_active;
+  END IF;
+  IF v_terminal_function <> v_terminal THEN
+    RAISE EXCEPTION 'Terminal filter-function count mismatch: function %, view %', v_terminal_function, v_terminal;
+  END IF;
+  IF v_all_function <> v_products THEN
+    RAISE EXCEPTION 'All-products filter-function count mismatch: function %, products %', v_all_function, v_products;
+  END IF;
+
+  -- Independently verify the exposed active_inventory flag from the canonical
+  -- terminal-state tokens and current resolved storage location.
+  IF EXISTS (
+    SELECT 1
+    FROM public.v_reporting_product_inventory v
+    WHERE v.active_inventory IS DISTINCT FROM NOT (
+      cardinality(v.terminal_state_tokens) > 0
+      OR regexp_replace(lower(COALESCE(v.storage_location, '')), '[^a-z0-9]', '', 'g')
+        IN ('compost', 'consumed', 'expired', 'retired', 'shipped')
+    )
+  ) THEN
+    RAISE EXCEPTION 'Active inventory flag disagrees with canonical terminal state/location rule';
+  END IF;
+
+  -- Phase 1 captured a point-in-time migration snapshot on 2026-08-06.  The
+  -- live database does not retain temporal history for Product tray state or
+  -- storage location, so those active/terminal counts are diagnostics only
+  -- once operational workflows have changed migrated Products.  The explicit
+  -- as-of date below rewinds expiration classification only.
   SELECT count(*)
   INTO v_migrated_products
   FROM public.v_reporting_product_inventory
   WHERE data_origin = 'airtable_migrated';
 
-  IF v_migrated_products = 1235 THEN
-    SELECT
-      count(*) FILTER (WHERE active_inventory),
-      count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'expired'),
-      count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'expiring'),
-      count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'current'),
-      count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'unknown'),
-      count(*) FILTER (WHERE active_inventory AND location_unknown),
-      count(*) FILTER (WHERE use_by_before_pack)
-    INTO
-      v_active_asof, v_expired_asof, v_expiring_asof, v_current_asof,
-      v_unknown_expiry_asof, v_unknown_location, v_bad_dates
-    FROM public.v_reporting_product_inventory
-    WHERE data_origin = 'airtable_migrated';
+  SELECT
+    count(*) FILTER (WHERE active_inventory),
+    count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'expired'),
+    count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'expiring'),
+    count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'current'),
+    count(*) FILTER (WHERE active_inventory AND public.mp_reporting_inventory_expiration_status(use_by, date '2026-08-06', 30) = 'unknown'),
+    count(*) FILTER (WHERE active_inventory AND location_unknown),
+    count(*) FILTER (WHERE use_by_before_pack)
+  INTO
+    v_active_asof, v_expired_asof, v_expiring_asof, v_current_asof,
+    v_unknown_expiry_asof, v_unknown_location, v_bad_dates
+  FROM public.v_reporting_product_inventory
+  WHERE data_origin = 'airtable_migrated';
 
-    IF v_active_asof <> 687 THEN
-      RAISE EXCEPTION 'Historical active Product count mismatch: expected 687, got %', v_active_asof;
-    END IF;
-    IF v_expired_asof <> 78 THEN
-      RAISE EXCEPTION 'Historical active-expired Product count mismatch: expected 78, got %', v_expired_asof;
-    END IF;
-    IF v_expiring_asof <> 15 THEN
-      RAISE EXCEPTION 'Historical active-expiring Product count mismatch: expected 15, got %', v_expiring_asof;
-    END IF;
-    IF v_current_asof <> 416 THEN
-      RAISE EXCEPTION 'Historical active-current Product count mismatch: expected 416, got %', v_current_asof;
-    END IF;
-    IF v_unknown_expiry_asof <> 178 THEN
-      RAISE EXCEPTION 'Historical active unknown-use-by Product count mismatch: expected 178, got %', v_unknown_expiry_asof;
-    END IF;
-    IF v_unknown_location <> 261 THEN
-      RAISE EXCEPTION 'Historical active Unknown-location count mismatch: expected 261, got %', v_unknown_location;
-    END IF;
-    IF v_bad_dates <> 32 THEN
-      RAISE EXCEPTION 'Historical use_by-before-pack count mismatch: expected 32, got %', v_bad_dates;
-    END IF;
+  IF v_expired_asof + v_expiring_asof + v_current_asof + v_unknown_expiry_asof <> v_active_asof THEN
+    RAISE EXCEPTION
+      'Expiration buckets do not partition active migrated Products: active %, buckets %',
+      v_active_asof, v_expired_asof + v_expiring_asof + v_current_asof + v_unknown_expiry_asof;
   END IF;
+
+  RAISE NOTICE
+    'Phase 7 smoke: migration-origin diagnostic at 2026-08-06 expiration basis: % products; % currently active; expired %, expiring %, current %, unknown use-by %, unknown location %, bad date rows %.',
+    v_migrated_products, v_active_asof, v_expired_asof, v_expiring_asof,
+    v_current_asof, v_unknown_expiry_asof, v_unknown_location, v_bad_dates;
 
   -- Exact filters must agree with direct predicates for a representative value.
   IF EXISTS (

@@ -138,4 +138,4 @@ branches for both regulated and unregulated Sample products.
 
 - `038_reporting_cohort_smoke.sql` validates Issue #87 Phase 5 one-row-per-lot cohort facts, exact grain/substrate dimensions, input-age measures, date-basis validation, canonical combined filtering, and the known historical migration fixture.
 
-- `039_reporting_inventory_smoke.sql` — Issue #87 Phase 7 Product/current-lot inventory contract, historical active/expired/unknown-location counts, exact filtering, and stage-rollup invariants.
+- `039_reporting_inventory_smoke.sql` — Issue #87 Phase 7 Product/current-lot inventory contract, live active/terminal and expiration-partition invariants, migration-snapshot diagnostics, exact filtering, and stage-rollup invariants.
