@@ -135,3 +135,5 @@ branches for both regulated and unregulated Sample products.
 - `036_reporting_lifecycle_smoke.sql` — validates Issue #87 Phase 2 one-row-per-lot lifecycle reporting, direct-field/event precedence, provenance, Harvest/flush aggregation, canonical input-lineage counts, and the known v1.1.0 historical fallback fixture when present.
 
 - `037_reporting_lineage_smoke.sql` validates Issue #87 Phase 4 explicit lot lineage in both directions plus resulting products and a known migrated historical fixture.
+
+- `038_reporting_cohort_smoke.sql` validates Issue #87 Phase 5 one-row-per-lot cohort facts, exact grain/substrate dimensions, input-age measures, date-basis validation, canonical combined filtering, and the known historical migration fixture.

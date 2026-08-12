@@ -520,3 +520,24 @@ is validated against the live database.
 ### Reporting lineage (`037_reporting_lineage.sql`)
 
 Issue #87 Phase 4 adds `v_reporting_lot_lineage`, a read-only adjacent-lineage view rooted at each lot. It exposes explicit upstream/downstream grain, substrate, source/parent lot relationships and resulting products. It does not infer lineage from matching item/strain/date values.
+
+
+### Canonical cohort reporting (`038_reporting_cohort.sql`)
+
+Issue #87 Phase 5 adds `v_reporting_cohort_lifecycle`,
+`v_reporting_cohort_dimension_options`, `mp_reporting_cohort_basis_at(...)`, and
+`mp_reporting_cohort(...)`.  The cohort fact view reuses the Phase 2 lifecycle
+contract and adds exact grain/substrate relationship dimensions, input-age-at-
+spawn measures, outcome flags, and cohort quality flags.
+
+`mp_reporting_cohort(...)` is the required population boundary for later Cohort
+Analytics queries.  It applies one shared optional date-basis/range, category,
+item, strain, grain, substrate, recipe, regulation, and data-origin contract.
+Grain/substrate filtering uses exact individual relationship values rather than
+scalar matching against PostgreSQL array renderings.
+
+For incremental production deployment, import `038_reporting_cohort.sql` after
+`036_reporting_lifecycle.sql` (and normally after `037_reporting_lineage.sql` in
+repository order), then run `tests/038_reporting_cohort_smoke.sql`.  Phase 5 does
+not change the Appsmith Cohort Analytics widgets; Phase 6 will rebind them to the
+canonical cohort function.

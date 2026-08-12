@@ -2,7 +2,7 @@
 
 Issue: [#87 — Reporting: Rebuild lifecycle, cohort analytics, and inventory reporting](https://github.com/RayzorDuff/MushroomProcess/issues/87)
 
-Status: Phase 1 audit/data contract
+Status: Phase 5 canonical cohort data layer
 
 ## Purpose
 
@@ -732,3 +732,94 @@ without recursively flooding the normal Lifecycle Trace UI.
 Phase 4 also makes timeline-row details store-backed (`selectedLifecycleEvent`)
 so selecting canonical rows with no Event ID still produces read-only detail
 content reliably.
+
+
+## Phase 5 canonical cohort data layer
+
+Phase 5 establishes one PostgreSQL cohort contract before the Cohort Analytics
+Appsmith tab is rebuilt.  The implementation adds:
+
+- `public.v_reporting_cohort_lifecycle` — one row per lot, reusing the Phase 2
+  lifecycle view and adding exact cohort input dimensions, input-age measures,
+  contamination/harvest/terminal outcome flags, and cohort-specific quality
+  flags;
+- `public.v_reporting_cohort_dimension_options` — normalized selector values for
+  item category, item, strain, recipe, grain input, substrate input, and data
+  origin; grain/substrate options are individual relationship values rather than
+  rendered PostgreSQL arrays;
+- `public.mp_reporting_cohort_basis_at(...)` — an explicit date-basis resolver;
+- `public.mp_reporting_cohort(...)` — the single canonical cohort-membership
+  function that later charts/tables must share.
+
+The cohort function supports optional filters for date basis/range, category,
+item, strain, grain input, substrate input, recipe, regulated state, and data
+origin.  Date ranges use an inclusive lower bound and exclusive upper bound.
+Blank text filters are treated as unfiltered.  Text dimensions use exact
+case-insensitive equality; grain/substrate filters match exact individual input
+relationship values rather than substring matching against `text[]` renderings.
+Unsupported date-basis names and reversed/empty timestamp ranges fail explicitly
+instead of silently changing cohort membership.
+
+Supported date bases are:
+
+- `record_created`;
+- `lifecycle_start`;
+- `received`;
+- `processed`;
+- `inoculated`;
+- `fully_colonized`;
+- `spawned`;
+- `fruiting_start`;
+- `first_harvest`;
+- `last_harvest`;
+- `contaminated`;
+- `terminal`.
+
+The cohort fact view exposes exact non-self grain/substrate relationship values
+and derives minimum/average/maximum input ages at downstream spawn.  Grain age
+is measured from the source grain's canonical inoculation time to the output
+lot's canonical spawn time.  Substrate age is measured from the source
+substrate's canonical processed time to output spawn.  Negative historical
+deltas are preserved and flagged rather than normalized away.
+
+Additional outcome measures include `cohort_is_contaminated`,
+`cohort_is_harvested`, `cohort_is_terminal`, `days_spawn_to_contamination`, and
+`days_lifecycle_start_to_contamination`, alongside the Phase 2 cycle-time and
+Harvest/flush fields.  A known Contaminated terminal reason still counts as a
+contamination outcome even if its exact timestamp is unavailable; duration
+measures remain null without a dated contamination milestone.  This is
+sufficient for later analyses such as downstream contamination incidence by
+grain age without changing the underlying data model.
+
+The current schema does **not** store normalized species and strain as separate
+fields.  `strains.species_strain` / `lots.strain_species_strain_mat` is the
+canonical preserved strain label (for example `Malabar`, `Bronze Reishi`, or
+`Lion’s Mane`).  Phase 5 does not synthesize a species classification from that
+label.  Until a true species field exists, the corresponding Cohort Analytics
+selector should be presented as **Strain**, not as a claim that Reporting has a
+separate species dimension.
+
+Phase 6 must derive every cohort KPI, table, and chart population from the same
+`mp_reporting_cohort(...)` parameter set.  Reports may group or aggregate that
+shared population differently, but they must not independently re-implement
+cohort membership.
+
+Historical migration validation for the Phase 5 measures shows:
+
+- 575/575 migrated fruiting blocks have a valid grain-age-at-spawn measure;
+- grain age at spawn ranges from approximately 0.003 to 256.215 days, with an
+  average of approximately 59.511 days;
+- 208 of those 575 fruiting blocks have a downstream Contaminated event;
+- the 575 fruiting blocks contain 1,033 explicit substrate-input edges with a
+  processed-to-spawn timestamp pair;
+- five historical substrate age deltas are negative and must remain visible as
+  source-data quality conditions;
+- explicit relationship values produce three historical grain selector values
+  (`Oats`, `Organic Wheat/Millet`, `Wild Bird Seed`) and five substrate selector
+  values (`CVG Substrate Bag`, `Coco Verm Gypsum`, `Hardwood Substrate Bag`,
+  `Masters Mix 50/50`, `Masters Mix 75/25`).
+
+The known historical block `LOT-260527-ivas` validates combined cohort
+membership for `fruiting_block` + `Small CVG` + `Malabar` + `Wild Bird Seed` +
+`Coco Verm Gypsum` on the spawned date basis.  Its source grain age at spawn is
+approximately 58.179 days and source substrate age is approximately 2.130 days.

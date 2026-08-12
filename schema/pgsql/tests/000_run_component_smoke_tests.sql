@@ -45,6 +45,7 @@
   \ir 035_native_postgres_views_smoke.sql
   \ir 036_reporting_lifecycle_smoke.sql
   \ir 037_reporting_lineage_smoke.sql
+  \ir 038_reporting_cohort_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else
