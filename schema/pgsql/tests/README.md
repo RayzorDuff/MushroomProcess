@@ -137,3 +137,5 @@ branches for both regulated and unregulated Sample products.
 - `037_reporting_lineage_smoke.sql` validates Issue #87 Phase 4 explicit lot lineage in both directions plus resulting products and a known migrated historical fixture.
 
 - `038_reporting_cohort_smoke.sql` validates Issue #87 Phase 5 one-row-per-lot cohort facts, exact grain/substrate dimensions, input-age measures, date-basis validation, canonical combined filtering, and the known historical migration fixture.
+
+- `039_reporting_inventory_smoke.sql` — Issue #87 Phase 7 Product/current-lot inventory contract, historical active/expired/unknown-location counts, exact filtering, and stage-rollup invariants.

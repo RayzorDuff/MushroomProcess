@@ -541,3 +541,14 @@ For incremental production deployment, import `038_reporting_cohort.sql` after
 repository order), then run `tests/038_reporting_cohort_smoke.sql`.  Phase 5 does
 not change the Appsmith Cohort Analytics widgets; Phase 6 will rebind them to the
 canonical cohort function.
+
+### Reporting inventory layer (Issue #87 Phase 7)
+
+`039_reporting_inventory.sql` adds the canonical read-only inventory reporting objects:
+
+- `v_reporting_product_inventory` — one row per Product with the Products-page active/terminal rule centralized, resolved item/strain/location dimensions, and quality flags;
+- `mp_reporting_inventory_expiration_status(...)` — deterministic expired/expiring/current/unknown classification for an explicit as-of date and horizon;
+- `mp_reporting_product_inventory(...)` — exact current/as-of Product inventory filtering including Active/Terminal/All scope and the explicit Unknown-location bucket;
+- `v_reporting_lot_inventory` — current in-process lot inventory derived from the canonical lifecycle view and grouped into operational stages.
+
+The Phase 7 Reporting UI uses these objects instead of duplicating terminal-state/location logic in Appsmith.

@@ -887,3 +887,39 @@ queries and substring grain/substrate filtering are no longer used.
 Prototype chart titles/axes (`Sales Report`, `Product Line`, `Revenue($)`) are
 removed.  Empty/unapplied/error states are explained by the cohort summary
 rather than appearing as unexplained blank charts/tables.
+
+## Phase 7 Inventory Snapshot contract
+
+Phase 7 adds a third Reporting tab, **Inventory Snapshot**, backed by `039_reporting_inventory.sql`.
+
+The product inventory contract is centralized in `public.v_reporting_product_inventory`.  It mirrors the current Products-page active rule rather than re-implementing terminal logic in Appsmith.  Active inventory excludes normalized terminal tray states (`empty tray`, compost/composted, spoiled, retired, expired, consumed, shipped) and Products located in terminal locations (Compost, Consumed, Expired, Retired, Shipped).
+
+Inventory activity and expiration are intentionally separate.  A Product can remain in an active location/state while already being past `use_by`; Reporting must count that Product as active **and** expired until an operational workflow retires/moves it.  `public.mp_reporting_inventory_expiration_status(...)` therefore classifies `expired`, `expiring`, `current`, or `unknown` against an explicit as-of date and horizon without changing the active/terminal classification.
+
+`public.mp_reporting_product_inventory(...)` is the canonical filtered Product-inventory interface.  It supports Active/Terminal/All scope plus exact category, item, strain, location, and expiration filters.  The literal location option `Unknown` represents Products that have no current storage-location relationship and must not be dropped from reports.
+
+The Inventory Snapshot UI defaults to **Active inventory** and a 30-day expiring horizon.  It exposes:
+
+- matching Product count;
+- expired, expiring, current, and unknown-use-by counts;
+- unknown-location count;
+- represented net weight where `net_weight_g` exists;
+- oldest pack date and earliest non-expired use-by date;
+- a grouped item/strain/location/expiration quantity table;
+- individual Product detail including Product ID, use-by, days to expiration, current state, and data-quality flags;
+- global active-versus-terminal Product counts.
+
+Product filters are reactive and all Product tables/KPIs consume the same `mp_reporting_product_inventory(...)` parameter set.  **Refresh Snapshot** explicitly reruns the dimension/KPI/detail queries when the operator wants a fresh current-state read after inventory changes elsewhere in the application.
+
+Phase 7 also adds `public.v_reporting_lot_inventory`, derived from the canonical Phase 2 lifecycle view.  It classifies non-terminal Lots into the existing operational status families (`New / processed`, `Colonizing`, `Colonized / holding`, `Fruiting`, `Frozen`, `Other active`) and exposes an in-process summary by stage/category/status/location.  This table is intentionally independent of finished-Product filters above it; selecting a Product item should not silently filter unrelated production Lots.
+
+Historical migration acceptance values at `2026-08-06` are:
+
+- 1,235 total Products;
+- 687 active Products under the current Products-page rule;
+- 548 terminal/excluded Products;
+- among active Products: 78 expired, 15 expiring within 30 days, 416 current, and 178 with unknown use-by;
+- 261 active Products with unknown storage location;
+- 32 Products in the complete historical Product population with `use_by < pack_date` (preserved as a quality condition, not corrected).
+
+Phase 7 remains read-only.  Retiring expired inventory, correcting missing locations, or changing Product lifecycle state continues to use the operational Products/Reconciliation workflows rather than Reporting.
