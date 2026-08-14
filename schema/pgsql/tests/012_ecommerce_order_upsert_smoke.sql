@@ -55,6 +55,10 @@ BEGIN
      OR v_row.order_total <> 10.80
      OR v_row.ecwid_event_id <> 'evt-rc5-create'
      OR v_row.clover_reconciliation_status <> 'pending'
+     OR v_row.provider <> 'ecwid'
+     OR v_row.site_key <> 'dank_mushrooms'
+     OR v_row.external_order_id <> v_test_id
+     OR v_row.external_skus <> 'TEST-SKU'
   THEN
     RAISE EXCEPTION 'Created Ecwid order fields were not persisted correctly.';
   END IF;
@@ -121,6 +125,10 @@ BEGIN
      OR v_row.clover_payment_amount IS NOT NULL
      OR v_row.reconciled_at IS NOT NULL
      OR v_row.reconciliation_notes IS NOT NULL
+     OR v_row.provider <> 'ecwid'
+     OR v_row.site_key <> 'dank_mushrooms'
+     OR v_row.external_order_id <> v_test_id
+     OR v_row.external_skus <> 'TEST-SKU'
   THEN
     RAISE EXCEPTION 'Updated Ecwid order or reconciliation reset is incorrect.';
   END IF;

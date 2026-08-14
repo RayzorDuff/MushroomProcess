@@ -117,6 +117,8 @@ CREATE TABLE IF NOT EXISTS "public"."recipes" (
   "category" text,
   "ingredients" text,
   "notes" text,
+  "description" text,
+  "batch_yield_text" text,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
@@ -134,6 +136,192 @@ DO $$ BEGIN
         END IF;
       END $$;
 CREATE INDEX IF NOT EXISTS "ix_recipes_recipe_id" ON "public"."recipes"("recipe_id");
+
+CREATE TABLE IF NOT EXISTS "public"."ingredients" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "ingredient_id" text NOT NULL,
+  "active" boolean NOT NULL DEFAULT true,
+  "name" text NOT NULL,
+  "category" text,
+  "default_unit" text,
+  "preferred_vendor" text,
+  "notes" text,
+  "nocouuid" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now(),
+  "nc_updated_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'uq_ingredients_ingredient_id'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "uq_ingredients_ingredient_id" UNIQUE ("ingredient_id");
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_ingredients_ingredient_id_nonblank'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "ck_ingredients_ingredient_id_nonblank" CHECK (btrim("ingredient_id") <> '');
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_ingredients_name_nonblank'
+            AND c.conrelid = 'public.ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."ingredients"
+            ADD CONSTRAINT "ck_ingredients_name_nonblank" CHECK (btrim("name") <> '');
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_ingredients_name" ON "public"."ingredients"(lower("name"), "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_ingredients_active" ON "public"."ingredients"("active", lower("name"), "nocopk");
+
+CREATE TABLE IF NOT EXISTS "public"."recipe_ingredients" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "recipe_ingredient_id" text NOT NULL,
+  "recipe_id" bigint NOT NULL,
+  "ingredient_id" bigint NOT NULL,
+  "amount" numeric,
+  "amount_max" numeric,
+  "unit" text NOT NULL,
+  "quantity_text" text,
+  "vendor_name" text,
+  "alternative_group" text,
+  "parent_recipe_ingredient_id" bigint,
+  "optional" boolean NOT NULL DEFAULT false,
+  "sort_order" numeric,
+  "active" boolean NOT NULL DEFAULT true,
+  "notes" text,
+  "nocouuid" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now(),
+  "nc_updated_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'uq_recipe_ingredients_recipe_ingredient_id'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "uq_recipe_ingredients_recipe_ingredient_id" UNIQUE ("recipe_ingredient_id");
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_recipe_ingredients_recipe'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "fk_recipe_ingredients_recipe"
+            FOREIGN KEY ("recipe_id") REFERENCES "public"."recipes"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_recipe_ingredients_ingredient'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "fk_recipe_ingredients_ingredient"
+            FOREIGN KEY ("ingredient_id") REFERENCES "public"."ingredients"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_amount_positive'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_amount_positive" CHECK ("amount" > 0);
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_unit_nonblank'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_unit_nonblank" CHECK (btrim("unit") <> '');
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_recipe_ingredients_parent'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "fk_recipe_ingredients_parent"
+            FOREIGN KEY ("parent_recipe_ingredient_id") REFERENCES "public"."recipe_ingredients"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_amount_max'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_amount_max" CHECK (
+              "amount_max" IS NULL OR ("amount_max" > 0 AND ("amount" IS NULL OR "amount_max" >= "amount"))
+            );
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_quantity_present'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_quantity_present" CHECK (
+              "amount" IS NOT NULL OR NULLIF(btrim(COALESCE("quantity_text", '')), '') IS NOT NULL
+            );
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'ck_recipe_ingredients_parent_not_self'
+            AND c.conrelid = 'public.recipe_ingredients'::regclass
+        ) THEN
+          ALTER TABLE "public"."recipe_ingredients"
+            ADD CONSTRAINT "ck_recipe_ingredients_parent_not_self" CHECK (
+              "parent_recipe_ingredient_id" IS NULL OR "parent_recipe_ingredient_id" <> "nocopk"
+            );
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_recipe" ON "public"."recipe_ingredients"("recipe_id", "active", "sort_order", "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_ingredient" ON "public"."recipe_ingredients"("ingredient_id", "active", "recipe_id", "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_parent" ON "public"."recipe_ingredients"("parent_recipe_ingredient_id", "sort_order", "nocopk");
+CREATE INDEX IF NOT EXISTS "ix_recipe_ingredients_alternative_group" ON "public"."recipe_ingredients"("recipe_id", "alternative_group", "sort_order", "nocopk") WHERE "alternative_group" IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS "public"."recipe_steps" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "recipe_step_id" text NOT NULL,
+  "recipe_id" bigint NOT NULL,
+  "active" boolean NOT NULL DEFAULT true,
+  "section" text NOT NULL DEFAULT 'Preparation',
+  "section_order" numeric,
+  "step_order" numeric,
+  "instruction" text NOT NULL,
+  "notes" text,
+  "nocouuid" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now(),
+  "nc_updated_at" timestamp without time zone NOT NULL DEFAULT now(),
+  CONSTRAINT "uq_recipe_steps_recipe_step_id" UNIQUE ("recipe_step_id"),
+  CONSTRAINT "fk_recipe_steps_recipe" FOREIGN KEY ("recipe_id") REFERENCES "public"."recipes"("nocopk") DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT "ck_recipe_steps_id_nonblank" CHECK (btrim("recipe_step_id") <> ''),
+  CONSTRAINT "ck_recipe_steps_section_nonblank" CHECK (btrim("section") <> ''),
+  CONSTRAINT "ck_recipe_steps_instruction_nonblank" CHECK (btrim("instruction") <> '')
+);
+CREATE INDEX IF NOT EXISTS "ix_recipe_steps_recipe_order" ON "public"."recipe_steps"("recipe_id", "active", "section_order", "step_order", "nocopk");
 
 CREATE TABLE IF NOT EXISTS "public"."lot_recipe_components" (
   "nocopk" BIGSERIAL PRIMARY KEY,
@@ -396,12 +584,33 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce" (
   "ecwid_url" text,
   "ecwid_image" jsonb,
   "ecwid_upc" text,
+  "provider" text,
+  "site_key" text,
+  "external_sku" text,
+  "sync_enabled" boolean,
+  "external_category" text,
+  "external_price" numeric,
+  "external_stock" numeric,
+  "public_url" text,
+  "external_image" jsonb,
+  "upc" text,
+  "external_product_id" text,
+  "external_variation_id" text,
+  "is_primary_public_listing" boolean,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
   "nc_updated_at" timestamp without time zone DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_name" ON "public"."ecommerce"("name");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_provider" ON "public"."ecommerce"("provider");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_external_sku" ON "public"."ecommerce"("external_sku");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_public_url" ON "public"."ecommerce"("public_url");
+
+CREATE TABLE IF NOT EXISTS "public"."ecommerce_upc_pool" (
+  "ordinal" integer PRIMARY KEY,
+  "upc" text NOT NULL UNIQUE
+);
 
 CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "nocopk" BIGSERIAL PRIMARY KEY,
@@ -431,6 +640,10 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "ecwid_event_type" text,
   "ecwid_event_id" text,
   "last_webhook_at" timestamp without time zone,
+  "provider" text,
+  "site_key" text,
+  "external_order_id" text,
+  "external_skus" text,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
@@ -440,6 +653,73 @@ CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_name" ON "public"."ecommerce_ord
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_order_id" ON "public"."ecommerce_orders"("ecwid_order_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_clover_payment_id" ON "public"."ecommerce_orders"("clover_payment_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_event_id" ON "public"."ecommerce_orders"("ecwid_event_id");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_provider_external_order_id" ON "public"."ecommerce_orders"("provider", "external_order_id");
+
+CREATE TABLE IF NOT EXISTS "public"."qr_scan_log" (
+  "nocopk" BIGSERIAL PRIMARY KEY,
+  "request_id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "requested_at" timestamptz NOT NULL DEFAULT now(),
+  "inventory_id" text,
+  "entity_type" text,
+  "entity_nocopk" bigint,
+  "resolution_status" text NOT NULL,
+  "route_kind" text,
+  "response_code" integer,
+  "destination_url" text,
+  "success" boolean NOT NULL DEFAULT false,
+  "ecommerce_id" bigint,
+  "provider" text,
+  "site_key" text,
+  "company_key" text,
+  "company_name" text,
+  "item_nocopk" bigint,
+  "item_id" text,
+  "item_name" text,
+  "item_category" text,
+  "strain_nocopk" bigint,
+  "strain_id" text,
+  "strain_name" text,
+  "regulated" boolean,
+  "package_class" text,
+  "location_nocopk" bigint,
+  "location_name" text,
+  "entity_status" text,
+  "client_ip" inet,
+  "forwarded_for" text,
+  "cf_country" text,
+  "cf_continent" text,
+  "cf_city" text,
+  "cf_region" text,
+  "cf_region_code" text,
+  "cf_postal_code" text,
+  "cf_timezone" text,
+  "cf_latitude" numeric,
+  "cf_longitude" numeric,
+  "cf_metro_code" text,
+  "cf_ray" text,
+  "user_agent" text,
+  "browser_name" text,
+  "browser_version" text,
+  "os_name" text,
+  "os_version" text,
+  "device_type" text,
+  "referer" text,
+  "accept_language" text,
+  "request_host" text,
+  "request_method" text,
+  "request_path" text,
+  "query_json" jsonb NOT NULL DEFAULT '{}'::jsonb,
+  "source" text NOT NULL DEFAULT 'qr',
+  "metadata" jsonb NOT NULL DEFAULT '{}'::jsonb,
+  "nc_created_at" timestamp without time zone NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_qr_scan_log_request_id" ON "public"."qr_scan_log"("request_id");
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_requested_at" ON "public"."qr_scan_log"("requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_inventory_id" ON "public"."qr_scan_log"("inventory_id", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_entity_type" ON "public"."qr_scan_log"("entity_type", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_company_name" ON "public"."qr_scan_log"("company_name", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_resolution_status" ON "public"."qr_scan_log"("resolution_status", "requested_at" DESC);
+CREATE INDEX IF NOT EXISTS "ix_qr_scan_log_route_kind" ON "public"."qr_scan_log"("route_kind", "requested_at" DESC);
 
 -- Deferred FK constraints for canonical single-link columns
 DO $$ BEGIN

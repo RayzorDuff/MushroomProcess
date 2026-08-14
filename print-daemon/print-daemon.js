@@ -1,6 +1,6 @@
 /**
  * Script: print-daemon.js
- * Version: 2026-07-24.1
+ * Version: 2026-08-08.3
  * Summary: NocoDB/Airtable print queue with automatic NocoDB v3 table-ID resolution
  * =============================================================================
  * Copyright © 2025 Dank Mushrooms, LLC
@@ -197,6 +197,8 @@ let STERILIZATION_RUNS_TABLE = process.env.STERILIZATION_RUNS_TABLE || (IS_NOCOD
 const STERILIZATION_RUNS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.STERILIZATION_RUNS_VIEW_ID || '');
 let LOTS_TABLE = process.env.LOTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_lots' : 'lots');
 const LOTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.LOTS_VIEW_ID || '');
+let PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || (IS_NOCODB_V3_CONFIG ? 'vc_products' : 'products');
+const PRODUCTS_VIEW_ID = cleanOptionalNocoIdentifier(process.env.PRODUCTS_VIEW_ID || '');
 
 const QUEUE_VIEW = process.env.QUEUE_VIEW || null;
 
@@ -381,6 +383,81 @@ function pick(fields, keys) {
   return '';
 }
 
+function extractInventoryId(value, expectedKind = '') {
+  const text = toFlat(value).trim();
+  if (!text) return '';
+
+  const matches = text.match(/\b(?:PROD|LOT)-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\b/gi) || [];
+  const expectedPrefix = String(expectedKind || '').trim().toLowerCase() === 'product'
+    ? 'PROD-'
+    : String(expectedKind || '').trim().toLowerCase() === 'lot'
+      ? 'LOT-'
+      : '';
+
+  for (const match of matches) {
+    if (!expectedPrefix || match.toUpperCase().startsWith(expectedPrefix)) {
+      return match;
+    }
+  }
+
+  return '';
+}
+
+function buildQrResolverUrl(inventoryId) {
+  const id = extractInventoryId(inventoryId);
+  if (!id) return '';
+
+  const base = String(QR_RESOLVER_BASE_URL || '').trim();
+  if (!base) return '';
+
+  const separator = base.includes('?')
+    ? (base.endsWith('?') || base.endsWith('&') ? '' : '&')
+    : '?';
+
+  return `${base}${separator}i=${encodeURIComponent(id)}`;
+}
+
+function stableQrUrlFromFields(fields, kind) {
+  const f = fields || {};
+  const normalizedKind = String(kind || '').trim().toLowerCase();
+
+  const explicit = pick(f, [
+    'scan_url',
+    normalizedKind === 'product' ? 'scan_url_from_product_id' : 'scan_url_from_lot_id',
+    normalizedKind === 'product' ? 'scan_url (from product_id)' : 'scan_url (from lot_id)',
+  ]);
+  if (explicit) return explicit;
+
+  const identityCandidates = normalizedKind === 'product'
+    ? [
+        'product_number',
+        'product_code',
+        'label_footer_prod',
+        'label_footer_prod_from_product_id',
+        'label_footer_prod (from product_id)',
+      ]
+    : [
+        'lot_number',
+        'lot_code',
+        'label_footer_lot',
+        'label_footer_lot_from_lot_id',
+        'label_footer_lot (from lot_id)',
+      ];
+
+  for (const key of identityCandidates) {
+    if (!(key in f)) continue;
+    const id = extractInventoryId(f[key], normalizedKind);
+    const resolved = buildQrResolverUrl(id);
+    if (resolved) return resolved;
+  }
+
+  return '';
+}
+
+function labelQrUrl(fields, kind) {
+  return stableQrUrlFromFields(fields, kind);
+}
+
 function quoteNocoWhereValue(value) {
   const text = String(value ?? '').trim();
   if (/^-?(?:\d+|\d*\.\d+)$/.test(text)) return text;
@@ -396,6 +473,150 @@ function nocoV3Where(field, operator, value) {
     throw new Error('NocoDB where clause requires a field and operator');
   }
   return `(${safeField},${safeOperator},${quoteNocoWhereValue(value)})`;
+}
+
+function combineNocoV3WhereClauses(clauses) {
+  return (Array.isArray(clauses) ? clauses : [clauses])
+    .map(clause => String(clause || '').trim())
+    .filter(Boolean)
+    .join('~and');
+}
+
+function buildNocoV3QueueWhere(
+  printTargetField = PRINT_TARGET_FIELD,
+  printTargetValue = PRINT_TARGET_VALUE,
+  extraWhere = NOCODB_EXTRA_WHERE
+) {
+  const clauses = [nocoV3Where('print_status', 'eq', 'Queued')];
+
+  const targetValue = String(printTargetValue || '').trim();
+  if (targetValue) {
+    const targetField = String(printTargetField || 'print_target').trim() || 'print_target';
+    clauses.push(nocoV3Where(targetField, 'eq', targetValue));
+  }
+
+  const extra = String(extraWhere || '').trim();
+  if (extra) clauses.push(extra);
+
+  return combineNocoV3WhereClauses(clauses);
+}
+
+function printTargetForSource(sourceKind, itemCategory) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const category = String(toFlat(itemCategory) || '').trim().toLowerCase();
+
+  if (kind === 'steri_sheet') return 'ZEBRA';
+  if (['fresh_mushrooms', 'freezer_tray', 'fresh_tray'].includes(category)) return 'TRAYS';
+  return 'ZEBRA';
+}
+
+function queueSourceLinkValue(fields, sourceKind) {
+  const f = fields || {};
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const aliases = kind === 'product'
+    ? ['product_id', 'product', 'products']
+    : kind === 'lot'
+      ? ['lot_id', 'lot', 'lots']
+      : [];
+
+  for (const key of aliases) {
+    if (Object.prototype.hasOwnProperty.call(f, key) && f[key] != null && f[key] !== '') {
+      return f[key];
+    }
+  }
+
+  // NocoDB can expose external-database link titles with display-oriented
+  // punctuation/casing. Match conservative aliases without accidentally
+  // accepting lookup fields such as label_*_from_product_id.
+  const normalizedAliases = new Set(
+    aliases.map(key => key.toLowerCase().replace(/[^a-z0-9]/g, ''))
+  );
+  for (const [key, value] of Object.entries(f)) {
+    const normalizedKey = String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (normalizedAliases.has(normalizedKey) && value != null && value !== '') {
+      return value;
+    }
+  }
+
+  return '';
+}
+
+function queueSourcePk(fields, sourceKind) {
+  const raw = queueSourceLinkValue(fields, sourceKind);
+  if (raw == null || raw === '') return '';
+
+  // With linksAsLtar=true, NocoDB v3 returns Link fields as linked record
+  // objects. Prefer the linked record's actual Record ID / nocopk, not its
+  // display value (which may be a business ID such as PROD-... or LOT-...).
+  const linked = linkedNocoValue(raw, ['nocopk']);
+  return String(toFlat(linked || raw) || '').trim();
+}
+
+function queueSourceBusinessId(fields, sourceKind) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const businessField = kind === 'product' ? 'product_id' : kind === 'lot' ? 'lot_id' : '';
+  if (!businessField) return '';
+
+  const raw = queueSourceLinkValue(fields, kind);
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  if (!one || typeof one !== 'object') {
+    const flat = String(toFlat(one) || '').trim();
+    return /^(?:PROD|LOT)-/i.test(flat) ? flat : '';
+  }
+
+  const linkedFields = one.fields && typeof one.fields === 'object' ? one.fields : {};
+  const idFields = one.id_fields && typeof one.id_fields === 'object' ? one.id_fields : {};
+  return String(toFlat(linkedFields[businessField] ?? idFields[businessField] ?? '') || '').trim();
+}
+
+function nocoV3SourceFieldNames(sourceKind) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  if (kind === 'product') {
+    return [
+      'product_id',
+      'item_category_mat',
+      'label_company_prod',
+      'label_companyaddress_prod',
+      'label_disclaimer_prod',
+      'label_companyinfo_prod',
+      'label_cottage_prod',
+      'label_title_prod',
+      'label_subtitle_prod',
+      'label_footer_prod',
+      'label_packaged_prod',
+      'label_useby_prod',
+      'label_inoc_prod',
+      'label_spawned_prod',
+      'label_proc_prod',
+    ];
+  }
+
+  if (kind === 'lot') {
+    return [
+      'lot_id',
+      'item_category_mat',
+      'label_company_lot',
+      'label_title_lot',
+      'label_subtitle_lot',
+      'label_footer_lot',
+      'label_substrateinputblocks_line',
+      'label_graininputblocks_line',
+      'label_useby_line',
+      'label_spawned_line',
+      'label_inoc_line',
+      'label_proc_line',
+    ];
+  }
+
+  return [];
+}
+
+function mergeQueueSourceFields(queueFields, sourceFields, printTarget) {
+  return {
+    ...(sourceFields || {}),
+    ...(queueFields || {}),
+    [PRINT_TARGET_FIELD]: printTarget,
+  };
 }
 
 function normalizeRunMatchTargets(runIds) {
@@ -469,13 +690,14 @@ function steriSheetRunFields(runRec) {
 
 function steriSheetLotFields(lotRec) {
   const f = (lotRec && lotRec.fields) || {};
+  const lotId = pick(f, ['lot_id']) || String(lotRec?.id || '');
   return {
-    lotId: pick(f, ['lot_id']) || String(lotRec?.id || ''),
+    lotId,
     itemName: pick(f, ['item_name', 'item_name_mat', 'item_id']),
     recipeName: pick(f, ['recipe_name', 'name_from_recipe_id', 'recipe_id']),
     unit: pick(f, ['unit_size', 'planned_unit_size']),
     status: pick(f, ['status']),
-    qrUrl: pick(f, ['public_link']),
+    qrUrl: pick(f, ['scan_url']) || buildQrResolverUrl(lotId),
   };
 }
 
@@ -604,15 +826,24 @@ async function resolveNocoV3TableReference(label, configuredValue, fallbackNames
 async function resolveNocoV3Configuration() {
   if (!isNocoV3()) return;
 
-  PRINT_QUEUE_READ_TABLE = await resolveNocoV3TableReference(
-    'PRINT_QUEUE_READ_TABLE',
-    PRINT_QUEUE_READ_TABLE,
-    ['vc_print_queue']
-  );
+  // NocoDB currently returns HTTP 500 when querying vc_print_queue even though
+  // PostgreSQL can query that view directly. Do not depend on that view for
+  // daemon polling; read Queued rows from print_queue and hydrate label data
+  // from vc_lots / vc_products instead.
   PRINT_QUEUE_WRITE_TABLE = await resolveNocoV3TableReference(
     'PRINT_QUEUE_WRITE_TABLE',
     PRINT_QUEUE_WRITE_TABLE,
     ['print_queue']
+  );
+  LOTS_TABLE = await resolveNocoV3TableReference(
+    'LOTS_TABLE',
+    LOTS_TABLE,
+    ['vc_lots', 'lots']
+  );
+  PRODUCTS_TABLE = await resolveNocoV3TableReference(
+    'PRODUCTS_TABLE',
+    PRODUCTS_TABLE,
+    ['vc_products', 'products']
   );
 
   if (ENABLE_STERI_SHEETS) {
@@ -621,16 +852,12 @@ async function resolveNocoV3Configuration() {
       STERILIZATION_RUNS_TABLE,
       ['vc_sterilization_runs', 'sterilization_runs']
     );
-    LOTS_TABLE = await resolveNocoV3TableReference(
-      'LOTS_TABLE',
-      LOTS_TABLE,
-      ['vc_lots', 'lots']
-    );
   }
 
   if (PRINT_QUEUE_WRITE_VIEW_ID) {
     log.warn('PRINT_QUEUE_WRITE_VIEW_ID is not used for NocoDB v3 PATCH requests and may be removed from .env.');
   }
+
 }
 
 function nocoV3RecordsPath(tableId) {
@@ -754,6 +981,9 @@ const FORCE_H_PT = safeNum(process.env.FORCE_PAGE_HEIGHT_PT, 144); // 2 in
 const MARGIN_PT = safeNum(process.env.MARGIN_PT, 8);
 const LOGO_W_PT = safeNum(process.env.LOGO_WIDTH_PT, 140);
 const QR_SIZE_PT = safeNum(process.env.QR_SIZE_PT, 90);
+const QR_RESOLVER_BASE_URL = String(
+  process.env.QR_RESOLVER_BASE_URL || 'https://qr.danks.store/r'
+).trim();
 
 // Product_Package_Sample labels are dense 4x2 labels that keep product identity,
 // package/use-by dates, and the product disclaimer on one physical label.
@@ -870,6 +1100,128 @@ if (FORCE_PAGE) {
 const M = MARGIN_PT || 8;
 const LINE_GAP = 2;
 
+async function fetchNocoV3SourceRecord(tableId, viewId, sourcePk, sourceKind, queueFields) {
+  const kind = String(sourceKind || '').trim().toLowerCase();
+  const fieldNames = nocoV3SourceFieldNames(kind);
+  const params = fieldNames.length ? { fields: fieldNames.join(',') } : {};
+  const directUrl = `${nocoV3RecordsPath(tableId)}/${encodeURIComponent(sourcePk)}`;
+
+  // sourcePk comes from the LTAR link object's Record ID. Use NocoDB v3's
+  // single-record endpoint rather than filtering computed views on nocopk.
+  try {
+    const { data } = await NC.get(directUrl, Object.keys(params).length ? { params } : undefined);
+    const row = data?.record ?? data;
+    if (row && typeof row === 'object') return row;
+  } catch (directError) {
+    const businessId = queueSourceBusinessId(queueFields, kind);
+    if (!businessId) throw directError;
+
+    const businessField = kind === 'product' ? 'product_id' : 'lot_id';
+    log.warn('Direct NocoDB source record read failed; trying business-id filter', {
+      source_kind: kind,
+      record_id: sourcePk,
+      business_id: businessId,
+      ...httpErrorMeta(directError),
+    });
+
+    const rows = await fetchNocoV3Records(
+      tableId,
+      viewId,
+      {
+        pageSize: 1,
+        ...(fieldNames.length ? { fields: fieldNames.join(',') } : {}),
+        where: nocoV3Where(businessField, 'eq', businessId),
+      },
+      false
+    );
+    return rows[0] || null;
+  }
+
+  return null;
+}
+
+async function hydrateNocoV3QueueCandidate(candidateRow) {
+  const queueFields = nocoV3RecordFields(candidateRow);
+  const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
+  if (writeId == null || String(writeId).trim() === '') {
+    throw new Error('Queued NocoDB row is missing its writable queue id');
+  }
+
+  const sourceKind = String(toFlat(queueFields.source_kind) || '').trim().toLowerCase();
+  if (!['lot', 'product', 'steri_sheet'].includes(sourceKind)) {
+    throw new Error(`Queued print job ${writeId} has unsupported source_kind="${sourceKind || '(blank)'}"`);
+  }
+
+  if (sourceKind === 'steri_sheet') {
+    const printTarget = printTargetForSource(sourceKind, '');
+    return {
+      id: writeId,
+      read_id: candidateRow?.id,
+      fields: mergeQueueSourceFields(queueFields, {}, printTarget),
+      _raw: candidateRow,
+    };
+  }
+
+  const sourcePk = queueSourcePk(queueFields, sourceKind);
+  if (!sourcePk) {
+    const availableFields = Object.keys(queueFields).sort().join(', ');
+    throw new Error(
+      `Queued print job ${writeId} is missing its ${sourceKind}_id/link. ` +
+      `Available queue fields: ${availableFields || '(none)'}`
+    );
+  }
+
+  const tableId = sourceKind === 'product' ? PRODUCTS_TABLE : LOTS_TABLE;
+  const viewId = sourceKind === 'product' ? PRODUCTS_VIEW_ID : LOTS_VIEW_ID;
+  const sourceRow = await fetchNocoV3SourceRecord(
+    tableId,
+    viewId,
+    sourcePk,
+    sourceKind,
+    queueFields
+  );
+  if (!sourceRow) {
+    throw new Error(`Queued print job ${writeId} could not find ${sourceKind} nocopk=${sourcePk}`);
+  }
+
+  const sourceFields = nocoV3RecordFields(sourceRow);
+  const itemCategory = pick(sourceFields, ['item_category_mat', 'item_category']);
+  const printTarget = printTargetForSource(sourceKind, itemCategory);
+
+  return {
+    id: writeId,
+    read_id: candidateRow?.id,
+    fields: mergeQueueSourceFields(queueFields, sourceFields, printTarget),
+    _raw: candidateRow,
+    _source_raw: sourceRow,
+  };
+}
+
+function httpErrorMeta(error) {
+  const meta = {};
+  const method = error?.config?.method;
+  const baseURL = error?.config?.baseURL || '';
+  const url = error?.config?.url || '';
+  const statusCode = error?.response?.status;
+  const params = error?.config?.params;
+  const responseData = error?.response?.data;
+
+  if (method) meta.method = String(method).toUpperCase();
+  if (url || baseURL) meta.url = `${baseURL}${url}`;
+  if (params && typeof params === 'object') meta.params = params;
+  if (statusCode) meta.status = statusCode;
+  if (responseData !== undefined) {
+    let body;
+    try {
+      body = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
+    } catch {
+      body = String(responseData);
+    }
+    meta.response = body.length > 500 ? `${body.slice(0, 500)}…` : body;
+  }
+  return meta;
+}
+
 /* ---------- Queue helpers  ---------- */
 
 /**
@@ -908,23 +1260,59 @@ async function fetchQueued(viewName) {
   
   } else {
     if (isNocoV3()) {
-      // NocoDB v3 external PostgreSQL API. Read from vc_print_queue or another read view
-      // that contains rendered label fields; write status updates back to print_queue.
-      const records = await fetchNocoV3Records(
-        PRINT_QUEUE_READ_TABLE,
-        PRINT_QUEUE_READ_VIEW_ID,
-        {},
-        false
+      // Poll the simple base print_queue table for Queued rows. Hydrate each
+      // candidate from vc_lots or vc_products; vc_print_queue is intentionally
+      // bypassed because NocoDB currently returns HTTP 500 for that view.
+      const candidateClauses = [nocoV3Where('print_status', 'eq', 'Queued')];
+      if (NOCODB_EXTRA_WHERE) candidateClauses.push(NOCODB_EXTRA_WHERE);
+      const candidateWhere = combineNocoV3WhereClauses(candidateClauses);
+
+      const candidateRows = await fetchNocoV3Records(
+        PRINT_QUEUE_WRITE_TABLE,
+        '',
+        {
+          pageSize: 100,
+          where: candidateWhere,
+          // Expand external PostgreSQL Link fields so lot_id/product_id carry
+          // the linked record ID instead of being omitted or reduced to counts.
+          linksAsLtar: 'true',
+        },
+        true
       );
 
-      return records
-        .map(normalizeNocoV3QueueRecord)
-        .filter(rec => String(toFlat(rec.fields?.print_status)).trim() === 'Queued')
-        .filter(rec => {
-          if (!PRINT_TARGET_VALUE) return true;
-          const v = toFlat(rec.fields?.[PRINT_TARGET_FIELD]);
-          return String(v || '').trim() === PRINT_TARGET_VALUE;
-        });
+      const hydrated = [];
+      for (const candidateRow of candidateRows) {
+        if (hydrated.length >= 25) break;
+
+        const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
+        try {
+          const rec = await hydrateNocoV3QueueCandidate(candidateRow);
+          if (String(toFlat(rec.fields?.print_status)).trim() !== 'Queued') continue;
+
+          if (PRINT_TARGET_VALUE) {
+            const target = String(toFlat(rec.fields?.[PRINT_TARGET_FIELD]) || '').trim();
+            if (target !== PRINT_TARGET_VALUE) continue;
+          }
+
+          hydrated.push(rec);
+        } catch (error) {
+          log.error('Failed to hydrate queued print job from source view', {
+            id: writeId,
+            source_kind: toFlat(nocoV3RecordFields(candidateRow).source_kind),
+            err: error?.message || String(error),
+            ...httpErrorMeta(error),
+          });
+        }
+      }
+
+      log.debug('Polled NocoDB v3 base print queue', {
+        where: candidateWhere,
+        candidates: candidateRows.length,
+        returned: hydrated.length,
+        target: PRINT_TARGET_VALUE || '(all)',
+      });
+
+      return hydrated;
     }
 
     // "viewName" is ignored for NocoDB v2, kept for API compatibility with old code.
@@ -1081,13 +1469,7 @@ function gatherFields(rec) {
       ]),
       packaged,
       useBy,
-      qr: pick(f, [
-        'public_link_from_product_id',
-        'public_link (from product_id)',
-        'public_link_from_lot_id',
-        'public_link (from lot_id)',
-        'public_link',
-      ]),
+      qr: labelQrUrl(f, 'product'),
       companyAddr: pick(f, [
         'label_companyaddress_prod',
         'label_companyaddress_prod_from_product_id',
@@ -1154,13 +1536,7 @@ function gatherFields(rec) {
       'label_footer_lot_from_lot_id',
       'label_footer_lot (from lot_id)',
     ]),
-    qr: pick(f, [
-      'public_link_from_lot_id',
-      'public_link (from lot_id)',
-      'public_link_from_product_id',
-      'public_link (from product_id)',
-      'public_link',
-    ]),
+    qr: labelQrUrl(f, 'lot'),
     extras: [
       pick(f, [
         'label_proc_line',
@@ -2644,8 +3020,7 @@ job.target_printer="${jobPrinter}" env.STERI_SHEET_PRINTER="${envPrinter}"`
       const availableFields = Object.keys(f).sort().join(', ');
       throw new Error(
         'No renderable label text was returned for this print job. ' +
-        'Verify that PRINT_QUEUE_READ_TABLE resolves to vc_print_queue and that the daemon accepts ' +
-        'the *_from_lot_id / *_from_product_id computed-view field names. ' +
+        'Verify that the queued job resolves to vc_lots/vc_products and exposes the expected label fields. ' +
         `Available fields: ${availableFields || '(none)'}`
       );
     }
@@ -2747,7 +3122,7 @@ async function cycle() {
       }
     }
   } catch (e) {
-    log.error('Cycle error', { err: e?.message || String(e) });
+    log.error('Cycle error', { err: e?.message || String(e), ...httpErrorMeta(e) });
   } finally {
     setTimeout(cycle, POLL_MS);
   }
@@ -2763,11 +3138,12 @@ async function startDaemon() {
       api_version: NOCODB_API_VERSION,
       base_id: NOCODB_BASE_ID || '(v2/not set)',
       auto_resolve_ids: NOCODB_AUTO_RESOLVE_IDS,
-      queue_read_table: PRINT_QUEUE_READ_TABLE,
+      queue_read_table: '(vc_print_queue bypassed)',
       queue_read_view: PRINT_QUEUE_READ_VIEW_ID || '(none)',
       queue_write_table: PRINT_QUEUE_WRITE_TABLE,
       queue_write_id_field: PRINT_QUEUE_WRITE_ID_FIELD,
-      lots_table: ENABLE_STERI_SHEETS ? LOTS_TABLE : '(sterilizer sheets disabled)',
+      lots_table: LOTS_TABLE,
+      products_table: PRODUCTS_TABLE,
       lots_view: LOTS_VIEW_ID || '(none)',
       sterilization_runs_table: ENABLE_STERI_SHEETS ? STERILIZATION_RUNS_TABLE : '(sterilizer sheets disabled)',
       sterilization_runs_view: STERILIZATION_RUNS_VIEW_ID || '(none)',
@@ -2818,9 +3194,21 @@ if (require.main === module) {
 
 module.exports = {
   detectItemCategory,
+  extractInventoryId,
+  buildQrResolverUrl,
+  stableQrUrlFromFields,
+  labelQrUrl,
   gatherFields,
   hasRenderableLabelText,
   nocoV3Where,
+  combineNocoV3WhereClauses,
+  buildNocoV3QueueWhere,
+  printTargetForSource,
+  queueSourceLinkValue,
+  queueSourcePk,
+  queueSourceBusinessId,
+  nocoV3SourceFieldNames,
+  mergeQueueSourceFields,
   lotMatchesRun,
   steriSheetRunFields,
   steriSheetLotFields,

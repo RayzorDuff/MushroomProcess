@@ -90,6 +90,10 @@ BEGIN
         WHEN NULLIF(p_order ->> 'last_webhook_at', '') IS NULL THEN localtimestamp
         ELSE (p_order ->> 'last_webhook_at')::timestamptz AT TIME ZONE 'UTC'
       END,
+      provider = COALESCE(NULLIF(p_order ->> 'provider', ''), 'ecwid'),
+      site_key = COALESCE(NULLIF(p_order ->> 'site_key', ''), 'dank_mushrooms'),
+      external_order_id = COALESCE(NULLIF(p_order ->> 'external_order_id', ''), v_ecwid_order_id),
+      external_skus = COALESCE(NULLIF(p_order ->> 'external_skus', ''), NULLIF(p_order ->> 'ecwid_skus', '')),
       nc_updated_at = localtimestamp
     WHERE o.nocopk = v_existing_pk
     RETURNING o.* INTO v_row;
@@ -122,7 +126,11 @@ BEGIN
       reconciliation_notes,
       ecwid_event_type,
       ecwid_event_id,
-      last_webhook_at
+      last_webhook_at,
+      provider,
+      site_key,
+      external_order_id,
+      external_skus
     )
     VALUES (
       NULLIF(p_order ->> 'name', ''),
@@ -162,7 +170,11 @@ BEGIN
       CASE
         WHEN NULLIF(p_order ->> 'last_webhook_at', '') IS NULL THEN localtimestamp
         ELSE (p_order ->> 'last_webhook_at')::timestamptz AT TIME ZONE 'UTC'
-      END
+      END,
+      COALESCE(NULLIF(p_order ->> 'provider', ''), 'ecwid'),
+      COALESCE(NULLIF(p_order ->> 'site_key', ''), 'dank_mushrooms'),
+      COALESCE(NULLIF(p_order ->> 'external_order_id', ''), v_ecwid_order_id),
+      COALESCE(NULLIF(p_order ->> 'external_skus', ''), NULLIF(p_order ->> 'ecwid_skus', ''))
     )
     RETURNING * INTO v_row;
 

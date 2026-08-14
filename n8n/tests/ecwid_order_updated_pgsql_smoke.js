@@ -109,6 +109,10 @@ assert(mapped.ecwid_order_id === '900001', 'Numeric Ecwid ID was not mapped as t
 assert(mapped.order_code === 'ABCD1', 'Human-facing order code was not mapped');
 assert(mapped.customer_name === 'Test Customer', 'Customer name mapping failed');
 assert(mapped.ecwid_skus === 'SKU-1, SKU-2', 'SKU de-duplication failed');
+assert(mapped.provider === 'ecwid', 'Provider-neutral provider alias missing');
+assert(mapped.site_key === 'dank_mushrooms', 'Provider-neutral site key missing');
+assert(mapped.external_order_id === '900001', 'Provider-neutral external order ID missing');
+assert(mapped.external_skus === 'SKU-1, SKU-2', 'Provider-neutral SKU aliases missing');
 assert(mapped.clover_reconciliation_status === 'pending', 'New order reconciliation was not reset to pending');
 assert(mapped.ecwid_event_id === 'evt-created', 'Webhook event ID was not preserved');
 

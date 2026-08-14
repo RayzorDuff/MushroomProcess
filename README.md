@@ -1,5 +1,9 @@
 # MushroomProcess (Airtable + PostgreSQL + Appsmith + n8n)
 
+Current version: **1.2.0**.
+
+See [`doc/RELEASE_PROCESS.md`](doc/RELEASE_PROCESS.md) for the repeatable release workflow.
+
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
 
 This repository contains:
@@ -275,8 +279,12 @@ The system ties together:
   _See [`schema/README.md`](schema/README.md)._
 
 - `appsmith/`
-  Canonical Appsmith application export, JSON normalization utility, and retained page specifications.
+  Canonical Appsmith application export and retained page specifications.
   _See [`appsmith/README.md`](appsmith/README.md)._
+
+- `scripts/`
+  Repository-level maintenance utilities, including Appsmith JSON normalization, navigation synchronization, and reporting-data audit tooling.
+  _See [`scripts/README.md`](scripts/README.md)._
 
 - `n8n/`
   External-system and asynchronous workflows, including ecommerce, fulfillment, reporting, and reconciliation integrations.
@@ -293,6 +301,7 @@ The system ties together:
   Supporting docs:
   - `CHANGELOG.md` – high-level changes
   - `FIELD_MAP.md` – mapping between conceptual fields and actual column names
+  - `Reporting-Data-Contract.md` – historical/current lifecycle, cohort, lineage, and inventory reporting source contract
   - `Lessons_Learned_and_Evolution_Report.pdf`
   - `NOTICE.md`
 
@@ -445,7 +454,7 @@ Once you have an Airtable base and `_schema.json`:
 5. **Import the Appsmith application**
    - Follow [`appsmith/README.md`](appsmith/README.md).
    - Import `appsmith/MushroomProcess.json`.
-   - Use `appsmith/pretty-json.mjs` when normalizing a newly exported Appsmith project.
+   - Use `scripts/pretty-json.mjs` when normalizing a newly exported Appsmith project.
    - Treat `appsmith/spec/` as retained planning/reference material, not as the authoritative runtime definition.
 
 6. **Point the Print Daemon at NocoDB**  
@@ -456,5 +465,5 @@ Once you have an Airtable base and `_schema.json`:
 
 ## Next Steps
 
-- See `doc/CHANGELOG.md` and `doc/FIELD_MAP.md` for detailed field-level evolution.
+- See `doc/CHANGELOG.md`, `doc/FIELD_MAP.md`, and `doc/Reporting-Data-Contract.md` for field-level evolution and reporting source semantics.
 - Iterate on automations and interfaces to match your exact cultivar mix, packaging formats, and QA steps.

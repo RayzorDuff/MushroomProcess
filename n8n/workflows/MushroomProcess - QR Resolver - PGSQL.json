@@ -1,0 +1,372 @@
+{
+  "name": "MushroomProcess - QR Resolver - PGSQL",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mushroomprocess/qr/resolve",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "980a3b4f-7b8a-44f3-97c1-51478d7e9030",
+      "name": "Webhook - Resolve QR",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        160
+      ],
+      "webhookId": "368aa1d0-a6dc-419a-ad07-d07664ce57b5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $json.query || {};\nconst headersRaw = $json.headers || {};\nconst headers = {};\nfor (const [key, value] of Object.entries(headersRaw)) {\n  headers[String(key).toLowerCase()] = Array.isArray(value) ? value.join(', ') : String(value ?? '');\n}\n\nconst raw = String(query.i ?? query.id ?? '').trim();\nconst valid = /^(PROD|LOT)-[A-Za-z0-9-]+$/i.test(raw);\nconst userAgent = String(headers['user-agent'] || '').trim();\n\nfunction firstForwarded(value) {\n  return String(value || '').split(',')[0].trim();\n}\n\nfunction browserInfo(ua) {\n  const checks = [\n    ['Edge', /Edg(?:A|iOS)?\\/([\\d.]+)/i],\n    ['Samsung Internet', /SamsungBrowser\\/([\\d.]+)/i],\n    ['Chrome', /(?:Chrome|CriOS)\\/([\\d.]+)/i],\n    ['Firefox', /(?:Firefox|FxiOS)\\/([\\d.]+)/i],\n    ['Safari', /Version\\/([\\d.]+).*Safari/i]\n  ];\n  for (const [name, re] of checks) {\n    const m = ua.match(re);\n    if (m) return { name, version: m[1] || null };\n  }\n  return { name: null, version: null };\n}\n\nfunction osInfo(ua) {\n  let m;\n  if ((m = ua.match(/Windows NT ([\\d.]+)/i))) return { name: 'Windows', version: m[1] };\n  if ((m = ua.match(/Android ([\\d.]+)/i))) return { name: 'Android', version: m[1] };\n  if ((m = ua.match(/(?:iPhone|CPU) OS ([\\d_]+)/i))) return { name: 'iOS', version: m[1].replace(/_/g, '.') };\n  if ((m = ua.match(/Mac OS X ([\\d_]+)/i))) return { name: 'macOS', version: m[1].replace(/_/g, '.') };\n  if (/Linux/i.test(ua)) return { name: 'Linux', version: null };\n  return { name: null, version: null };\n}\n\nfunction deviceType(ua) {\n  if (!ua) return null;\n  if (/bot|crawler|spider|slurp|headless/i.test(ua)) return 'bot';\n  if (/iPad|Tablet|Android(?!.*Mobile)/i.test(ua)) return 'tablet';\n  if (/Mobile|iPhone|iPod|Android/i.test(ua)) return 'mobile';\n  return 'desktop';\n}\n\nconst browser = browserInfo(userAgent);\nconst os = osInfo(userAgent);\nconst forwardedFor = String(headers['x-forwarded-for'] || '').trim();\nconst clientIp = String(\n  headers['cf-connecting-ip'] ||\n  firstForwarded(forwardedFor) ||\n  headers['x-real-ip'] ||\n  ''\n).trim();\n\nconst requestContext = {\n  client_ip: clientIp || null,\n  forwarded_for: forwardedFor || null,\n  cf_country: headers['cf-ipcountry'] || null,\n  cf_continent: headers['cf-ipcontinent'] || null,\n  cf_city: headers['cf-ipcity'] || null,\n  cf_region: headers['cf-region'] || null,\n  cf_region_code: headers['cf-region-code'] || null,\n  cf_postal_code: headers['cf-postal-code'] || null,\n  cf_timezone: headers['cf-timezone'] || null,\n  cf_latitude: headers['cf-iplatitude'] || null,\n  cf_longitude: headers['cf-iplongitude'] || null,\n  cf_metro_code: headers['cf-metro-code'] || null,\n  cf_ray: headers['cf-ray'] || null,\n  user_agent: userAgent || null,\n  browser_name: browser.name,\n  browser_version: browser.version,\n  os_name: os.name,\n  os_version: os.version,\n  device_type: deviceType(userAgent),\n  referer: headers['referer'] || headers['referrer'] || null,\n  accept_language: headers['accept-language'] || null,\n  request_host: headers['x-forwarded-host'] || headers['host'] || null,\n  request_method: String($json.httpMethod || $json.method || 'GET').toUpperCase(),\n  request_path: '/r',\n  query_json: query,\n  source: String(query.source || 'qr')\n};\n\nreturn [{\n  json: {\n    inventory_id: raw || null,\n    inventory_id_b64: Buffer.from(raw, 'utf8').toString('base64'),\n    request_context_b64: Buffer.from(JSON.stringify(requestContext), 'utf8').toString('base64'),\n    valid_id: valid,\n    should_redirect: false,\n    response_code: valid ? 200 : 400,\n    status: valid ? 'pending' : 'invalid_id',\n    message: valid\n      ? null\n      : 'QR URL requires i=PROD-* or i=LOT-*.'\n  }\n}];"
+      },
+      "id": "2a903b3e-e604-49fd-a643-b6df844dedd6",
+      "name": "Code - Normalize QR Identifier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "5b3d884c-7c42-4725-bd4b-1f49b07c1307",
+              "leftValue": "={{ $json.valid_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": false
+        }
+      },
+      "id": "4e0ee9fe-1475-4299-9e6d-9f2956b4ffcd",
+      "name": "IF - Identifier Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `SELECT r.*,\n  '${String($json.request_context_b64 || '').replace(/'/g, \"''\")}'::text AS request_context_b64\nFROM public.mp_qr_resolve_inventory(\n  convert_from(\n    decode('${String($json.inventory_id_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )\n) AS r;` }}",
+        "options": {}
+      },
+      "id": "e5216ae3-d22b-4ca5-b7ac-2d1c9099b630",
+      "name": "PGSQL - Resolve Inventory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -720,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\nconst status = String(row.status || 'resolver_error');\nconst entityType = String(row.entity_type || '').toLowerCase();\nconst inventoryId = String(row.inventory_id || '').trim();\nconst routeKind = String(row.route_kind || '').trim().toLowerCase();\n\nfunction failure(code, message) {\n  return [{\n    json: {\n      ...row,\n      should_redirect: false,\n      response_code: code,\n      message: message || row.message || 'QR destination could not be resolved.'\n    }\n  }];\n}\n\nfunction absoluteHttpUrl(value) {\n  const url = String(value || '').trim();\n\n  if (!/^https?:\\/\\/[^\\s]+$/i.test(url)) {\n    throw new Error('Destination must be an absolute HTTP(S) URL.');\n  }\n\n  return url;\n}\n\nfunction appendQuery(baseUrl, params) {\n  const raw = absoluteHttpUrl(baseUrl);\n  const hashPos = raw.indexOf('#');\n  const fragment = hashPos >= 0 ? raw.slice(hashPos) : '';\n  const base = hashPos >= 0 ? raw.slice(0, hashPos) : raw;\n\n  let separator;\n  if (!base.includes('?')) {\n    separator = '?';\n  } else if (base.endsWith('?') || base.endsWith('&')) {\n    separator = '';\n  } else {\n    separator = '&';\n  }\n\n  const query = Object.entries(params)\n    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)\n    .join('&');\n\n  return `${base}${separator}${query}${fragment}`;\n}\n\nif (status !== 'ok') {\n  const code =\n    status === 'not_found' ? 404 :\n    status === 'product_unmapped' ? 404 :\n    status === 'ambiguous_mapping' ? 409 :\n    status === 'invalid_id' ? 400 :\n    500;\n\n  return failure(code, row.message);\n}\n\nlet target;\n\ntry {\n  if (entityType === 'product') {\n    if (routeKind === 'product_internal') {\n      const productsUrl = String($env.MP_APP_PRODUCTS_URL || '').trim();\n      if (!productsUrl) {\n        return failure(503, 'Product tray QR routing is not configured: MP_APP_PRODUCTS_URL is missing.');\n      }\n      target = appendQuery(productsUrl, {\n        product: inventoryId,\n        source: 'qr'\n      });\n    } else if (routeKind === 'regulated_business') {\n      const regulatedBusinessUrl = String($env.MP_REGULATED_BUSINESS_URL || '').trim();\n      if (!regulatedBusinessUrl) {\n        return failure(503, 'Regulated Product QR routing is not configured: MP_REGULATED_BUSINESS_URL is missing.');\n      }\n      // Regulated freeze-dried/capsule labels intentionally land on the base\n      // organization website; the exact Product scan is captured by QR logs.\n      target = absoluteHttpUrl(regulatedBusinessUrl);\n    } else {\n      const publicUrl = String(row.public_url || '').trim();\n      if (!publicUrl) {\n        return failure(404, `Product ${inventoryId} has no public ecommerce URL.`);\n      }\n      target = appendQuery(publicUrl, {\n        mp_product: inventoryId,\n        source: 'qr'\n      });\n    }\n  } else if (entityType === 'lot') {\n    const lotsUrl = String($env.MP_APP_LOTS_URL || '').trim();\n    if (!lotsUrl) {\n      return failure(503, 'Lot QR routing is not configured: MP_APP_LOTS_URL is missing.');\n    }\n    target = appendQuery(lotsUrl, {\n      lot: inventoryId,\n      source: 'qr'\n    });\n  } else {\n    return failure(500, `Unsupported resolver entity type: ${entityType || '(blank)'}`);\n  }\n} catch (error) {\n  return failure(500, `QR destination URL is invalid: ${error.message}`);\n}\n\nreturn [{\n  json: {\n    ...row,\n    should_redirect: true,\n    response_code: 302,\n    redirect_url: target,\n    message: null\n  }\n}];"
+      },
+      "id": "1787b068-0d6a-4f6c-b1f3-e3ed06d0a3fe",
+      "name": "Code - Prepare QR Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "e87c865e-6b6b-48cd-8872-3bb3d23ce43b",
+              "leftValue": "={{ $json.should_redirect }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": false
+        }
+      },
+      "id": "53b9bfcc-1874-4084-89e0-e5e58cda59bf",
+      "name": "IF - Redirect?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        480,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "={{ $json.redirect_url }}",
+        "options": {
+          "responseCode": 302,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store, max-age=0"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      },
+      "id": "32678861-3ea4-4444-afa6-446fb95ea53a",
+      "name": "Respond - Redirect",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, status: $json.status || 'error', inventory_id: $json.inventory_id || null, message: $json.message || 'QR destination could not be resolved.' } }}",
+        "options": {
+          "responseCode": "={{ Number($json.response_code || 500) }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store, max-age=0"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      },
+      "id": "583c2dd1-f8c4-4ba9-bbfc-f1643ced30bf",
+      "name": "Respond - QR Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        720,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\n\nfunction decodeContext(value) {\n  try {\n    if (!value) return {};\n    return JSON.parse(Buffer.from(String(value), 'base64').toString('utf8'));\n  } catch (_) {\n    return {};\n  }\n}\n\nconst context = decodeContext(row.request_context_b64);\nconst response = { ...row };\ndelete response.request_context_b64;\n\nconst payload = {\n  ...context,\n  inventory_id: row.inventory_id || null,\n  entity_type: row.entity_type || null,\n  entity_nocopk: row.entity_nocopk ?? null,\n  status: row.status || 'unknown',\n  route_kind: row.route_kind || null,\n  response_code: Number(row.response_code || 500),\n  destination_url: row.redirect_url || row.public_url || null,\n  success: row.should_redirect === true,\n  ecommerce_id: row.ecommerce_id ?? null,\n  provider: row.provider || null,\n  site_key: row.site_key || null,\n  company_key: row.company_key || null,\n  company_name: row.company_name || null,\n  item_category: row.item_category || null,\n  regulated: row.regulated ?? null,\n  package_class: row.package_class || null,\n  metadata: {\n    resolver_message: row.message || null\n  }\n};\n\nreturn [{\n  json: {\n    qr_log_payload_b64: Buffer.from(JSON.stringify(payload), 'utf8').toString('base64'),\n    response_passthrough_b64: Buffer.from(JSON.stringify(response), 'utf8').toString('base64')\n  }\n}];"
+      },
+      "id": "2f9191d7-bb0c-489d-863d-f247a5f2b21d",
+      "name": "Code - Prepare QR Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH logged AS (\n  SELECT public.mp_qr_log_scan(\n    convert_from(\n      decode('${String($json.qr_log_payload_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n      'UTF8'\n    )::jsonb\n  ) AS qr_scan_log_id\n)\nSELECT\n  qr_scan_log_id,\n  convert_from(\n    decode('${String($json.response_passthrough_b64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )::jsonb AS response_json\nFROM logged;` }}",
+        "options": {}
+      },
+      "id": "73b3970f-fc9f-4549-886b-765eef052f6c",
+      "name": "PGSQL - Log QR Request",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json || {};\nlet response = row.response_json || {};\nif (typeof response === 'string') {\n  try { response = JSON.parse(response); } catch (_) { response = {}; }\n}\nreturn [{\n  json: {\n    ...(response || {}),\n    qr_scan_log_id: row.qr_scan_log_id ?? null\n  }\n}];"
+      },
+      "id": "9dfded03-42e7-4549-b44e-24b46cd38376",
+      "name": "Code - Restore QR Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        80
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Resolve QR": {
+      "main": [
+        [
+          {
+            "node": "Code - Normalize QR Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Normalize QR Identifier": {
+      "main": [
+        [
+          {
+            "node": "IF - Identifier Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Identifier Valid?": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Resolve Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Prepare QR Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Resolve Inventory": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare QR Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare QR Response": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare QR Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare QR Log": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Log QR Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Log QR Request": {
+      "main": [
+        [
+          {
+            "node": "Code - Restore QR Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Restore QR Response": {
+      "main": [
+        [
+          {
+            "node": "IF - Redirect?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Redirect?": {
+      "main": [
+        [
+          {
+            "node": "Respond - Redirect",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - QR Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "91b3bf0f-ca9c-4c3f-938b-7f36f2106bab",
+  "meta": {
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "id": "XiWtTQtQJ9DWNBEH",
+  "tags": []
+}

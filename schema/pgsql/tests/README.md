@@ -86,6 +86,8 @@ The RC5 open issue list was reviewed against the current schema tests.
 | #68 | `004_product_regulation_rollup_smoke.sql` validates scalar regulation rollup and regulated/nonregulated Sample label branching. The sterilizer component-mode, AIO, casing, freeze-dried, harvest, and Spawn to Bulk tests cover the remaining implemented database paths. |
 | #69 | `008_package_multiple_lots_smoke.sql` |
 | #75 | `010_spawn_to_bulk_components_smoke.sql` |
+| #78 | `024_inventory_reconciliation_smoke.sql` and `025_inventory_reconciliation_lots_smoke.sql`; cover Product and Lot found-item moves, Missing or Lost assignment, duplicate found IDs, post-snapshot concurrency protection, synchronized location links, audit events, Product Shipped correction, and terminal-state blocking. |
+| #79 | `032_recipe_management_smoke.sql`; covers Recipe and Ingredient creation/update, structured Recipe Ingredient values, single- vs. multi-recipe item component rules, duplicate active component rejection, and continued read access to immutable lot component history. |
 
 
 ### Additional negative-path and view-contract coverage
@@ -104,7 +106,7 @@ refresh behavior.
 
 | Issue | Reason |
 |---|---|
-| #12 | QR destination routing is an Appsmith/public-link/ecommerce integration behavior, not a mutation function contract. |
+| #12 | `026_ecommerce_provider_neutral_smoke.sql` covers provider-neutral catalog/order aliases. `027_ecommerce_ecwid_catalog_sync_smoke.sql` covers PostgreSQL-derived sellable inventory, terminal-location exclusions, Lot status filtering, UPC normalization/allocation, Ecwid metadata writeback, and non-Ecwid provider protection. QR resolver/deep-link behavior remains an integration test. |
 | #13 | Image capture/upload storage has not been implemented in the PostgreSQL action layer. |
 | #15 | Windows spooler success/failure is print-daemon behavior. `011_print_queue_actions_smoke.sql` covers database queue actions, but cannot simulate a spooler. |
 | #56 | Default tray counts, stale widget state, and single-selection are Appsmith state behavior. Harvest database creation is covered by `009_harvest_mixed_outputs_smoke.sql`. |
@@ -114,5 +116,28 @@ refresh behavior.
 The generated-view correction for nonregulated Sample regulation rollups under
 #68 is covered by `004_product_regulation_rollup_smoke.sql`. The test requires
 `origin_strain_regulated` to be a scalar numeric SUM of linked checkboxes and
-verifies the company, address, disclaimer, company-info, cottage, and public-link
+verifies the company, address, disclaimer, company-info, and cottage
 branches for both regulated and unregulated Sample products.
+
+- `028_qr_resolver_smoke.sql` — Issue #12 stable QR routing: Product provider-neutral public URL resolution, Lot existence routing, disabled/unmapped handling, primary-listing selection, and ambiguous-mapping safeguards.
+
+- `029_qr_product_routing_smoke.sql` — verifies ecommerce, internal tray, and regulated freeze-dried Product QR routing classes.
+
+- `030_qr_scan_log_smoke.sql` — rollback-only QR scan logging test covering Product snapshots, IPv6/client metadata, Cloudflare location fields, browser/OS/device fields, and invalid-ID logging.
+
+- `031_remove_legacy_public_links_smoke.sql` — verifies migration 031 removed all legacy `public_link*` columns and Airtable URL expressions from `vc_lots`, `vc_products`, and `vc_print_queue`, restored downstream computed views, and preserved representative Appsmith/n8n/print-daemon columns.
+
+- `033_recipe_document_model_smoke.sql` — validates Issue #79 recipe document metadata, ranged/qualitative/nested ingredient representation, quantity constraints, and ordered recipe steps.
+
+- `034_recipe_admin_document_wiring_smoke.sql` — validates Issue #79 expanded Recipe Ingredient administration, including ranged and qualitative quantities, nested same-Recipe parent validation, optional state, and invalid-range rejection.
+
+- `035_native_postgres_views_smoke.sql` — verifies the PostgreSQL-native `v_` / `vc_` interfaces for Ingredients, structured Recipe Ingredients, Recipe Steps, and QR analytics; verifies Recipe document fields are exposed through `v_recipes` / `vc_recipes`; and confirms row-count/display-code contracts without mutating data.
+- `036_reporting_lifecycle_smoke.sql` — validates Issue #87 Phase 2 one-row-per-lot lifecycle reporting, direct-field/event precedence, provenance, Harvest/flush aggregation, canonical input-lineage counts, and the known v1.1.0 historical fallback fixture when present.
+
+- `037_reporting_lineage_smoke.sql` validates Issue #87 Phase 4 explicit lot lineage in both directions plus resulting products and a known migrated historical fixture.
+
+- `038_reporting_cohort_smoke.sql` validates Issue #87 Phase 5 one-row-per-lot cohort facts, exact grain/substrate dimensions, input-age measures, date-basis validation, canonical combined filtering, and the known historical migration fixture.
+
+- `039_reporting_inventory_smoke.sql` — Issue #87 Phase 7 Product/current-lot inventory contract, live active/terminal and expiration-partition invariants, migration-snapshot diagnostics, exact filtering, and stage-rollup invariants.
+
+- `040_reporting_integration_smoke.sql` — Issue #87 Phase 8 read-only integration contract across lifecycle, lineage, cohort, Product inventory, and in-process lot reporting; validates cross-layer cardinality/function agreement and the known historical fixture when present.

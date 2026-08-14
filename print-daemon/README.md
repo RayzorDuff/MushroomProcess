@@ -67,7 +67,7 @@ Typical macOS folder layout:
 The daemon uses libraries such as:
 
 - `pdfkit` – render crisp vector PDFs (great for 203 dpi label printers).
-- `qrcode` – generate QR codes from public links.
+- `qrcode` – generate QR codes from stable MushroomProcess scan URLs.
 - `pdf-to-printer` – send PDFs to your Windows printer. This is optional on macOS because the daemon uses CUPS `lp` there.
 - `dotenv` - read .env environment
 - `axios` - Communicate with Airtable API
@@ -146,8 +146,9 @@ print_queue     <--write status/audit fields--  print daemon
 ```
 
 - **Read `vc_print_queue`** because it contains computed label fields, linked
-  lot/product information, public links, routing fields, and status values used
-  to render the label.
+  lot/product information, legacy public links, routing fields, and status values used
+  to render the label. The daemon now derives the preferred stable QR resolver URL
+  from the canonical Product/Lot identifier at render time.
 - **Write `print_queue`** because it is the writable base table that owns
   `print_status`, `claimed_by`, `claimed_at`, `printed_by`, `printed_at`,
   `error_msg`, and `pdf_path`.
@@ -170,6 +171,42 @@ NOCODB_AUTO_RESOLVE_IDS=true
 PRINT_QUEUE_WRITE_ID_FIELD=nocopk
 
 PRINTER_NAME=Your Printer Name Here
+
+# Optional override; this is the production default.
+QR_RESOLVER_BASE_URL=https://qr.danks.store/r
+```
+
+### Stable Product/Lot QR routing (#12 Phase 4)
+
+For current PostgreSQL/NocoDB labels, the daemon does not use Airtable or
+storefront `public_link*` values as QR payloads. It extracts the
+canonical `PROD-...` or `LOT-...` identifier already present in the computed
+label fields and encodes:
+
+```text
+https://qr.danks.store/r?i=PROD-...
+https://qr.danks.store/r?i=LOT-...
+```
+
+The stable resolver can therefore move Product traffic from Ecwid to
+WooCommerce later without reprinting labels, while Lot traffic continues to
+resolve to the authenticated Appsmith Lots deep link. Sterilizer output sheets
+use the same resolver URL for each Lot QR.
+
+Resolution order is now:
+
+1. an explicit `scan_url` supplied by a future database/view contract;
+2. a stable resolver URL derived from the canonical Product/Lot identifier.
+
+Legacy Airtable/storefront `public_link*` values are intentionally ignored by the
+active daemon. If neither `scan_url` nor a canonical inventory identifier is
+available, no QR payload is rendered rather than falling back to a legacy link. Override
+`QR_RESOLVER_BASE_URL` only for a development/staging resolver.
+
+Run the QR routing smoke test after daemon changes:
+
+```bash
+node print-daemon/tests/qr-routing-smoke.js
 ```
 
 `NOCODB_SOURCE_ID` and `NOCODB_BASE_SOURCE_ID` remain accepted as legacy
@@ -405,7 +442,7 @@ The script:
   - `label_packaged_prod` / `label_packaged_prod (from product_id)`
   - `label_useby_prod` / `label_useby_prod (from product_id)`
   - `label_disclaimer_prod` / `label_disclaimer_prod (from product_id)`
-  - public link QR, unless disabled with `SAMPLE_INCLUDE_QR=false`
+  - stable Product scan QR, unless disabled with `SAMPLE_INCLUDE_QR=false`
 
 - Syringe labels for `lc_syringe` and `lc_syringe_purchased` items now print as two cuttable mini-label panels on a single 4×2 label for both lot and product jobs.
 

@@ -95,7 +95,6 @@ BEGIN
   SELECT
     pg_typeof(origin_strain_regulated)::text AS regulation_type,
     origin_strain_regulated,
-    public_link,
     label_company_prod,
     label_companyaddress_base_prod,
     label_companyaddress_prod,
@@ -108,7 +107,6 @@ BEGIN
 
   IF v_row.regulation_type <> 'numeric'
      OR v_row.origin_strain_regulated <> 1
-     OR v_row.public_link <> 'https://www.rootedpsyche.com/'
      OR v_row.label_company_prod <> 'Rooted Psyche'
      OR COALESCE(v_row.label_companyaddress_base_prod, '') NOT ILIKE '%rootedpsyche.com%'
      OR COALESCE(v_row.label_companyaddress_prod, '') NOT ILIKE '%rootedpsyche.com%'
@@ -121,7 +119,6 @@ BEGIN
   SELECT
     pg_typeof(origin_strain_regulated)::text AS regulation_type,
     origin_strain_regulated,
-    public_link,
     label_company_prod,
     label_companyaddress_base_prod,
     label_companyaddress_prod,
@@ -134,7 +131,6 @@ BEGIN
 
   IF v_row.regulation_type <> 'numeric'
      OR v_row.origin_strain_regulated <> 0
-     OR v_row.public_link <> 'https://danks.store/'
      OR v_row.label_company_prod <> 'Dank Mushrooms'
      OR COALESCE(v_row.label_companyaddress_base_prod, '') NOT ILIKE '%danks.store%'
      OR COALESCE(v_row.label_companyaddress_prod, '') NOT ILIKE '%danks.store%'

@@ -34,9 +34,27 @@
   \ir 011_print_queue_actions_smoke.sql
   \ir 011_print_queue_view_contract_smoke.sql
   \ir 012_ecommerce_order_upsert_smoke.sql
+  \ir 024_inventory_reconciliation_smoke.sql
+  \ir 025_inventory_reconciliation_lots_smoke.sql
+  \ir 026_ecommerce_provider_neutral_smoke.sql
+  \ir 027_ecommerce_ecwid_catalog_sync_smoke.sql
+  \ir 028_qr_resolver_smoke.sql
+  \ir 032_recipe_management_smoke.sql
+  \ir 033_recipe_document_model_smoke.sql
+  \ir 034_recipe_admin_document_wiring_smoke.sql
+  \ir 035_native_postgres_views_smoke.sql
+  \ir 036_reporting_lifecycle_smoke.sql
+  \ir 037_reporting_lineage_smoke.sql
+  \ir 038_reporting_cohort_smoke.sql
+  \ir 039_reporting_inventory_smoke.sql
+  \ir 040_reporting_integration_smoke.sql
 
   \echo 'All MushroomProcess component smoke tests passed; each test rolled back its fixtures and outputs.'
 \else
   \warn 'Mutation tests were not run. Re-run with -v allow_schema_modification=true.'
   \quit 3
 \endif
+
+\i 029_qr_product_routing_smoke.sql
+\i 030_qr_scan_log_smoke.sql
+\i 031_remove_legacy_public_links_smoke.sql

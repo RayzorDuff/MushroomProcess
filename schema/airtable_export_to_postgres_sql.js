@@ -308,6 +308,28 @@ function m2mJoinName(aSlug, linkFieldSlug, bSlug) {
 
 function isComputedType(type) { return ['lookup','multipleLookupValues','rollup','formula'].includes(type); }
 
+// Issue #12 Phase 6: Airtable navigation/public-link formulas are legacy-only.
+// Stable Product/Lot QR routing is owned by qr.danks.store, so generated vc_*
+// views must not reintroduce these Airtable/formula URL columns.
+const LEGACY_PUBLIC_LINK_FIELD_NAMES = new Set([
+  'public_link',
+  'public_link_dark_room',
+  'public_link_fruiting',
+  'public_link_harvest',
+  'public_link_spawn_to_bulk',
+  'public_link_inoculate_flask',
+  'public_link_inoculate_grain',
+  'public_link_freeze_dry_package',
+  'public_link_substrate_package',
+  'public_link_lot_lineage',
+  'public_link_from_lot_id',
+  'public_link_from_product_id',
+]);
+
+function isLegacyPublicLinkComputedField(field) {
+  return !!field && LEGACY_PUBLIC_LINK_FIELD_NAMES.has(slug(field.name));
+}
+
 function rollupTargetField(tableObj, field, tablesDump) {
   if (!tableObj || !field || field.type !== 'rollup' || !tablesDump) return null;
   const opts = field.options || {};
@@ -1853,6 +1875,10 @@ FOR EACH ROW EXECUTE FUNCTION ${ident(POSTGRES_SCHEMA)}.${ident(fnA)}();
         const formulaExprs = [];
         for (const f of computed) {
           const outAlias = slug(f.name) || 'computed';
+          if (isLegacyPublicLinkComputedField(f)) {
+            viewBlock += `-- legacy QR/public-link field omitted: ${td.name}.${f.name}\n`;
+            continue;
+          }
           if (fkCols && fkCols.has(outAlias)) {
             // This computed field name collides with a materialized scalar FK column (prefers-single link).
             // Keep the base-table value and do not re-emit a computed column of the same name.
