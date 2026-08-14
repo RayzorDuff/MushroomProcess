@@ -1,3 +1,35 @@
+## v1.2.0 - 2026-08-13
+
+_This coordinated release records the stable MushroomProcess baseline before the planned ERPNext-centered purchasing/inventory and provider-neutral commerce transition. It also marks the documented point at which the supported Appsmith/PostgreSQL application intentionally extends beyond the final Airtable reference._
+
+### Added
+
+- Categorized Appsmith navigation with a canonical navigation manifest and synchronization utility.
+- Database-backed recipe management, ingredient/instruction editing, and printable recipe previews.
+- Product and Lot inventory reconciliation by location, including QR-assisted entry.
+- Stable Product and Lot QR URLs, resolver routing, regulated/internal destinations, deep linking, and scan analytics.
+- Provider-neutral commerce metadata and PostgreSQL Ecwid catalog synchronization.
+- Historical-data audit contracts, canonical lot lifecycle views, adjacent lineage, cohort analytics, and inventory snapshot reporting.
+- Spawn to Bulk date override support.
+
+### Changed
+
+- Disabled the expanding native Appsmith navigation in favor of the categorized application navigation.
+- Established Appsmith/PostgreSQL reporting as the maintained operational reporting surface.
+- Retained Ecwid synchronization as a transition bridge; this release does not implement the planned ERPNext commerce authority or removal of Ecwid/Clover.
+
+### Fixed
+
+- Hardened Harvest regulation filters against initialization and refresh races.
+- Hardened print-daemon queue hydration against NocoDB computed-view and record-link limitations.
+- Repaired reporting chart shapes, lifecycle detail bindings, inventory-state validation, and reporting smoke-test performance.
+
+### Coordinated baseline
+
+- SignatureGate `v1.1.0`
+- RootedOps `v1.1.0`
+- BookWorks `bookworks-v3.3.0`
+
 ## v1.1.0 - 2026-08-05
 
 _This is the first stable Appsmith/Postgres release of MushroomProcess. RC5 parity testing passed, establishing feature-complete row-by-row parity with the Airtable implementation for the tested production workflows. Changes after `V1.1.0-RC5` focus on final release stabilization, regression coverage, PostgreSQL integration completion, and repository organization._

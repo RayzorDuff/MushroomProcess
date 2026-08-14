@@ -1,5 +1,9 @@
 # MushroomProcess (Airtable + PostgreSQL + Appsmith + n8n)
 
+Current version: **1.2.0**.
+
+See [`doc/RELEASE_PROCESS.md`](doc/RELEASE_PROCESS.md) for the repeatable release workflow.
+
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
 
 This repository contains:
