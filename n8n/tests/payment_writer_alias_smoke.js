@@ -84,6 +84,25 @@ assert(manual.fields.processor_payment_status === 'succeeded', 'manual generic p
 assert(manual.fields.processor_payment_amount === 18.75, 'manual generic amount incorrect');
 assert(manual.fields.clover_payment_id === manual.fields.processor_payment_id, 'manual legacy/generic ids diverged');
 
+
+const manualMoov = runCode(manualCode, {
+  body: {
+    airtable_order_record_id: 'rec-manual-moov',
+    payment_processor: 'moov',
+    processor_payment_id: 'moov-manual-1',
+    processor_payment_amount: '22.50',
+    processor_payment_time: '2026-08-28T20:06:00Z',
+    operator: 'operator@example.com',
+  },
+})[0].json;
+
+assert(manualMoov.fields.payment_processor === 'moov', 'generic manual match did not preserve Moov processor');
+assert(manualMoov.fields.processor_payment_id === 'moov-manual-1', 'generic manual match payment id missing');
+assert(manualMoov.fields.processor_payment_amount === 22.5, 'generic manual match amount incorrect');
+assert(manualMoov.fields.clover_payment_id === null, 'non-Clover manual match leaked into legacy Clover id');
+assert(manualMoov.fields.clover_reconciliation_status === null, 'non-Clover manual match leaked into legacy Clover status');
+assert(manualMoov.result.payment_processor === 'moov', 'generic manual result processor missing');
+
 const accounted = runCode(accountedCode, {
   body: {
     airtable_order_record_id: 'rec-cash',
