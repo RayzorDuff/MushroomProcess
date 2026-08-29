@@ -635,6 +635,13 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "clover_payment_amount" numeric,
   "clover_payment_time" timestamp without time zone,
   "clover_match_confidence" numeric,
+  "payment_processor" text,
+  "processor_payment_id" text,
+  "processor_payment_status" text,
+  "processor_payment_amount" numeric,
+  "processor_payment_time" timestamp without time zone,
+  "processor_match_confidence" numeric,
+  "payment_reconciliation_status" text,
   "reconciled_at" timestamp without time zone,
   "reconciliation_notes" text,
   "ecwid_event_type" text,
@@ -652,6 +659,7 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_name" ON "public"."ecommerce_orders"("name");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_order_id" ON "public"."ecommerce_orders"("ecwid_order_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_clover_payment_id" ON "public"."ecommerce_orders"("clover_payment_id");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_processor_payment_id" ON "public"."ecommerce_orders"("payment_processor", "processor_payment_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_event_id" ON "public"."ecommerce_orders"("ecwid_event_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_provider_external_order_id" ON "public"."ecommerce_orders"("provider", "external_order_id");
 

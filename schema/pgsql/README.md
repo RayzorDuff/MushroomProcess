@@ -552,3 +552,26 @@ canonical cohort function.
 - `v_reporting_lot_inventory` — current in-process lot inventory derived from the canonical lifecycle view and grouped into operational stages.
 
 The Phase 7 Reporting UI uses these objects instead of duplicating terminal-state/location logic in Appsmith.
+
+### Provider-neutral payment identity (`041_payment_provider_neutral.sql`)
+
+Issue #85 R1 adds the additive payment/reconciliation aliases used to migrate
+Fulfillment away from Clover-specific storage without changing current Clover
+behavior. `payment_processor`, `processor_payment_id`,
+`processor_payment_status`, `processor_payment_amount`,
+`processor_payment_time`, `processor_match_confidence`, and
+`payment_reconciliation_status` coexist with the legacy `clover_*` columns.
+
+A compatibility trigger infers `payment_processor = 'clover'` only when actual
+Clover reconciliation evidence exists and mirrors Clover legacy writes to the
+generic aliases. Generic writes for a row explicitly identified as Clover are
+also mirrored back to the legacy fields so current workflows/readers remain
+usable during the migration. A row explicitly identified as another processor,
+such as `moov`, is never projected into the Clover columns.
+
+For incremental production deployment, import
+`041_payment_provider_neutral.sql` after the currently deployed numbered
+migrations, then run `tests/041_payment_provider_neutral_smoke.sql`. R1 changes
+only the database compatibility contract; Appsmith and n8n continue using the
+existing Clover fields until a later #85 round moves those reads/writes to the
+provider-neutral aliases.
