@@ -44,7 +44,14 @@ const fixtures = [
     order_date: '2026-06-01T16:00:00.000Z',
     payment_method: 'Sell on the Go - Credit Card',
     payment_status: 'PAID',
-    clover_reconciliation_status: 'reconciled',
+    payment_processor: 'clover',
+    payment_reconciliation_status: 'reconciled',
+    processor_payment_id: 'CLOVER-PAYMENT-GENERIC',
+    processor_payment_status: 'succeeded',
+    processor_payment_amount: 25,
+    processor_payment_time: '2026-06-01T16:01:00.000Z',
+    processor_match_confidence: 0.95,
+    clover_reconciliation_status: 'pending',
     items_json: JSON.stringify([item('Reishi', 1)]),
     products: ['rec-product-3'],
     products_report: 'Product 3',
@@ -55,6 +62,10 @@ const fixtures = [
     order_date: '2026-07-13T16:00:00.000Z',
     payment_method: 'Online Card',
     payment_status: 'PAID',
+    payment_processor: 'moov',
+    processor_payment_id: 'MOOV-PAYMENT-1',
+    processor_payment_status: 'completed',
+    payment_reconciliation_status: 'reconciled',
     clover_reconciliation_status: '',
     items_json: JSON.stringify([item('Cordyceps', 1)]),
     products: [],
@@ -138,10 +149,22 @@ for (const filename of workflows) {
     allCodes.includes('COMPLETE-OLD'),
     `${filename}: completed historical order was hidden when date was blank`,
   );
+  const completeOld = allDates.orders.find((row) => row.order_ref === 'COMPLETE-OLD');
+  assert(completeOld.payment_processor === 'clover', `${filename}: generic Clover processor was not exposed`);
+  assert(completeOld.payment_reconciliation_status === 'reconciled', `${filename}: generic reconciliation status did not take precedence over stale legacy status`);
+  assert(completeOld.clover_reconciliation_status === 'pending', `${filename}: legacy Clover status should remain available during migration`);
+  assert(completeOld.processor_payment_id === 'CLOVER-PAYMENT-GENERIC', `${filename}: generic processor payment id missing`);
+  assert(completeOld.processor_match_confidence === 0.95, `${filename}: generic processor confidence missing`);
+
   assert(
     allCodes.includes('PAID-WEB'),
     `${filename}: paid website order was hidden`,
   );
+  const paidWeb = allDates.orders.find((row) => row.order_ref === 'PAID-WEB');
+  assert(paidWeb.payment_processor === 'moov', `${filename}: non-Clover processor identity was not exposed`);
+  assert(paidWeb.processor_payment_id === 'MOOV-PAYMENT-1', `${filename}: Moov payment identity was not exposed`);
+  assert(paidWeb.clover_reconciliation_status === '', `${filename}: Moov payment incorrectly acquired a legacy Clover status`);
+
   assert(
     allCodes.includes('ACCOUNTED-CASH'),
     `${filename}: accounted cash market order was hidden`,
@@ -156,6 +179,8 @@ for (const filename of workflows) {
   );
 
   const assignedPending = allDates.orders.find((row) => row.order_ref === 'ASSIGNED-PENDING');
+  assert(assignedPending.payment_processor === 'clover', `${filename}: legacy Sell on the Go order did not fall back to Clover processor identity`);
+  assert(assignedPending.payment_reconciliation_status === 'pending', `${filename}: legacy Clover reconciliation status did not fall back into generic status`);
   assert(assignedPending.product_assignment_complete === true, `${filename}: assignment completion flag incorrect`);
   assert(assignedPending.reconciliation_complete === false, `${filename}: reconciliation completion flag incorrect`);
   assert(assignedPending.assignment_complete_needs_reconciliation === true, `${filename}: outstanding reconciliation flag missing`);
