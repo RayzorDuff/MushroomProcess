@@ -50,6 +50,33 @@ const fixtures = [
     products_report: 'Product 3',
     product_ids_report: 'PROD-3',
   }),
+  record('rec-paid-web', {
+    order_code: 'PAID-WEB',
+    order_date: '2026-07-13T16:00:00.000Z',
+    payment_method: 'Online Card',
+    payment_status: 'PAID',
+    clover_reconciliation_status: '',
+    items_json: JSON.stringify([item('Cordyceps', 1)]),
+    products: [],
+  }),
+  record('rec-accounted-cash', {
+    order_code: 'ACCOUNTED-CASH',
+    order_date: '2026-07-12T18:00:00.000Z',
+    payment_method: 'Sell on the Go - Cash',
+    payment_status: 'PAID',
+    clover_reconciliation_status: 'accounted',
+    items_json: JSON.stringify([item('Lion Mane', 1)]),
+    products: [],
+  }),
+  record('rec-needs-review', {
+    order_code: 'NEEDS-REVIEW',
+    order_date: '2026-07-12T17:00:00.000Z',
+    payment_method: 'Sell on the Go - Credit Card',
+    payment_status: 'PAID',
+    clover_reconciliation_status: 'needs_review',
+    items_json: JSON.stringify([item('Reishi', 1)]),
+    products: [],
+  }),
   record('rec-unpaid-web', {
     order_code: 'UNPAID-WEB',
     order_date: '2026-07-12T16:00:00.000Z',
@@ -112,6 +139,18 @@ for (const filename of workflows) {
     `${filename}: completed historical order was hidden when date was blank`,
   );
   assert(
+    allCodes.includes('PAID-WEB'),
+    `${filename}: paid website order was hidden`,
+  );
+  assert(
+    allCodes.includes('ACCOUNTED-CASH'),
+    `${filename}: accounted cash market order was hidden`,
+  );
+  assert(
+    !allCodes.includes('NEEDS-REVIEW'),
+    `${filename}: needs-review market order appeared without Include Review`,
+  );
+  assert(
     !allCodes.includes('UNPAID-WEB'),
     `${filename}: unpaid web order appeared as ready for fulfillment`,
   );
@@ -133,6 +172,10 @@ for (const filename of workflows) {
     withReview.orders.some((row) => row.order_ref === 'UNASSIGNED-PENDING'),
     `${filename}: Include Review did not expose unassigned pending market order`,
   );
+  assert(
+    withReview.orders.some((row) => row.order_ref === 'NEEDS-REVIEW'),
+    `${filename}: Include Review did not expose needs-review market order`,
+  );
 
   const dateFiltered = executeBuild(code, {
     mode: 'all',
@@ -145,10 +188,6 @@ for (const filename of workflows) {
     `${filename}: explicit date filter did not constrain results`,
   );
 
-  assert(
-    allDates.orders[0].order_ref === 'ASSIGNED-PENDING' || allDates.orders[0].order_ref === 'COMPLETE-OLD',
-    `${filename}: newest-first sort produced an unexpected first row`,
-  );
   for (let index = 1; index < allDates.orders.length; index += 1) {
     const prior = String(allDates.orders[index - 1].order_date || '');
     const current = String(allDates.orders[index].order_date || '');
