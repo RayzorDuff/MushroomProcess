@@ -4805,6 +4805,68 @@
                           "maxDynamicHeight": 9000,
                           "originalBottomRow": 42,
                           "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 50,
+                          "onClick": "{{SterilizerOut.openCancelRun()}}",
+                          "widgetName": "btnCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isVisible"
+                            }
+                          ],
+                          "bottomRow": 50,
+                          "topRow": 46,
+                          "parentRowSpace": 10,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 20,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "parentColumnSpace": 10.296875,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isVisible"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 20,
+                          "isDisabled": "{{ !SterilizerOut.canOpenCancelRun() }}",
+                          "text": "Cancel / Archive Run",
+                          "key": "steroutcancelbtn",
+                          "rightColumn": 41,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "qclsr7q2x9",
+                          "minWidth": 120,
+                          "isVisible": "{{ !!(tblOpenRuns.selectedRow && tblOpenRuns.selectedRow.nocopk) }}",
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "qo6thtfqsv",
+                          "isLoading": false,
+                          "mobileTopRow": 44,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 46,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": true,
+                          "mobileLeftColumn": 0,
+                          "originalBottomRow": 50,
+                          "buttonVariant": "SECONDARY",
+                          "placement": "CENTER"
                         }
                       ],
                       "key": "kr49qp42r4",
@@ -4849,6 +4911,411 @@
                   "maxDynamicHeight": 9000,
                   "originalBottomRow": 61,
                   "minDynamicHeight": 10
+                },
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 79,
+                  "widgetName": "modalCancelSterilizerRun",
+                  "isCanvas": true,
+                  "bottomRow": 310,
+                  "topRow": 60,
+                  "parentRowSpace": 10,
+                  "type": "MODAL_WIDGET",
+                  "minHeight": 250,
+                  "mobileRightColumn": 13,
+                  "shouldScrollContents": true,
+                  "animateLoading": true,
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "leftColumn": 0,
+                  "children": [
+                    {
+                      "needsErrorInfo": false,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "mobileBottomRow": 240,
+                      "widgetName": "CanvasCancelSterilizerRun",
+                      "bottomRow": 250,
+                      "topRow": 0,
+                      "parentRowSpace": 1,
+                      "canExtend": true,
+                      "type": "CANVAS_WIDGET",
+                      "minHeight": 400,
+                      "mobileRightColumn": 133.859375,
+                      "shouldScrollContents": false,
+                      "parentColumnSpace": 1,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "leftColumn": 0,
+                      "children": [
+                        {
+                          "needsErrorInfo": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 4,
+                          "onClick": "{{closeModal(modalCancelSterilizerRun.name);}}",
+                          "widgetName": "iconCloseCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "bottomRow": 4,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "mobileRightColumn": 64,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 58,
+                          "children": [],
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "key": "steroutcancelicon",
+                          "rightColumn": 64,
+                          "iconName": "cross",
+                          "widgetId": "iclsr7q2x9",
+                          "minWidth": 50,
+                          "isVisible": true,
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 0,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 58,
+                          "buttonVariant": "TERTIARY"
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 5,
+                          "widgetName": "txtTitleCancelSterilizerRun",
+                          "bottomRow": 5,
+                          "topRow": 1,
+                          "type": "TEXT_WIDGET",
+                          "mobileRightColumn": 41,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "overflow": "NONE",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "children": [],
+                          "shouldTruncate": false,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "text": "Cancel Sterilizer Run",
+                          "key": "steroutcanceltitle",
+                          "rightColumn": 13,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "textAlign": "LEFT",
+                          "widgetId": "tclsr7q2x9",
+                          "minWidth": 450,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 1,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "fontSize": "1.25rem",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 10,
+                          "widgetName": "txtCancelSterilizerRunSummary",
+                          "bottomRow": 10,
+                          "topRow": 6,
+                          "parentRowSpace": 10,
+                          "type": "TEXT_WIDGET",
+                          "mobileRightColumn": 17,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            },
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "children": [],
+                          "shouldTruncate": false,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "text": "{{ \"Cancel and archive \" + (SterilizerOut.selectedRun()?.steri_run_id || \"the selected run\") + \". No lots will be created; the run will remain in the database for audit history.\" }}",
+                          "key": "steroutcancelsummary",
+                          "rightColumn": 63,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "textAlign": "LEFT",
+                          "widgetId": "sclsr7q2x9",
+                          "minWidth": 450,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 6,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 6,
+                          "responsiveBehavior": "fill",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 1,
+                          "jsonPathKeys": [
+                            "\"Cancel and archive \" + (SterilizerOut.selectedRun()?.steri_run_id || \"the selected run\") + \". No lots will be created; the run will remain in the database for audit history.\""
+                          ],
+                          "maxDynamicHeight": 9000,
+                          "originalBottomRow": 15,
+                          "fontSize": "1rem",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "boxShadow": "none",
+                          "topRow": 10,
+                          "labelWidth": 5,
+                          "type": "INPUT_WIDGET_V2",
+                          "animateLoading": true,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "resetOnSubmit": true,
+                          "children": [],
+                          "labelStyle": "",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isRequired": true,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "showStepArrows": false,
+                          "isVisible": true,
+                          "version": 2,
+                          "isLoading": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "originalBottomRow": 28,
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 29,
+                          "widgetName": "inpCancelRunReason",
+                          "bottomRow": 17,
+                          "parentRowSpace": 10,
+                          "autoFocus": false,
+                          "mobileRightColumn": 21,
+                          "dynamicTriggerPathList": [],
+                          "parentColumnSpace": 6.9375,
+                          "labelPosition": "Top",
+                          "key": "steroutcancelreason",
+                          "labelTextSize": "0.875rem",
+                          "rightColumn": 63,
+                          "widgetId": "nclsr7q2x9",
+                          "minWidth": 450,
+                          "label": "Cancellation reason",
+                          "parentId": "cclsr7q2x9",
+                          "labelAlignment": "left",
+                          "mobileTopRow": 22,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 15,
+                          "responsiveBehavior": "fill",
+                          "mobileLeftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "shouldAllowAutofill": false,
+                          "iconAlign": "left",
+                          "defaultText": "",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 22,
+                          "onClick": "{{closeModal(modalCancelSterilizerRun.name);}}",
+                          "widgetName": "btnCloseCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "bottomRow": 23,
+                          "topRow": 19,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 47,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 32,
+                          "children": [],
+                          "isDisabled": false,
+                          "text": "Keep Run",
+                          "key": "steroutcancelclose",
+                          "rightColumn": 46,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "bclsr7q2x9",
+                          "buttonStyle": "PRIMARY",
+                          "minWidth": 120,
+                          "isVisible": true,
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 18,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 20,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": false,
+                          "mobileLeftColumn": 31,
+                          "originalBottomRow": 24,
+                          "buttonVariant": "SECONDARY",
+                          "placement": "CENTER"
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 22,
+                          "onClick": "{{SterilizerOut.cancelRun()}}",
+                          "widgetName": "btnConfirmCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "bottomRow": 23,
+                          "topRow": 19,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 63,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 47,
+                          "children": [],
+                          "isDisabled": "{{ !SterilizerOut.canConfirmCancelRun() }}",
+                          "text": "Cancel / Archive Run",
+                          "key": "steroutcancelconfirm",
+                          "rightColumn": 63,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "xclsr7q2x9",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "minWidth": 120,
+                          "isVisible": true,
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 18,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 24,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": false,
+                          "mobileLeftColumn": 47,
+                          "jsonPathKeys": [
+                            "SterilizerOut.cancelRun()",
+                            "!SterilizerOut.canConfirmCancelRun()"
+                          ],
+                          "originalBottomRow": 28,
+                          "buttonVariant": "PRIMARY",
+                          "placement": "CENTER"
+                        }
+                      ],
+                      "isDisabled": false,
+                      "key": "5pd6pkvfij",
+                      "rightColumn": 133.859375,
+                      "detachFromLayout": true,
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "widgetId": "cclsr7q2x9",
+                      "minWidth": 450,
+                      "isVisible": true,
+                      "version": 1,
+                      "parentId": "mclsr7q2x9",
+                      "isLoading": false,
+                      "mobileTopRow": 0,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "mobileLeftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "flexLayers": []
+                    }
+                  ],
+                  "key": "steroutcancelmodal",
+                  "height": 250,
+                  "rightColumn": 13,
+                  "detachFromLayout": true,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "widgetId": "mclsr7q2x9",
+                  "canOutsideClickClose": true,
+                  "canEscapeKeyClose": true,
+                  "version": 2,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 55,
+                  "renderMode": "CANVAS",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "width": 640,
+                  "minDynamicHeight": 24
                 }
               ]
             },
@@ -6405,6 +6872,68 @@
                           "maxDynamicHeight": 9000,
                           "originalBottomRow": 42,
                           "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 50,
+                          "onClick": "{{SterilizerOut.openCancelRun()}}",
+                          "widgetName": "btnCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "isVisible"
+                            }
+                          ],
+                          "bottomRow": 50,
+                          "topRow": 46,
+                          "parentRowSpace": 10,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 20,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "parentColumnSpace": 10.296875,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isVisible"
+                            },
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 20,
+                          "isDisabled": "{{ !SterilizerOut.canOpenCancelRun() }}",
+                          "text": "Cancel / Archive Run",
+                          "key": "steroutcancelbtn",
+                          "rightColumn": 41,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "qclsr7q2x9",
+                          "minWidth": 120,
+                          "isVisible": "{{ !!(tblOpenRuns.selectedRow && tblOpenRuns.selectedRow.nocopk) }}",
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "qo6thtfqsv",
+                          "isLoading": false,
+                          "mobileTopRow": 44,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 46,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": true,
+                          "mobileLeftColumn": 0,
+                          "originalBottomRow": 50,
+                          "buttonVariant": "SECONDARY",
+                          "placement": "CENTER"
                         }
                       ],
                       "key": "kr49qp42r4",
@@ -6449,6 +6978,411 @@
                   "maxDynamicHeight": 9000,
                   "originalBottomRow": 61,
                   "minDynamicHeight": 10
+                },
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 79,
+                  "widgetName": "modalCancelSterilizerRun",
+                  "isCanvas": true,
+                  "bottomRow": 310,
+                  "topRow": 60,
+                  "parentRowSpace": 10,
+                  "type": "MODAL_WIDGET",
+                  "minHeight": 250,
+                  "mobileRightColumn": 13,
+                  "shouldScrollContents": true,
+                  "animateLoading": true,
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "leftColumn": 0,
+                  "children": [
+                    {
+                      "needsErrorInfo": false,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "mobileBottomRow": 240,
+                      "widgetName": "CanvasCancelSterilizerRun",
+                      "bottomRow": 250,
+                      "topRow": 0,
+                      "parentRowSpace": 1,
+                      "canExtend": true,
+                      "type": "CANVAS_WIDGET",
+                      "minHeight": 400,
+                      "mobileRightColumn": 133.859375,
+                      "shouldScrollContents": false,
+                      "parentColumnSpace": 1,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "leftColumn": 0,
+                      "children": [
+                        {
+                          "needsErrorInfo": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 4,
+                          "onClick": "{{closeModal(modalCancelSterilizerRun.name);}}",
+                          "widgetName": "iconCloseCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "bottomRow": 4,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "mobileRightColumn": 64,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 58,
+                          "children": [],
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "key": "steroutcancelicon",
+                          "rightColumn": 64,
+                          "iconName": "cross",
+                          "widgetId": "iclsr7q2x9",
+                          "minWidth": 50,
+                          "isVisible": true,
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 0,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 58,
+                          "buttonVariant": "TERTIARY"
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 5,
+                          "widgetName": "txtTitleCancelSterilizerRun",
+                          "bottomRow": 5,
+                          "topRow": 1,
+                          "type": "TEXT_WIDGET",
+                          "mobileRightColumn": 41,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "overflow": "NONE",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "children": [],
+                          "shouldTruncate": false,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "text": "Cancel Sterilizer Run",
+                          "key": "steroutcanceltitle",
+                          "rightColumn": 13,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "textAlign": "LEFT",
+                          "widgetId": "tclsr7q2x9",
+                          "minWidth": 450,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 1,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "fontSize": "1.25rem",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 10,
+                          "widgetName": "txtCancelSterilizerRunSummary",
+                          "bottomRow": 10,
+                          "topRow": 6,
+                          "parentRowSpace": 10,
+                          "type": "TEXT_WIDGET",
+                          "mobileRightColumn": 17,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            },
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "children": [],
+                          "shouldTruncate": false,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "text": "{{ \"Cancel and archive \" + (SterilizerOut.selectedRun()?.steri_run_id || \"the selected run\") + \". No lots will be created; the run will remain in the database for audit history.\" }}",
+                          "key": "steroutcancelsummary",
+                          "rightColumn": 63,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "textAlign": "LEFT",
+                          "widgetId": "sclsr7q2x9",
+                          "minWidth": 450,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 6,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 6,
+                          "responsiveBehavior": "fill",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "mobileLeftColumn": 1,
+                          "jsonPathKeys": [
+                            "\"Cancel and archive \" + (SterilizerOut.selectedRun()?.steri_run_id || \"the selected run\") + \". No lots will be created; the run will remain in the database for audit history.\""
+                          ],
+                          "maxDynamicHeight": 9000,
+                          "originalBottomRow": 15,
+                          "fontSize": "1rem",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "boxShadow": "none",
+                          "topRow": 10,
+                          "labelWidth": 5,
+                          "type": "INPUT_WIDGET_V2",
+                          "animateLoading": true,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 1,
+                          "resetOnSubmit": true,
+                          "children": [],
+                          "labelStyle": "",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isRequired": true,
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "showStepArrows": false,
+                          "isVisible": true,
+                          "version": 2,
+                          "isLoading": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "originalBottomRow": 28,
+                          "needsErrorInfo": false,
+                          "mobileBottomRow": 29,
+                          "widgetName": "inpCancelRunReason",
+                          "bottomRow": 17,
+                          "parentRowSpace": 10,
+                          "autoFocus": false,
+                          "mobileRightColumn": 21,
+                          "dynamicTriggerPathList": [],
+                          "parentColumnSpace": 6.9375,
+                          "labelPosition": "Top",
+                          "key": "steroutcancelreason",
+                          "labelTextSize": "0.875rem",
+                          "rightColumn": 63,
+                          "widgetId": "nclsr7q2x9",
+                          "minWidth": 450,
+                          "label": "Cancellation reason",
+                          "parentId": "cclsr7q2x9",
+                          "labelAlignment": "left",
+                          "mobileTopRow": 22,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 15,
+                          "responsiveBehavior": "fill",
+                          "mobileLeftColumn": 1,
+                          "maxDynamicHeight": 9000,
+                          "shouldAllowAutofill": false,
+                          "iconAlign": "left",
+                          "defaultText": "",
+                          "minDynamicHeight": 4
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 22,
+                          "onClick": "{{closeModal(modalCancelSterilizerRun.name);}}",
+                          "widgetName": "btnCloseCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "bottomRow": 23,
+                          "topRow": 19,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 47,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 32,
+                          "children": [],
+                          "isDisabled": false,
+                          "text": "Keep Run",
+                          "key": "steroutcancelclose",
+                          "rightColumn": 46,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "bclsr7q2x9",
+                          "buttonStyle": "PRIMARY",
+                          "minWidth": 120,
+                          "isVisible": true,
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 18,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 20,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": false,
+                          "mobileLeftColumn": 31,
+                          "originalBottomRow": 24,
+                          "buttonVariant": "SECONDARY",
+                          "placement": "CENTER"
+                        },
+                        {
+                          "needsErrorInfo": false,
+                          "resetFormOnClick": false,
+                          "boxShadow": "none",
+                          "mobileBottomRow": 22,
+                          "onClick": "{{SterilizerOut.cancelRun()}}",
+                          "widgetName": "btnConfirmCancelSterilizerRun",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "bottomRow": 23,
+                          "topRow": 19,
+                          "type": "BUTTON_WIDGET",
+                          "mobileRightColumn": 63,
+                          "animateLoading": true,
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "leftColumn": 47,
+                          "children": [],
+                          "isDisabled": "{{ !SterilizerOut.canConfirmCancelRun() }}",
+                          "text": "Cancel / Archive Run",
+                          "key": "steroutcancelconfirm",
+                          "rightColumn": 63,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "xclsr7q2x9",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "minWidth": 120,
+                          "isVisible": true,
+                          "recaptchaType": "V3",
+                          "version": 1,
+                          "parentId": "cclsr7q2x9",
+                          "isLoading": false,
+                          "mobileTopRow": 18,
+                          "renderMode": "CANVAS",
+                          "originalTopRow": 24,
+                          "responsiveBehavior": "hug",
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "disabledWhenInvalid": false,
+                          "mobileLeftColumn": 47,
+                          "jsonPathKeys": [
+                            "SterilizerOut.cancelRun()",
+                            "!SterilizerOut.canConfirmCancelRun()"
+                          ],
+                          "originalBottomRow": 28,
+                          "buttonVariant": "PRIMARY",
+                          "placement": "CENTER"
+                        }
+                      ],
+                      "isDisabled": false,
+                      "key": "5pd6pkvfij",
+                      "rightColumn": 133.859375,
+                      "detachFromLayout": true,
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "widgetId": "cclsr7q2x9",
+                      "minWidth": 450,
+                      "isVisible": true,
+                      "version": 1,
+                      "parentId": "mclsr7q2x9",
+                      "isLoading": false,
+                      "mobileTopRow": 0,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "mobileLeftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "flexLayers": []
+                    }
+                  ],
+                  "key": "steroutcancelmodal",
+                  "height": 250,
+                  "rightColumn": 13,
+                  "detachFromLayout": true,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "widgetId": "mclsr7q2x9",
+                  "canOutsideClickClose": true,
+                  "canEscapeKeyClose": true,
+                  "version": 2,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 55,
+                  "renderMode": "CANVAS",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "width": 640,
+                  "minDynamicHeight": 24
                 }
               ]
             },
@@ -151704,7 +152638,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT\n  sr.nocopk,\n  sr.steri_run_id,\n  sr.process_type,\n  sr.start_time,\n  sr.operator,\n  sr.planned_unit_size,\n  sr.planned_count,\n  i.name AS planned_item_name,\n  i.category AS planned_item_category,\n  COALESCE(r.name, sr.planned_component_set) AS planned_recipe_name\nFROM public.sterilization_runs sr\nLEFT JOIN public.items i ON i.nocopk = sr.planned_item_id\nLEFT JOIN public.recipes r ON r.nocopk = sr.planned_recipe_id\nWHERE sr.end_time IS NULL\nORDER BY sr.start_time DESC NULLS LAST, sr.nocopk DESC;",
+          "body": "SELECT\n  sr.nocopk,\n  sr.steri_run_id,\n  sr.process_type,\n  sr.start_time,\n  sr.operator,\n  sr.planned_unit_size,\n  sr.planned_count,\n  i.name AS planned_item_name,\n  i.category AS planned_item_category,\n  COALESCE(r.name, sr.planned_component_set) AS planned_recipe_name\nFROM public.sterilization_runs sr\nLEFT JOIN public.items i ON i.nocopk = sr.planned_item_id\nLEFT JOIN public.recipes r ON r.nocopk = sr.planned_recipe_id\nWHERE sr.end_time IS NULL\n  AND sr.cancelled_at IS NULL\n  AND lower(btrim(COALESCE(sr.process_type, ''))) <> 'abandoned'\nORDER BY sr.start_time DESC NULLS LAST, sr.nocopk DESC;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -151743,7 +152677,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT\n  sr.nocopk,\n  sr.steri_run_id,\n  sr.process_type,\n  sr.start_time,\n  sr.operator,\n  sr.planned_unit_size,\n  sr.planned_count,\n  i.name AS planned_item_name,\n  i.category AS planned_item_category,\n  COALESCE(r.name, sr.planned_component_set) AS planned_recipe_name\nFROM public.sterilization_runs sr\nLEFT JOIN public.items i ON i.nocopk = sr.planned_item_id\nLEFT JOIN public.recipes r ON r.nocopk = sr.planned_recipe_id\nWHERE sr.end_time IS NULL\nORDER BY sr.start_time DESC NULLS LAST, sr.nocopk DESC;",
+          "body": "SELECT\n  sr.nocopk,\n  sr.steri_run_id,\n  sr.process_type,\n  sr.start_time,\n  sr.operator,\n  sr.planned_unit_size,\n  sr.planned_count,\n  i.name AS planned_item_name,\n  i.category AS planned_item_category,\n  COALESCE(r.name, sr.planned_component_set) AS planned_recipe_name\nFROM public.sterilization_runs sr\nLEFT JOIN public.items i ON i.nocopk = sr.planned_item_id\nLEFT JOIN public.recipes r ON r.nocopk = sr.planned_recipe_id\nWHERE sr.end_time IS NULL\n  AND sr.cancelled_at IS NULL\n  AND lower(btrim(COALESCE(sr.process_type, ''))) <> 'abandoned'\nORDER BY sr.start_time DESC NULLS LAST, sr.nocopk DESC;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -199816,6 +200750,461 @@
       "gitSyncId": "generated_c724c222-a168-5f8c-935c-da65f35d0fa0",
       "id": "Recipes - Manage_qRecipeAdminIngredients",
       "deleted": false
+    },
+    {
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "qCancelRunMP",
+        "datasource": {
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "mushroomprocess-postgres",
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": false,
+          "body": "SELECT * FROM public.mp_sterilizer_cancel_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ SterilizerOut.sql.str(SterilizerOut.currentOperator()) }}::text,\n  {{ SterilizerOut.sql.str(inpCancelRunReason.text) }}::text\n);",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          " tblOpenRuns.selectedRow.nocopk ",
+          " SterilizerOut.sql.str(SterilizerOut.currentOperator()) ",
+          " SterilizerOut.sql.str(inpCancelRunReason.text) "
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "publishedAction": {
+        "name": "qCancelRunMP",
+        "datasource": {
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "mushroomprocess-postgres",
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": false,
+          "body": "SELECT * FROM public.mp_sterilizer_cancel_run(\n  {{ tblOpenRuns.selectedRow.nocopk }}::bigint,\n  {{ SterilizerOut.sql.str(SterilizerOut.currentOperator()) }}::text,\n  {{ SterilizerOut.sql.str(inpCancelRunReason.text) }}::text\n);",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          " tblOpenRuns.selectedRow.nocopk ",
+          " SterilizerOut.sql.str(SterilizerOut.currentOperator()) ",
+          " SterilizerOut.sql.str(inpCancelRunReason.text) "
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "gitSyncId": "69893d0a998ff52273888331_2f609985-f2b4-4ce0-a99c-7cef9a381ec9",
+      "id": "Sterilizer – Out_qCancelRunMP",
+      "deleted": false
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "canOpenCancelRun",
+        "fullyQualifiedName": "SterilizerOut.canOpenCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return appsmith.store.ster_out_submitting !== true && !!SterilizerOut.selectedRun();\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  return appsmith.store.ster_out_submitting !== true && !!SterilizerOut.selectedRun();\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "publishedAction": {
+        "name": "canOpenCancelRun",
+        "fullyQualifiedName": "SterilizerOut.canOpenCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return appsmith.store.ster_out_submitting !== true && !!SterilizerOut.selectedRun();\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  return appsmith.store.ster_out_submitting !== true && !!SterilizerOut.selectedRun();\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "gitSyncId": "6a1c645938e5a3f28ee9c9d7_6868621f-3c49-4cf3-a5d4-bb4caeaaedb4",
+      "id": "Sterilizer – Out_SterilizerOut.canOpenCancelRun",
+      "deleted": false
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "canConfirmCancelRun",
+        "fullyQualifiedName": "SterilizerOut.canConfirmCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return SterilizerOut.canOpenCancelRun() && String(inpCancelRunReason.text || \"\").trim().length > 0;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  return SterilizerOut.canOpenCancelRun() && String(inpCancelRunReason.text || \"\").trim().length > 0;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "publishedAction": {
+        "name": "canConfirmCancelRun",
+        "fullyQualifiedName": "SterilizerOut.canConfirmCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return SterilizerOut.canOpenCancelRun() && String(inpCancelRunReason.text || \"\").trim().length > 0;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  return SterilizerOut.canOpenCancelRun() && String(inpCancelRunReason.text || \"\").trim().length > 0;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "gitSyncId": "6a1c645938e5a3f28ee9c9d7_46f01249-c335-402b-b49d-26d9b98ee3f7",
+      "id": "Sterilizer – Out_SterilizerOut.canConfirmCancelRun",
+      "deleted": false
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "openCancelRun",
+        "fullyQualifiedName": "SterilizerOut.openCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run || appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  inpCancelRunReason.setValue(\"\");\n  showModal(modalCancelSterilizerRun.name);\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run || appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  inpCancelRunReason.setValue(\"\");\n  showModal(modalCancelSterilizerRun.name);\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "publishedAction": {
+        "name": "openCancelRun",
+        "fullyQualifiedName": "SterilizerOut.openCancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run || appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  inpCancelRunReason.setValue(\"\");\n  showModal(modalCancelSterilizerRun.name);\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run || appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  inpCancelRunReason.setValue(\"\");\n  showModal(modalCancelSterilizerRun.name);\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "gitSyncId": "6a1c645938e5a3f28ee9c9d7_c841ccc2-c8ad-43ce-af8c-e8e50112dee9",
+      "id": "Sterilizer – Out_SterilizerOut.openCancelRun",
+      "deleted": false
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "cancelRun",
+        "fullyQualifiedName": "SterilizerOut.cancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run) {\n    return;\n  }\n  const reason = String(inpCancelRunReason.text || \"\").trim();\n  if (!reason) {\n    showAlert(\"Enter a cancellation reason.\", \"error\");\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  const runNo = run.steri_run_id || String(run.nocopk);\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    await qCancelRunMP.run();\n    closeModal(modalCancelSterilizerRun.name);\n    const msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n    showAlert(msg, \"success\");\n    await storeValue(\"ster_out_error\", msg);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error cancelling run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  txtErrOut.setText(\"\");\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run) {\n    return;\n  }\n  const reason = String(inpCancelRunReason.text || \"\").trim();\n  if (!reason) {\n    showAlert(\"Enter a cancellation reason.\", \"error\");\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  const runNo = run.steri_run_id || String(run.nocopk);\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    await qCancelRunMP.run();\n    closeModal(modalCancelSterilizerRun.name);\n    const msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n    showAlert(msg, \"success\");\n    await storeValue(\"ster_out_error\", msg);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error cancelling run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "publishedAction": {
+        "name": "cancelRun",
+        "fullyQualifiedName": "SterilizerOut.cancelRun",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policyMap": {},
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Sterilizer – Out",
+        "collectionId": "Sterilizer – Out_SterilizerOut",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  txtErrOut.setText(\"\");\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run) {\n    return;\n  }\n  const reason = String(inpCancelRunReason.text || \"\").trim();\n  if (!reason) {\n    showAlert(\"Enter a cancellation reason.\", \"error\");\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  const runNo = run.steri_run_id || String(run.nocopk);\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    await qCancelRunMP.run();\n    closeModal(modalCancelSterilizerRun.name);\n    const msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n    showAlert(msg, \"success\");\n    await storeValue(\"ster_out_error\", msg);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error cancelling run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": []
+        },
+        "runBehaviour": "MANUAL",
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  txtErrOut.setText(\"\");\n  const run = SterilizerOut.ensureRunSelected();\n  if (!run) {\n    return;\n  }\n  const reason = String(inpCancelRunReason.text || \"\").trim();\n  if (!reason) {\n    showAlert(\"Enter a cancellation reason.\", \"error\");\n    return;\n  }\n  if (appsmith.store.ster_out_submitting === true) {\n    return;\n  }\n  const runNo = run.steri_run_id || String(run.nocopk);\n  await storeValue(\"ster_out_submitting\", true);\n  try {\n    await qCancelRunMP.run();\n    closeModal(modalCancelSterilizerRun.name);\n    const msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n    showAlert(msg, \"success\");\n    await storeValue(\"ster_out_error\", msg);\n    await SterilizerOut.refresh();\n  } catch (e) {\n    const msg = e && e.message ? e.message : String(e);\n    showAlert(\"Error cancelling run: \" + msg, \"error\");\n    await storeValue(\"ster_out_error\", msg);\n  } finally {\n    await storeValue(\"ster_out_submitting\", false);\n  }\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policyMap": {},
+        "userPermissions": [],
+        "createdAt": "2026-09-06T18:00:00Z"
+      },
+      "gitSyncId": "6a1c645938e5a3f28ee9c9d7_26ce3309-b999-4310-998f-1f6945992fc7",
+      "id": "Sterilizer – Out_SterilizerOut.cancelRun",
+      "deleted": false
     }
   ],
   "actionCollectionList": [
@@ -199864,7 +201253,7 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n\tasync init() {\n\t\tawait storeValue(\"ster_out_error\", \"\");\n\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\tawait qOpenRuns.run();\n\t},\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      const parsed = new Date(d);\n      if (Number.isNaN(parsed.getTime())) return \"NULL\";\n      const s = parsed.toISOString().slice(0, 19).replace(\"T\", \" \");\n      return \"'\" + s + \"'\";\n    },\n\t\tnum(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n  },\n\n\tsterilizedLocationOptions() {\n\t\treturn (qNonFridgeFruitRetLocations.data || [])\n\t\t\t.filter(l => l && l.nocopk && l.name && l.active !== false)\n\t\t\t.map(l => ({ label: l.name, value: l.nocopk }));\n\t},\n\n\tdefaultSterilizedLocationId() {\n\t\tconst opts = this.sterilizedLocationOptions();\n\t\tconst newLots = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"new lots\"\n\t\t);\n\t\treturn (newLots || opts[0])?.value || \"\";\n\t},\n\n\tselectedSterilizedLocationId() {\n\t\tconst selected = selSterilizedLocation.selectedOptionValue;\n\t\tconst validIds = this.sterilizedLocationOptions().map(o => String(o.value));\n\t\treturn validIds.includes(String(selected)) ? selected : null;\n\t},\n\n\tcanCompleteRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun()\n\t\t\t&& !!this.selectedSterilizedLocationId();\n\t},\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\n\t\ttry {\n\t\t\tconst completedRun = await qCompleteRunMP.run();\n\t\t\tshowAlert(\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id,\n\t\t\t\t\"success\"\n\t\t\t);\n\t\t\tawait storeValue(\n\t\t\t\t\"ster_out_error\",\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id\n\t\t\t);\n\t\t\tawait this.refresh();\n\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error completing run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t\t\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\tif (!this.selectedSterilizedLocationId()) {\n\t\t\tshowAlert(\"Select a valid Storage Location.\", \"error\");\n\t\t\terrs.push(\"Select a valid Storage Location.\");\n\t\t}\t\t\n\t\t\n\t\treturn errs;\n\t},\n\n\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n\tasync init() {\n\t\tawait storeValue(\"ster_out_error\", \"\");\n\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\tawait qOpenRuns.run();\n\t},\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      const parsed = new Date(d);\n      if (Number.isNaN(parsed.getTime())) return \"NULL\";\n      const s = parsed.toISOString().slice(0, 19).replace(\"T\", \" \");\n      return \"'\" + s + \"'\";\n    },\n\t\tnum(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n  },\n\n\tsterilizedLocationOptions() {\n\t\treturn (qNonFridgeFruitRetLocations.data || [])\n\t\t\t.filter(l => l && l.nocopk && l.name && l.active !== false)\n\t\t\t.map(l => ({ label: l.name, value: l.nocopk }));\n\t},\n\n\tdefaultSterilizedLocationId() {\n\t\tconst opts = this.sterilizedLocationOptions();\n\t\tconst newLots = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"new lots\"\n\t\t);\n\t\treturn (newLots || opts[0])?.value || \"\";\n\t},\n\n\tselectedSterilizedLocationId() {\n\t\tconst selected = selSterilizedLocation.selectedOptionValue;\n\t\tconst validIds = this.sterilizedLocationOptions().map(o => String(o.value));\n\t\treturn validIds.includes(String(selected)) ? selected : null;\n\t},\n\n\tcanCompleteRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun()\n\t\t\t&& !!this.selectedSterilizedLocationId();\n\t},\n\n\tcanOpenCancelRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun();\n\t},\n\n\tcanConfirmCancelRun() {\n\t\treturn this.canOpenCancelRun()\n\t\t\t&& String(inpCancelRunReason.text || \"\").trim().length > 0;\n\t},\n\n\tasync openCancelRun() {\n\t\tconst run = this.ensureRunSelected();\n\t\tif (!run || appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\t\tinpCancelRunReason.setValue(\"\");\n\t\tshowModal(modalCancelSterilizerRun.name);\n\t},\n\n\tasync cancelRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst run = this.ensureRunSelected();\n\t\tif (!run) {\n\t\t\treturn;\n\t\t}\n\t\tconst reason = String(inpCancelRunReason.text || \"\").trim();\n\t\tif (!reason) {\n\t\t\tshowAlert(\"Enter a cancellation reason.\", \"error\");\n\t\t\treturn;\n\t\t}\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\t\tconst runNo = run.steri_run_id || String(run.nocopk);\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\t\ttry {\n\t\t\tawait qCancelRunMP.run();\n\t\t\tcloseModal(modalCancelSterilizerRun.name);\n\t\t\tconst msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n\t\t\tshowAlert(msg, \"success\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t\tawait this.refresh();\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error cancelling run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t},\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\n\t\ttry {\n\t\t\tconst completedRun = await qCompleteRunMP.run();\n\t\t\tshowAlert(\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id,\n\t\t\t\t\"success\"\n\t\t\t);\n\t\t\tawait storeValue(\n\t\t\t\t\"ster_out_error\",\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id\n\t\t\t);\n\t\t\tawait this.refresh();\n\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error completing run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t\t\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\tif (!this.selectedSterilizedLocationId()) {\n\t\t\tshowAlert(\"Select a valid Storage Location.\", \"error\");\n\t\t\terrs.push(\"Select a valid Storage Location.\");\n\t\t}\t\t\n\t\t\n\t\treturn errs;\n\t},\n\n\n};",
         "variables": [
           {
             "name": "sql",
@@ -199880,7 +201269,7 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n\tasync init() {\n\t\tawait storeValue(\"ster_out_error\", \"\");\n\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\tawait qOpenRuns.run();\n\t},\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      const parsed = new Date(d);\n      if (Number.isNaN(parsed.getTime())) return \"NULL\";\n      const s = parsed.toISOString().slice(0, 19).replace(\"T\", \" \");\n      return \"'\" + s + \"'\";\n    },\n\t\tnum(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n  },\n\n\tsterilizedLocationOptions() {\n\t\treturn (qNonFridgeFruitRetLocations.data || [])\n\t\t\t.filter(l => l && l.nocopk && l.name && l.active !== false)\n\t\t\t.map(l => ({ label: l.name, value: l.nocopk }));\n\t},\n\n\tdefaultSterilizedLocationId() {\n\t\tconst opts = this.sterilizedLocationOptions();\n\t\tconst newLots = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"new lots\"\n\t\t);\n\t\treturn (newLots || opts[0])?.value || \"\";\n\t},\n\n\tselectedSterilizedLocationId() {\n\t\tconst selected = selSterilizedLocation.selectedOptionValue;\n\t\tconst validIds = this.sterilizedLocationOptions().map(o => String(o.value));\n\t\treturn validIds.includes(String(selected)) ? selected : null;\n\t},\n\n\tcanCompleteRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun()\n\t\t\t&& !!this.selectedSterilizedLocationId();\n\t},\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\n\t\ttry {\n\t\t\tconst completedRun = await qCompleteRunMP.run();\n\t\t\tshowAlert(\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id,\n\t\t\t\t\"success\"\n\t\t\t);\n\t\t\tawait storeValue(\n\t\t\t\t\"ster_out_error\",\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id\n\t\t\t);\n\t\t\tawait this.refresh();\n\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error completing run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t\t\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\tif (!this.selectedSterilizedLocationId()) {\n\t\t\tshowAlert(\"Select a valid Storage Location.\", \"error\");\n\t\t\terrs.push(\"Select a valid Storage Location.\");\n\t\t}\t\t\n\t\t\n\t\treturn errs;\n\t},\n\n\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n\t\n\tasync init() {\n\t\tawait storeValue(\"ster_out_error\", \"\");\n\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\tawait qOpenRuns.run();\n\t},\n\n\tsql: {\n    str(v) {\n      if (v === undefined || v === null) return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    ts(d) {\n      if (!d) return \"NULL\";\n      const parsed = new Date(d);\n      if (Number.isNaN(parsed.getTime())) return \"NULL\";\n      const s = parsed.toISOString().slice(0, 19).replace(\"T\", \" \");\n      return \"'\" + s + \"'\";\n    },\n\t\tnum(v) {\n\t\t\tif (v === undefined || v === null || v === \"\") return \"NULL\";\n\t\t\tconst n = Number(v);\n\t\t\treturn Number.isFinite(n) ? String(n) : \"NULL\";\n\t\t},\n  },\n\n\tsterilizedLocationOptions() {\n\t\treturn (qNonFridgeFruitRetLocations.data || [])\n\t\t\t.filter(l => l && l.nocopk && l.name && l.active !== false)\n\t\t\t.map(l => ({ label: l.name, value: l.nocopk }));\n\t},\n\n\tdefaultSterilizedLocationId() {\n\t\tconst opts = this.sterilizedLocationOptions();\n\t\tconst newLots = opts.find(o =>\n\t\t\tString(o.label || \"\").trim().toLowerCase() === \"new lots\"\n\t\t);\n\t\treturn (newLots || opts[0])?.value || \"\";\n\t},\n\n\tselectedSterilizedLocationId() {\n\t\tconst selected = selSterilizedLocation.selectedOptionValue;\n\t\tconst validIds = this.sterilizedLocationOptions().map(o => String(o.value));\n\t\treturn validIds.includes(String(selected)) ? selected : null;\n\t},\n\n\tcanCompleteRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun()\n\t\t\t&& !!this.selectedSterilizedLocationId();\n\t},\n\n\tcanOpenCancelRun() {\n\t\treturn appsmith.store.ster_out_submitting !== true\n\t\t\t&& !!this.selectedRun();\n\t},\n\n\tcanConfirmCancelRun() {\n\t\treturn this.canOpenCancelRun()\n\t\t\t&& String(inpCancelRunReason.text || \"\").trim().length > 0;\n\t},\n\n\tasync openCancelRun() {\n\t\tconst run = this.ensureRunSelected();\n\t\tif (!run || appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\t\tinpCancelRunReason.setValue(\"\");\n\t\tshowModal(modalCancelSterilizerRun.name);\n\t},\n\n\tasync cancelRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst run = this.ensureRunSelected();\n\t\tif (!run) {\n\t\t\treturn;\n\t\t}\n\t\tconst reason = String(inpCancelRunReason.text || \"\").trim();\n\t\tif (!reason) {\n\t\t\tshowAlert(\"Enter a cancellation reason.\", \"error\");\n\t\t\treturn;\n\t\t}\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\t\tconst runNo = run.steri_run_id || String(run.nocopk);\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\t\ttry {\n\t\t\tawait qCancelRunMP.run();\n\t\t\tcloseModal(modalCancelSterilizerRun.name);\n\t\t\tconst msg = \"Cancelled and archived sterilizer run \" + runNo + \".\";\n\t\t\tshowAlert(msg, \"success\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t\tawait this.refresh();\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error cancelling run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t},\n\t\n  selectedRun() {\n    const r = tblOpenRuns.selectedRow;\n    return r && Object.keys(r).length ? r : null;\n  },\n\n  ensureRunSelected() {\n    const r = this.selectedRun();\n    if (!r) {\n\t\t\tshowAlert(\"Select a run in the table first.\", 'error');\n      return null;\n    }\n    return r;\n  },\n\n  async onRunSelected() {\n    txtErrOut.setText(\"\");\n    const r = this.selectedRun();\n    if (r) {\n      storeValue(\"selected_ster_run\", r);\n    }\n  },\n\n  async refresh() {\n    txtErrOut.setText(\"\");\n\t\tinpGoodCount.setValue(\"\");\n\t\tinpDestroyedCount.setValue(\"\");\n\t\tdpEndTime.setValue(null)\n    return qOpenRuns.run();\n  },\n\n  async completeRun() {\n\t\ttxtErrOut.setText(\"\");\n\t\tconst errs = this.validate();\n\t\tif (errs.length) {\n\t\t\t await storeValue('ster_out_error', errs.join(\" \"));\n\t\t\treturn;\n\t\t}\n\n\t\tif (appsmith.store.ster_out_submitting === true) {\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"ster_out_submitting\", true);\n\n\t\ttry {\n\t\t\tconst completedRun = await qCompleteRunMP.run();\n\t\t\tshowAlert(\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id,\n\t\t\t\t\"success\"\n\t\t\t);\n\t\t\tawait storeValue(\n\t\t\t\t\"ster_out_error\",\n\t\t\t\t\"Created \" + completedRun[0].lots_created +\n\t\t\t\t\" lots from \" + tblOpenRuns.selectedRow.steri_run_id +\n\t\t\t\t\" and generated print job \" + completedRun[0].print_queue_id\n\t\t\t);\n\t\t\tawait this.refresh();\n\n\t\t} catch (e) {\n\t\t\tconst msg = e && e.message ? e.message : String(e);\n\t\t\tshowAlert(\"Error completing run: \" + msg, \"error\");\n\t\t\tawait storeValue(\"ster_out_error\", msg);\n\t\t} finally {\n\t\t\tawait storeValue(\"ster_out_submitting\", false);\n\t\t}\n\t\t\n\t},\n\t\n\tvalidate() {\n\t\tconst errs = [];\n\t\tconst run = this.selectedRun();\n\t\tif (!run) {\n\t\t\tshowAlert('Select an open run.', 'error');\n\t\t\terrs.push(\"Select an open run.\");\n\t\t\treturn errs;\n\t\t}\n\n\t\tif(dpEndTime.selectedDate) {\n\t\t\t// Get the values directly from the widgets\n\t\t\tconst startDate = tblOpenRuns.selectedRow.start_time; // e.g., \"2024-01-15T00:00:00Z\"\n\t\t\tconst endDate = dpEndTime.selectedDate;   // e.g., \"2024-01-20T00:00:00Z\"\n\n\t\t\t// Direct comparison works correctly for ISO 8601 strings and Date objects\n\t\t\tif (startDate > endDate) {\n\t\t\t\tshowAlert('End time cannot be before start time.', 'error');\n\t\t\t\terrs.push(\"End time cannot be before start time.\");\n\t\t\t}\n\t\t}\n\n\t\tconst planned = Number(run.planned_count);\n\t\tconst good = (inpGoodCount.text === \"\" || inpGoodCount.text === null || inpGoodCount.text === undefined)\n\t\t\t? 0 : Number(inpGoodCount.text);\n\t\tconst bad = (inpDestroyedCount.text === \"\" || inpDestroyedCount.text === null || inpDestroyedCount.text === undefined)\n\t\t\t? 0 : Number(inpDestroyedCount.text);\n\n\t\tif (!Number.isFinite(good) || good < 0) errs.push(\"Good count must be >= 0.\");\n\t\tif (!Number.isFinite(bad)  || bad  < 0) errs.push(\"Destroyed count must be >= 0.\");\n\n\t\tif (Number.isFinite(good) && Number.isFinite(bad) && (good + bad) <= 0) {\n\t\t\tshowAlert('Good + Destroyed must be > 0.', 'error');\n\t\t\terrs.push(\"Good + Destroyed must be > 0.\");\n\t\t}\n\n\t\tif (Number.isFinite(planned)) {\n\t\t\tif (!Number.isFinite(good) || !Number.isFinite(bad)) {\n\t\t\t\t// already covered\n\t\t\t} else if ((good + bad) !== planned) {\n\t\t\t\tshowAlert(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`, 'error');\n\t\t\t\terrs.push(`Good (${good}) + Destroyed (${bad}) must equal Planned Count (${planned}).`);\n\t\t\t}\n\t\t}\n\n\t\tif (!this.selectedSterilizedLocationId()) {\n\t\t\tshowAlert(\"Select a valid Storage Location.\", \"error\");\n\t\t\terrs.push(\"Select a valid Storage Location.\");\n\t\t}\t\t\n\t\t\n\t\treturn errs;\n\t},\n\n\n};",
         "variables": [
           {
             "name": "sql",

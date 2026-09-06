@@ -1,7 +1,10 @@
 -- 007_sterilizer.sql
 
 ALTER TABLE public.sterilization_runs
-  ADD COLUMN IF NOT EXISTS notes text;
+  ADD COLUMN IF NOT EXISTS notes text,
+  ADD COLUMN IF NOT EXISTS cancelled_at timestamp without time zone,
+  ADD COLUMN IF NOT EXISTS cancelled_by text,
+  ADD COLUMN IF NOT EXISTS cancellation_reason text;
 
 -- Resolve and validate the recipe-component plan used by Sterilizer IN/OUT.
 -- single_recipe items require one planned recipe. multi_recipe items derive
@@ -361,6 +364,98 @@ BEGIN
 END;
 $$;
 
+-- Cancel/archive a started run (Sterilizer OUT) without deleting its audit history.
+-- Cancelled runs remain in sterilization_runs, create no lots, and are excluded
+-- from the open-run queue by Appsmith.
+CREATE OR REPLACE FUNCTION public.mp_sterilizer_cancel_run(
+  p_run_id bigint,
+  p_operator text,
+  p_reason text,
+  p_cancelled_at timestamp without time zone DEFAULT NULL
+)
+RETURNS TABLE(run_id bigint, steri_run_id text, cancelled_at timestamp without time zone)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_run record;
+  v_cancelled_at timestamp without time zone;
+  v_reason text := NULLIF(btrim(COALESCE(p_reason, '')), '');
+BEGIN
+  SELECT sr.*
+  INTO v_run
+  FROM public.sterilization_runs sr
+  WHERE sr.nocopk = p_run_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Run not found: %', p_run_id;
+  END IF;
+
+  IF v_run.cancelled_at IS NOT NULL THEN
+    run_id := v_run.nocopk;
+    steri_run_id := v_run.steri_run_id;
+    cancelled_at := v_run.cancelled_at;
+    RETURN NEXT;
+    RETURN;
+  END IF;
+
+  IF v_run.end_time IS NOT NULL THEN
+    RAISE EXCEPTION 'Run % is already completed and cannot be cancelled.',
+      COALESCE(v_run.steri_run_id, p_run_id::text);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM public.lots l WHERE l.steri_run_id = p_run_id) THEN
+    RAISE EXCEPTION 'Lots already exist for run %; completed production history cannot be cancelled.',
+      COALESCE(v_run.steri_run_id, p_run_id::text);
+  END IF;
+
+  IF v_reason IS NULL THEN
+    RAISE EXCEPTION 'Cancellation reason is required.';
+  END IF;
+
+  v_cancelled_at := COALESCE(p_cancelled_at, now());
+
+  IF v_run.start_time IS NOT NULL AND v_cancelled_at < v_run.start_time THEN
+    RAISE EXCEPTION 'Cancellation time cannot be before start time.';
+  END IF;
+
+  UPDATE public.sterilization_runs sr
+  SET
+    cancelled_at = v_cancelled_at,
+    cancelled_by = COALESCE(NULLIF(btrim(COALESCE(p_operator, '')), ''), sr.operator, 'system'),
+    cancellation_reason = v_reason,
+    ui_error = NULL,
+    ui_error_at = NULL
+  WHERE sr.nocopk = p_run_id;
+
+  PERFORM public.mp_events_insert(
+    NULL::bigint,
+    NULL::bigint,
+    'SterilizerRunCancelled'::text,
+    v_cancelled_at::timestamp without time zone,
+    COALESCE(NULLIF(btrim(COALESCE(p_operator, '')), ''), v_run.operator, 'system')::text,
+    'Sterilizer OUT'::text,
+    jsonb_strip_nulls(jsonb_build_object(
+      'steri_run_id', v_run.steri_run_id,
+      'steri_run_nocopk', v_run.nocopk,
+      'planned_item_nocopk', v_run.planned_item_id,
+      'planned_recipe_nocopk', v_run.planned_recipe_id,
+      'planned_count', v_run.planned_count,
+      'planned_unit_size', v_run.planned_unit_size,
+      'process_type', v_run.process_type,
+      'start_time', v_run.start_time,
+      'cancelled_at', v_cancelled_at,
+      'reason', v_reason
+    ))
+  );
+
+  run_id := v_run.nocopk;
+  steri_run_id := v_run.steri_run_id;
+  cancelled_at := v_cancelled_at;
+  RETURN NEXT;
+END;
+$$;
+
 -- Complete a run (Sterilizer OUT): update run, validate counts, create lots,
 -- create one or more lot_recipe_components per lot, write events, and enqueue
 -- the consolidated sterilizer sheet print job.
@@ -408,6 +503,11 @@ BEGIN
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Run not found: %', p_run_id;
+  END IF;
+
+  IF v_run.cancelled_at IS NOT NULL THEN
+    RAISE EXCEPTION 'Run % was cancelled at % and cannot be completed.',
+      COALESCE(v_run.steri_run_id, p_run_id::text), v_run.cancelled_at;
   END IF;
 
   v_end := COALESCE(p_end_time, now());
