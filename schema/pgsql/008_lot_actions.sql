@@ -677,8 +677,8 @@ BEGIN
     l.strain_id,
     l.vendor_name,
     l.vendor_batch,
-    l.vendor_name_mat,
-    l.strain_species_strain_mat,
+    COALESCE(NULLIF(btrim(l.vendor_name), ''), NULLIF(btrim(l.vendor_name_mat), '')),
+    COALESCE(NULLIF(btrim(s.species_strain), ''), NULLIF(btrim(l.strain_species_strain_mat), '')),
     l.remaining_volume_ml,
     l.notes,
     l.created_at,
@@ -710,6 +710,7 @@ BEGIN
     v_source_item_name
   FROM public.lots l
   LEFT JOIN public.items i ON i.nocopk = l.item_id
+  LEFT JOIN public.strains s ON s.nocopk = l.strain_id
   WHERE l.nocopk = p_source_lot_id
   FOR UPDATE OF l;
 
