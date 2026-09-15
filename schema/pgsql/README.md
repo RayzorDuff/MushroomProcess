@@ -575,3 +575,15 @@ migrations, then run `tests/041_payment_provider_neutral_smoke.sql`. R1 changes
 only the database compatibility contract; Appsmith and n8n continue using the
 existing Clover fields until a later #85 round moves those reads/writes to the
 provider-neutral aliases.
+
+### `042_product_return_to_lot.sql` / `043_product_return_lineage.sql` — Product return foundation (#57)
+
+Issue #57 is implemented in two application phases.  The first database phase adds the audit-safe transition used by the later Appsmith workflows:
+
+- `lots.source_product_id` is the canonical Product -> returned-Lot edge, with a retained derived single-record junction for NocoDB compatibility;
+- `mp_product_cultivation_eligibility(...)` limits returnable inventory to eligible grain, substrate, and LC-syringe Products and rejects expired, ordered, terminal/unavailable, ambiguous-lineage, or already-returned Products;
+- `mp_product_return_to_lot(...)` creates a new Lot rather than reopening an old consumed Lot, preserves the earliest Product/origin expiration, volume/weight, strain/vendor metadata, sterilization/recipe-component provenance, moves the Product to `Consumed`, and records a linked audit event;
+- label creation is explicit and defaults to none so contextual operations can avoid unnecessary intermediate labels; and
+- `043_product_return_lineage.sql` extends `v_reporting_lot_lineage` so reporting can traverse the explicit `Lot -> Product -> returned Lot` chain in both directions.
+
+For an incremental production deployment, import `042_product_return_to_lot.sql` and then `043_product_return_lineage.sql`; run `tests/042_product_return_to_lot_smoke.sql` before the Phase 2 Appsmith workflow is enabled.

@@ -441,6 +441,7 @@ CREATE TABLE IF NOT EXISTS "public"."lots" (
   "spawned_at" timestamp without time zone,
   "sterilized_at" timestamp without time zone,
   "source_lot_id" bigint,
+  "source_product_id" bigint,
   "plate_count" numeric,
   "plate_group_id" text,
   "parent_lot_id" bigint,
@@ -1003,6 +1004,24 @@ DO $$ BEGIN
         END IF;
       END $$;
 CREATE INDEX IF NOT EXISTS "ix_lots_parent_lot_id" ON "public"."lots"("parent_lot_id");
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_lots_source_product_id'
+            AND c.conrelid = 'public.lots'::regclass
+        ) THEN
+          ALTER TABLE "public"."lots"
+            ADD CONSTRAINT "fk_lots_source_product_id"
+            FOREIGN KEY ("source_product_id")
+            REFERENCES "public"."products"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_lots_source_product_id" ON "public"."lots"("source_product_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_lots_source_product_id_nonnull"
+  ON "public"."lots"("source_product_id")
+  WHERE "source_product_id" IS NOT NULL;
 DO $$ BEGIN
         IF NOT EXISTS (
           SELECT 1
