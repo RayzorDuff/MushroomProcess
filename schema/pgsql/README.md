@@ -587,3 +587,25 @@ Issue #57 is implemented in two application phases.  The first database phase ad
 - `043_product_return_lineage.sql` extends `v_reporting_lot_lineage` so reporting can traverse the explicit `Lot -> Product -> returned Lot` chain in both directions.
 
 For an incremental production deployment, import `042_product_return_to_lot.sql` and then `043_product_return_lineage.sql`; run `tests/042_product_return_to_lot_smoke.sql` before the Phase 2 Appsmith workflow is enabled.
+
+### `044_product_cultivation_context.sql` — contextual Product cultivation (#57 Phase 2)
+
+`044_product_cultivation_context.sql` exposes eligible packaged cultivation inventory through
+`v_product_cultivation_candidates` and adds atomic wrappers for the user-facing Inoculate and
+Spawn-to-Bulk workflows. The wrappers convert an eligible Product back to a new Lot and perform
+the cultivation operation in the same database call, so a downstream validation failure cannot
+leave a Product deproductized by itself.
+
+The Appsmith **Show Eligible Products** option is available on Lots, Lab - Inoculate, and Lab -
+Spawn to Bulk. Packaged grain may be an inoculation target, LC syringes may be inoculation sources,
+and packaged substrate may be a Spawn-to-Bulk substrate. Other Product categories remain hidden.
+
+Label behavior is contextual: grain receives the normal inoculated-grain label; substrate receives
+no intermediate return label because the Spawn-to-Bulk output gets the normal `Bulk_Created` label;
+a fully depleted LC syringe gets no replacement label; and a partially used LC syringe gets one
+replacement LC Lot label for its remaining volume. Product/origin expiration is preserved and may
+only shorten, never extend, the downstream lifecycle date.
+
+For an incremental production deployment, import `044_product_cultivation_context.sql`, run
+`tests/044_product_cultivation_context_smoke.sql`, and run
+`node appsmith/product_cultivation_return_smoke.js` before importing the updated Appsmith export.

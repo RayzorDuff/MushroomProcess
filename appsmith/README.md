@@ -47,6 +47,7 @@ Validate the normalized export and custom navigation before committing:
 ```bash
 python3 -m json.tool appsmith/MushroomProcess.json >/dev/null
 node scripts/sync_navigation.js --check
+node appsmith/product_cultivation_return_smoke.js
 git diff --check
 ```
 
