@@ -609,3 +609,15 @@ only shorten, never extend, the downstream lifecycle date.
 For an incremental production deployment, import `044_product_cultivation_context.sql`, run
 `tests/044_product_cultivation_context_smoke.sql`, and run
 `node appsmith/product_cultivation_return_smoke.js` before importing the updated Appsmith export.
+
+### `045_product_cultivation_phase2_corrections.sql` — Product cultivation corrections (#57)
+
+This follow-up corrects three findings from the initial Phase 2 deployment:
+
+- cultivation Product expiration uses the Colorado operating calendar date instead of the PostgreSQL host's UTC `CURRENT_DATE`, preventing a Product from disappearing several hours early at UTC midnight;
+- `v_product_cultivation_candidates.lot_id` now exposes the Product's existing `PROD-*` identifier directly, without an extra `PRODUCT · ` prefix; and
+- Product-return/Inoculate/Spawn-to-Bulk wrappers derive `now()` in the same operating timezone used by candidate visibility.
+
+The timezone rule is centralized in `mp_cultivation_operating_date()` so it can later be sourced from the planned Settings table without changing every cultivation query.
+
+For incremental production deployment, import `045_product_cultivation_phase2_corrections.sql`, run `tests/045_product_cultivation_phase2_corrections_smoke.sql`, and then import the paired Appsmith correction. `qSpawnToBulkLocations` is already an automatic/on-load query; the Appsmith correction removes manual `.run()` calls from `LotsSpawnToBulk` to avoid mixing trigger and data dependencies on the same query.

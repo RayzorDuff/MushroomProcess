@@ -165,7 +165,7 @@ BEGIN
     WHERE c.product_nocopk = v_lc_product
       AND c.inventory_kind = 'product'
       AND c.can_inoculate_source
-      AND c.lot_id LIKE 'PRODUCT · %'
+      AND c.lot_id = 'PROD-ISS57-P2-LC-PARTIAL'
   ) OR NOT EXISTS (
     SELECT 1 FROM public.v_product_cultivation_candidates c
     WHERE c.product_nocopk = v_grain_product
