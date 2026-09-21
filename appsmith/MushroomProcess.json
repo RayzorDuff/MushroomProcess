@@ -19846,8 +19846,8 @@
                       "key": "onCheckChange"
                     }
                   ],
-                  "bottomRow": 22,
-                  "topRow": 18,
+                  "bottomRow": 9,
+                  "topRow": 5,
                   "parentRowSpace": 10,
                   "type": "CHECKBOX_WIDGET",
                   "alignWidget": "LEFT",
@@ -19863,14 +19863,14 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "leftColumn": 48,
+                  "leftColumn": 14,
                   "children": [],
                   "labelPosition": "Right",
                   "onCheckChange": "{{ LotsPage.refresh() }}",
                   "isDisabled": false,
                   "key": "fo5g9wkllb",
                   "isRequired": false,
-                  "rightColumn": 64,
+                  "rightColumn": 34,
                   "dynamicHeight": "AUTO_HEIGHT",
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "widgetId": "wt0n1rnaq1",
@@ -19882,7 +19882,7 @@
                   "isLoading": false,
                   "mobileTopRow": 5,
                   "renderMode": "CANVAS",
-                  "originalTopRow": 18,
+                  "originalTopRow": 5,
                   "responsiveBehavior": "fill",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileLeftColumn": 18,
@@ -19891,7 +19891,67 @@
                     "LotsPage.refresh()"
                   ],
                   "maxDynamicHeight": 9000,
-                  "originalBottomRow": 22,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsPage.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "79cb833d5b",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "b0e0a18ae4",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsPage.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
                   "minDynamicHeight": 4
                 }
               ]
@@ -32411,8 +32471,8 @@
                       "key": "onCheckChange"
                     }
                   ],
-                  "bottomRow": 22,
-                  "topRow": 18,
+                  "bottomRow": 9,
+                  "topRow": 5,
                   "parentRowSpace": 10,
                   "type": "CHECKBOX_WIDGET",
                   "alignWidget": "LEFT",
@@ -32428,14 +32488,14 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "leftColumn": 48,
+                  "leftColumn": 14,
                   "children": [],
                   "labelPosition": "Right",
                   "onCheckChange": "{{ LotsPage.refresh() }}",
                   "isDisabled": false,
                   "key": "fo5g9wkllb",
                   "isRequired": false,
-                  "rightColumn": 64,
+                  "rightColumn": 34,
                   "dynamicHeight": "AUTO_HEIGHT",
                   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "widgetId": "wt0n1rnaq1",
@@ -32447,7 +32507,7 @@
                   "isLoading": false,
                   "mobileTopRow": 5,
                   "renderMode": "CANVAS",
-                  "originalTopRow": 18,
+                  "originalTopRow": 5,
                   "responsiveBehavior": "fill",
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileLeftColumn": 18,
@@ -32456,7 +32516,67 @@
                     "LotsPage.refresh()"
                   ],
                   "maxDynamicHeight": 9000,
-                  "originalBottomRow": 22,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsPage.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "79cb833d5b",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "b0e0a18ae4",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsPage.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
                   "minDynamicHeight": 4
                 }
               ]
@@ -79074,6 +79194,66 @@
                   "maxDynamicHeight": 9000,
                   "originalBottomRow": 9,
                   "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsSpawnToBulk.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "ec8a2ef3c4",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "51e0c596ee",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsSpawnToBulk.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
                 }
               ]
             },
@@ -85115,6 +85295,66 @@
                   "maxDynamicHeight": 9000,
                   "originalBottomRow": 9,
                   "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsSpawnToBulk.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "ec8a2ef3c4",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "51e0c596ee",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsSpawnToBulk.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
                 }
               ]
             },
@@ -90903,6 +91143,66 @@
                   "maxDynamicHeight": 9000,
                   "originalBottomRow": 9,
                   "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsInoculate.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "52da41c900",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "378adbb3f6",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsInoculate.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
                 }
               ]
             },
@@ -96650,6 +96950,66 @@
                   "minWidth": 450,
                   "isVisible": true,
                   "label": "Show Eligible Products",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "renderMode": "CANVAS",
+                  "originalTopRow": 5,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 18,
+                  "defaultCheckedState": false,
+                  "jsonPathKeys": [
+                    "LotsInoculate.refresh()"
+                  ],
+                  "maxDynamicHeight": 9000,
+                  "originalBottomRow": 9,
+                  "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 9,
+                  "widgetName": "chkShowExpiredProducts",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onCheckChange"
+                    }
+                  ],
+                  "bottomRow": 9,
+                  "topRow": 5,
+                  "parentRowSpace": 10,
+                  "type": "CHECKBOX_WIDGET",
+                  "alignWidget": "LEFT",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "dynamicTriggerPathList": [],
+                  "parentColumnSpace": 10.296875,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "leftColumn": 34,
+                  "children": [],
+                  "labelPosition": "Right",
+                  "onCheckChange": "{{ LotsInoculate.refresh() }}",
+                  "isDisabled": "{{ !chkShowEligibleProducts.isChecked }}",
+                  "key": "52da41c900",
+                  "isRequired": false,
+                  "rightColumn": 54,
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "widgetId": "378adbb3f6",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "label": "Show Expired Products",
                   "version": 1,
                   "parentId": "0",
                   "isLoading": false,
@@ -201600,7 +201960,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -201639,7 +201999,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -201684,7 +202044,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -201723,7 +202083,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -201770,7 +202130,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {
@@ -201809,7 +202169,7 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
+          "body": "SELECT *\nFROM public.v_product_cultivation_candidates\nWHERE (\n  NOT COALESCE(is_expired, false)\n  OR {{ chkShowExpiredProducts.isChecked === true }}::boolean\n)\nORDER BY COALESCE(use_by, CURRENT_DATE + 3650), created_at DESC NULLS LAST, product_nocopk DESC\nLIMIT 500;",
           "selfReferencingDataPaths": [],
           "pluginSpecifiedTemplates": [
             {

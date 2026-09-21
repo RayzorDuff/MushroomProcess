@@ -581,7 +581,7 @@ provider-neutral aliases.
 Issue #57 is implemented in two application phases.  The first database phase adds the audit-safe transition used by the later Appsmith workflows:
 
 - `lots.source_product_id` is the canonical Product -> returned-Lot edge, with a retained derived single-record junction for NocoDB compatibility;
-- `mp_product_cultivation_eligibility(...)` limits returnable inventory to eligible grain, substrate, and LC-syringe Products and rejects expired, ordered, terminal/unavailable, ambiguous-lineage, or already-returned Products;
+- `mp_product_cultivation_eligibility(...)` limits returnable inventory to structurally eligible grain, substrate, and LC-syringe Products and rejects ordered, terminal/unavailable, ambiguous-lineage, or already-returned Products; expiration visibility is handled separately by the contextual UI;
 - `mp_product_return_to_lot(...)` creates a new Lot rather than reopening an old consumed Lot, preserves the earliest Product/origin expiration, volume/weight, strain/vendor metadata, sterilization/recipe-component provenance, moves the Product to `Consumed`, and records a linked audit event;
 - label creation is explicit and defaults to none so contextual operations can avoid unnecessary intermediate labels; and
 - `043_product_return_lineage.sql` extends `v_reporting_lot_lineage` so reporting can traverse the explicit `Lot -> Product -> returned Lot` chain in both directions.
@@ -621,3 +621,19 @@ This follow-up corrects three findings from the initial Phase 2 deployment:
 The timezone rule is centralized in `mp_cultivation_operating_date()` so it can later be sourced from the planned Settings table without changing every cultivation query.
 
 For incremental production deployment, import `045_product_cultivation_phase2_corrections.sql`, run `tests/045_product_cultivation_phase2_corrections_smoke.sql`, and then import the paired Appsmith correction. `qSpawnToBulkLocations` is already an automatic/on-load query; the Appsmith correction removes manual `.run()` calls from `LotsSpawnToBulk` to avoid mixing trigger and data dependencies on the same query.
+
+
+### `046_expired_product_cultivation_opt_in.sql` — expired Product cultivation opt-in (#57)
+
+Issue #57 now distinguishes expiration from structural unavailability. A Product whose use-by date
+has passed can still be returned to cultivation when the operator explicitly enables **Show Expired
+Products**. The default remains conservative: **Show Eligible Products** excludes expired rows until
+the second checkbox is enabled.
+
+`v_product_cultivation_candidates` now includes structurally eligible current and expired Products
+and exposes `is_expired`. The eligibility contract no longer treats the use-by date, or an `Expired`
+storage/lifecycle marker by itself, as terminal. Order-linked, shipped, consumed, retired, composted,
+missing, already-returned, inoculated grain/substrate, and other invalid Products remain excluded.
+
+For incremental deployment, import `046_expired_product_cultivation_opt_in.sql`, run
+`tests/046_expired_product_cultivation_opt_in_smoke.sql`, and then import the paired Appsmith export.

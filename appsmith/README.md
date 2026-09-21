@@ -219,3 +219,10 @@ state does not present a selected record with blank edit controls. Numeric Selec
 option values are normalized to strings to match Appsmith `setSelectedOption()`
 semantics. Item Component Plans uses `RecipeAdmin.itemComponentRows()` so the
 Show Inactive Components control affects the displayed rows.
+
+### Issue #57 — expired cultivation Product opt-in
+
+Lots, Lab - Inoculate, and Lab - Spawn to Bulk expose **Show Expired Products** alongside
+**Show Eligible Products**. Expired Products remain hidden by default. The expired checkbox is
+disabled until eligible Products are enabled, and changing it refreshes the cultivation candidate
+query so expired-but-otherwise-valid grain, LC syringe, or substrate Products can be selected.
