@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "d18f8b64-07c2-463f-bfe2-3b349a85a6cd",
+      "id": "b5d5930b-4cd0-479b-9d11-770741c597bd",
       "name": "Webhook - List Fulfillment Orders",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -22,7 +22,7 @@
       "parameters": {
         "jsCode": "const body = $json.body || $json;\n\nfunction boolish(v) {\n  return (\n    v === true ||\n    v === 1 ||\n    String(v || '').trim().toLowerCase() === 'true' ||\n    String(v || '').trim().toLowerCase() === 'yes' ||\n    String(v || '').trim().toLowerCase() === '1'\n  );\n}\n\nreturn [{\n  json: {\n    mode: String(body.mode || 'all').toLowerCase(),\n    date: String(body.date || ''),\n    timezone: String(body.timezone || 'America/Denver'),\n    include_review: boolish(body.include_review)\n  }\n}];"
       },
-      "id": "03291bb2-d55a-43f8-9c33-854b89f3e4e4",
+      "id": "93667ca6-80b5-48a4-bb87-21cb1f02e5f7",
       "name": "Code - Parse List Request",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -37,7 +37,7 @@
         "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(o.airtable_id, o.nocopk::text), 'fields', json_build_object(\n  'name', o.name,\n  'provider', o.provider,\n  'site_key', o.site_key,\n  'external_order_id', o.external_order_id,\n  'external_skus', o.external_skus,\n  'ecwid_order_id', o.ecwid_order_id,\n  'order_number', o.order_number,\n  'order_code', o.order_code,\n  'status', o.status,\n  'order_date', o.order_date,\n  'customer_name', o.customer_name,\n  'customer_email', o.customer_email,\n  'items_json', o.items_json,\n  'ecwid_skus', o.ecwid_skus,\n  'payment_status', o.payment_status,\n  'payment_method', o.payment_method,\n  'subtotal', o.subtotal,\n  'tax_total', o.tax_total,\n  'order_total', o.order_total,\n  'currency', o.currency,\n  'payment_processor', o.payment_processor,\n  'processor_payment_id', o.processor_payment_id,\n  'processor_payment_status', o.processor_payment_status,\n  'processor_payment_amount', o.processor_payment_amount,\n  'processor_payment_time', o.processor_payment_time,\n  'processor_match_confidence', o.processor_match_confidence,\n  'payment_reconciliation_status', o.payment_reconciliation_status,\n  'clover_reconciliation_status', o.clover_reconciliation_status,\n  'clover_payment_id', o.clover_payment_id,\n  'clover_payment_amount', o.clover_payment_amount,\n  'clover_payment_time', o.clover_payment_time,\n  'clover_match_confidence', o.clover_match_confidence,\n  'reconciled_at', o.reconciled_at,\n  'reconciliation_notes', o.reconciliation_notes,\n  'ecwid_event_type', o.ecwid_event_type,\n  'ecwid_event_id', o.ecwid_event_id,\n  'last_webhook_at', o.last_webhook_at,\n  'products', COALESCE(lp.product_record_ids, ARRAY[]::text[]),\n  'products_report', COALESCE(lp.product_names, ''),\n  'product_ids_report', COALESCE(lp.product_ids, '')\n)) ORDER BY o.order_date DESC), '[]'::json) AS records\nFROM public.ecommerce_orders o\nLEFT JOIN LATERAL (\n  SELECT\n    array_agg(COALESCE(p.airtable_id, p.nocopk::text) ORDER BY p.product_id) AS product_record_ids,\n    string_agg(COALESCE(p.name_mat, p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_names,\n    string_agg(COALESCE(p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_ids\n  FROM public._m2m_products_ecommerce_orders_ecommerce_orders m\n  JOIN public.products p ON p.nocopk = m.products_id\n  WHERE m.ecommerce_orders_id = o.nocopk\n) lp ON true;",
         "options": {}
       },
-      "id": "434b35e4-63ed-4b9c-be65-b49121579edf",
+      "id": "8e3eb0b3-6c0c-4e71-9433-d0840968394c",
       "name": "PGSQL - List Orders",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -56,7 +56,7 @@
       "parameters": {
         "jsCode": "const req = $('Code - Parse List Request').first().json;\nconst rows = Array.isArray($json.records) ? $json.records : [];\n\nfunction zonedParts(v, tz) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return null;\n\n  const parts = new Intl.DateTimeFormat('en-CA', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n  }).formatToParts(d);\n\n  return Object.fromEntries(parts.map(p => [p.type, p.value]));\n}\n\nfunction dateKey(v, tz) {\n  const m = zonedParts(v, tz);\n  if (!m) return '';\n  return `${m.year}-${m.month}-${m.day}`;\n}\n\nfunction localDateTime(v, tz) {\n  if (!v) return '';\n  const d = new Date(v);\n  if (Number.isNaN(d.getTime())) return '';\n  return new Intl.DateTimeFormat('en-US', {\n    timeZone: tz,\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: true\n  }).format(d);\n}\n\nfunction parseItems(s) {\n  try {\n    const a = typeof s === 'string' ? JSON.parse(s) : [];\n    return Array.isArray(a) ? a : [];\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction itemSummary(items) {\n  return items\n    .map(i => `${i.name || i.nameTranslated?.en || '(unknown)'} x${Number(i.quantity || 0) || 0}`)\n    .join(', ');\n}\n\n/*\n  IMPORTANT:\n  Treat requested date as a plain calendar date, not a moment in time.\n  Do not convert it through Date()/timezone math.\n*/\nfunction normalizeReqDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return '';\n\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  return m ? m[1] : '';\n}\n\nconst mode = String(req.mode || 'all');\nconst timezone = req.timezone || 'America/Denver';\nconst reqDateRaw = req.date || '';\nconst reqDate = normalizeReqDate(reqDateRaw);\n\nconst out = [];\nconst debug = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n  const items = parseItems(f.items_json);\n\n  const requiredCount = items.reduce(\n    (n, i) => n + (Number(i.quantity || 0) || 0),\n    0\n  );\n\n  const linkedProducts = Array.isArray(f.products) ? f.products : [];\n  const linkedCount = linkedProducts.length;\n  const productAssignmentComplete =\n    requiredCount > 0 && linkedCount >= requiredCount;\n\n  const paymentMethod = String(f.payment_method || '');\n  const salesChannel = String(f.provider || 'ecwid').trim().toLowerCase() || 'ecwid';\n  const legacyMarket = String(paymentMethod || '').startsWith('Sell on the Go');\n  const market = legacyMarket || ['moov_pos', 'clover_pos', 'market'].includes(salesChannel);\n\n  // Prefer the provider-neutral payment aliases introduced by Issue #85 R1.\n  // Fall back to Clover fields so the Airtable compatibility workflow and\n  // pre-R1 records continue to behave identically during migration.\n  const legacyCloverEvidence = Boolean(\n    legacyMarket ||\n    f.clover_payment_id ||\n    f.clover_payment_amount ||\n    f.clover_payment_time ||\n    f.clover_match_confidence\n  );\n  const paymentProcessor = String(\n    f.payment_processor || (legacyCloverEvidence ? 'clover' : '')\n  ).toLowerCase();\n  const reconciliationStatus = String(\n    f.payment_reconciliation_status || f.clover_reconciliation_status || ''\n  ).toLowerCase();\n  const processorPaymentId =\n    f.processor_payment_id ||\n    (paymentProcessor === 'clover' ? f.clover_payment_id : null) ||\n    null;\n  const processorPaymentStatus = String(f.processor_payment_status || '');\n  const processorPaymentAmount =\n    f.processor_payment_amount ??\n    (paymentProcessor === 'clover' ? f.clover_payment_amount : null) ??\n    null;\n  const processorPaymentTime =\n    f.processor_payment_time ||\n    (paymentProcessor === 'clover' ? f.clover_payment_time : null) ||\n    null;\n  const processorMatchConfidence =\n    f.processor_match_confidence ??\n    (paymentProcessor === 'clover' ? f.clover_match_confidence : null) ??\n    null;\n  const paymentStatus = String(f.payment_status || '').toUpperCase();\n  \n  const includeReview =\n    req.include_review === true ||\n    String(req.include_review || '').toLowerCase() === 'true';\n  \n  const accounted = reconciliationStatus === 'accounted';\n  const requiresProcessorReconciliation = Boolean(\n    market ||\n    (paymentProcessor && reconciliationStatus)\n  );\n\n  const reviewable =\n    requiresProcessorReconciliation &&\n    ['pending', 'needs_review'].includes(reconciliationStatus);\n  \n  const marketCash = market && paymentMethod === 'Sell on the Go - Cash';\n  \n  const ready = marketCash\n    ? (paymentStatus === 'PAID' || accounted)\n    : requiresProcessorReconciliation\n      ? (reconciliationStatus === 'reconciled' || accounted)\n      : paymentStatus === 'PAID';\n\n  const reconciliationComplete = requiresProcessorReconciliation\n    ? (reconciliationStatus === 'reconciled' || accounted)\n    : paymentStatus === 'PAID';\n  const assignmentCompleteNeedsReconciliation =\n    productAssignmentComplete && requiresProcessorReconciliation && !reconciliationComplete;\n  const fullyComplete = productAssignmentComplete && reconciliationComplete;\n  \n  const rowDate = dateKey(f.order_date, timezone);\n  \n  let excludedBy = null;\n  \n  if (mode === 'market' && !market) {\n    excludedBy = 'mode_market';\n  } else if (mode === 'web' && market) {\n    excludedBy = 'mode_web';\n  } else if (!ready && !assignmentCompleteNeedsReconciliation && !(includeReview && reviewable)) {\n    excludedBy = 'not_ready';\n  } else if (reqDate && rowDate !== reqDate) {\n    excludedBy = 'date';\n  }\n\n  debug.push({\n    id: rec.id,\n    order_code: f.order_code || null,\n    payment_method: paymentMethod,\n    sales_channel: salesChannel,\n    market,\n    legacy_market: legacyMarket,\n    requires_processor_reconciliation: requiresProcessorReconciliation,\n    payment_status: f.payment_status || null,\n    payment_processor: paymentProcessor || null,\n    payment_reconciliation_status: reconciliationStatus || null,\n    processor_payment_id: processorPaymentId,\n    clover_reconciliation_status: f.clover_reconciliation_status || null,\n    order_date_raw: f.order_date || null,\n    row_date: rowDate,\n    req_date_raw: reqDateRaw || null,\n    req_date: reqDate || null,\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_assignment_complete: productAssignmentComplete,\n    reconciliation_complete: reconciliationComplete,\n    assignment_complete_needs_reconciliation: assignmentCompleteNeedsReconciliation,\n    fully_complete: fullyComplete,\n    excluded_by: excludedBy,\n    reconciliation_status: reconciliationStatus,\n    include_review: includeReview,\n    ready,\n    reviewable,\n    accounted\n  });\n\n  if (excludedBy) continue;\n\n  out.push({\n    airtable_record_id: rec.id,\n    sales_channel: salesChannel,\n    external_order_id: f.external_order_id || f.ecwid_order_id || null,\n    order_ref: String(f.order_code || f.external_order_id || f.ecwid_order_id || f.order_number || ''),\n    order_number: f.order_number || null,\n    order_date: f.order_date || null,\n    order_date_local: localDateTime(f.order_date, timezone),\n    order_date_local_date: rowDate,\n    customer_name: f.customer_name || '',\n    payment_method: paymentMethod,\n    payment_status: f.payment_status || '',\n    payment_processor: paymentProcessor,\n    payment_reconciliation_status: reconciliationStatus,\n    processor_payment_id: processorPaymentId,\n    processor_payment_status: processorPaymentStatus,\n    processor_payment_amount: processorPaymentAmount,\n    processor_payment_time: processorPaymentTime,\n    processor_match_confidence: processorMatchConfidence,\n    // Legacy Clover status is retained in the response while Appsmith and\n    // downstream callers migrate to payment_reconciliation_status.\n    clover_reconciliation_status: f.clover_reconciliation_status || '',\n    payment_state: market\n      ? (reconciliationStatus || 'pending')\n      : (f.payment_status || ''),\n    needs_reconciliation_review: requiresProcessorReconciliation && !ready,\n    reviewable,\n    accounted,\n    mode: market ? 'market' : 'web',\n    linked_count: linkedCount,\n    required_count: requiredCount,\n    product_assignment_complete: productAssignmentComplete,\n    reconciliation_complete: reconciliationComplete,\n    assignment_complete_needs_reconciliation: assignmentCompleteNeedsReconciliation,\n    fully_complete: fullyComplete,\n    can_assign_products: !productAssignmentComplete,\n    can_reconcile: requiresProcessorReconciliation && !reconciliationComplete,\n    product_names: itemSummary(items) || '(none)',\n    products_report: f.products_report || '',\n    product_ids_report: f.product_ids_report || '',\n    items,\n    reconciliation_notes: f.reconciliation_notes || ''\n  });\n}\n\nout.sort((a, b) => String(b.order_date || '').localeCompare(String(a.order_date || '')));\n\nreturn [{\n  json: {\n    ok: true,\n    req: {\n      ...req,\n      date_raw: reqDateRaw,\n      date: reqDate,\n      timezone\n    },\n    orders: out,\n    count: out.length,\n    debug\n  }\n}];"
       },
-      "id": "1de1f8f0-9ca7-4650-8894-3b828921735a",
+      "id": "c3d35d1b-b741-48a7-bfe4-4a6708d66bc1",
       "name": "Code - Build Fulfillment Orders",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -71,7 +71,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "93eeb413-f691-49e7-acc9-f630c5b3d937",
+      "id": "e4e249c2-5c72-4789-8566-20b8023c5d27",
       "name": "Respond - List Orders",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -87,7 +87,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "7456362b-4685-41e0-bb15-ed6120c2517f",
+      "id": "15bb823c-d785-4817-811a-e4d1a6f4b0c6",
       "name": "Webhook - Order Detail",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -101,7 +101,7 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const id=String(body.airtable_record_id||'').trim(); if(!id) throw new Error('Missing airtable_record_id'); return [{json:{airtable_record_id:id, timezone:String(body.timezone||'America/Denver')}}];"
       },
-      "id": "78c1205e-c494-4928-8ed9-a17e8a628f57",
+      "id": "90a535b9-a83a-4799-bad8-7deb26b045be",
       "name": "Code - Parse Detail Request",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -116,7 +116,7 @@
         "query": "{{ `SELECT COALESCE(o.airtable_id, o.nocopk::text) AS id,\n       json_build_object(\n  'name', o.name,\n  'ecwid_order_id', o.ecwid_order_id,\n  'order_number', o.order_number,\n  'order_code', o.order_code,\n  'status', o.status,\n  'order_date', o.order_date,\n  'customer_name', o.customer_name,\n  'customer_email', o.customer_email,\n  'items_json', o.items_json,\n  'ecwid_skus', o.ecwid_skus,\n  'payment_status', o.payment_status,\n  'payment_method', o.payment_method,\n  'subtotal', o.subtotal,\n  'tax_total', o.tax_total,\n  'order_total', o.order_total,\n  'currency', o.currency,\n  'clover_reconciliation_status', o.clover_reconciliation_status,\n  'clover_payment_id', o.clover_payment_id,\n  'clover_payment_amount', o.clover_payment_amount,\n  'clover_payment_time', o.clover_payment_time,\n  'clover_match_confidence', o.clover_match_confidence,\n  'reconciled_at', o.reconciled_at,\n  'reconciliation_notes', o.reconciliation_notes,\n  'ecwid_event_type', o.ecwid_event_type,\n  'ecwid_event_id', o.ecwid_event_id,\n  'last_webhook_at', o.last_webhook_at,\n  'products', COALESCE(lp.product_record_ids, ARRAY[]::text[]),\n  'products_report', COALESCE(lp.product_names, ''),\n  'product_ids_report', COALESCE(lp.product_ids, '')\n) AS fields\nFROM public.ecommerce_orders o\nLEFT JOIN LATERAL (\n  SELECT\n    array_agg(COALESCE(p.airtable_id, p.nocopk::text) ORDER BY p.product_id) AS product_record_ids,\n    string_agg(COALESCE(p.name_mat, p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_names,\n    string_agg(COALESCE(p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_ids\n  FROM public._m2m_products_ecommerce_orders_ecommerce_orders m\n  JOIN public.products p ON p.nocopk = m.products_id\n  WHERE m.ecommerce_orders_id = o.nocopk\n) lp ON true\nWHERE COALESCE(o.airtable_id, o.nocopk::text) = '${String($json.airtable_record_id || $json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\n   OR o.nocopk::text = '${String($json.airtable_record_id || $json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\nLIMIT 1;` }}",
         "options": {}
       },
-      "id": "89575a87-1fca-4578-beaf-94afd8a009c1",
+      "id": "e69e33a1-8e65-42a9-836d-9c787a8f835f",
       "name": "PGSQL - Get Order",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -135,7 +135,7 @@
       "parameters": {
         "jsCode": "const f=$json.fields||{}; function parseItems(s){ try{ const a=typeof s==='string'?JSON.parse(s):[]; return Array.isArray(a)?a:[];}catch(e){return [];} }\nconst items=parseItems(f.items_json).map((i,idx)=>({line_index:idx+1,name:i.name||i.nameTranslated?.en||'(unknown)',sku:i.sku||'',productId:i.productId||null,quantity:Number(i.quantity||0)||0}));\nconst linked=Array.isArray(f.products)?f.products:[];\nconst channel=String(f.provider||'ecwid').trim()||'ecwid'; const summary=`${channel.toUpperCase()} ${String(f.order_code||f.external_order_id||f.ecwid_order_id||f.order_number||'')} | ${f.customer_name||''} | linked ${linked.length} of ${items.reduce((n,i)=>n+i.quantity,0)} required`;\nreturn [{json:{ok:true, airtable_record_id:$json.id, order_ref:String(f.order_code||f.ecwid_order_id||f.order_number||''), summary, items, linked_products:linked, products_report:f.products_report||'', product_ids_report:f.product_ids_report||'', raw_fields:f}}];"
       },
-      "id": "88ef751d-b72a-4826-94a1-38f948942832",
+      "id": "15951425-6862-49cd-8cff-7a3632ec279f",
       "name": "Code - Build Order Detail",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -150,7 +150,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "a0fc2338-c600-4f86-a072-31ad962c52a1",
+      "id": "d4eec8a3-8bdb-4215-91ad-648ab8b59f04",
       "name": "Respond - Order Detail",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -166,7 +166,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "85e9ff31-21bf-4221-b42f-a5118fba919e",
+      "id": "4b6586ce-3083-418a-a63c-53a3b4542062",
       "name": "Webhook - Search Products",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -180,7 +180,7 @@
       "parameters": {
         "jsCode": "const body = $json.body || $json;\nconst query = String(body.query || '').trim().toLowerCase();\n\nreturn [{\n  json: {\n    query,\n    allow_search: query.length >= 2\n  }\n}];"
       },
-      "id": "39af6648-6606-4ded-a232-8a89e8e12b2d",
+      "id": "876c4e6e-ab01-495f-9675-25987f0e598c",
       "name": "Code - Parse Product Search",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -195,7 +195,7 @@
         "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(p.airtable_id, p.nocopk::text), 'fields', json_build_object(\n  'product_id', p.product_id,\n  'name_mat', p.name_mat,\n  'unit_size', COALESCE(p.net_weight_oz, p.net_weight_g, p.net_volume_ml),\n  'item_category_mat', p.item_category_mat,\n  'notes', p.notes,\n  'storage_location', CASE WHEN p.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END,\n  'label_company_prod', NULL\n)) ORDER BY p.product_id), '[]'::json) AS records\nFROM public.products p\nLEFT JOIN public.locations loc ON loc.nocopk = p.storage_location_id\nWHERE p.product_id IS NOT NULL\n  AND COALESCE(loc.name, '') NOT IN ('shipped', 'consumed', 'compost', 'expired')\nLIMIT 100;",
         "options": {}
       },
-      "id": "7cdb47de-dcea-4835-acf9-279085c4911e",
+      "id": "b5cd950f-abff-4ac1-abea-97efd7f354bd",
       "name": "PGSQL - List Products",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -216,7 +216,7 @@
         "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(airtable_id, nocopk::text), 'fields', json_build_object('name', name)) ORDER BY name), '[]'::json) AS records\nFROM public.locations\nWHERE COALESCE(active, true);",
         "options": {}
       },
-      "id": "069a0a1d-3f9a-4894-bd82-08844f5f99e1",
+      "id": "e23d67d1-57fc-47bf-8016-63e767b27082",
       "name": "PGSQL - List Locations",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -235,7 +235,7 @@
       "parameters": {
         "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst q = String(req.query || '').trim().toLowerCase();\nconst companyName = $env['BUSINESS_NAME'] || null;\n\nconst locResp = $('PGSQL - List Locations').first().json || {};\nconst locRecords = Array.isArray(locResp.records) ? locResp.records : [];\nconst locMap = new Map(\n  locRecords.map(r => [r.id, String(r.fields?.name || '')])\n);\n\nconst inputs = $input.all();\nconst rows = inputs.flatMap(item => {\n  const records = item.json?.records;\n  return Array.isArray(records) ? records : [];\n});\n\nconst products = [];\n\nfor (const rec of rows) {\n  const f = rec.fields || {};\n\n  if (companyName && f.label_company_prod && String(f.label_company_prod || '') !== companyName) continue;\n\n  const hay = [\n    f.product_id,\n    f.name_mat,\n    f.unit_size,\n    f.item_category_mat,\n    f.notes\n  ]\n    .filter(Boolean)\n    .join(' ')\n    .toLowerCase();\n\n  if (q && !hay.includes(q)) continue;\n\n  const locIds = Array.isArray(f.storage_location) ? f.storage_location : [];\n  const locNames = locIds.map(id => locMap.get(id) || id);\n\n  products.push({\n    airtable_record_id: rec.id,\n    product_id: f.product_id || '',\n    name_mat: f.name_mat || '',\n    unit_size: f.unit_size || '',\n    item_category_mat: f.item_category_mat || '',\n    storage_location: locIds,\n    storage_location_name: locNames.join(', '),\n    notes: f.notes || ''\n  });\n}\n\nreturn [{\n  json: {\n    ok: true,\n    page_count: inputs.length,\n    raw_record_count: rows.length,\n    products: products.slice(0, 100),\n    count: products.length\n  }\n}];"
       },
-      "id": "01381f67-c123-43bb-b475-0a72f1e39516",
+      "id": "cd1a37e7-3db7-493b-857c-1de2af179add",
       "name": "Code - Build Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -250,7 +250,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "8e0d5e9d-825d-48a4-a264-f126054cab60",
+      "id": "a52e54cd-e853-4b9c-baf7-923ddb18bba7",
       "name": "Respond - Search Products",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -266,7 +266,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "bf79da75-14a4-4681-a351-c3d05d9f6e4e",
+      "id": "f92a7fd3-4340-4ef6-8014-2bf8f1d95b65",
       "name": "Webhook - Assign Product",
       "type": "n8n-nodes-base.webhook",
       "position": [
@@ -280,7 +280,7 @@
       "parameters": {
         "jsCode": "const body=$json.body||$json; const oid=String(body.airtable_order_record_id||'').trim(); const pid=String(body.airtable_product_record_id||'').trim(); if(!oid||!pid) throw new Error('Missing airtable_order_record_id or airtable_product_record_id'); return [{json:{airtable_order_record_id:oid, airtable_product_record_id:pid}}];"
       },
-      "id": "8430f861-df3f-4978-a4ca-ea0f060c2ae8",
+      "id": "86079930-18e7-4299-926a-f0120af68e0f",
       "name": "Code - Parse Assign",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -295,7 +295,7 @@
         "query": "{{ `SELECT COALESCE(o.airtable_id, o.nocopk::text) AS id,\n       json_build_object(\n  'name', o.name,\n  'ecwid_order_id', o.ecwid_order_id,\n  'order_number', o.order_number,\n  'order_code', o.order_code,\n  'status', o.status,\n  'order_date', o.order_date,\n  'customer_name', o.customer_name,\n  'customer_email', o.customer_email,\n  'items_json', o.items_json,\n  'ecwid_skus', o.ecwid_skus,\n  'payment_status', o.payment_status,\n  'payment_method', o.payment_method,\n  'subtotal', o.subtotal,\n  'tax_total', o.tax_total,\n  'order_total', o.order_total,\n  'currency', o.currency,\n  'clover_reconciliation_status', o.clover_reconciliation_status,\n  'clover_payment_id', o.clover_payment_id,\n  'clover_payment_amount', o.clover_payment_amount,\n  'clover_payment_time', o.clover_payment_time,\n  'clover_match_confidence', o.clover_match_confidence,\n  'reconciled_at', o.reconciled_at,\n  'reconciliation_notes', o.reconciliation_notes,\n  'ecwid_event_type', o.ecwid_event_type,\n  'ecwid_event_id', o.ecwid_event_id,\n  'last_webhook_at', o.last_webhook_at,\n  'products', COALESCE(lp.product_record_ids, ARRAY[]::text[]),\n  'products_report', COALESCE(lp.product_names, ''),\n  'product_ids_report', COALESCE(lp.product_ids, '')\n) AS fields\nFROM public.ecommerce_orders o\nLEFT JOIN LATERAL (\n  SELECT\n    array_agg(COALESCE(p.airtable_id, p.nocopk::text) ORDER BY p.product_id) AS product_record_ids,\n    string_agg(COALESCE(p.name_mat, p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_names,\n    string_agg(COALESCE(p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_ids\n  FROM public._m2m_products_ecommerce_orders_ecommerce_orders m\n  JOIN public.products p ON p.nocopk = m.products_id\n  WHERE m.ecommerce_orders_id = o.nocopk\n) lp ON true\nWHERE COALESCE(o.airtable_id, o.nocopk::text) = '${String($json.airtable_record_id || $json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\n   OR o.nocopk::text = '${String($json.airtable_record_id || $json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\nLIMIT 1;` }}",
         "options": {}
       },
-      "id": "4dcbf883-3d61-4736-a1bc-a6416094035d",
+      "id": "ed4bb2d4-158e-4eda-a93f-cf286df36fec",
       "name": "PGSQL - Get Assign Order",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -313,10 +313,10 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "{{ `SELECT COALESCE(p.airtable_id, p.nocopk::text) AS id,\n       json_build_object(\n  'product_id', p.product_id,\n  'name_mat', p.name_mat,\n  'unit_size', COALESCE(p.package_size_g, p.net_weight_g, p.net_volume_ml),\n  'item_category_mat', p.item_category_mat,\n  'notes', p.notes,\n  'storage_location', CASE WHEN p.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END,\n  'label_company_prod', NULL\n) AS fields\nFROM public.products p\nLEFT JOIN public.locations loc ON loc.nocopk = p.storage_location_id\nWHERE COALESCE(p.airtable_id, p.nocopk::text) = '${String($json.airtable_product_record_id || '').replace(/'/g, \"''\")}'\n   OR p.nocopk::text = '${String($json.airtable_product_record_id || '').replace(/'/g, \"''\")}'\nLIMIT 1;` }}",
+        "query": "{{ `SELECT COALESCE(p.airtable_id, p.nocopk::text) AS id,\n       json_build_object(\n  'product_id', p.product_id,\n  'name_mat', p.name_mat,\n  'unit_size', COALESCE(p.net_weight_oz, p.net_weight_g, p.net_volume_ml),\n  'item_category_mat', p.item_category_mat,\n  'notes', p.notes,\n  'storage_location', CASE WHEN p.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END,\n  'label_company_prod', NULL\n) AS fields\nFROM public.products p\nLEFT JOIN public.locations loc ON loc.nocopk = p.storage_location_id\nWHERE COALESCE(p.airtable_id, p.nocopk::text) = '${String($json.airtable_product_record_id || '').replace(/'/g, \"''\")}'\n   OR p.nocopk::text = '${String($json.airtable_product_record_id || '').replace(/'/g, \"''\")}'\nLIMIT 1;` }}",
         "options": {}
       },
-      "id": "a0eb5c09-73f9-4ec7-8598-f6bb34c4b3e7",
+      "id": "9dec44bb-362e-4b6f-8080-e4f55d7f2639",
       "name": "PGSQL - Get Assign Product",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -337,7 +337,7 @@
         "query": "SELECT COALESCE(json_agg(json_build_object('id', COALESCE(airtable_id, nocopk::text), 'fields', json_build_object('name', name)) ORDER BY name), '[]'::json) AS records\nFROM public.locations\nWHERE COALESCE(active, true);",
         "options": {}
       },
-      "id": "9aa62c27-5c2a-4cfd-a7b8-51b6e8f083ec",
+      "id": "e034fa92-d7d9-47cc-a779-426ee70f9385",
       "name": "PGSQL - List Locations Assign",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -358,7 +358,7 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "be54afe7-f37d-4098-8e33-fb558449f488",
+      "id": "b07ffd27-39aa-421e-b4b0-f7670d69dfd5",
       "name": "Merge - Assign Inputs",
       "type": "n8n-nodes-base.merge",
       "position": [
@@ -371,7 +371,7 @@
       "parameters": {
         "jsCode": "const order=$('PGSQL - Get Assign Order').first().json||{}; const product=$('PGSQL - Get Assign Product').first().json||{}; const locResp=$('PGSQL - List Locations Assign').first().json||{}; const ship=((locResp.records||[]).find(r=>String(r.fields?.name||'')===String($env.AIRTABLE_SHIPPED_LOCATION_NAME||'Shipped'))||{}).id||''; if(!ship) throw new Error('Could not resolve Shipped location'); const of=order.fields||{}; const pf=product.fields||{}; const existing=Array.isArray(of.products)?of.products:[]; if(existing.includes(product.id)) throw new Error('Product already linked to this order'); const locs=Array.isArray(pf.storage_location)?pf.storage_location:[]; if(locs.includes(ship)) throw new Error('Product is already marked Shipped'); return [{json:{order_record_id:order.id, product_record_id:product.id, order_fields:{products:[...existing, product.id]}, product_fields:{storage_location:[ship]}, result:{ok:true, order_record_id:order.id, product_record_id:product.id, order_ref:String(of.order_code||of.ecwid_order_id||of.order_number||''), product_id:pf.product_id||'', message:'Product linked to order and marked shipped.'}}}];"
       },
-      "id": "a9e45b3f-5d88-4efd-a425-a7afc12393ad",
+      "id": "0c5a48ea-95ee-41a0-a77a-670ea96ddc19",
       "name": "Code - Build Assign Updates",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -386,7 +386,7 @@
         "query": "{{ `WITH ord AS (\n  SELECT nocopk FROM public.ecommerce_orders\n  WHERE COALESCE(airtable_id, nocopk::text) = '${String($json.order_record_id || '').replace(/'/g, \"''\")}'\n  LIMIT 1\n), prod AS (\n  SELECT nocopk FROM public.products\n  WHERE COALESCE(airtable_id, nocopk::text) = '${String(($json.order_fields?.products || []).slice(-1)[0] || '').replace(/'/g, \"''\")}'\n  LIMIT 1\n), ins AS (\n  INSERT INTO public._m2m_products_ecommerce_orders_ecommerce_orders(products_id, ecommerce_orders_id)\n  SELECT prod.nocopk, ord.nocopk\n  FROM prod, ord\n  WHERE NOT EXISTS (\n    SELECT 1\n    FROM public._m2m_products_ecommerce_orders_ecommerce_orders existing\n    WHERE existing.products_id = prod.nocopk\n      AND existing.ecommerce_orders_id = ord.nocopk\n  )\n  RETURNING 1\n)\nSELECT COALESCE(o.airtable_id, o.nocopk::text) AS id,\n       json_build_object(\n  'name', o.name,\n  'ecwid_order_id', o.ecwid_order_id,\n  'order_number', o.order_number,\n  'order_code', o.order_code,\n  'status', o.status,\n  'order_date', o.order_date,\n  'customer_name', o.customer_name,\n  'customer_email', o.customer_email,\n  'items_json', o.items_json,\n  'ecwid_skus', o.ecwid_skus,\n  'payment_status', o.payment_status,\n  'payment_method', o.payment_method,\n  'subtotal', o.subtotal,\n  'tax_total', o.tax_total,\n  'order_total', o.order_total,\n  'currency', o.currency,\n  'clover_reconciliation_status', o.clover_reconciliation_status,\n  'clover_payment_id', o.clover_payment_id,\n  'clover_payment_amount', o.clover_payment_amount,\n  'clover_payment_time', o.clover_payment_time,\n  'clover_match_confidence', o.clover_match_confidence,\n  'reconciled_at', o.reconciled_at,\n  'reconciliation_notes', o.reconciliation_notes,\n  'ecwid_event_type', o.ecwid_event_type,\n  'ecwid_event_id', o.ecwid_event_id,\n  'last_webhook_at', o.last_webhook_at,\n  'products', COALESCE(lp.product_record_ids, ARRAY[]::text[]),\n  'products_report', COALESCE(lp.product_names, ''),\n  'product_ids_report', COALESCE(lp.product_ids, '')\n) AS fields\nFROM public.ecommerce_orders o\nLEFT JOIN LATERAL (\n  SELECT\n    array_agg(COALESCE(p.airtable_id, p.nocopk::text) ORDER BY p.product_id) AS product_record_ids,\n    string_agg(COALESCE(p.name_mat, p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_names,\n    string_agg(COALESCE(p.product_id, p.nocopk::text), ', ' ORDER BY p.product_id) AS product_ids\n  FROM public._m2m_products_ecommerce_orders_ecommerce_orders m\n  JOIN public.products p ON p.nocopk = m.products_id\n  WHERE m.ecommerce_orders_id = o.nocopk\n) lp ON true\nJOIN ord ON ord.nocopk = o.nocopk;` }}",
         "options": {}
       },
-      "id": "d377e4bb-30ec-478d-a774-cf6dd25fbda7",
+      "id": "eb6c5df9-c342-4f06-9a74-dd09d956c019",
       "name": "PGSQL - Link Product To Order",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -407,7 +407,7 @@
         "query": "{{ `WITH target_loc AS (\n  SELECT nocopk FROM public.locations\n  WHERE COALESCE(airtable_id, nocopk::text) = '${String(($json.product_fields?.storage_location || [])[0] || '').replace(/'/g, \"''\")}'\n  LIMIT 1\n), upd AS (\n  UPDATE public.products p\n  SET storage_location_id = target_loc.nocopk,\n      nc_updated_at = now()\n  FROM target_loc\n  WHERE COALESCE(p.airtable_id, p.nocopk::text) = '${String($json.product_record_id || '').replace(/'/g, \"''\")}'\n  RETURNING p.*\n)\nSELECT COALESCE(upd.airtable_id, upd.nocopk::text) AS id,\n       json_build_object(\n         'product_id', upd.product_id,\n         'name_mat', upd.name_mat,\n         'storage_location', CASE WHEN upd.storage_location_id IS NULL THEN ARRAY[]::text[] ELSE ARRAY[COALESCE(loc.airtable_id, loc.nocopk::text)] END\n       ) AS fields\nFROM upd\nLEFT JOIN public.locations loc ON loc.nocopk = upd.storage_location_id;` }}",
         "options": {}
       },
-      "id": "681e6c44-d155-4a82-b5a5-c4c6bba80557",
+      "id": "f515e279-6cd3-4959-b67d-df84c82632e2",
       "name": "PGSQL - Mark Product Shipped",
       "type": "n8n-nodes-base.postgres",
       "position": [
@@ -428,7 +428,7 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "5e9687bc-69a6-4abe-bbb0-000df4ad2c83",
+      "id": "fcdba932-aa7b-440d-8577-0569b06ba2a5",
       "name": "Merge - Assign Patches",
       "type": "n8n-nodes-base.merge",
       "position": [
@@ -441,7 +441,7 @@
       "parameters": {
         "jsCode": "return [{json: $('Code - Build Assign Updates').first().json.result }];"
       },
-      "id": "cb007b6d-29e1-4941-9b52-86f3d29a6295",
+      "id": "4214e666-00a3-4a7d-832e-1bcb0d8a4554",
       "name": "Code - Assign Response",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -456,7 +456,7 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "323aeb80-f12b-4869-9dd4-b93be7550497",
+      "id": "a10b65d8-654a-4c43-9b7e-5f85d5bdfde1",
       "name": "Respond - Assign",
       "type": "n8n-nodes-base.respondToWebhook",
       "position": [
@@ -477,14 +477,14 @@
         592,
         1216
       ],
-      "id": "324a47ba-20ec-4887-bbfa-08be1110becc",
+      "id": "830bdb27-49cc-4d5d-b829-930f79f73d27",
       "name": "Merge"
     },
     {
       "parameters": {
         "jsCode": "const req = $('Code - Parse Product Search').first().json;\nconst companyName = $env['BUSINESS_NAME'] || null;\nconst query = String(req.query || '').trim().toLowerCase();\n\nfunction formulaEscape(s) {\n  return String(s || '')\n    .replace(/\\\\/g, '\\\\\\\\')\n    .replace(/\"/g, '\\\\\"');\n}\n\nconst clauses = [];\n\nif (companyName) {\n  clauses.push(`{label_company_prod}=\"${formulaEscape(companyName)}\"`);\n}\n\n// Exclude by linked-record display names, not record IDs\nfor (const locName of ['Shipped', 'Consumed', 'Compost', 'Expired']) {\n  clauses.push(`NOT(FIND(\"${formulaEscape(locName.toLowerCase())}\", LOWER(ARRAYJOIN({storage_location}&\"\"))))`);\n}\n\nif (req.allow_search && query) {\n  clauses.push(`OR(\n    FIND(\"${formulaEscape(query)}\", LOWER({product_id}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({name_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({unit_size}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({item_category_mat}&\"\")),\n    FIND(\"${formulaEscape(query)}\", LOWER({notes}&\"\"))\n  )`);\n}\n\nconst filter_formula =\n  clauses.length === 1 ? clauses[0] : `AND(${clauses.join(',')})`;\n\nreturn [{\n  json: {\n    query,\n    allow_search: !!req.allow_search,\n    company_name: companyName,\n    filter_formula,\n    offset: ''\n  }\n}];"
       },
-      "id": "dedd8a89-f92a-4538-a605-3f24dc8c4575",
+      "id": "1da7bed8-a0c7-4187-944a-292926bb6e5b",
       "name": "Code - Build Product Search Context",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -518,7 +518,7 @@
         },
         "options": {}
       },
-      "id": "ac1266e2-3496-40a5-81fc-5ba87dd1204d",
+      "id": "df274a4a-55ae-4da0-b45f-99a21ae87e00",
       "name": "If - Has Next Product Page",
       "type": "n8n-nodes-base.if",
       "position": [
@@ -531,7 +531,7 @@
       "parameters": {
         "jsCode": "return [{\n  json: {\n    offset: String($json.offset || '')\n  }\n}];"
       },
-      "id": "747111f8-4b6d-4e85-82cc-211fb73d788c",
+      "id": "d985addb-0477-437b-a51b-7e23de79ef80",
       "name": "Code - Next Product Page Request",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -544,7 +544,7 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\ndata.fulfillmentProductSearchRecords = [];\nreturn [{ json: $json.body || $json }];"
       },
-      "id": "95a830ea-5772-41fb-8847-656824cb3b54",
+      "id": "6f4bd53a-de26-4534-9b16-af5f94b76d80",
       "name": "Code - Reset Product Pagination State",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -557,7 +557,7 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!Array.isArray(data.fulfillmentProductSearchRecords)) {\n  data.fulfillmentProductSearchRecords = [];\n}\n\nconst pageRecords = Array.isArray($json.records) ? $json.records : [];\ndata.fulfillmentProductSearchRecords.push(...pageRecords);\n\nreturn [{\n  json: {\n    offset: $json.offset || '',\n    page_count: pageRecords.length,\n    accumulated_count: data.fulfillmentProductSearchRecords.length\n  }\n}];"
       },
-      "id": "f3e4a401-c710-4a83-9f5f-8d53506e152c",
+      "id": "8fb2cee5-0fbe-48c2-bb9b-3164c77cba33",
       "name": "Code - Accumulate Product Page",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -570,7 +570,7 @@
       "parameters": {
         "jsCode": "const data = $getWorkflowStaticData('global');\nconst allRecords = Array.isArray(data.fulfillmentProductSearchRecords)\n  ? data.fulfillmentProductSearchRecords\n  : [];\n\nconst out = [{\n  json: {\n    records: allRecords,\n    count: allRecords.length\n  }\n}];\n\ndata.fulfillmentProductSearchRecords = [];\n\nreturn out;"
       },
-      "id": "4511c3c8-6999-48b6-b4a9-20b21449e46d",
+      "id": "66b5e9a2-4c64-4df2-9725-413df70d664a",
       "name": "Code - Emit All Product Pages",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -604,7 +604,7 @@
         },
         "options": {}
       },
-      "id": "0fb30ccb-515e-4bda-b608-3fbb554480df",
+      "id": "9c099185-ff95-41be-8af8-48e49a97c2d6",
       "name": "If - Allow Product Search",
       "type": "n8n-nodes-base.if",
       "position": [
@@ -617,7 +617,7 @@
       "parameters": {
         "jsCode": "return [{ json: { ok: true, page_count: 0, raw_record_count: 0, products: [], count: 0, skipped: true, message: 'Type at least 2 characters to search products.' } }];"
       },
-      "id": "1df10ce7-4ed9-4322-8efc-77f1219e55af",
+      "id": "dcd97680-418b-4a2a-8e64-7b70455c5326",
       "name": "Code - Empty Product Search Results",
       "type": "n8n-nodes-base.code",
       "position": [
@@ -633,7 +633,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "d67af269-b131-49e7-a2fb-40a983a7e508",
+      "id": "285f18b5-e4e7-4b58-a1d1-8dfa3a37199a",
       "name": "Webhook - Reconciliation Accounted",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -647,7 +647,7 @@
       "parameters": {
         "jsCode": "const body = $json.body || $json;\nconst id = String(body.airtable_order_record_id || body.airtable_record_id || '').trim();\nif (!id) throw new Error('Missing airtable_order_record_id');\nconst operator = String(body.operator || 'system').trim() || 'system';\nconst note = String(body.note || 'Cash/manual payment accounted for; no processor reconciliation required.').trim();\nconst nowIso = new Date().toISOString();\nreturn [{\n  json: {\n    airtable_order_record_id: id,\n    result: {\n      ok: true,\n      airtable_order_record_id: id,\n      reconciliation_status: 'accounted',\n      message: 'Order marked accounted for without processor reconciliation.'\n    },\n    fields: {\n      payment_processor: String(body.payment_processor || 'cash').trim().toLowerCase() || 'cash',\n      payment_reconciliation_status: 'accounted',\n      processor_payment_id: null,\n      processor_payment_status: 'accounted',\n      processor_payment_amount: null,\n      processor_payment_time: null,\n      processor_match_confidence: null,\n      clover_reconciliation_status: 'accounted',\n      clover_payment_id: null,\n      clover_payment_amount: null,\n      clover_payment_time: null,\n      clover_match_confidence: null,\n      reconciled_at: null,\n      reconciliation_notes: [\n        note,\n        `Accounted at: ${nowIso}`,\n        `Operator: ${operator}`\n      ].filter(Boolean).join(' | ')\n    }\n  }\n}];"
       },
-      "id": "79e8a018-18c7-423c-aefb-652b77eb1009",
+      "id": "1765c9ed-f415-44d6-9a6c-4e2b8cccbdfb",
       "name": "Code - Parse Accounted Reconciliation",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -662,7 +662,7 @@
         "query": "{{ `WITH upd AS (\n  UPDATE public.ecommerce_orders\n  SET payment_processor = NULLIF('${String($json.fields?.payment_processor ?? '').replace(/'/g, \"''\")}',''),\n      payment_reconciliation_status = NULLIF('${String($json.fields?.payment_reconciliation_status ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_id = NULLIF('${String($json.fields?.processor_payment_id ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_status = NULLIF('${String($json.fields?.processor_payment_status ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_amount = NULLIF('${String($json.fields?.processor_payment_amount ?? '').replace(/'/g, \"''\")}','')::numeric,\n      processor_payment_time = NULLIF('${String($json.fields?.processor_payment_time ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      processor_match_confidence = NULLIF('${String($json.fields?.processor_match_confidence ?? '').replace(/'/g, \"''\")}','')::numeric,\n      clover_reconciliation_status = NULLIF('${String($json.fields?.clover_reconciliation_status ?? '').replace(/'/g, \"''\")}',''),\n      clover_payment_id = NULLIF('${String($json.fields?.clover_payment_id ?? '').replace(/'/g, \"''\")}',''),\n      clover_payment_amount = NULLIF('${String($json.fields?.clover_payment_amount ?? '').replace(/'/g, \"''\")}','')::numeric,\n      clover_payment_time = NULLIF('${String($json.fields?.clover_payment_time ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      clover_match_confidence = NULLIF('${String($json.fields?.clover_match_confidence ?? '').replace(/'/g, \"''\")}','')::numeric,\n      reconciled_at = NULLIF('${String($json.fields?.reconciled_at ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      reconciliation_notes = NULLIF('${String($json.fields?.reconciliation_notes ?? '').replace(/'/g, \"''\")}',''),\n      nc_updated_at = now()\n  WHERE COALESCE(airtable_id, nocopk::text) = '${String($json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\n  RETURNING *\n)\nSELECT COALESCE(upd.airtable_id, upd.nocopk::text) AS id,\n       json_build_object(\n         'payment_processor', upd.payment_processor,\n         'payment_reconciliation_status', upd.payment_reconciliation_status,\n         'processor_payment_id', upd.processor_payment_id,\n         'processor_payment_status', upd.processor_payment_status,\n         'processor_payment_amount', upd.processor_payment_amount,\n         'processor_payment_time', upd.processor_payment_time,\n         'processor_match_confidence', upd.processor_match_confidence,\n         'clover_reconciliation_status', upd.clover_reconciliation_status,\n         'clover_payment_id', upd.clover_payment_id,\n         'clover_payment_amount', upd.clover_payment_amount,\n         'clover_payment_time', upd.clover_payment_time,\n         'clover_match_confidence', upd.clover_match_confidence,\n         'reconciled_at', upd.reconciled_at,\n         'reconciliation_notes', upd.reconciliation_notes\n       ) AS fields\nFROM upd;` }}",
         "options": {}
       },
-      "id": "cced6546-2b77-4e56-9c59-079dd382f271",
+      "id": "8c81c153-4843-4cfe-a577-6302bb08c180",
       "name": "PGSQL - Patch Accounted Reconciliation",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -683,7 +683,7 @@
         "responseBody": "={{ $('Code - Parse Accounted Reconciliation').first().json.result }}",
         "options": {}
       },
-      "id": "41fa8e39-beb1-4d88-a7b8-bc05505aeda4",
+      "id": "d27768e9-af64-463a-a35f-de9b6f92789a",
       "name": "Respond - Accounted Reconciliation",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
@@ -699,7 +699,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "91d6e8d9-3d14-4f09-af2d-a6f481365eae",
+      "id": "ad7e072c-7ff6-4f5b-9f03-3f102231e435",
       "name": "Webhook - Manual Reconciliation Match",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -713,7 +713,7 @@
       "parameters": {
         "jsCode": "const body = $json.body || $json;\nconst id = String(body.airtable_order_record_id || body.airtable_record_id || '').trim();\nconst processor = String(body.payment_processor || body.processor || 'clover').trim().toLowerCase() || 'clover';\nconst paymentId = String(body.processor_payment_id || body.clover_payment_id || '').trim();\nif (!id) throw new Error('Missing airtable_order_record_id');\nif (!paymentId) throw new Error('Missing processor_payment_id');\n\nconst amountRaw = body.processor_payment_amount ?? body.clover_payment_amount;\nconst amount = amountRaw === undefined || amountRaw === null || amountRaw === ''\n  ? null\n  : Number(amountRaw);\nif (amount !== null && !Number.isFinite(amount)) throw new Error('Invalid processor_payment_amount');\n\nfunction isoOrNull(v) {\n  if (!v) return null;\n  const d = new Date(v);\n  if (!Number.isFinite(d.getTime())) throw new Error('Invalid processor_payment_time');\n  return d.toISOString();\n}\n\nconst paymentTime = isoOrNull(body.processor_payment_time || body.clover_payment_time);\nconst processorOrderId = String(body.processor_order_id || body.clover_order_id || '').trim();\nconst tenderId = String(body.processor_tender_id || body.clover_tender_id || '').trim();\nconst operator = String(body.operator || 'system').trim() || 'system';\nconst note = String(body.note || `Manually matched ${processor} payment in Appsmith.`).trim();\nconst nowIso = new Date().toISOString();\nconst isClover = processor === 'clover';\n\nreturn [{\n  json: {\n    airtable_order_record_id: id,\n    result: {\n      ok: true,\n      airtable_order_record_id: id,\n      reconciliation_status: 'reconciled',\n      payment_processor: processor,\n      processor_payment_id: paymentId,\n      clover_payment_id: isClover ? paymentId : null,\n      message: `Order manually reconciled to ${processor} payment.`\n    },\n    fields: {\n      payment_processor: processor,\n      payment_reconciliation_status: 'reconciled',\n      processor_payment_id: paymentId,\n      processor_payment_status: 'succeeded',\n      processor_payment_amount: amount,\n      processor_payment_time: paymentTime,\n      processor_match_confidence: 0.5,\n      // Clover aliases remain dual-written only for Clover. Explicit non-Clover\n      // reconciliation clears stale legacy values so they cannot masquerade as\n      // current processor state.\n      clover_reconciliation_status: isClover ? 'reconciled' : null,\n      clover_payment_id: isClover ? paymentId : null,\n      clover_payment_amount: isClover ? amount : null,\n      clover_payment_time: isClover ? paymentTime : null,\n      clover_match_confidence: isClover ? 0.5 : null,\n      reconciled_at: nowIso,\n      reconciliation_notes: [\n        note,\n        'Manually reconciled by operator.',\n        processorOrderId ? `${processor} order id: ${processorOrderId}` : null,\n        tenderId ? `Tender id: ${tenderId}` : null,\n        `Operator: ${operator}`\n      ].filter(Boolean).join(' | ')\n    }\n  }\n}];"
       },
-      "id": "1e593a40-ff1e-4033-8889-f4b02224f59f",
+      "id": "9f18144c-47c6-4eef-80dc-2d3ff6d18f3c",
       "name": "Code - Parse Manual Reconciliation Match",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -728,7 +728,7 @@
         "query": "{{ `WITH upd AS (\n  UPDATE public.ecommerce_orders\n  SET payment_processor = NULLIF('${String($json.fields?.payment_processor ?? '').replace(/'/g, \"''\")}',''),\n      payment_reconciliation_status = NULLIF('${String($json.fields?.payment_reconciliation_status ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_id = NULLIF('${String($json.fields?.processor_payment_id ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_status = NULLIF('${String($json.fields?.processor_payment_status ?? '').replace(/'/g, \"''\")}',''),\n      processor_payment_amount = NULLIF('${String($json.fields?.processor_payment_amount ?? '').replace(/'/g, \"''\")}','')::numeric,\n      processor_payment_time = NULLIF('${String($json.fields?.processor_payment_time ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      processor_match_confidence = NULLIF('${String($json.fields?.processor_match_confidence ?? '').replace(/'/g, \"''\")}','')::numeric,\n      clover_reconciliation_status = NULLIF('${String($json.fields?.clover_reconciliation_status ?? '').replace(/'/g, \"''\")}',''),\n      clover_payment_id = NULLIF('${String($json.fields?.clover_payment_id ?? '').replace(/'/g, \"''\")}',''),\n      clover_payment_amount = NULLIF('${String($json.fields?.clover_payment_amount ?? '').replace(/'/g, \"''\")}','')::numeric,\n      clover_payment_time = NULLIF('${String($json.fields?.clover_payment_time ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      clover_match_confidence = NULLIF('${String($json.fields?.clover_match_confidence ?? '').replace(/'/g, \"''\")}','')::numeric,\n      reconciled_at = NULLIF('${String($json.fields?.reconciled_at ?? '').replace(/'/g, \"''\")}','')::timestamp,\n      reconciliation_notes = NULLIF('${String($json.fields?.reconciliation_notes ?? '').replace(/'/g, \"''\")}',''),\n      nc_updated_at = now()\n  WHERE COALESCE(airtable_id, nocopk::text) = '${String($json.airtable_order_record_id || '').replace(/'/g, \"''\")}'\n  RETURNING *\n)\nSELECT COALESCE(upd.airtable_id, upd.nocopk::text) AS id,\n       json_build_object(\n         'payment_processor', upd.payment_processor,\n         'payment_reconciliation_status', upd.payment_reconciliation_status,\n         'processor_payment_id', upd.processor_payment_id,\n         'processor_payment_status', upd.processor_payment_status,\n         'processor_payment_amount', upd.processor_payment_amount,\n         'processor_payment_time', upd.processor_payment_time,\n         'processor_match_confidence', upd.processor_match_confidence,\n         'clover_reconciliation_status', upd.clover_reconciliation_status,\n         'clover_payment_id', upd.clover_payment_id,\n         'clover_payment_amount', upd.clover_payment_amount,\n         'clover_payment_time', upd.clover_payment_time,\n         'clover_match_confidence', upd.clover_match_confidence,\n         'reconciled_at', upd.reconciled_at,\n         'reconciliation_notes', upd.reconciliation_notes\n       ) AS fields\nFROM upd;` }}",
         "options": {}
       },
-      "id": "38bbf0ed-c6eb-4110-aa27-d40ba63f11f1",
+      "id": "c3f5a207-3863-4e88-aa49-4266724c04e9",
       "name": "PGSQL - Patch Manual Reconciliation Match",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -749,7 +749,7 @@
         "responseBody": "={{ $('Code - Parse Manual Reconciliation Match').first().json.result }}",
         "options": {}
       },
-      "id": "b4ff369e-07f9-4639-a8e5-ddb8999bbcc5",
+      "id": "6451c0e4-7e23-4c30-b836-147d7c9a3a9b",
       "name": "Respond - Manual Reconciliation Match",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
@@ -1220,15 +1220,15 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "eacfb7aa-f462-489c-a4dd-d4f28fddf485",
+  "versionId": "31cc2d5b-457c-40e5-b7f9-e218b12e6f04",
   "meta": {
     "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
   },
-  "id": "SCNjpS51NbAkmk86",
+  "id": "vZc252KhBVBv8mY9",
   "tags": []
 }
