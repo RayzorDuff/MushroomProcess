@@ -139,12 +139,29 @@ BEGIN
     RAISE EXCEPTION 'Product without storage location did not create a returned substrate Lot.';
   END IF;
 
+  -- The returned Lot is an intermediate input to the same atomic
+  -- Spawn-to-Bulk operation. It receives the selected location so
+  -- mp_product_return_to_lot can create it, and is then immediately moved to
+  -- Consumed when mp_lots_spawn_to_bulk consumes the input. The successful
+  -- operation therefore proves the storage fallback was supplied; the final
+  -- state should be Consumed at the normal terminal location.
   IF NOT EXISTS (
     SELECT 1 FROM public.lots l
     WHERE l.nocopk = v_returned_sub
-      AND l.location_id = v_dark_loc
+      AND l.status = 'Consumed'
+      AND l.location_id = v_consumed_loc
   ) THEN
-    RAISE EXCEPTION 'Returned substrate Lot did not receive the selected Spawn-to-Bulk storage location.';
+    RAISE EXCEPTION 'Returned substrate Lot did not reach the expected Consumed lifecycle state.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.events e
+    WHERE e.type = 'ReturnedToLotInventory'
+      AND e.lot_id = v_returned_sub
+      AND (e.fields_json::jsonb ->> 'product_nocopk')::bigint = v_product
+  ) THEN
+    RAISE EXCEPTION 'Product-backed Spawn-to-Bulk did not record the Product-to-Lot return event.';
   END IF;
 
   SELECT DISTINCT output.nocopk INTO v_output
