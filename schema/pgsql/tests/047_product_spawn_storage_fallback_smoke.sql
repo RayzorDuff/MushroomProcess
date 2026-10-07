@@ -84,7 +84,7 @@ BEGIN
   SELECT
     'LOT-ISS57-047-SUB-ORIGIN', v_sub_item, i.name, 'substrate', v_sub_recipe,
     1, 2, 'Consumed', v_consumed_loc, v_now - interval '20 days',
-    v_now - interval '20 days', v_now + 30, 'Sterilize'
+    v_now - interval '20 days', v_now::date + 30, 'Sterilize'
   FROM public.items i
   WHERE i.nocopk = v_sub_item
   RETURNING nocopk INTO v_sub_origin;
