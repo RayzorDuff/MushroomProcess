@@ -61,7 +61,7 @@ BEGIN
   SELECT
     'LOT-ISS57-047-GRAIN', v_grain_item, i.name, 'grain', v_grain_recipe, v_strain,
     s.species_strain, 1, 2, 'Colonizing', v_dark_loc,
-    v_now - interval '10 days', v_now - interval '10 days', v_now + 60
+    v_now - interval '10 days', v_now - interval '10 days', v_now::date + 60
   FROM public.items i
   CROSS JOIN public.strains s
   WHERE i.nocopk = v_grain_item AND s.nocopk = v_strain
