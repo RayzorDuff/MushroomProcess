@@ -76,8 +76,8 @@ jobs:
           pageVersions.forEach((page, i) => updateHarvestLayout(page, i === 0 ? 'unpublished' : 'published'));
 
           const harvestActions = (app.actionList || []).filter(
-            a => a?.unpublishedAction?.collectionId === 'Harvest_LotsHarvest'
-              || a?.publishedAction?.collectionId === 'Harvest_LotsHarvest'
+            a => a?.unpublishedAction?.pageId === 'Harvest'
+              || a?.publishedAction?.pageId === 'Harvest'
           );
 
           const qLots = harvestActions.filter(a => a?.unpublishedAction?.name === 'qLots');
