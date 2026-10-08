@@ -227,7 +227,7 @@ jobs:
           }
 
           const serialized = JSON.stringify(app);
-          fs.writeFileSync(file, serialized + '\\n');
+          fs.writeFileSync(file, serialized + '\n');
 
           console.log('Harvest terminal-lot update applied.');
           console.log('Updated checkbox: chkShowTerminalHarvestLots');
