@@ -237,14 +237,12 @@ jobs:
 
           node /tmp/update-harvest-terminal-lots.js
 
-      - name: Validate exported Appsmith JSON
+      - name: Canonicalize and validate Appsmith export
         shell: bash
         run: |
-          node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('appsmith/MushroomProcess.json','utf8')); if(!p.pageList?.length) throw new Error('Invalid Appsmith export'); console.log('Appsmith JSON parses successfully.');"
-          grep -q 'chkShowTerminalHarvestLots' appsmith/MushroomProcess.json
-          grep -q 'Show Composted / Expired Blocks' appsmith/MushroomProcess.json
-          grep -q "composted" appsmith/MushroomProcess.json
-          grep -q "expired" appsmith/MushroomProcess.json
+          node scripts/pretty-json.mjs --in appsmith/MushroomProcess.json --out /tmp/MushroomProcess.pretty.json
+          mv /tmp/MushroomProcess.pretty.json appsmith/MushroomProcess.json
+          make validate
 
       - name: Commit the Appsmith change and remove temporary workflow
         shell: bash
