@@ -1,0 +1,115 @@
+name: Correct Harvest Terminal Lot Query
+
+on:
+  push:
+    branches:
+      - chatgpt/harvest-terminal-lots
+
+permissions:
+  contents: write
+
+jobs:
+  correct:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Correct Harvest query without changing existing filters
+        shell: bash
+        run: |
+          cat > /tmp/correct-harvest-query.js <<'NODE'
+          const fs = require('fs');
+
+          const file = 'appsmith/MushroomProcess.json';
+          const app = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+          const harvestActions = (app.actionList || []).filter(
+            a => a?.unpublishedAction?.pageId === 'Harvest'
+              || a?.publishedAction?.pageId === 'Harvest'
+          );
+
+          const qLots = harvestActions.filter(a => a?.unpublishedAction?.name === 'qLots');
+          if (qLots.length !== 1) throw new Error(`Expected exactly one Harvest qLots action; found ${qLots.length}.`);
+
+          const qLotsBody = `WITH ui AS (
+            SELECT
+              trim(
+                both '''' from COALESCE(
+                  {{ LotsHarvest.sql.str(!!chkShowTerminalHarvestLots.isChecked ? 'true' : 'false') }}::text,
+                  'false'
+                )
+              ) AS show_terminal
+          ),
+          lot_rows AS (
+            SELECT
+              l.*,
+              TRUE = ANY(COALESCE(l.regulated_from_strain_id, ARRAY[FALSE]::boolean[])) AS is_regulated
+            FROM public.vc_lots l
+            WHERE regexp_replace(lower(COALESCE(l.item_category_mat, '')), '[^a-z0-9]', '', 'g') IN (
+                'fruitingblock',
+                'cordycepssubstrate',
+                'allinonebag'
+              )
+          )
+
+          SELECT
+            lr.*
+          FROM lot_rows lr
+          CROSS JOIN ui
+          WHERE (
+              regexp_replace(lower(COALESCE(lr.status, '')), '[^a-z0-9]', '', 'g') IN (
+                'fruiting',
+                'colonizing',
+                'spawned',
+                'fullycolonized'
+              )
+              OR (
+                ui.show_terminal = 'true'
+                AND regexp_replace(lower(COALESCE(lr.status, '')), '[^a-z0-9]', '', 'g') IN (
+                  'composted',
+                  'expired'
+                )
+              )
+            )
+          ORDER BY
+            COALESCE(lr.spawned_at, lr.inoculated_at, lr.created_at, now()) DESC,
+            lr.nocopk DESC
+          LIMIT 1000;`;
+
+          for (const a of qLots) {
+            a.unpublishedAction.actionConfiguration.body = qLotsBody;
+            a.publishedAction.actionConfiguration.body = qLotsBody;
+
+            const terminalExpr = ` LotsHarvest.sql.str(!!chkShowTerminalHarvestLots.isChecked ? 'true' : 'false') `;
+            for (const target of [a.unpublishedAction, a.publishedAction]) {
+              target.jsonPathKeys = [
+                terminalExpr
+              ];
+            }
+          }
+
+          fs.writeFileSync(file, JSON.stringify(app) + '\n');
+          console.log('Corrected Harvest qLots while preserving the existing query behavior.');
+          NODE
+
+          node /tmp/correct-harvest-query.js
+
+      - name: Canonicalize and validate Appsmith export
+        shell: bash
+        run: |
+          node scripts/pretty-json.mjs --in appsmith/MushroomProcess.json --out /tmp/MushroomProcess.pretty.json
+          mv /tmp/MushroomProcess.pretty.json appsmith/MushroomProcess.json
+          make validate
+
+      - name: Commit corrected Appsmith change and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add appsmith/MushroomProcess.json
+          git rm .github/workflows/temporary-harvest-query-correction.yml
+          git commit -m "fix(harvest): preserve existing lot query behavior"
+          git push origin HEAD:${GITHUB_REF_NAME}
