@@ -208,88 +208,18 @@ jobs:
           );
           if (lotValidation.length !== 1) throw new Error(`Expected exactly one Harvest lotModalValidation action; found ${lotValidation.length}.`);
 
-          const validationBodies = [
-            `function (actionOrOptions = {}) {
-            const rows = LotsHarvest.selectedLotRows();
-            const action = typeof actionOrOptions === "string"
-              ? actionOrOptions
-              : typeof actionOrOptions?.action === "string"
-                ? actionOrOptions.action
-                : null;
-            const options = typeof actionOrOptions === "object" && actionOrOptions !== null ? actionOrOptions : {};
-            const rulesByAction = {
-              inoculate: {
-                requireAny: true,
-                allowedCategories: ["grain", "lc_flask", "plate", "cordyceps_substrate", "all_in_one_bag"],
-                requireNoStrain: true,
-                requireNotInoculated: true,
-                message: "Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain."
-              },
-              draw_syringes: {
-                requireSingle: true,
-                allowedCategories: ["lc_flask"],
-                message: "Select exactly one active LC flask lot to draw syringes."
-              },
-              harvest: {
-                requireSingle: true,
-                allowedCategories: ["fruiting_block", "cordyceps_substrate", "all_in_one_bag"],
-                message: "Select exactly one fruiting block, cordyceps substrate, or all-in-one bag lot to harvest."
-              }
-            };
-            const rules = {
-              ...action ? rulesByAction[action] || ({}) : {},
-              ...options
-            };
-            if (rules.requireSingle && rows.length !== 1) {
-              return {
-                ok: false,
-                message: rules.message || "Select exactly one valid lot."
-              };
-            }
-            if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {
-              return {
-                ok: false,
-                message: rules.message || "Select one or more valid lots."
-              };
-            }
-            for (const row of rows) {
-              const label = row.lot_id || row.nocopk || "Selected lot";
-              const category = String(row.item_category_mat || "");
-              if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {
-                return {
-                  ok: false,
-                  message: \`${label} has category ${category || "(blank)"}; expected ${rules.allowedCategories.join(", ")}.\`
-                };
-              }
-              if (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {
-                return {
-                  ok: false,
-                  message: \`${label} is retired or unavailable (${row.status || "unknown status"}).\`
-                };
-              }
-              if (rules.requireNoStrain && row.strain_species_strain_mat) {
-                return {
-                  ok: false,
-                  message: \`${label} already has a strain (${row.strain_species_strain_mat}).\`
-                };
-              }
-              if (rules.requireNotInoculated && row.inoculated_at) {
-                return {
-                  ok: false,
-                  message: \`${label} was already inoculated (${row.inoculated_at}).\`
-                };
-              }
-            }
-            return {
-              ok: true,
-              message: ""
-            };
-          }`
-          ];
-
           for (const a of lotValidation) {
-            a.unpublishedAction.actionConfiguration.body = validationBodies[0];
-            a.publishedAction.actionConfiguration.body = validationBodies[0];
+            for (const target of [a.unpublishedAction, a.publishedAction]) {
+              const before = target.actionConfiguration.body;
+              const after = before.replace(
+                'const action = typeof actionOrOptions === "string" ? actionOrOptions : null;',
+                'const action = typeof actionOrOptions === "string" ? actionOrOptions : typeof actionOrOptions?.action === "string" ? actionOrOptions.action : null;'
+              );
+              if (after === before) {
+                throw new Error(`Harvest lotModalValidation signature was not found in ${target.name}.`);
+              }
+              target.actionConfiguration.body = after;
+            }
           }
 
           if (updatedValidationCallers < 6) {
