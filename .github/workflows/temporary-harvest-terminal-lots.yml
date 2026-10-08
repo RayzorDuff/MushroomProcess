@@ -1,0 +1,327 @@
+name: Apply Harvest Terminal Lot UI Change
+
+on:
+  push:
+    branches:
+      - chatgpt/harvest-terminal-lots
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Harvest interface
+        shell: bash
+        run: |
+          cat > /tmp/update-harvest-terminal-lots.js <<'NODE'
+          const fs = require('fs');
+
+          const file = 'appsmith/MushroomProcess.json';
+          const app = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+          const pageEntry = (app.pageList || []).find(
+            p => p?.unpublishedPage?.name === 'Harvest' && p?.publishedPage?.name === 'Harvest'
+          );
+          if (!pageEntry) throw new Error('Harvest page was not found.');
+
+          const pageVersions = [pageEntry.unpublishedPage, pageEntry.publishedPage];
+
+          function updateHarvestLayout(page, versionName) {
+            const dsl = page?.layouts?.[0]?.dsl;
+            if (!dsl?.children) throw new Error(`Harvest ${versionName} layout DSL is missing.`);
+
+            let widget = dsl.children.find(w => w?.widgetName === 'chkShowTerminalHarvestLots');
+            const regulated = dsl.children.find(w => w?.widgetName === 'chkRegulated');
+            const tableIndex = dsl.children.findIndex(w => w?.widgetName === 'tblLots');
+
+            if (!widget) {
+              if (!regulated) throw new Error(`chkRegulated is missing from Harvest ${versionName} layout.`);
+              widget = JSON.parse(JSON.stringify(regulated));
+              widget.widgetName = 'chkShowTerminalHarvestLots';
+              widget.widgetId = 'hvtshwterm1';
+              widget.key = 'hvtshwterm1';
+              if (tableIndex < 0) throw new Error(`tblLots is missing from Harvest ${versionName} layout.`);
+              dsl.children.splice(tableIndex, 0, widget);
+            }
+
+            Object.assign(widget, {
+              widgetName: 'chkShowTerminalHarvestLots',
+              widgetId: 'hvtshwterm1',
+              key: 'hvtshwterm1',
+              topRow: 12,
+              bottomRow: 15,
+              leftColumn: 0,
+              rightColumn: 24,
+              originalTopRow: 12,
+              originalBottomRow: 15,
+              mobileTopRow: 9,
+              mobileBottomRow: 13,
+              mobileLeftColumn: 18,
+              mobileRightColumn: 30,
+              label: 'Show Composted / Expired Blocks',
+              defaultCheckedState: false,
+              isDisabled: false,
+              onCheckChange: '{{ LotsHarvest.refresh() }}',
+              jsonPathKeys: ['LotsHarvest.refresh()']
+            });
+          }
+
+          pageVersions.forEach((page, i) => updateHarvestLayout(page, i === 0 ? 'unpublished' : 'published'));
+
+          const harvestActions = (app.actionList || []).filter(
+            a => a?.unpublishedAction?.collectionId === 'Harvest_LotsHarvest'
+              || a?.publishedAction?.collectionId === 'Harvest_LotsHarvest'
+          );
+
+          const qLots = harvestActions.filter(a => a?.unpublishedAction?.name === 'qLots');
+          if (qLots.length !== 1) throw new Error(`Expected exactly one Harvest qLots action; found ${qLots.length}.`);
+
+          const qLotsBody = `WITH ui_raw AS (
+            SELECT
+              COALESCE(
+                {{ LotsHarvest.sql.str(
+                  inpStrains.selectedOptionValue && inpStrains.selectedOptionValue !== 'All'
+                    ? inpStrains.selectedOptionValue
+                    : 'All'
+                ) }}::text,
+                'All'
+              ) AS selected_strain_raw,
+
+              COALESCE(
+                {{ LotsHarvest.sql.str((() => {
+                  const r = !!chkRegulated.isChecked;
+                  const u = !!chkUnRegulated.isChecked;
+
+                  if ((r && u) || (!r && !u)) return 'all';
+                  return r ? 'regulated' : 'unregulated';
+                })()) }}::text,
+                'all'
+              ) AS regulated_mode_raw,
+
+              COALESCE(
+                {{ LotsHarvest.sql.str(!!chkShowTerminalHarvestLots.isChecked ? 'true' : 'false') }}::text,
+                'false'
+              ) AS show_terminal_raw
+          ),
+          ui AS (
+            SELECT
+              trim(both '''' from selected_strain_raw) AS selected_strain,
+              trim(both '''' from regulated_mode_raw) AS regulated_mode,
+              trim(both '''' from show_terminal_raw) AS show_terminal
+            FROM ui_raw
+          ),
+          lot_rows AS (
+            SELECT
+              l.*,
+
+              CASE
+                WHEN l.regulated_from_strain_id IS NULL THEN FALSE
+                WHEN l.regulated_from_strain_id::text ILIKE '%true%' THEN TRUE
+                ELSE FALSE
+              END AS is_regulated
+            FROM public.vc_lots l
+            WHERE regexp_replace(lower(COALESCE(l.item_category_mat, '')), '[^a-z0-9]', '', 'g') IN (
+                'fruitingblock',
+                'cordycepssubstrate',
+                'allinonebag'
+              )
+          )
+
+          SELECT
+            lr.*
+          FROM lot_rows lr
+          CROSS JOIN ui
+          WHERE (
+              regexp_replace(lower(COALESCE(lr.status, '')), '[^a-z0-9]', '', 'g') IN (
+                'fruiting',
+                'colonizing',
+                'spawned',
+                'fullycolonized'
+              )
+              OR (
+                ui.show_terminal = 'true'
+                AND regexp_replace(lower(COALESCE(lr.status, '')), '[^a-z0-9]', '', 'g') IN (
+                  'composted',
+                  'expired'
+                )
+              )
+            )
+            AND (
+              ui.selected_strain = 'All'
+              OR ui.selected_strain = ''
+              OR lr.strain_species_strain_mat = ui.selected_strain
+            )
+            AND (
+              ui.regulated_mode = 'all'
+              OR (ui.regulated_mode = 'regulated' AND lr.is_regulated = TRUE)
+              OR (ui.regulated_mode = 'unregulated' AND lr.is_regulated = FALSE)
+            )
+          ORDER BY
+            COALESCE(lr.spawned_at, lr.inoculated_at, lr.created_at, now()) DESC,
+            lr.nocopk DESC
+          LIMIT 1000;`;
+
+          for (const a of qLots) {
+            a.unpublishedAction.actionConfiguration.body = qLotsBody;
+            a.publishedAction.actionConfiguration.body = qLotsBody;
+
+            const terminalExpr = ` LotsHarvest.sql.str(!!chkShowTerminalHarvestLots.isChecked ? 'true' : 'false') `;
+            for (const target of [a.unpublishedAction, a.publishedAction]) {
+              target.jsonPathKeys = [
+                ...(target.jsonPathKeys || []).filter(k => !String(k).includes('chkShowTerminalHarvestLots')),
+                terminalExpr
+              ];
+            }
+          }
+
+          const harvestActionNames = new Set([
+            'openHarvestModal',
+            'harvestSelectedLot',
+            'verifyHarvestableLot'
+          ]);
+
+          let updatedValidationCallers = 0;
+          for (const a of harvestActions) {
+            for (const target of [a.unpublishedAction, a.publishedAction]) {
+              if (!target?.actionConfiguration?.body || !harvestActionNames.has(target.name)) continue;
+              const before = target.actionConfiguration.body;
+              const after = before.replace(
+                /LotsHarvest\.validateAndWarnLotModal\("harvest", "Select exactly one active fruiting block lot to harvest\."\)/g,
+                'LotsHarvest.validateAndWarnLotModal({ action: "harvest", allowRetired: !!chkShowTerminalHarvestLots.isChecked }, "Select exactly one fruiting block lot to harvest.")'
+              );
+              if (after !== before) {
+                target.actionConfiguration.body = after;
+                updatedValidationCallers++;
+              }
+            }
+          }
+
+          const lotValidation = harvestActions.filter(
+            a => a?.unpublishedAction?.name === 'lotModalValidation'
+          );
+          if (lotValidation.length !== 1) throw new Error(`Expected exactly one Harvest lotModalValidation action; found ${lotValidation.length}.`);
+
+          const validationBodies = [
+            `function (actionOrOptions = {}) {
+            const rows = LotsHarvest.selectedLotRows();
+            const action = typeof actionOrOptions === "string"
+              ? actionOrOptions
+              : typeof actionOrOptions?.action === "string"
+                ? actionOrOptions.action
+                : null;
+            const options = typeof actionOrOptions === "object" && actionOrOptions !== null ? actionOrOptions : {};
+            const rulesByAction = {
+              inoculate: {
+                requireAny: true,
+                allowedCategories: ["grain", "lc_flask", "plate", "cordyceps_substrate", "all_in_one_bag"],
+                requireNoStrain: true,
+                requireNotInoculated: true,
+                message: "Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain."
+              },
+              draw_syringes: {
+                requireSingle: true,
+                allowedCategories: ["lc_flask"],
+                message: "Select exactly one active LC flask lot to draw syringes."
+              },
+              harvest: {
+                requireSingle: true,
+                allowedCategories: ["fruiting_block", "cordyceps_substrate", "all_in_one_bag"],
+                message: "Select exactly one fruiting block, cordyceps substrate, or all-in-one bag lot to harvest."
+              }
+            };
+            const rules = {
+              ...action ? rulesByAction[action] || ({}) : {},
+              ...options
+            };
+            if (rules.requireSingle && rows.length !== 1) {
+              return {
+                ok: false,
+                message: rules.message || "Select exactly one valid lot."
+              };
+            }
+            if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {
+              return {
+                ok: false,
+                message: rules.message || "Select one or more valid lots."
+              };
+            }
+            for (const row of rows) {
+              const label = row.lot_id || row.nocopk || "Selected lot";
+              const category = String(row.item_category_mat || "");
+              if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {
+                return {
+                  ok: false,
+                  message: \`${label} has category ${category || "(blank)"}; expected ${rules.allowedCategories.join(", ")}.\`
+                };
+              }
+              if (!rules.allowRetired && LotsHarvest.lotIsRetired(row)) {
+                return {
+                  ok: false,
+                  message: \`${label} is retired or unavailable (${row.status || "unknown status"}).\`
+                };
+              }
+              if (rules.requireNoStrain && row.strain_species_strain_mat) {
+                return {
+                  ok: false,
+                  message: \`${label} already has a strain (${row.strain_species_strain_mat}).\`
+                };
+              }
+              if (rules.requireNotInoculated && row.inoculated_at) {
+                return {
+                  ok: false,
+                  message: \`${label} was already inoculated (${row.inoculated_at}).\`
+                };
+              }
+            }
+            return {
+              ok: true,
+              message: ""
+            };
+          }`
+          ];
+
+          for (const a of lotValidation) {
+            a.unpublishedAction.actionConfiguration.body = validationBodies[0];
+            a.publishedAction.actionConfiguration.body = validationBodies[0];
+          }
+
+          if (updatedValidationCallers < 6) {
+            throw new Error(`Expected all published/unpublished Harvest validation callers to be updated; changed ${updatedValidationCallers} bodies.`);
+          }
+
+          const serialized = JSON.stringify(app);
+          fs.writeFileSync(file, serialized + '\\n');
+
+          console.log('Harvest terminal-lot update applied.');
+          console.log('Updated checkbox: chkShowTerminalHarvestLots');
+          console.log('Updated Harvest qLots SQL to include composted/expired only when checked.');
+          console.log(`Updated validation callers: ${updatedValidationCallers}`);
+          NODE
+
+          node /tmp/update-harvest-terminal-lots.js
+
+      - name: Validate exported Appsmith JSON
+        shell: bash
+        run: |
+          node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('appsmith/MushroomProcess.json','utf8')); if(!p.pageList?.length) throw new Error('Invalid Appsmith export'); console.log('Appsmith JSON parses successfully.');"
+          grep -q 'chkShowTerminalHarvestLots' appsmith/MushroomProcess.json
+          grep -q 'Show Composted / Expired Blocks' appsmith/MushroomProcess.json
+          grep -q "composted" appsmith/MushroomProcess.json
+          grep -q "expired" appsmith/MushroomProcess.json
+
+      - name: Commit the Appsmith change and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add appsmith/MushroomProcess.json
+          git rm .github/workflows/temporary-harvest-terminal-lots.yml
+          git commit -m "feat(harvest): allow optional terminal block selection"
+          git push origin HEAD:${GITHUB_REF_NAME}
