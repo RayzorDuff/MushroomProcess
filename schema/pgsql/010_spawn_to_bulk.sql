@@ -135,6 +135,7 @@ DECLARE
   v_source_component record;
   v_source_component_found boolean;
   v_distribution_factor numeric;
+  v_source_component_total numeric;
   v_component_weight numeric;
   v_component_recipe_id bigint;
   v_component_role text;
@@ -511,6 +512,24 @@ BEGIN
 
       v_source_component_found := false;
 
+      -- A source Lot's recipe-component history records provenance, while
+      -- the Lot's unit_size is the authoritative amount being consumed.
+      -- Normalize preserved component weights to that actual source size
+      -- before distributing them to outputs. This prevents small measured
+      -- Product/package weight differences from creating a false output
+      -- component-total mismatch while preserving component proportions.
+      SELECT COALESCE(sum(component_weight_lb), 0)
+      INTO v_source_component_total
+      FROM (
+        SELECT COALESCE(
+          NULLIF(lrc.component_weight_lb, 0),
+          v_source.unit_size * NULLIF(lrc.component_percent, 0) / 100.0,
+          CASE WHEN count(*) OVER () = 1 THEN v_source.unit_size END
+        ) AS component_weight_lb
+        FROM public.lot_recipe_components lrc
+        WHERE lrc.lot_id = v_source.nocopk
+      ) source_components;
+
       FOR v_source_component IN
         SELECT
           lrc.recipe_id,
@@ -541,6 +560,12 @@ BEGIN
 
         v_component_sort_order := v_component_sort_order + 1;
         v_component_weight := v_source_component.component_weight_lb * v_distribution_factor;
+        IF v_source_component_total > 0
+           AND COALESCE(v_source.unit_size, 0) > 0 THEN
+          v_component_weight := v_component_weight
+            * v_source.unit_size
+            / v_source_component_total;
+        END IF;
         v_component_recipe_id := COALESCE(v_source_component.recipe_id, v_source.recipe_id);
         v_component_role := COALESCE(v_source_component.component_role, v_source.source_role);
 
