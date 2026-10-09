@@ -623,6 +623,21 @@ The timezone rule is centralized in `mp_cultivation_operating_date()` so it can 
 For incremental production deployment, import `045_product_cultivation_phase2_corrections.sql`, run `tests/045_product_cultivation_phase2_corrections_smoke.sql`, and then import the paired Appsmith correction. `qSpawnToBulkLocations` is already an automatic/on-load query; the Appsmith correction removes manual `.run()` calls from `LotsSpawnToBulk` to avoid mixing trigger and data dependencies on the same query.
 
 
+### `049_spawn_to_bulk_component_weight_normalization.sql` — Spawn-to-Bulk component weight normalization
+
+This corrective migration fixes a Spawn-to-Bulk failure that can occur when a Product-backed
+substrate Lot has a measured packaged weight that differs slightly from its preserved
+recipe-component total. Spawn-to-Bulk now normalizes each source Lot's effective component
+weights proportionally to that Lot's `unit_size` before applying the output distribution.
+
+This preserves component proportions and source-component lineage without changing the historical
+component rows on the source Lot. The output component total therefore matches the output
+`unit_size`, including when a Product return introduces a small decimal conversion difference.
+
+For incremental deployment, import `049_spawn_to_bulk_component_weight_normalization.sql`
+after the currently deployed Product cultivation migrations, then run
+`tests/049_spawn_to_bulk_component_weight_normalization_smoke.sql`.
+
 ### `046_expired_product_cultivation_opt_in.sql` — expired Product cultivation opt-in (#57)
 
 Issue #57 now distinguishes expiration from structural unavailability. A Product whose use-by date
