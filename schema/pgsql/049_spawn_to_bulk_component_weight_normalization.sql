@@ -1,76 +1,17 @@
-/*
-  010_spawn_to_bulk_actions.sql
+\set ON_ERROR_STOP on
 
-  Adds a Postgres-native Spawn to Bulk operation for the Lots page.
+-- 049_spawn_to_bulk_component_weight_normalization.sql
+-- Normalize source recipe-component contributions to the source Lot's actual
+-- unit_size before allocating them to Spawn-to-Bulk outputs.
+--
+-- Product-backed cultivation Lots can carry a measured package weight that
+-- differs slightly from the preserved origin component total. Spawn-to-Bulk
+-- should account for the actual source Lot weight while preserving the
+-- source component proportions and lineage.
 
-  Design notes:
-    - User selects one or more substrate lots in tblLots.
-    - User selects one or more colonized grain source lots in the modal.
-    - Multiple grain sources are allowed when they share the same species.
-    - If multiple strains are used within the same species, output lots keep strain_id NULL
-      and retain full parent links/event JSON for lineage.
-    - Supports Issue #1 style unequal block sizing by accepting p_output_plan_json:
-        [
-          {"ratio": 5},
-          {"ratio": 2.5},
-          {"item_code": "FB-COCO-LG", "ratio": 5}
-        ]
-      If ratios are supplied, total input unit_size is allocated proportionally.
-      If no ratios are supplied and substrate count equals output count, each substrate
-      bag gets its own block plus an even grain share.
-      Otherwise, total input unit_size is divided evenly.
-*/
+SET search_path = public, pg_catalog;
 
-CREATE OR REPLACE FUNCTION public.mp_lots_spawn_species_key(p_species_strain text)
-RETURNS text
-LANGUAGE sql
-IMMUTABLE
-AS $$
-  SELECT lower(
-    btrim(
-      CASE
-        WHEN p_species_strain IS NULL THEN ''
-        WHEN p_species_strain ~ '\s[-–—]\s' THEN regexp_replace(p_species_strain, '\s[-–—]\s.*$', '')
-        ELSE array_to_string((regexp_split_to_array(btrim(p_species_strain), '\s+'))[1:2], ' ')
-      END
-    )
-  );
-$$;
-
-CREATE OR REPLACE FUNCTION public.mp_lots_pick_fruiting_block_item_code(
-  p_substrate_signature text,
-  p_unit_size_lb numeric
-)
-RETURNS text
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  v_sig text := upper(COALESCE(p_substrate_signature, ''));
-BEGIN
-  IF v_sig LIKE '%CVG%' THEN
-    RETURN CASE WHEN COALESCE(p_unit_size_lb, 0) >= 5 THEN 'FB-COCO-LG' ELSE 'FB-COCO-SM' END;
-  ELSIF v_sig LIKE '%MM75%' THEN
-    RETURN CASE WHEN COALESCE(p_unit_size_lb, 0) >= 5 THEN 'FB-MM75-LG' ELSE 'FB-MM75-SM' END;
-  ELSIF v_sig LIKE '%MM50%' THEN
-    RETURN CASE WHEN COALESCE(p_unit_size_lb, 0) >= 5 THEN 'FB-MM50-LG' ELSE 'FB-MM50-SM' END;
-  END IF;
-
-  RETURN 'FB-GENERIC';
-END;
-$$;
-
-DROP FUNCTION IF EXISTS public.mp_lots_spawn_to_bulk(
-  bigint[],
-  bigint[],
-  integer,
-  jsonb,
-  bigint,
-  timestamp without time zone,
-  text,
-  text,
-  timestamp without time zone,
-  text
-);
+BEGIN;
 
 CREATE OR REPLACE FUNCTION public.mp_lots_spawn_to_bulk(
   p_grain_lot_ids bigint[],
@@ -514,10 +455,11 @@ BEGIN
 
       -- A source Lot's recipe-component history records provenance, while
       -- the Lot's unit_size is the authoritative amount being consumed.
-      -- Normalize preserved component weights to that actual source size
-      -- before distributing them to outputs. This prevents small measured
-      -- Product/package weight differences from creating a false output
-      -- component-total mismatch while preserving component proportions.
+      -- Product-backed Lots can legitimately have a measured package weight
+      -- that differs slightly from the preserved component total. Normalize
+      -- the source components proportionally so the contribution allocated
+      -- to this output reflects the actual source Lot size without changing
+      -- the source Lot's historical rows.
       SELECT COALESCE(sum(component_weight_lb), 0)
       INTO v_source_component_total
       FROM (
@@ -757,3 +699,12 @@ BEGIN
   RETURN v_created_count;
 END;
 $$;
+
+
+COMMENT ON FUNCTION public.mp_lots_spawn_to_bulk(
+  bigint[], bigint[], integer, jsonb, bigint,
+  timestamp without time zone, text, text, timestamp without time zone, text, text
+) IS
+  'Spawn to Bulk output creation with proportional source component history. Source component weights are normalized to each source Lot unit_size before distribution so measured Product-return weights cannot create false component-total mismatches.';
+
+COMMIT;
