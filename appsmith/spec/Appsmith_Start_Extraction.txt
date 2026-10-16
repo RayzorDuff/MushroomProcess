@@ -20,6 +20,7 @@ Suggested widget names:
 - `inpExtractionMaterialWeightG`
 - `inpExtractionSolventType`
 - `inpExtractionSolventVolumeMl`
+- `inpExtractionSolventProof` (optional numeric strength, 200 for 200-proof ethanol)
 - `inpExtractionNotes`
 - `btnStartExtraction`
 - `txtStartExtractionError`
@@ -38,7 +39,8 @@ Call the single PostgreSQL operation:
       {{ appsmith.user.email || 'unknown' }},
       'Products',
       now()::timestamp,
-      {{ inpExtractionNotes.text || null }}
+      {{ inpExtractionNotes.text || null }},
+      {{ Number(inpExtractionSolventProof.text) || null }}
     ) AS lot_nocopk;
 
 Appsmith must not perform independent writes to Products, Lots, Events, or print_queue.
@@ -51,7 +53,7 @@ Refresh Products, clear the modal/selection, and show the created Lot ID. Do not
 
 The database queues `source_kind = lot` and `label_type = Extraction_Batch`. The existing print daemon resolves the Lot, uses the existing QR resolver, and renders the persisted Lot ID.
 
-The Lot view supplies an extraction title, measured material weight, solvent amount/type, source Product ID, process date, and Lot footer.
+The Lot label view must supply extraction title, measured material weight, solvent amount/type/strength, source Product ID, process date, and Lot footer. The SQL migration currently queues a job, but verify that deployed vc_lots and NocoDB print-daemon read paths expose the new fields before printing; do not assume changing the baseline 004_computed_views.sql updates a live database.
 
 ## Phase 1 rule
 
