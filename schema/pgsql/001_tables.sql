@@ -441,6 +441,7 @@ CREATE TABLE IF NOT EXISTS "public"."lots" (
   "source_product_id" bigint,
   "material_weight_g" numeric,
   "solvent_type" text,
+  "solvent_proof" numeric,
   "solvent_volume_ml" numeric,
   "process_stage" text,
   "material_state" text,
