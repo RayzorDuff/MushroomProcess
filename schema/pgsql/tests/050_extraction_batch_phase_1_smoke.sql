@@ -34,13 +34,13 @@ BEGIN
   VALUES ('TEST-EXTRACT-TRAY',(SELECT nocopk FROM public.items WHERE item_id='TRAY-FREEZE'),'Freezer Tray','freezer_tray',125,125/28.349523125,'freezer_tray',v_location_id,'[]')
   RETURNING nocopk INTO v_source_product_id;
 
-  v_lot_id := public.mp_products_start_extraction_batch(v_source_product_id,125,'Ethanol',500,'test','Products',now()::timestamp,'phase 1 smoke');
+  v_lot_id := public.mp_products_start_extraction_batch(v_source_product_id,125,'Ethanol',500,'test','Products',now()::timestamp,'phase 1 smoke',200);
   SELECT * INTO v_lot FROM public.lots WHERE nocopk=v_lot_id;
 
   IF v_lot.lot_id !~ '^LOT-[0-9]{6}-[A-Z0-9]{4}$' THEN RAISE EXCEPTION 'Unexpected extraction Lot ID: %', v_lot.lot_id; END IF;
   IF v_lot.source_product_id <> v_source_product_id THEN RAISE EXCEPTION 'Source Product relationship missing'; END IF;
   IF v_lot.material_weight_g <> 125 THEN RAISE EXCEPTION 'Material weight not persisted'; END IF;
-  IF v_lot.solvent_volume_ml <> 500 OR v_lot.solvent_type <> 'Ethanol' THEN RAISE EXCEPTION 'Solvent data not persisted'; END IF;
+  IF v_lot.solvent_volume_ml <> 500 OR v_lot.solvent_type <> 'Ethanol' OR v_lot.solvent_proof <> 200 THEN RAISE EXCEPTION 'Solvent data not persisted'; END IF;
   IF v_lot.label_template <> 'Extraction_Batch' THEN RAISE EXCEPTION 'Extraction label template not persisted'; END IF;
 
   SELECT count(*) INTO v_event_count FROM public.events WHERE lot_id=v_lot_id AND product_id=v_source_product_id AND type='ExtractionStarted';
