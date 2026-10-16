@@ -1,0 +1,58 @@
+# Appsmith — Start Extraction
+
+Phase 1 operator interface for issue #97.
+
+## Existing page
+
+Use the existing **Products** page. Do not create a separate station page for this first transition.
+
+## Selection
+
+Allow exactly one selected active `freezer_tray` Product.
+
+Enable **Start Extraction** only when the selected row is an active freezer tray with positive `net_weight_g`.
+
+## Modal fields
+
+Suggested widget names:
+- `mdlStartExtraction`
+- `txtExtractionSourceSummary`
+- `inpExtractionMaterialWeightG`
+- `inpExtractionSolventType`
+- `inpExtractionSolventVolumeMl`
+- `inpExtractionNotes`
+- `btnStartExtraction`
+- `txtStartExtractionError`
+
+Show the selected Product ID and its available weight before submission.
+
+## Submit
+
+Call the single PostgreSQL operation:
+
+    SELECT public.mp_products_start_extraction_batch(
+      {{ tblProducts.selectedRow.nocopk }},
+      {{ Number(inpExtractionMaterialWeightG.text) }},
+      {{ inpExtractionSolventType.text }},
+      {{ Number(inpExtractionSolventVolumeMl.text) }},
+      {{ appsmith.user.email || 'unknown' }},
+      'Products',
+      now()::timestamp,
+      {{ inpExtractionNotes.text || null }}
+    ) AS lot_nocopk;
+
+Appsmith must not perform independent writes to Products, Lots, Events, or print_queue.
+
+## Success
+
+Refresh Products, clear the modal/selection, and show the created Lot ID. Do not create a second print job in Appsmith.
+
+## Label
+
+The database queues `source_kind = lot` and `label_type = Extraction_Batch`. The existing print daemon resolves the Lot, uses the existing QR resolver, and renders the persisted Lot ID.
+
+The Lot view supplies an extraction title, measured material weight, solvent amount/type, source Product ID, process date, and Lot footer.
+
+## Phase 1 rule
+
+The entire source freezer-tray Product is consumed. Partial source-product splitting is deliberately deferred.
