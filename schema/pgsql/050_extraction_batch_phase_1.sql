@@ -13,6 +13,7 @@ ALTER TABLE public.lots
   ADD COLUMN IF NOT EXISTS source_product_id bigint,
   ADD COLUMN IF NOT EXISTS material_weight_g numeric,
   ADD COLUMN IF NOT EXISTS solvent_type text,
+  ADD COLUMN IF NOT EXISTS solvent_proof numeric,
   ADD COLUMN IF NOT EXISTS solvent_volume_ml numeric,
   ADD COLUMN IF NOT EXISTS process_stage text,
   ADD COLUMN IF NOT EXISTS material_state text;
@@ -64,7 +65,8 @@ CREATE OR REPLACE FUNCTION public.mp_products_start_extraction_batch(
   p_operator text DEFAULT 'system',
   p_station text DEFAULT 'Products',
   p_timestamp timestamp without time zone DEFAULT NULL,
-  p_note text DEFAULT NULL
+  p_note text DEFAULT NULL,
+  p_solvent_proof numeric DEFAULT NULL
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -88,6 +90,10 @@ BEGIN
   END IF;
   IF p_solvent_type IS NULL OR btrim(p_solvent_type) = '' THEN
     RAISE EXCEPTION 'Solvent type is required';
+  END IF;
+  IF p_solvent_proof IS NOT NULL AND
+     (p_solvent_proof <= 0 OR p_solvent_proof > 200) THEN
+    RAISE EXCEPTION 'Solvent proof must be greater than zero and at most 200';
   END IF;
   IF p_solvent_volume_ml IS NULL OR p_solvent_volume_ml <= 0 THEN
     RAISE EXCEPTION 'Solvent volume must be greater than zero';
@@ -147,14 +153,14 @@ BEGIN
   INSERT INTO public.lots (
     lot_id, item_id, item_name_mat, item_category_mat, strain_id, qty,
     status, location_id, operator, created_at, process_stage, material_state,
-    material_weight_g, solvent_type, solvent_volume_ml, source_product_id,
+    material_weight_g, solvent_type, solvent_proof, solvent_volume_ml, source_product_id,
     parents_json, label_template, notes
   )
   VALUES (
     v_lot_business_id, v_item_id, 'Extraction Batch', 'extraction_batch',
     v_source.strain_id, 1, 'Extraction', v_location_id, p_operator, v_ts,
     'initial_solvent_extraction', 'solvent_bearing', p_material_weight_g,
-    btrim(p_solvent_type), p_solvent_volume_ml, p_source_product_id,
+    btrim(p_solvent_type), p_solvent_proof, p_solvent_volume_ml, p_source_product_id,
     COALESCE(NULLIF(btrim(v_source.origin_lot_ids_json), ''), '[]'),
     'Extraction_Batch', NULLIF(btrim(p_note), '')
   )
@@ -176,6 +182,7 @@ BEGIN
       'source_product_weight_g', v_source.net_weight_g,
       'material_weight_g', p_material_weight_g,
       'solvent_type', btrim(p_solvent_type),
+      'solvent_proof', p_solvent_proof,
       'solvent_volume_ml', p_solvent_volume_ml,
       'created_lot_id', v_lot_id,
       'created_lot_business_id', v_lot_business_id,
