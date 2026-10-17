@@ -25822,7 +25822,7 @@
       "pluginType": "DB",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;",
+          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(selExtractionSolventType.selectedOptionValue) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(selExtractionSolventProof.selectedOptionValue) }}::numeric\n) AS extraction_lot_id;",
           "encodeParamsToggle": false,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -25856,10 +25856,10 @@
         "isValid": true,
         "jsonPathKeys": [
           " ProductsPage.sql.num(inpExtractionMaterialWeightG.text) ",
-          " ProductsPage.sql.num(inpExtractionSolventProof.text) ",
+          " ProductsPage.sql.num(selExtractionSolventProof.selectedOptionValue) ",
           " ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) ",
           " ProductsPage.sql.str(ProductsPage.currentOperator()) ",
-          " ProductsPage.sql.str(inpExtractionSolventType.text) ",
+          " ProductsPage.sql.str(selExtractionSolventType.selectedOptionValue) ",
           " ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) ",
           " ProductsPage.sql.str(inpExtractionNotes.text) "
         ],
@@ -25873,7 +25873,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;",
+          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(selExtractionSolventType.selectedOptionValue) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(selExtractionSolventProof.selectedOptionValue) }}::numeric\n) AS extraction_lot_id;",
           "encodeParamsToggle": false,
           "paginationType": "NONE",
           "pluginSpecifiedTemplates": [
@@ -25907,10 +25907,10 @@
         "isValid": true,
         "jsonPathKeys": [
           " ProductsPage.sql.num(inpExtractionMaterialWeightG.text) ",
-          " ProductsPage.sql.num(inpExtractionSolventProof.text) ",
+          " ProductsPage.sql.num(selExtractionSolventProof.selectedOptionValue) ",
           " ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) ",
           " ProductsPage.sql.str(ProductsPage.currentOperator()) ",
-          " ProductsPage.sql.str(inpExtractionSolventType.text) ",
+          " ProductsPage.sql.str(selExtractionSolventType.selectedOptionValue) ",
           " ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) ",
           " ProductsPage.sql.str(inpExtractionNotes.text) "
         ],
