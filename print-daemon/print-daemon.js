@@ -1156,7 +1156,7 @@ function extractionLabelText(row) {
   const subtitle = [material, solvent, proof ? `${proof} proof` : '']
     .filter(Boolean).join(' • ');
   const created = value('created_at');
-  const date = /^\\d{4}-\\d{2}-\\d{2}/.exec(created)?.[0] || '';
+  const date = /^\d{4}-\d{2}-\d{2}/.exec(created)?.[0] || '';
   return {
     label_title_lot: 'Extraction Batch',
     label_subtitle_lot: subtitle,
