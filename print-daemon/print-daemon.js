@@ -1174,10 +1174,19 @@ async function hydrateExtractionLabelFields(sourcePk, queueFields, sourceFields)
     'EXTRACTION_LOTS_TABLE', process.env.EXTRACTION_LOTS_TABLE || 'lots', ['lots']
   );
   const url = `${nocoV3RecordsPath(rawTable)}/${encodeURIComponent(sourcePk)}`;
-  const { data } = await NC.get(url, {
-    params: { fields: 'nocopk,lot_id,label_template,material_weight_g,solvent_type,solvent_proof,solvent_volume_ml,created_at,item_category_mat' },
-  });
+  // NocoDB v3 rejects an explicit fields projection when new Postgres columns
+  // have not yet been synchronized into its field metadata (HTTP 422).
+  // Retrieve the full record; validate the required extraction fields below.
+  const { data } = await NC.get(url);
   const raw = nocoV3RecordFields(data?.record ?? data);
+  const extractionFields = ['material_weight_g', 'solvent_type', 'solvent_volume_ml'];
+  const missing = extractionFields.filter(name => raw[name] === undefined);
+  if (missing.length) {
+    throw new Error(
+      'NocoDB lots metadata is missing extraction columns: ' + missing.join(', ') +
+      '. Synchronize the lots table schema in NocoDB, then requeue this print job.'
+    );
+  }
   if (String(toFlat(raw.label_template) || '') !== 'Extraction_Batch') {
     throw new Error(`Expected extraction batch lot for print job, got ${raw.label_template || '(empty)'}`);
   }
