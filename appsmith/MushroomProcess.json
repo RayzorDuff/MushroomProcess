@@ -293,7 +293,7 @@
       "publishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  async init() {\n    try {\n      const requestedProduct = String(\n        appsmith.URL?.queryParams?.product || \"\"\n      ).trim();\n      const validRequestedProduct = !requestedProduct || /^(PROD)-[A-Za-z0-9-]+$/i.test(requestedProduct);\n\n      await ProductsPage.refresh();\n\n      if (requestedProduct) {\n        if (!validRequestedProduct) {\n          showAlert(`Invalid Product deep link: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        const rows = qProducts.data || [];\n        const requestedIndex = rows.findIndex(row =>\n          String(row?.product_id || \"\").trim().toLowerCase() === requestedProduct.toLowerCase()\n        );\n\n        if (requestedIndex < 0) {\n          showAlert(`Product not found on Products page: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        await resetWidget(\"tblProducts\", true);\n        await tblProducts.setSelectedRowIndices([requestedIndex]);\n\n        if (String(appsmith.URL?.queryParams?.source || \"\").toLowerCase() === \"qr\") {\n          showAlert(`Loaded ${rows[requestedIndex].product_id} from QR scan.`, \"success\");\n        }\n      }\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n\tisActiveProduct(row) {\n\t\tconst trayStates = String(row?.tray_state || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.split(/[,;|]+/)\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean);\n\n\t\tconst location = String(row?.storage_location || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.replace(/[^a-z0-9]/g, \"\");\n\n\t\tconst inactiveStates = [\n\t\t\t\"empty_tray\",\n\t\t\t\"empty tray\",\n\t\t\t\"compost\",\n\t\t\t\"composted\",\n\t\t\t\"spoiled\",\n\t\t\t\"retired\",\n\t\t\t\"expired\",\n\t\t\t\"consumed\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\tconst inactiveLocations = [\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"expired\",\n\t\t\t\"retired\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\treturn !trayStates.some(s => inactiveStates.includes(s))\n\t\t\t&& !inactiveLocations.includes(location);\n\t},\n\n\tisActiveTrayProduct(row) {\n\t\treturn ProductsPage.isActiveProduct(row);\n\t},\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait resetWidget(\"tblProducts\", true);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n\tisMoveFreezeDryerSubmitting() {\n\t\treturn appsmith.store.products_move_freeze_dryer_submitting === true;\n\t},\n\n\tisRetireTraySubmitting() {\n\t\treturn appsmith.store.products_retire_tray_submitting === true;\n\t},\n\t\n\tisPackageFreezeDriedSubmitting() {\n\t\treturn appsmith.store.products_package_fd_submitting === true;\n\t},\t\n\t\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n\tcanPackageFreezeDried() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => ProductsPage.isActiveTrayProduct(r));\n\t},\n\t\n\tcanSubmitMoveFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tconst selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n\t\tconst validLocationIds = ProductsPage.freezeDryerLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn ProductsPage.canMoveFreezeDryer()\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tcanSubmitRetireTray() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\treturn ProductsPage.canRetireTray()\n\t\t\t&& !!selRetireTrayReason.selectedOptionValue;\n\t},\n\n\tfreezeDriedPackageItemOptions() {\n\t  return (qFreezeDriedPackageItems.data || [])\n\t    .filter(i => i && i.option_value && i.package_item_id)\n\t    .map(i => ({\n\t      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n\t      value: i.option_value,\n\t      package_item_id: i.package_item_id,\n\t      item_id: i.item_id,\n\t      package_class: i.package_class\n\t    }));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t  const opts = ProductsPage.freezeDriedPackageItemOptions();\n\t  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n\t    || opts.find(o => o.package_class === \"Retail\")\n\t    || opts[0];\n\t  return preferred?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  return ProductsPage.freezeDriedPackageItemOptions()\n\t    .find(i => String(i.value || \"\") === selected) || null;\n\t},\n\n\tfreezeDriedPackageRequest() {\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  return {\n\t    source_product_ids: ProductsPage.selectedProductIds(),\n\t    package_item_id: selectedPackageItem?.package_item_id ?? null,\n\t    package_size_g: ProductsPage.freezeDriedPackageItemSizeG(),\n\t    package_count: Number(inpPkgFDCount.text),\n\t    storage_location_id: selPkgFDLocation.selectedOptionValue || null,\n\t    use_by: dpPkgFDUseBy.formattedDate || null,\n\t    operator: ProductsPage.currentOperator(),\n\t    notes: String(inpPkgFDNotes.text || \"\"),\n\t    package_class: selectedPackageItem?.package_class || null\n\t  };\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return false;\n\t  }\n\t  const count = Number(inpPkgFDCount.text);\n\t  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  const rows = tblProducts.selectedRows || [];\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n\t  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n\t  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t  const requiredWeightG = count * Number(sizeG || 0);\n\n\t  return ProductsPage.canPackageFreezeDried()\n\t    && Number.isInteger(count)\n\t    && count > 0\n\t    && !!sizeG\n\t    && !!dpPkgFDUseBy.formattedDate\n\t    && selectedWeightG >= requiredWeightG\n\t    && !!selectedPackageItem\n\t    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n\t    && validOptionValues.includes(selectedOptionValue)\n\t    && !!selectedLocationId\n\t    && validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tasync openMoveFreezeDryerModal() {\n\t\tif (!ProductsPage.canMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\n\t\tinpMoveFreezeDryerNotes.setValue(\"\");\n\n\t\tconst defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n\n\t\tif (defaultLocationId) {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalMoveFreezeDryer.name);\n\t},\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n\t    await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  }\n\t},\n\n\tfreezeDriedPackageItemSizeG(value = selPkgFDSizeG.selectedOptionValue) {\n\t  const sizeG = Number(value);\n\t  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n\t  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n\t  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n\t  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n\t  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n\t  return null;\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t  if (!ProductsPage.canPackageFreezeDried()) {\n\t    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t    return;\n\t  }\n\t  await storeValue(\"products_package_fd_submitting\", false);\n\t  const rows = tblProducts.selectedRows || [];\n\t  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t    return;\n\t  }\n\t  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n\t    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t    return;\n\t  }\n\n\t  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n\t  await inpPkgFDCount.setValue(\"1\");\n\t  await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  await inpPkgFDNotes.setValue(\"\");\n\t  await dpPkgFDUseBy.setValue(new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString());\n\n\t  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n\t  if (defaultPackageItemId) {\n\t    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t  } else {\n\t    await selPkgFDPackageItem.setSelectedOption(\"\");\n\t    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n\t  }\n\n\t  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n\t  if (defaultLocationId) {\n\t    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t  } else {\n\t    await selPkgFDLocation.setSelectedOption(\"\");\n\t    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t  }\n\n\t  await showModal(modalPackageFreezeDried.name);\n\t},\n\n\tasync openRetireTrayModal() {\n\t\tif (!ProductsPage.canRetireTray()) {\n\t\t\tshowAlert(\"Select one or more active tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\n\t\tawait selRetireTrayReason.setSelectedOption(\"\");\n\t\tawait inpRetireTrayNotes.setValue(\"\");\n\n\t\tawait showModal(modalRetireTray.name);\n\t},\n\n\tasync moveToFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst res = await qMoveProductsToFreezeDryer.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} freezer tray product${affectedCount === 1 ? \"\" : \"s\"} moved to Freeze Dryer.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalMoveFreezeDryer.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\t\t}\n\t},\n\n\tasync retireTrayProducts() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitRetireTray()) {\n\t\t\tshowAlert(\"Select active tray products and a reason.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst reason = String(selRetireTrayReason.selectedOptionValue || \"\").toLowerCase();\n\t\t\tconst actionLabel = {\n\t\t\t\tspoiled: \"marked Spoiled\",\n\t\t\t\tcompost: \"marked Compost\",\n\t\t\t\tretired: \"marked Retired\"\n\t\t\t}[reason] || \"updated\";\n\t\t\tconst res = await qRetireTrayProducts.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} tray product${affectedCount === 1 ? \"\" : \"s\"} ${actionLabel}.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalRetireTray.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\t\t}\n\t},\n\n\tasync packageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return;\n\t  }\n\n\t  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  if (!normalizedSizeG) {\n\t    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n\t    return;\n\t  }\n\n\t  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n\t    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n\t    return;\n\t  }\n\n\t  const request = ProductsPage.freezeDriedPackageRequest();\n\t  await storeValue(\"products_package_fd_submitting\", true);\n\t  try {\n\t    const requestedCount = request.package_count;\n\t    const res = await qPackageFreezeDried.run(request);\n\t    showAlert(\n\t      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n\t      \"success\"\n\t    );\n\t    closeModal(modalPackageFreezeDried.name);\n\t    await ProductsPage.refresh();\n\t    return res;\n\t  } catch (e) {\n\t    showAlert(e?.message || String(e), \"error\");\n\t    return null;\n\t  } finally {\n\t    await storeValue(\"products_package_fd_submitting\", false);\n\t  }\n\t},\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  async init() {\n    try {\n      const requestedProduct = String(\n        appsmith.URL?.queryParams?.product || \"\"\n      ).trim();\n      const validRequestedProduct = !requestedProduct || /^(PROD)-[A-Za-z0-9-]+$/i.test(requestedProduct);\n\n      await ProductsPage.refresh();\n\n      if (requestedProduct) {\n        if (!validRequestedProduct) {\n          showAlert(`Invalid Product deep link: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        const rows = qProducts.data || [];\n        const requestedIndex = rows.findIndex(row =>\n          String(row?.product_id || \"\").trim().toLowerCase() === requestedProduct.toLowerCase()\n        );\n\n        if (requestedIndex < 0) {\n          showAlert(`Product not found on Products page: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        await resetWidget(\"tblProducts\", true);\n        await tblProducts.setSelectedRowIndices([requestedIndex]);\n\n        if (String(appsmith.URL?.queryParams?.source || \"\").toLowerCase() === \"qr\") {\n          showAlert(`Loaded ${rows[requestedIndex].product_id} from QR scan.`, \"success\");\n        }\n      }\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n\tisActiveProduct(row) {\n\t\tconst trayStates = String(row?.tray_state || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.split(/[,;|]+/)\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean);\n\n\t\tconst location = String(row?.storage_location || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.replace(/[^a-z0-9]/g, \"\");\n\n\t\tconst inactiveStates = [\n\t\t\t\"empty_tray\",\n\t\t\t\"empty tray\",\n\t\t\t\"compost\",\n\t\t\t\"composted\",\n\t\t\t\"spoiled\",\n\t\t\t\"retired\",\n\t\t\t\"expired\",\n\t\t\t\"consumed\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\tconst inactiveLocations = [\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"expired\",\n\t\t\t\"retired\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\treturn !trayStates.some(s => inactiveStates.includes(s))\n\t\t\t&& !inactiveLocations.includes(location);\n\t},\n\n\tisActiveTrayProduct(row) {\n\t\treturn ProductsPage.isActiveProduct(row);\n\t},\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait resetWidget(\"tblProducts\", true);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n\tisMoveFreezeDryerSubmitting() {\n\t\treturn appsmith.store.products_move_freeze_dryer_submitting === true;\n\t},\n\n\tisRetireTraySubmitting() {\n\t\treturn appsmith.store.products_retire_tray_submitting === true;\n\t},\n\t\n\tisPackageFreezeDriedSubmitting() {\n\t\treturn appsmith.store.products_package_fd_submitting === true;\n\t},\t\n\t\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n\tcanPackageFreezeDried() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => ProductsPage.isActiveTrayProduct(r));\n\t},\n\t\n\tcanSubmitMoveFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tconst selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n\t\tconst validLocationIds = ProductsPage.freezeDryerLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn ProductsPage.canMoveFreezeDryer()\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tcanSubmitRetireTray() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\treturn ProductsPage.canRetireTray()\n\t\t\t&& !!selRetireTrayReason.selectedOptionValue;\n\t},\n\n\tfreezeDriedPackageItemOptions() {\n\t  return (qFreezeDriedPackageItems.data || [])\n\t    .filter(i => i && i.option_value && i.package_item_id)\n\t    .map(i => ({\n\t      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n\t      value: i.option_value,\n\t      package_item_id: i.package_item_id,\n\t      item_id: i.item_id,\n\t      package_class: i.package_class\n\t    }));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t  const opts = ProductsPage.freezeDriedPackageItemOptions();\n\t  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n\t    || opts.find(o => o.package_class === \"Retail\")\n\t    || opts[0];\n\t  return preferred?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  return ProductsPage.freezeDriedPackageItemOptions()\n\t    .find(i => String(i.value || \"\") === selected) || null;\n\t},\n\n\tfreezeDriedPackageRequest() {\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  return {\n\t    source_product_ids: ProductsPage.selectedProductIds(),\n\t    package_item_id: selectedPackageItem?.package_item_id ?? null,\n\t    package_size_g: ProductsPage.freezeDriedPackageItemSizeG(),\n\t    package_count: Number(inpPkgFDCount.text),\n\t    storage_location_id: selPkgFDLocation.selectedOptionValue || null,\n\t    use_by: dpPkgFDUseBy.formattedDate || null,\n\t    operator: ProductsPage.currentOperator(),\n\t    notes: String(inpPkgFDNotes.text || \"\"),\n\t    package_class: selectedPackageItem?.package_class || null\n\t  };\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return false;\n\t  }\n\t  const count = Number(inpPkgFDCount.text);\n\t  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  const rows = tblProducts.selectedRows || [];\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n\t  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n\t  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t  const requiredWeightG = count * Number(sizeG || 0);\n\n\t  return ProductsPage.canPackageFreezeDried()\n\t    && Number.isInteger(count)\n\t    && count > 0\n\t    && !!sizeG\n\t    && !!dpPkgFDUseBy.formattedDate\n\t    && selectedWeightG >= requiredWeightG\n\t    && !!selectedPackageItem\n\t    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n\t    && validOptionValues.includes(selectedOptionValue)\n\t    && !!selectedLocationId\n\t    && validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tasync openMoveFreezeDryerModal() {\n\t\tif (!ProductsPage.canMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\n\t\tinpMoveFreezeDryerNotes.setValue(\"\");\n\n\t\tconst defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n\n\t\tif (defaultLocationId) {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalMoveFreezeDryer.name);\n\t},\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n\t    await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  }\n\t},\n\n\tfreezeDriedPackageItemSizeG(value = selPkgFDSizeG.selectedOptionValue) {\n\t  const sizeG = Number(value);\n\t  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n\t  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n\t  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n\t  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n\t  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n\t  return null;\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t  if (!ProductsPage.canPackageFreezeDried()) {\n\t    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t    return;\n\t  }\n\t  await storeValue(\"products_package_fd_submitting\", false);\n\t  const rows = tblProducts.selectedRows || [];\n\t  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t    return;\n\t  }\n\t  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n\t    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t    return;\n\t  }\n\n\t  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n\t  await inpPkgFDCount.setValue(\"1\");\n\t  await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  await inpPkgFDNotes.setValue(\"\");\n\t  await dpPkgFDUseBy.setValue(new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString());\n\n\t  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n\t  if (defaultPackageItemId) {\n\t    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t  } else {\n\t    await selPkgFDPackageItem.setSelectedOption(\"\");\n\t    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n\t  }\n\n\t  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n\t  if (defaultLocationId) {\n\t    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t  } else {\n\t    await selPkgFDLocation.setSelectedOption(\"\");\n\t    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t  }\n\n\t  await showModal(modalPackageFreezeDried.name);\n\t},\n\n\tasync openRetireTrayModal() {\n\t\tif (!ProductsPage.canRetireTray()) {\n\t\t\tshowAlert(\"Select one or more active tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\n\t\tawait selRetireTrayReason.setSelectedOption(\"\");\n\t\tawait inpRetireTrayNotes.setValue(\"\");\n\n\t\tawait showModal(modalRetireTray.name);\n\t},\n\n\tasync moveToFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst res = await qMoveProductsToFreezeDryer.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} freezer tray product${affectedCount === 1 ? \"\" : \"s\"} moved to Freeze Dryer.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalMoveFreezeDryer.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\t\t}\n\t},\n\n\tasync retireTrayProducts() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitRetireTray()) {\n\t\t\tshowAlert(\"Select active tray products and a reason.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst reason = String(selRetireTrayReason.selectedOptionValue || \"\").toLowerCase();\n\t\t\tconst actionLabel = {\n\t\t\t\tspoiled: \"marked Spoiled\",\n\t\t\t\tcompost: \"marked Compost\",\n\t\t\t\tretired: \"marked Retired\"\n\t\t\t}[reason] || \"updated\";\n\t\t\tconst res = await qRetireTrayProducts.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} tray product${affectedCount === 1 ? \"\" : \"s\"} ${actionLabel}.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalRetireTray.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\t\t}\n\t},\n\n\tasync packageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return;\n\t  }\n\n\t  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  if (!normalizedSizeG) {\n\t    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n\t    return;\n\t  }\n\n\t  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n\t    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n\t    return;\n\t  }\n\n\t  const request = ProductsPage.freezeDriedPackageRequest();\n\t  await storeValue(\"products_package_fd_submitting\", true);\n\t  try {\n\t    const requestedCount = request.package_count;\n\t    const res = await qPackageFreezeDried.run(request);\n\t    showAlert(\n\t      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n\t      \"success\"\n\t    );\n\t    closeModal(modalPackageFreezeDried.name);\n\t    await ProductsPage.refresh();\n\t    return res;\n\t  } catch (e) {\n\t    showAlert(e?.message || String(e), \"error\");\n\t    return null;\n\t  } finally {\n\t    await storeValue(\"products_package_fd_submitting\", false);\n\t  }\n\t},\n\n  selectedExtractionProduct() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  },\n\n  canStartExtraction() {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  },\n\n  canSubmitExtraction() {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  },\n\n  async openStartExtractionModal() {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  },\n\n  async startExtraction() {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  },\n};",
         "name": "ProductsPage",
         "pageId": "Products",
         "pluginId": "js-plugin",
@@ -309,7 +309,7 @@
       "unpublishedCollection": {
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  async init() {\n    try {\n      const requestedProduct = String(\n        appsmith.URL?.queryParams?.product || \"\"\n      ).trim();\n      const validRequestedProduct = !requestedProduct || /^(PROD)-[A-Za-z0-9-]+$/i.test(requestedProduct);\n\n      await ProductsPage.refresh();\n\n      if (requestedProduct) {\n        if (!validRequestedProduct) {\n          showAlert(`Invalid Product deep link: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        const rows = qProducts.data || [];\n        const requestedIndex = rows.findIndex(row =>\n          String(row?.product_id || \"\").trim().toLowerCase() === requestedProduct.toLowerCase()\n        );\n\n        if (requestedIndex < 0) {\n          showAlert(`Product not found on Products page: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        await resetWidget(\"tblProducts\", true);\n        await tblProducts.setSelectedRowIndices([requestedIndex]);\n\n        if (String(appsmith.URL?.queryParams?.source || \"\").toLowerCase() === \"qr\") {\n          showAlert(`Loaded ${rows[requestedIndex].product_id} from QR scan.`, \"success\");\n        }\n      }\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n\tisActiveProduct(row) {\n\t\tconst trayStates = String(row?.tray_state || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.split(/[,;|]+/)\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean);\n\n\t\tconst location = String(row?.storage_location || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.replace(/[^a-z0-9]/g, \"\");\n\n\t\tconst inactiveStates = [\n\t\t\t\"empty_tray\",\n\t\t\t\"empty tray\",\n\t\t\t\"compost\",\n\t\t\t\"composted\",\n\t\t\t\"spoiled\",\n\t\t\t\"retired\",\n\t\t\t\"expired\",\n\t\t\t\"consumed\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\tconst inactiveLocations = [\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"expired\",\n\t\t\t\"retired\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\treturn !trayStates.some(s => inactiveStates.includes(s))\n\t\t\t&& !inactiveLocations.includes(location);\n\t},\n\n\tisActiveTrayProduct(row) {\n\t\treturn ProductsPage.isActiveProduct(row);\n\t},\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait resetWidget(\"tblProducts\", true);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n\tisMoveFreezeDryerSubmitting() {\n\t\treturn appsmith.store.products_move_freeze_dryer_submitting === true;\n\t},\n\n\tisRetireTraySubmitting() {\n\t\treturn appsmith.store.products_retire_tray_submitting === true;\n\t},\n\t\n\tisPackageFreezeDriedSubmitting() {\n\t\treturn appsmith.store.products_package_fd_submitting === true;\n\t},\t\n\t\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n\tcanPackageFreezeDried() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => ProductsPage.isActiveTrayProduct(r));\n\t},\n\t\n\tcanSubmitMoveFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tconst selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n\t\tconst validLocationIds = ProductsPage.freezeDryerLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn ProductsPage.canMoveFreezeDryer()\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tcanSubmitRetireTray() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\treturn ProductsPage.canRetireTray()\n\t\t\t&& !!selRetireTrayReason.selectedOptionValue;\n\t},\n\n\tfreezeDriedPackageItemOptions() {\n\t  return (qFreezeDriedPackageItems.data || [])\n\t    .filter(i => i && i.option_value && i.package_item_id)\n\t    .map(i => ({\n\t      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n\t      value: i.option_value,\n\t      package_item_id: i.package_item_id,\n\t      item_id: i.item_id,\n\t      package_class: i.package_class\n\t    }));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t  const opts = ProductsPage.freezeDriedPackageItemOptions();\n\t  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n\t    || opts.find(o => o.package_class === \"Retail\")\n\t    || opts[0];\n\t  return preferred?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  return ProductsPage.freezeDriedPackageItemOptions()\n\t    .find(i => String(i.value || \"\") === selected) || null;\n\t},\n\n\tfreezeDriedPackageRequest() {\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  return {\n\t    source_product_ids: ProductsPage.selectedProductIds(),\n\t    package_item_id: selectedPackageItem?.package_item_id ?? null,\n\t    package_size_g: ProductsPage.freezeDriedPackageItemSizeG(),\n\t    package_count: Number(inpPkgFDCount.text),\n\t    storage_location_id: selPkgFDLocation.selectedOptionValue || null,\n\t    use_by: dpPkgFDUseBy.formattedDate || null,\n\t    operator: ProductsPage.currentOperator(),\n\t    notes: String(inpPkgFDNotes.text || \"\"),\n\t    package_class: selectedPackageItem?.package_class || null\n\t  };\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return false;\n\t  }\n\t  const count = Number(inpPkgFDCount.text);\n\t  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  const rows = tblProducts.selectedRows || [];\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n\t  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n\t  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t  const requiredWeightG = count * Number(sizeG || 0);\n\n\t  return ProductsPage.canPackageFreezeDried()\n\t    && Number.isInteger(count)\n\t    && count > 0\n\t    && !!sizeG\n\t    && !!dpPkgFDUseBy.formattedDate\n\t    && selectedWeightG >= requiredWeightG\n\t    && !!selectedPackageItem\n\t    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n\t    && validOptionValues.includes(selectedOptionValue)\n\t    && !!selectedLocationId\n\t    && validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tasync openMoveFreezeDryerModal() {\n\t\tif (!ProductsPage.canMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\n\t\tinpMoveFreezeDryerNotes.setValue(\"\");\n\n\t\tconst defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n\n\t\tif (defaultLocationId) {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalMoveFreezeDryer.name);\n\t},\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n\t    await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  }\n\t},\n\n\tfreezeDriedPackageItemSizeG(value = selPkgFDSizeG.selectedOptionValue) {\n\t  const sizeG = Number(value);\n\t  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n\t  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n\t  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n\t  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n\t  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n\t  return null;\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t  if (!ProductsPage.canPackageFreezeDried()) {\n\t    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t    return;\n\t  }\n\t  await storeValue(\"products_package_fd_submitting\", false);\n\t  const rows = tblProducts.selectedRows || [];\n\t  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t    return;\n\t  }\n\t  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n\t    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t    return;\n\t  }\n\n\t  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n\t  await inpPkgFDCount.setValue(\"1\");\n\t  await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  await inpPkgFDNotes.setValue(\"\");\n\t  await dpPkgFDUseBy.setValue(new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString());\n\n\t  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n\t  if (defaultPackageItemId) {\n\t    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t  } else {\n\t    await selPkgFDPackageItem.setSelectedOption(\"\");\n\t    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n\t  }\n\n\t  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n\t  if (defaultLocationId) {\n\t    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t  } else {\n\t    await selPkgFDLocation.setSelectedOption(\"\");\n\t    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t  }\n\n\t  await showModal(modalPackageFreezeDried.name);\n\t},\n\n\tasync openRetireTrayModal() {\n\t\tif (!ProductsPage.canRetireTray()) {\n\t\t\tshowAlert(\"Select one or more active tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\n\t\tawait selRetireTrayReason.setSelectedOption(\"\");\n\t\tawait inpRetireTrayNotes.setValue(\"\");\n\n\t\tawait showModal(modalRetireTray.name);\n\t},\n\n\tasync moveToFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst res = await qMoveProductsToFreezeDryer.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} freezer tray product${affectedCount === 1 ? \"\" : \"s\"} moved to Freeze Dryer.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalMoveFreezeDryer.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\t\t}\n\t},\n\n\tasync retireTrayProducts() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitRetireTray()) {\n\t\t\tshowAlert(\"Select active tray products and a reason.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst reason = String(selRetireTrayReason.selectedOptionValue || \"\").toLowerCase();\n\t\t\tconst actionLabel = {\n\t\t\t\tspoiled: \"marked Spoiled\",\n\t\t\t\tcompost: \"marked Compost\",\n\t\t\t\tretired: \"marked Retired\"\n\t\t\t}[reason] || \"updated\";\n\t\t\tconst res = await qRetireTrayProducts.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} tray product${affectedCount === 1 ? \"\" : \"s\"} ${actionLabel}.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalRetireTray.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\t\t}\n\t},\n\n\tasync packageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return;\n\t  }\n\n\t  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  if (!normalizedSizeG) {\n\t    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n\t    return;\n\t  }\n\n\t  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n\t    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n\t    return;\n\t  }\n\n\t  const request = ProductsPage.freezeDriedPackageRequest();\n\t  await storeValue(\"products_package_fd_submitting\", true);\n\t  try {\n\t    const requestedCount = request.package_count;\n\t    const res = await qPackageFreezeDried.run(request);\n\t    showAlert(\n\t      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n\t      \"success\"\n\t    );\n\t    closeModal(modalPackageFreezeDried.name);\n\t    await ProductsPage.refresh();\n\t    return res;\n\t  } catch (e) {\n\t    showAlert(e?.message || String(e), \"error\");\n\t    return null;\n\t  } finally {\n\t    await storeValue(\"products_package_fd_submitting\", false);\n\t  }\n\t},\n};",
+        "body": "export default {\n  currentOperator() {\n    const email = (appsmith.user?.email || \"\").trim().toLowerCase();\n    const name = (appsmith.user?.name || \"\").trim();\n    if (email) return email;\n    if (name) return name;\n    return \"system\";\n  },\n\n  sql: {\n    str(v) {\n      if (v === undefined || v === null || v === \"\") return \"NULL\";\n      return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n    },\n    num(v) {\n      const n = Number(v);\n      return Number.isFinite(n) ? String(n) : \"NULL\";\n    },\n    arrBigint(arr) {\n      if (!arr || arr.length === 0) return \"ARRAY[]::bigint[]\";\n      const vals = arr.map(x => {\n        const n = Number(x);\n        return Number.isFinite(n) ? String(n) : \"NULL\";\n      }).filter(x => x !== \"NULL\");\n      if (vals.length === 0) return \"ARRAY[]::bigint[]\";\n      return \"ARRAY[\" + vals.join(\", \") + \"]::bigint[]\";\n    }\n  },\n\n  async init() {\n    try {\n      const requestedProduct = String(\n        appsmith.URL?.queryParams?.product || \"\"\n      ).trim();\n      const validRequestedProduct = !requestedProduct || /^(PROD)-[A-Za-z0-9-]+$/i.test(requestedProduct);\n\n      await ProductsPage.refresh();\n\n      if (requestedProduct) {\n        if (!validRequestedProduct) {\n          showAlert(`Invalid Product deep link: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        const rows = qProducts.data || [];\n        const requestedIndex = rows.findIndex(row =>\n          String(row?.product_id || \"\").trim().toLowerCase() === requestedProduct.toLowerCase()\n        );\n\n        if (requestedIndex < 0) {\n          showAlert(`Product not found on Products page: ${requestedProduct}`, \"warning\");\n          return;\n        }\n\n        await resetWidget(\"tblProducts\", true);\n        await tblProducts.setSelectedRowIndices([requestedIndex]);\n\n        if (String(appsmith.URL?.queryParams?.source || \"\").toLowerCase() === \"qr\") {\n          showAlert(`Loaded ${rows[requestedIndex].product_id} from QR scan.`, \"success\");\n        }\n      }\n    } catch (e) {\n      showAlert(e?.message || String(e), \"error\");\n    }\n  },\n\n  selectedProductIds() {\n    return (tblProducts.selectedRows || [])\n      .map(r => Number(r.nocopk))\n      .filter(Number.isFinite);\n  },\n\n  selectedTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\"))\n    );\n  },\n\n  selectedFreezerTrayProducts() {\n    return (tblProducts.selectedRows || []).filter(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\"\n    );\n  },\n\n  selectedProductsSummary() {\n    const rows = tblProducts.selectedRows || [];\n    if (!rows.length) return \"No products selected.\";\n\n    return rows.map(r =>\n      `${r.product_id || r.nocopk} — ${r.name || r.item_category_mat || \"Product\"} — ${r.storage_location || \"No location\"}`\n    ).join(\"\\n\");\n  },\n\n\tisActiveProduct(row) {\n\t\tconst trayStates = String(row?.tray_state || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.split(/[,;|]+/)\n\t\t\t.map(s => s.trim())\n\t\t\t.filter(Boolean);\n\n\t\tconst location = String(row?.storage_location || \"\")\n\t\t\t.toLowerCase()\n\t\t\t.replace(/[^a-z0-9]/g, \"\");\n\n\t\tconst inactiveStates = [\n\t\t\t\"empty_tray\",\n\t\t\t\"empty tray\",\n\t\t\t\"compost\",\n\t\t\t\"composted\",\n\t\t\t\"spoiled\",\n\t\t\t\"retired\",\n\t\t\t\"expired\",\n\t\t\t\"consumed\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\tconst inactiveLocations = [\n\t\t\t\"compost\",\n\t\t\t\"consumed\",\n\t\t\t\"expired\",\n\t\t\t\"retired\",\n\t\t\t\"shipped\"\n\t\t];\n\n\t\treturn !trayStates.some(s => inactiveStates.includes(s))\n\t\t\t&& !inactiveLocations.includes(location);\n\t},\n\n\tisActiveTrayProduct(row) {\n\t\treturn ProductsPage.isActiveProduct(row);\n\t},\n\n\tasync refresh() {\n\t\tawait Promise.allSettled([\n\t\t\tqProductLocationOptions.run(),\n\t\t\tqProductStrainOptions.run(),\n\t\t\tqFreezeDriedPackageItems.run()\n\t\t]);\n\t\tawait resetWidget(\"tblProducts\", true);\n\t\tawait qProducts.run();\n\t},\n\n  async showFreshTrays() {\n    await selProductsCategory.setSelectedOption(\"fresh_tray\");\n    await ProductsPage.refresh();\n  },\n\n  async showFreezerTrays() {\n    await selProductsCategory.setSelectedOption(\"freezer_tray\");\n    await ProductsPage.refresh();\n  },\n\n  productReadyLocationOptions() {\n    const invalidNameParts = [\n      \"dark room\",\n      \"fruiting\",\n      \"freeze\",\n      \"freezer\",\n      \"fridge\",\n      \"refrigerat\",\n      \"cold shock\",\n      \"lab\",\n      \"shipped\",\n      \"consumed\",\n      \"compost\",\n      \"expired\",\n      \"retired\"\n    ];\n\n    const preferredNameParts = [\n      \"products storage\",\n      \"product storage\",\n      \"fulfillment\",\n      \"shipping\",\n      \"retail\",\n      \"market\",\n      \"customer\"\n    ];\n\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").trim();\n        const lower = name.toLowerCase();\n\n        if (!name) return false;\n        if (l.active === false) return false;\n        if (invalidNameParts.some(part => lower.includes(part))) return false;\n\n        return preferredNameParts.some(part => lower.includes(part));\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultProductReadyLocationId() {\n    const opts = this.productReadyLocationOptions();\n\n    const productsStorage = opts.find(o =>\n      String(o.label || \"\").trim().toLowerCase() === \"products storage\"\n    );\n\n    return (productsStorage || opts[0])?.value || \"\";\n  },\n\n\tisMoveFreezeDryerSubmitting() {\n\t\treturn appsmith.store.products_move_freeze_dryer_submitting === true;\n\t},\n\n\tisRetireTraySubmitting() {\n\t\treturn appsmith.store.products_retire_tray_submitting === true;\n\t},\n\t\n\tisPackageFreezeDriedSubmitting() {\n\t\treturn appsmith.store.products_package_fd_submitting === true;\n\t},\t\n\t\n  freezeDryerLocationOptions() {\n    return (qProductLocationOptions.data || [])\n      .filter(l => {\n        const name = String(l.name || \"\").toLowerCase();\n        return l.active !== false && name.includes(\"freeze dryer\");\n      })\n      .map(l => ({\n        label: l.name,\n        value: l.nocopk\n      }));\n  },\n\n  defaultFreezeDryerLocationId() {\n    const opts = this.freezeDryerLocationOptions();\n    return opts[0]?.value || \"\";\n  },\n\n  canMoveFreezeDryer() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      String(r.item_category_mat || \"\") === \"freezer_tray\" &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n  canRetireTray() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length > 0 && rows.every(r =>\n      [\"fresh_tray\", \"freezer_tray\"].includes(String(r.item_category_mat || \"\")) &&\n      this.isActiveTrayProduct(r)\n    );\n  },\n\n\tcanPackageFreezeDried() {\n\t\tconst rows = tblProducts.selectedRows || [];\n\n\t\treturn rows.length > 0\n\t\t\t&& rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")\n\t\t\t&& rows.every(r => ProductsPage.isActiveTrayProduct(r));\n\t},\n\t\n\tcanSubmitMoveFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tconst selectedLocationId = selFreezeDryerLocation.selectedOptionValue;\n\t\tconst validLocationIds = ProductsPage.freezeDryerLocationOptions()\n\t\t\t.map(o => String(o.value));\n\n\t\treturn ProductsPage.canMoveFreezeDryer()\n\t\t\t&& !!selectedLocationId\n\t\t\t&& validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tcanSubmitRetireTray() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn false;\n\t\t}\n\n\t\treturn ProductsPage.canRetireTray()\n\t\t\t&& !!selRetireTrayReason.selectedOptionValue;\n\t},\n\n\tfreezeDriedPackageItemOptions() {\n\t  return (qFreezeDriedPackageItems.data || [])\n\t    .filter(i => i && i.option_value && i.package_item_id)\n\t    .map(i => ({\n\t      label: i.label || `${i.name || i.item_id || i.package_item_id} — ${i.package_class}`,\n\t      value: i.option_value,\n\t      package_item_id: i.package_item_id,\n\t      item_id: i.item_id,\n\t      package_class: i.package_class\n\t    }));\n\t},\n\n\tdefaultFreezeDriedPackageItemId() {\n\t  const opts = ProductsPage.freezeDriedPackageItemOptions();\n\t  const preferred = opts.find(o => o.item_id === \"MUSH-DRIED\" && o.package_class === \"Retail\")\n\t    || opts.find(o => o.package_class === \"Retail\")\n\t    || opts[0];\n\t  return preferred?.value || \"\";\n\t},\n\n\tselectedFreezeDriedPackageItem() {\n\t  const selected = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  return ProductsPage.freezeDriedPackageItemOptions()\n\t    .find(i => String(i.value || \"\") === selected) || null;\n\t},\n\n\tfreezeDriedPackageRequest() {\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  return {\n\t    source_product_ids: ProductsPage.selectedProductIds(),\n\t    package_item_id: selectedPackageItem?.package_item_id ?? null,\n\t    package_size_g: ProductsPage.freezeDriedPackageItemSizeG(),\n\t    package_count: Number(inpPkgFDCount.text),\n\t    storage_location_id: selPkgFDLocation.selectedOptionValue || null,\n\t    use_by: dpPkgFDUseBy.formattedDate || null,\n\t    operator: ProductsPage.currentOperator(),\n\t    notes: String(inpPkgFDNotes.text || \"\"),\n\t    package_class: selectedPackageItem?.package_class || null\n\t  };\n\t},\n\n\tcanSubmitPackageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return false;\n\t  }\n\t  const count = Number(inpPkgFDCount.text);\n\t  const sizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  const rows = tblProducts.selectedRows || [];\n\t  const selectedPackageItem = ProductsPage.selectedFreezeDriedPackageItem();\n\t  const selectedOptionValue = String(selPkgFDPackageItem.selectedOptionValue || \"\");\n\t  const validOptionValues = ProductsPage.freezeDriedPackageItemOptions().map(o => String(o.value));\n\t  const selectedLocationId = selPkgFDLocation.selectedOptionValue;\n\t  const validLocationIds = ProductsPage.productReadyLocationOptions().map(o => String(o.value));\n\t  const selectedWeightG = rows.reduce((sum, r) => sum + Number(r.net_weight_g || 0), 0);\n\t  const requiredWeightG = count * Number(sizeG || 0);\n\n\t  return ProductsPage.canPackageFreezeDried()\n\t    && Number.isInteger(count)\n\t    && count > 0\n\t    && !!sizeG\n\t    && !!dpPkgFDUseBy.formattedDate\n\t    && selectedWeightG >= requiredWeightG\n\t    && !!selectedPackageItem\n\t    && [\"Retail\", \"Sample\"].includes(selectedPackageItem.package_class)\n\t    && validOptionValues.includes(selectedOptionValue)\n\t    && !!selectedLocationId\n\t    && validLocationIds.includes(String(selectedLocationId));\n\t},\n\n\tasync openMoveFreezeDryerModal() {\n\t\tif (!ProductsPage.canMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\n\t\tinpMoveFreezeDryerNotes.setValue(\"\");\n\n\t\tconst defaultLocationId = ProductsPage.defaultFreezeDryerLocationId();\n\n\t\tif (defaultLocationId) {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(defaultLocationId);\n\t\t} else {\n\t\t\tawait selFreezeDryerLocation.setSelectedOption(\"\");\n\t\t\tshowAlert(\"No active Freeze Dryer location was found.\", \"warning\");\n\t\t}\n\n\t\tawait showModal(modalMoveFreezeDryer.name);\n\t},\n\n\tasync onFreezeDriedPackageItemChanged() {\n\t  if (!ProductsPage.freezeDriedPackageItemSizeG()) {\n\t    await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  }\n\t},\n\n\tfreezeDriedPackageItemSizeG(value = selPkgFDSizeG.selectedOptionValue) {\n\t  const sizeG = Number(value);\n\t  if (!Number.isFinite(sizeG) || sizeG <= 0) return null;\n\t  if (Math.abs(sizeG - 1) <= 0.01) return 1;\n\t  if (Math.abs(sizeG - 5) <= 0.01) return 5;\n\t  if (Math.abs(sizeG - 10) <= 0.01) return 10;\n\t  if (Math.abs(sizeG - 28.349523125) <= 0.02) return 28.349523125;\n\t  return null;\n\t},\n\t\n\tasync openPackageFreezeDriedModal() {\n\t  if (!ProductsPage.canPackageFreezeDried()) {\n\t    showAlert(\"Select one or more active freezer tray products.\", \"warning\");\n\t    return;\n\t  }\n\t  await storeValue(\"products_package_fd_submitting\", false);\n\t  const rows = tblProducts.selectedRows || [];\n\t  if (!rows.length || !rows.every(r => String(r.item_category_mat || \"\") === \"freezer_tray\")) {\n\t    showAlert(\"Select one or more freezer tray products to package.\", \"warning\");\n\t    return;\n\t  }\n\t  if (!rows.every(r => ProductsPage.isActiveTrayProduct(r))) {\n\t    showAlert(\"Only active freezer tray products can be packaged.\", \"warning\");\n\t    return;\n\t  }\n\n\t  await Promise.allSettled([qProductLocationOptions.run(), qFreezeDriedPackageItems.run()]);\n\t  await inpPkgFDCount.setValue(\"1\");\n\t  await selPkgFDSizeG.setSelectedOption(\"5\");\n\t  await inpPkgFDNotes.setValue(\"\");\n\t  await dpPkgFDUseBy.setValue(new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString());\n\n\t  const defaultPackageItemId = ProductsPage.defaultFreezeDriedPackageItemId();\n\t  if (defaultPackageItemId) {\n\t    await selPkgFDPackageItem.setSelectedOption(defaultPackageItemId);\n\t  } else {\n\t    await selPkgFDPackageItem.setSelectedOption(\"\");\n\t    showAlert(\"No active canonical freeze-dried package item was found.\", \"warning\");\n\t  }\n\n\t  const defaultLocationId = ProductsPage.defaultProductReadyLocationId();\n\t  if (defaultLocationId) {\n\t    await selPkgFDLocation.setSelectedOption(defaultLocationId);\n\t  } else {\n\t    await selPkgFDLocation.setSelectedOption(\"\");\n\t    showAlert(\"No product-ready storage location was found. Add or activate Products Storage before packaging.\", \"warning\");\n\t  }\n\n\t  await showModal(modalPackageFreezeDried.name);\n\t},\n\n\tasync openRetireTrayModal() {\n\t\tif (!ProductsPage.canRetireTray()) {\n\t\t\tshowAlert(\"Select one or more active tray products.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\n\t\tawait selRetireTrayReason.setSelectedOption(\"\");\n\t\tawait inpRetireTrayNotes.setValue(\"\");\n\n\t\tawait showModal(modalRetireTray.name);\n\t},\n\n\tasync moveToFreezeDryer() {\n\t\tif (ProductsPage.isMoveFreezeDryerSubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitMoveFreezeDryer()) {\n\t\t\tshowAlert(\"Select active freezer tray products and a Freeze Dryer location.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst res = await qMoveProductsToFreezeDryer.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} freezer tray product${affectedCount === 1 ? \"\" : \"s\"} moved to Freeze Dryer.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalMoveFreezeDryer.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_move_freeze_dryer_submitting\", false);\n\t\t}\n\t},\n\n\tasync retireTrayProducts() {\n\t\tif (ProductsPage.isRetireTraySubmitting()) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!ProductsPage.canSubmitRetireTray()) {\n\t\t\tshowAlert(\"Select active tray products and a reason.\", \"warning\");\n\t\t\treturn;\n\t\t}\n\n\t\tawait storeValue(\"products_retire_tray_submitting\", true);\n\n\t\ttry {\n\t\t\tconst affectedCount = ProductsPage.selectedProductIds().length;\n\t\t\tconst reason = String(selRetireTrayReason.selectedOptionValue || \"\").toLowerCase();\n\t\t\tconst actionLabel = {\n\t\t\t\tspoiled: \"marked Spoiled\",\n\t\t\t\tcompost: \"marked Compost\",\n\t\t\t\tretired: \"marked Retired\"\n\t\t\t}[reason] || \"updated\";\n\t\t\tconst res = await qRetireTrayProducts.run();\n\n\t\t\tshowAlert(\n\t\t\t\t`${affectedCount} tray product${affectedCount === 1 ? \"\" : \"s\"} ${actionLabel}.`,\n\t\t\t\t\"success\"\n\t\t\t);\n\n\t\t\tcloseModal(modalRetireTray.name);\n\t\t\tawait ProductsPage.refresh();\n\t\t\treturn res;\n\t\t} catch (e) {\n\t\t\tshowAlert(e?.message || String(e), \"error\");\n\t\t\treturn null;\n\t\t} finally {\n\t\t\tawait storeValue(\"products_retire_tray_submitting\", false);\n\t\t}\n\t},\n\n\tasync packageFreezeDried() {\n\t  if (ProductsPage.isPackageFreezeDriedSubmitting()) {\n\t    return;\n\t  }\n\n\t  const normalizedSizeG = ProductsPage.freezeDriedPackageItemSizeG();\n\t  if (!normalizedSizeG) {\n\t    showAlert(\"Package size must be 1 g, 5 g, 10 g, or 1 oz (28.35 g).\", \"warning\");\n\t    return;\n\t  }\n\n\t  if (!ProductsPage.canSubmitPackageFreezeDried()) {\n\t    showAlert(\"Select enough active freezer tray product weight and complete the package form.\", \"warning\");\n\t    return;\n\t  }\n\n\t  const request = ProductsPage.freezeDriedPackageRequest();\n\t  await storeValue(\"products_package_fd_submitting\", true);\n\t  try {\n\t    const requestedCount = request.package_count;\n\t    const res = await qPackageFreezeDried.run(request);\n\t    showAlert(\n\t      `${requestedCount} freeze-dried package${requestedCount === 1 ? \"\" : \"s\"} created.`,\n\t      \"success\"\n\t    );\n\t    closeModal(modalPackageFreezeDried.name);\n\t    await ProductsPage.refresh();\n\t    return res;\n\t  } catch (e) {\n\t    showAlert(e?.message || String(e), \"error\");\n\t    return null;\n\t  } finally {\n\t    await storeValue(\"products_package_fd_submitting\", false);\n\t  }\n\t},\n\n  selectedExtractionProduct() {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  },\n\n  canStartExtraction() {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  },\n\n  canSubmitExtraction() {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  },\n\n  async openStartExtractionModal() {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  },\n\n  async startExtraction() {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  },\n};",
         "name": "ProductsPage",
         "pageId": "Products",
         "pluginId": "js-plugin",
@@ -51960,6 +51960,548 @@
         "userPermissions": [],
         "userSetOnLoad": false
       }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_b1fe4b282058ac0379",
+      "id": "Products_ProductsPage.selectedExtractionProduct",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.selectedExtractionProduct",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  }"
+        ],
+        "messages": [],
+        "name": "selectedExtractionProduct",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.selectedExtractionProduct",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    const rows = tblProducts.selectedRows || [];\n    return rows.length === 1 ? rows[0] : null;\n  }"
+        ],
+        "messages": [],
+        "name": "selectedExtractionProduct",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_8d0c053d170cb16637",
+      "id": "Products_ProductsPage.canStartExtraction",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.canStartExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  }"
+        ],
+        "messages": [],
+        "name": "canStartExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.canStartExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    const row = this.selectedExtractionProduct();\n    if (!row || String(row.item_category_mat || '').toLowerCase() !== 'freezer_tray') return false;\n    if (!this.isActiveTrayProduct(row)) return false;\n    const weight = Number(row.net_weight_g);\n    return Number.isFinite(weight) && weight > 0;\n  }"
+        ],
+        "messages": [],
+        "name": "canStartExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_b35181a0242a1c0cf9",
+      "id": "Products_ProductsPage.canSubmitExtraction",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.canSubmitExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  }"
+        ],
+        "messages": [],
+        "name": "canSubmitExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "function () {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.canSubmitExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "function () {\n    if (!this.canStartExtraction() || appsmith.store.extraction_submitting === true) return false;\n    const sourceWeight = Number(this.selectedExtractionProduct()?.net_weight_g);\n    const materialWeight = Number(inpExtractionMaterialWeightG.text);\n    const volume = Number(inpExtractionSolventVolumeMl.text);\n    const proof = Number(inpExtractionSolventProof.text);\n    return Number.isFinite(materialWeight) && materialWeight > 0\n      && Math.abs(sourceWeight - materialWeight) <= 0.01\n      && Number.isFinite(volume) && volume > 0\n      && Number.isFinite(proof) && proof > 0 && proof <= 200\n      && String(inpExtractionSolventType.text || '').trim().length > 0;\n  }"
+        ],
+        "messages": [],
+        "name": "canSubmitExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_939ea498abbbaa962c",
+      "id": "Products_ProductsPage.openStartExtractionModal",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.openStartExtractionModal",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  }"
+        ],
+        "messages": [],
+        "name": "openStartExtractionModal",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.openStartExtractionModal",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n    if (!this.canStartExtraction()) {\n      showAlert('Select exactly one active freezer tray with a positive recorded dry weight.', 'warning');\n      return;\n    }\n    const row = this.selectedExtractionProduct();\n    await inpExtractionMaterialWeightG.setValue(String(row.net_weight_g));\n    await inpExtractionSolventType.setValue('ethanol');\n    await inpExtractionSolventProof.setValue('200');\n    await inpExtractionSolventVolumeMl.setValue('');\n    await inpExtractionNotes.setValue('');\n    await storeValue('extraction_submitting', false);\n    showModal(modalStartExtraction.name);\n  }"
+        ],
+        "messages": [],
+        "name": "openStartExtractionModal",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_5909d658b31b45738e",
+      "id": "Products_ProductsPage.startExtraction",
+      "pluginId": "js-plugin",
+      "pluginType": "JS",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.startExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  }"
+        ],
+        "messages": [],
+        "name": "startExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "async function () {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  }",
+          "encodeParamsToggle": true,
+          "jsArguments": [],
+          "paginationType": "NONE",
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "collectionId": "Products_ProductsPage",
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "fullyQualifiedName": "ProductsPage.startExtraction",
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "async function () {\n    if (!this.canSubmitExtraction()) {\n      showAlert('Verify product weight, solvent volume, solvent type and proof.', 'warning');\n      return null;\n    }\n    await storeValue('extraction_submitting', true);\n    try {\n      const result = await qStartExtraction.run();\n      const lotId = result?.[0]?.extraction_lot_id;\n      showAlert('Extraction batch created' + (lotId ? ' (Lot ' + lotId + ')' : '') + '.', 'success');\n      closeModal(modalStartExtraction.name);\n      await this.refresh();\n      return result;\n    } catch (e) {\n      showAlert(e?.message || String(e), 'error');\n      return null;\n    } finally {\n      await storeValue('extraction_submitting', false);\n    }\n  }"
+        ],
+        "messages": [],
+        "name": "startExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false
+      }
+    },
+    {
+      "deleted": false,
+      "gitSyncId": "generated_extraction_query_2da090a48bfa",
+      "id": "Products_qStartExtraction",
+      "pluginId": "postgres-plugin",
+      "pluginType": "DB",
+      "publishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;",
+          "encodeParamsToggle": false,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": false
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;"
+        ],
+        "messages": [],
+        "name": "qStartExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false,
+        "fullyQualifiedName": "qStartExtraction"
+      },
+      "unpublishedAction": {
+        "actionConfiguration": {
+          "body": "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;",
+          "encodeParamsToggle": false,
+          "paginationType": "NONE",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": false
+            }
+          ],
+          "selfReferencingDataPaths": [],
+          "timeoutInMillisecond": 10000
+        },
+        "confirmBeforeExecute": false,
+        "createdAt": "2026-04-25T00:00:00Z",
+        "datasource": {
+          "deleted": false,
+          "id": "mushroomprocess-postgres",
+          "isAutoGenerated": false,
+          "messages": [],
+          "name": "mushroomprocess-postgres",
+          "pluginId": "postgres-plugin",
+          "policies": [],
+          "policyMap": {},
+          "userPermissions": []
+        },
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "invalids": [],
+        "isValid": true,
+        "jsonPathKeys": [
+          "SELECT public.mp_products_start_extraction_batch(\n  {{ ProductsPage.sql.num(ProductsPage.selectedExtractionProduct()?.nocopk) }}::bigint,\n  {{ ProductsPage.sql.num(inpExtractionMaterialWeightG.text) }}::numeric,\n  {{ ProductsPage.sql.str(inpExtractionSolventType.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventVolumeMl.text) }}::numeric,\n  {{ ProductsPage.sql.str(ProductsPage.currentOperator()) }}::text,\n  'Products'::text,\n  NULL::timestamp,\n  {{ ProductsPage.sql.str(inpExtractionNotes.text) }}::text,\n  {{ ProductsPage.sql.num(inpExtractionSolventProof.text) }}::numeric\n) AS extraction_lot_id;"
+        ],
+        "messages": [],
+        "name": "qStartExtraction",
+        "pageId": "Products",
+        "policyMap": {},
+        "runBehaviour": "MANUAL",
+        "userPermissions": [],
+        "userSetOnLoad": false,
+        "fullyQualifiedName": "qStartExtraction"
+      }
     }
   ],
   "artifactJsonType": "APPLICATION",
@@ -102834,6 +103376,694 @@
                   "version": 1,
                   "widgetId": "ast8yad1a5",
                   "widgetName": "chkActiveProducts"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 53,
+                  "boxShadow": "none",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "buttonVariant": "PRIMARY",
+                  "disabledWhenInvalid": false,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "isDisabled"
+                    },
+                    {
+                      "key": "buttonColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onClick"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
+                  "isDefaultClickDisabled": true,
+                  "isDisabled": "{{ !ProductsPage.canStartExtraction() }}",
+                  "isLoading": false,
+                  "isVisible": true,
+                  "key": "s44dqhxeuk",
+                  "leftColumn": 43,
+                  "minWidth": 120,
+                  "mobileBottomRow": 45,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 14,
+                  "mobileTopRow": 41,
+                  "needsErrorInfo": false,
+                  "onClick": "{{ ProductsPage.openStartExtractionModal() }}",
+                  "parentColumnSpace": 10.25,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "placement": "CENTER",
+                  "recaptchaType": "V3",
+                  "renderMode": "CANVAS",
+                  "resetFormOnClick": false,
+                  "responsiveBehavior": "hug",
+                  "rightColumn": 64,
+                  "text": "Start Extraction",
+                  "topRow": 49,
+                  "type": "BUTTON_WIDGET",
+                  "version": 1,
+                  "widgetId": "ex50a64568a63",
+                  "widgetName": "btnOpenStartExtraction"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 412,
+                  "boxShadow": "none",
+                  "canEscapeKeyClose": true,
+                  "canOutsideClickClose": true,
+                  "children": [
+                    {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "bottomRow": 350,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "canExtend": true,
+                      "children": [
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 5,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "w2g1ogb27v",
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 10,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 17,
+                          "mobileTopRow": 6,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 99,
+                          "originalTopRow": 95,
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 55,
+                          "shouldTruncate": false,
+                          "text": "Start Ethanol Extraction",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 1,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex0006fe94ee4",
+                          "widgetName": "txtExtractionTitle"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 9,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            },
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "w2g1ogb27v",
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 10,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 17,
+                          "mobileTopRow": 6,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 105,
+                          "originalTopRow": 99,
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 63,
+                          "shouldTruncate": false,
+                          "text": "{{ ProductsPage.selectedExtractionProduct()?.product_id + ' — ' + ProductsPage.selectedExtractionProduct()?.net_weight_g + ' g (entire tray)' }}",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 5,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "exe4b8f3f53f0",
+                          "widgetName": "txtExtractionSummary"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 16,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Mushroom dry weight (g)",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 9,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex74ec43d517f",
+                          "widgetName": "inpExtractionMaterialWeightG"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 23,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent volume (mL)",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 16,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex24548f550aa",
+                          "widgetName": "inpExtractionSolventVolumeMl"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 30,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent type",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 23,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex1b37c217420",
+                          "widgetName": "inpExtractionSolventType"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 37,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent proof",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 30,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex2663dcc6810",
+                          "widgetName": "inpExtractionSolventProof"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 44,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Notes",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 37,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "exf0f9503bfa4",
+                          "widgetName": "inpExtractionNotes"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 50,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            },
+                            {
+                              "key": "text"
+                            }
+                          ],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": "{{ !ProductsPage.canSubmitExtraction() }}",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "aeuby9nh39",
+                          "leftColumn": 50,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 31,
+                          "mobileRightColumn": 47,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ ProductsPage.startExtraction() }}",
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
+                          "parentId": "fc8lnuad2t",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "text": "Start Extraction",
+                          "topRow": 46,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex916f622e3ca",
+                          "widgetName": "btnConfirmStartExtraction"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 50,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "buttonVariant": "PRIMARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "aeuby9nh39",
+                          "leftColumn": 35,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 47,
+                          "mobileRightColumn": 63,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ closeModal(modalStartExtraction.name) }}",
+                          "originalBottomRow": 29,
+                          "originalTopRow": 25,
+                          "parentId": "fc8lnuad2t",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 50,
+                          "text": "Close",
+                          "topRow": 46,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "exe3612076c43",
+                          "widgetName": "btnCloseStartExtraction"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 4,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonVariant": "TERTIARY",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "xo268lchnb",
+                          "leftColumn": 58,
+                          "minWidth": 50,
+                          "mobileBottomRow": 4,
+                          "mobileLeftColumn": 58,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ closeModal(modalStartExtraction.name) }}",
+                          "parentId": "fc8lnuad2t",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex070fb34f78d",
+                          "widgetName": "iconCloseStartExtraction"
+                        }
+                      ],
+                      "detachFromLayout": true,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "flexLayers": [],
+                      "isDisabled": false,
+                      "isLoading": false,
+                      "isVisible": true,
+                      "key": "4ibqq002j2",
+                      "leftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "minHeight": 240,
+                      "minWidth": 450,
+                      "mobileBottomRow": 240,
+                      "mobileLeftColumn": 0,
+                      "mobileRightColumn": 156.0625,
+                      "mobileTopRow": 0,
+                      "needsErrorInfo": false,
+                      "parentColumnSpace": 1,
+                      "parentId": "rtl1la8thr",
+                      "parentRowSpace": 1,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "rightColumn": 156.0625,
+                      "shouldScrollContents": false,
+                      "topRow": 0,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "widgetId": "execf00d64173",
+                      "widgetName": "ExtractionCanvas"
+                    }
+                  ],
+                  "detachFromLayout": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "height": 240,
+                  "isCanvas": true,
+                  "isLoading": false,
+                  "key": "scawwywr51",
+                  "leftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 24,
+                  "minHeight": 240,
+                  "mobileBottomRow": 71,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 11,
+                  "mobileTopRow": 47,
+                  "needsErrorInfo": false,
+                  "parentColumnSpace": 14.1875,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "renderMode": "CANVAS",
+                  "rightColumn": 11,
+                  "shouldScrollContents": true,
+                  "topRow": 52,
+                  "type": "MODAL_WIDGET",
+                  "version": 2,
+                  "widgetId": "ex8bfd7146697",
+                  "widgetName": "modalStartExtraction",
+                  "width": 456
                 }
               ],
               "containerStyle": "none",
@@ -106574,6 +107804,694 @@
                   "version": 1,
                   "widgetId": "ast8yad1a5",
                   "widgetName": "chkActiveProducts"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 53,
+                  "boxShadow": "none",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "buttonVariant": "PRIMARY",
+                  "disabledWhenInvalid": false,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "isDisabled"
+                    },
+                    {
+                      "key": "buttonColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "onClick"
+                    },
+                    {
+                      "key": "isDisabled"
+                    }
+                  ],
+                  "dynamicTriggerPathList": [
+                    {
+                      "key": "onClick"
+                    }
+                  ],
+                  "isDefaultClickDisabled": true,
+                  "isDisabled": "{{ !ProductsPage.canStartExtraction() }}",
+                  "isLoading": false,
+                  "isVisible": true,
+                  "key": "s44dqhxeuk",
+                  "leftColumn": 43,
+                  "minWidth": 120,
+                  "mobileBottomRow": 45,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 14,
+                  "mobileTopRow": 41,
+                  "needsErrorInfo": false,
+                  "onClick": "{{ ProductsPage.openStartExtractionModal() }}",
+                  "parentColumnSpace": 10.25,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "placement": "CENTER",
+                  "recaptchaType": "V3",
+                  "renderMode": "CANVAS",
+                  "resetFormOnClick": false,
+                  "responsiveBehavior": "hug",
+                  "rightColumn": 64,
+                  "text": "Start Extraction",
+                  "topRow": 49,
+                  "type": "BUTTON_WIDGET",
+                  "version": 1,
+                  "widgetId": "ex50a64568a63",
+                  "widgetName": "btnOpenStartExtraction"
+                },
+                {
+                  "animateLoading": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "bottomRow": 412,
+                  "boxShadow": "none",
+                  "canEscapeKeyClose": true,
+                  "canOutsideClickClose": true,
+                  "children": [
+                    {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "bottomRow": 350,
+                      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                      "canExtend": true,
+                      "children": [
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 5,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "w2g1ogb27v",
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 10,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 17,
+                          "mobileTopRow": 6,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 99,
+                          "originalTopRow": 95,
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 55,
+                          "shouldTruncate": false,
+                          "text": "Start Ethanol Extraction",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 1,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex0006fe94ee4",
+                          "widgetName": "txtExtractionTitle"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 9,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            },
+                            {
+                              "key": "fontFamily"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                          "fontSize": "1rem",
+                          "fontStyle": "BOLD",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "w2g1ogb27v",
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 10,
+                          "mobileLeftColumn": 1,
+                          "mobileRightColumn": 17,
+                          "mobileTopRow": 6,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 105,
+                          "originalTopRow": 99,
+                          "overflow": "NONE",
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 63,
+                          "shouldTruncate": false,
+                          "text": "{{ ProductsPage.selectedExtractionProduct()?.product_id + ' — ' + ProductsPage.selectedExtractionProduct()?.net_weight_g + ' g (entire tray)' }}",
+                          "textAlign": "LEFT",
+                          "textColor": "#231F20",
+                          "topRow": 5,
+                          "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "type": "TEXT_WIDGET",
+                          "version": 1,
+                          "widgetId": "exe4b8f3f53f0",
+                          "widgetName": "txtExtractionSummary"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 16,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Mushroom dry weight (g)",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 9,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex74ec43d517f",
+                          "widgetName": "inpExtractionMaterialWeightG"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 23,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent volume (mL)",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 16,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex24548f550aa",
+                          "widgetName": "inpExtractionSolventVolumeMl"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 30,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent type",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 23,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex1b37c217420",
+                          "widgetName": "inpExtractionSolventType"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 37,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Solvent proof",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 30,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "ex2663dcc6810",
+                          "widgetName": "inpExtractionSolventProof"
+                        },
+                        {
+                          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "animateLoading": true,
+                          "autoFocus": false,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 44,
+                          "boxShadow": "none",
+                          "defaultText": "",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "accentColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicHeight": "AUTO_HEIGHT",
+                          "dynamicTriggerPathList": [],
+                          "iconAlign": "left",
+                          "inputType": "MULTI_LINE_TEXT",
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isRequired": false,
+                          "isVisible": true,
+                          "key": "4ebc629ov3",
+                          "label": "Notes",
+                          "labelAlignment": "left",
+                          "labelPosition": "Top",
+                          "labelStyle": "",
+                          "labelTextSize": "0.875rem",
+                          "labelWidth": 5,
+                          "leftColumn": 0,
+                          "maxDynamicHeight": 9000,
+                          "minDynamicHeight": 4,
+                          "minWidth": 450,
+                          "mobileBottomRow": 31,
+                          "mobileLeftColumn": 2,
+                          "mobileRightColumn": 22,
+                          "mobileTopRow": 24,
+                          "needsErrorInfo": false,
+                          "originalBottomRow": 19,
+                          "originalTopRow": 9,
+                          "parentColumnSpace": 6.9375,
+                          "parentId": "fc8lnuad2t",
+                          "parentRowSpace": 10,
+                          "renderMode": "CANVAS",
+                          "resetOnSubmit": true,
+                          "responsiveBehavior": "fill",
+                          "rightColumn": 64,
+                          "shouldAllowAutofill": false,
+                          "showStepArrows": false,
+                          "topRow": 37,
+                          "type": "INPUT_WIDGET_V2",
+                          "version": 2,
+                          "widgetId": "exf0f9503bfa4",
+                          "widgetName": "inpExtractionNotes"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 50,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY",
+                          "buttonVariant": "SECONDARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "isDisabled"
+                            },
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            },
+                            {
+                              "key": "text"
+                            }
+                          ],
+                          "dynamicPropertyPathList": [
+                            {
+                              "key": "onClick"
+                            },
+                            {
+                              "key": "isDisabled"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": "{{ !ProductsPage.canSubmitExtraction() }}",
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "aeuby9nh39",
+                          "leftColumn": 50,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 31,
+                          "mobileRightColumn": 47,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ ProductsPage.startExtraction() }}",
+                          "originalBottomRow": 32,
+                          "originalTopRow": 28,
+                          "parentId": "fc8lnuad2t",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "text": "Start Extraction",
+                          "topRow": 46,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex916f622e3ca",
+                          "widgetName": "btnConfirmStartExtraction"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 50,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "buttonVariant": "PRIMARY",
+                          "disabledWhenInvalid": false,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "isDefaultClickDisabled": true,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "aeuby9nh39",
+                          "leftColumn": 35,
+                          "minWidth": 120,
+                          "mobileBottomRow": 22,
+                          "mobileLeftColumn": 47,
+                          "mobileRightColumn": 63,
+                          "mobileTopRow": 18,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ closeModal(modalStartExtraction.name) }}",
+                          "originalBottomRow": 29,
+                          "originalTopRow": 25,
+                          "parentId": "fc8lnuad2t",
+                          "placement": "CENTER",
+                          "recaptchaType": "V3",
+                          "renderMode": "CANVAS",
+                          "resetFormOnClick": false,
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 50,
+                          "text": "Close",
+                          "topRow": 46,
+                          "type": "BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "exe3612076c43",
+                          "widgetName": "btnCloseStartExtraction"
+                        },
+                        {
+                          "animateLoading": true,
+                          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                          "bottomRow": 4,
+                          "boxShadow": "none",
+                          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                          "buttonVariant": "TERTIARY",
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "buttonColor"
+                            },
+                            {
+                              "key": "borderRadius"
+                            }
+                          ],
+                          "dynamicTriggerPathList": [
+                            {
+                              "key": "onClick"
+                            }
+                          ],
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "isDisabled": false,
+                          "isLoading": false,
+                          "isVisible": true,
+                          "key": "xo268lchnb",
+                          "leftColumn": 58,
+                          "minWidth": 50,
+                          "mobileBottomRow": 4,
+                          "mobileLeftColumn": 58,
+                          "mobileRightColumn": 64,
+                          "mobileTopRow": 0,
+                          "needsErrorInfo": false,
+                          "onClick": "{{ closeModal(modalStartExtraction.name) }}",
+                          "parentId": "fc8lnuad2t",
+                          "renderMode": "CANVAS",
+                          "responsiveBehavior": "hug",
+                          "rightColumn": 64,
+                          "topRow": 0,
+                          "type": "ICON_BUTTON_WIDGET",
+                          "version": 1,
+                          "widgetId": "ex070fb34f78d",
+                          "widgetName": "iconCloseStartExtraction"
+                        }
+                      ],
+                      "detachFromLayout": true,
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "borderRadius"
+                        },
+                        {
+                          "key": "boxShadow"
+                        }
+                      ],
+                      "dynamicHeight": "AUTO_HEIGHT",
+                      "flexLayers": [],
+                      "isDisabled": false,
+                      "isLoading": false,
+                      "isVisible": true,
+                      "key": "4ibqq002j2",
+                      "leftColumn": 0,
+                      "maxDynamicHeight": 9000,
+                      "minDynamicHeight": 4,
+                      "minHeight": 240,
+                      "minWidth": 450,
+                      "mobileBottomRow": 240,
+                      "mobileLeftColumn": 0,
+                      "mobileRightColumn": 156.0625,
+                      "mobileTopRow": 0,
+                      "needsErrorInfo": false,
+                      "parentColumnSpace": 1,
+                      "parentId": "rtl1la8thr",
+                      "parentRowSpace": 1,
+                      "renderMode": "CANVAS",
+                      "responsiveBehavior": "fill",
+                      "rightColumn": 156.0625,
+                      "shouldScrollContents": false,
+                      "topRow": 0,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "widgetId": "execf00d64173",
+                      "widgetName": "ExtractionCanvas"
+                    }
+                  ],
+                  "detachFromLayout": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "height": 240,
+                  "isCanvas": true,
+                  "isLoading": false,
+                  "key": "scawwywr51",
+                  "leftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 24,
+                  "minHeight": 240,
+                  "mobileBottomRow": 71,
+                  "mobileLeftColumn": 0,
+                  "mobileRightColumn": 11,
+                  "mobileTopRow": 47,
+                  "needsErrorInfo": false,
+                  "parentColumnSpace": 14.1875,
+                  "parentId": "0",
+                  "parentRowSpace": 10,
+                  "renderMode": "CANVAS",
+                  "rightColumn": 11,
+                  "shouldScrollContents": true,
+                  "topRow": 52,
+                  "type": "MODAL_WIDGET",
+                  "version": 2,
+                  "widgetId": "ex8bfd7146697",
+                  "widgetName": "modalStartExtraction",
+                  "width": 456
                 }
               ],
               "containerStyle": "none",
