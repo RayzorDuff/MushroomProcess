@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const daemon = fs.readFileSync(path.join(__dirname, '..', 'print-daemon.js'), 'utf8');
+const daemon = fs.readFileSync(path.join(__dirname, '..', 'print-daemon.js'), 'utf8').replace(/\r\n/g, '\n');
 const match = daemon.match(/function extractionLabelText\(row\) \{[\s\S]*?\n\}\n\nasync function hydrateExtractionLabelFields/);
 assert.ok(match, 'extraction label formatter found');
 const context = { toFlat: value => value };
