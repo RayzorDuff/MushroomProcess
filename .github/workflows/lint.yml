@@ -25,7 +25,7 @@ jobs:
       - run: npx prettier -c scripts || true
 
   consolidate-lots:
-    if: contains(github.event.head_commit.message, 'chore(ci): stage Lots workflow consolidation')
+    if: ${{ contains(github.event.head_commit.message, 'chore(ci): stage Lots workflow consolidation') }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out production
