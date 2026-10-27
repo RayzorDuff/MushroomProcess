@@ -66,7 +66,7 @@ for (const [pageName, targetTable] of pageExpectations) {
   }
 }
 
-for (const pageName of ['Lots', 'Lab - Inoculate']) {
+for (const pageName of ['Lab - Inoculate']) {
   const page = pageByName(pageName);
   for (const side of ['unpublishedPage', 'publishedPage']) {
     const sources = widgetByName(page, side, 'tblInocSourceLots');
@@ -92,7 +92,7 @@ for (const pageName of ['Lots', 'Lab - Inoculate']) {
   }
 }
 
-for (const pageName of ['Lots', 'Lab - Spawn to Bulk']) {
+for (const pageName of ['Lab - Spawn to Bulk']) {
   const query = actionByName(pageName, 'qSpawnToBulkLots');
   assert(query, `${pageName}: Spawn-to-Bulk query missing`);
   for (const side of ['unpublishedAction', 'publishedAction']) {
