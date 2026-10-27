@@ -1,0 +1,39 @@
+name: One-time Lots workflow consolidation
+
+on:
+  pull_request:
+    branches:
+      - production
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    if: github.event.pull_request.head.ref == 'tmp/lots-consolidation-trigger'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out production
+        uses: actions/checkout@v4
+        with:
+          ref: production
+          fetch-depth: 2
+
+      - name: Apply consolidation
+        run: python3 scripts/consolidate_lots_workflows.py
+
+      - name: Validate
+        run: |
+          python3 -m json.tool appsmith/MushroomProcess.json >/dev/null
+          node scripts/sync_navigation.js --check
+          node appsmith/product_cultivation_return_smoke.js
+          git diff --check
+
+      - name: Commit directly to production
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm scripts/consolidate_lots_workflows.py
+          git add appsmith/MushroomProcess.json
+          git commit -m "refactor(appsmith): consolidate Lots workflow entry points (#102)"
+          git push origin production
