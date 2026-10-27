@@ -1,1 +1,2 @@
 Temporary trigger; do not merge.
+Trigger consolidation after workflow installation.
