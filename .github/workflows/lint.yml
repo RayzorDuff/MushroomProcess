@@ -27,7 +27,7 @@ jobs:
       - run: npx prettier -c scripts || true
 
   consolidate-lots:
-    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'tmp/lots-consolidation-trigger' && github.base_ref == 'production' }}
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Check out production
