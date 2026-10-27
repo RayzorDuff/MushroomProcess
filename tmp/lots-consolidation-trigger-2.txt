@@ -4,3 +4,4 @@ Retry after workflow condition fix.
 Retry after validation adjustment.
 Retry after smoke-test ownership update.
 Retry after preserving dedicated queries.
+Retry after preserving Lots validation guard.
