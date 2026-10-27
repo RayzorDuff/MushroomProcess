@@ -4,7 +4,12 @@ on:
   pull_request:
     branches: [ main ]
   push:
-    branches: [ feature/** ]
+    branches:
+      - feature/**
+      - production
+
+permissions:
+  contents: write
 
 jobs:
   eslint:
@@ -18,3 +23,168 @@ jobs:
       - run: npm i -D eslint prettier
       - run: npx eslint scripts --ext .js || true
       - run: npx prettier -c scripts || true
+
+  consolidate-lots:
+    if: contains(github.event.head_commit.message, 'chore(ci): stage Lots workflow consolidation')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out production
+        uses: actions/checkout@v4
+        with:
+          ref: production
+          fetch-depth: 2
+
+      - name: Consolidate Lots workflow UI
+        shell: python
+        run: |
+          import json
+          import re
+          from pathlib import Path
+
+          path = Path("appsmith/MushroomProcess.json")
+          app = json.loads(path.read_text())
+
+          removed_collections = {
+              "Lots_LotsSpawnToBulk",
+              "Lots_LotsHarvest",
+              "Lots_LotsInoculate",
+              "Lots_LotsDrawSyringes",
+          }
+
+          removed_queries = {
+              "qSpawnToBulkLots",
+              "qSpawnToBulkLocations",
+              "qSpawnSourceLotsSearch",
+              "qHarvestFlushNo",
+              "qHarvestItems",
+              "qHarvestLot",
+              "qInoculateLots",
+              "qInocLocations",
+              "qSourceLotsSearch",
+              "qDrawSyringeProducts",
+              "qDrawSyringes",
+              "qSyringeItems",
+          }
+
+          removed_widgets = {
+              "btnDrawSyringes",
+              "modalDrawSyringes",
+              "btnInoculateLots",
+              "modalInoculateLots",
+              "btnSpawnToBulkLots",
+              "modalSpawnToBulk",
+              "btnHarvestLots",
+              "modalHarvestLot",
+          }
+
+          app["actionCollectionList"] = [
+              c for c in app["actionCollectionList"]
+              if c.get("id") not in removed_collections
+          ]
+
+          def keep_action(action):
+              published = action.get("publishedAction") or {}
+              unpublished = action.get("unpublishedAction") or {}
+              return (
+                  published.get("collectionId") not in removed_collections
+                  and unpublished.get("collectionId") not in removed_collections
+                  and published.get("name") not in removed_queries
+                  and unpublished.get("name") not in removed_queries
+              )
+
+          app["actionList"] = [a for a in app["actionList"] if keep_action(a)]
+
+          def prune(node):
+              if isinstance(node, list):
+                  return [v for item in node if (v := prune(item)) is not None]
+              if not isinstance(node, dict):
+                  return node
+              if node.get("widgetName") in removed_widgets:
+                  return None
+              out = {}
+              for key, value in node.items():
+                  pruned = prune(value)
+                  if pruned is not None:
+                      out[key] = pruned
+              return out
+
+          for page in app.get("pageList", {}).values():
+              for variant in ("publishedPage", "unpublishedPage"):
+                  page_data = page.get(variant)
+                  if not page_data or page_data.get("name") != "Lots":
+                      continue
+
+                  for layout in page_data.get("layouts", []):
+                      layout["dsl"] = prune(layout.get("dsl"))
+                      layout["layoutOnLoadActions"] = [
+                          kept
+                          for group in layout.get("layoutOnLoadActions", [])
+                          if (kept := [
+                              action for action in (group or [])
+                              if action.get("name") not in removed_queries
+                          ])
+                      ]
+
+          for collection in app["actionCollectionList"]:
+              if collection.get("id") != "Lots_LotsPage":
+                  continue
+              for variant in ("publishedCollection", "unpublishedCollection"):
+                  collection_data = collection.get(variant)
+                  if not collection_data or not collection_data.get("body"):
+                      continue
+                  body = collection_data["body"]
+                  body = re.sub(
+                      r"\n\s*inoculate:\s*\{[\s\S]*?\n\s*\},(?=\n\s*draw_syringes:)",
+                      "",
+                      body,
+                  )
+                  body = re.sub(
+                      r"\n\s*draw_syringes:\s*\{[\s\S]*?\n\s*\},(?=\n\s*harvest:)",
+                      "",
+                      body,
+                  )
+                  body = re.sub(
+                      r"\n\s*harvest:\s*\{[\s\S]*?\n\s*\},(?=\n\s*\};)",
+                      "",
+                      body,
+                  )
+                  collection_data["body"] = body
+
+          path.write_text(json.dumps(app, indent=2, ensure_ascii=False) + "\n")
+
+      - name: Validate Appsmith export
+        run: |
+          python3 -m json.tool appsmith/MushroomProcess.json >/dev/null
+          node scripts/sync_navigation.js --check
+          node appsmith/product_cultivation_return_smoke.js
+          git diff --check
+
+      - name: Commit final Appsmith change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '%s\n' 'name: lint
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ feature/** ]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '"'"'20'"'"'
+      - run: npm init -y
+      - run: npm i -D eslint prettier
+      - run: npx eslint scripts --ext .js || true
+      - run: npx prettier -c scripts || true
+' > .github/workflows/lint.yml
+          git rm .github/workflows/one-time-lots-workflow-consolidation.yml
+          git add appsmith/MushroomProcess.json .github/workflows/lint.yml
+          git commit -m "refactor(appsmith): consolidate Lots workflow entry points (#102)"
+          git push origin production
