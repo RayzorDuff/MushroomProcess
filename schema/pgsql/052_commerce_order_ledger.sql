@@ -54,6 +54,15 @@ BEGIN
      OR jsonb_typeof(p->'refunds') IS DISTINCT FROM 'array' THEN
     RAISE EXCEPTION 'Invalid normalized commerce event';
   END IF;
+  FOR line IN SELECT value FROM jsonb_array_elements(p->'lines') LOOP
+    IF jsonb_typeof(line) IS DISTINCT FROM 'object'
+       OR coalesce(btrim(line->>'line_id'),'')=''
+       OR coalesce(line->>'quantity','') !~ '^[1-9][0-9]*$'
+       OR coalesce(line->>'ecommerce_id','') !~ '^[1-9][0-9]*$'
+       OR coalesce(btrim(line->>'erp_item_code'),'')='' THEN
+      RAISE EXCEPTION 'Invalid operational line';
+    END IF;
+  END LOOP;
   SELECT payload INTO old_event FROM public.mp_commerce_events
     WHERE provider=provider_key AND site_key=site AND event_id=event_key;
   IF FOUND THEN
@@ -174,7 +183,8 @@ BEGIN
   PERFORM pg_advisory_xact_lock(520052);
   SELECT * INTO STRICT o FROM public.mp_commerce_orders
     WHERE provider=p->>'provider' AND site_key=p->>'site_key' AND external_order_id=p->>'external_order_id' FOR UPDATE;
-  IF p->>'processor' IS DISTINCT FROM 'clover' OR p->>'verification' IS DISTINCT FROM 'verified_adapter'
+  IF p->>'processor' IS DISTINCT FROM 'clover' OR o.snapshot->>'payment_processor' IS DISTINCT FROM 'clover'
+     OR p->>'verification' IS DISTINCT FROM 'verified_adapter'
      OR p->>'state' IS DISTINCT FROM 'captured'
      OR coalesce(p->>'payment_id','')='' OR p->>'payment_id' IS DISTINCT FROM o.snapshot->>'processor_payment_id'
      OR p->>'currency' IS DISTINCT FROM o.snapshot->>'currency'

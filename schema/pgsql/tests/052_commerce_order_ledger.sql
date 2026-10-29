@@ -15,6 +15,9 @@ BEGIN
  'event_id','first','revision',1,'status','processing','currency','USD','total','10.00','refunds','[]'::jsonb,
  'payment_processor','clover','processor_payment_id','capture-052',
  'lines',jsonb_build_array(jsonb_build_object('line_id','1','ecommerce_id',ecommerce_pk,'erp_item_code','ERP-052','quantity',2)));
+ changed=p||jsonb_build_object('status','cancelled','lines',jsonb_build_array(jsonb_build_object('line_id','1','ecommerce_id',ecommerce_pk,'erp_item_code','ERP-052','quantity',-1)));
+ BEGIN PERFORM public.mp_commerce_ingest(changed); RAISE EXCEPTION 'Expected malformed terminal refusal';
+ EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'Invalid operational line%' THEN RAISE; END IF; END;
  outcome=public.mp_commerce_ingest(p);
  IF outcome<>'applied' OR public.mp_commerce_ingest(p)<>'duplicate' THEN RAISE EXCEPTION 'Idempotency failure'; END IF;
  SELECT available_quantity INTO q FROM public.mp_commerce_inventory() WHERE ecommerce_id=second_pk;
@@ -40,6 +43,11 @@ BEGIN
  IF public.mp_commerce_ingest(p||'{"event_id":"old"}'::jsonb)<>'stale' THEN RAISE EXCEPTION 'Stale event applied'; END IF;
  SELECT available_quantity INTO q FROM public.mp_commerce_inventory() WHERE ecommerce_id=ecommerce_pk;
  IF q<>2 THEN RAISE EXCEPTION 'Cancellation did not release'; END IF;
+ changed=p||jsonb_build_object('external_order_id','101','event_id','payment-collision');
+ PERFORM public.mp_commerce_ingest(changed);
+ BEGIN PERFORM public.mp_commerce_match_payment(evidence||'{"external_order_id":"101"}'::jsonb); RAISE EXCEPTION 'Expected payment reuse refusal';
+ EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'Payment already belongs%' THEN RAISE; END IF; END;
+ PERFORM public.mp_commerce_ingest(changed||jsonb_build_object('status','cancelled','revision',2,'event_id','cancel-101'));
  -- A new order may reserve, but a Woo completed event must not move physical stock.
  p=p||jsonb_build_object('external_order_id','102','event_id','second','processor_payment_id','capture-102');
  PERFORM public.mp_commerce_ingest(p);
