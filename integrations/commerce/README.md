@@ -24,3 +24,11 @@ Run rollback-protected `schema/pgsql/tests/051_erp_commerce_catalog.sql` to comp
 Ecwid quantities against the unchanged existing workflow. Test at least one
 synthetic product, lot, expired product and non-Ecwid mapping before enabling sync.
 Related RootedOps #20/#2 and MushroomProcess #80/#86; orders/refunds remain #85.
+
+Clean-room execution: the existing 031 guard rejected checked-in generated view
+signatures on PostgreSQL 16. The paired change accepts only the three measured
+baseline signatures in addition to the original production signatures. Unknown
+view definitions still abort. After this fix, all pre-load migrations through
+051 and regressions 026, 027, 031 and 051 passed on the isolated test Linode.
+The new 051 regression covers non-Ecwid mapping, expired stock exclusion,
+product-plus-lot quantity, disabled mappings, and unchanged Ecwid parity.
