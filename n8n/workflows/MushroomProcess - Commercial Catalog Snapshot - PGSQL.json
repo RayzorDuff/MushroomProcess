@@ -1,0 +1,72 @@
+{
+  "name": "MushroomProcess - Commercial Catalog Snapshot - PGSQL",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "manual",
+      "name": "Manual staging execution",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "snapshot",
+      "name": "Read operational inventory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM public.mp_ecommerce_catalog_inventory();",
+        "options": {}
+      }
+    },
+    {
+      "id": "validate",
+      "name": "Validate ERP links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(({json:r}) => ({json:{...r,schema_version:1,inventory_authority:'mushroomprocess',publishable: Boolean(r.erp_item_code && r.external_sku),mapping_error:r.erp_item_code ? null : 'Missing reviewed ERP Item link'}}));"
+      }
+    }
+  ],
+  "connections": {
+    "Manual staging execution": {
+      "main": [
+        [
+          {
+            "node": "Read operational inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read operational inventory": {
+      "main": [
+        [
+          {
+            "node": "Validate ERP links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

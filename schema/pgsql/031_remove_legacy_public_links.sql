@@ -13,7 +13,8 @@ SET LOCAL statement_timeout = '120s';
 --
 -- The three target view definitions below were captured from production on
 -- 2026-08-08 and are protected by whitespace-normalized md5 signatures. If a
--- target view has changed since that preflight, abort instead of overwriting a
+-- target view has changed since that preflight or the exact checked-in clean
+-- baseline (004 plus migrations through 030 on PostgreSQL 16), abort instead of overwriting a
 -- newer production definition.
 --
 -- Downstream view definitions, owners, options, comments, and explicit grants
@@ -34,7 +35,7 @@ BEGIN
   SELECT md5(trim(regexp_replace(pg_get_viewdef('public.vc_lots'::regclass, true),
                                  '[[:space:]]+', ' ', 'g')))
     INTO v_actual;
-  IF v_actual <> '42e1f19b81f1e3bb97a2ab9df5ecc9ac' THEN
+  IF v_actual NOT IN ('42e1f19b81f1e3bb97a2ab9df5ecc9ac', '0f4d79e694a8913e48a574522592087d') THEN
     RAISE EXCEPTION
       'vc_lots changed since the Phase 6 production preflight (signature %); regenerate migration 031 from the current live view definition',
       v_actual;
@@ -43,7 +44,7 @@ BEGIN
   SELECT md5(trim(regexp_replace(pg_get_viewdef('public.vc_products'::regclass, true),
                                  '[[:space:]]+', ' ', 'g')))
     INTO v_actual;
-  IF v_actual <> 'cd7fd32d7c4769895cd9257de33832b8' THEN
+  IF v_actual NOT IN ('cd7fd32d7c4769895cd9257de33832b8', 'e29655811627ddb69d7e2acf88823566') THEN
     RAISE EXCEPTION
       'vc_products changed since the Phase 6 production preflight (signature %); regenerate migration 031 from the current live view definition',
       v_actual;
@@ -52,7 +53,7 @@ BEGIN
   SELECT md5(trim(regexp_replace(pg_get_viewdef('public.vc_print_queue'::regclass, true),
                                  '[[:space:]]+', ' ', 'g')))
     INTO v_actual;
-  IF v_actual <> 'ddffaa4ea9f1faf9780dfcb74f6df694' THEN
+  IF v_actual NOT IN ('ddffaa4ea9f1faf9780dfcb74f6df694', 'ce9eb9d2eea13006bec19a5eeed0907d') THEN
     RAISE EXCEPTION
       'vc_print_queue changed since the Phase 6 production preflight (signature %); regenerate migration 031 from the current live view definition',
       v_actual;
