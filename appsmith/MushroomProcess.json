@@ -4396,7 +4396,7 @@
       "pluginType": "JS",
       "publishedAction": {
         "actionConfiguration": {
-          "body": "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    },\n    inoculate: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      requireNoStrain: true,\n      requireNotInoculated: true,\n      message: \"Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain.\"\n    },\n    draw_syringes: {\n      requireSingle: true,\n      allowedCategories: [\"lc_flask\"],\n      message: \"Select exactly one active LC flask lot to draw syringes.\"\n    },\n    harvest: {\n      requireSingle: true,\n      allowedCategories: [\"fruiting_block\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      message: \"Select exactly one active fruiting block, cordyceps substrate, or all-in-one bag lot to harvest.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
+          "body": "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
           "encodeParamsToggle": true,
           "jsArguments": [
             {
@@ -4430,8 +4430,8 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "{}",
-          "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    },\n    inoculate: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      requireNoStrain: true,\n      requireNotInoculated: true,\n      message: \"Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain.\"\n    },\n    draw_syringes: {\n      requireSingle: true,\n      allowedCategories: [\"lc_flask\"],\n      message: \"Select exactly one active LC flask lot to draw syringes.\"\n    },\n    harvest: {\n      requireSingle: true,\n      allowedCategories: [\"fruiting_block\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      message: \"Select exactly one active fruiting block, cordyceps substrate, or all-in-one bag lot to harvest.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}"
+          "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
+          "{}"
         ],
         "messages": [],
         "name": "lotModalValidation",
@@ -4443,7 +4443,7 @@
       },
       "unpublishedAction": {
         "actionConfiguration": {
-          "body": "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    },\n    inoculate: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      requireNoStrain: true,\n      requireNotInoculated: true,\n      message: \"Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain.\"\n    },\n    draw_syringes: {\n      requireSingle: true,\n      allowedCategories: [\"lc_flask\"],\n      message: \"Select exactly one active LC flask lot to draw syringes.\"\n    },\n    harvest: {\n      requireSingle: true,\n      allowedCategories: [\"fruiting_block\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      message: \"Select exactly one active fruiting block, cordyceps substrate, or all-in-one bag lot to harvest.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
+          "body": "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
           "encodeParamsToggle": true,
           "jsArguments": [
             {
@@ -4477,8 +4477,8 @@
         "invalids": [],
         "isValid": true,
         "jsonPathKeys": [
-          "{}",
-          "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    },\n    inoculate: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"lc_flask\", \"plate\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      requireNoStrain: true,\n      requireNotInoculated: true,\n      message: \"Select one or more active grain, LC flask, plate, cordyceps substrate, or all-in-one bag lots that have not already been inoculated or assigned a strain.\"\n    },\n    draw_syringes: {\n      requireSingle: true,\n      allowedCategories: [\"lc_flask\"],\n      message: \"Select exactly one active LC flask lot to draw syringes.\"\n    },\n    harvest: {\n      requireSingle: true,\n      allowedCategories: [\"fruiting_block\", \"cordyceps_substrate\", \"all_in_one_bag\"],\n      message: \"Select exactly one active fruiting block, cordyceps substrate, or all-in-one bag lot to harvest.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}"
+          "function (actionOrOptions = {}) {\n  const rows = LotsPage.selectedLotRows();\n  const action = typeof actionOrOptions === \"string\" ? actionOrOptions : null;\n  const options = typeof actionOrOptions === \"object\" && actionOrOptions !== null ? actionOrOptions : {};\n  const rulesByAction = {\n    shake: {\n      requireAny: true,\n      allowedCategories: [\"grain\"],\n      requireInoculated: true,\n      message: \"Select one or more active inoculated grain lots to shake.\"\n    },\n    retire: {\n      requireAny: true,\n      message: \"Select one or more active lots to retire.\"\n    },\n    modify: {\n      requireAny: true,\n      allowedCategories: [\"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active fruiting block or all-in-one bag lots to modify.\"\n    },\n    move: {\n      requireAny: true,\n      requireInoculatedOrSpawned: true,\n      disallowFruitingLocation: true,\n      message: \"Select one or more active inoculated or spawned lots that are not already in Fruiting.\"\n    },\n    package: {\n      requireAny: true,\n      allowedCategories: [\"grain\", \"substrate\", \"casing\", \"fruiting_block\", \"all_in_one_bag\"],\n      message: \"Select one or more active grain, substrate, casing, fruiting block, or all-in-one bag lots to package independently.\"\n    }\n  };\n  const rules = {\n    ...action ? rulesByAction[action] || ({}) : {},\n    ...options\n  };\n  if (rules.requireSingle && rows.length !== 1) {\n    return {\n      ok: false,\n      message: rules.message || \"Select exactly one valid lot.\"\n    };\n  }\n  if ((rules.requireAny || !rules.requireSingle) && rows.length === 0) {\n    return {\n      ok: false,\n      message: rules.message || \"Select one or more valid lots.\"\n    };\n  }\n  for (const row of rows) {\n    const label = row.lot_id || row.nocopk || \"Selected lot\";\n    const category = String(row.item_category_mat || \"\");\n    const isProduct = String(row.inventory_kind || \"\").toLowerCase() === \"product\";\n    if (isProduct) {\n      if (action === \"inoculate\" && row.can_inoculate_target === true) {\n        continue;\n      }\n      return {\n        ok: false,\n        message: `${label} is a packaged Product and is not eligible for this Lot action.`\n      };\n    }\n    if (rules.allowedCategories && !rules.allowedCategories.includes(category)) {\n      return {\n        ok: false,\n        message: `${label} has category ${category || \"(blank)\"}; expected ${rules.allowedCategories.join(\", \")}.`\n      };\n    }\n    if (!rules.allowRetired && LotsPage.lotIsRetired(row)) {\n      return {\n        ok: false,\n        message: `${label} is retired or unavailable (${row.status || \"unknown status\"}).`\n      };\n    }\n    if (rules.requireInoculated && !row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated.`\n      };\n    }\n    if (rules.requireInoculatedOrSpawned && !(row.inoculated_at || row.spawned_at)) {\n      return {\n        ok: false,\n        message: `${label} must be inoculated or spawned.`\n      };\n    }\n    if (rules.requireNoStrain && row.strain_species_strain_mat) {\n      return {\n        ok: false,\n        message: `${label} already has a strain (${row.strain_species_strain_mat}).`\n      };\n    }\n    if (rules.requireNotInoculated && row.inoculated_at) {\n      return {\n        ok: false,\n        message: `${label} was already inoculated (${row.inoculated_at}).`\n      };\n    }\n    if (rules.disallowFruitingLocation && LotsPage.lotLocationName(row).toLowerCase().includes(\"fruiting\")) {\n      return {\n        ok: false,\n        message: `${label} is already located in Fruiting.`\n      };\n    }\n  }\n  return {\n    ok: true,\n    message: \"\"\n  };\n}",
+          "{}"
         ],
         "messages": [],
         "name": "lotModalValidation",
@@ -51839,7 +51839,7 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 1020,
+              "bottomRow": 980,
               "canExtend": true,
               "children": [
                 {
@@ -58094,7 +58094,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 12,
+                  "rightColumn": 13,
                   "text": "Shake Lots",
                   "tooltip": "Select one or more inoculated grains.",
                   "topRow": 94,
@@ -58141,7 +58141,7 @@
                     "LotsPage.openRetireModal()"
                   ],
                   "key": "bl16qofho7",
-                  "leftColumn": 12,
+                  "leftColumn": 13,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 0,
@@ -58159,7 +58159,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 24,
+                  "rightColumn": 26,
                   "text": "Retire Lots",
                   "tooltip": "Select lots to retire.",
                   "topRow": 94,
@@ -58171,7 +58171,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 102,
+                  "bottomRow": 98,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -58203,7 +58203,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 0,
+                  "leftColumn": 39,
                   "minWidth": 120,
                   "mobileBottomRow": 64,
                   "mobileLeftColumn": 0,
@@ -58221,10 +58221,10 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 12,
+                  "rightColumn": 52,
                   "text": "Modify Lots\n",
                   "tooltip": "Select colonized or fruiting blocks.",
-                  "topRow": 98,
+                  "topRow": 94,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "hpkqd4hvjs",
@@ -58265,7 +58265,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 24,
+                  "leftColumn": 26,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 26,
@@ -58283,7 +58283,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 36,
+                  "rightColumn": 39,
                   "text": "Package Lots\n",
                   "tooltip": "Select lots to package as products.",
                   "topRow": 94,
@@ -58295,7 +58295,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 102,
+                  "bottomRow": 98,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -58327,7 +58327,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 12,
+                  "leftColumn": 52,
                   "minWidth": 120,
                   "mobileBottomRow": 64,
                   "mobileLeftColumn": 26,
@@ -58345,10 +58345,10 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 24,
+                  "rightColumn": 64,
                   "text": "Transition Lots",
                   "tooltip": "Select inoculated or spawned lots to move to fridge or fruiting.",
-                  "topRow": 98,
+                  "topRow": 94,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "adcrfylwl5",
@@ -60151,7 +60151,7 @@
             "deleted": false,
             "dsl": {
               "backgroundColor": "none",
-              "bottomRow": 1020,
+              "bottomRow": 980,
               "canExtend": true,
               "children": [
                 {
@@ -66406,7 +66406,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 12,
+                  "rightColumn": 13,
                   "text": "Shake Lots",
                   "tooltip": "Select one or more inoculated grains.",
                   "topRow": 94,
@@ -66453,7 +66453,7 @@
                     "LotsPage.openRetireModal()"
                   ],
                   "key": "bl16qofho7",
-                  "leftColumn": 12,
+                  "leftColumn": 13,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 0,
@@ -66471,7 +66471,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 24,
+                  "rightColumn": 26,
                   "text": "Retire Lots",
                   "tooltip": "Select lots to retire.",
                   "topRow": 94,
@@ -66483,7 +66483,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 102,
+                  "bottomRow": 98,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -66515,7 +66515,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 0,
+                  "leftColumn": 39,
                   "minWidth": 120,
                   "mobileBottomRow": 64,
                   "mobileLeftColumn": 0,
@@ -66533,10 +66533,10 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 12,
+                  "rightColumn": 52,
                   "text": "Modify Lots\n",
                   "tooltip": "Select colonized or fruiting blocks.",
-                  "topRow": 98,
+                  "topRow": 94,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "hpkqd4hvjs",
@@ -66577,7 +66577,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 24,
+                  "leftColumn": 26,
                   "minWidth": 120,
                   "mobileBottomRow": 59,
                   "mobileLeftColumn": 26,
@@ -66595,7 +66595,7 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 36,
+                  "rightColumn": 39,
                   "text": "Package Lots\n",
                   "tooltip": "Select lots to package as products.",
                   "topRow": 94,
@@ -66607,7 +66607,7 @@
                 {
                   "animateLoading": true,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "bottomRow": 102,
+                  "bottomRow": 98,
                   "boxShadow": "none",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "buttonVariant": "PRIMARY",
@@ -66639,7 +66639,7 @@
                   "isLoading": false,
                   "isVisible": true,
                   "key": "xto8zvlnqv",
-                  "leftColumn": 12,
+                  "leftColumn": 52,
                   "minWidth": 120,
                   "mobileBottomRow": 64,
                   "mobileLeftColumn": 26,
@@ -66657,10 +66657,10 @@
                   "renderMode": "CANVAS",
                   "resetFormOnClick": false,
                   "responsiveBehavior": "hug",
-                  "rightColumn": 24,
+                  "rightColumn": 64,
                   "text": "Transition Lots",
                   "tooltip": "Select inoculated or spawned lots to move to fridge or fruiting.",
-                  "topRow": 98,
+                  "topRow": 94,
                   "type": "BUTTON_WIDGET",
                   "version": 1,
                   "widgetId": "adcrfylwl5",
