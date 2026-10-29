@@ -18,7 +18,7 @@ jobs:
           POSTGRES_PASSWORD: synthetic-ci-only
         ports: ['5432:5432']
         options: >-
-          --health-cmd 'pg_isready -U commerce_test -d commerce_test'
+          --health-cmd="pg_isready -U commerce_test -d commerce_test"
           --health-interval 5s --health-timeout 5s --health-retries 12
     env:
       PGHOST: localhost
