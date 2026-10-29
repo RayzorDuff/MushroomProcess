@@ -32,3 +32,9 @@ view definitions still abort. After this fix, all pre-load migrations through
 051 and regressions 026, 027, 031 and 051 passed on the isolated test Linode.
 The new 051 regression covers non-Ecwid mapping, expired stock exclusion,
 product-plus-lot quantity, disabled mappings, and unchanged Ecwid parity.
+
+Migration 052 adds the provider-neutral order/event/reservation/payment-match
+ledger. The inactive manual catalog snapshot now subtracts ledger reservations;
+apply 052 before importing that workflow. Legacy active Ecwid publication remains
+unchanged and needs a coordinated cutover before parallel selling. See
+[`order-ledger.md`](order-ledger.md) for tests, role boundaries and acceptance.
