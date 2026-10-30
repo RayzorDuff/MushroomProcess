@@ -38,6 +38,8 @@ jobs:
             fi
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
+      - name: Seed synthetic lookup definitions
+        run: psql -v ON_ERROR_STOP=1 -f schema/pgsql/tests/commerce_ci_seed.sql
       - name: Inventory, compatibility and legacy-view regressions
         shell: bash
         run: |

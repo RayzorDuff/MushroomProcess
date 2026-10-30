@@ -42,7 +42,9 @@ passes. The 16 Appsmith/workflow/label smoke scripts are independent of that che
 Both `051_erp_commerce_catalog.sql` and
 `051_extraction_batch_provenance.sql` are retained by full filename; do not renumber
 an already applied migration based only on its numeric prefix. The clean-room CI
-runner processes exact filenames lexicographically. No production CSVs, credentials
+runner processes exact filenames lexicographically. Cultivation tests use guarded
+synthetic lookup definitions in an empty commerce_test database instead of
+requiring imported production Items/Recipes/Strains. No production CSVs, credentials
 or runtime state are required for its synthetic tests.
 
 Review the complete merge diff before approval. There are no whole-file deletions;
