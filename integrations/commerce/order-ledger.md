@@ -67,3 +67,23 @@ for oversell and redelivery. RootedOps #22 remains the later staging recovery ga
 Rollback before activation: stop the new worker and revert code; new ledger tables
 may remain inert. After holds exist, reconcile every outstanding order before
 switching inventory publishers or dropping any table. Never discard live holds.
+
+## Operational bridge (migration 054)
+
+054 adds immutable per-Product shipment acknowledgments, partial quantities and
+ERP site/document identities. It disables new string-only fulfillment releases.
+A trusted operator must explicitly move identified Products to Shipped and call
+`mp_commerce_acknowledge_products` **in the same transaction**. The function verifies
+actual location and Item/Strain, prevents Product reuse, decrements only acknowledged
+holds, and retains shipped history through cancellation/refunds. It never moves a
+Product itself. Lot-only/bulk/non-unit quantities require manual allocation; this
+Product-unit bridge must not pretend to handle them. Reservation confirmation
+requires verified unrefunded Clover capture and reviewed ERP invoice/payment links.
+
+Partial shipment snapshots subtract already acknowledged Products before rebuilding
+holds; cancelling releases unshipped holds without restocking anything. Refunds
+block new acknowledgments for manual review. Returns/reversal require a separately
+audited operational return; no endpoint auto-creates inventory from a refund.
+`mp_commerce_link_erp(jsonb)` retains source→ERP identities uniquely and refuses drift.
+Only a trusted ERP verification worker may call it; names alone are not proof of
+accounting or merchant capture. No grants/active workflows are installed.

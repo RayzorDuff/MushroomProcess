@@ -54,8 +54,12 @@ BEGIN
  PERFORM public.mp_commerce_ingest(p||jsonb_build_object('event_id','complete','revision',2,'status','completed'));
  IF (SELECT count(*) FROM public.products WHERE item_id=item_pk AND storage_location_id=location_pk)<>2 THEN RAISE EXCEPTION 'Lineage changed'; END IF;
  -- Operational fulfillment moves inventory first, then acknowledges its reference.
- UPDATE public.products SET use_by=CURRENT_DATE-1 WHERE item_id=item_pk;
- PERFORM public.mp_commerce_commit_fulfillment('woocommerce','synthetic','102','synthetic-movement-102');
+ INSERT INTO public.locations(name,active,type) VALUES('Shipped',true,'Terminal') RETURNING nocopk INTO location_pk;
+ UPDATE public.products SET storage_location_id=location_pk WHERE item_id=item_pk;
+ PERFORM public.mp_commerce_match_payment(evidence||jsonb_build_object('external_order_id','102','payment_id','capture-102'));
+ PERFORM public.mp_commerce_link_erp(jsonb_build_object('provider','woocommerce','site_key','synthetic','external_order_id','102','erp_site','synthetic','sales_order','SO-102','sales_invoice','SI-102','payment_entry','PE-102'));
+ PERFORM public.mp_commerce_confirm_reservation('woocommerce','synthetic','102');
+ PERFORM public.mp_commerce_acknowledge_products('woocommerce','synthetic','102','synthetic-movement-102',jsonb_build_array(jsonb_build_object('line_id','1','product_ids',(SELECT jsonb_agg(nocopk) FROM public.products WHERE item_id=item_pk))));
  IF public.mp_commerce_commit_fulfillment('woocommerce','synthetic','102','synthetic-movement-102')<>'duplicate' THEN RAISE EXCEPTION 'Duplicate fulfillment'; END IF;
  PERFORM public.mp_commerce_ingest(p||jsonb_build_object('event_id','refund','revision',3,'status','refunded','refunds',
  jsonb_build_array(jsonb_build_object('external_refund_id','R1','amount','10.00'))));
