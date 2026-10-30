@@ -15,6 +15,8 @@ DECLARE
   v_lot record;
   v_event_count integer;
   v_print_count integer;
+  v_strain_id bigint;
+  v_expected_strain text;
 BEGIN
   SELECT nocopk INTO v_item_id FROM public.items WHERE item_id='EXTRACTION-BATCH';
   IF v_item_id IS NULL THEN RAISE EXCEPTION 'EXTRACTION-BATCH item was not seeded'; END IF;
@@ -25,13 +27,25 @@ BEGIN
 
   SELECT nocopk INTO v_location_id FROM public.locations WHERE lower(btrim(name)) IN ('products storage','product storage') ORDER BY nocopk LIMIT 1;
   SELECT nocopk INTO v_consumed_location_id FROM public.locations WHERE lower(btrim(name))='consumed' ORDER BY nocopk LIMIT 1;
-  IF v_location_id IS NULL OR v_consumed_location_id IS NULL THEN
-    RAISE NOTICE 'Skipping behavioral portion: required locations are absent in this test database.';
-    RETURN;
+  IF v_location_id IS NULL THEN
+    INSERT INTO public.locations(name,active,type) VALUES ('Products Storage',true,'Storage') RETURNING nocopk INTO v_location_id;
+  END IF;
+  IF v_consumed_location_id IS NULL THEN
+    INSERT INTO public.locations(name,active,type) VALUES ('Consumed',true,'Terminal') RETURNING nocopk INTO v_consumed_location_id;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.items WHERE item_id='TRAY-FREEZE') THEN
+    INSERT INTO public.items(item_id,name,category,active) VALUES ('TRAY-FREEZE','Synthetic Freezer Tray','freezer_tray',true);
   END IF;
 
-  INSERT INTO public.products(product_id,item_id,name_mat,item_category_mat,net_weight_g,net_weight_oz,tray_state,storage_location_id,origin_lot_ids_json)
-  VALUES ('TEST-EXTRACT-TRAY',(SELECT nocopk FROM public.items WHERE item_id='TRAY-FREEZE'),'Freezer Tray','freezer_tray',125,125/28.349523125,'freezer_tray',v_location_id,'[]')
+  SELECT nocopk, species_strain INTO v_strain_id, v_expected_strain
+  FROM public.strains WHERE species_strain IS NOT NULL ORDER BY nocopk LIMIT 1;
+  IF v_strain_id IS NULL THEN
+    INSERT INTO public.strains(strain_id,species_strain,active) VALUES ('SYNTHETIC-EXTRACTION-050','Synthetic extraction strain',true)
+      RETURNING nocopk,species_strain INTO v_strain_id,v_expected_strain;
+  END IF;
+
+  INSERT INTO public.products(product_id,item_id,name_mat,item_category_mat,net_weight_g,net_weight_oz,tray_state,storage_location_id,origin_lot_ids_json,strain_id)
+  VALUES ('TEST-EXTRACT-TRAY',(SELECT nocopk FROM public.items WHERE item_id='TRAY-FREEZE'),'Freezer Tray','freezer_tray',125,125/28.349523125,'freezer_tray',v_location_id,'[]',v_strain_id)
   RETURNING nocopk INTO v_source_product_id;
 
   v_lot_id := public.mp_products_start_extraction_batch(v_source_product_id,125,'Ethanol',500,'test','Products',now()::timestamp,'phase 1 smoke',200);
@@ -42,6 +56,14 @@ BEGIN
   IF v_lot.material_weight_g <> 125 THEN RAISE EXCEPTION 'Material weight not persisted'; END IF;
   IF v_lot.solvent_volume_ml <> 500 OR v_lot.solvent_type <> 'Ethanol' OR v_lot.solvent_proof <> 200 THEN RAISE EXCEPTION 'Solvent data not persisted'; END IF;
   IF v_lot.label_template <> 'Extraction_Batch' THEN RAISE EXCEPTION 'Extraction label template not persisted'; END IF;
+  IF v_strain_id IS NOT NULL THEN
+    IF v_lot.strain_id IS DISTINCT FROM v_strain_id THEN
+      RAISE EXCEPTION 'Extraction strain reference not propagated';
+    END IF;
+    IF v_lot.strain_species_strain_mat IS DISTINCT FROM v_expected_strain THEN
+      RAISE EXCEPTION 'Extraction materialized strain not populated';
+    END IF;
+  END IF;
 
   SELECT count(*) INTO v_event_count FROM public.events WHERE lot_id=v_lot_id AND product_id=v_source_product_id AND type='ExtractionStarted';
   IF v_event_count <> 1 THEN RAISE EXCEPTION 'ExtractionStarted event missing or not linked to both entities'; END IF;
