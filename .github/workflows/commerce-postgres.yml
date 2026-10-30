@@ -33,16 +33,38 @@ jobs:
         run: |
           set -euo pipefail
           for file in schema/pgsql/0*.sql; do
+            if [[ "$file" == *031_remove_legacy_public_links.sql ]]; then
+              psql -Atc "SELECT c.relname, md5(trim(regexp_replace(pg_get_viewdef(c.oid, true), '[[:space:]]+', ' ', 'g'))) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN ('vc_lots','vc_products','vc_print_queue') ORDER BY c.relname"
+            fi
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
+      - name: Seed synthetic lookup definitions
+        run: psql -v ON_ERROR_STOP=1 -f schema/pgsql/tests/commerce_ci_seed.sql
       - name: Inventory, compatibility and legacy-view regressions
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/051* schema/pgsql/tests/052*.sql; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
       - run: node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
       - run: node n8n/tests/ecwid_order_updated_pgsql_smoke.js
       - run: node n8n/tests/fulfillment_order_visibility_smoke.js
+
+  production-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --prefix /tmp/print-test-deps --no-save --ignore-scripts --no-audit --no-fund dotenv axios pdfkit qrcode
+      - name: Production Appsmith, workflow and label contracts
+        env:
+          NODE_PATH: /tmp/print-test-deps/node_modules
+        run: |
+          set -euo pipefail
+          for file in appsmith/*smoke.js n8n/tests/*smoke.js print-daemon/tests/*smoke*; do
+            node "$file"
+          done

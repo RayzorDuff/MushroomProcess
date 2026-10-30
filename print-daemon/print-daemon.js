@@ -1140,6 +1140,64 @@ async function fetchNocoV3SourceRecord(tableId, viewId, sourcePk, sourceKind, qu
   return null;
 }
 
+// Extraction lots are not yet projected through the legacy v_lots/vc_lots
+// SELECT * snapshots. Read the canonical lots row for extraction labels only.
+function extractionLabelText(row) {
+  const value = (key) => String(toFlat(row[key]) ?? '').trim();
+  const quantity = (key, unit) => {
+    const number = Number(value(key));
+    return value(key) && Number.isFinite(number) && number > 0
+      ? `${number} ${unit}` : '';
+  };
+  const material = quantity('material_weight_g', 'g');
+  const solvent = [quantity('solvent_volume_ml', 'mL'), value('solvent_type')]
+    .filter(Boolean).join(' ');
+  const proof = value('solvent_proof');
+  const subtitle = [material, solvent, proof ? `${proof} proof` : '']
+    .filter(Boolean).join(' • ');
+  const created = value('created_at');
+  const date = /^\d{4}-\d{2}-\d{2}/.exec(created)?.[0] || '';
+  return {
+    label_title_lot: 'Extraction Batch',
+    label_subtitle_lot: subtitle,
+    label_proc_line: date ? `Extraction started: ${date}` : '',
+    label_footer_lot: `Lot: ${value('lot_id')}`,
+  };
+}
+
+async function hydrateExtractionLabelFields(sourcePk, queueFields, sourceFields) {
+  const kind = String(toFlat(sourceFields?.item_category_mat || '')).toLowerCase();
+  const requested = String(toFlat(queueFields?.label_template || '')).trim();
+  if (kind !== 'extraction_batch' && requested !== 'Extraction_Batch') return sourceFields;
+
+  const rawTable = await resolveNocoV3TableReference(
+    'EXTRACTION_LOTS_TABLE', process.env.EXTRACTION_LOTS_TABLE || 'lots', ['lots']
+  );
+  const url = `${nocoV3RecordsPath(rawTable)}/${encodeURIComponent(sourcePk)}`;
+  // NocoDB v3 rejects an explicit fields projection when new Postgres columns
+  // have not yet been synchronized into its field metadata (HTTP 422).
+  // Retrieve the full record; validate the required extraction fields below.
+  const { data } = await NC.get(url);
+  const raw = nocoV3RecordFields(data?.record ?? data);
+  const extractionFields = ['material_weight_g', 'solvent_type', 'solvent_volume_ml'];
+  const missing = extractionFields.filter(name => raw[name] === undefined);
+  if (missing.length) {
+    throw new Error(
+      'NocoDB lots metadata is missing extraction columns: ' + missing.join(', ') +
+      '. Synchronize the lots table schema in NocoDB, then requeue this print job.'
+    );
+  }
+  if (String(toFlat(raw.label_template) || '') !== 'Extraction_Batch') {
+    throw new Error(`Expected extraction batch lot for print job, got ${raw.label_template || '(empty)'}`);
+  }
+  if (!(Number(toFlat(raw.material_weight_g)) > 0) ||
+      !(Number(toFlat(raw.solvent_volume_ml)) > 0) ||
+      !String(toFlat(raw.solvent_type) || '').trim()) {
+    throw new Error('Extraction batch lacks material weight, solvent type, or solvent volume');
+  }
+  return { ...sourceFields, ...extractionLabelText(raw) };
+}
+
 async function hydrateNocoV3QueueCandidate(candidateRow) {
   const queueFields = nocoV3RecordFields(candidateRow);
   const writeId = nocoV3RecordId(candidateRow, PRINT_QUEUE_WRITE_ID_FIELD);
@@ -1184,7 +1242,9 @@ async function hydrateNocoV3QueueCandidate(candidateRow) {
     throw new Error(`Queued print job ${writeId} could not find ${sourceKind} nocopk=${sourcePk}`);
   }
 
-  const sourceFields = nocoV3RecordFields(sourceRow);
+  const sourceFields = await hydrateExtractionLabelFields(
+    sourcePk, queueFields, nocoV3RecordFields(sourceRow)
+  );
   const itemCategory = pick(sourceFields, ['item_category_mat', 'item_category']);
   const printTarget = printTargetForSource(sourceKind, itemCategory);
 

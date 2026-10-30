@@ -27,6 +27,11 @@ DECLARE
   v_now timestamp without time zone := clock_timestamp()::timestamp without time zone;
   v_remaining numeric;
   v_fields jsonb;
+  v_target_strain_id bigint;
+  v_target_species_strain_mat text;
+  v_target_vendor_name text;
+  v_target_vendor_name_mat text;
+  v_expected_species_strain text;
 BEGIN
   SELECT nocopk INTO v_grain_item_id
   FROM public.items
@@ -293,19 +298,27 @@ BEGIN
   END IF;
 
   -- Liquid culture source: volume is required, recorded, and decremented.
+  -- Model a legacy imported source where strain_id/vendor_name are populated but
+  -- their materialized companions are blank. Inoculation must derive canonical
+  -- target materialized values from the linked strain/direct vendor fields.
+  SELECT species_strain
+  INTO v_expected_species_strain
+  FROM public.strains
+  WHERE nocopk = v_strain_id;
+
   INSERT INTO public.lots (
     lot_id, item_id, item_name_mat, item_category_mat, strain_id,
-    strain_species_strain_mat, status, total_volume_ml, remaining_volume_ml,
+    strain_species_strain_mat, vendor_name, vendor_name_mat,
+    status, total_volume_ml, remaining_volume_ml,
     created_at, inoculated_at
   )
   SELECT
     'LOT-RC5-INOC-LC-SRC', v_lc_item_id, i.name, i.category,
-    v_strain_id, s.species_strain, 'Colonizing', 20, 20,
+    v_strain_id, NULL, 'Legacy Vendor', NULL,
+    'Colonizing', 20, 20,
     v_now - interval '2 days', v_now - interval '1 day'
   FROM public.items i
-  CROSS JOIN public.strains s
   WHERE i.nocopk = v_lc_item_id
-    AND s.nocopk = v_strain_id
   RETURNING nocopk INTO v_lc_source_id;
 
   INSERT INTO public.lots (
@@ -339,6 +352,23 @@ BEGIN
 
   IF v_remaining IS DISTINCT FROM 17 THEN
     RAISE EXCEPTION 'LC source remaining volume was not decremented correctly: %.', v_remaining;
+  END IF;
+
+  SELECT strain_id, strain_species_strain_mat, vendor_name, vendor_name_mat
+  INTO v_target_strain_id, v_target_species_strain_mat, v_target_vendor_name, v_target_vendor_name_mat
+  FROM public.lots
+  WHERE nocopk = v_lc_target_id;
+
+  IF v_target_strain_id IS DISTINCT FROM v_strain_id
+     OR v_target_species_strain_mat IS DISTINCT FROM v_expected_species_strain
+     OR v_target_vendor_name IS DISTINCT FROM 'Legacy Vendor'
+     OR v_target_vendor_name_mat IS DISTINCT FROM 'Legacy Vendor' THEN
+    RAISE EXCEPTION
+      'Legacy LC source materialization failed: strain_id %, species %, vendor %, vendor_mat %.',
+      v_target_strain_id,
+      v_target_species_strain_mat,
+      v_target_vendor_name,
+      v_target_vendor_name_mat;
   END IF;
 
   SELECT fields_json::jsonb INTO v_fields
@@ -392,7 +422,7 @@ BEGIN
     RAISE EXCEPTION 'Insufficient-volume rejection mutated the target.';
   END IF;
 
-  RAISE NOTICE 'Inoculation source modes, availability date, stale-target rejection, diagnostics, and event smoke tests passed.';
+  RAISE NOTICE 'Inoculation source modes, legacy materialization, availability date, stale-target rejection, diagnostics, and event smoke tests passed.';
 END;
 $$;
 

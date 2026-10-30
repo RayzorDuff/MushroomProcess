@@ -707,6 +707,10 @@ expanding every descendant:
 - source/parent lot relationships are shown when the schema records them;
 - products linked by `products.origin_lots` are shown as resulting products,
   including available harvest/package/state/location metadata;
+- Issue #57 returned inventory uses the explicit `lots.source_product_id` edge.
+  A returned lot therefore exposes both its source Product and that Product's
+  explicit origin Lot, preserving the auditable `Lot -> Product -> Lot` bridge
+  without inferring ancestry from item/date/strain similarity;
 - selecting a related **lot** pivots Lifecycle Trace to that lot; product rows
   remain read-only during Phase 4.
 

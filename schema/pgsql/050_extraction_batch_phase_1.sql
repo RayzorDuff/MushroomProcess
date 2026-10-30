@@ -81,6 +81,11 @@ DECLARE
   v_consumed_location_id bigint;
   v_event_id bigint;
   v_source_business_id text;
+  v_strain_id bigint;
+  v_strain_display text;
+  v_vendor_display text;
+  v_vendor_batch text;
+
 BEGIN
   IF p_source_product_id IS NULL THEN
     RAISE EXCEPTION 'Source Product is required';
@@ -147,18 +152,50 @@ BEGIN
     RAISE EXCEPTION 'Consumed location is required';
   END IF;
 
+  -- Prefer the canonical Product strain. When absent, accept a source Lot
+  -- strain only if all referenced source Lots agree on one non-null strain.
+  -- Preserve ambiguity rather than arbitrarily selecting one ancestor.
+  v_strain_id := v_source.strain_id;
+  SELECT
+    CASE WHEN count(DISTINCT l.strain_id) = 1
+                AND count(*) = count(l.strain_id)
+         THEN min(l.strain_id) ELSE NULL END,
+    CASE WHEN count(DISTINCT NULLIF(btrim(COALESCE(l.vendor_name_mat, l.vendor_name)), '')) = 1
+                AND count(*) = count(NULLIF(btrim(COALESCE(l.vendor_name_mat, l.vendor_name)), ''))
+         THEN min(NULLIF(btrim(COALESCE(l.vendor_name_mat, l.vendor_name)), '')) ELSE NULL END,
+    CASE WHEN count(DISTINCT NULLIF(btrim(l.vendor_batch), '')) = 1
+                AND count(*) = count(NULLIF(btrim(l.vendor_batch), ''))
+         THEN min(NULLIF(btrim(l.vendor_batch), '')) ELSE NULL END
+  INTO v_strain_id, v_vendor_display, v_vendor_batch
+  FROM (
+    SELECT DISTINCT l.nocopk, l.strain_id, l.vendor_name_mat, l.vendor_name, l.vendor_batch
+    FROM public.lots l
+    JOIN LATERAL jsonb_array_elements_text(
+      CASE WHEN jsonb_typeof(COALESCE(NULLIF(v_source.origin_lot_ids_json,''), '[]')::jsonb) = 'array'
+           THEN COALESCE(NULLIF(v_source.origin_lot_ids_json,''), '[]')::jsonb
+           ELSE '[]'::jsonb END
+    ) origin(ref)
+      ON origin.ref = l.nocopk::text OR origin.ref = l.lot_id
+  ) l;
+  -- The Product is the direct source and takes precedence over ancestors.
+  v_strain_id := COALESCE(v_source.strain_id, v_strain_id);
+  SELECT s.species_strain INTO v_strain_display
+    FROM public.strains s WHERE s.nocopk = v_strain_id;
+
   v_lot_business_id := public.mp_generate_lot_id();
   v_source_business_id := COALESCE(NULLIF(btrim(v_source.product_id), ''), p_source_product_id::text);
 
   INSERT INTO public.lots (
-    lot_id, item_id, item_name_mat, item_category_mat, strain_id, qty,
+    lot_id, item_id, item_name_mat, item_category_mat, strain_id,
+    strain_species_strain_mat, vendor_name_mat, vendor_name, vendor_batch, qty,
     status, location_id, operator, created_at, process_stage, material_state,
     material_weight_g, solvent_type, solvent_proof, solvent_volume_ml, source_product_id,
     parents_json, label_template, notes
   )
   VALUES (
     v_lot_business_id, v_item_id, 'Extraction Batch', 'extraction_batch',
-    v_source.strain_id, 1, 'Extraction', v_location_id, p_operator, v_ts,
+    v_strain_id, v_strain_display, v_vendor_display, v_vendor_display, v_vendor_batch,
+    1, 'Extraction', v_location_id, p_operator, v_ts,
     'initial_solvent_extraction', 'solvent_bearing', p_material_weight_g,
     btrim(p_solvent_type), p_solvent_proof, p_solvent_volume_ml, p_source_product_id,
     COALESCE(NULLIF(btrim(v_source.origin_lot_ids_json), ''), '[]'),

@@ -371,6 +371,9 @@ CREATE TABLE IF NOT EXISTS "public"."sterilization_runs" (
   "pressure_mode" text,
   "override_end_time" timestamp without time zone,
   "planned_component_set" text,
+  "cancelled_at" timestamp without time zone,
+  "cancelled_by" text,
+  "cancellation_reason" text,
   "nocouuid" uuid DEFAULT gen_random_uuid(),
   "airtable_id" text UNIQUE,
   "nc_created_at" timestamp without time zone DEFAULT now(),
@@ -655,6 +658,13 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
   "clover_payment_amount" numeric,
   "clover_payment_time" timestamp without time zone,
   "clover_match_confidence" numeric,
+  "payment_processor" text,
+  "processor_payment_id" text,
+  "processor_payment_status" text,
+  "processor_payment_amount" numeric,
+  "processor_payment_time" timestamp without time zone,
+  "processor_match_confidence" numeric,
+  "payment_reconciliation_status" text,
   "reconciled_at" timestamp without time zone,
   "reconciliation_notes" text,
   "ecwid_event_type" text,
@@ -672,6 +682,7 @@ CREATE TABLE IF NOT EXISTS "public"."ecommerce_orders" (
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_name" ON "public"."ecommerce_orders"("name");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_order_id" ON "public"."ecommerce_orders"("ecwid_order_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_clover_payment_id" ON "public"."ecommerce_orders"("clover_payment_id");
+CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_processor_payment_id" ON "public"."ecommerce_orders"("payment_processor", "processor_payment_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_ecwid_event_id" ON "public"."ecommerce_orders"("ecwid_event_id");
 CREATE INDEX IF NOT EXISTS "ix_ecommerce_orders_provider_external_order_id" ON "public"."ecommerce_orders"("provider", "external_order_id");
 
@@ -1012,6 +1023,24 @@ DO $$ BEGIN
         END IF;
       END $$;
 CREATE INDEX IF NOT EXISTS "ix_lots_parent_lot_id" ON "public"."lots"("parent_lot_id");
+DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint c
+          WHERE c.conname = 'fk_lots_source_product_id'
+            AND c.conrelid = 'public.lots'::regclass
+        ) THEN
+          ALTER TABLE "public"."lots"
+            ADD CONSTRAINT "fk_lots_source_product_id"
+            FOREIGN KEY ("source_product_id")
+            REFERENCES "public"."products"("nocopk")
+            DEFERRABLE INITIALLY DEFERRED;
+        END IF;
+      END $$;
+CREATE INDEX IF NOT EXISTS "ix_lots_source_product_id" ON "public"."lots"("source_product_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_lots_source_product_id_nonnull"
+  ON "public"."lots"("source_product_id")
+  WHERE "source_product_id" IS NOT NULL;
 DO $$ BEGIN
         IF NOT EXISTS (
           SELECT 1

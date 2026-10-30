@@ -552,3 +552,88 @@ canonical cohort function.
 - `v_reporting_lot_inventory` — current in-process lot inventory derived from the canonical lifecycle view and grouped into operational stages.
 
 The Phase 7 Reporting UI uses these objects instead of duplicating terminal-state/location logic in Appsmith.
+
+### Provider-neutral payment identity (`041_payment_provider_neutral.sql`)
+
+Issue #85 R1 adds the additive payment/reconciliation aliases used to migrate
+Fulfillment away from Clover-specific storage without changing current Clover
+behavior. `payment_processor`, `processor_payment_id`,
+`processor_payment_status`, `processor_payment_amount`,
+`processor_payment_time`, `processor_match_confidence`, and
+`payment_reconciliation_status` coexist with the legacy `clover_*` columns.
+
+A compatibility trigger infers `payment_processor = 'clover'` only when actual
+Clover reconciliation evidence exists and mirrors Clover legacy writes to the
+generic aliases. Generic writes for a row explicitly identified as Clover are
+also mirrored back to the legacy fields so current workflows/readers remain
+usable during the migration. A row explicitly identified as another processor,
+such as `moov`, is never projected into the Clover columns.
+
+For incremental production deployment, import
+`041_payment_provider_neutral.sql` after the currently deployed numbered
+migrations, then run `tests/041_payment_provider_neutral_smoke.sql`. R1 changes
+only the database compatibility contract; Appsmith and n8n continue using the
+existing Clover fields until a later #85 round moves those reads/writes to the
+provider-neutral aliases.
+
+### `042_product_return_to_lot.sql` / `043_product_return_lineage.sql` — Product return foundation (#57)
+
+Issue #57 is implemented in two application phases.  The first database phase adds the audit-safe transition used by the later Appsmith workflows:
+
+- `lots.source_product_id` is the canonical Product -> returned-Lot edge, with a retained derived single-record junction for NocoDB compatibility;
+- `mp_product_cultivation_eligibility(...)` limits returnable inventory to structurally eligible grain, substrate, and LC-syringe Products and rejects ordered, terminal/unavailable, ambiguous-lineage, or already-returned Products; expiration visibility is handled separately by the contextual UI;
+- `mp_product_return_to_lot(...)` creates a new Lot rather than reopening an old consumed Lot, preserves the earliest Product/origin expiration, volume/weight, strain/vendor metadata, sterilization/recipe-component provenance, moves the Product to `Consumed`, and records a linked audit event;
+- label creation is explicit and defaults to none so contextual operations can avoid unnecessary intermediate labels; and
+- `043_product_return_lineage.sql` extends `v_reporting_lot_lineage` so reporting can traverse the explicit `Lot -> Product -> returned Lot` chain in both directions.
+
+For an incremental production deployment, import `042_product_return_to_lot.sql` and then `043_product_return_lineage.sql`; run `tests/042_product_return_to_lot_smoke.sql` before the Phase 2 Appsmith workflow is enabled.
+
+### `044_product_cultivation_context.sql` — contextual Product cultivation (#57 Phase 2)
+
+`044_product_cultivation_context.sql` exposes eligible packaged cultivation inventory through
+`v_product_cultivation_candidates` and adds atomic wrappers for the user-facing Inoculate and
+Spawn-to-Bulk workflows. The wrappers convert an eligible Product back to a new Lot and perform
+the cultivation operation in the same database call, so a downstream validation failure cannot
+leave a Product deproductized by itself.
+
+The Appsmith **Show Eligible Products** option is available on Lots, Lab - Inoculate, and Lab -
+Spawn to Bulk. Packaged grain may be an inoculation target, LC syringes may be inoculation sources,
+and packaged substrate may be a Spawn-to-Bulk substrate. Other Product categories remain hidden.
+
+Label behavior is contextual: grain receives the normal inoculated-grain label; substrate receives
+no intermediate return label because the Spawn-to-Bulk output gets the normal `Bulk_Created` label;
+a fully depleted LC syringe gets no replacement label; and a partially used LC syringe gets one
+replacement LC Lot label for its remaining volume. Product/origin expiration is preserved and may
+only shorten, never extend, the downstream lifecycle date.
+
+For an incremental production deployment, import `044_product_cultivation_context.sql`, run
+`tests/044_product_cultivation_context_smoke.sql`, and run
+`node appsmith/product_cultivation_return_smoke.js` before importing the updated Appsmith export.
+
+### `045_product_cultivation_phase2_corrections.sql` — Product cultivation corrections (#57)
+
+This follow-up corrects three findings from the initial Phase 2 deployment:
+
+- cultivation Product expiration uses the Colorado operating calendar date instead of the PostgreSQL host's UTC `CURRENT_DATE`, preventing a Product from disappearing several hours early at UTC midnight;
+- `v_product_cultivation_candidates.lot_id` now exposes the Product's existing `PROD-*` identifier directly, without an extra `PRODUCT · ` prefix; and
+- Product-return/Inoculate/Spawn-to-Bulk wrappers derive `now()` in the same operating timezone used by candidate visibility.
+
+The timezone rule is centralized in `mp_cultivation_operating_date()` so it can later be sourced from the planned Settings table without changing every cultivation query.
+
+For incremental production deployment, import `045_product_cultivation_phase2_corrections.sql`, run `tests/045_product_cultivation_phase2_corrections_smoke.sql`, and then import the paired Appsmith correction. `qSpawnToBulkLocations` is already an automatic/on-load query; the Appsmith correction removes manual `.run()` calls from `LotsSpawnToBulk` to avoid mixing trigger and data dependencies on the same query.
+
+
+### `046_expired_product_cultivation_opt_in.sql` — expired Product cultivation opt-in (#57)
+
+Issue #57 now distinguishes expiration from structural unavailability. A Product whose use-by date
+has passed can still be returned to cultivation when the operator explicitly enables **Show Expired
+Products**. The default remains conservative: **Show Eligible Products** excludes expired rows until
+the second checkbox is enabled.
+
+`v_product_cultivation_candidates` now includes structurally eligible current and expired Products
+and exposes `is_expired`. The eligibility contract no longer treats the use-by date, or an `Expired`
+storage/lifecycle marker by itself, as terminal. Order-linked, shipped, consumed, retired, composted,
+missing, already-returned, inoculated grain/substrate, and other invalid Products remain excluded.
+
+For incremental deployment, import `046_expired_product_cultivation_opt_in.sql`, run
+`tests/046_expired_product_cultivation_opt_in_smoke.sql`, and then import the paired Appsmith export.

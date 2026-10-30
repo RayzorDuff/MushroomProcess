@@ -1,6 +1,9 @@
 'use strict';
 
 const assert = require('assert');
+process.env.QR_RESOLVER_BASE_URL = 'https://qr.example.invalid/r';
+process.env.LOG_TO_FILE = 'false';
+process.env.LOG_TO_CONSOLE = 'false';
 const {
   detectItemCategory,
   gatherFields,
@@ -30,7 +33,7 @@ assert.strictEqual(lotLabel.company, 'Dank Mushrooms');
 assert.strictEqual(lotLabel.title, 'Fruiting Block');
 assert.strictEqual(lotLabel.subtitle, '8.5 lb • Chestnut Fungaia');
 assert.strictEqual(lotLabel.footer, 'Lot: LOT-260805-9c70');
-assert.strictEqual(lotLabel.qr, 'https://example.invalid/lots/LOT-260805-9c70');
+assert.strictEqual(lotLabel.qr, 'https://qr.example.invalid/r?i=LOT-260805-9c70');
 assert(lotLabel.extras.includes('Grain: Wild Bird Seed 2026-08-05'));
 assert(lotLabel.extras.includes('Substrate: Sterilized Masters Mix 75/25'));
 assert(hasRenderableLabelText(lotLabel));
@@ -55,7 +58,7 @@ assert.strictEqual(detectItemCategory(productRecord), 'grain');
 const productLabel = gatherFields(productRecord);
 assert.strictEqual(productLabel.title, 'Wild Bird Seed Grain');
 assert.strictEqual(productLabel.subtitle, '2 lb • Sterilized');
-assert.strictEqual(productLabel.qr, 'https://example.invalid/products/PROD-260806-test');
+assert.strictEqual(productLabel.qr, 'https://qr.example.invalid/r?i=PROD-260806-test');
 assert(productLabel.extras.includes('Packaged: 2026-08-06'));
 assert(productLabel.extras.includes('Use by: 2026-11-04'));
 assert(hasRenderableLabelText(productLabel));
@@ -86,7 +89,7 @@ assert.strictEqual(postgresArrayProductLabel.subtitle, '349.7 g • Blue Oyster'
 assert.strictEqual(postgresArrayProductLabel.footer, 'PROD-260114-ZbzO');
 assert.strictEqual(
   postgresArrayProductLabel.qr,
-  'https://example.invalid/products/PROD-260114-ZbzO'
+  'https://qr.example.invalid/r?i=PROD-260114-ZbzO'
 );
 assert(postgresArrayProductLabel.extras.includes('Spawned: 2025-11-13'));
 assert(postgresArrayProductLabel.extras.includes('Packaged: 2026-01-13'));
@@ -215,7 +218,7 @@ assert.deepStrictEqual(sheetLot, {
   recipeName: 'Masters Mix 75/25',
   unit: '7.5',
   status: 'Sterilized',
-  qrUrl: 'https://example.invalid/lots/LOT-260716-F4ex',
+  qrUrl: 'https://qr.example.invalid/r?i=LOT-260716-F4ex',
 });
 
 const daemonSource = fs.readFileSync(
