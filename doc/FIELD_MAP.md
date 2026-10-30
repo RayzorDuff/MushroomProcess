@@ -482,3 +482,8 @@ provider/site/order/event/line/payment identities and operational reservations.
 They do not rename legacy fields or replace Product/Lot lineage. See
 `integrations/commerce/order-ledger.md` for privileges, conservative inventory
 semantics, fulfillment acknowledgment, compatibility limits and deployment gates.
+
+Migration 054 adds `mp_commerce_erp_links`, `mp_commerce_shipments`,
+`mp_commerce_shipped_products` and `mp_commerce_orders.reservation_confirmed`.
+They map external/ERP identity and acknowledged physical Product shipments without
+replacing Product/Lot lineage. See integrations/commerce/order-ledger.md.

@@ -1,0 +1,16 @@
+{
+  "evidence_kind":"static_export_contract_only",
+  "browser_gate":"SignatureGate #27 real-Appsmith POC must pass before MushroomProcess #109 implementation",
+  "future_test_database":"mushroomprocess_e2e",
+  "future_app_name":"MushroomProcess E2E",
+  "production_targets_forbidden":["mushroomprocess","mushroomprocess_test"],
+  "journeys":[
+    {"name":"Lot creation","required_pages":["Lots"],"browser_status":"not_executed"},
+    {"name":"Inoculation","required_pages":["Lab - Inoculate"],"browser_status":"not_executed"},
+    {"name":"Spawn to Bulk","required_pages":["Lab - Spawn to Bulk"],"browser_status":"not_executed"},
+    {"name":"Harvest","required_pages":["Harvest"],"browser_status":"not_executed"},
+    {"name":"Product return","required_pages":["Products","Lots"],"browser_status":"not_executed"},
+    {"name":"Catalog mapping","required_pages":[],"browser_status":"blocked","blocker":"Catalog administration UI remains #80 work"},
+    {"name":"Fulfillment and reservation states","required_pages":["Fulfillment"],"browser_status":"blocked","blocker":"New ledger integration is not yet exposed end-to-end in the current UI"}
+  ]
+}

@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
