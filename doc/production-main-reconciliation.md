@@ -27,6 +27,12 @@ The production computed-view baseline had a duplicated/dangling
 keeping the same field once and producing valid SQL. Migration 031's exact-view
 fingerprint guards remain in force; no catch-all bypass is added.
 
+Combined native tests also exposed that production migration 047 replaced the
+Spawn-to-Bulk wrapper without retaining the America/Denver timezone pinned by
+045. Keep that function configuration in 047 for fresh installs and provide
+additive migration 053 to restore it on an already migrated database. The existing
+045 regression asserts the contract. No live migration is run by this merge.
+
 Appsmith tests formerly requiring deleted Lots-page workflow queries now assert
 the canonical dedicated station pages and absence of the removed duplicates.
 The NocoDB label-alias test now expects the existing stable QR resolver, rather

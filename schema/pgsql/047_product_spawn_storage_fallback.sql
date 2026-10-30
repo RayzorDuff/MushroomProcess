@@ -23,6 +23,7 @@ CREATE OR REPLACE FUNCTION public.mp_spawn_to_bulk_with_products(
 )
 RETURNS integer
 LANGUAGE plpgsql
+SET TimeZone TO 'America/Denver'
 AS $$
 DECLARE
   v_ts timestamp without time zone := COALESCE(p_override_spawn_time, p_timestamp, now());
