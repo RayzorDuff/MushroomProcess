@@ -27,7 +27,7 @@
       ],
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT * FROM public.mp_ecommerce_catalog_inventory();",
+        "query": "SELECT c.ecommerce_id, c.erp_item_code, c.ecommerce_name, c.ecommerce_status, c.item_id, c.strain_id, c.provider, c.site_key, c.external_sku, c.upc, c.external_product_id, c.external_variation_id, c.available_from_products, c.available_from_lots, c.desired_quantity AS gross_quantity, r.available_quantity AS desired_quantity FROM public.mp_ecommerce_catalog_inventory() c JOIN public.mp_commerce_inventory() r USING (ecommerce_id);",
         "options": {}
       }
     },

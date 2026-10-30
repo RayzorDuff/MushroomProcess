@@ -39,9 +39,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/051*; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/051* schema/pgsql/tests/052*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
+      - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
       - run: node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
       - run: node n8n/tests/ecwid_order_updated_pgsql_smoke.js
       - run: node n8n/tests/fulfillment_order_visibility_smoke.js

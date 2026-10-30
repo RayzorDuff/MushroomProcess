@@ -473,3 +473,12 @@ This document maps all tables and their fields as defined in the current Airtabl
 | notes                        | long text     |
 | lot_component_display        | formula       |
 ---
+
+## Commerce order admission (migration 052)
+
+New additive `mp_commerce_orders`, `mp_commerce_events`,
+`mp_commerce_reservations`, and `mp_commerce_payment_matches` tables hold scoped
+provider/site/order/event/line/payment identities and operational reservations.
+They do not rename legacy fields or replace Product/Lot lineage. See
+`integrations/commerce/order-ledger.md` for privileges, conservative inventory
+semantics, fulfillment acknowledgment, compatibility limits and deployment gates.
