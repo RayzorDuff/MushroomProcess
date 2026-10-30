@@ -87,3 +87,7 @@ audited operational return; no endpoint auto-creates inventory from a refund.
 `mp_commerce_link_erp(jsonb)` retains source→ERP identities uniquely and refuses drift.
 Only a trusted ERP verification worker may call it; names alone are not proof of
 accounting or merchant capture. No grants/active workflows are installed.
+
+Product acknowledgments also refuse either legacy ecommerce order-link shape.
+Existing assignments need explicit reconciliation before use by the new ledger;
+they cannot be claimed merely because a package matches Item/Strain and is Shipped.

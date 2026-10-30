@@ -2,7 +2,7 @@
 BEGIN;
 DO $$
 DECLARE i bigint;loc bigint;shipped bigint;e bigint;product_a bigint;product_b bigint;
- p jsonb;ack jsonb;result text;q bigint;
+ p jsonb;ack jsonb;result text;q bigint;legacy_order bigint;
 BEGIN
  INSERT INTO items(item_id,name,category,active) VALUES('BRIDGE-054','Synthetic bridge','grain',true) RETURNING nocopk INTO i;
  INSERT INTO locations(name,active,type) VALUES('Bridge storage',true,'Storage') RETURNING nocopk INTO loc;
@@ -27,6 +27,12 @@ BEGIN
  UPDATE products SET storage_location_id=shipped WHERE nocopk=product_a;
  IF mp_commerce_acknowledge_products('woocommerce','bridge-054','54','move-54',ack)<>'partial' THEN RAISE EXCEPTION 'Expected partial'; END IF;
  IF mp_commerce_acknowledge_products('woocommerce','bridge-054','54','move-54',ack)<>'duplicate' THEN RAISE EXCEPTION 'Expected duplicate'; END IF;
+ INSERT INTO ecommerce_orders(name) VALUES('Synthetic legacy allocation') RETURNING nocopk INTO legacy_order;
+ INSERT INTO _m2m_products_ecommerce_orders_ecommerce_orders(products_id,ecommerce_orders_id) VALUES(product_b,legacy_order);
+ BEGIN PERFORM mp_commerce_acknowledge_products('woocommerce','bridge-054','54','legacy-reuse',jsonb_build_array(jsonb_build_object('line_id','1','product_ids',jsonb_build_array(product_b)))); RAISE EXCEPTION 'Expected legacy allocation refusal';
+ EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'Legacy allocation requires%' THEN RAISE; END IF; END;
+ DELETE FROM _m2m_products_ecommerce_orders_ecommerce_orders WHERE products_id=product_b AND ecommerce_orders_id=legacy_order;
+ DELETE FROM _m2m_ecommerce_orders_products_products WHERE products_id=product_b AND ecommerce_orders_id=legacy_order;
  PERFORM mp_commerce_ingest(p||'{"event_id":"refresh","revision":2}'::jsonb);
  SELECT sum(quantity) INTO q FROM mp_commerce_reservations WHERE site_key='bridge-054';
  IF q<>1 THEN RAISE EXCEPTION 'Refresh reinstated shipped quantity'; END IF;

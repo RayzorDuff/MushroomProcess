@@ -70,6 +70,10 @@ BEGIN
    line_count=jsonb_array_length(line->'product_ids');
    IF line_count>held THEN RAISE EXCEPTION 'Shipment exceeds reserved line'; END IF;
    FOR pid IN SELECT value FROM jsonb_array_elements(line->'product_ids') LOOP
+     IF EXISTS(SELECT 1 FROM public._m2m_products_ecommerce_orders_ecommerce_orders WHERE products_id=(pid#>>'{}')::bigint)
+        OR EXISTS(SELECT 1 FROM public._m2m_ecommerce_orders_products_products WHERE products_id=(pid#>>'{}')::bigint) THEN
+       RAISE EXCEPTION 'Legacy allocation requires explicit reconciliation';
+     END IF;
      SELECT p.item_id,p.strain_id,l.name AS location,e.item_id AS expected_item,e.strain_id AS expected_strain INTO STRICT inventory
        FROM public.products p JOIN public.locations l ON l.nocopk=p.storage_location_id
        JOIN public.mp_commerce_reservations r ON r.provider=p_provider AND r.site_key=p_site AND r.external_order_id=p_order AND r.line_id=line->>'line_id'
