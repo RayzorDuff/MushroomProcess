@@ -6,7 +6,7 @@ git clone https://github.com/RayzorDuff/MushroomProcess.git
 
 ## Branching
 - **main**: stable, reviewed scripts (deploy-ready).
-- **production**: scripts currently deployed in Airtable (source of truth for behavior).
+- **production**: the current deployed operational codebase (PostgreSQL, Appsmith, n8n, print tooling and retained Airtable compatibility).
 - **feature/***: proposals or updates; open PRs into **main**.
 
 ## Workflow
@@ -79,4 +79,4 @@ The `main` ruleset is intended to block branch deletion and force pushes, with a
 
 ## MushroomProcess production branch policy
 
-The rules above apply to `main`. The `production` branch represents deployed Airtable behavior and requires a deliberate promotion step: make implementation changes on a topic branch from `main`, submit substantial/high-risk changes through a PR into `main`, and only then cherry-pick or promote reviewed changes into `production` when they are ready to deploy. The repository owner controls final PR merges and production promotion. Do not make feature/deployment changes directly on `production`; narrowly scoped emergency corrections require clear documentation and subsequent reconciliation to `main`. These documentation edits are intentionally made to both branches to keep the policies synchronized.
+The rules above apply to `main`. The `production` branch represents the current deployed operational codebase and requires a deliberate promotion step: make implementation changes on a topic branch from `main`, submit substantial/high-risk changes through a PR into `main`, and only then cherry-pick or promote reviewed changes into `production` when they are ready to deploy. The repository owner controls final PR merges and production promotion. Do not make feature/deployment changes directly on `production`; narrowly scoped emergency corrections require clear documentation and subsequent reconciliation to `main`. Before starting new work, compare `main` with `production`. If production contains unreconciled operational fixes, reconcile production back into main through a reviewed merge PR first, preserving newer reviewed main features. Do not replace production files with an older main snapshot. Git reconciliation does not itself deploy services or apply database migrations.

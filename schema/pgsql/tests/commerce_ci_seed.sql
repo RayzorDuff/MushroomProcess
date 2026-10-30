@@ -19,6 +19,8 @@ INSERT INTO public.items(item_id,name,category,active) VALUES
  ('LC-SYRINGE','Synthetic LC syringe','lc_syringe',true),
  ('LC-FLASK','Synthetic LC flask','lc_flask',true),
  ('TRAY-FREEZE','Synthetic freezer tray','freezer_tray',true),
+ ('FB-CVG-BAG','Synthetic CVG block','fruiting_block',true),
+ ('FB-GENERIC','Synthetic generic block','fruiting_block',true),
  ('FB-COCO-LG','Synthetic large CVG block','fruiting_block',true),
  ('FB-COCO-SM','Synthetic small CVG block','fruiting_block',true),
  ('FB-MM75-LG','Synthetic large block 75','fruiting_block',true),
