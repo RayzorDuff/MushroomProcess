@@ -44424,7 +44424,7 @@
         },
         "headers": [],
         "queryParameters": [],
-        "url": "https://n8n.danks.store/webhook"
+        "url": "http://n8n:5678/webhook"
       },
       "deleted": false,
       "gitSyncId": "bdgwnnm4cb98mizdaic40bxt",
