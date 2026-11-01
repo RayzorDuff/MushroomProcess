@@ -1,9 +1,9 @@
 name: Commerce PostgreSQL clean rebuild
 on:
   push:
-    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
+    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/tests/**', 'n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
   pull_request:
-    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
+    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/tests/**', 'n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
 permissions:
   contents: read
 jobs:

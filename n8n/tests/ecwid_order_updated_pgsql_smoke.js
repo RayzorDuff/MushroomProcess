@@ -78,6 +78,42 @@ const unchanged = validate({
 })[0].json;
 assert(unchanged.shouldProcess === false, 'Unchanged awaiting-payment update was processed');
 
+// Regression: paid-at-creation must not depend on an earlier unpaid webhook.
+const cases = [
+  ['order.created', null, 'PAID', true],
+  ['order.created', null, 'AWAITING_PAYMENT', true],
+  ['order.updated', 'AWAITING_PAYMENT', 'PAID', true],
+  ['order.updated', 'PAID', 'AWAITING_PAYMENT', true],
+  ['order.updated', 'PAID', 'PAID', false],
+  ['order.updated', 'AWAITING_PAYMENT', 'AWAITING_PAYMENT', false],
+  ['order.created', null, 'CANCELLED', false],
+  ['order.deleted', 'AWAITING_PAYMENT', 'PAID', false],
+];
+for (const [eventType, oldPaymentStatus, newPaymentStatus, expected] of cases) {
+  const event = {
+    eventId: 'synthetic-paid-regression',
+    eventCreated: 1793404800,
+    storeId: 123,
+    eventType,
+    entityId: 900002,
+    data: { orderId: 'SYNTHETIC-PAID', oldPaymentStatus, newPaymentStatus },
+  };
+  const result = validate({ body: event })[0].json;
+  assert(result.shouldProcess === expected, `Incorrect intake: ${JSON.stringify(event.data)}`);
+  assert(result.ecwid_entity_id === '900002', 'Numeric source identity changed');
+  assert(result.order_code === 'SYNTHETIC-PAID', 'Display order code changed');
+  assert(result.eventId === event.eventId, 'Retry source identity changed');
+  assert(
+    JSON.stringify(result) === JSON.stringify(validate({ body: event })[0].json),
+    'Repeated delivery changed normalized event',
+  );
+}
+assert(
+  validate({ body: { eventType: 'order.created', data: { newPaymentStatus: 'PAID' } } })[0]
+    .json.shouldProcess === false,
+  'Paid event without source order ID was accepted',
+);
+
 const mapCode = node('Code - Map Ecwid Order to PostgreSQL Fields').parameters.jsCode;
 const map = new Function('$json', '$', mapCode);
 const mapped = map(
@@ -115,6 +151,26 @@ assert(mapped.external_order_id === '900001', 'Provider-neutral external order I
 assert(mapped.external_skus === 'SKU-1, SKU-2', 'Provider-neutral SKU aliases missing');
 assert(mapped.clover_reconciliation_status === 'pending', 'New order reconciliation was not reset to pending');
 assert(mapped.ecwid_event_id === 'evt-created', 'Webhook event ID was not preserved');
+
+const paidCreated = validate({
+  body: {
+    eventId: 'synthetic-paid-created',
+    entityId: 900002,
+    eventType: 'order.created',
+    data: { orderId: 'SYNTHETIC-PAID', newPaymentStatus: 'PAID' },
+  },
+})[0].json;
+const paidMapped = map(
+  { id: 900002, orderNumber: 'SYNTHETIC-PAID', paymentStatus: 'PAID', items: [] },
+  () => ({ first: () => ({ json: paidCreated }) }),
+)[0].json;
+assert(paidMapped.payment_status === 'PAID', 'Initial paid state was dropped by mapping');
+assert(paidMapped.external_order_id === '900002', 'Paid source identity was lost');
+assert(paidMapped.ecwid_event_id === 'synthetic-paid-created', 'Paid event ID was lost');
+assert(
+  paidMapped.clover_reconciliation_status === 'pending',
+  'Paid storefront event must not assert independent Clover reconciliation',
+);
 
 const encodeCode = node('Code - Encode PostgreSQL Payload').parameters.jsCode;
 const encode = new Function('$json', 'Buffer', encodeCode);
