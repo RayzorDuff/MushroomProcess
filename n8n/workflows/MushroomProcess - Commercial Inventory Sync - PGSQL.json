@@ -635,6 +635,40 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const src=$('Code - Verify Woo Ownership and Draft').item.json;\nif($json.id!==src.woo_id || $json.sku!==src.woo_sku ||\n $json.stock_quantity!==src.desired_quantity || $json.status!=='draft' ||\n $json.catalog_visibility!=='hidden' || $json.manage_stock!==true)\n throw new Error('Woo stock read-back mismatch');\nreturn {json:{ecommerce_id:src.ecommerce_id,woo_id:src.woo_id,\n available_quantity:src.desired_quantity,status:'updated'}};"
       }
+    },
+    {
+      "id": "70000000-0000-4000-8000-000000000101",
+      "name": "IF - Reservation Snapshot Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "reservation-snapshot-enabled",
+              "leftValue": "={{ String($env.MP_SYNC_SNAPSHOT_ENABLED || 'false').toLowerCase() === 'true' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
     }
   ],
   "pinData": {},
@@ -648,7 +682,7 @@
             "index": 0
           },
           {
-            "node": "PGSQL - Read Reservation-adjusted MP Inventory",
+            "node": "IF - Reservation Snapshot Enabled?",
             "type": "main",
             "index": 0
           }
@@ -913,6 +947,17 @@
             "type": "main",
             "index": 0
           },
+          {
+            "node": "IF - Reservation Snapshot Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Reservation Snapshot Enabled?": {
+      "main": [
+        [
           {
             "node": "PGSQL - Read Reservation-adjusted MP Inventory",
             "type": "main",
