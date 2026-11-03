@@ -21,6 +21,7 @@ const woo = byName('IF - Woo Inventory Enabled?').parameters.conditions.conditio
 assert(ecwid.includes("|| 'true'"),'Ecwid must be default enabled');
 assert(erp.includes("|| 'false'"),'ERP must be default disabled');
 assert(woo.includes("|| 'false'"),'Woo must be default disabled');
+assert(byName('IF - Reservation Snapshot Enabled?').parameters.conditions.conditions[0].leftValue.includes("|| 'false'"), 'Snapshot must be default disabled');
 assert(byName('PGSQL - Read Reservation-adjusted MP Inventory').parameters.query.includes('mp_commerce_inventory()'));
 assert(byName('PGSQL - Read Reservation-adjusted MP Inventory').parameters.query.includes('mp_ecommerce_catalog_inventory()'));
 assert(byName('HTTP - Update ERP Operational Availability').parameters.url.includes('inventory_api.update_availability'));
@@ -35,8 +36,9 @@ assert(byName('Code - Verify Woo Stock Response').parameters.jsCode.includes('st
 for(const name of ['Manual Trigger','Schedule - Hourly Commercial Inventory Sync']) {
   const targets=(flow.connections[name]?.main||[]).flat().map(v=>v.node);
   assert(targets.includes('IF - Ecwid Provider Enabled?'));
-  assert(targets.includes('PGSQL - Read Reservation-adjusted MP Inventory'));
+  assert(targets.includes('IF - Reservation Snapshot Enabled?'));
 }
+assert.deepStrictEqual(flow.connections['IF - Reservation Snapshot Enabled?'].main[0].map(x=>x.node), ['PGSQL - Read Reservation-adjusted MP Inventory']);
 assert.deepStrictEqual(flow.connections['IF - Ecwid Provider Enabled?'].main[0].map(x=>x.node),
  ['PGSQL - Load Ecwid Catalog Sync Candidates']);
 for(const node of flow.nodes.filter(n=>n.type==='n8n-nodes-base.code')) {
