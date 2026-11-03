@@ -35,9 +35,14 @@ assert(byName('Code - Verify Woo Ownership and Draft').parameters.jsCode.include
 assert(byName('Code - Verify Woo Stock Response').parameters.jsCode.includes('stock_quantity'));
 for(const name of ['Manual Trigger','Schedule - Hourly Commercial Inventory Sync']) {
   const targets=(flow.connections[name]?.main||[]).flat().map(v=>v.node);
-  assert(targets.includes('IF - Ecwid Provider Enabled?'));
-  assert(targets.includes('IF - Reservation Snapshot Enabled?'));
+  assert.deepStrictEqual(targets,['Code - Validate Provider Configuration']);
 }
+const preflight=byName('Code - Validate Provider Configuration').parameters.jsCode;
+assert(preflight.includes('MP_SYNC_SNAPSHOT_ENABLED'));
+assert(preflight.includes('MP_SYNC_ERP_AUTHORIZATION'));
+assert(preflight.includes('MP_SYNC_WOO_AUTHORIZATION'));
+assert.deepStrictEqual(flow.connections['Code - Validate Provider Configuration'].main[0].map(v=>v.node),
+ ['IF - Ecwid Provider Enabled?','IF - Reservation Snapshot Enabled?']);
 assert.deepStrictEqual(flow.connections['IF - Reservation Snapshot Enabled?'].main[0].map(x=>x.node), ['PGSQL - Read Reservation-adjusted MP Inventory']);
 assert.deepStrictEqual(flow.connections['IF - Ecwid Provider Enabled?'].main[0].map(x=>x.node),
  ['PGSQL - Load Ecwid Catalog Sync Candidates']);
