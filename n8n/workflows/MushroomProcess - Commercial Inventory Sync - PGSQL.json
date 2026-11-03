@@ -669,6 +669,20 @@
         },
         "options": {}
       }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000014",
+      "name": "Code - Validate Provider Configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        520
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const enabled = key => String($env[key] || 'false').toLowerCase() === 'true';\nconst erp = enabled('MP_SYNC_ERP_ENABLED');\nconst woo = enabled('MP_SYNC_WOO_ENABLED');\nconst snapshot = enabled('MP_SYNC_SNAPSHOT_ENABLED');\nif ((erp || woo) && !snapshot) throw new Error('Enable reservation snapshot before ERP/Woo providers');\nif ((erp || woo) && (!String($env.MP_SYNC_ERP_BASE_URL || '').trim() || !String($env.MP_SYNC_ERP_AUTHORIZATION || '').trim())) throw new Error('ERP endpoint/authorization is required');\nif (woo && (String($env.MP_SYNC_WOO_BASE_URL || '') !== 'https://shop-test.danks.store' || !String($env.MP_SYNC_WOO_AUTHORIZATION || '').trim())) throw new Error('Woo staging shop/authorization required');\nreturn {json: $json};"
+      }
     }
   ],
   "pinData": {},
@@ -677,12 +691,7 @@
       "main": [
         [
           {
-            "node": "IF - Ecwid Provider Enabled?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "IF - Reservation Snapshot Enabled?",
+            "node": "Code - Validate Provider Configuration",
             "type": "main",
             "index": 0
           }
@@ -943,12 +952,7 @@
       "main": [
         [
           {
-            "node": "IF - Ecwid Provider Enabled?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "IF - Reservation Snapshot Enabled?",
+            "node": "Code - Validate Provider Configuration",
             "type": "main",
             "index": 0
           }
@@ -960,6 +964,22 @@
         [
           {
             "node": "PGSQL - Read Reservation-adjusted MP Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validate Provider Configuration": {
+      "main": [
+        [
+          {
+            "node": "IF - Ecwid Provider Enabled?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF - Reservation Snapshot Enabled?",
             "type": "main",
             "index": 0
           }
