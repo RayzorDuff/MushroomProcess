@@ -1,7 +1,7 @@
 name: Commerce PostgreSQL clean rebuild
 on:
   push:
-    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/tests/**', 'n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
+    paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/tests/**', 'n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Inventory Sync - PGSQL.json', '.github/workflows/commerce-postgres.yml']
   pull_request:
     paths: ['schema/pgsql/**', 'integrations/commerce/**', 'n8n/tests/**', 'n8n/workflows/MushroomProcess - Ecwid Order Updated - PGSQL.json', 'n8n/workflows/MushroomProcess - Commercial Catalog Snapshot - PGSQL.json', '.github/workflows/commerce-postgres.yml']
 permissions:
@@ -49,6 +49,7 @@ jobs:
           done
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
       - run: node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
+      - run: node n8n/tests/commercial_inventory_sync_smoke.js
       - run: node n8n/tests/ecwid_order_updated_pgsql_smoke.js
       - run: node n8n/tests/fulfillment_order_visibility_smoke.js
 
