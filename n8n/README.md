@@ -27,7 +27,7 @@ n8n acts as:
 
 ### 1. Ecwid / PostgreSQL integration
 
-Production Ecwid integration now uses PostgreSQL-backed n8n workflows:
+Production Ecwid integration uses PostgreSQL-backed n8n workflows. A reviewed provider-neutral replacement is available but imports inactive:
 
 - `MushroomProcess - Ecwid Order Updated - PGSQL`
   - receives Ecwid order webhooks;
@@ -37,6 +37,11 @@ Production Ecwid integration now uses PostgreSQL-backed n8n workflows:
   - derives sellable Product/Lot inventory directly from PostgreSQL;
   - updates the matching Ecwid base Product or variation by exact SKU;
   - writes current Ecwid IDs, category, price, stock, public URL, and UPC back to `ecommerce`.
+- `MushroomProcess - Commercial Inventory Sync - PGSQL` (new, imports inactive):
+  - retains the exact Ecwid nodes and introduces a provider switch defaulting to Ecwid on;
+  - combines the reservation-adjusted commercial snapshot with separate default-off ERPNext and WooCommerce branches;
+  - ERP writes a non-ledger operational availability read model; Woo updates only reviewed hidden draft simple products on `shop-test.danks.store`;
+  - do not activate the old and new hourly workflows together. See RootedOps `doc/commerce-inventory-sync.md`.
 
 The scripts under `integrations/ecwid` remain as Airtable-era reference/compatibility utilities and should not be scheduled in the PostgreSQL production path.
 
