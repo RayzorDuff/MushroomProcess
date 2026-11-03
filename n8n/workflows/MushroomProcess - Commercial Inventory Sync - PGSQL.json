@@ -305,7 +305,7 @@
       ]
     },
     {
-      "id": "node-015-if-ecwid-provider-enabled-",
+      "id": "90000000-0000-4000-8000-000000000001",
       "name": "IF - Ecwid Provider Enabled?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -339,7 +339,7 @@
       }
     },
     {
-      "id": "node-016-pgsql-read-reservation-adjus",
+      "id": "90000000-0000-4000-8000-000000000002",
       "name": "PGSQL - Read Reservation-adjusted MP Inventory",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -360,7 +360,7 @@
       }
     },
     {
-      "id": "node-017-code-validate-mp-inventory-s",
+      "id": "90000000-0000-4000-8000-000000000003",
       "name": "Code - Validate MP Inventory Snapshot",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -374,7 +374,7 @@
       }
     },
     {
-      "id": "node-018-if-erp-availability-enabled-",
+      "id": "90000000-0000-4000-8000-000000000004",
       "name": "IF - ERP Availability Enabled?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -408,7 +408,7 @@
       }
     },
     {
-      "id": "node-019-http-update-erp-operational-",
+      "id": "90000000-0000-4000-8000-000000000005",
       "name": "HTTP - Update ERP Operational Availability",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -439,7 +439,7 @@
       }
     },
     {
-      "id": "node-020-if-woo-inventory-enabled-",
+      "id": "90000000-0000-4000-8000-000000000006",
       "name": "IF - Woo Inventory Enabled?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -473,7 +473,7 @@
       }
     },
     {
-      "id": "node-021-http-resolve-erp-woo-channel",
+      "id": "90000000-0000-4000-8000-000000000007",
       "name": "HTTP - Resolve ERP Woo Channel Mapping",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -506,7 +506,7 @@
       }
     },
     {
-      "id": "node-022-code-verify-reviewed-woo-map",
+      "id": "90000000-0000-4000-8000-000000000008",
       "name": "Code - Verify Reviewed Woo Mapping",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -520,7 +520,7 @@
       }
     },
     {
-      "id": "node-023-http-fetch-woo-stock-target",
+      "id": "90000000-0000-4000-8000-000000000009",
       "name": "HTTP - Fetch Woo Stock Target",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -544,7 +544,7 @@
       }
     },
     {
-      "id": "node-024-code-verify-woo-ownership-an",
+      "id": "90000000-0000-4000-8000-000000000010",
       "name": "Code - Verify Woo Ownership and Draft",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -558,7 +558,7 @@
       }
     },
     {
-      "id": "node-025-if-woo-quantity-changed-",
+      "id": "90000000-0000-4000-8000-000000000011",
       "name": "IF - Woo Quantity Changed?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -592,7 +592,7 @@
       }
     },
     {
-      "id": "node-026-http-update-woo-managed-stoc",
+      "id": "90000000-0000-4000-8000-000000000012",
       "name": "HTTP - Update Woo Managed Stock Only",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -623,7 +623,7 @@
       }
     },
     {
-      "id": "node-027-code-verify-woo-stock-respon",
+      "id": "90000000-0000-4000-8000-000000000013",
       "name": "Code - Verify Woo Stock Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
