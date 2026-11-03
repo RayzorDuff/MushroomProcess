@@ -1,0 +1,1001 @@
+{
+  "name": "MushroomProcess - Commercial Inventory Sync - PGSQL",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b0a1cc71-2cbd-4621-aa0d-1c679e4cfabc",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "bd1caedf-ed2a-4215-9a61-ebe89f5fdf11",
+      "name": "Schedule - Hourly Commercial Inventory Sync",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM public.mp_ecommerce_ecwid_catalog_sync_candidates();",
+        "options": {}
+      },
+      "id": "b57043b1-fa41-487a-8aa5-eb3db836a43b",
+      "name": "PGSQL - Load Ecwid Catalog Sync Candidates",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -800,
+        240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/products` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sku",
+              "value": "={{ $json.external_sku }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ee15b9f-593e-4fb2-9c96-ba40f5752694",
+      "name": "HTTP - Find Ecwid Product by SKU",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -560,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $('PGSQL - Load Ecwid Catalog Sync Candidates').item.json;\nconst response = $json || {};\nconst sku = String(row.external_sku || '').trim();\n\nif (response.error) {\n  return {\n    json: {\n      ...row,\n      ecwid_target_found: false,\n      should_update: false,\n      skip_reason: `Ecwid product lookup failed: ${response.error.message || response.error}`,\n    },\n  };\n}\n\nconst items = Array.isArray(response.items) ? response.items : [];\nlet product = null;\nlet variation = null;\n\nfor (const candidate of items) {\n  if (String(candidate?.sku || '').trim() === sku) {\n    product = candidate;\n    variation = null;\n    break;\n  }\n\n  const exactVariation = Array.isArray(candidate?.variations)\n    ? candidate.variations.find((entry) => String(entry?.sku || '').trim() === sku)\n    : null;\n\n  if (exactVariation) {\n    product = candidate;\n    variation = exactVariation;\n    break;\n  }\n}\n\nif (!product) {\n  return {\n    json: {\n      ...row,\n      ecwid_target_found: false,\n      should_update: false,\n      skip_reason: `No exact Ecwid product or variation found for SKU ${sku}`,\n      ecwid_search_result_count: items.length,\n    },\n  };\n}\n\nconst target = variation || product;\nconst ecwidUpcAttribute = Array.isArray(target?.attributes)\n  ? target.attributes.find((entry) => String(entry?.name || '').trim().toUpperCase() === 'UPC')\n  : null;\n\nconst targetUpc = String(ecwidUpcAttribute?.value || '').trim() || null;\nconst databaseUpc = String(row.upc || '').trim() || null;\nconst chosenUpc = databaseUpc || targetUpc || null;\nconst priceValue = Number(target?.price);\nconst categoryId = Array.isArray(product?.categoryIds) && product.categoryIds.length\n  ? String(product.categoryIds[0])\n  : null;\n\nreturn {\n  json: {\n    ...row,\n    ecwid_target_found: true,\n    should_update: true,\n    ecwid_product_id: product?.id != null ? String(product.id) : null,\n    ecwid_variation_id: variation?.id != null ? String(variation.id) : null,\n    ecwid_price: Number.isFinite(priceValue) ? priceValue : null,\n    ecwid_url: product?.url ? String(product.url) : null,\n    ecwid_category: categoryId,\n    ecwid_target_upc: targetUpc,\n    ecwid_upc: chosenUpc,\n    needs_upc_reservation: !chosenUpc,\n    needs_upc_write: Boolean(chosenUpc && !targetUpc),\n    upc_mismatch: Boolean(databaseUpc && targetUpc && databaseUpc !== targetUpc),\n    ecwid_search_result_count: items.length,\n  },\n};"
+      },
+      "id": "bc604c95-ff0f-4084-a66d-32dbc9bfc943",
+      "name": "Code - Resolve Ecwid SKU Target",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "0a4e74ac-f67a-4c33-89ce-571886312f1e",
+              "leftValue": "={{ $json.should_update === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b48685f4-6c56-473d-8221-cc6a09989fa8",
+      "name": "IF - Exact Ecwid SKU Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c64b7b90-825a-4966-a5d9-a82078a1fa7a",
+              "leftValue": "={{ $json.needs_upc_reservation === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f9344dc4-fa36-4c8f-888d-21fa8c5a4d42",
+      "name": "IF - Reserve UPC?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        160,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ `SELECT public.mp_ecommerce_reserve_upc(${Number($json.ecommerce_id)}) AS reserved_upc;` }}",
+        "options": {}
+      },
+      "id": "8a16a422-0724-48cb-8982-6a82824ae1f2",
+      "name": "PGSQL - Reserve UPC",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        400,
+        64
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $('Code - Resolve Ecwid SKU Target').item.json;\nconst reservedUpc = String($json.reserved_upc || '').trim();\n\nif (!reservedUpc) {\n  throw new Error(`PostgreSQL did not reserve a UPC for ecommerce row ${row.ecommerce_id}`);\n}\n\nreturn {\n  json: {\n    ...row,\n    ecwid_upc: reservedUpc,\n    needs_upc_reservation: false,\n    needs_upc_write: true,\n  },\n};"
+      },
+      "id": "de1d25b5-11e6-4e98-b66d-c174ea6cf3d6",
+      "name": "Code - Attach Reserved UPC",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const quantity = Math.max(0, Math.trunc(Number($json.desired_quantity || 0)));\nconst productId = String($json.ecwid_product_id || '').trim();\nconst variationId = String($json.ecwid_variation_id || '').trim();\n\nif (!productId) {\n  throw new Error(`Ecwid product id is missing for ecommerce row ${$json.ecommerce_id}`);\n}\n\nconst body = {\n  quantity,\n  unlimited: false,\n};\n\nif ($json.needs_upc_write && $json.ecwid_upc) {\n  body.attributes = [\n    {\n      name: 'UPC',\n      value: String($json.ecwid_upc),\n    },\n  ];\n}\n\nreturn {\n  json: {\n    ...$json,\n    desired_quantity: quantity,\n    update_url: variationId\n      ? `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/products/${productId}/combinations/${variationId}`\n      : `https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/products/${productId}`,\n    update_body: body,\n  },\n};"
+      },
+      "id": "7e7c2abb-6fca-4147-bb19-b054f105bc5d",
+      "name": "Code - Prepare Ecwid Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.update_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ `Bearer ${$env.ECWID_SECRET_TOKEN}` }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.update_body }}",
+        "options": {}
+      },
+      "id": "fbdca761-efa9-4487-adeb-d89c556835aa",
+      "name": "HTTP - Update Ecwid Quantity and UPC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $('Code - Prepare Ecwid Update').item.json;\n\nconst payload = {\n  ecommerce_id: row.ecommerce_id,\n  provider: 'ecwid',\n  site_key: row.site_key || 'dank_mushrooms',\n  external_sku: row.external_sku,\n  external_product_id: row.ecwid_product_id || null,\n  external_variation_id: row.ecwid_variation_id || null,\n  external_category: row.ecwid_category || null,\n  external_price: row.ecwid_price,\n  external_stock: row.desired_quantity,\n  public_url: row.ecwid_url || null,\n  upc: row.ecwid_upc || null,\n};\n\nreturn {\n  json: {\n    ecommerce_id: row.ecommerce_id,\n    external_sku: row.external_sku,\n    desired_quantity: row.desired_quantity,\n    upc_mismatch: row.upc_mismatch === true,\n    payload_base64: Buffer.from(JSON.stringify(payload), 'utf8').toString('base64'),\n  },\n};"
+      },
+      "id": "c22bd560-96c0-4d6c-ab1f-ba8d3002d1c8",
+      "name": "Code - Encode Catalog Writeback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ `SELECT *\nFROM public.mp_ecommerce_ecwid_catalog_sync_writeback(\n  convert_from(\n    decode('${String($json.payload_base64 || '').replace(/'/g, \"''\")}', 'base64'),\n    'UTF8'\n  )::jsonb\n);` }}",
+        "options": {}
+      },
+      "id": "38dcbe70-ef1c-4ba7-9983-4e82c5bff6a0",
+      "name": "PGSQL - Persist Ecwid Catalog Metadata",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1600,
+        176
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    sync_status: 'skipped',\n    ecommerce_id: $json.ecommerce_id,\n    external_sku: $json.external_sku,\n    reason: $json.skip_reason || 'Ecwid target not found',\n  },\n};"
+      },
+      "id": "b9f16c4f-97e9-4a80-a5f5-d2bbcd82da2c",
+      "name": "Code - Report Missing Ecwid SKU",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        400
+      ]
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000001",
+      "name": "IF - Ecwid Provider Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "if---ecwid-provider-enabled-",
+              "leftValue": "={{ !['false','0','off'].includes(String($env.MP_SYNC_ECWID_ENABLED || 'true').toLowerCase()) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000002",
+      "name": "PGSQL - Read Reservation-adjusted MP Inventory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -560,
+        720
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT c.ecommerce_id, c.erp_item_code, c.provider, c.site_key, c.external_sku, c.external_product_id, c.external_variation_id, c.available_from_products, c.available_from_lots, c.desired_quantity AS gross_quantity, r.available_quantity AS desired_quantity FROM public.mp_ecommerce_catalog_inventory() c JOIN public.mp_commerce_inventory() r USING (ecommerce_id) ORDER BY c.ecommerce_id;",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000003",
+      "name": "Code - Validate MP Inventory Snapshot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        720
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $json;\nconst q = Number(row.desired_quantity);\nconst id = Number(row.ecommerce_id);\nif (!Number.isSafeInteger(id) || id <= 0 || !Number.isSafeInteger(q) || q < 0) throw new Error('Invalid MP ecommerce ID or inventory count');\nconst code = String(row.erp_item_code || '').trim();\nconst provider = String(row.provider || '').trim().toLowerCase();\nconst site = String(row.site_key || '').trim();\nif (!provider || !site) throw new Error('Missing MP provider/site identity');\nreturn {json:{...row,desired_quantity:q,ecommerce_id:id,\n  observed_at: new Date().toISOString(),\n  inventory_authority:'mushroomprocess',\n  mapping_valid:Boolean(code && String(row.external_sku || '').trim()),\n  erp_payload:{erp_item_code:code,ecommerce_id:id,desired_quantity:q,\n    observed_at:new Date().toISOString(),provider,site_key:site}\n}};"
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000004",
+      "name": "IF - ERP Availability Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        560
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "if---erp-availability-enabled-",
+              "leftValue": "={{ String($env.MP_SYNC_ERP_ENABLED || 'false').toLowerCase() === 'true' && $json.mapping_valid === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000005",
+      "name": "HTTP - Update ERP Operational Availability",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        160,
+        560
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `${$env.MP_SYNC_ERP_BASE_URL}/api/method/rootedops_commerce.inventory_api.update_availability` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $env.MP_SYNC_ERP_AUTHORIZATION }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {payload: $json.erp_payload} }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000006",
+      "name": "IF - Woo Inventory Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        880
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "if---woo-inventory-enabled-",
+              "leftValue": "={{ String($env.MP_SYNC_WOO_ENABLED || 'false').toLowerCase() === 'true' && $json.mapping_valid === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000007",
+      "name": "HTTP - Resolve ERP Woo Channel Mapping",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        160,
+        880
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ `${$env.MP_SYNC_ERP_BASE_URL}/api/method/rootedops_commerce.api.catalog` }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "item",
+              "value": "={{ $json.erp_item_code }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $env.MP_SYNC_ERP_AUTHORIZATION }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000008",
+      "name": "Code - Verify Reviewed Woo Mapping",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        880
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const source = $('Code - Validate MP Inventory Snapshot').item.json;\nconst cat = $json.message || {};\nconst item = String(source.erp_item_code || '');\nif(cat.item?.item_code !== item || cat.item?.disabled) throw new Error('ERP Item identity/disabled mismatch');\nconst base = String($env.MP_SYNC_WOO_BASE_URL || '');\nif(base !== 'https://shop-test.danks.store') throw new Error('Woo sync restricted to exact staging shop');\nconst mappings = (cat.mappings || []).filter(m =>\n  String(m.provider).toLowerCase()==='woocommerce' &&\n  String(m.site_key)==='shop-test.danks.store' &&\n  String(m.mushroomprocess_ecommerce_id)===String(source.ecommerce_id) &&\n  String(m.external_sku)===String(source.external_sku) &&\n  (m.sync_enabled===1 || m.sync_enabled===true));\nif(mappings.length !== 1) throw new Error('Exact approved Woo mapping absent/ambiguous');\nconst m = mappings[0];\nif(String(m.external_variation_id || '') !== '') throw new Error('Variation stock is not enabled by this first adapter');\nif(!/^[1-9][0-9]*$/.test(String(m.external_product_id))) throw new Error('Invalid Woo product ID');\nif(cat.content?.publication_status !== 'Draft') throw new Error('Only draft staging content may be updated');\nreturn {json:{...source,woo_id:Number(m.external_product_id),woo_url:base,\n  woo_sku:String(m.external_sku),source_key:String(cat.content.source_key || '')}};"
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000009",
+      "name": "HTTP - Fetch Woo Stock Target",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        640,
+        880
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ `${$json.woo_url}/wp-json/wc/v3/products/${$json.woo_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $env.MP_SYNC_WOO_AUTHORIZATION }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000010",
+      "name": "Code - Verify Woo Ownership and Draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        880
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $('Code - Verify Reviewed Woo Mapping').item.json;\nconst product = $json || {};\nconst meta=(product.meta_data||[]).filter(m=>m.key==='_rootedops_source_key');\nif(product.id!==src.woo_id || product.sku!==src.woo_sku ||\n product.type!=='simple' || product.status!=='draft' ||\n product.catalog_visibility!=='hidden' || product.manage_stock!==true ||\n meta.length!==1 || meta[0].value!==src.source_key)\n throw new Error('Woo product identity, ownership, visibility or managed-stock mismatch');\nreturn {json:{...src,previous_quantity:product.stock_quantity,\n  should_write:product.stock_quantity!==src.desired_quantity}};"
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000011",
+      "name": "IF - Woo Quantity Changed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        880
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "if---woo-quantity-changed-",
+              "leftValue": "={{ $json.should_write === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000012",
+      "name": "HTTP - Update Woo Managed Stock Only",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1360,
+        880
+      ],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ `${$json.woo_url}/wp-json/wc/v3/products/${$json.woo_id}` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $env.MP_SYNC_WOO_AUTHORIZATION }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {stock_quantity: $json.desired_quantity} }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000013",
+      "name": "Code - Verify Woo Stock Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        880
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src=$('Code - Verify Woo Ownership and Draft').item.json;\nif($json.id!==src.woo_id || $json.sku!==src.woo_sku ||\n $json.stock_quantity!==src.desired_quantity || $json.status!=='draft' ||\n $json.catalog_visibility!=='hidden' || $json.manage_stock!==true)\n throw new Error('Woo stock read-back mismatch');\nreturn {json:{ecommerce_id:src.ecommerce_id,woo_id:src.woo_id,\n available_quantity:src.desired_quantity,status:'updated'}};"
+      }
+    },
+    {
+      "id": "70000000-0000-4000-8000-000000000101",
+      "name": "IF - Reservation Snapshot Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "reservation-snapshot-enabled",
+              "leftValue": "={{ String($env.MP_SYNC_SNAPSHOT_ENABLED || 'false').toLowerCase() === 'true' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "90000000-0000-4000-8000-000000000014",
+      "name": "Code - Validate Provider Configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        520
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const enabled = key => String($env[key] || 'false').toLowerCase() === 'true';\nconst erp = enabled('MP_SYNC_ERP_ENABLED');\nconst woo = enabled('MP_SYNC_WOO_ENABLED');\nconst snapshot = enabled('MP_SYNC_SNAPSHOT_ENABLED');\nif ((erp || woo) && !snapshot) throw new Error('Enable reservation snapshot before ERP/Woo providers');\nif ((erp || woo) && (!String($env.MP_SYNC_ERP_BASE_URL || '').trim() || !String($env.MP_SYNC_ERP_AUTHORIZATION || '').trim())) throw new Error('ERP endpoint/authorization is required');\nif (woo && (String($env.MP_SYNC_WOO_BASE_URL || '') !== 'https://shop-test.danks.store' || !String($env.MP_SYNC_WOO_AUTHORIZATION || '').trim())) throw new Error('Woo staging shop/authorization required');\nreturn {json: $json};"
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code - Validate Provider Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Load Ecwid Catalog Sync Candidates": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Find Ecwid Product by SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Find Ecwid Product by SKU": {
+      "main": [
+        [
+          {
+            "node": "Code - Resolve Ecwid SKU Target",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Resolve Ecwid SKU Target": {
+      "main": [
+        [
+          {
+            "node": "IF - Exact Ecwid SKU Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Exact Ecwid SKU Found?": {
+      "main": [
+        [
+          {
+            "node": "IF - Reserve UPC?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Report Missing Ecwid SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Reserve UPC?": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Reserve UPC",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Prepare Ecwid Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Reserve UPC": {
+      "main": [
+        [
+          {
+            "node": "Code - Attach Reserved UPC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Attach Reserved UPC": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare Ecwid Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare Ecwid Update": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Ecwid Quantity and UPC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Ecwid Quantity and UPC": {
+      "main": [
+        [
+          {
+            "node": "Code - Encode Catalog Writeback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Encode Catalog Writeback": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Persist Ecwid Catalog Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Ecwid Provider Enabled?": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Load Ecwid Catalog Sync Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Read Reservation-adjusted MP Inventory": {
+      "main": [
+        [
+          {
+            "node": "Code - Validate MP Inventory Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validate MP Inventory Snapshot": {
+      "main": [
+        [
+          {
+            "node": "IF - ERP Availability Enabled?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF - Woo Inventory Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - ERP Availability Enabled?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update ERP Operational Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Woo Inventory Enabled?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Resolve ERP Woo Channel Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Resolve ERP Woo Channel Mapping": {
+      "main": [
+        [
+          {
+            "node": "Code - Verify Reviewed Woo Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Verify Reviewed Woo Mapping": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch Woo Stock Target",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Fetch Woo Stock Target": {
+      "main": [
+        [
+          {
+            "node": "Code - Verify Woo Ownership and Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Verify Woo Ownership and Draft": {
+      "main": [
+        [
+          {
+            "node": "IF - Woo Quantity Changed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Woo Quantity Changed?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Woo Managed Stock Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Woo Managed Stock Only": {
+      "main": [
+        [
+          {
+            "node": "Code - Verify Woo Stock Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule - Hourly Commercial Inventory Sync": {
+      "main": [
+        [
+          {
+            "node": "Code - Validate Provider Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Reservation Snapshot Enabled?": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Read Reservation-adjusted MP Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validate Provider Configuration": {
+      "main": [
+        [
+          {
+            "node": "IF - Ecwid Provider Enabled?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF - Reservation Snapshot Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6bb3c0a7-1d03-4e66-987a-afc55eb0b104",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80f6db60a29056f4b0d55bd1ef6e213f497428949062f982c496e7b46a37f624"
+  },
+  "tags": []
+}
