@@ -1,4 +1,4 @@
-# MushroomProcess (Airtable + PostgreSQL + Appsmith + n8n)
+# MushroomProcess (PostgreSQL + Appsmith + n8n)
 
 Current version: **1.2.0**.
 
@@ -246,7 +246,7 @@ _Airtable / PostgreSQL / Appsmith / n8n Inventory, Traceability & Labeling Syste
 
 This project implements a production-grade inventory, traceability, and label-printing system for a mushroom cultivation business.
 
-It started on **Airtable** and is being migrated to **Appsmith/PostgreSQL/n8n**, with NocoDB retained only where it remains useful for administrative data access, while keeping the same core model:
+The application runs on **PostgreSQL, Appsmith and n8n**, with optional NocoDB access for administration. The core model includes:
 
 - Items, recipes, strains
 - Locations & stations (sterilizer, inoculation, dark room, fruiting, harvest, packaging)
@@ -307,161 +307,13 @@ The system ties together:
 
 ---
 
-## How the System Hangs Together
+## Fresh installation
 
-At a high level:
-
-1. **Schema**  
-   - Start from an Airtable base (the current production base or a template).
-   - Export its schema using `airtable-export` into `_schema.json` and table data JSON.
-   - Use `schema` tools to:
-     - Recreate a clean Airtable base, or
-     - Generate the full NocoDB or Postgres schema from that same `_schema.json`.
-
-2. **Automations**  
-   - On Airtable: create one Automation per flow and paste the corresponding script from `airtable/automation/`.
-   - On PostgreSQL: Internal workflow automation is implemented by functions and triggers imported from `schema/pgsql/`.
-   - In n8n: External integrations and asynchronous workflows are imported from `n8n/workflows/`.
-
-3. **Interfaces / Views**  
-   - Airtable Interfaces are defined by the PDF and text files in `airtable/interfaces/`.
-   - The Appsmith application is imported from `appsmith/MushroomProcess.json`.
-   - Retained planning notes are stored under `appsmith/spec/`; the JSON export is the authoritative current implementation.
-
-4. **Print Queue & Daemon**  
-   - Workflows append rows to a `print_queue` table (in Airtable or NocoDB).
-   - The Node print daemon in `print-daemon/` watches that table and sends 4×2 labels to a thermal printer (e.g., JADENS JD268BT-CA).
-
-5. **Ecommerce Integration (optional)**  
-   - `integrations/ecwid/` keeps Ecwid SKUs and orders synced with your internal inventory, so staff can fulfill orders from the same system.
-
----
-
-## Prerequisites
-
-- **General**
-  - Node.js (LTS)
-  - Git
-  - A 4×2" compatible label printer (tested with JADENS JD268BT-CA)
-  - Windows machine for the print daemon (scripts are Windows-centric)
-
-- **Airtable path**
-  - Airtable account
-  - Personal Access Token with schema + data permissions
-
-- **NocoDB path (optional)**
-  - A running NocoDB instance (desktop, Docker, or server)
-  - Project created for this base (e.g. `mushroom_inventory`)
-  - NocoDB API token
-
----
-
-## Quick Start – Airtable Only
-
-If you only want Airtable (no NocoDB yet):
-
-1. **Create an Airtable base**  
-   - Create a new base for MushroomProcess.
-   - Optionally use `schema/` to reconstruct the schema from `_schema.json`.
-
-2. **Install Airtable Automations**  
-   - Follow [`airtable/automation/README.md`](airtable/automation/README.md) to:
-     - Add one Automation per script, typically triggered from a button that passes the current record ID.
-     - Paste each script into the Script action.
-     - Adjust field names if your base differs.
-
-3. **Create Interfaces**  
-   - Follow [`airtable/interfaces/README.md`](airtable/interfaces/README.md) and the `Mushroom Process_Interfaces.pdf` to recreate station interfaces.
-   - Ensure `ui_error` is visible in each interface so operators see validation failures.
-
-4. **Set Up the Print Daemon**  
-   - Follow [`print-daemon/README.md`](print-daemon/README.md) to configure `.env`, install Node dependencies, and run or service-wrap `print-daemon.js`.
-
-5. **(Optional) Ecwid Integration**  
-   - If you use Ecwid, configure `integrations/ecwid` to sync SKUs and orders.
-
----
-
-## Quick Start – NocoDB Migration
-
-Once you have an Airtable base and `_schema.json`:
-
-1. **Install NocoDB (Windows)**  
-   - Install Docker Desktop for Windows. 
-   - Open PowerShell or Command Prompt and navigate to your desired project directory.
-     Create a docker-compose.yml file.: 
-   ```bash
-    version: '3.8'
-
-    services:
-      nocodb:
-        image: nocodb/nocodb:latest
-        container_name: nocodb
-        ports:
-          - "8080:8080"
-        volumes:
-          - ./nocodb_data:/usr/app/data
-        environment:
-          NC_DB: "pg://postgres:5432?u=nocodb_user&p=nocodb_password&d=nocodb_db" # Connection string for PostgreSQL
-          NC_AUTH_JWT_SECRET: "your_strong_jwt_secret" # Replace with a strong secret
-        depends_on:
-          - postgres
-        restart: unless-stopped
-
-      postgres:
-        image: postgres:13
-        container_name: postgres_db
-        environment:
-          POSTGRES_DB: nocodb_db
-          POSTGRES_USER: nocodb_user
-          POSTGRES_PASSWORD: nocodb_password
-        volumes:
-          - ./postgres_data:/var/lib/postgresql/data
-        restart: unless-stopped
-   ```
-   - Launch docker
-   ```powershell
-      docker-compose up -d
-   ```
-   - Navigate to http://localhost:8080/
-   - Create a new project (e.g. `MushroomProcess`).
-   - Create an API token from your profile.
-
-2. **Set environment variables** (PowerShell example):
-
-   ```powershell
-   $env:NOCODB_URL          = "http://localhost:8080"
-   $env:NOCODB_BASE_ID      = "p_your_base_id_here"
-   $env:NOCODB_API_TOKEN    = "your_api_token_here"
-   $env:NOCODB_API_VERSION  = "v3"    # for current v2/v3 endpoints
-
-   # Optional helpers for relation scripts
-   $env:NOCODB_RECREATE_LINKS   = "true"
-   $env:NOCODB_RECREATE_ROLLUPS = "true"
-   $env:NOCODB_RECREATE_LOOKUPS = "true"
-   ```
-
-3. **Use `schema` to create the NocoDB schema**
-   - See [`schema/README.md`](schema/README.md) for:
-     - Directory layout (where `_schema.json` and data exports live).
-     - Running `create_nocodb_schema_full.js` for the retained NocoDB provisioning path.
-     - Running `compare_schemas.js` against `export/_schema.json` and `export/_schema_nocodb.json`.
-
-4. **Install PostgreSQL workflow functions**
-   - Import the ordered SQL modules under `schema/pgsql/`.
-   - Internal multi-row workflow behavior is implemented transactionally in PostgreSQL rather than in a separate NocoDB automation service.
-
-5. **Import the Appsmith application**
-   - Follow [`appsmith/README.md`](appsmith/README.md).
-   - Import `appsmith/MushroomProcess.json`.
-   - Use `scripts/pretty-json.mjs` when normalizing a newly exported Appsmith project.
-   - Treat `appsmith/spec/` as retained planning/reference material, not as the authoritative runtime definition.
-
-6. **Point the Print Daemon at NocoDB**  
-   - Update `.env` as described in `print-daemon/README.md` with NocoDB URL, token, and print_queue table ID.
-   - Restart the daemon. It will now pull jobs from NocoDB instead of Airtable.
-
----
+1. Start PostgreSQL 16, Appsmith and n8n. The [RootedOps fresh-host guide](https://github.com/RayzorDuff/RootedOps/blob/main/doc/fresh-host-recovery.md) describes an isolated test deployment of these services.
+2. Clone this repository and follow the [PostgreSQL installation](schema/pgsql/README.md#fresh-installation-without-operational-data) to initialize an empty MushroomProcess database.
+3. In Appsmith, follow the [application guide](appsmith/README.md) to import `appsmith/MushroomProcess.json`. Bind the PostgreSQL datasource to the database from step 2 and test the connection. Set up the initial operator using the email of the actual Appsmith login.
+4. Import the PostgreSQL workflows you need from `n8n/workflows/`. Create credentials for this installation and update the imported credential bindings and endpoint URLs. Keep workflows inactive until their credentials, destinations and triggers have been reviewed.
+5. If you use label printing, configure the optional [print daemon](print-daemon/README.md) for your queue and printer.
 
 ## Next Steps
 
