@@ -4,7 +4,49 @@ This directory contains the generated SQL used to rebuild the MushroomProcess br
 
 ---
 
-## Overview
+## Fresh installation without operational data
+
+Start the MushroomProcess PostgreSQL service and use an empty database owned by the
+installation role. The role must be able to create the `pgcrypto` extension.
+Run these commands from the MushroomProcess repository root with `psql` available
+on the client. For the isolated RootedOps deployment, run on the deployment host
+and use its loopback PostgreSQL port (5434 by default). Select the fresh database
+and role from `MP_BRIDGE_DB_NAME` and `MP_BRIDGE_DB_USER` in the generated deployment
+configuration. Supply the test password at the `psql` prompt or through a private
+`PGPASSFILE`.
+
+```bash
+export PGHOST=127.0.0.1 PGPORT=5434
+export PGDATABASE=mushroomprocess_test PGUSER=mushroomprocess_test
+(
+  set -euo pipefail
+  export LC_ALL=C
+  psql_cmd=(psql -X -v ON_ERROR_STOP=1)
+  existing=$("${psql_cmd[@]}" -Atc "SELECT to_regclass('public.lots') IS NOT NULL")
+  [[ "$existing" == f ]] || { echo 'MushroomProcess is already initialized' >&2; exit 1; }
+  for file in schema/pgsql/0*.sql; do
+    [[ "$file" == */022_personnel_reviews_seeds.sql ]] && continue
+    "${psql_cmd[@]}" -f "$file"
+  done
+  "${psql_cmd[@]}" -f schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
+)
+```
+
+Use `psql -f` from the repository checkout so the `\ir` in
+`051_extraction_batch_provenance.sql` resolves relative to that file. The `124_*`
+patch installs the current personnel review integration even when its historical
+backfill has no rows to process. If a file fails, inspect the first error and use a
+new empty database to retry the sequence.
+
+The clean install skips `022_personnel_reviews_seeds.sql`, `100_load.sql` and the
+Airtable CSVs. Create an initial operator for the actual Appsmith test account
+and add synthetic inventory lookups as needed. The
+[PostgreSQL CI workflow](../../.github/workflows/commerce-postgres.yml) shows
+how to run synthetic smoke tests on a disposable `commerce_test` database.
+
+## Historical rebuild or reload
+
+### Overview
 
 This process is used after:
 
