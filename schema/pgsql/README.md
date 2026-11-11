@@ -2,37 +2,41 @@
 
 ## Fresh installation without operational data
 
-Start the MushroomProcess PostgreSQL service and use an empty database owned by the
-installation role. The role must be able to create the `pgcrypto` extension.
-Run these commands from the MushroomProcess repository root with `psql` available
-on the client. For the isolated RootedOps deployment, run on the deployment host
-and use its loopback PostgreSQL port (5434 by default). Select the fresh database
-and role from `MP_BRIDGE_DB_NAME` and `MP_BRIDGE_DB_USER` in the generated deployment
-configuration. Supply the test password at the `psql` prompt or through a private
-`PGPASSFILE`.
+Start the MushroomProcess PostgreSQL service and use an empty database. The
+installation role must be able to create the `pgcrypto` extension. The commands
+below use the database and role configured on the isolated RootedOps container.
+They stream the SQL files into the container, so the database port can stay private.
+Run from the MushroomProcess checkout on the RootedOps host.
 
 ```bash
-export PGHOST=127.0.0.1 PGPORT=5434
-export PGDATABASE=mushroomprocess_test PGUSER=mushroomprocess_test
+deployment="$HOME/RootedOps/.test-deployment"
+core=(sudo docker compose --env-file "$deployment/.env" -f "$deployment/core.yml")
 (
   set -euo pipefail
+  cd schema/pgsql
+  tar -cf - -- 0*.sql 124_operator_identity_backfill_and_review_integration.sql
+) | "${core[@]}" exec -T mushroomprocess-bridge-postgres bash -c '
+  set -euo pipefail
   export LC_ALL=C
-  psql_cmd=(psql -X -v ON_ERROR_STOP=1)
-  existing=$("${psql_cmd[@]}" -Atc "SELECT to_regclass('public.lots') IS NOT NULL")
-  [[ "$existing" == f ]] || { echo 'MushroomProcess is already initialized' >&2; exit 1; }
-  for file in schema/pgsql/0*.sql; do
+  dir=$(mktemp -d)
+  trap "rm -rf -- \"$dir\"" EXIT
+  tar -xf - -C "$dir"
+  psql_cmd=(psql -X -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB")
+  existing=$("${psql_cmd[@]}" -Atc "SELECT to_regclass(\$\$public.lots\$\$) IS NOT NULL")
+  [[ "$existing" == f ]] || { echo "MushroomProcess is already initialized" >&2; exit 1; }
+  for file in "$dir"/0*.sql; do
     [[ "$file" == */022_personnel_reviews_seeds.sql ]] && continue
     "${psql_cmd[@]}" -f "$file"
   done
-  "${psql_cmd[@]}" -f schema/pgsql/124_operator_identity_backfill_and_review_integration.sql
-)
+  "${psql_cmd[@]}" -f "$dir/124_operator_identity_backfill_and_review_integration.sql"
+'
 ```
 
-Use `psql -f` from the repository checkout so the `\ir` in
+For a standalone PostgreSQL installation, connect `psql` to the empty database
+and run the same files with `-X -v ON_ERROR_STOP=1 -f`. Use `-f` so the `\ir` in
 `051_extraction_batch_provenance.sql` resolves relative to that file. The `124_*`
-patch installs the current personnel review integration even when its historical
-backfill has no rows to process. If a file fails, inspect the first error and use a
-new empty database to retry the sequence.
+patch installs the personnel review integration. If a file fails, inspect the
+first error and use a new empty database to retry the sequence.
 
 Create an initial operator for the actual Appsmith test account
 and add synthetic inventory lookups as needed. The
