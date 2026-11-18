@@ -3,8 +3,8 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Clover Sandbox setup \u2014 app X428N4RYRG5S8\n1. Create a Custom Auth credential named **Clover Sandbox Token Exchange** with this JSON, replacing both placeholders privately:\n`{\"body\":{\"client_secret\":\"YOUR_SANDBOX_APP_SECRET\",\"code\":\"YOUR_AUTHORIZATION_CODE\"}}`\nSelect it in **HTTP - Exchange Sandbox Authorization Code**. The node sends JSON, fixing the generic OAuth2 credential's 415 error. The authorization code comes from the `code` query parameter in your failed OAuth callback window. Obtain a fresh code through that OAuth flow if it expires. The code exchange runs once per authorization. A successful exchange returns sensitive access/refresh tokens; complete credential setup before recording a video.\n2. In **Sandbox Settings**, select `operation: 'exchange'`, then Execute Workflow. Copy `access_token` into a new **Bearer Auth** credential named **Clover Sandbox Pay Display Token**. Select that same credential in the merchant, ping, payment, order-types and create-order HTTP nodes. Paste only the token, with no Bearer prefix. Credentials remain in n8n.\n3. Enter your sandbox test merchant ID in **Sandbox Settings**, choose `operation: 'merchant'`, and Execute Workflow. A successful read verifies sandbox authentication without a device.\n4. For device tests, enter the sandbox app RAID and the serial of a sandbox-associated Dev Kit. Open Cloud Pay Display on that device. Choose `ping` and expect `connected: true`. Your live merchant Flex remains a production device; a sandbox URL alone does not make it a sandbox target.\n5. Choose `payment` and enter one UUID as paymentAttemptId. Execute Workflow to request $1.00. Cancel on the device to test the prompt alone. Keep the SAME paymentAttemptId for retries, and query the payment by external reference after an ambiguous result. Use a new UUID only for a new payment. externalPaymentId is derived from that UUID, keeping both references together.\n6. For renewal, create a separate Custom Auth credential **Clover Sandbox Token Refresh** with `{\"body\":{\"refresh_token\":\"YOUR_CURRENT_REFRESH_TOKEN\"}}` and select it in **HTTP - Refresh Sandbox Token**. Choose `refresh`; update the Bearer Auth credential and stored refresh token from the response. Refresh is manual in this test workflow.\nOptional: `order_types` and `create_order` retain the original order experiment against sandbox. These require corresponding Orders permissions beyond Merchant Read. For order creation, fill sandboxOrderTypeId.\nAll API URLs target apisandbox.dev.clover.com. This workflow has no fallback to production credentials. Live sandbox execution and Clover review acceptance remain pending.",
-        "height": 1040,
+        "content": "## Clover Sandbox setup — app X428N4RYRG5S8\n1. Open **Capture Clover Sandbox Callback** and copy its **Test URL**. Set that URL as the sandbox app's **Site URL**, with OAuth response **Code**. In **Sandbox Settings**, paste the same URL into oauthCallbackUrl; leave operation as **authorize**. Execute Workflow and copy authorizationUrl from **Build Sandbox Authorization URL**.\n2. Click **Listen for test event** on **Capture Clover Sandbox Callback**, then open authorizationUrl in your browser. Authorize your SANDBOX test merchant. In **Read Sandbox Authorization Code**, privately copy authorizationCode and verify sandboxMerchantId. The callback only captures values for manual inspection; it does not exchange codes or establish a trusted account link automatically.\n3. Create a Custom Auth credential named **Clover Sandbox Token Exchange** with this JSON, replacing both placeholders privately:\n`{\"body\":{\"client_secret\":\"YOUR_SANDBOX_APP_SECRET\",\"code\":\"YOUR_AUTHORIZATION_CODE\"}}`\nSelect it in **HTTP - Exchange Sandbox Authorization Code**. The node sends JSON, fixing the generic OAuth2 credential's 415 error. Use the authorizationCode captured above. If it expires, repeat the authorize and capture steps. The code exchange runs once per authorization. A successful exchange returns sensitive access/refresh tokens; complete credential setup before recording a video.\n4. In **Sandbox Settings**, select `operation: 'exchange'`, then Execute Workflow. Copy `access_token` into a new **Bearer Auth** credential named **Clover Sandbox Pay Display Token**. Select that same credential in the merchant, ping, payment, order-types and create-order HTTP nodes. Paste only the token, with no Bearer prefix. Credentials remain in n8n.\n5. Enter your sandbox test merchant ID in **Sandbox Settings**, choose `operation: 'merchant'`, and Execute Workflow. A successful read verifies sandbox authentication without a device.\n6. For device tests, enter the sandbox app RAID and the serial of a sandbox-associated Dev Kit. Open Cloud Pay Display on that device. Choose `ping` and expect `connected: true`. Your live merchant Flex remains a production device; a sandbox URL alone does not make it a sandbox target.\n7. Choose `payment` and enter one UUID as paymentAttemptId. Execute Workflow to request $1.00. Cancel on the device to test the prompt alone. Keep the SAME paymentAttemptId for retries, and query the payment by external reference after an ambiguous result. Use a new UUID only for a new payment. externalPaymentId is derived from that UUID, keeping both references together.\n8. For renewal, create a separate Custom Auth credential **Clover Sandbox Token Refresh** with `{\"body\":{\"refresh_token\":\"YOUR_CURRENT_REFRESH_TOKEN\"}}` and select it in **HTTP - Refresh Sandbox Token**. Choose `refresh`; update the Bearer Auth credential and stored refresh token from the response. Refresh is manual in this test workflow.\nOptional: `order_types` and `create_order` retain the original order experiment against sandbox. These require corresponding Orders permissions beyond Merchant Read. For order creation, fill sandboxOrderTypeId.\nAll API URLs target apisandbox.dev.clover.com. This workflow has no fallback to production credentials. Live sandbox execution and Clover review acceptance remain pending.",
+        "height": 1320,
         "width": 840
       },
       "id": "050219c5-7454-40e9-aeb0-26a0e723d366",
@@ -29,7 +29,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Select one operation, then click Execute Workflow.\n// exchange | refresh | merchant | ping | payment | order_types | create_order\nconst settings = {\n  operation: 'exchange',\n  sandboxAppId: 'X428N4RYRG5S8',\n  sandboxMerchantId: '',\n  sandboxRemoteAppId: '',\n  sandboxDeviceSerial: '',\n  paymentAttemptId: '', // A UUID. Reuse for a retry, replace for a NEW payment.\n  sandboxOrderTypeId: '', // Optional original atomic-order experiment.\n};\n\nconst operations = ['exchange', 'refresh', 'merchant', 'ping', 'payment', 'order_types', 'create_order'];\nif (!operations.includes(settings.operation)) {\n  throw new Error('Choose a supported operation listed above the settings.');\n}\nconst merchantOperations = ['merchant', 'order_types', 'create_order'];\nif (merchantOperations.includes(settings.operation) && !/^[A-Z0-9]{13}$/.test(settings.sandboxMerchantId)) {\n  throw new Error('Enter the 13-character SANDBOX test merchant ID in Sandbox Settings.');\n}\nif (['ping', 'payment'].includes(settings.operation)) {\n  if (!settings.sandboxRemoteAppId.trim() || !/^[A-Z0-9]{14}$/.test(settings.sandboxDeviceSerial)) {\n    throw new Error('Enter the sandbox app RAID and sandbox Dev Kit serial in Sandbox Settings.');\n  }\n}\nif (settings.operation === 'payment' && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(settings.paymentAttemptId)) {\n  throw new Error('Enter a UUID as paymentAttemptId. Keep it for retries of the same payment.');\n}\nif (settings.operation === 'create_order' && !/^[A-Z0-9]{13}$/.test(settings.sandboxOrderTypeId)) {\n  throw new Error('Enter an enabled SANDBOX order type ID before creating an order.');\n}\nreturn [{ json: settings }];"
+        "jsCode": "// Select one operation, then click Execute Workflow.\n// authorize | exchange | refresh | merchant | ping | payment | order_types | create_order\nconst settings = {\n  operation: 'authorize',\n  sandboxAppId: 'X428N4RYRG5S8',\n  oauthCallbackUrl: '', // Paste the Capture Clover Sandbox Callback node's Test URL.\n  sandboxMerchantId: '',\n  sandboxRemoteAppId: '',\n  sandboxDeviceSerial: '',\n  paymentAttemptId: '', // A UUID. Reuse for a retry, replace for a NEW payment.\n  sandboxOrderTypeId: '', // Optional original atomic-order experiment.\n};\n\nconst operations = ['authorize', 'exchange', 'refresh', 'merchant', 'ping', 'payment', 'order_types', 'create_order'];\nif (!operations.includes(settings.operation)) {\n  throw new Error('Choose a supported operation listed above the settings.');\n}\nif (settings.operation === 'authorize' && (!settings.oauthCallbackUrl.startsWith('https://') || !settings.oauthCallbackUrl.includes('/webhook-test/'))) {\n  throw new Error('Paste the callback Webhook Test URL into oauthCallbackUrl. Use the Test URL for this manual capture.');\n}\nconst merchantOperations = ['merchant', 'order_types', 'create_order'];\nif (merchantOperations.includes(settings.operation) && !/^[A-Z0-9]{13}$/.test(settings.sandboxMerchantId)) {\n  throw new Error('Enter the 13-character SANDBOX test merchant ID in Sandbox Settings.');\n}\nif (['ping', 'payment'].includes(settings.operation)) {\n  if (!settings.sandboxRemoteAppId.trim() || !/^[A-Z0-9]{14}$/.test(settings.sandboxDeviceSerial)) {\n    throw new Error('Enter the sandbox app RAID and sandbox Dev Kit serial in Sandbox Settings.');\n  }\n}\nif (settings.operation === 'payment' && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(settings.paymentAttemptId)) {\n  throw new Error('Enter a UUID as paymentAttemptId. Keep it for retries of the same payment.');\n}\nif (settings.operation === 'create_order' && !/^[A-Z0-9]{13}$/.test(settings.sandboxOrderTypeId)) {\n  throw new Error('Enter an enabled SANDBOX order type ID before creating an order.');\n}\nreturn [{ json: settings }];"
       },
       "id": "fe1e8b9e-4828-4bac-8bbd-3943c2772511",
       "name": "Sandbox Settings",
@@ -43,8 +43,8 @@
     {
       "parameters": {
         "mode": "expression",
-        "numberOutputs": 7,
-        "output": "={{ ['exchange', 'refresh', 'merchant', 'ping', 'payment', 'order_types', 'create_order'].indexOf($json.operation) }}"
+        "numberOutputs": 8,
+        "output": "={{ ['authorize', 'exchange', 'refresh', 'merchant', 'ping', 'payment', 'order_types', 'create_order'].indexOf($json.operation) }}"
       },
       "id": "b9694124-5d0f-4f8b-9a97-06b0befa8af2",
       "name": "Choose Sandbox Operation",
@@ -380,6 +380,49 @@
         1040
       ],
       "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const settings = $input.first().json;\nreturn [{ json: {\n  authorizationUrl: 'https://sandbox.dev.clover.com/oauth/v2/authorize?client_id='\n    + encodeURIComponent(settings.sandboxAppId)\n    + '&response_type=code&redirect_uri=' + encodeURIComponent(settings.oauthCallbackUrl),\n  nextStep: 'Set the sandbox app Site URL to oauthCallbackUrl. Click Listen for test event on Capture Clover Sandbox Callback, then open authorizationUrl in your browser and authorize the intended sandbox merchant.'\n} }];"
+      },
+      "id": "483b3a93-516b-49b4-a7c2-2f272e9f9867",
+      "name": "Build Sandbox Authorization URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "mushroomprocess-clover-sandbox-callback",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "f463106b-4090-49b9-b7db-cad3840d775d",
+      "name": "Capture Clover Sandbox Callback",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        96,
+        1280
+      ],
+      "webhookId": "f54b37cc-c4ad-4ef1-a507-05663c97dff1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query || {};\nif (query.error) {\n  throw new Error('Clover returned an authorization error. Inspect the callback query in the Webhook node.');\n}\nif (typeof query.code !== 'string' || !query.code.trim()) {\n  throw new Error('Clover callback has no authorization code. Open the generated /oauth/v2/authorize link while the test listener is active.');\n}\nif (query.client_id && query.client_id !== 'X428N4RYRG5S8') {\n  throw new Error('The callback is for a different Clover app.');\n}\nreturn [{ json: {\n  authorizationCode: query.code,\n  sandboxMerchantId: query.merchant_id || query.merchantId || '',\n  nextStep: 'Verify this is the intended sandbox merchant. Privately copy authorizationCode into the Token Exchange Custom Auth credential as body.code. Run operation exchange promptly. Keep this output out of recordings.'\n} }];"
+      },
+      "id": "f09f4874-d8d0-4fa3-a45d-0e8b60d91d52",
+      "name": "Read Sandbox Authorization Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        1280
+      ]
     }
   ],
   "connections": {
@@ -407,6 +450,13 @@
     },
     "Choose Sandbox Operation": {
       "main": [
+        [
+          {
+            "node": "Build Sandbox Authorization URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "HTTP - Exchange Sandbox Authorization Code",
@@ -452,6 +502,17 @@
         [
           {
             "node": "HTTP - Create Clover Test Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Clover Sandbox Callback": {
+      "main": [
+        [
+          {
+            "node": "Read Sandbox Authorization Code",
             "type": "main",
             "index": 0
           }
