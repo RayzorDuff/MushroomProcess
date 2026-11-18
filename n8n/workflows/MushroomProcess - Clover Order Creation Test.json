@@ -3,9 +3,9 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Live Clover order test\n1. On the same n8n instance as the Clover payment poller, execute **HTTP - List Clover Order Types** on its own.\n2. In **HTTP - Create Clover Test Order**, set `orderTypeId` to an enabled in-person order type ID.\n3. Run the manual workflow once to create one unpaid test order. Look for **Dank Market n8n Test** in the live dashboard and in Clover Go or Flex. Stop at the payment screen.",
-        "height": 272,
-        "width": 720
+        "content": "## Live Clover Flex test\n1. Install and open **Cloud Pay Display** on your Flex. Leave it in the foreground. Use the same n8n instance as the Clover payment poller.\n2. In **HTTP - Ping Clover Flex**, set `serial` in the `X-Clover-Device-Id` expression to your Flex serial. Run the workflow and expect `connected: true`. If Clover returns 401, verify production OAuth device and payment permissions and the app's approved Remote App ID.\n3. In **HTTP - Prompt Clover Flex for 1 USD**, set `serial` in the device header and `key` in the `Idempotency-Key` expression to a fresh UUID. Move the **Manual Trigger** connection from the ping node to the payment node, then run the workflow once. Confirm $1.00 on the Flex and cancel on the device before presenting a card. Move the connection back to the ping node after the test.\n4. For a retry of the same attempt, keep the same UUID and `externalPaymentId`. For a new attempt, use a new UUID and change `externalPaymentId` to a new value of at most 32 characters. This prompt uses a separate reference from the atomic order test.\n\n**Original order test** — Move the Manual Trigger connection to **HTTP - List Clover Order Types** to fetch the order types. Set `orderTypeId` in **HTTP - Create Clover Test Order** and move the trigger connection to that node to create one unpaid order.",
+        "height": 384,
+        "width": 944
       },
       "id": "4a45c939-02d9-4fa5-9e7c-615ec274e5df",
       "name": "Live Clover Test Instructions",
@@ -13,7 +13,7 @@
       "typeVersion": 1,
       "position": [
         0,
-        -64
+        -96
       ]
     },
     {
@@ -24,8 +24,119 @@
       "typeVersion": 1,
       "position": [
         112,
-        240
+        304
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.clover.com/connect/v1/device/ping",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "RootedOps-n8n/1.0"
+            },
+            {
+              "name": "X-Clover-Device-Id",
+              "value": "={{ (() => {\n  const serial = '';\n  if (!serial.trim()) {\n    throw new Error('Set the Flex serial number in the X-Clover-Device-Id header before running.');\n  }\n  return serial.trim();\n})() }}"
+            },
+            {
+              "name": "X-POS-Id",
+              "value": "MushroomProcess-n8n"
+            },
+            {
+              "name": "X-Clover-Timeout",
+              "value": "45"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 65000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "id": "62530706-f309-488c-9ada-db50ca82af7e",
+      "name": "HTTP - Ping Clover Flex",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        304
+      ],
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.clover.com/connect/v1/payments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "RootedOps-n8n/1.0"
+            },
+            {
+              "name": "X-Clover-Device-Id",
+              "value": "={{ (() => {\n  const serial = '';\n  if (!serial.trim()) {\n    throw new Error('Set the Flex serial number in the X-Clover-Device-Id header before running.');\n  }\n  return serial.trim();\n})() }}"
+            },
+            {
+              "name": "X-POS-Id",
+              "value": "MushroomProcess-n8n"
+            },
+            {
+              "name": "X-Clover-Timeout",
+              "value": "45"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (() => {\n  const key = '';\n  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(key.trim())) {\n    throw new Error('Set a test UUID in the Idempotency-Key header before running.');\n  }\n  return key.trim();\n})() }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 65000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"amount\": 100,\n  \"externalPaymentId\": \"dank-n8n-flex-test-001\"\n}"
+      },
+      "id": "27f1644e-dc41-4cfb-8669-be43893d4616",
+      "name": "HTTP - Prompt Clover Flex for 1 USD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        640,
+        304
+      ],
+      "retryOnFail": false
     },
     {
       "parameters": {
@@ -58,8 +169,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        352,
-        240
+        640,
+        512
       ]
     },
     {
@@ -91,7 +202,7 @@
       "typeVersion": 4.3,
       "position": [
         352,
-        432
+        512
       ]
     }
   ],
@@ -100,7 +211,7 @@
       "main": [
         [
           {
-            "node": "HTTP - Create Clover Test Order",
+            "node": "HTTP - Ping Clover Flex",
             "type": "main",
             "index": 0
           }
