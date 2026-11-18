@@ -1,0 +1,116 @@
+{
+  "name": "MushroomProcess - Clover Order Creation Test",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Live Clover order test\n1. On the same n8n instance as the Clover payment poller, execute **HTTP - List Clover Order Types** on its own.\n2. In **HTTP - Create Clover Test Order**, set `orderTypeId` to an enabled in-person order type ID.\n3. Run the manual workflow once to create one unpaid test order. Look for **Dank Market n8n Test** in the live dashboard and in Clover Go or Flex. Stop at the payment screen.",
+        "height": 272,
+        "width": 720
+      },
+      "id": "4a45c939-02d9-4fa5-9e7c-615ec274e5df",
+      "name": "Live Clover Test Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -64
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "7f0ffecb-4509-47a2-a701-d3a5116c2de2",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        112,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `https://api.clover.com/v3/merchants/${$env.CLOVER_MERCHANT_ID}/atomic_order/orders` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "RootedOps-n8n/1.0"
+            }
+          ]
+        },
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => {\n  const orderTypeId = '';\n  if (!orderTypeId) {\n    throw new Error('Set orderTypeId to an enabled live order type before running.');\n  }\n  return {\n    orderCart: {\n      currency: 'USD',\n      title: 'Dank Market n8n Test',\n      orderType: { id: orderTypeId },\n      lineItems: [{ name: 'Market test item', price: 100 }]\n    }\n  };\n})() }}"
+      },
+      "id": "3f482ebb-b776-4c43-9130-7db4b3153c95",
+      "name": "HTTP - Create Clover Test Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ `https://api.clover.com/v3/merchants/${$env.CLOVER_MERCHANT_ID}/order_types` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "authorization",
+              "value": "={{ `Bearer ${$env.CLOVER_ACCESS_TOKEN}` }}"
+            },
+            {
+              "name": "User-Agent",
+              "value": "RootedOps-n8n/1.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7ff7f5d1-5962-4f08-9d88-c05fd2d4ecfd",
+      "name": "HTTP - List Clover Order Types",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        432
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Create Clover Test Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
