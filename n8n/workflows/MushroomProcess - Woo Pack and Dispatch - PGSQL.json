@@ -1,0 +1,564 @@
+{
+  "name": "MushroomProcess - Woo Pack and Dispatch - PGSQL",
+  "nodes": [
+    {
+      "name": "Woo list",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/list",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "75ecfe14-b1a1-4557-ac6c-c17157dd364d",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Validate list",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "5104a153-405e-4e6b-af1e-954f4aa61fe3",
+      "position": [
+        240,
+        30
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT coalesce(jsonb_agg(jsonb_build_object('order_id',o.external_order_id,'site_key',o.site_key,\n 'status',o.status,'confirmed',o.reservation_confirmed,'fulfilled',o.fulfilled,'lines',o.snapshot->'lines',\n 'packages',coalesce((SELECT jsonb_agg(jsonb_build_object('reference',k.reference,'state',k.state,'method',k.method,'tracking',k.tracking))\n FROM mp_commerce_packages k WHERE (k.provider,k.site_key,k.external_order_id)=(o.provider,o.site_key,o.external_order_id)),'[]'::jsonb)\n ) ORDER BY o.external_order_id),'[]'::jsonb) AS orders FROM mp_commerce_orders o\n WHERE o.provider='woocommerce' AND o.site_key='danks.store' AND o.reservation_confirmed",
+        "options": {}
+      },
+      "id": "8cae7baf-aacc-4603-992e-a4721becae12",
+      "name": "Commerce list",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "name": "Respond list",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "79e178be-134f-4b82-9610-e8c999fd9d78",
+      "position": [
+        720,
+        90
+      ]
+    },
+    {
+      "name": "Woo pick",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/pick",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "d8861d79-e8f5-449a-9c50-340139c7739b",
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "name": "Validate pick",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "c962171a-6fc4-4915-b575-a2c5f39d9c27",
+      "position": [
+        240,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT CASE WHEN p->>'product_code' LIKE 'LOT-%' THEN mp_commerce_pick_lot(p) ELSE mp_commerce_pick(p) END AS status FROM input` }}",
+        "options": {}
+      },
+      "id": "bff1acad-b587-4bfc-bd9f-1496f8d62aa9",
+      "name": "Commerce pick",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "name": "Respond pick",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "5df8bfba-19a9-4845-8cbc-6c510d0f8d2b",
+      "position": [
+        720,
+        210
+      ]
+    },
+    {
+      "name": "Woo tracking",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/tracking",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "64be2154-e018-4411-967b-13fc0410796c",
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "name": "Validate tracking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "c4eb438c-6228-4600-af15-6e77ea75deb5",
+      "position": [
+        240,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT mp_commerce_package_tracking(p) AS status FROM input` }}",
+        "options": {}
+      },
+      "id": "bbd0d44b-e511-44df-bfdb-7d7eb683d918",
+      "name": "Commerce tracking",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "name": "Respond tracking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "24e27344-c9cd-4582-b791-e880ba674b40",
+      "position": [
+        720,
+        330
+      ]
+    },
+    {
+      "name": "Woo dispatch",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/dispatch",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "992c01e8-da36-4eea-8241-4ed7f65f915d",
+      "position": [
+        0,
+        360
+      ]
+    },
+    {
+      "name": "Validate dispatch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "cbd114c3-a99a-4ced-bdff-8d1a1ceabec1",
+      "position": [
+        240,
+        390
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT mp_commerce_dispatch(p->>'provider',p->>'site_key',p->>'reference') AS status FROM input` }}",
+        "options": {}
+      },
+      "id": "68356acf-e264-4e55-95f3-1f4d830e1420",
+      "name": "Commerce dispatch",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "name": "Respond dispatch",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "cde90d06-47d8-48fc-9b23-4ceda8c76d36",
+      "position": [
+        720,
+        450
+      ]
+    },
+    {
+      "name": "Woo open-order",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/open-order",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "000e19d8-c68f-4692-8f43-eacc039d21d7",
+      "position": [
+        0,
+        480
+      ]
+    },
+    {
+      "name": "Validate open-order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "ec6e72dc-dd2d-429d-b044-b05926dc4a0d",
+      "position": [
+        240,
+        510
+      ]
+    },
+    {
+      "name": "Validate Woo origin",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(!['https://shop-test.danks.store','https://danks.store'].includes($env.MP_COMMERCE_WOO_ORIGIN)) throw new Error('Unreviewed Woo host'); return $input.all();"
+      },
+      "id": "cf004864-ec42-4085-8706-07911ae2d4ee",
+      "position": [
+        480,
+        540
+      ]
+    },
+    {
+      "name": "Resolve Woo generated order URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.MP_COMMERCE_WOO_ORIGIN + '/wp-json/rootedops/v1/orders/' + $json.order_id + '/edit-link' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "name": "Woo MP publication"
+        }
+      },
+      "id": "3f024b42-19f7-4493-9fa2-e5482cbb6774",
+      "position": [
+        720,
+        570
+      ]
+    },
+    {
+      "name": "Respond open-order",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "9c141885-7f3c-4541-bf3c-d1d140b37178",
+      "position": [
+        960,
+        600
+      ]
+    }
+  ],
+  "connections": {
+    "Woo list": {
+      "main": [
+        [
+          {
+            "node": "Validate list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate list": {
+      "main": [
+        [
+          {
+            "node": "Commerce list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commerce list": {
+      "main": [
+        [
+          {
+            "node": "Respond list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Woo pick": {
+      "main": [
+        [
+          {
+            "node": "Validate pick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate pick": {
+      "main": [
+        [
+          {
+            "node": "Commerce pick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commerce pick": {
+      "main": [
+        [
+          {
+            "node": "Respond pick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Woo tracking": {
+      "main": [
+        [
+          {
+            "node": "Validate tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate tracking": {
+      "main": [
+        [
+          {
+            "node": "Commerce tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commerce tracking": {
+      "main": [
+        [
+          {
+            "node": "Respond tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Woo dispatch": {
+      "main": [
+        [
+          {
+            "node": "Validate dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate dispatch": {
+      "main": [
+        [
+          {
+            "node": "Commerce dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commerce dispatch": {
+      "main": [
+        [
+          {
+            "node": "Respond dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Woo open-order": {
+      "main": [
+        [
+          {
+            "node": "Validate open-order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate open-order": {
+      "main": [
+        [
+          {
+            "node": "Validate Woo origin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Woo origin": {
+      "main": [
+        [
+          {
+            "node": "Resolve Woo generated order URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Woo generated order URL": {
+      "main": [
+        [
+          {
+            "node": "Respond open-order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": []
+}
