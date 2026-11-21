@@ -33,6 +33,7 @@ BEGIN
  IF mp_commerce_dispatch('woocommerce','bridge-054','lot-package')<>'partial' THEN RAISE EXCEPTION 'Expected partial Lot shipment'; END IF;
  IF mp_commerce_dispatch('woocommerce','bridge-054','lot-package')<>'duplicate' THEN RAISE EXCEPTION 'Lot dispatch duplicated'; END IF;
  IF (SELECT status FROM lots WHERE nocopk=lot)<>'Shipped' OR (SELECT location_id FROM lots WHERE nocopk=lot)<>shipped THEN RAISE EXCEPTION 'Lot movement missing'; END IF;
+ IF (SELECT available_quantity FROM mp_commerce_inventory() WHERE ecommerce_id=e)<>1 THEN RAISE EXCEPTION 'Lot shipment reduced availability twice'; END IF;
  PERFORM mp_commerce_ingest(p||'{"event_id":"after-lot","revision":2}'::jsonb);
  IF (SELECT sum(quantity) FROM mp_commerce_reservations WHERE site_key='bridge-054')<>1 THEN RAISE EXCEPTION 'Refresh reinstated shipped Lot'; END IF;
  PERFORM mp_commerce_pick(ack||'{"reference":"product-package","method":"local_delivery","product_code":"PROD-CI-057"}'::jsonb);

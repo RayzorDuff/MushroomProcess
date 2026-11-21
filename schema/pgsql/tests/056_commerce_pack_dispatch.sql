@@ -37,7 +37,15 @@ BEGIN
  IF (SELECT storage_location_id FROM products WHERE nocopk=product_a)<>loc THEN RAISE EXCEPTION 'Label purchase dispatched'; END IF;
  IF mp_commerce_dispatch('woocommerce','bridge-054','package-1')<>'partial' THEN RAISE EXCEPTION 'Expected partial'; END IF;
  IF mp_commerce_dispatch('woocommerce','bridge-054','package-1')<>'duplicate' THEN RAISE EXCEPTION 'Dispatch replay failed'; END IF;
+ IF (SELECT available_quantity FROM mp_commerce_inventory() WHERE ecommerce_id=e)<>0 THEN RAISE EXCEPTION 'Product shipment reduced availability twice'; END IF;
  IF (SELECT count(*) FROM mp_commerce_shipment_delivery WHERE site_key='bridge-054')<>2 THEN RAISE EXCEPTION 'Independent destination deliveries missing'; END IF;
+ UPDATE mp_commerce_shipment_delivery SET delivered_at=now() WHERE site_key='bridge-054';
+ PERFORM mp_commerce_package_tracking(jsonb_build_object('provider','woocommerce','site_key','bridge-054','external_order_id','54','reference','package-1',
+   'tracking',jsonb_build_object('carrier','Synthetic','service','Synthetic','tracking_number','CI-REPLACEMENT','label_status','replacement','postage','2.00','currency','USD')));
+ IF (SELECT count(*) FROM mp_commerce_shipments WHERE site_key='bridge-054')<>1
+ OR (SELECT count(*) FROM mp_commerce_shipment_delivery WHERE site_key='bridge-054' AND delivered_at IS NULL AND target='woo')<>1
+ OR (SELECT count(*) FROM mp_commerce_shipment_delivery WHERE site_key='bridge-054' AND delivered_at IS NOT NULL AND target='erp')<>1 THEN
+ RAISE EXCEPTION 'Tracking replacement replayed a physical movement or ERP delivery'; END IF;
  PERFORM mp_commerce_pick(ack||'{"reference":"package-2","method":"pickup","product_code":"PROD-CI-B"}'::jsonb);
  PERFORM mp_commerce_ingest(p||'{"event_id":"cancel","revision":2,"status":"cancelled"}'::jsonb);
  PERFORM mp_commerce_release_picks();
@@ -46,5 +54,6 @@ BEGIN
    RAISE EXCEPTION 'Cancelled packed products remain allocated'; END IF;
  IF (SELECT storage_location_id FROM products WHERE nocopk=product_b)<>loc THEN RAISE EXCEPTION 'Cancellation moved unshipped product'; END IF;
  IF (SELECT storage_location_id FROM products WHERE nocopk=product_a)<>shipped THEN RAISE EXCEPTION 'Cancellation reversed dispatch'; END IF;
+ IF (SELECT available_quantity FROM mp_commerce_inventory() WHERE ecommerce_id=e)<>1 THEN RAISE EXCEPTION 'Cancellation did not release only unshipped availability'; END IF;
 END $$;
 ROLLBACK;
