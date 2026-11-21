@@ -40,6 +40,13 @@ try {
   for (const node of workflow.nodes.filter(n => n.type === 'n8n-nodes-base.code')) {
     new Function(node.parameters.jsCode);
   }
+  const guard = workflow.nodes.find(n => n.name === 'Validate Woo origin').parameters.jsCode;
+  for (const origin of ['https://shop-test.danks.store', 'https://danks.store', 'https://dankmushrooms.net']) {
+    assert.deepStrictEqual(new Function('$env', '$input', guard)({MP_COMMERCE_WOO_ORIGIN: origin}, {all: () => ['same order']}), ['same order']);
+  }
+  for (const origin of ['http://dankmushrooms.net', 'https://dankmushrooms.net.evil.invalid']) {
+    assert.throws(() => new Function('$env', '$input', guard)({MP_COMMERCE_WOO_ORIGIN: origin}, {all: () => []}), /Unreviewed/);
+  }
   console.log('Woo fulfillment overlay preserves existing MP actions and widgets; authenticated workflow syntax passed.');
 } finally {
   fs.rmSync(directory, {recursive: true, force: true});
