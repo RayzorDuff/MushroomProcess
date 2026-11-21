@@ -47,6 +47,14 @@ jobs:
           for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
+      - name: Validate the Woo fulfillment list query
+        run: |
+          python3 - <<'PYSQL'
+          import json, subprocess
+          flow = json.load(open('n8n/workflows/MushroomProcess - Woo Pack and Dispatch - PGSQL.json'))
+          query = next(node['parameters']['query'] for node in flow['nodes'] if node['name'] == 'Commerce list')
+          subprocess.run(['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-c', query], check=True)
+          PYSQL
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
       - run: node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
       - run: node n8n/tests/commercial_inventory_sync_smoke.js

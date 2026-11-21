@@ -32,7 +32,7 @@ BEGIN
    RAISE EXCEPTION 'Picking dispatched or released inventory'; END IF;
  BEGIN PERFORM mp_commerce_dispatch('woocommerce','bridge-054','package-1'); RAISE EXCEPTION 'Expected label refusal';
  EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'Shipping label%' THEN RAISE; END IF; END;
- PERFORM mp_commerce_package_tracking(jsonb_build_object('provider','woocommerce','site_key','bridge-054','reference','package-1',
+ PERFORM mp_commerce_package_tracking(jsonb_build_object('provider','woocommerce','site_key','bridge-054','external_order_id','54','reference','package-1',
    'tracking',jsonb_build_object('carrier','Synthetic','service','Synthetic','tracking_number','CI-1','label_status','purchased','postage','1.00','currency','USD')));
  IF (SELECT storage_location_id FROM products WHERE nocopk=product_a)<>loc THEN RAISE EXCEPTION 'Label purchase dispatched'; END IF;
  IF mp_commerce_dispatch('woocommerce','bridge-054','package-1')<>'partial' THEN RAISE EXCEPTION 'Expected partial'; END IF;

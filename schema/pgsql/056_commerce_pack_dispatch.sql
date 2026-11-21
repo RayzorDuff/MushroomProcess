@@ -28,7 +28,7 @@ DECLARE o public.mp_commerce_orders%ROWTYPE; r public.mp_commerce_reservations%R
  old public.mp_commerce_picks%ROWTYPE; q bigint; loc text;
 BEGIN
  PERFORM pg_advisory_xact_lock(520052);
- IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(btrim(p->>'reference'),'')=''
+ IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(p->>'reference','') !~ '^[A-Za-z0-9_.:-]{1,120}$'
     OR p->>'method' IS NULL THEN
    RAISE EXCEPTION 'Woo identity and stable package reference required'; END IF;
  SELECT * INTO STRICT o FROM public.mp_commerce_orders WHERE provider=p->>'provider'
@@ -71,11 +71,17 @@ BEGIN
  PERFORM pg_advisory_xact_lock(520052);
  SELECT * INTO STRICT k FROM public.mp_commerce_packages WHERE provider=p->>'provider'
  AND site_key=p->>'site_key' AND reference=p->>'reference' FOR UPDATE;
- IF k.state<>'packing' THEN RAISE EXCEPTION 'Tracking changes require packing package'; END IF;
+ IF k.external_order_id IS DISTINCT FROM p->>'external_order_id' THEN RAISE EXCEPTION 'Tracking order identity differs'; END IF;
+ IF k.state NOT IN ('packing','dispatched') THEN RAISE EXCEPTION 'Tracking changes require an active package'; END IF;
  IF jsonb_typeof(t) IS DISTINCT FROM 'object' OR coalesce(t->>'label_status','') NOT IN ('purchased','manual','voided','replacement','none')
- OR (t ? 'postage' AND ((t->>'postage')::numeric<0 OR t->>'currency' IS DISTINCT FROM 'USD')) THEN
+ OR (t ? 'postage' AND (coalesce(t->>'postage','') !~ '^[0-9]+([.][0-9]{1,2})?$'
+ OR t->>'currency' IS DISTINCT FROM 'USD')) THEN
  RAISE EXCEPTION 'Reviewed label status and nonnegative USD postage required'; END IF;
  UPDATE public.mp_commerce_packages SET tracking=t WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference;
+ IF k.state='dispatched' THEN
+   UPDATE public.mp_commerce_shipment_delivery SET delivered_at=NULL,last_error=NULL
+   WHERE provider=k.provider AND site_key=k.site_key AND movement_reference=k.reference AND target='woo';
+ END IF;
  RETURN 'recorded';
 END $$;
 

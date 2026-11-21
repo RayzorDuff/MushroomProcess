@@ -42,7 +42,7 @@ DECLARE o public.mp_commerce_orders%ROWTYPE;k public.mp_commerce_packages%ROWTYP
  r public.mp_commerce_reservations%ROWTYPE;l public.lots%ROWTYPE;old public.mp_commerce_lot_picks%ROWTYPE;q bigint;
 BEGIN
  PERFORM pg_advisory_xact_lock(520052);
- IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(p->>'reference','')='' THEN RAISE EXCEPTION 'Woo package identity required'; END IF;
+ IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(p->>'reference','') !~ '^[A-Za-z0-9_.:-]{1,120}$' THEN RAISE EXCEPTION 'Woo package identity required'; END IF;
  SELECT * INTO STRICT o FROM public.mp_commerce_orders WHERE provider=p->>'provider' AND site_key=p->>'site_key'
  AND external_order_id=p->>'external_order_id' FOR UPDATE;
  IF NOT o.reservation_confirmed OR o.status NOT IN ('processing','completed') OR jsonb_array_length(o.snapshot->'refunds')<>0 THEN
@@ -314,7 +314,7 @@ DECLARE o public.mp_commerce_orders%ROWTYPE; r public.mp_commerce_reservations%R
  old public.mp_commerce_picks%ROWTYPE; q bigint; loc text;
 BEGIN
  PERFORM pg_advisory_xact_lock(520052);
- IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(btrim(p->>'reference'),'')=''
+ IF p->>'provider' IS DISTINCT FROM 'woocommerce' OR coalesce(p->>'reference','') !~ '^[A-Za-z0-9_.:-]{1,120}$'
     OR p->>'method' IS NULL THEN
    RAISE EXCEPTION 'Woo identity and stable package reference required'; END IF;
  SELECT * INTO STRICT o FROM public.mp_commerce_orders WHERE provider=p->>'provider'
@@ -366,4 +366,32 @@ BEGIN
  GET DIAGNOSTICS m=ROW_COUNT;
  RETURN n+m;
 END $$;
+
+CREATE FUNCTION public.mp_commerce_dispatch_request(p jsonb) RETURNS text LANGUAGE plpgsql AS $$
+DECLARE k public.mp_commerce_packages%ROWTYPE;
+BEGIN
+ PERFORM pg_advisory_xact_lock(520052);
+ SELECT * INTO STRICT k FROM public.mp_commerce_packages WHERE provider=p->>'provider'
+ AND site_key=p->>'site_key' AND reference=p->>'reference' FOR UPDATE;
+ IF k.external_order_id IS DISTINCT FROM p->>'external_order_id' THEN RAISE EXCEPTION 'Dispatch order identity differs'; END IF;
+ RETURN public.mp_commerce_dispatch(k.provider,k.site_key,k.reference);
+END $$;
+CREATE FUNCTION public.mp_commerce_unpick(p jsonb) RETURNS text LANGUAGE plpgsql AS $$
+DECLARE k public.mp_commerce_packages%ROWTYPE;n bigint;m bigint;
+BEGIN
+ PERFORM pg_advisory_xact_lock(520052);
+ SELECT * INTO STRICT k FROM public.mp_commerce_packages WHERE provider=p->>'provider'
+ AND site_key=p->>'site_key' AND reference=p->>'reference' FOR UPDATE;
+ IF k.state<>'packing' OR k.external_order_id IS DISTINCT FROM p->>'external_order_id' THEN RAISE EXCEPTION 'Matching packing package required'; END IF;
+ DELETE FROM public.mp_commerce_picks x USING public.products product
+ WHERE x.product_id=product.nocopk AND product.product_id=p->>'product_code'
+ AND (x.provider,x.site_key,x.reference)=(k.provider,k.site_key,k.reference);
+ GET DIAGNOSTICS n=ROW_COUNT;
+ DELETE FROM public.mp_commerce_lot_picks x USING public.lots lot
+ WHERE x.lot_id=lot.nocopk AND lot.lot_id=p->>'product_code'
+ AND (x.provider,x.site_key,x.reference)=(k.provider,k.site_key,k.reference);
+ GET DIAGNOSTICS m=ROW_COUNT;
+ RETURN CASE WHEN n+m=0 THEN 'missing' ELSE 'unpicked' END;
+END $$;
+REVOKE ALL ON FUNCTION public.mp_commerce_dispatch_request(jsonb),public.mp_commerce_unpick(jsonb) FROM PUBLIC;
 COMMIT;

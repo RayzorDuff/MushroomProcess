@@ -39,7 +39,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT coalesce(jsonb_agg(jsonb_build_object('order_id',o.external_order_id,'site_key',o.site_key,\n 'status',o.status,'confirmed',o.reservation_confirmed,'fulfilled',o.fulfilled,'lines',o.snapshot->'lines',\n 'packages',coalesce((SELECT jsonb_agg(jsonb_build_object('reference',k.reference,'state',k.state,'method',k.method,'tracking',k.tracking))\n FROM mp_commerce_packages k WHERE (k.provider,k.site_key,k.external_order_id)=(o.provider,o.site_key,o.external_order_id)),'[]'::jsonb)\n ) ORDER BY o.external_order_id),'[]'::jsonb) AS orders FROM mp_commerce_orders o\n WHERE o.provider='woocommerce' AND o.site_key='danks.store' AND o.reservation_confirmed",
+        "query": "SELECT coalesce(jsonb_agg(jsonb_build_object('order_id',o.external_order_id,'site_key',o.site_key,\n 'status',o.status,'confirmed',o.reservation_confirmed,'fulfilled',o.fulfilled,'lines',o.snapshot->'lines',\n 'packages',coalesce((SELECT jsonb_agg(jsonb_build_object('reference',k.reference,'state',k.state,'method',k.method,'tracking',k.tracking,'picks',coalesce((SELECT jsonb_agg(unit) FROM (\n SELECT p.line_id,product.product_id AS code FROM mp_commerce_picks p JOIN products product ON product.nocopk=p.product_id\n WHERE (p.provider,p.site_key,p.reference)=(k.provider,k.site_key,k.reference)\n UNION ALL SELECT p.line_id,lot.lot_id FROM mp_commerce_lot_picks p JOIN lots lot ON lot.nocopk=p.lot_id\n WHERE (p.provider,p.site_key,p.reference)=(k.provider,k.site_key,k.reference)) unit),'[]'::jsonb)))\n FROM mp_commerce_packages k WHERE (k.provider,k.site_key,k.external_order_id)=(o.provider,o.site_key,o.external_order_id)),'[]'::jsonb)\n ) ORDER BY o.external_order_id),'[]'::jsonb) AS orders FROM mp_commerce_orders o\n WHERE o.provider='woocommerce' AND o.site_key='danks.store' AND o.reservation_confirmed",
         "options": {}
       },
       "id": "8cae7baf-aacc-4603-992e-a4721becae12",
@@ -252,7 +252,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT mp_commerce_dispatch(p->>'provider',p->>'site_key',p->>'reference') AS status FROM input` }}",
+        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT mp_commerce_dispatch_request(p) AS status FROM input` }}",
         "options": {}
       },
       "id": "68356acf-e264-4e55-95f3-1f4d830e1420",
@@ -375,6 +375,90 @@
         960,
         600
       ]
+    },
+    {
+      "name": "Woo unpick",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/woo/unpick",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "MushroomProcess Commerce Fulfillment"
+        }
+      },
+      "id": "b918c07b-e0be-48c0-9d85-05043f865601",
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "name": "Validate unpick",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "if(String($env.MP_COMMERCE_FULFILLMENT_ENABLED||'')!=='true') throw new Error('Woo fulfillment disabled');\nconst p=$json.body||$json;p.provider='woocommerce';p.site_key='danks.store';\nif(p.external_order_id && !/^[1-9][0-9]*$/.test(String(p.external_order_id))) throw new Error('Numeric Woo order ID required');\nif(p.product_code) {\n const product=decodeURIComponent(String(p.product_code)).match(/(?:PROD|LOT)-[A-Za-z0-9-]+/);\n if(!product) throw new Error('Scan a Product or sellable whole Lot QR.');\n p.product_code=product[0];\n}\nreturn [{json:{payload:Buffer.from(JSON.stringify(p)).toString('base64'),order_id:String(p.external_order_id||'')}}];"
+      },
+      "id": "9a6e3a99-c555-443c-969c-5d75f021a2bf",
+      "position": [
+        240,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ `WITH input AS (SELECT convert_from(decode('${$json.payload}','base64'),'UTF8')::jsonb p) SELECT mp_commerce_unpick(p) AS status FROM input` }}",
+        "options": {}
+      },
+      "id": "8facaa44-fbc4-48ba-b465-cc32a42add14",
+      "name": "Commerce unpick",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "name": "Respond unpick",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "d120e5f8-8079-4791-b0ca-deeffa1366c1",
+      "position": [
+        720,
+        210
+      ]
+    },
+    {
+      "id": "b4dabc3e-7432-4a03-bbe9-470d5481c265",
+      "name": "Validate generated order link",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const expected=$('Validate open-order').first().json.order_id;\nconst url=new URL($json.edit_url);\nif(String($json.id)!==expected || url.origin!==$env.MP_COMMERCE_WOO_ORIGIN || !url.pathname.startsWith('/wp-admin/')) throw new Error('Unexpected Woo administrative order URL');\nreturn $input.all();"
+      }
     }
   ],
   "connections": {
@@ -544,6 +628,50 @@
       ]
     },
     "Resolve Woo generated order URL": {
+      "main": [
+        [
+          {
+            "node": "Validate generated order link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Woo unpick": {
+      "main": [
+        [
+          {
+            "node": "Validate unpick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate unpick": {
+      "main": [
+        [
+          {
+            "node": "Commerce unpick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commerce unpick": {
+      "main": [
+        [
+          {
+            "node": "Respond unpick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate generated order link": {
       "main": [
         [
           {

@@ -19,7 +19,7 @@ def render(application, overlay):
         if max(widget['bottomRow'] for widget in dsl['children']) > 164:
             raise ValueError('Fulfillment layout changed. Review Woo section placement.')
         dsl['children'].extend(widgets)
-        dsl['bottomRow'] = max(dsl['bottomRow'], 255)
+        dsl['bottomRow'] = max(dsl['bottomRow'], 280)
     return application
 
 
