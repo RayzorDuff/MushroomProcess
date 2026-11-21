@@ -52,8 +52,7 @@ BEGIN
  SELECT * INTO STRICT k FROM public.mp_commerce_packages WHERE provider=o.provider AND site_key=o.site_key
  AND reference=p->>'reference' FOR UPDATE;
  IF k.external_order_id<>o.external_order_id OR k.method IS DISTINCT FROM p->>'method' OR k.state<>'packing'
- OR EXISTS(SELECT 1 FROM public.mp_commerce_picks WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference) THEN
- RAISE EXCEPTION 'Package identity differs or contains Product picks; use a separate Lot package'; END IF;
+ THEN RAISE EXCEPTION 'Package identity or state differs'; END IF;
  SELECT * INTO STRICT l FROM public.lots WHERE lot_id=p->>'product_code' FOR UPDATE;
  SELECT * INTO old FROM public.mp_commerce_lot_picks WHERE lot_id=l.nocopk;
  IF FOUND THEN
@@ -73,7 +72,7 @@ END $$;
 ALTER FUNCTION public.mp_commerce_dispatch(text,text,text) RENAME TO mp_commerce_dispatch_products;
 CREATE FUNCTION public.mp_commerce_dispatch(p_provider text,p_site text,p_reference text) RETURNS text LANGUAGE plpgsql AS $$
 DECLARE k public.mp_commerce_packages%ROWTYPE;o public.mp_commerce_orders%ROWTYPE;
- line record;lot record;remaining bigint;held bigint;shipped_location bigint;n bigint;payload jsonb;
+ line record;lot record;remaining bigint;held bigint;shipped_location bigint;n bigint;movement_payload jsonb;product_payload jsonb;
 BEGIN
  PERFORM pg_advisory_xact_lock(520052);
  IF NOT EXISTS(SELECT 1 FROM public.mp_commerce_lot_picks WHERE provider=p_provider AND site_key=p_site AND reference=p_reference) THEN
@@ -90,10 +89,18 @@ BEGIN
  SELECT min(nocopk),count(*) INTO shipped_location,n FROM public.locations
  WHERE active AND regexp_replace(lower(name),'[^a-z0-9]','','g')='shipped';
  IF n<>1 THEN RAISE EXCEPTION 'One Shipped location required'; END IF;
- SELECT jsonb_agg(jsonb_build_object('line_id',line_id,'lot_ids',ids) ORDER BY line_id) INTO payload
+ SELECT jsonb_agg(jsonb_build_object('line_id',line_id,'lot_ids',ids) ORDER BY line_id) INTO movement_payload
  FROM (SELECT line_id,jsonb_agg(lot_id ORDER BY lot_id) ids FROM public.mp_commerce_lot_picks
  WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference GROUP BY line_id) x;
- INSERT INTO public.mp_commerce_shipments VALUES(k.provider,k.site_key,k.external_order_id,k.reference,payload,now());
+ SELECT jsonb_agg(jsonb_build_object('line_id',line_id,'product_ids',ids) ORDER BY line_id) INTO product_payload
+ FROM (SELECT line_id,jsonb_agg(product_id ORDER BY product_id) ids FROM public.mp_commerce_picks
+ WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference GROUP BY line_id) x;
+ IF product_payload IS NULL THEN
+   INSERT INTO public.mp_commerce_shipments VALUES(k.provider,k.site_key,k.external_order_id,k.reference,movement_payload,now());
+ ELSE
+   PERFORM set_config('rootedops.dispatch_reference', k.reference, true);
+   PERFORM public.mp_commerce_ship_products(k.provider,k.site_key,k.external_order_id,k.reference,product_payload);
+ END IF;
  PERFORM set_config('rootedops.dispatch_reference', k.reference, true);
  FOR line IN SELECT x.line_id,count(*) quantity FROM public.mp_commerce_lot_picks x
  WHERE x.provider=k.provider AND x.site_key=k.site_key AND x.reference=k.reference GROUP BY x.line_id LOOP
@@ -114,6 +121,17 @@ BEGIN
    IF NOT FOUND THEN DELETE FROM public.mp_commerce_reservations WHERE provider=k.provider AND site_key=k.site_key
    AND external_order_id=k.external_order_id AND line_id=line.line_id; END IF;
  END LOOP;
+ IF product_payload IS NOT NULL THEN
+   SELECT jsonb_agg(jsonb_build_object('line_id',line_id,'product_ids',coalesce(pids,'[]'::jsonb),
+       'lot_ids',coalesce(lids,'[]'::jsonb)) ORDER BY line_id) INTO movement_payload FROM (
+     SELECT line_id,jsonb_agg(product_id ORDER BY product_id) pids FROM public.mp_commerce_picks
+       WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference GROUP BY line_id
+   ) products FULL JOIN (
+     SELECT line_id,jsonb_agg(lot_id ORDER BY lot_id) lids FROM public.mp_commerce_lot_picks
+       WHERE provider=k.provider AND site_key=k.site_key AND reference=k.reference GROUP BY line_id
+   ) lots USING(line_id);
+   UPDATE public.mp_commerce_shipments SET payload=movement_payload WHERE provider=k.provider AND site_key=k.site_key AND movement_reference=k.reference;
+ END IF;
  SELECT coalesce(sum((x->>'quantity')::bigint),0)-(SELECT count(*) FROM public.mp_commerce_shipped_units
  WHERE provider=k.provider AND site_key=k.site_key AND external_order_id=k.external_order_id) INTO remaining FROM jsonb_array_elements(o.snapshot->'lines') x;
  UPDATE public.mp_commerce_orders SET fulfilled=(remaining=0),inventory_committed=(remaining=0),fulfillment_reference=CASE WHEN remaining=0 THEN k.reference ELSE fulfillment_reference END
@@ -137,15 +155,6 @@ BEGIN
 END $$;
 CREATE TRIGGER mp_commerce_guard_picked_lot BEFORE UPDATE OF location_id,status,qty ON public.lots
 FOR EACH ROW EXECUTE FUNCTION public.mp_commerce_guard_picked_lot();
-
-CREATE FUNCTION public.mp_commerce_guard_mixed_package() RETURNS trigger LANGUAGE plpgsql AS $$
-BEGIN
- IF EXISTS(SELECT 1 FROM public.mp_commerce_lot_picks WHERE provider=NEW.provider AND site_key=NEW.site_key AND reference=NEW.reference) THEN
- RAISE EXCEPTION 'Use separate packages for whole Lots and Products'; END IF;
- RETURN NEW;
-END $$;
-CREATE TRIGGER mp_commerce_guard_mixed_package BEFORE INSERT ON public.mp_commerce_picks
-FOR EACH ROW EXECUTE FUNCTION public.mp_commerce_guard_mixed_package();
 
 CREATE OR REPLACE FUNCTION public.mp_commerce_ingest(p jsonb) RETURNS text
 LANGUAGE plpgsql AS $$
