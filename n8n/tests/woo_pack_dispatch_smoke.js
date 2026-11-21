@@ -27,6 +27,9 @@ try {
       assert(widgets.btnWooLabel.onClick.includes('NEW_WINDOW'));
       assert(!widgets.btnWooLabel.onClick.includes('apiWooDispatch'));
       assert(widgets.btnWooDispatch.onClick.includes('apiWooDispatch'));
+      for (const name of ['inpWooPackage', 'inpWooScan', 'inpWooCarrier', 'inpWooService', 'inpWooTracking', 'inpWooPostage']) {
+        assert.strictEqual(widgets[name].isVisible, true, name + ' must not inherit legacy reconciliation visibility');
+      }
     }
   }
   const workflow = JSON.parse(fs.readFileSync(path.join(root, 'n8n/workflows/MushroomProcess - Woo Pack and Dispatch - PGSQL.json')));

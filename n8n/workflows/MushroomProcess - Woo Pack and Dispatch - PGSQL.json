@@ -457,7 +457,7 @@
         1200
       ],
       "parameters": {
-        "jsCode": "const expected=$('Validate open-order').first().json.order_id;\nconst url=new URL($json.edit_url);\nif(String($json.id)!==expected || url.origin!==$env.MP_COMMERCE_WOO_ORIGIN || !url.pathname.startsWith('/wp-admin/')) throw new Error('Unexpected Woo administrative order URL');\nreturn $input.all();"
+        "jsCode": "const expected=$('Validate open-order').first().json.order_id;\nif(String($json.id)!==expected || !String($json.edit_url).startsWith($env.MP_COMMERCE_WOO_ORIGIN+'/wp-admin/')) throw new Error('Unexpected Woo administrative order URL');\nreturn $input.all();"
       }
     }
   ],
