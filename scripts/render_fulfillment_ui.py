@@ -21,14 +21,29 @@ def render(app):
             d=found[side];d['name']=name;d['fullyQualifiedName']='FulfillmentUI.'+name
             d['actionConfiguration']['body']=body;d['jsonPathKeys']=[body]
     overlay=json.loads((ROOT/'appsmith/fulfillment_allocation_overlay.json').read_text())
+    cash=ROOT/'appsmith/fulfillment_cash_overlay.json'
+    if cash.exists():
+        extra=json.loads(cash.read_text())
+        for side,widgets in extra['widgets'].items():
+            for name,fields in widgets.items():overlay['widgets'][side].setdefault(name,{}).update(fields)
+        overlay['actions'].extend(extra['actions'])
+        if not any(d['name']==extra['datasource']['name'] for d in app['datasourceList']):
+            app['datasourceList'].append(extra['datasource'])
     page=next(p for p in app['pageList'] if p['unpublishedPage']['name']=='Fulfillment')
     for side,changes in overlay['widgets'].items():
-        widgets=page[side]['layouts'][0]['dsl']['children']
+        dsl=page[side]['layouts'][0]['dsl']
+        widgets=dsl['children']
+        dsl['bottomRow']=max(dsl['bottomRow'],172)
         for name,fields in changes.items():
             widget=next((w for w in widgets if w['widgetName']==name),None)
             if widget is None:
                 widget={};widgets.append(widget)
             widget.update(copy.deepcopy(fields))
+            for key,value in fields.items():
+                if isinstance(value,str) and '{{' in value:
+                    kind='dynamicTriggerPathList' if key.startswith('on') else 'dynamicBindingPathList'
+                    entries=widget.setdefault(kind,[])
+                    if not any(x['key']==key for x in entries):entries.append({'key':key})
     for action in overlay['actions']:
         existing=next((a for a in app['actionList'] if a['id']==action['id']),None)
         if existing is None:app['actionList'].append(copy.deepcopy(action))

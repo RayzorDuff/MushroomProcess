@@ -1,3 +1,10 @@
+## v1.2.7 - 2026-11-22
+
+- Integrate Woo Product/Lot packing, dispatch, shared-pool publication ownership and optional cash receipts with the deployed allocation UI and Product ID fix.
+- Exercise the combined native schema and renderers; installation alone does not transfer stock ownership, enable workflows, or collect/post payment.
+- Preserve the owner decision to defer historical Ecwid orders. Empty legacy product search remains a hosted follow-up, not accepted behavior.
+- Patch phase only; no tag. Hosted deployment and the restricted owner purchase/fulfillment remain pending.
+
 ## v1.2.6 - 2026-11-22
 
 - Promote the independent Fulfillment allocation UI after Product ID correction 062, preserving collision-safe IDs and QR labels.
@@ -9,10 +16,21 @@
 - Allocate missing Product business IDs safely when same-day four-character suffixes collide; retain existing IDs, UUIDs and QR labels.
 - Force deterministic bulk/concurrent collision regressions and provide scoped function rollback.
 
+## v1.2.4 - 2026-11-21
+
+- Separate authenticated cash receipts from fulfillment and queue durable ERP references. Preserve source order IDs, cash replay and stock history.
+- Add checked Woo cash-packing preparation and reproducible workflow/Appsmith bundle, disabled until operator configuration and hosted acceptance.
+
 ## v1.2.3 - 2026-11-21
 
 - Paginated eligible Fulfillment search, shared assignment validation, preserved order/detail after assignment, and separate atomic dispatch.
 - Independent migration 060 follows installed inventory 058; no unfinished Woo deployment required. Cash receipt/accounting remains a separate action.
+
+## v1.2.2 - 2026-11-21
+
+- Reuse the shared physical inventory specification for Woo Product/Lot picking and shipment acknowledgments, including generic items sold through legacy listings.
+- Add an explicit, reversible publication-owner handoff for the reviewed Woo cutover. Installing the migration does not activate or transfer inventory.
+- Preserve the deployed Ecwid baseline, stock receipts and native fulfillment while the Woo stack remains in draft.
 
 ## v1.2.1 - 2026-11-21
 
