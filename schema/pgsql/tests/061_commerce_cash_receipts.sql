@@ -12,7 +12,9 @@ BEGIN
  BEGIN
   PERFORM mp_commerce_record_cash(packet||'{"amount":"11.00"}'::jsonb);RAISE EXCEPTION 'BAD amount mismatch accepted';
  EXCEPTION WHEN others THEN IF SQLERRM LIKE 'BAD %' THEN RAISE; END IF; END;
+ UPDATE ecommerce_orders SET clover_reconciliation_status='pending' WHERE nocopk=oid;
  result:=mp_commerce_record_cash(packet);receipt:=(result->>'receipt_id')::uuid;
+ IF (SELECT clover_reconciliation_status FROM ecommerce_orders WHERE nocopk=oid) IS NOT NULL THEN RAISE EXCEPTION 'Cash retained stale Clover status'; END IF;
  IF result->>'status'<>'cash_received' OR NOT (result->>'erp_pending')::boolean THEN RAISE EXCEPTION 'Cash receipt state'; END IF;
  IF mp_commerce_record_cash(packet)->>'status'<>'duplicate' THEN RAISE EXCEPTION 'Cash receipt replay'; END IF;
  IF (SELECT status FROM ecommerce_orders WHERE nocopk=oid)<>'DELIVERED' OR (SELECT payment_status FROM ecommerce_orders WHERE nocopk=oid)<>'PAID' THEN RAISE EXCEPTION 'Cash changed fulfillment or failed payment status'; END IF;

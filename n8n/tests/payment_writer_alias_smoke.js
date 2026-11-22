@@ -129,3 +129,7 @@ for (const [label, query] of [['manual', manualWrite], ['accounted', accountedWr
 }
 
 console.log('Provider-neutral payment writer dual-write smoke tests passed.');
+
+const skipCash = new Function('$json','$env',node(poller,'Code - Prepare Clover Lookup').parameters.jsCode)({payment_method:'Pay by Cash',order_total:12,order_date:'2026-11-21T12:00:00Z'},{});
+assert(skipCash.json.shouldLookup===false,'cash web order was looked up as Clover payment');
+assert(pollerWrite.includes("coalesce(payment_processor,'') <> 'cash'"),'in-flight Clover write can overwrite a cash receipt');

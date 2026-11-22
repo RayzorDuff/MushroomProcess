@@ -23,6 +23,7 @@ BEGIN
   provider_key:=coalesce(nullif(o.provider,''),'ecwid');site:=coalesce(nullif(o.site_key,''),'dank_mushrooms');order_key:=coalesce(nullif(o.external_order_id,''),o.ecwid_order_id);
   IF provider_key='woocommerce' THEN RAISE EXCEPTION 'Use Woo ledger identity for cash receipt'; END IF;
   method:=lower(trim(o.payment_method));total:=o.order_total;currency_code:=o.currency;
+  IF nullif(o.processor_payment_id,'') IS NOT NULL OR nullif(o.clover_payment_id,'') IS NOT NULL OR coalesce(o.clover_payment_amount,0)>0 OR o.clover_payment_time IS NOT NULL THEN RAISE EXCEPTION 'Existing processor evidence requires review before recording cash'; END IF;
   IF upper(coalesce(o.status,'')) IN('WILL_NOT_DELIVER','RETURNED','CANCELLED') OR upper(coalesce(o.payment_status,'')) IN('REFUNDED','CANCELLED','CANCELED','FAILED') THEN RAISE EXCEPTION 'Cancelled/refunded cash sale requires review'; END IF;
   details:=jsonb_build_object('items',coalesce(nullif(o.items_json,''),'[]')::jsonb,'subtotal',o.subtotal,'tax',o.tax_total,'total',o.order_total,'currency',o.currency);
  ELSE
@@ -49,6 +50,7 @@ BEGIN
  -- Legacy status aliases are not processor proof or ERP completion.
  IF o.nocopk IS NOT NULL THEN
   UPDATE public.ecommerce_orders SET payment_status='PAID',payment_processor='cash',processor_payment_id=NULL,
+   clover_reconciliation_status=NULL,clover_payment_id=NULL,clover_payment_amount=NULL,clover_payment_time=NULL,clover_match_confidence=NULL,processor_match_confidence=NULL,
    processor_payment_status='received',processor_payment_amount=total,processor_payment_time=at_time,
    payment_reconciliation_status='cash_received_erp_pending',nc_updated_at=now() WHERE nocopk=o.nocopk;
  END IF;
