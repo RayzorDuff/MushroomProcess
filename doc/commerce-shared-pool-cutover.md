@@ -87,3 +87,5 @@ SELECT public.mp_commerce_restore_inventory_owner('RECORDED_OWNER_RECEIPT'::uuid
 Success `restored`, repeated call `duplicate`. The function refuses changed pool membership/specifications/flags. It preserves Woo orders and stock receipts and restores only the saved primary flags. Recalculate current available stock and reconcile the Ecwid baseline/readback before reopening Ecwid checkout; never replay the old opening quantity or a resolved API delta.
 
 If 059 itself must be reverted, restore its active owner handoffs first and keep Woo processing paused. Apply `schema/pgsql/rollback/059_commerce_shared_pool_fulfillment.sql` with the same Docker/psql command used above. It restores only tracked function definitions, refuses later changes and retains receipts/data. Ecwid migration 058 and its active baseline are not rolled back by this step.
+
+Owner update: no Ecwid order exists for the two newly packaged Products; if paid cash, none is expected. Preserve the unrelated earlier hold. Native regression proves packaging alone is unchanged and an unlinked MP cash-sale dispatch publishes one negative delta, then unchanged on replay.
