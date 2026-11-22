@@ -48,6 +48,10 @@ jobs:
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install 'psycopg[binary]==3.3.9'
       - run: python3 schema/pgsql/tests/060_fulfillment_concurrency.py
       - run: node n8n/tests/ecwid_catalog_sync_pgsql_smoke.js
       - run: node n8n/tests/commercial_inventory_sync_smoke.js
