@@ -1,5 +1,20 @@
 \set ON_ERROR_STOP on
 BEGIN;
+-- Inventory behavior is independent of random four-character business IDs.
+-- Keep this fixture deterministic; collision allocation has its own regression.
+CREATE FUNCTION public.t058_fixture_business_ids() RETURNS trigger LANGUAGE plpgsql AS $fixture$
+BEGIN
+ IF TG_TABLE_NAME='products' THEN
+  IF nullif(NEW.product_id,'') IS NULL THEN NEW.product_id:='T058-P-'||NEW.nocopk; END IF;
+ ELSE
+  IF nullif(NEW.lot_id,'') IS NULL THEN NEW.lot_id:='T058-L-'||NEW.nocopk; END IF;
+ END IF;
+ RETURN NEW;
+END $fixture$;
+CREATE TRIGGER a_t058_fixture_business_ids BEFORE INSERT ON public.products
+ FOR EACH ROW EXECUTE FUNCTION public.t058_fixture_business_ids();
+CREATE TRIGGER a_t058_fixture_business_ids BEFORE INSERT ON public.lots
+ FOR EACH ROW EXECUTE FUNCTION public.t058_fixture_business_ids();
 DO $$
 DECLARE cvg bigint;legacy bigint;alias_item bigint;hardwood bigint;hard_legacy bigint;
  dried bigint;dried_legacy bigint;chestnut bigint;reishi bigint;loc bigint;badloc bigint;ship bigint;
