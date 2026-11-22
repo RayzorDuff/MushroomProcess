@@ -1,3 +1,8 @@
+## v1.2.5 - 2026-11-21
+
+- Allocate missing Product business IDs safely when same-day four-character suffixes collide; retain existing IDs, UUIDs and QR labels.
+- Force deterministic bulk/concurrent collision regressions and provide scoped function rollback.
+
 ## v1.2.1 - 2026-11-21
 
 - Correct Ecwid inventory through explicit legacy/canonical size and recipe specifications, shared reservations and a single publication owner per pool.
