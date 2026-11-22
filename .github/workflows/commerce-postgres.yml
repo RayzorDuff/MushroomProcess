@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql schema/pgsql/tests/058*.sql schema/pgsql/tests/059*.sql schema/pgsql/tests/060*.sql schema/pgsql/tests/061*.sql schema/pgsql/tests/062*.sql; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql schema/pgsql/tests/058*.sql schema/pgsql/tests/059*.sql schema/pgsql/tests/060*.sql schema/pgsql/tests/061*.sql schema/pgsql/tests/062*.sql schema/pgsql/tests/063*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
       - name: Validate the Woo fulfillment list query
@@ -106,7 +106,7 @@ jobs:
         run: |
           set -euo pipefail
           for file in schema/pgsql/0*.sql; do
-            case "$file" in *054*|*055*|*056*|*057*|*058*|*059*|*060*|*061*) continue ;; esac
+            case "$file" in *054*|*055*|*056*|*057*|*058*|*059*|*060*|*061*|*063*) continue ;; esac
             psql -X -v ON_ERROR_STOP=1 -f "$file"
           done
       - name: Rollback-only preview, apply, lifecycle tests and scoped rollback
@@ -117,10 +117,15 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/058_ecwid_shared_inventory.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/058_ecwid_shared_inventory.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/060_fulfillment_allocation.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/063_fulfillment_search_performance.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/060_fulfillment_allocation.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/063_fulfillment_search_performance.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/063_fulfillment_search_performance.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/063_fulfillment_search_performance.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/061_commerce_cash_receipts.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/061_commerce_cash_receipts.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/061_commerce_cash_receipts.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/063_fulfillment_search_performance.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/060_fulfillment_allocation.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/058_ecwid_shared_inventory.sql
           test "$(psql -XAtc 'SELECT bool_and(pg_get_functiondef(name::regprocedure)=definition) FROM public.mp_inventory_058_backup')" = t

@@ -55,3 +55,7 @@ legacy short random Lot ID collision in fixture 058. Only that inventory fixture
 now supplies deterministic Lot IDs with a transaction-local trigger rolled back at
 test end. Production Lot IDs/generator are unchanged; that generator remains a
 separate follow-up, outside the Product-ID correction already deployed.
+
+063 is an independent performance follow-up to deployed 060. Hosted inventory and
+progress are fast with JIT off; search still timed out. See fulfillment-performance.md
+for the measured diagnosis, unchanged validation contract and scoped rollout.
