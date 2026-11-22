@@ -44,9 +44,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/058*.sql schema/pgsql/tests/060*.sql schema/pgsql/tests/062*.sql; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql schema/pgsql/tests/058*.sql schema/pgsql/tests/059*.sql schema/pgsql/tests/060*.sql schema/pgsql/tests/061*.sql schema/pgsql/tests/062*.sql schema/pgsql/tests/063*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
+      - name: Validate the Woo fulfillment list query
+        run: |
+          python3 - <<'PYSQL'
+          import json, subprocess
+          flow = json.load(open('n8n/workflows/MushroomProcess - Woo Pack and Dispatch - PGSQL.json'))
+          query = next(node['parameters']['query'] for node in flow['nodes'] if node['name'] == 'Commerce list')
+          subprocess.run(['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-c', query], check=True)
+          PYSQL
       - run: python3 schema/pgsql/tests/052_commerce_concurrency.py
       - uses: actions/setup-python@v5
         with:
@@ -98,7 +106,7 @@ jobs:
         run: |
           set -euo pipefail
           for file in schema/pgsql/0*.sql; do
-            case "$file" in *054*|*055*|*056*|*057*|*058*|*060*) continue ;; esac
+            case "$file" in *054*|*055*|*056*|*057*|*058*|*059*|*060*|*061*|*063*) continue ;; esac
             psql -X -v ON_ERROR_STOP=1 -f "$file"
           done
       - name: Rollback-only preview, apply, lifecycle tests and scoped rollback
@@ -109,9 +117,50 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/058_ecwid_shared_inventory.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/058_ecwid_shared_inventory.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/060_fulfillment_allocation.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/063_fulfillment_search_performance.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/060_fulfillment_allocation.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/063_fulfillment_search_performance.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/063_fulfillment_search_performance.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/063_fulfillment_search_performance.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/061_commerce_cash_receipts.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/061_commerce_cash_receipts.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/061_commerce_cash_receipts.sql
+          psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/063_fulfillment_search_performance.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/060_fulfillment_allocation.sql
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/rollback/058_ecwid_shared_inventory.sql
           test "$(psql -XAtc 'SELECT bool_and(pg_get_functiondef(name::regprocedure)=definition) FROM public.mp_inventory_058_backup')" = t
           psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/058_ecwid_shared_inventory.sql
       - run: python3 -m unittest discover -s scripts/tests -p 'test_ecwid_inventory*.py' -v
+
+  woo-cash-compatibility:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: commerce_test
+          POSTGRES_USER: commerce_test
+          POSTGRES_PASSWORD: synthetic-ci-only
+        ports:
+        - 5432:5432
+        options: --health-cmd="pg_isready -U commerce_test -d commerce_test" --health-interval
+          5s --health-timeout 5s --health-retries 12
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: commerce_test
+      PGDATABASE: commerce_test
+      PGPASSWORD: synthetic-ci-only
+    steps:
+    - uses: actions/checkout@v4
+    - name: Native Woo cash schema and packing contract
+      run: 'set -euo pipefail
+
+        for file in schema/pgsql/0*.sql; do psql -X -v ON_ERROR_STOP=1 -f "$file";
+        done
+
+        psql -X -v ON_ERROR_STOP=1 -f schema/pgsql/tests/061_commerce_cash_woo.sql
+
+        python3 scripts/prepare_cash_woo.py --woo-workflow ''n8n/workflows/MushroomProcess
+        - Woo Pack and Dispatch - PGSQL.json'' --woo-overlay appsmith/commerce_fulfillment_overlay.json
+        --output-dir /tmp/cash-bundle'

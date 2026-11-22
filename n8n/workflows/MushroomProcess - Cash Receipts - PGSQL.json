@@ -1,0 +1,143 @@
+{
+  "name": "MushroomProcess - Cash Receipts - PGSQL",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mushroomprocess/fulfillment/cash/receive",
+        "responseMode": "responseNode",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "b8ab0031-2b1b-48bd-b437-ef8b154b1bcb",
+      "name": "Receive cash",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        1072
+      ],
+      "typeVersion": 2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CONFIGURE_PRIVATE_CASH_CREDENTIAL",
+          "name": "MP Cash Operator"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const b=$json.body||$json; if(b.cash_received!==true||!b.operator||!/^\\d+(\\.\\d{1,2})?$/.test(String(b.amount||''))||!(/^[A-Z]{3}$/).test(String(b.currency||''))) throw new Error('Confirm cash received with exact amount, currency and operator'); return [{json:{payload:JSON.stringify(b)}}];"
+      },
+      "id": "22e357cb-806f-4f72-a5d2-3aabd0615fc2",
+      "name": "Validate cash receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        1072
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT public.mp_commerce_record_cash($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ [$json.payload] }}"
+        }
+      },
+      "id": "ec5e2b50-5aa8-44d3-8736-07d39dd56153",
+      "name": "Record cash receipt",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1104,
+        1008
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:$json.result}];"
+      },
+      "id": "123c315a-ee20-4e30-997b-db2e2432597a",
+      "name": "Cash receipt result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        1120
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "3caec9ed-a468-447c-a793-4d42da41d1ea",
+      "name": "Respond cash receipt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        1120
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Receive cash": {
+      "main": [
+        [
+          {
+            "node": "Validate cash receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate cash receipt": {
+      "main": [
+        [
+          {
+            "node": "Record cash receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record cash receipt": {
+      "main": [
+        [
+          {
+            "node": "Cash receipt result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cash receipt result": {
+      "main": [
+        [
+          {
+            "node": "Respond cash receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

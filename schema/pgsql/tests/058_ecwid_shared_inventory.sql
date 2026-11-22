@@ -1,5 +1,14 @@
 \set ON_ERROR_STOP on
 BEGIN;
+-- This inventory regression does not test short random Lot ID allocation.
+-- Keep fixtures deterministic; the trigger/function disappear on ROLLBACK.
+CREATE FUNCTION pg_temp.t058_lot_fixture_id() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.lot_id IS NULL OR NEW.lot_id='' THEN NEW.lot_id:='LOT-T058-'||NEW.nocopk::text; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER a_t058_lot_fixture_id BEFORE INSERT ON public.lots
+ FOR EACH ROW EXECUTE FUNCTION pg_temp.t058_lot_fixture_id();
 DO $$
 DECLARE cvg bigint;legacy bigint;alias_item bigint;hardwood bigint;hard_legacy bigint;
  dried bigint;dried_legacy bigint;chestnut bigint;reishi bigint;loc bigint;badloc bigint;ship bigint;
@@ -85,16 +94,23 @@ BEGIN
  PERFORM public.mp_ecwid_inventory_initialize(ec,5);
  -- Native Ecwid checkout has already taken one from external quantity.
  INSERT INTO public.ecommerce_orders(ecwid_order_id,provider,site_key,status,payment_status,items_json)
- VALUES('T058-SALE','ecwid','t058','AWAITING_PROCESSING','PAID',jsonb_build_array(jsonb_build_object('sku','T058-CVG','productId',900581,'quantity',1))::text) RETURNING nocopk INTO ord;
+ VALUES('T058-SALE','ecwid','t058','AWAITING_PROCESSING','AWAITING_PAYMENT',jsonb_build_array(jsonb_build_object('sku','T058-CVG','productId',900581,'quantity',1))::text) RETURNING nocopk INTO ord;
  SELECT available_quantity INTO v FROM public.mp_commerce_inventory() WHERE ecommerce_id=ec;
  IF v<>4 OR public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN RAISE EXCEPTION 'Native checkout double-deducted or restored'; END IF;
  SELECT unit_id INTO lot FROM public.mp_inventory_units() WHERE pool_key=(SELECT pool_key FROM public.mp_inventory_specs() WHERE ecommerce_id=ec) AND eligible AND kind='lot' LIMIT 1;
  -- Existing MP package/assign/ship flow: one Product replaces one whole Lot.
  UPDATE public.lots SET status='Consumed' WHERE nocopk=lot;
  INSERT INTO public.products(item_id,net_weight_oz,net_weight_g,process_type_mat,storage_location_id,use_by)
- VALUES(cvg,80,2267.96,'Pasteurized',ship,CURRENT_DATE+90) RETURNING nocopk INTO prod;
+ VALUES(cvg,80,2267.96,'Pasteurized',loc,CURRENT_DATE+90) RETURNING nocopk INTO prod;
  INSERT INTO public._m2m_products_lots_origin_lots(products_id,lots_id) VALUES(prod,lot);
  INSERT INTO public._m2m_products_ecommerce_orders_ecommerce_orders(products_id,ecommerce_orders_id) VALUES(prod,ord);
+ SELECT available_quantity INTO v FROM public.mp_commerce_inventory() WHERE ecommerce_id=ec;
+ IF v<>4 OR public.mp_inventory_legacy_hold(ec)<>1
+ OR public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN
+  RAISE EXCEPTION 'Packing while awaiting cash changed availability or released the hold'; END IF;
+ IF (SELECT desired_quantity FROM public.mp_ecommerce_catalog_inventory() WHERE ecommerce_id=ec)<>5 THEN
+  RAISE EXCEPTION 'Packaging counted the origin Lot and Product twice'; END IF;
+ UPDATE public.products SET storage_location_id=ship WHERE nocopk=prod;
  IF public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN RAISE EXCEPTION 'MP dispatch deducted a native sale twice'; END IF;
  UPDATE public.ecommerce_orders SET status='SHIPPED' WHERE nocopk=ord;
  IF public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN RAISE EXCEPTION 'Ecwid fulfillment status changed basis'; END IF;
@@ -131,6 +147,22 @@ BEGIN
  token:=(plan->>'token')::uuid;
  PERFORM public.mp_ecwid_inventory_resolve(token,'applied');
  IF public.mp_ecwid_inventory_resolve(token,'applied')<>'duplicate' THEN RAISE EXCEPTION 'Receipt ack not idempotent'; END IF;
+ -- A cash/direct MP sale has no Ecwid order and no native checkout deduction.
+ SELECT unit_id INTO lot FROM public.mp_inventory_units() WHERE pool_key=(SELECT pool_key FROM public.mp_inventory_specs() WHERE ecommerce_id=ec) AND eligible AND kind='lot' LIMIT 1;
+ UPDATE public.lots SET status='Consumed' WHERE nocopk=lot;
+ INSERT INTO public.products(item_id,net_weight_oz,net_weight_g,process_type_mat,storage_location_id,use_by)
+ VALUES(cvg,80,2267.96,'Pasteurized',loc,CURRENT_DATE+90) RETURNING nocopk INTO prod;
+ INSERT INTO public._m2m_products_lots_origin_lots(products_id,lots_id) VALUES(prod,lot);
+ IF public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN
+  RAISE EXCEPTION 'Cash-sale packing changed stock before dispatch'; END IF;
+ UPDATE public.products SET storage_location_id=ship WHERE nocopk=prod;
+ plan:=public.mp_ecwid_inventory_plan(ec);
+ SELECT available_quantity INTO v FROM public.mp_commerce_inventory() WHERE ecommerce_id=ec;
+ IF v<>3 OR (plan->>'quantityDelta')::bigint<>-1 THEN
+  RAISE EXCEPTION 'Cash MP dispatch without Ecwid order failed to deduct once'; END IF;
+ PERFORM public.mp_ecwid_inventory_resolve((plan->>'token')::uuid,'applied');
+ IF public.mp_ecwid_inventory_plan(ec)->>'status'<>'unchanged' THEN
+  RAISE EXCEPTION 'Cash-sale stock publication replayed'; END IF;
  RAISE NOTICE '058 synthetic review candidates 5/3/3/13; shared reservations, native sale, MP shipment, replenish, refund and unknown-outcome checks passed';
 END $$;
 ROLLBACK;
