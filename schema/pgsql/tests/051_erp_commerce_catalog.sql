@@ -19,7 +19,7 @@ BEGIN
       RETURNING nocopk INTO ecommerce_pk;
     INSERT INTO public.products(item_id,storage_location_id,use_by) VALUES
       (item_pk,location_pk,CURRENT_DATE+10),(item_pk,location_pk,CURRENT_DATE-1);
-    INSERT INTO public.lots(item_id,status,use_by) VALUES (item_pk,'Sterilized',CURRENT_DATE+10);
+    INSERT INTO public.lots(item_id,status,use_by,location_id) VALUES (item_pk,'Sterilized',CURRENT_DATE+10,location_pk);
     SELECT * INTO got FROM public.mp_ecommerce_catalog_inventory() WHERE ecommerce_id=ecommerce_pk;
     IF got.erp_item_code IS DISTINCT FROM 'COMMERCE-051' OR got.desired_quantity IS DISTINCT FROM 2::bigint THEN
       RAISE EXCEPTION 'Provider-neutral synthetic inventory incorrect: %', row_to_json(got);

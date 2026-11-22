@@ -140,7 +140,7 @@ BEGIN
 
   /* FullyColonized and Fridge are both valid for this ecommerce status. */
   INSERT INTO public.lots(
-    lot_id, item_id, strain_id, item_name_mat, item_category_mat, status, use_by
+    lot_id, item_id, strain_id, item_name_mat, item_category_mat, status, use_by, location_id
   )
   VALUES
     (
@@ -150,7 +150,7 @@ BEGIN
       'Issue 12 Lot',
       'fruiting_block',
       'FullyColonized',
-      CURRENT_DATE + 30
+      CURRENT_DATE + 30, v_active_location_id
     ),
     (
       'LOT-ISSUE12-FRIDGE',
@@ -159,7 +159,7 @@ BEGIN
       'Issue 12 Lot',
       'fruiting_block',
       'Fridge',
-      CURRENT_DATE + 30
+      CURRENT_DATE + 30, v_active_location_id
     ),
     (
       'LOT-ISSUE12-CONSUMED',
@@ -168,7 +168,7 @@ BEGIN
       'Issue 12 Lot',
       'fruiting_block',
       'Consumed',
-      CURRENT_DATE + 30
+      CURRENT_DATE + 30, v_active_location_id
     ),
     (
       'LOT-ISSUE12-EXPIRED',
@@ -177,7 +177,7 @@ BEGIN
       'Issue 12 Lot',
       'fruiting_block',
       'FullyColonized',
-      CURRENT_DATE - 1
+      CURRENT_DATE - 1, v_active_location_id
     );
 
   SELECT *
