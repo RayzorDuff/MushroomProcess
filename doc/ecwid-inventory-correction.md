@@ -169,6 +169,8 @@ python3 scripts/ecwid_inventory_publish.py initialize --ecommerce-id 1 --confirm
 
 Expected: original mapped ID/SKU; reconciled order count; current net; a durable receipt if a delta is needed; finite-stock readback equal to the reviewed net; product still disabled; `Verified first publication`. STOP on any failure. Do not rerun initialization blindly after a timeout: its pending receipt prevents duplicate stock adjustment. A baseline that already exists requires receipt inspection, not reset.
 
+**Urgent sale before the scheduler is ready:** after this block's live readback and owner review pass, you may re-enable the same finite-stock Coco product with both stock writers still paused. Ecwid's native counter handles the sale, and the existing MP fulfillment flow continues. Do not run the old absolute publisher. Complete block 6 before resuming automatic stock publication or relying on automatic replenishment.
+
 ## Block 6 — reimport and resume Commercial Inventory Sync
 
 Reimport **MushroomProcess - Commercial Inventory Sync - PGSQL.json** from this approved Git revision into the existing paused workflow using n8n's import-from-file workflow editor. Replace that workflow rather than creating a second scheduled writer. Preserve its existing project and `Postgres account 2` credential binding. Keep it inactive while checking. No n8n service restart, Appsmith import, Ecwid order-webhook import or Woo deployment is required.

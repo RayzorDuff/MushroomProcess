@@ -25,7 +25,7 @@ NODE = r'''
   // Strip customer/payment data before leaving the container.
   console.log(JSON.stringify({total:x.total,count:x.count,items:(x.items||[]).map(o=>({
    id:String(o.id),status:o.fulfillmentStatus,payment_status:o.paymentStatus,updated:o.updateDate,
-   
+
    items:(o.items||[]).map(i=>({id:i.id,name:i.name||'',sku:i.sku||'',productId:i.productId,quantity:i.quantity}))}))}));
  }else console.log(JSON.stringify(Object.fromEntries(Object.entries(x).filter(([k])=>[
  'id','sku','quantity','unlimited','enabled','updateCount','warning'].includes(k)))));
