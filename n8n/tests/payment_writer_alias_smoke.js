@@ -103,17 +103,16 @@ assert(manualMoov.fields.clover_payment_id === null, 'non-Clover manual match le
 assert(manualMoov.fields.clover_reconciliation_status === null, 'non-Clover manual match leaked into legacy Clover status');
 assert(manualMoov.result.payment_processor === 'moov', 'generic manual result processor missing');
 
-const accounted = runCode(accountedCode, {
-  body: {
-    airtable_order_record_id: 'rec-cash',
-    operator: 'operator@example.com',
-  },
-})[0].json;
-
-assert(accounted.fields.payment_processor === 'cash', 'accounted cash action did not identify cash processor/tender');
-assert(accounted.fields.payment_reconciliation_status === 'accounted', 'accounted generic reconciliation status missing');
-assert(accounted.fields.processor_payment_status === 'accounted', 'accounted generic payment status missing');
-assert(accounted.fields.clover_reconciliation_status === 'accounted', 'accounted legacy compatibility status missing');
+let retiredAccounted = false;
+try {
+  runCode(accountedCode, { body: { airtable_order_record_id: 'rec-cash', operator: 'operator@example.com' } });
+} catch (error) {
+  retiredAccounted = error.message.includes('Record actual cash received');
+}
+assert(retiredAccounted, 'legacy Accounted bypass must require the explicit cash-received path');
+const cashWorkflow = loadWorkflow('MushroomProcess - Cash Receipts - PGSQL.json');
+assert(node(cashWorkflow, 'Receive cash').parameters.authentication === 'headerAuth', 'cash entry requires authentication');
+assert(node(cashWorkflow, 'Record cash receipt').parameters.query.includes('mp_commerce_record_cash'), 'cash entry must create a durable receipt');
 
 for (const [label, query] of [['manual', manualWrite], ['accounted', accountedWrite]]) {
   for (const column of [
