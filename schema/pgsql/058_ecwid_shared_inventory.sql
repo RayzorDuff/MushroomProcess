@@ -43,8 +43,8 @@ RETURNS TABLE(ecommerce_id bigint,pool_key text,source_item_id bigint,size_kind 
 LANGUAGE sql STABLE AS $$
  WITH specs AS (
  SELECT e.nocopk ecommerce_id,coalesce(src.nocopk,e.item_id) source_item_id,
- CASE WHEN r.legacy_code IS NULL AND EXISTS(SELECT 1 FROM public.mp_inventory_item_rules z WHERE z.source_code=i.item_id) THEN 'review' ELSE r.size_kind END size_kind,r.size_value,r.recipe_codes,
- jsonb_build_array(coalesce(r.source_code,i.item_id),CASE WHEN r.legacy_code IS NULL AND EXISTS(SELECT 1 FROM public.mp_inventory_item_rules z WHERE z.source_code=i.item_id) THEN 'review' ELSE r.size_kind END,r.size_value,r.recipe_codes,
+ CASE WHEN (r.legacy_code IS NOT NULL AND src.nocopk IS NULL) OR r.legacy_code IS NULL AND EXISTS(SELECT 1 FROM public.mp_inventory_item_rules z WHERE z.source_code=i.item_id) THEN 'review' ELSE r.size_kind END size_kind,r.size_value,r.recipe_codes,
+ jsonb_build_array(coalesce(r.source_code,i.item_id),CASE WHEN (r.legacy_code IS NOT NULL AND src.nocopk IS NULL) OR r.legacy_code IS NULL AND EXISTS(SELECT 1 FROM public.mp_inventory_item_rules z WHERE z.source_code=i.item_id) THEN 'review' ELSE r.size_kind END,r.size_value,r.recipe_codes,
  regexp_replace(lower(coalesce(e.status,'')),'[^a-z0-9]','','g'),e.strain_id)::text pool_key,
  lower(coalesce(nullif(trim(e.provider),''),'ecwid')) provider,e.is_primary_public_listing,
  coalesce(e.sync_enabled,e.sync_to_ecwid,false) AND coalesce(nullif(trim(e.external_sku),''),nullif(trim(e.ecwid_sku),'')) IS NOT NULL enabled
@@ -264,6 +264,7 @@ BEGIN
  SELECT * INTO STRICT c FROM public.mp_ecommerce_ecwid_catalog_sync_candidates() WHERE ecommerce_id=p_id;
  SELECT available_quantity INTO STRICT n FROM public.mp_commerce_inventory() WHERE ecommerce_id=p_id;
  b:=public.mp_ecwid_inventory_basis(p_id);
+ IF EXISTS(SELECT 1 FROM public.mp_inventory_specs() WHERE ecommerce_id=p_id AND size_kind='review') THEN RAISE EXCEPTION 'Unresolved package/material specification'; END IF;
  IF b IS NULL OR c.external_product_id IS NULL OR c.external_product_id !~ '^[0-9]+$'
  OR n IS DISTINCT FROM p_confirmed_quantity THEN RAISE EXCEPTION 'Fresh Ecwid readback must equal current reviewed net MP availability'; END IF;
  IF EXISTS(SELECT 1 FROM public.mp_ecwid_inventory_publications WHERE ecommerce_id=p_id) THEN
@@ -278,6 +279,7 @@ BEGIN
  PERFORM pg_advisory_xact_lock(520052);
  SELECT * INTO c FROM public.mp_ecommerce_ecwid_catalog_sync_candidates() WHERE ecommerce_id=p_id;
  IF NOT FOUND THEN RETURN jsonb_build_object('status','review_disabled','ecommerce_id',p_id); END IF;
+ IF EXISTS(SELECT 1 FROM public.mp_inventory_specs() WHERE ecommerce_id=p_id AND size_kind='review') THEN RETURN jsonb_build_object('status','review_spec_required','ecommerce_id',p_id); END IF;
  SELECT * INTO old FROM public.mp_ecwid_inventory_publications WHERE ecommerce_id=p_id FOR UPDATE;
  IF NOT FOUND THEN RETURN jsonb_build_object('status','review_baseline_required','ecommerce_id',p_id); END IF;
  IF old.pending_token IS NOT NULL THEN RETURN jsonb_build_object('status','review_unknown_outcome','ecommerce_id',p_id); END IF;
@@ -305,6 +307,7 @@ BEGIN
  SELECT * INTO STRICT c FROM public.mp_ecommerce_ecwid_catalog_sync_candidates() WHERE ecommerce_id=p_id;
  SELECT available_quantity INTO STRICT n FROM public.mp_commerce_inventory() WHERE ecommerce_id=p_id;
  b:=public.mp_ecwid_inventory_basis(p_id);
+ IF EXISTS(SELECT 1 FROM public.mp_inventory_specs() WHERE ecommerce_id=p_id AND size_kind='review') THEN RAISE EXCEPTION 'Unresolved package/material specification'; END IF;
  IF b IS NULL OR c.external_product_id IS NULL OR c.external_product_id !~ '^[0-9]+$' THEN
   RAISE EXCEPTION 'Reviewed numeric Ecwid owner mapping required'; END IF;
  IF EXISTS(SELECT 1 FROM public.mp_ecwid_inventory_publications WHERE ecommerce_id=p_id) THEN

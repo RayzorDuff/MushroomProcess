@@ -48,7 +48,7 @@ def pg(sql):
 
 
 def literal(value):
-    return "'" + str(value).replace("'", "''") + "'"
+    return "convert_from(decode('" + str(value).encode("utf-8").hex() + "','hex'),'UTF8')"
 
 
 def api(container, path, method='GET', body=None):

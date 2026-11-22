@@ -8,6 +8,12 @@ spec=importlib.util.spec_from_file_location('stock',Path(__file__).resolve().par
 stock=importlib.util.module_from_spec(spec);spec.loader.exec_module(stock)
 
 class PublicationTests(unittest.TestCase):
+    def test_external_text_cannot_end_sql_dollar_body(self):
+        encoded=stock.literal("x'$stock$; SELECT 'synthetic'")
+        self.assertNotIn('$stock$',encoded)
+        self.assertNotIn('SELECT',encoded)
+        self.assertIn('convert_from(decode(',encoded)
+
     def config(self):
         return {'ecommerce_id':1,'external_sku':'SYNTHETIC','external_product_id':'711334877','external_variation_id':None}
 
