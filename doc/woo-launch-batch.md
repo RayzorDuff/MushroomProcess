@@ -41,3 +41,17 @@ for recovery verification. No synthetic Product/stock mutation should be used on
 production to imitate that sale. Public checkout follows acceptance and a staffed
 ongoing queue/review procedure; one approved order is not an unattended pipeline.
 Cash, refunds, split tender and payout/fees remain separate acceptance cases.
+
+## Order-list timeout correction
+
+The hosted list took about three minutes and exceeded Appsmith's 10-second timeout.
+The revised list no longer invokes mp_fulfillment_progress for every historical
+order. It retains linked/required summary counts; selected-order detail and Assign/
+Dispatch retain authoritative progress and validation. No timeout increase or schema
+change is required. Hosted timing must still be verified after workflow import.
+
+The combined native full-schema job passed; standalone inventory CI exposed the
+legacy short random Lot ID collision in fixture 058. Only that inventory fixture
+now supplies deterministic Lot IDs with a transaction-local trigger rolled back at
+test end. Production Lot IDs/generator are unchanged; that generator remains a
+separate follow-up, outside the Product-ID correction already deployed.

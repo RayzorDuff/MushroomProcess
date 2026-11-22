@@ -1,5 +1,14 @@
 \set ON_ERROR_STOP on
 BEGIN;
+-- This inventory regression does not test short random Lot ID allocation.
+-- Keep fixtures deterministic; the trigger/function disappear on ROLLBACK.
+CREATE FUNCTION pg_temp.t058_lot_fixture_id() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.lot_id IS NULL OR NEW.lot_id='' THEN NEW.lot_id:='LOT-T058-'||NEW.nocopk::text; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER a_t058_lot_fixture_id BEFORE INSERT ON public.lots
+ FOR EACH ROW EXECUTE FUNCTION pg_temp.t058_lot_fixture_id();
 DO $$
 DECLARE cvg bigint;legacy bigint;alias_item bigint;hardwood bigint;hard_legacy bigint;
  dried bigint;dried_legacy bigint;chestnut bigint;reishi bigint;loc bigint;badloc bigint;ship bigint;

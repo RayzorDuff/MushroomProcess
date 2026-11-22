@@ -1,0 +1,17 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+const flow = JSON.parse(fs.readFileSync(path.join(__dirname, '../workflows/MushroomProcess - Fulfillment API - PGSQL.json'), 'utf8'));
+const node = name => flow.nodes.find(n => n.name === name);
+const list = node('PGSQL - List Orders').parameters.query;
+const detail = node('PGSQL - Get Order').parameters.query;
+assert(!list.includes('mp_fulfillment_progress('), 'List must not run full inventory progress for every historical order');
+assert(list.includes("'fulfillment_progress', NULL"));
+assert(detail.includes('mp_fulfillment_progress(o.nocopk)'), 'Selected-order detail retains authoritative progress');
+const build = node('Code - Build Fulfillment Orders').parameters.jsCode;
+const result = new Function('$json', '$', build)({records:[{id:'synthetic',fields:{items_json:'[{"quantity":2}]',products:['one'],fulfillment_progress:null,payment_status:'PAID',status:'AWAITING_PROCESSING',payment_method:'Cash',provider:'ecwid'}}]}, () => ({first:() => ({json:{mode:'all',timezone:'America/Denver'}})}));
+assert.strictEqual(result[0].json.orders.length, 1);
+assert.strictEqual(result[0].json.orders[0].linked_count, 1);
+assert.strictEqual(result[0].json.orders[0].required_count, 2);
+assert.strictEqual(result[0].json.orders[0].product_assignment_complete, false);
+console.log('Fulfillment list defers inventory progress to selected detail and preserves summary counts.');
