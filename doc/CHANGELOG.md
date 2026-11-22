@@ -1,7 +1,18 @@
+## v1.2.6 - 2026-11-22
+
+- Promote the independent Fulfillment allocation UI after Product ID correction 062, preserving collision-safe IDs and QR labels.
+- Run both allocation and Product ID concurrency/regression checks against the combined schema. Retain separate physical dispatch and cash accounting.
+- Patch phase only; no tag. Hosted workflow/Appsmith rollout remains an operator step.
+
 ## v1.2.5 - 2026-11-21
 
 - Allocate missing Product business IDs safely when same-day four-character suffixes collide; retain existing IDs, UUIDs and QR labels.
 - Force deterministic bulk/concurrent collision regressions and provide scoped function rollback.
+
+## v1.2.3 - 2026-11-21
+
+- Paginated eligible Fulfillment search, shared assignment validation, preserved order/detail after assignment, and separate atomic dispatch.
+- Independent migration 060 follows installed inventory 058; no unfinished Woo deployment required. Cash receipt/accounting remains a separate action.
 
 ## v1.2.1 - 2026-11-21
 
