@@ -1,3 +1,8 @@
+## v1.2.4 - 2026-11-21
+
+- Separate authenticated cash receipts from fulfillment and queue durable ERP references. Preserve source order IDs, cash replay and stock history.
+- Add checked Woo cash-packing preparation and reproducible workflow/Appsmith bundle, disabled until operator configuration and hosted acceptance.
+
 ## v1.2.3 - 2026-11-21
 
 - Paginated eligible Fulfillment search, shared assignment validation, preserved order/detail after assignment, and separate atomic dispatch.

@@ -1,6 +1,6 @@
 # MushroomProcess (PostgreSQL + Appsmith + n8n)
 
-Current version: **1.2.3**.
+Current version: **1.2.4**.
 
 See [`doc/RELEASE_PROCESS.md`](doc/RELEASE_PROCESS.md) for the repeatable release workflow.
 

@@ -32,6 +32,24 @@ export default {
     }
   },
 
+  async recordCashReceived() {
+    if (!this.selectedOrderIsCashLike() || !chkCashReceived.isChecked || appsmith.store.fulfillment_cash_busy) return null;
+    const id = appsmith.store.fulfillment_selected_order_id;
+    await storeValue("fulfillment_cash_busy", true);
+    try {
+      const result = await apiFulfillmentCashReceived.run();
+      if (!result || result.ok === false) throw new Error(result?.error || "Cash receipt failed");
+      if (id === appsmith.store.fulfillment_selected_order_id) {
+        await this.refreshSelectedOrder();
+        await resetWidget("chkCashReceived", true);
+        showAlert("Cash receipt saved. ERP accounting is separately reviewed/retried.", "success");
+      }
+      return result;
+    } finally {
+      await storeValue("fulfillment_cash_busy", false);
+    }
+  },
+
   currentOperator() {
     const email = (appsmith.user?.email || "").trim().toLowerCase();
     const name = (appsmith.user?.name || "").trim();
@@ -248,7 +266,7 @@ export default {
     const row = appsmith.store.fulfillment_selected_order || {};
     const method = String(row.payment_method || "");
     const processor = String(row.payment_processor || "").toLowerCase();
-  return processor === "cash" || ["cash", "pay by cash", "cash on delivery", "cod", "sell on the go - cash"].includes(method.trim().toLowerCase());
+  return processor === "cash" || ["cash", "pay by cash", "pay with cash", "cash on delivery", "cod", "sell on the go - cash"].includes(method.trim().toLowerCase());
   },
 
   async refreshAfterReconciliation(message) {
