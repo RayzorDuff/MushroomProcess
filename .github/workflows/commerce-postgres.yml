@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql schema/pgsql/tests/058*.sql; do
+          for file in schema/pgsql/tests/026* schema/pgsql/tests/027* schema/pgsql/tests/031* schema/pgsql/tests/041*.sql schema/pgsql/tests/042*.sql schema/pgsql/tests/044*.sql schema/pgsql/tests/045*.sql schema/pgsql/tests/046*.sql schema/pgsql/tests/047*.sql schema/pgsql/tests/048*.sql schema/pgsql/tests/050*.sql schema/pgsql/tests/051*.sql schema/pgsql/tests/052*.sql schema/pgsql/tests/054*.sql schema/pgsql/tests/055*.sql schema/pgsql/tests/056*.sql schema/pgsql/tests/057*.sql schema/pgsql/tests/058*.sql schema/pgsql/tests/059*.sql; do
             psql -v ON_ERROR_STOP=1 -f "$file"
           done
       - name: Validate the Woo fulfillment list query
@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           for file in schema/pgsql/0*.sql; do
-            case "$file" in *054*|*055*|*056*|*057*|*058*) continue ;; esac
+            case "$file" in *054*|*055*|*056*|*057*|*058*|*059*) continue ;; esac
             psql -X -v ON_ERROR_STOP=1 -f "$file"
           done
       - name: Rollback-only preview, apply, lifecycle tests and scoped rollback
