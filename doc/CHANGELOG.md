@@ -1,3 +1,8 @@
+## v1.2.3 - 2026-11-21
+
+- Paginated eligible Fulfillment search, shared assignment validation, preserved order/detail after assignment, and separate atomic dispatch.
+- Independent migration 060 follows installed inventory 058; no unfinished Woo deployment required. Cash receipt/accounting remains a separate action.
+
 ## v1.2.1 - 2026-11-21
 
 - Correct Ecwid inventory through explicit legacy/canonical size and recipe specifications, shared reservations and a single publication owner per pool.
