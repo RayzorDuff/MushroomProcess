@@ -16,7 +16,7 @@ validated transactional implementations. Function-local jit=off matches the fast
 hosted diagnostic; global and role settings are unchanged. A supporting allocation
 index is added. No stock, identity, hold, order or movement rows are altered.
 
-Native regression counts calls: one progress calculation and at most three inventory
+Native regression counts calls: one progress calculation and at most four inventory
 calls for a search over 2,100 fixture Products. It rejects any invocation of the old
 per-product search helper, checks both legacy link directions, allocated/shipped/
 expired exclusion, exact search, unknown line refusal and pagination. Existing
