@@ -64,7 +64,8 @@ BEGIN
  IF (result->>'count')::integer<>97 OR jsonb_array_length(result->'products')<>25 OR NOT (result->>'has_next')::boolean THEN
   RAISE EXCEPTION 'Search eligibility or pagination changed: %',result;
  END IF;
- IF progress_calls<>1 OR units_calls>3 THEN
+ -- Existing progress uses three inventory reads; search adds one materialized read.
+ IF progress_calls<>1 OR units_calls>4 THEN
   RAISE EXCEPTION 'Search repeated shared work: progress %, inventory %',progress_calls,units_calls;
  END IF;
  first_id:=result->'products'->0->>'product_id';
