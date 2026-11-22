@@ -1,3 +1,10 @@
+## v1.2.1 - 2026-11-21
+
+- Correct Ecwid inventory through explicit legacy/canonical size and recipe specifications, shared reservations and a single publication owner per pool.
+- Preserve ecommerce/external IDs and the existing Ecwid fulfillment interface. Coordinate all three inventory queries without requiring the Woo migrations.
+- Add durable Ecwid stock-delta receipts, fresh order reconciliation and guarded first-publication tooling, a rollback-only preview, and scoped function rollback.
+- Keep quantity changes subject to current hosted review. November 21 export counts are historical review candidates.
+
 ## v1.2.0 - 2026-08-13
 
 _This coordinated release records the stable MushroomProcess baseline before the planned ERPNext-centered purchasing/inventory and provider-neutral commerce transition. It also marks the documented point at which the supported Appsmith/PostgreSQL application intentionally extends beyond the final Airtable reference._

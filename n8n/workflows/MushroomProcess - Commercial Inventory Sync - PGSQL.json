@@ -683,6 +683,107 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const enabled = key => String($env[key] || 'false').toLowerCase() === 'true';\nconst erp = enabled('MP_SYNC_ERP_ENABLED');\nconst woo = enabled('MP_SYNC_WOO_ENABLED');\nconst snapshot = enabled('MP_SYNC_SNAPSHOT_ENABLED');\nif ((erp || woo) && !snapshot) throw new Error('Enable reservation snapshot before ERP/Woo providers');\nif ((erp || woo) && (!String($env.MP_SYNC_ERP_BASE_URL || '').trim() || !String($env.MP_SYNC_ERP_AUTHORIZATION || '').trim())) throw new Error('ERP endpoint/authorization is required');\nif (woo && (String($env.MP_SYNC_WOO_BASE_URL || '') !== 'https://shop-test.danks.store' || !String($env.MP_SYNC_WOO_AUTHORIZATION || '').trim())) throw new Error('Woo staging shop/authorization required');\nreturn {json: $json};"
       }
+    },
+    {
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      },
+      "name": "PGSQL - Plan Safe Ecwid Inventory",
+      "id": "2da05800-0000-4000-8000-000000000001",
+      "position": [
+        -400,
+        900
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT public.mp_ecwid_inventory_plan(ecommerce_id) AS plan FROM public.mp_ecommerce_ecwid_catalog_sync_candidates();",
+        "options": {}
+      }
+    },
+    {
+      "name": "Code - Ready Ecwid Inventory Changes",
+      "id": "2da05800-0000-4000-8000-000000000002",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        900
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().flatMap((i,index) => { const p=i.json.plan; if(p.status === 'review_unknown_outcome') throw new Error('Uncertain Ecwid write: operator review required; do not replay'); if(p.status !== 'ready') return []; if(!/^[0-9]+$/.test(String(p.external_product_id)) || !/^[0-9]+$/.test(String($env.ECWID_STORE_ID||''))) throw new Error('Exact numeric Ecwid target required'); const v=p.external_variation_id; if(v && !/^[0-9]+$/.test(String(v))) throw new Error('Numeric variation required'); return [{json:{...p,url:`https://app.ecwid.com/api/v3/${$env.ECWID_STORE_ID}/products/${p.external_product_id}${v ? '/combinations/'+v : ''}/inventory`},pairedItem:{item:index}}]; });"
+      }
+    },
+    {
+      "name": "HTTP - Apply Ecwid Inventory Delta",
+      "id": "2da05800-0000-4000-8000-000000000003",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        900
+      ],
+      "retryOnFail": false,
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $env.ECWID_SECRET_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {quantityDelta: $json.quantityDelta} }}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "name": "Code - Verify Ecwid Delta Receipt",
+      "id": "2da05800-0000-4000-8000-000000000004",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        900
+      ],
+      "parameters": {
+        "jsCode": "if(Number($json.updateCount)!==1 || $json.warning) throw new Error('Ecwid outcome requires review; never retry the delta automatically'); const p=$('Code - Ready Ecwid Inventory Changes').item.json; if(!/^[0-9a-f-]{36}$/.test(p.token)) throw new Error('Invalid durable receipt token'); return {json:{token:p.token}};",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "r064ogulZ44Ose76",
+          "name": "Postgres account 2"
+        }
+      },
+      "name": "PGSQL - Acknowledge Ecwid Inventory Delta",
+      "id": "2da05800-0000-4000-8000-000000000005",
+      "position": [
+        560,
+        900
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT public.mp_ecwid_inventory_resolve($1::uuid,'applied') AS outcome;",
+        "options": {
+          "queryReplacement": "={{ [$json.token] }}"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -826,7 +927,7 @@
       "main": [
         [
           {
-            "node": "PGSQL - Load Ecwid Catalog Sync Candidates",
+            "node": "PGSQL - Plan Safe Ecwid Inventory",
             "type": "main",
             "index": 0
           }
@@ -980,6 +1081,50 @@
           },
           {
             "node": "IF - Reservation Snapshot Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGSQL - Plan Safe Ecwid Inventory": {
+      "main": [
+        [
+          {
+            "node": "Code - Ready Ecwid Inventory Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Ready Ecwid Inventory Changes": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Apply Ecwid Inventory Delta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Apply Ecwid Inventory Delta": {
+      "main": [
+        [
+          {
+            "node": "Code - Verify Ecwid Delta Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Verify Ecwid Delta Receipt": {
+      "main": [
+        [
+          {
+            "node": "PGSQL - Acknowledge Ecwid Inventory Delta",
             "type": "main",
             "index": 0
           }
