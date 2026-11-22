@@ -45,8 +45,20 @@ assert.deepStrictEqual(flow.connections['Code - Validate Provider Configuration'
  ['IF - Ecwid Provider Enabled?','IF - Reservation Snapshot Enabled?']);
 assert.deepStrictEqual(flow.connections['IF - Reservation Snapshot Enabled?'].main[0].map(x=>x.node), ['PGSQL - Read Reservation-adjusted MP Inventory']);
 assert.deepStrictEqual(flow.connections['IF - Ecwid Provider Enabled?'].main[0].map(x=>x.node),
- ['PGSQL - Load Ecwid Catalog Sync Candidates']);
+ ['PGSQL - Plan Safe Ecwid Inventory']);
 for(const node of flow.nodes.filter(n=>n.type==='n8n-nodes-base.code')) {
   new Function('$json','$', '$env', 'Buffer',node.parameters.jsCode);
 }
-console.log('Merged inventory workflow: legacy Ecwid unchanged, MP snapshot merged, ERP/Woo opt-in disabled and checked.');
+console.log('Commercial workflow: preserved metadata nodes, durable Ecwid stock deltas, ERP/Woo disabled by default.');
+
+assert.strictEqual(byName('HTTP - Apply Ecwid Inventory Delta').retryOnFail,false);
+assert(byName('HTTP - Apply Ecwid Inventory Delta').parameters.jsonBody.includes('quantityDelta'));
+assert(!byName('HTTP - Apply Ecwid Inventory Delta').parameters.jsonBody.includes('unlimited'));
+assert(byName('PGSQL - Acknowledge Ecwid Inventory Delta').parameters.query.includes('mp_ecwid_inventory_resolve'));
+const ready = new Function('$input','$env',byName('Code - Ready Ecwid Inventory Changes').parameters.jsCode);
+const fixture=[{json:{plan:{status:'review_baseline_required',ecommerce_id:1}}},{json:{plan:{status:'ready',external_product_id:'711334877',quantityDelta:2,token:'05800000-0000-4000-8000-000000000001'}}}];
+const plans=ready({all:()=>fixture},{ECWID_STORE_ID:'1003'});
+assert.strictEqual(plans.length,1); assert.strictEqual(plans[0].pairedItem.item,1);
+assert(plans[0].json.url.endsWith('/products/711334877/inventory'));
+
+assert.throws(()=>ready({all:()=>[{json:{plan:{status:'review_unknown_outcome'}}}]},{ECWID_STORE_ID:'1003'}),/Uncertain/);
